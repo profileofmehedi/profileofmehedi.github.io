@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Duty Roster Generator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .main-container {
+            padding: 1rem;
+        }
+        .roster-container {
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .roster-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+        .roster-table th, .roster-table td {
+            border: 1px solid #dee2e6;
+            text-align: center;
+            vertical-align: middle;
+            padding: 0.5rem;
+        }
+        .roster-table thead th {
+            background-color: #e9ecef;
+            font-weight: 600;
+        }
+        .roster-table input, .roster-table select {
+            width: 100%; border: none; background-color: transparent; text-align: center; padding: 0.25rem;
+        }
+        .roster-table input[type="text"]{ text-align: left; font-weight: 500; }
+        .roster-table select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        .day-header { font-weight: 400; font-size: 0.8em; }
+        .controls-container { padding: 1rem; background-color: #e9ecef; border-radius: 0.5rem; margin-bottom: 1rem; }
+
+        .sl-col { min-width: 60px; }
+        .nurse-name-col { min-width: 200px; text-align: left; }
+        .action-col { min-width: 120px; }
+        
+        .action-btn { cursor: pointer; background: none; border: none; font-weight: bold; font-size: 1.2rem; margin: 0 0.25rem; }
+        .up-btn { color: #0d6efd; }
+        .down-btn { color: #0d6efd; }
+        .remove-btn { color: #dc3545; }
+        .day-cell.cell-selected {
+            outline: 2px solid #0d6efd;
+            outline-offset: -2px;
+        }
+        .day-cell[colspan] {
+            background-color: #e9ecef;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        /* Staging area for perfect PDF capture */
+        #pdf-staging-area {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid main-container">
+
+        <div class="controls-container">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <label for="month-select" class="form-label">Select Month:</label>
+                    <select id="month-select" class="form-select"></select>
+                </div>
+                <div class="col-md-5">
+                    <label for="year-select" class="form-label">Select Year:</label>
+                    <select id="year-select" class="form-select"></select>
+                </div>
+                 <div class="col-md-2">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                    <div class="alert alert-info py-2 mb-0 text-center">
+                        <strong>Tip:</strong> Click two days to merge them.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="roster-container" id="roster-to-print">
+            <h1 class="roster-title" id="roster-title-text">MALE WARD DUTY ROSTER</h1>
+            <div class="table-responsive">
+                <table class="roster-table">
+                    <thead id="roster-head"></thead>
+                    <tbody id="roster-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center flex-wrap gap-2">
+            <button class="btn btn-primary" id="add-nurse-btn">+ Add Nurse</button>
+            <button class="btn btn-danger" id="reset-btn">Reset Roster</button>
+            <button class="btn btn-success" id="download-pdf-btn">Download as PDF</button>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- jsPDF and html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // --- GLOBAL VARIABLES ---
+            const monthSelect = $('#month-select');
+            const yearSelect = $('#year-select');
+            const rosterBody = $('#roster-body');
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const dutyOptions = ['M', 'E', 'N', 'D/O', 'N/O', 'E/L', 'N/A'];
+            let selectionState = { startCell: null, row: null };
+
+            // --- INITIALIZATION ---
+            function initializeApp() {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                
+                months.forEach((month, index) => monthSelect.append(`<option value="${index}">${month}</option>`));
+                for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+                    yearSelect.append(`<option value="${i}">${i}</option>`);
+                }
+
+                monthSelect.val(now.getMonth()); 
+                yearSelect.val(currentYear);
+
+                generateCalendar();
+            }
+
+            // --- CALENDAR & ROW GENERATION ---
+            function generateCalendar() {
+                const rosterHead = $('#roster-head');
+                const rosterTitle = $('#roster-title-text');
+                const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+                const nurseData = [];
+                rosterBody.find('tr').each(function() {
+                    nurseData.push({ name: $(this).find('.nurse-name-col input').val() });
+                });
+
+                const month = parseInt(monthSelect.val());
+                const year = parseInt(yearSelect.val());
+                rosterTitle.text(`MALE WARD DUTY ROSTER, ${months[month].toUpperCase()}-${year}`);
+                rosterHead.empty();
+                rosterBody.empty();
+
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                let headerHtml = '<tr><th class="sl-col">Sl</th><th class="nurse-name-col">Name of Nursing Officers</th>';
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    headerHtml += `<th>${day}<br><span class="day-header">${dayNames[date.getDay()]}</span></th>`;
+                }
+                headerHtml += '<th class="action-col">Actions</th></tr>';
+                rosterHead.html(headerHtml);
+
+                nurseData.forEach(nurse => addNurseRow(nurse.name));
+                renumberRows();
+            }
+
+            function getDutyOptions(selectedValue = 'M') {
+                return dutyOptions.map(duty => `<option value="${duty}" ${duty === selectedValue ? 'selected' : ''}>${duty}</option>`).join('');
+            }
+
+            function addNurseRow(name = '') {
+                const daysInMonth = new Date(parseInt(yearSelect.val()), parseInt(monthSelect.val()) + 1, 0).getDate();
+                let dutyCells = Array.from({ length: daysInMonth }, () => `<td class="day-cell"><select>${getDutyOptions('M')}</select></td>`).join('');
+                
+                const newRowHtml = `<tr>
+                        <td class="sl-col"></td>
+                        <td class="nurse-name-col"><input type="text" placeholder="Enter Nurse Name" value="${name}"></td>
+                        ${dutyCells}
+                        <td class="action-col">
+                            <button class="action-btn up-btn">↑</button>
+                            <button class="action-btn down-btn">↓</button>
+                            <button class="action-btn remove-btn">✖</button>
+                        </td>
+                    </tr>`;
+                rosterBody.append(newRowHtml);
+            }
+            
+            // --- ROW MANIPULATION & STATE ---
+            function renumberRows() {
+                rosterBody.find('tr').each((index, row) => $(row).find('.sl-col').text(index + 1));
+                updateArrowStates();
+            }
+            
+            function updateArrowStates() {
+                const rows = rosterBody.find('tr');
+                rows.find('.up-btn, .down-btn').prop('disabled', false).css('opacity', 1);
+                rows.first().find('.up-btn').prop('disabled', true).css('opacity', 0.3);
+                rows.last().find('.down-btn').prop('disabled', true).css('opacity', 0.3);
+            }
+            
+            // --- MERGE & SPLIT LOGIC ---
+            function resetSelection() {
+                $('.cell-selected').removeClass('cell-selected');
+                selectionState = { startCell: null, row: null };
+            }
+
+            function handleCellClick(cell, event) {
+                if ($(event.target).is('select')) return; 
+
+                const $cell = $(cell);
+                if ($cell.attr('colspan')) {
+                    if (confirm("Do you want to split this block of cells?")) splitCell($cell);
+                    resetSelection();
+                    return;
+                }
+                if (selectionState.startCell && $cell.is(selectionState.startCell)) {
+                    resetSelection();
+                    return;
+                }
+                if (!selectionState.startCell) {
+                    resetSelection();
+                    selectionState.startCell = $cell;
+                    selectionState.row = $cell.closest('tr');
+                    $cell.addClass('cell-selected');
+                } else {
+                    if (!$cell.closest('tr').is(selectionState.row)) {
+                        resetSelection();
+                        return;
+                    }
+                    const dutyLabel = prompt("Merge cells? Enter the duty label for this period (e.g., E/L):");
+                    if (dutyLabel) mergeCells(selectionState.startCell, $cell, dutyLabel);
+                    resetSelection();
+                }
+            }
+
+            function mergeCells(startCell, endCell, label) {
+                const cells = startCell.parent().children('.day-cell');
+                const from = Math.min(cells.index(startCell), cells.index(endCell));
+                const to = Math.max(cells.index(startCell), cells.index(endCell));
+                const colspan = to - from + 1;
+                for (let i = from + 1; i <= to; i++) cells.eq(i).remove();
+                cells.eq(from).attr('colspan', colspan).html(`<span>${label}</span>`);
+            }
+
+            function splitCell(cell) {
+                const colspan = parseInt(cell.attr('colspan') || 1);
+                if (colspan <= 1) return;
+                cell.removeAttr('colspan').html(`<select>${getDutyOptions()}</select>`);
+                let cellsToInsert = Array.from({ length: colspan - 1 }, () => `<td class="day-cell"><select>${getDutyOptions()}</select></td>`).join('');
+                cell.after(cellsToInsert);
+            }
+
+            // --- EVENT LISTENERS ---
+            monthSelect.on('change', generateCalendar);
+            yearSelect.on('change', generateCalendar);
+            $('#add-nurse-btn').on('click', () => { addNurseRow(); renumberRows(); });
+            $('#reset-btn').on('click', () => { if (confirm("Are you sure?")) rosterBody.empty(); });
+            rosterBody.on('click', '.remove-btn', function() { $(this).closest('tr').remove(); renumberRows(); });
+            rosterBody.on('click', '.up-btn', function() { const row = $(this).closest('tr'); row.insertBefore(row.prev()); renumberRows(); });
+            rosterBody.on('click', '.down-btn', function() { const row = $(this).closest('tr'); row.insertAfter(row.next()); renumberRows(); });
+            rosterBody.on('click', 'td.day-cell', (event) => handleCellClick(event.currentTarget, event));
+
+            // --- ROBUST PDF DOWNLOAD ---
+            $('#download-pdf-btn').on('click', function() {
+                resetSelection();
+                const originalElement = $('#roster-to-print');
+                
+                // 1. Create a clone and sync data
+                const clone = originalElement.clone();
+                originalElement.find('input[type="text"]').each(function(i) {
+                    clone.find('input[type="text"]').eq(i).val($(this).val());
+                });
+                originalElement.find('select').each(function(i) {
+                    clone.find('select').eq(i).val($(this).val());
+                });
+
+                // 2. Prepare the clone for full-width capture
+                clone.find('.table-responsive').css('overflow', 'visible');
+                clone.find('.action-col').hide();
+                $('body').append('<div id="pdf-staging-area"></div>');
+                $('#pdf-staging-area').append(clone);
+                
+                html2canvas(clone[0], { scale: 2, useCORS: true })
+                .then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const margin = 40;
+                    const imgWidth = pdfWidth - margin * 2;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    
+                    pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
+                    const titleText = $('#roster-title-text').text();
+                    pdf.save(`${titleText.replace(/[ ,]/g, '_')}.pdf`);
+                }).finally(() => {
+                    // 3. Always clean up the clone
+                    $('#pdf-staging-area').remove();
+                });
+            });
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
