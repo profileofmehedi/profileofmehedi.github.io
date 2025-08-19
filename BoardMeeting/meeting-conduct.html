@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Meeting - Board Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 1rem;
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .sidebar .nav-link {
+            color: #adb5bd;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+
+        .sidebar .nav-link .bi {
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-header {
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #495057;
+            text-align: center;
+        }
+
+        .sidebar-header .bi-bank {
+            font-size: 2rem;
+        }
+
+        .sidebar-header h5 {
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 260px;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .user-info {
+            text-align: right;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .agenda-presenter-view {
+            background-color: #e9ecef;
+            min-height: 400px;
+            padding: 2rem;
+            border-radius: .375rem;
+        }
+
+        .interaction-panel .nav-tabs .nav-link {
+            color: #6c757d;
+        }
+
+        .interaction-panel .nav-tabs .nav-link.active {
+            color: #000;
+            font-weight: 500;
+        }
+
+        /* Professional Chat Styles */
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+
+        .chat-message {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+
+        .chat-message .message-bubble {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+        }
+
+        .chat-message .message-meta {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        .chat-message.is-user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .chat-message.is-user .message-bubble {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .chat-message.is-other {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .chat-message.is-other .message-bubble {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+
+        .typing-indicator {
+            font-style: italic;
+            color: #6c757d;
+            font-size: 0.8rem;
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-bank"></i>
+            <h5>Board Portal</h5>
+        </div>
+        <ul class="nav flex-column" id="nav-menu"></ul>
+    </div>
+
+    <main class="main-content">
+        <header class="header">
+            <h3>Live Meeting: Q3 Financial Review <span class="badge bg-danger ms-2">LIVE</span></h3>
+            <div class="user-info">
+                <h6 id="user-name" class="mb-0"></h6>
+                <small id="user-role" class="text-muted"></small>
+            </div>
+        </header>
+
+        <div class="p-4">
+            <div class="row g-4">
+                <!-- Live Agenda View -->
+                <div class="col-md-7">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5>Current Agenda Item</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="agenda-presenter-view">
+                                <h2 class="display-6">3. Vote on Proposed 2026 Marketing Budget</h2>
+                                <p class="lead text-muted">Decision required on the proposed budget allocation for the
+                                    next fiscal year.</p>
+                                <hr>
+                                <p><i class="bi bi-paperclip me-2"></i> <a href="#">Marketing_Budget_Proposal.docx</a>
+                                </p>
+                                <div class="mt-4">
+                                    <button class="btn btn-lg btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#voteModal">
+                                        <i class="bi bi-pie-chart-fill me-2"></i> Open Voting
+                                    </button>
+                                    <button class="btn btn-lg btn-outline-secondary" data-bs-toggle="modal"
+                                        data-bs-target="#assignTaskModal">
+                                        <i class="bi bi-check2-square me-2"></i> Assign Action Item
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interaction Panel -->
+                <div class="col-md-5">
+                    <div class="card interaction-panel" style="min-height: 520px;">
+                        <div class="card-header bg-white">
+                            <ul class="nav nav-tabs card-header-tabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-bs-toggle="tab" href="#notes">My Notes</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#chat">Discussion</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body tab-content d-flex flex-column">
+                            <div class="tab-pane fade show active h-100" id="notes">
+                                <h6>Private Notes for this Item</h6>
+                                <textarea class="form-control" rows="15"
+                                    placeholder="Your notes are saved automatically..."></textarea>
+                            </div>
+                            <div class="tab-pane fade h-100 d-flex flex-column" id="chat">
+                                <h6>Live Chat</h6>
+                                <div class="chat-box" id="chat-box">
+                                    <!-- Messages will be inserted here -->
+                                </div>
+                                <div class="typing-indicator" id="typing-indicator"></div>
+                                <form id="chat-form" class="mt-auto">
+                                    <div class="input-group">
+                                        <input type="text" id="chat-input" class="form-control"
+                                            placeholder="Type a message...">
+                                        <button class="btn btn-primary" type="submit"><i
+                                                class="bi bi-send-fill"></i></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Vote Modal (no changes needed) -->
+    <div class="modal fade" id="voteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Vote on Resolution 2025-08A</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Please cast your vote for the proposed 2026 Marketing Budget.</p>
+                    <div class="d-grid gap-2 col-8 mx-auto mt-4">
+                        <button type="button" class="btn btn-success btn-lg" data-bs-dismiss="modal"
+                            onclick="alert('Your vote to APPROVE has been recorded.')">Approve</button>
+                        <button type="button" class="btn btn-danger btn-lg" data-bs-dismiss="modal"
+                            onclick="alert('Your vote to REJECT has been recorded.')">Reject</button>
+                        <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal"
+                            onclick="alert('Your vote to ABSTAIN has been recorded.')">Abstain</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Task Modal (no changes needed) -->
+    <div class="modal fade" id="assignTaskModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign New Action Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-task-form-live">
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control"
+                                rows="3">Follow up with a detailed breakdown of the digital ads budget.</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Assign To</label>
+                            <select class="form-select">
+                                <option>Brenda Morris</option>
+                                <option>Alex Chen</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Deadline</label>
+                            <input type="date" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        onclick="alert('Action item assigned.')">Assign Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- SHARED AUTHENTICATION AND NAVIGATION SCRIPT ---
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'login.html'; return; }
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-role').textContent = user.role;
+            const navLinks = { 'All': [{ href: 'dashboard.html', icon: 'bi-grid-fill', text: 'Dashboard' }, { href: 'action-tracking.html', icon: 'bi-check2-square', text: 'Action Tracking' }, { href: 'document-repository.html', icon: 'bi-folder-fill', text: 'Documents' },], 'Administrator': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' }, { href: 'analytics-reports.html', icon: 'bi-bar-chart-line-fill', text: 'Analytics' },], 'Board Secretary': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' },], 'Board Member': [{ href: 'meeting-conduct.html', icon: 'bi-camera-video-fill', text: 'Join Live Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' },] };
+            const navMenu = document.getElementById('nav-menu');
+            const currentPage = window.location.pathname.split('/').pop();
+            const createNavItem = (item) => { const li = document.createElement('li'); li.className = 'nav-item'; const a = document.createElement('a'); a.className = `nav-link ${currentPage === item.href ? 'active' : ''}`; a.href = item.href; a.innerHTML = `<i class="bi ${item.icon}"></i>${item.text}`; li.appendChild(a); return li; };
+            navLinks['All'].forEach(item => navMenu.appendChild(createNavItem(item)));
+            if (navLinks[user.role]) { navLinks[user.role].forEach(item => navMenu.appendChild(createNavItem(item))); }
+            const logoutLi = document.createElement('li'); logoutLi.className = 'nav-item mt-auto'; const logoutA = document.createElement('a'); logoutA.className = 'nav-link'; logoutA.href = '#'; logoutA.innerHTML = '<i class="bi bi-box-arrow-left"></i>Logout'; logoutA.onclick = function () { sessionStorage.removeItem('loggedInUser'); window.location.href = 'login.html'; }; logoutLi.appendChild(logoutA); navMenu.appendChild(logoutLi);
+            // --- END OF SHARED SCRIPT ---
+
+            // --- PAGE-SPECIFIC SCRIPT: PROFESSIONAL CHAT ---
+            const chatBox = document.getElementById('chat-box');
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const typingIndicator = document.getElementById('typing-indicator');
+            let typingTimeout;
+
+            // Helper to get current time as a string e.g., "10:35 AM"
+            const getCurrentTime = () => new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            // Function to add a message to the chat box
+            const addMessage = (senderName, message, isCurrentUser) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${isCurrentUser ? 'is-user' : 'is-other'}`;
+
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">${message}</div>
+                    <div class="message-meta">
+                        <strong>${senderName}</strong> at ${getCurrentTime()}
+                    </div>
+                `;
+                chatBox.appendChild(messageDiv);
+                // Auto-scroll to the bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+            };
+
+            // Initial messages
+            addMessage('Brenda Morris', 'The budget seems reasonable, but I have a question about the allocation for digital ads.', false);
+            addMessage('Alex Chen', 'Good question. The team can provide a detailed breakdown post-meeting.', false);
+
+            // Handle sending a message
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                if (message) {
+                    addMessage(user.name, message, true); // Add user's own message
+                    chatInput.value = '';
+                    // Simulate a reply after a short delay
+                    setTimeout(() => {
+                        addMessage('System', 'Your message has been noted.', false);
+                    }, 1500);
+                }
+            });
+
+            // Simulate "is typing" indicator
+            chatInput.addEventListener('keyup', () => {
+                clearTimeout(typingTimeout);
+                typingIndicator.textContent = 'Brenda M. is typing...';
+                typingTimeout = setTimeout(() => {
+                    typingIndicator.textContent = '';
+                }, 2000); // Hide indicator after 2 seconds of inactivity
+            });
+
+            // Hide presenter controls for Board Members
+            if (user.role === 'Board Member') {
+                document.querySelector('button[data-bs-target="#assignTaskModal"]').style.display = 'none';
+            } else {
+                // Non-members (Admin/Secretary) are presenters, they don't vote from this screen
+                document.querySelector('button[data-bs-target="#voteModal"]').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

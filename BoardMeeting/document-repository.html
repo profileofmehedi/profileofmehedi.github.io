@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Repository - Board Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 1rem;
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .sidebar .nav-link {
+            color: #adb5bd;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+
+        .sidebar .nav-link .bi {
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-header {
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #495057;
+            text-align: center;
+        }
+
+        .sidebar-header .bi-bank {
+            font-size: 2rem;
+        }
+
+        .sidebar-header h5 {
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 260px;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .user-info {
+            text-align: right;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .folder-tree .list-group-item {
+            border: none;
+            cursor: pointer;
+        }
+
+        .file-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        #file-table-body td a {
+            text-decoration: none;
+            color: #212529;
+            font-weight: 500;
+        }
+
+        #file-table-body td a:hover {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-bank"></i>
+            <h5>Board Portal</h5>
+        </div>
+        <ul class="nav flex-column" id="nav-menu"></ul>
+    </div>
+
+    <main class="main-content">
+        <header class="header">
+            <h3>Document Repository</h3>
+            <div class="user-info">
+                <h6 id="user-name" class="mb-0"></h6>
+                <small id="user-role" class="text-muted"></small>
+            </div>
+        </header>
+
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header bg-light">Folders</div>
+                        <div class="list-group list-group-flush folder-tree" id="folder-tree">
+                            <a href="#" class="list-group-item list-group-item-action active" data-folder="meetings"><i
+                                    class="bi bi-folder-fill text-primary me-2"></i>Board Meetings</a>
+                            <a href="#" class="list-group-item list-group-item-action" data-folder="packs"><i
+                                    class="bi bi-file-earmark-zip-fill text-success me-2"></i>Board Packs</a>
+                            <a href="#" class="list-group-item list-group-item-action" data-folder="policies"><i
+                                    class="bi bi-bank2 text-info me-2"></i>Corporate Policies</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <div>
+                                <input type="text" id="file-search" class="form-control form-control-sm"
+                                    placeholder="Search in Board Meetings...">
+                            </div>
+                            <button id="upload-btn" class="btn btn-primary btn-sm"><i class="bi bi-upload me-1"></i>
+                                Upload Document</button>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Modified</th>
+                                        <th>Type</th>
+                                        <th>Size</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="file-table-body">
+                                    <!-- Files will be dynamically inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hidden file input for the upload button -->
+    <input type="file" id="file-upload-input" style="display: none;">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- SHARED AUTHENTICATION AND NAVIGATION SCRIPT ---
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'login.html'; return; }
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-role').textContent = user.role;
+            const navLinks = { 'All': [{ href: 'dashboard.html', icon: 'bi-grid-fill', text: 'Dashboard' }, { href: 'action-tracking.html', icon: 'bi-check2-square', text: 'Action Tracking' }, { href: 'document-repository.html', icon: 'bi-folder-fill', text: 'Documents' },], 'Administrator': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' }, { href: 'analytics-reports.html', icon: 'bi-bar-chart-line-fill', text: 'Analytics' },], 'Board Secretary': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' },], 'Board Member': [{ href: 'meeting-conduct.html', icon: 'bi-camera-video-fill', text: 'Join Live Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' },] };
+            const navMenu = document.getElementById('nav-menu');
+            const currentPage = window.location.pathname.split('/').pop();
+            const createNavItem = (item) => { const li = document.createElement('li'); li.className = 'nav-item'; const a = document.createElement('a'); a.className = `nav-link ${currentPage === item.href ? 'active' : ''}`; a.href = item.href; a.innerHTML = `<i class="bi ${item.icon}"></i>${item.text}`; li.appendChild(a); return li; };
+            navLinks['All'].forEach(item => navMenu.appendChild(createNavItem(item)));
+            if (navLinks[user.role]) { navLinks[user.role].forEach(item => navMenu.appendChild(createNavItem(item))); }
+            const logoutLi = document.createElement('li'); logoutLi.className = 'nav-item mt-auto'; const logoutA = document.createElement('a'); logoutA.className = 'nav-link'; logoutA.href = '#'; logoutA.innerHTML = '<i class="bi bi-box-arrow-left"></i>Logout'; logoutA.onclick = function () { sessionStorage.removeItem('loggedInUser'); window.location.href = 'login.html'; }; logoutLi.appendChild(logoutA); navMenu.appendChild(logoutLi);
+            // --- END OF SHARED SCRIPT ---
+
+            // --- PAGE-SPECIFIC SCRIPT ---
+            const folderTree = document.getElementById('folder-tree');
+            const fileTableBody = document.getElementById('file-table-body');
+            const fileSearch = document.getElementById('file-search');
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileUploadInput = document.getElementById('file-upload-input');
+
+            const folderContents = {
+                meetings: [
+                    { name: 'Q2_Financial_Report.pdf', date: 'Aug 15, 2025', type: 'PDF', size: '2.5 MB' },
+                    { name: 'MoM_July_Meeting.docx', date: 'Jul 29, 2025', type: 'Word', size: '128 KB' },
+                    { name: 'Marketing_Strategy_2026.pptx', date: 'Jul 25, 2025', type: 'PowerPoint', size: '5.1 MB' }
+                ],
+                packs: [
+                    { name: 'BoardPack_Q2_2025.zip', date: 'May 20, 2025', type: 'ZIP', size: '15.2 MB' },
+                    { name: 'BoardPack_Q1_2025.zip', date: 'Feb 18, 2025', type: 'ZIP', size: '12.8 MB' }
+                ],
+                policies: [
+                    { name: 'Code_of_Conduct.pdf', date: 'Jan 01, 2024', type: 'PDF', size: '1.1 MB' },
+                    { name: 'Cybersecurity_Policy.pdf', date: 'Jun 15, 2023', type: 'PDF', size: '2.3 MB' }
+                ]
+            };
+
+            const getFileIcon = (fileName) => {
+                if (fileName.endsWith('.pdf')) return '<i class="bi bi-file-earmark-pdf-fill text-danger file-icon"></i>';
+                if (fileName.endsWith('.docx')) return '<i class="bi bi-file-earmark-word-fill text-primary file-icon"></i>';
+                if (fileName.endsWith('.pptx')) return '<i class="bi bi-file-earmark-ppt-fill text-warning file-icon"></i>';
+                if (fileName.endsWith('.zip')) return '<i class="bi bi-file-earmark-zip-fill text-secondary file-icon"></i>';
+                return '<i class="bi bi-file-earmark-text-fill text-muted file-icon"></i>';
+            };
+
+            const renderFiles = (folderId) => {
+                fileTableBody.innerHTML = '';
+                const files = folderContents[folderId] || [];
+                files.forEach(file => {
+                    const row = fileTableBody.insertRow();
+                    row.innerHTML = `
+                        <td><a href="#">${getFileIcon(file.name)}${file.name}</a></td>
+                        <td>${file.date}</td>
+                        <td>${file.type}</td>
+                        <td>${file.size}</td>
+                    `;
+                });
+            };
+
+            // 1. FOLDER NAVIGATION LOGIC
+            folderTree.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetFolder = e.target.closest('a');
+                if (!targetFolder) return;
+
+                // Update active state
+                folderTree.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                targetFolder.classList.add('active');
+
+                // Render files for the selected folder
+                const folderId = targetFolder.dataset.folder;
+                renderFiles(folderId);
+
+                // Update search placeholder
+                fileSearch.placeholder = `Search in ${targetFolder.textContent.trim()}...`;
+            });
+
+            // 2. UPLOAD LOGIC
+            uploadBtn.addEventListener('click', () => fileUploadInput.click());
+
+            fileUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const newFile = {
+                    name: file.name,
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    type: file.type.split('/')[1].toUpperCase() || 'File',
+                    size: `${(file.size / 1024 / 1024).toFixed(1)} MB`
+                };
+
+                const row = fileTableBody.insertRow(0); // Add to the top
+                row.innerHTML = `
+                    <td><a href="#">${getFileIcon(newFile.name)}${newFile.name}</a></td>
+                    <td>${newFile.date}</td>
+                    <td>${newFile.type}</td>
+                    <td>${newFile.size}</td>
+                `;
+
+                // Reset file input to allow uploading the same file again
+                fileUploadInput.value = '';
+            });
+
+            // 3. SEARCH LOGIC
+            fileSearch.addEventListener('keyup', () => {
+                const searchTerm = fileSearch.value.toLowerCase();
+                fileTableBody.querySelectorAll('tr').forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // 4. FILE CLICK LOGIC
+            fileTableBody.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetLink = e.target.closest('a');
+                if (targetLink) {
+                    alert(`Simulating download for: ${targetLink.textContent.trim()}`);
+                }
+            });
+
+            // Initial render
+            renderFiles('meetings');
+
+            // Hide "Upload" button for Board Members
+            if (user.role === 'Board Member') {
+                uploadBtn.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minutes of Meeting - Board Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- jsPDF library for real PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 1rem;
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .sidebar .nav-link {
+            color: #adb5bd;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+
+        .sidebar .nav-link .bi {
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-header {
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #495057;
+            text-align: center;
+        }
+
+        .sidebar-header .bi-bank {
+            font-size: 2rem;
+        }
+
+        .sidebar-header h5 {
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 260px;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .user-info {
+            text-align: right;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        #mom-editor {
+            min-height: 500px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-bank"></i>
+            <h5>Board Portal</h5>
+        </div>
+        <ul class="nav flex-column" id="nav-menu"></ul>
+    </div>
+
+    <main class="main-content">
+        <header class="header">
+            <h3>Minutes of Meeting</h3>
+            <div class="user-info">
+                <h6 id="user-name" class="mb-0"></h6>
+                <small id="user-role" class="text-muted"></small>
+            </div>
+        </header>
+
+        <div class="p-4">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <label for="meeting-select" class="form-label small">Select Meeting to Load Minutes</label>
+                        <select class="form-select form-select-sm" id="meeting-select">
+                            <option value="q2" selected>Q2 Financial Review - May 25, 2025</option>
+                            <option value="new">Start new minutes for upcoming meeting...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm" id="save-btn"><i class="bi bi-save me-1"></i>
+                            <span>Save Draft</span></button>
+                        <button class="btn btn-success btn-sm" id="pdf-btn"><i class="bi bi-file-earmark-pdf me-1"></i>
+                            Export as PDF</button>
+                        <button class="btn btn-primary btn-sm" id="word-btn"><i
+                                class="bi bi-file-earmark-word me-1"></i> Export as Word</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <textarea id="mom-editor" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- SHARED AUTHENTICATION AND NAVIGATION SCRIPT ---
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'login.html'; return; }
+            if (user.role === 'Board Member') { window.location.href = 'dashboard.html'; return; } // Access control
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-role').textContent = user.role;
+            const navLinks = { 'All': [{ href: 'dashboard.html', icon: 'bi-grid-fill', text: 'Dashboard' }, { href: 'action-tracking.html', icon: 'bi-check2-square', text: 'Action Tracking' }, { href: 'document-repository.html', icon: 'bi-folder-fill', text: 'Documents' },], 'Administrator': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' }, { href: 'analytics-reports.html', icon: 'bi-bar-chart-line-fill', text: 'Analytics' },], 'Board Secretary': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' },], 'Board Member': [{ href: 'meeting-conduct.html', icon: 'bi-camera-video-fill', text: 'Join Live Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' },] };
+            const navMenu = document.getElementById('nav-menu');
+            const currentPage = window.location.pathname.split('/').pop();
+            const createNavItem = (item) => { const li = document.createElement('li'); li.className = 'nav-item'; const a = document.createElement('a'); a.className = `nav-link ${currentPage === item.href ? 'active' : ''}`; a.href = item.href; a.innerHTML = `<i class="bi ${item.icon}"></i>${item.text}`; li.appendChild(a); return li; };
+            navLinks['All'].forEach(item => navMenu.appendChild(createNavItem(item)));
+            if (navLinks[user.role]) { navLinks[user.role].forEach(item => navMenu.appendChild(createNavItem(item))); }
+            const logoutLi = document.createElement('li'); logoutLi.className = 'nav-item mt-auto'; const logoutA = document.createElement('a'); logoutA.className = 'nav-link'; logoutA.href = '#'; logoutA.innerHTML = '<i class="bi bi-box-arrow-left"></i>Logout'; logoutA.onclick = function () { sessionStorage.removeItem('loggedInUser'); window.location.href = 'login.html'; }; logoutLi.appendChild(logoutA); navMenu.appendChild(logoutLi);
+            // --- END OF SHARED SCRIPT ---
+
+            // --- PAGE-SPECIFIC SCRIPT ---
+            const meetingSelect = document.getElementById('meeting-select');
+            const momEditor = document.getElementById('mom-editor');
+            const saveBtn = document.getElementById('save-btn');
+            const pdfBtn = document.getElementById('pdf-btn');
+            const wordBtn = document.getElementById('word-btn');
+
+            const minutesTemplates = {
+                q2: `### Minutes of Meeting: Q2 Financial Review
+**Date:** May 25, 2025
+**Attendees:** Alex Chen, Brenda Morris, Charles David
+
+---
+
+#### 1. Call to Order
+The meeting was called to order at 10:05 AM by Alex Chen.
+
+#### 2. Approval of Previous Minutes
+The minutes from the Q1 meeting were approved unanimously.
+
+#### 3. **DECISION:** Approval of Q2 Budget Adjustment
+A motion was made to reallocate $50,000 from the T&E budget to digital marketing initiatives.
+- **Vote:** Approved (3-0)
+- **Action Item:** The finance department to process the budget adjustment by June 1, 2025. Assigned to: Brenda Morris.
+
+#### 4. Adjournment
+The meeting was adjourned at 11:30 AM.`,
+                new: `### Minutes of Meeting: [Meeting Title]
+**Date:** [Date]
+**Attendees:** [List of Attendees]
+
+---
+
+#### 1. Call to Order
+
+
+#### 2. Agenda Item 1
+
+
+#### 3. Agenda Item 2
+
+
+#### 4. Adjournment
+`
+            };
+
+            // 1. DYNAMIC TEMPLATE LOADING
+            const loadTemplate = (meetingId) => {
+                momEditor.value = minutesTemplates[meetingId] || minutesTemplates.new;
+            };
+
+            meetingSelect.addEventListener('change', () => {
+                loadTemplate(meetingSelect.value);
+            });
+
+            // 2. FUNCTIONAL BUTTONS
+            saveBtn.addEventListener('click', () => {
+                const originalText = saveBtn.querySelector('span').textContent;
+                saveBtn.querySelector('span').textContent = 'Saved!';
+                saveBtn.classList.remove('btn-outline-secondary');
+                saveBtn.classList.add('btn-success');
+
+                setTimeout(() => {
+                    saveBtn.querySelector('span').textContent = originalText;
+                    saveBtn.classList.remove('btn-success');
+                    saveBtn.classList.add('btn-outline-secondary');
+                }, 2000); // Revert back after 2 seconds
+            });
+
+            pdfBtn.addEventListener('click', () => {
+                try {
+                    // This uses the jsPDF library included in the <head>
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    const text = momEditor.value;
+                    const selectedMeeting = meetingSelect.options[meetingSelect.selectedIndex].text;
+
+                    doc.setFont("Helvetica", "normal");
+                    doc.setFontSize(11);
+                    // The splitTextToSize function handles wrapping long lines automatically
+                    const lines = doc.splitTextToSize(text, 180); // 180 is the width of the text block
+                    doc.text(lines, 15, 20); // Add text with margins
+
+                    doc.save(`Minutes_${selectedMeeting.replace(/\s/g, '_')}.pdf`);
+                } catch (e) {
+                    console.error("jsPDF is not loaded or there was an error.", e);
+                    alert("Could not generate PDF. The jsPDF library may not be loaded correctly.");
+                }
+            });
+
+            wordBtn.addEventListener('click', () => {
+                // This creates a blob and simulates a download, which works for simple text.
+                const text = momEditor.value;
+                const selectedMeeting = meetingSelect.options[meetingSelect.selectedIndex].text;
+                const blob = new Blob([text], { type: 'application/msword' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Minutes_${selectedMeeting.replace(/\s/g, '_')}.doc`;
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            // Initial Load
+            loadTemplate(meetingSelect.value);
+        });
+    </script>
+</body>
+
+</html>

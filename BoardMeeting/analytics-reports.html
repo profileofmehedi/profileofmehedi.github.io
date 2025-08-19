@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Reports - Board Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 1rem;
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .sidebar .nav-link {
+            color: #adb5bd;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+
+        .sidebar .nav-link .bi {
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-header {
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #495057;
+            text-align: center;
+        }
+
+        .sidebar-header .bi-bank {
+            font-size: 2rem;
+        }
+
+        .sidebar-header h5 {
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 260px;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .user-info {
+            text-align: right;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container {
+            height: 350px;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-bank"></i>
+            <h5>Board Portal</h5>
+        </div>
+        <ul class="nav flex-column" id="nav-menu"></ul>
+    </div>
+
+    <main class="main-content">
+        <header class="header">
+            <h3>Analytics & Reports</h3>
+            <div class="user-info">
+                <h6 id="user-name" class="mb-0"></h6>
+                <small id="user-role" class="text-muted"></small>
+            </div>
+        </header>
+
+        <div class="p-4">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5>Meeting Attendance (Last 6 Months)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="attendanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5>Task Completion Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="taskChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5>Voting Outcomes (YTD)</h5>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                onclick="alert('Exporting data to CSV...')"><i class="bi bi-download me-1"></i> Export
+                                Data</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="votingOutcomeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- SHARED AUTHENTICATION AND NAVIGATION SCRIPT ---
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'login.html'; return; }
+            if (user.role !== 'Administrator') { window.location.href = 'dashboard.html'; return; } // Access control
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-role').textContent = user.role;
+            const navLinks = { 'All': [{ href: 'dashboard.html', icon: 'bi-grid-fill', text: 'Dashboard' }, { href: 'action-tracking.html', icon: 'bi-check2-square', text: 'Action Tracking' }, { href: 'document-repository.html', icon: 'bi-folder-fill', text: 'Documents' },], 'Administrator': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' }, { href: 'analytics-reports.html', icon: 'bi-bar-chart-line-fill', text: 'Analytics' },], 'Board Secretary': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' },], 'Board Member': [{ href: 'meeting-conduct.html', icon: 'bi-camera-video-fill', text: 'Join Live Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' },] };
+            const navMenu = document.getElementById('nav-menu');
+            const currentPage = window.location.pathname.split('/').pop();
+            const createNavItem = (item) => { const li = document.createElement('li'); li.className = 'nav-item'; const a = document.createElement('a'); a.className = `nav-link ${currentPage === item.href ? 'active' : ''}`; a.href = item.href; a.innerHTML = `<i class="bi ${item.icon}"></i>${item.text}`; li.appendChild(a); return li; };
+            navLinks['All'].forEach(item => navMenu.appendChild(createNavItem(item)));
+            if (navLinks[user.role]) { navLinks[user.role].forEach(item => navMenu.appendChild(createNavItem(item))); }
+            const logoutLi = document.createElement('li'); logoutLi.className = 'nav-item mt-auto'; const logoutA = document.createElement('a'); logoutA.className = 'nav-link'; logoutA.href = '#'; logoutA.innerHTML = '<i class="bi bi-box-arrow-left"></i>Logout'; logoutA.onclick = function () { sessionStorage.removeItem('loggedInUser'); window.location.href = 'login.html'; }; logoutLi.appendChild(logoutA); navMenu.appendChild(logoutLi);
+            // --- END OF SHARED SCRIPT ---
+
+            // --- PAGE-SPECIFIC SCRIPT: CHART RENDERING ---
+            const chartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: { legend: { position: 'top' } }
+            };
+
+            // 1. Attendance Chart (Line)
+            const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+            new Chart(attendanceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['March', 'April', 'May', 'June', 'July', 'August'],
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: [95, 98, 100, 92, 100, 97],
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100,
+                            ticks: {
+                                callback: function (value) { return value + '%' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. Task Completion Chart (Doughnut)
+            const taskCtx = document.getElementById('taskChart').getContext('2d');
+            new Chart(taskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'In Progress', 'Not Started'],
+                    datasets: [{
+                        label: 'Tasks',
+                        data: [25, 7, 3],
+                        backgroundColor: ['#198754', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: chartOptions
+            });
+
+            // 3. Voting Outcome Chart (Bar)
+            const votingCtx = document.getElementById('votingOutcomeChart').getContext('2d');
+            new Chart(votingCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1 Resolutions', 'Q2 Resolutions', 'Q3 Resolutions (so far)'],
+                    datasets: [
+                        {
+                            label: 'Passed',
+                            data: [12, 15, 8],
+                            backgroundColor: 'rgba(25, 135, 84, 0.7)'
+                        },
+                        {
+                            label: 'Failed',
+                            data: [1, 0, 2],
+                            backgroundColor: 'rgba(220, 53, 69, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

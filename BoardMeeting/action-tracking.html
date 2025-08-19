@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Tracking - Board Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 1rem;
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .sidebar .nav-link {
+            color: #adb5bd;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+
+        .sidebar .nav-link .bi {
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-header {
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #495057;
+            text-align: center;
+        }
+
+        .sidebar-header .bi-bank {
+            font-size: 2rem;
+        }
+
+        .sidebar-header h5 {
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 260px;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .user-info {
+            text-align: right;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.4em 0.7em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-bank"></i>
+            <h5>Board Portal</h5>
+        </div>
+        <ul class="nav flex-column" id="nav-menu"></ul>
+    </div>
+
+    <main class="main-content">
+        <header class="header">
+            <h3>Action Item Tracker</h3>
+            <div class="user-info">
+                <h6 id="user-name" class="mb-0"></h6>
+                <small id="user-role" class="text-muted"></small>
+            </div>
+        </header>
+
+        <div class="p-4">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Task List</h4>
+                    <div class="d-flex align-items-center">
+                        <input type="text" id="task-filter" class="form-control form-control-sm me-3"
+                            placeholder="Filter tasks...">
+                        <button class="btn btn-primary btn-sm" id="add-task-btn" data-bs-toggle="modal"
+                            data-bs-target="#addTaskModal"><i class="bi bi-plus-circle me-1"></i> Add Task</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task Description</th>
+                                <th>Assigned To</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-table-body">
+                            <!-- Demo Data -->
+                            <tr>
+                                <td>Finalize the draft of the annual report</td>
+                                <td>Brenda Morris</td>
+                                <td>2025-09-10</td>
+                                <td><span class="badge rounded-pill bg-warning text-dark status-badge">In
+                                        Progress</span></td>
+                                <td><button class="btn btn-sm btn-outline-secondary details-btn" data-bs-toggle="modal"
+                                        data-bs-target="#taskDetailsModal">Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>Review and approve the marketing budget proposal</td>
+                                <td>Charles David</td>
+                                <td>2025-09-01</td>
+                                <td><span class="badge rounded-pill bg-success status-badge">Completed</span></td>
+                                <td><button class="btn btn-sm btn-outline-secondary details-btn" data-bs-toggle="modal"
+                                        data-bs-target="#taskDetailsModal">Details</button></td>
+                            </tr>
+                            <tr>
+                                <td>Research new cybersecurity vendors</td>
+                                <td>Alex Chen</td>
+                                <td>2025-10-15</td>
+                                <td><span class="badge rounded-pill bg-danger status-badge">Not Started</span></td>
+                                <td><button class="btn btn-sm btn-outline-secondary details-btn" data-bs-toggle="modal"
+                                        data-bs-target="#taskDetailsModal">Details</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Task Modal -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Action Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-task-form">
+                        <div class="mb-3">
+                            <label for="task-desc" class="form-label">Description</label>
+                            <textarea class="form-control" id="task-desc" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="task-assignee" class="form-label">Assign To</label>
+                            <select class="form-select" id="task-assignee" required>
+                                <option value="Alex Chen">Alex Chen (Admin)</option>
+                                <option value="Brenda Morris">Brenda Morris (Secretary)</option>
+                                <option value="Charles David">Charles David (Member)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="task-deadline" class="form-label">Deadline</label>
+                            <input type="date" class="form-control" id="task-deadline" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-task-btn">Save Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Details/Edit Modal -->
+    <div class="modal fade" id="taskDetailsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Task Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Description</h6>
+                    <p id="details-desc"></p>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6"><strong>Assigned To:</strong> <span id="details-assignee"></span></div>
+                        <div class="col-6"><strong>Deadline:</strong> <span id="details-deadline"></span></div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <label for="details-status" class="form-label"><strong>Update Status</strong></label>
+                        <select id="details-status" class="form-select">
+                            <option value="Not Started">Not Started</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-details-btn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- SHARED AUTHENTICATION AND NAVIGATION SCRIPT ---
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'login.html'; return; }
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-role').textContent = user.role;
+            const navLinks = { 'All': [{ href: 'dashboard.html', icon: 'bi-grid-fill', text: 'Dashboard' }, { href: 'action-tracking.html', icon: 'bi-check2-square', text: 'Action Tracking' }, { href: 'document-repository.html', icon: 'bi-folder-fill', text: 'Documents' },], 'Administrator': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' }, { href: 'analytics-reports.html', icon: 'bi-bar-chart-line-fill', text: 'Analytics' },], 'Board Secretary': [{ href: 'schedule-meeting.html', icon: 'bi-calendar-plus-fill', text: 'Schedule Meeting' }, { href: 'agenda-management.html', icon: 'bi-list-task', text: 'Agenda Management' }, { href: 'board-pack.html', icon: 'bi-file-earmark-zip-fill', text: 'Board Packs' }, { href: 'minutes-of-meeting.html', icon: 'bi-pencil-square', text: 'Minutes of Meeting' },], 'Board Member': [{ href: 'meeting-conduct.html', icon: 'bi-camera-video-fill', text: 'Join Live Meeting' }, { href: 'voting-resolutions.html', icon: 'bi-pie-chart-fill', text: 'Voting & Resolutions' },] };
+            const navMenu = document.getElementById('nav-menu');
+            const currentPage = window.location.pathname.split('/').pop();
+            const createNavItem = (item) => { const li = document.createElement('li'); li.className = 'nav-item'; const a = document.createElement('a'); a.className = `nav-link ${currentPage === item.href ? 'active' : ''}`; a.href = item.href; a.innerHTML = `<i class="bi ${item.icon}"></i>${item.text}`; li.appendChild(a); return li; };
+            navLinks['All'].forEach(item => navMenu.appendChild(createNavItem(item)));
+            if (navLinks[user.role]) { navLinks[user.role].forEach(item => navMenu.appendChild(createNavItem(item))); }
+            const logoutLi = document.createElement('li'); logoutLi.className = 'nav-item mt-auto'; const logoutA = document.createElement('a'); logoutA.className = 'nav-link'; logoutA.href = '#'; logoutA.innerHTML = '<i class="bi bi-box-arrow-left"></i>Logout'; logoutA.onclick = function () { sessionStorage.removeItem('loggedInUser'); window.location.href = 'login.html'; }; logoutLi.appendChild(logoutA); navMenu.appendChild(logoutLi);
+            // --- END OF SHARED SCRIPT ---
+
+            // --- PAGE-SPECIFIC SCRIPT ---
+            const taskTableBody = document.getElementById('task-table-body');
+            const addTaskModal = new bootstrap.Modal(document.getElementById('addTaskModal'));
+            const detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+            let currentRowForEditing = null;
+
+            // Helper function to get status badge HTML
+            const getStatusBadge = (status) => {
+                const statuses = {
+                    "Not Started": { class: "bg-danger", text: "Not Started" },
+                    "In Progress": { class: "bg-warning text-dark", text: "In Progress" },
+                    "Completed": { class: "bg-success", text: "Completed" }
+                };
+                const statusInfo = statuses[status] || { class: "bg-secondary", text: "Unknown" };
+                return `<span class="badge rounded-pill ${statusInfo.class} status-badge">${statusInfo.text}</span>`;
+            };
+
+            // 1. ADD NEW TASK LOGIC
+            document.getElementById('save-task-btn').addEventListener('click', function () {
+                const form = document.getElementById('add-task-form');
+                if (!form.checkValidity()) {
+                    alert("Please fill out all fields.");
+                    return;
+                }
+
+                const desc = document.getElementById('task-desc').value;
+                const assignee = document.getElementById('task-assignee').value;
+                const deadline = document.getElementById('task-deadline').value;
+
+                const newRow = taskTableBody.insertRow();
+                newRow.innerHTML = `
+                    <td>${desc}</td>
+                    <td>${assignee}</td>
+                    <td>${deadline}</td>
+                    <td>${getStatusBadge("Not Started")}</td>
+                    <td><button class="btn btn-sm btn-outline-secondary details-btn" data-bs-toggle="modal" data-bs-target="#taskDetailsModal">Details</button></td>
+                `;
+
+                form.reset();
+                addTaskModal.hide();
+            });
+
+            // 2. DETAILS & EDIT LOGIC
+            taskTableBody.addEventListener('click', function (e) {
+                if (e.target.classList.contains('details-btn')) {
+                    currentRowForEditing = e.target.closest('tr');
+                    const cells = currentRowForEditing.getElementsByTagName('td');
+
+                    document.getElementById('details-desc').textContent = cells[0].textContent;
+                    document.getElementById('details-assignee').textContent = cells[1].textContent;
+                    document.getElementById('details-deadline').textContent = cells[2].textContent;
+
+                    const currentStatus = cells[3].querySelector('.badge').textContent.trim();
+                    document.getElementById('details-status').value = currentStatus;
+                }
+            });
+
+            document.getElementById('save-details-btn').addEventListener('click', function () {
+                if (currentRowForEditing) {
+                    const newStatus = document.getElementById('details-status').value;
+                    const statusCell = currentRowForEditing.cells[3];
+                    statusCell.innerHTML = getStatusBadge(newStatus);
+                    detailsModal.hide();
+                    currentRowForEditing = null;
+                }
+            });
+
+
+            // 3. ROLE-BASED VISIBILITY & FILTERING
+            const taskRows = document.querySelectorAll('#task-table-body tr');
+            if (user.role === 'Board Member') {
+                document.getElementById('add-task-btn').style.display = 'none';
+                // Filter the table to only show tasks assigned to the current user
+                taskRows.forEach(row => {
+                    const assigneeCell = row.cells[1];
+                    if (assigneeCell && assigneeCell.textContent !== user.name) {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            // 4. GENERAL SEARCH FILTER
+            const filterInput = document.getElementById('task-filter');
+            filterInput.addEventListener('keyup', function () {
+                const filterValue = this.value.toLowerCase();
+                taskRows.forEach(row => {
+                    // Only filter rows that are currently visible
+                    if (row.style.display !== 'none') {
+                        if (row.textContent.toLowerCase().includes(filterValue)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
