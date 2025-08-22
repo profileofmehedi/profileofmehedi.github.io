@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
         body {
             background-color: #f0f2f5;
@@ -104,11 +105,22 @@
                 <div class="card-body p-4">
                     <form id="schedule-form">
                         <div class="row g-4">
-                            <div class="col-md-12">
-                                <label for="meeting-title" class="form-label">Meeting Title</label>
-                                <input type="text" class="form-control" id="meeting-title"
+                            <!-- MODIFIED: Meeting Title is now structured -->
+                            <div class="col-md-6">
+                                <label for="meeting-type" class="form-label">Meeting Type</label>
+                                <select class="form-select" id="meeting-type" required>
+                                    <option>Board Meeting</option>
+                                    <option>Annual General Meeting (AGM)</option>
+                                    <option>Committee Meeting</option>
+                                    <option>Special Meeting</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="meeting-topic" class="form-label">Meeting Topic</label>
+                                <input type="text" class="form-control" id="meeting-topic"
                                     placeholder="e.g., Q4 Budget Approval" required>
                             </div>
+
                             <div class="col-md-6">
                                 <label for="meeting-date" class="form-label">Date</label>
                                 <input type="text" class="form-control" id="meeting-date" placeholder="Select Date"
@@ -119,29 +131,57 @@
                                 <input type="text" class="form-control" id="meeting-time" placeholder="Select Time"
                                     required>
                             </div>
+
+                            <!-- NEW: Chairperson Field -->
                             <div class="col-md-12">
-                                <label for="participants" class="form-label">Participants</label>
-                                <input type="text" class="form-control" id="participants"
-                                    placeholder="Add members by email..."
-                                    value="Alex Chen, Brenda Morris, Charles David" required>
-                                <small class="form-text text-muted">Separate emails with a comma.</small>
+                                <label for="chairperson" class="form-label">Chairperson</label>
+                                <select class="form-select" id="chairperson" required>
+                                    <option>Alex Chen</option>
+                                    <option>Brenda Morris</option>
+                                </select>
                             </div>
+
+                            <!-- MODIFIED: "Participants" changed to "Attendees" -->
                             <div class="col-md-12">
-                                <label class="form-label">Meeting Type</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch"
-                                        id="virtual-meeting-toggle">
-                                    <label class="form-check-label" for="virtual-meeting-toggle">Virtual Meeting</label>
+                                <label for="attendees" class="form-label">Attendees</label>
+                                <input type="text" class="form-control" id="attendees"
+                                    placeholder="Add members by name or email..."
+                                    value="Alex Chen, Brenda Morris, Charles David" required>
+                                <small class="form-text text-muted">Separate names with a comma.</small>
+                            </div>
+
+                            <!-- MODIFIED: "Meeting Type" is now "Meeting Mode" -->
+                            <div class="col-md-12">
+                                <label class="form-label">Meeting Mode</label>
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="meetingMode"
+                                            id="mode-in-person" value="in-person" checked>
+                                        <label class="form-check-label" for="mode-in-person">In-Person</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="meetingMode"
+                                            id="mode-virtual" value="virtual">
+                                        <label class="form-check-label" for="mode-virtual">Virtual</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="meetingMode" id="mode-hybrid"
+                                            value="hybrid">
+                                        <label class="form-check-label" for="mode-hybrid">Hybrid</label>
+                                    </div>
                                 </div>
                             </div>
+
                             <div class="col-md-12" id="virtual-meeting-link-container" style="display: none;">
                                 <label for="meeting-link" class="form-label">Meeting Link (Zoom, Teams, etc.)</label>
                                 <input type="url" class="form-control" id="meeting-link"
                                     placeholder="https://zoom.us/j/...">
                             </div>
                             <div class="col-12 mt-4 text-end">
-                                <button type="button" class="btn btn-secondary me-2">Save Draft</button>
-                                <button type="submit" class="btn btn-primary">Send Invites</button>
+                                <button type="button" class="btn btn-secondary me-2" id="save-draft-btn">Save
+                                    Draft</button>
+                                <button type="submit" class="btn btn-primary" id="send-invites-btn">Send
+                                    Invites</button>
                             </div>
                         </div>
                     </form>
@@ -231,10 +271,16 @@
                 time_24hr: false
             });
 
-            const toggle = document.getElementById('virtual-meeting-toggle');
             const linkContainer = document.getElementById('virtual-meeting-link-container');
-            toggle.addEventListener('change', function () {
-                linkContainer.style.display = this.checked ? 'block' : 'none';
+            document.querySelectorAll('input[name="meetingMode"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const showLink = this.value === 'virtual' || this.value === 'hybrid';
+                    linkContainer.style.display = showLink ? 'block' : 'none';
+                });
+            });
+
+            document.getElementById('save-draft-btn').addEventListener('click', function () {
+                alert('Meeting draft has been saved successfully!');
             });
 
             document.getElementById('schedule-form').addEventListener('submit', function (e) {
