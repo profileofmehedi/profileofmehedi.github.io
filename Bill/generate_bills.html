@@ -13,95 +13,459 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Header Styles */
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        max-width: 100%;
+      }
+
+      .header-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .header-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+      }
+
+      .username {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logout-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      /* Sidebar Styles */
       .sidebar {
-        height: 100vh;
-        background-color: #343a40;
+        height: calc(100vh - 80px);
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
         color: #fff;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 280px;
+        padding: 0;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 999;
       }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .sidebar-logo {
+        padding: 2rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar-logo img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 1rem;
+        object-fit: cover;
+      }
+
+      .sidebar-logo h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ecf0f1;
+      }
+
+      .sidebar-logo p {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.8rem;
+        color: #bdc3c7;
+      }
+
+      .sidebar .nav {
+        padding: 1rem 0;
+      }
+
       .sidebar .nav-link {
+        color: #ecf0f1;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .sidebar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-left-color: #3498db;
+        transform: translateX(5px);
+      }
+
+      .sidebar .nav-link.active {
+        background: rgba(52, 152, 219, 0.2);
+        border-left-color: #3498db;
         color: #fff;
       }
-      .sidebar .nav-link.active {
-        background-color: #495057;
+
+      .sidebar .nav-link i {
+        width: 20px;
+        text-align: center;
       }
+
+      /* Mobile Toggle Button */
+      .sidebar-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        margin-top: 80px;
+        transition: margin-left 0.3s ease;
+      }
+
+      /* Generation Container */
       .generation-container {
         max-width: 800px;
-        margin: 40px auto;
-        padding: 30px;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin: 2rem auto;
+        padding: 3rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        border: none;
+      }
+
+      .generation-container h3 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+      }
+
+      .generation-container p {
+        color: #6c757d;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+      }
+
+      .btn-generate {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-generate:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      }
+
+      /* Result Styles */
+      #generationResult {
+        margin-top: 2rem;
+        min-height: 100px;
+      }
+
+      .spinner-border {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      .alert {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .alert-success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: calc(100vh - 80px);
+        }
+
+        .sidebar-toggle {
+          display: block;
+        }
+
+        .main-content {
+          margin-left: 0;
+          padding: 1rem;
+        }
+
+        .header-content {
+          gap: 1rem;
+        }
+
+        .header-title {
+          font-size: 1.2rem;
+        }
+
+        .username span:last-child {
+          display: none;
+        }
+
+        .generation-container {
+          padding: 2rem 1.5rem;
+          margin: 1rem auto;
+        }
+
+        .generation-container h3 {
+          font-size: 1.5rem;
+        }
+
+        .generation-container p {
+          font-size: 1rem;
+        }
+
+        .btn-generate {
+          padding: 0.8rem 1.5rem;
+          font-size: 1rem;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .sidebar {
+          position: fixed;
+          transform: translateX(0);
+        }
+      }
+
+      /* Overlay for mobile */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+      }
+
+      .sidebar-overlay.show {
+        display: block;
       }
     </style>
   </head>
   <body>
-    <div class="container-fluid">
-      <div class="row">
-        <nav class="col-md-2 d-none d-md-block sidebar">
-          <div class="sidebar-sticky">
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a class="nav-link" href="admin_dashboard.html">
-                  <i class="fas fa-tachometer-alt"></i> ড্যাশবোর্ড
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="manage_customers.html">
-                  <i class="fas fa-users"></i> গ্রাহক পরিচালনা
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="generate_bills.html">
-                  <i class="fas fa-cogs"></i> বিল তৈরি
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="view_bills.html">
-                  <i class="fas fa-eye"></i> সকল বিল
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="login.html">
-                  <i class="fas fa-sign-out-alt"></i> লগআউট
-                </a>
-              </li>
-            </ul>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="header-title">বিল তৈরি</h1>
+        <div class="header-user">
+          <div class="username">
+            <i class="fas fa-user-circle"></i>
+            <span>মেহেদী হাসান</span>
           </div>
-        </nav>
-
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-          <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-          >
-            <h1 class="h2">ব্যাচ অনুযায়ী বিল তৈরি</h1>
-          </div>
-
-          <div class="generation-container text-center">
-            <h3 class="mb-4">আজ নির্ধারিত সকল গ্রাহকের জন্য বিল তৈরি করুন।</h3>
-            <p>
-              নিচের বাটনে ক্লিক করলে সকল গ্রাহকের বিলিং সাইকেল ও তারিখ পরীক্ষা
-              করে আজ যাদের বিল তৈরি করা প্রয়োজন তাদের জন্য বিল তৈরি করা হবে।
-            </p>
-            <button class="btn btn-success btn-lg" id="generateBillsBtn">
-              <i class="fas fa-play-circle"></i> বিল তৈরি শুরু করুন
-            </button>
-            <div id="generationResult" class="mt-4"></div>
-          </div>
-        </main>
+          <a href="login.html" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> লগআউট
+          </a>
+        </div>
       </div>
-    </div>
+    </header>
+
+    <!-- Sidebar Overlay for mobile -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="../img/mehedi.png" alt="Logo" />
+        <h4>বিল ম্যানেজমেন্ট</h4>
+        <p>অ্যাডমিন প্যানেল</p>
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="admin_dashboard.html">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>ড্যাশবোর্ড</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="manage_customers.html">
+            <i class="fas fa-users"></i>
+            <span>গ্রাহক পরিচালনা</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="generate_bills.html">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>বিল তৈরি</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="view_bills.html">
+            <i class="fas fa-eye"></i>
+            <span>সকল বিল</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="login.html">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>লগআউট</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <div class="generation-container">
+          <div class="mb-4">
+            <i class="fas fa-file-invoice-dollar fa-4x text-primary mb-3"></i>
+            <h3>ব্যাচ অনুযায়ী বিল তৈরি</h3>
+          </div>
+          <p>
+            আজ নির্ধারিত সকল গ্রাহকের জন্য বিল তৈরি করুন। নিচের বাটনে ক্লিক করলে
+            সকল গ্রাহকের বিলিং সাইকেল ও তারিখ পরীক্ষা করে আজ যাদের বিল তৈরি করা
+            প্রয়োজন তাদের জন্য বিল তৈরি করা হবে।
+          </p>
+          <button
+            class="btn btn-primary btn-lg btn-generate"
+            id="generateBillsBtn"
+          >
+            <i class="fas fa-play-circle me-2"></i> বিল তৈরি শুরু করুন
+          </button>
+          <div id="generationResult"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+      // Sidebar functionality
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.querySelector(".sidebar-overlay");
+
+        sidebar.classList.toggle("show");
+        overlay.classList.toggle("show");
+      }
+
+      function closeSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.querySelector(".sidebar-overlay");
+
+        sidebar.classList.remove("show");
+        overlay.classList.remove("show");
+      }
+
+      // Close sidebar when clicking on a nav link on mobile
+      document.querySelectorAll(".sidebar .nav-link").forEach((link) => {
+        link.addEventListener("click", () => {
+          if (window.innerWidth <= 768) {
+            closeSidebar();
+          }
+        });
+      });
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 768) {
+          closeSidebar();
+        }
+      });
+
+      // Bill generation functionality
       document
         .getElementById("generateBillsBtn")
         .addEventListener("click", function () {
           const resultDiv = document.getElementById("generationResult");
+          const btn = this;
+
+          // Disable button during generation
+          btn.disabled = true;
+          btn.innerHTML =
+            '<i class="fas fa-spinner fa-spin me-2"></i> প্রসেসিং...';
+
           resultDiv.innerHTML = `
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">লোড হচ্ছে...</span>
-        </div>
-        <p class="mt-2">বিল তৈরি করা হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</p>
-      `;
+            <div class="text-center mt-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">লোড হচ্ছে...</span>
+              </div>
+              <p class="mt-3 text-muted">বিল তৈরি করা হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</p>
+            </div>
+          `;
 
           // Simulate a network request or heavy computation
           setTimeout(() => {
@@ -109,12 +473,26 @@
             // For this demo, we'll just show a success message.
             const generatedCount = Math.floor(Math.random() * 10) + 5; // Random number of bills
             resultDiv.innerHTML = `
-          <div class="alert alert-success">
-            <h4>ব্যাচ সম্পন্ন!</h4>
-            <p>সফলভাবে <strong>${generatedCount}</strong> টি নতুন বিল তৈরি হয়েছে।</p>
-            <p>এখন আপনি এগুলো <a href="view_bills.html">সকল বিল</a> পাতায় দেখতে পারবেন।</p>
-          </div>
-        `;
+              <div class="alert alert-success">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                  <i class="fas fa-check-circle fa-3x me-3"></i>
+                  <div>
+                    <h4 class="mb-1">ব্যাচ সম্পন্ন!</h4>
+                    <p class="mb-0">সফলভাবে <strong>${generatedCount}</strong> টি নতুন বিল তৈরি হয়েছে।</p>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <a href="view_bills.html" class="btn btn-light btn-lg">
+                    <i class="fas fa-eye me-2"></i>সকল বিল দেখুন
+                  </a>
+                </div>
+              </div>
+            `;
+
+            // Re-enable button
+            btn.disabled = false;
+            btn.innerHTML =
+              '<i class="fas fa-play-circle me-2"></i> আবার বিল তৈরি করুন';
           }, 2000); // 2-second delay for simulation
         });
     </script>

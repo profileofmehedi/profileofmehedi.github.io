@@ -18,179 +18,594 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Header Styles */
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        max-width: 100%;
+      }
+
+      .header-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .header-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+      }
+
+      .username {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logout-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      /* Sidebar Styles */
       .sidebar {
-        height: 100vh;
-        background-color: #343a40;
+        height: calc(100vh - 80px);
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
         color: #fff;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 280px;
+        padding: 0;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 999;
       }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .sidebar-logo {
+        padding: 2rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar-logo img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 1rem;
+        object-fit: cover;
+      }
+
+      .sidebar-logo h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ecf0f1;
+      }
+
+      .sidebar-logo p {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.8rem;
+        color: #bdc3c7;
+      }
+
+      .sidebar .nav {
+        padding: 1rem 0;
+      }
+
       .sidebar .nav-link {
+        color: #ecf0f1;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .sidebar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-left-color: #3498db;
+        transform: translateX(5px);
+      }
+
+      .sidebar .nav-link.active {
+        background: rgba(52, 152, 219, 0.2);
+        border-left-color: #3498db;
         color: #fff;
       }
-      .sidebar .nav-link.active {
-        background-color: #495057;
+
+      .sidebar .nav-link i {
+        width: 20px;
+        text-align: center;
+      }
+
+      /* Mobile Toggle Button */
+      .sidebar-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        margin-top: 80px;
+        transition: margin-left 0.3s ease;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .page-header h1 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: 600;
+      }
+
+      /* Cards and Tables */
+      .table-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: none;
+      }
+
+      .table-card .card-body {
+        padding: 0;
+      }
+
+      .table {
+        margin-bottom: 0;
+      }
+
+      .table thead th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+      }
+
+      .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-color: #f8f9fa;
+      }
+
+      .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        color: white;
+      }
+
+      /* Badge Styles */
+      .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.85rem;
+      }
+
+      .bg-success {
+        background: linear-gradient(
+          135deg,
+          #4facfe 0%,
+          #00f2fe 100%
+        ) !important;
+      }
+
+      .bg-warning {
+        background: linear-gradient(
+          135deg,
+          #f093fb 0%,
+          #f5576c 100%
+        ) !important;
+        color: white !important;
+      }
+
+      .bg-danger {
+        background: linear-gradient(
+          135deg,
+          #ff6b6b 0%,
+          #ee5a24 100%
+        ) !important;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: calc(100vh - 80px);
+        }
+
+        .sidebar-toggle {
+          display: block;
+        }
+
+        .main-content {
+          margin-left: 0;
+          padding: 1rem;
+        }
+
+        .header-content {
+          gap: 1rem;
+        }
+
+        .header-title {
+          font-size: 1.2rem;
+        }
+
+        .username span:last-child {
+          display: none;
+        }
+
+        .page-header {
+          padding: 1rem;
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .page-header h1 {
+          font-size: 1.5rem;
+        }
+
+        .table-responsive {
+          font-size: 0.9rem;
+        }
+
+        .btn-sm {
+          font-size: 0.75rem;
+          padding: 0.25rem 0.5rem;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .sidebar {
+          position: fixed;
+          transform: translateX(0);
+        }
+      }
+
+      /* Overlay for mobile */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+      }
+
+      .sidebar-overlay.show {
+        display: block;
+      }
+
+      /* DataTables Responsive Styling */
+      .dataTables_wrapper {
+        padding: 1.5rem;
+      }
+
+      .dataTables_filter input {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 0.5rem 1rem;
+      }
+
+      .dataTables_length select {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 0.5rem;
+      }
+
+      .dataTables_info {
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      .dataTables_paginate .paginate_button {
+        border-radius: 8px !important;
+        margin: 0 2px;
+        border: none !important;
+      }
+
+      .dataTables_paginate .paginate_button.current {
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #764ba2 100%
+        ) !important;
+        color: white !important;
       }
     </style>
   </head>
   <body>
-    <div class="container-fluid">
-      <div class="row">
-        <nav class="col-md-2 d-none d-md-block sidebar">
-          <div class="sidebar-sticky">
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a class="nav-link" href="admin_dashboard.html">
-                  <i class="fas fa-tachometer-alt"></i> ড্যাশবোর্ড
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="manage_customers.html">
-                  <i class="fas fa-users"></i> গ্রাহক পরিচালনা
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="generate_bills.html">
-                  <i class="fas fa-cogs"></i> বিল তৈরি
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="view_bills.html">
-                  <i class="fas fa-eye"></i> সকল বিল
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="login.html">
-                  <i class="fas fa-sign-out-alt"></i> লগআউট
-                </a>
-              </li>
-            </ul>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="header-title">সকল বিল</h1>
+        <div class="header-user">
+          <div class="username">
+            <i class="fas fa-user-circle"></i>
+            <span>মেহেদী হাসান</span>
           </div>
-        </nav>
-
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-          <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-          >
-            <h1 class="h2">সকল বিল</h1>
-          </div>
-
-          <div class="table-responsive">
-            <table
-              id="billsTable"
-              class="table table-striped table-hover table-bordered"
-            >
-              <thead>
-                <tr>
-                  <th>বিল আইডি</th>
-                  <th>গ্রাহক আইডি</th>
-                  <th>গ্রাহকের নাম</th>
-                  <th>পরিমাণ (৳)</th>
-                  <th>নির্ধারিত তারিখ</th>
-                  <th>স্থিতি</th>
-                  <th>কার্য</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Demo Data -->
-                <tr>
-                  <td>101</td>
-                  <td>1</td>
-                  <td>John Doe</td>
-                  <td>৳100.00</td>
-                  <td>2025-09-01</td>
-                  <td><span class="badge bg-success">পরিশোধিত</span></td>
-                  <td>
-                    <a
-                      href="admin_bill_details.html"
-                      class="btn btn-sm btn-info"
-                      >দেখুন</a
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>102</td>
-                  <td>2</td>
-                  <td>Jane Smith</td>
-                  <td>৳150.00</td>
-                  <td>2025-09-05</td>
-                  <td>
-                    <span class="badge bg-warning text-dark">বকেয়া</span>
-                  </td>
-                  <td>
-                    <a
-                      href="admin_bill_details.html"
-                      class="btn btn-sm btn-info"
-                      >দেখুন</a
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>103</td>
-                  <td>1</td>
-                  <td>Rahim Uddin</td>
-                  <td>৳75.00</td>
-                  <td>2025-08-20</td>
-                  <td><span class="badge bg-danger">বিলবহির্ভূত</span></td>
-                  <td>
-                    <a
-                      href="admin_bill_details.html"
-                      class="btn btn-sm btn-info"
-                      >দেখুন</a
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>104</td>
-                  <td>3</td>
-                  <td>Sadia Akter</td>
-                  <td>৳200.00</td>
-                  <td>2025-09-10</td>
-                  <td><span class="badge bg-success">পরিশোধিত</span></td>
-                  <td>
-                    <a
-                      href="admin_bill_details.html"
-                      class="btn btn-sm btn-info"
-                      >দেখুন</a
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>105</td>
-                  <td>4</td>
-                  <td>Alam Kazi</td>
-                  <td>৳50.00</td>
-                  <td>2025-09-12</td>
-                  <td>
-                    <span class="badge bg-warning text-dark">বকেয়া</span>
-                  </td>
-                  <td>
-                    <a
-                      href="admin_bill_details.html"
-                      class="btn btn-sm btn-info"
-                      >দেখুন</a
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>106</td>
-                  <td>5</td>
-                  <td>Fatima Noor</td>
-                  <td>৳120.00</td>
-                  <td>2025-09-15</td>
-                  <td><span class="badge bg-success">পরিশোধিত</span></td>
-                  <td>
-                    <a
-                      href="admin_bill_details.html"
-                      class="btn btn-sm btn-info"
-                      >দেখুন</a
-                    >
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </main>
+          <a href="login.html" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> লগআউট
+          </a>
+        </div>
       </div>
-    </div>
+    </header>
+
+    <!-- Sidebar Overlay for mobile -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="../img/mehedi.png" alt="Logo" />
+        <h4>বিল ম্যানেজমেন্ট</h4>
+        <p>অ্যাডমিন প্যানেল</p>
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="admin_dashboard.html">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>ড্যাশবোর্ড</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="manage_customers.html">
+            <i class="fas fa-users"></i>
+            <span>গ্রাহক পরিচালনা</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="generate_bills.html">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>বিল তৈরি</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="view_bills.html">
+            <i class="fas fa-eye"></i>
+            <span>সকল বিল</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="login.html">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>লগআউট</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1><i class="fas fa-file-invoice me-2"></i>সকল বিল</h1>
+          <div class="d-flex gap-2">
+            <a href="generate_bills.html" class="btn btn-primary">
+              <i class="fas fa-plus me-2"></i>নতুন বিল তৈরি
+            </a>
+          </div>
+        </div>
+
+        <!-- Bills Table -->
+        <div class="card table-card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table
+                id="billsTable"
+                class="table table-striped table-hover table-bordered"
+              >
+                <thead>
+                  <tr>
+                    <th>বিল আইডি</th>
+                    <th>গ্রাহক আইডি</th>
+                    <th>গ্রাহকের নাম</th>
+                    <th>পরিমাণ (৳)</th>
+                    <th>নির্ধারিত তারিখ</th>
+                    <th>স্থিতি</th>
+                    <th>কার্য</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Demo Data -->
+                  <tr>
+                    <td>101</td>
+                    <td>1</td>
+                    <td>John Doe</td>
+                    <td>৳100.00</td>
+                    <td>2025-09-01</td>
+                    <td><span class="badge bg-success">পরিশোধিত</span></td>
+                    <td>
+                      <a
+                        href="admin_bill_details.html"
+                        class="btn btn-sm btn-info"
+                      >
+                        <i class="fas fa-eye me-1"></i>দেখুন
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>102</td>
+                    <td>2</td>
+                    <td>Jane Smith</td>
+                    <td>৳150.00</td>
+                    <td>2025-09-05</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">বকেয়া</span>
+                    </td>
+                    <td>
+                      <a
+                        href="admin_bill_details.html"
+                        class="btn btn-sm btn-info"
+                      >
+                        <i class="fas fa-eye me-1"></i>দেখুন
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>103</td>
+                    <td>1</td>
+                    <td>Rahim Uddin</td>
+                    <td>৳75.00</td>
+                    <td>2025-08-20</td>
+                    <td><span class="badge bg-danger">বিলবহির্ভূত</span></td>
+                    <td>
+                      <a
+                        href="admin_bill_details.html"
+                        class="btn btn-sm btn-info"
+                      >
+                        <i class="fas fa-eye me-1"></i>দেখুন
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>104</td>
+                    <td>3</td>
+                    <td>Sadia Akter</td>
+                    <td>৳200.00</td>
+                    <td>2025-09-10</td>
+                    <td><span class="badge bg-success">পরিশোধিত</span></td>
+                    <td>
+                      <a
+                        href="admin_bill_details.html"
+                        class="btn btn-sm btn-info"
+                      >
+                        <i class="fas fa-eye me-1"></i>দেখুন
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>105</td>
+                    <td>4</td>
+                    <td>Alam Kazi</td>
+                    <td>৳50.00</td>
+                    <td>2025-09-12</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">বকেয়া</span>
+                    </td>
+                    <td>
+                      <a
+                        href="admin_bill_details.html"
+                        class="btn btn-sm btn-info"
+                      >
+                        <i class="fas fa-eye me-1"></i>দেখুন
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>106</td>
+                    <td>5</td>
+                    <td>Fatima Noor</td>
+                    <td>৳120.00</td>
+                    <td>2025-09-15</td>
+                    <td><span class="badge bg-success">পরিশোধিত</span></td>
+                    <td>
+                      <a
+                        href="admin_bill_details.html"
+                        class="btn btn-sm btn-info"
+                      >
+                        <i class="fas fa-eye me-1"></i>দেখুন
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -198,19 +613,56 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
     <script>
+      // Sidebar functionality
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.querySelector(".sidebar-overlay");
+
+        sidebar.classList.toggle("show");
+        overlay.classList.toggle("show");
+      }
+
+      function closeSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.querySelector(".sidebar-overlay");
+
+        sidebar.classList.remove("show");
+        overlay.classList.remove("show");
+      }
+
+      // Close sidebar when clicking on a nav link on mobile
+      document.querySelectorAll(".sidebar .nav-link").forEach((link) => {
+        link.addEventListener("click", () => {
+          if (window.innerWidth <= 768) {
+            closeSidebar();
+          }
+        });
+      });
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 768) {
+          closeSidebar();
+        }
+      });
+
+      // DataTable initialization
       $(document).ready(function () {
         $("#billsTable").DataTable({
           responsive: true,
+          order: [[0, "desc"]], // Sort by Bill ID descending
           language: {
             emptyTable: "টেবিলে কোনো ডাটা নেই",
             info: "_START_ থেকে _END_ পর্যন্ত দেখানো হচ্ছে _TOTAL_ এন্ট্রি",
             infoEmpty: "শূন্য এন্ট্রি",
+            infoFiltered: "(মোট _MAX_ এন্ট্রি থেকে ফিল্টার করা হয়েছে)",
             lengthMenu: "প্রতিটি পেজে _MENU_ এন্ট্রি দেখাও",
             loadingRecords: "লোড করা হচ্ছে...",
             processing: "প্রসেস হচ্ছে...",
             search: "খুঁজুন:",
-            zeroRecords: "মিলছে না",
+            zeroRecords: "কোনো মিল খুঁজে পাওয়া যায়নি",
             paginate: {
               first: "প্রথম",
               last: "শেষ",
@@ -218,6 +670,17 @@
               previous: "পূর্বের",
             },
           },
+          columnDefs: [
+            {
+              targets: [5], // Status column
+              orderable: false,
+            },
+            {
+              targets: [6], // Action column
+              orderable: false,
+              searchable: false,
+            },
+          ],
         });
       });
     </script>
