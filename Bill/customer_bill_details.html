@@ -8,123 +8,680 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-      .bill-details {
-        background-color: #fff;
-        padding: 30px;
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Header/Navbar Styles */
+      .navbar {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #2c3e50 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .navbar-nav .nav-link {
+        color: #2c3e50 !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        margin: 0 0.5rem;
+        padding: 0.5rem 1rem !important;
+      }
+
+      .navbar-nav .nav-link:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .navbar-nav .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: #2c3e50;
+        font-weight: 500;
+      }
+
+      .logout-btn {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .logout-btn:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      /* Main Container */
+      .main-container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        margin: 2rem auto;
+        padding: 0;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        max-width: 900px;
+      }
+
+      /* Header Section */
+      .bill-header {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.2) 0%,
+          rgba(255, 255, 255, 0.1) 100%
+        );
+        color: white;
+        padding: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .bill-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.05)"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+      }
+
+      .bill-header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .bill-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .bill-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .bill-title h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.8rem;
+      }
+
+      .back-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
         border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      /* Content Area */
+      .content-area {
+        background: white;
+        padding: 2rem;
+      }
+
+      /* Bill Details Card */
+      .bill-details-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+      }
+
+      .bill-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .bill-info-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid;
+        transition: all 0.3s ease;
+      }
+
+      .bill-info-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .bill-info-item.primary {
+        border-left-color: #667eea;
+      }
+
+      .bill-info-item.success {
+        border-left-color: #4facfe;
+      }
+
+      .bill-info-item.danger {
+        border-left-color: #ff6b6b;
+      }
+
+      .bill-info-item.warning {
+        border-left-color: #f093fb;
+      }
+
+      .bill-info-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .bill-info-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      /* Status Badge */
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .status-badge.paid {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+      }
+
+      .status-badge.overdue {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+      }
+
+      .status-badge.pending {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      /* Payment Instructions */
+      .payment-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .payment-section h4 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .payment-instructions {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        border-left: 4px solid #667eea;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Report Issue Section */
+      .report-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .report-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .report-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .report-form {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 1px solid #e9ecef;
+      }
+
+      .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
+      .btn-submit {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .btn-cancel {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-cancel:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .main-container {
+          margin: 1rem;
+        }
+
+        .bill-header {
+          padding: 1.5rem;
+        }
+
+        .bill-header-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .bill-title {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .bill-title h2 {
+          font-size: 1.5rem;
+        }
+
+        .content-area {
+          padding: 1.5rem 1rem;
+        }
+
+        .bill-details-card {
+          padding: 1.5rem;
+        }
+
+        .bill-info-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .payment-section,
+        .report-section {
+          padding: 1.5rem;
+        }
+
+        .user-info span:last-child {
+          display: none;
+        }
+      }
+
+      /* Animation */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bill-details-card,
+      .payment-section,
+      .report-section {
+        animation: fadeInUp 0.6s ease forwards;
+      }
+
+      .bill-details-card {
+        animation-delay: 0.1s;
+      }
+      .payment-section {
+        animation-delay: 0.2s;
+      }
+      .report-section {
+        animation-delay: 0.3s;
       }
     </style>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">বিলিং অ্যাপ</a>
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav ms-auto">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img
+            src="../img/mehedi.png"
+            alt="Logo"
+            width="40"
+            height="40"
+            class="rounded-circle me-2"
+          />
+          বিলিং অ্যাপ
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" href="customer_dashboard.html">ড্যাশবোর্ড</a>
+              <a class="nav-link" href="customer_dashboard.html">
+                <i class="fas fa-tachometer-alt me-1"></i>ড্যাশবোর্ড
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="login.html">লগআউট</a>
+              <a class="nav-link active" href="customer_bill_details.html">
+                <i class="fas fa-file-invoice me-1"></i>বিল বিস্তারিত
+              </a>
             </li>
           </ul>
+          <div class="user-info">
+            <i class="fas fa-user-circle fa-lg"></i>
+            <span>রহিম উদ্দিন</span>
+          </div>
+          <a class="logout-btn ms-3" href="login.html">
+            <i class="fas fa-sign-out-alt me-1"></i>লগআউট
+          </a>
         </div>
       </div>
     </nav>
 
-    <div class="container mt-4">
-      <div class="bill-details">
-        <h2 class="mb-4">বিলের বিশদ</h2>
-        <div class="row">
-          <div class="col-md-6">
-            <p><strong>বিল আইডি:</strong> 103</p>
-            <p><strong>পরিমাণ:</strong> $75.00</p>
-            <p><strong>নির্ধারিত তারিখ:</strong> 2025-08-20</p>
-            <p>
-              <strong>স্থিতি:</strong>
-              <span class="badge bg-danger">বিলবহির্ভূত</span>
-            </p>
+    <!-- Main Container -->
+    <div class="container">
+      <div class="main-container">
+        <!-- Header Section -->
+        <div class="bill-header">
+          <div class="bill-header-content">
+            <div class="bill-title">
+              <div class="bill-icon">
+                <i class="fas fa-file-invoice"></i>
+              </div>
+              <div>
+                <h2>বিলের বিশদ</h2>
+                <p class="mb-0 opacity-75">বিল নং #103</p>
+              </div>
+            </div>
+            <a href="customer_dashboard.html" class="back-btn">
+              <i class="fas fa-arrow-left me-1"></i>ড্যাশবোর্ডে ফিরুন
+            </a>
           </div>
         </div>
-        <hr />
-        <h4 class="mt-4">পেমেন্ট সম্পর্কিত নির্দেশনা</h4>
-        <div class="mb-3">
-          <p class="text-muted">
-            এই পৃষ্ঠায় সরাসরি পেমেন্ট গৃহীত হয় না। পেমেন্ট বা অন্য যেকোনো
-            সমস্যার জন্য দয়া করে আমাদের সাপোর্ট ইমেইলে যোগাযোগ করুন বা অফিসে
-            এসে প্রদান করুন।
-          </p>
-          <div class="d-flex gap-2">
-            <button id="reportBtn" class="btn btn-outline-secondary">
-              সমস্যা জানান
-            </button>
+
+        <!-- Content Area -->
+        <div class="content-area">
+          <!-- Bill Details Card -->
+          <div class="bill-details-card">
+            <div class="bill-info-grid">
+              <div class="bill-info-item primary">
+                <div class="bill-info-label">
+                  <i class="fas fa-hashtag"></i>
+                  বিল আইডি
+                </div>
+                <div class="bill-info-value">#103</div>
+              </div>
+
+              <div class="bill-info-item success">
+                <div class="bill-info-label">
+                  <i class="fas fa-money-bill-wave"></i>
+                  পরিমাণ
+                </div>
+                <div class="bill-info-value">৳75.00</div>
+              </div>
+
+              <div class="bill-info-item warning">
+                <div class="bill-info-label">
+                  <i class="fas fa-calendar-alt"></i>
+                  নির্ধারিত তারিখ
+                </div>
+                <div class="bill-info-value">2025-08-20</div>
+              </div>
+
+              <div class="bill-info-item danger">
+                <div class="bill-info-label">
+                  <i class="fas fa-info-circle"></i>
+                  স্থিতি
+                </div>
+                <div class="bill-info-value">
+                  <span class="status-badge overdue">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    বিলবহির্ভূত
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div id="issueForm" class="mt-3" style="display: none">
-            <form id="reportIssueForm">
-              <div class="mb-3">
-                <label for="reportName" class="form-label">নাম (ঐচ্ছিক)</label>
-                <input
-                  type="text"
-                  id="reportName"
-                  class="form-control"
-                  placeholder="আপনার নাম"
-                />
+          <!-- Payment Instructions -->
+          <div class="payment-section">
+            <h4>
+              <i class="fas fa-credit-card"></i>
+              পেমেন্ট সম্পর্কিত নির্দেশনা
+            </h4>
+            <div class="payment-instructions">
+              <p class="mb-3">
+                <i class="fas fa-info-circle me-2 text-primary"></i>
+                <strong>গুরুত্বপূর্ণ:</strong> এই পৃষ্ঠায় সরাসরি পেমেন্ট গৃহীত
+                হয় না।
+              </p>
+              <p class="mb-3">
+                পেমেন্ট বা অন্য যেকোনো সমস্যার জন্য দয়া করে আমাদের সাপোর্ট
+                ইমেইলে যোগাযোগ করুন বা অফিসে এসে প্রদান করুন।
+              </p>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-envelope text-primary me-2"></i>
+                    <span><strong>ইমেইল:</strong> support@example.com</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-phone text-success me-2"></i>
+                    <span><strong>ফোন:</strong> +880 1XXXXXXXXX</span>
+                  </div>
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="reportEmail" class="form-label"
-                  >ইমেইল (ঐচ্ছিক)</label
-                >
-                <input
-                  type="email"
-                  id="reportEmail"
-                  class="form-control"
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="reportSubject" class="form-label">বিষয়</label>
-                <input
-                  type="text"
-                  id="reportSubject"
-                  class="form-control"
-                  required
-                  placeholder="কম্প্লেইন/সমস্যার সারাংশ"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="reportMessage" class="form-label"
-                  >বিস্তারিত বার্তা</label
-                >
-                <textarea
-                  id="reportMessage"
-                  class="form-control"
-                  rows="4"
-                  required
-                  placeholder="সমস্যার বিবরণ লিখুন..."
-                ></textarea>
-              </div>
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-success">
-                  ইমেইল তৈরি করুন
-                </button>
-                <button
-                  type="button"
-                  id="cancelReport"
-                  class="btn btn-secondary"
-                >
-                  বাতিল
-                </button>
-              </div>
-            </form>
+            </div>
+          </div>
+
+          <!-- Report Issue Section -->
+          <div class="report-section">
+            <h4 class="mb-3">
+              <i class="fas fa-bug"></i>
+              সমস্যা রিপোর্ট করুন
+            </h4>
+            <p class="text-muted mb-3">
+              এই বিল সম্পর্কে কোনো সমস্যা বা প্রশ্ন থাকলে নিচের ফর্মটি ব্যবহার
+              করুন।
+            </p>
+            <button id="reportBtn" class="report-btn">
+              <i class="fas fa-plus"></i>
+              সমস্যা জানান
+            </button>
+
+            <div id="issueForm" class="report-form" style="display: none">
+              <form id="reportIssueForm">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="reportName" class="form-label">
+                      <i class="fas fa-user me-1"></i>নাম (ঐচ্ছিক)
+                    </label>
+                    <input
+                      type="text"
+                      id="reportName"
+                      class="form-control"
+                      placeholder="আপনার নাম"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="reportEmail" class="form-label">
+                      <i class="fas fa-envelope me-1"></i>ইমেইল (ঐচ্ছিক)
+                    </label>
+                    <input
+                      type="email"
+                      id="reportEmail"
+                      class="form-control"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="reportSubject" class="form-label">
+                    <i class="fas fa-tag me-1"></i>বিষয় *
+                  </label>
+                  <input
+                    type="text"
+                    id="reportSubject"
+                    class="form-control"
+                    required
+                    placeholder="কম্প্লেইন/সমস্যার সারাংশ"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="reportMessage" class="form-label">
+                    <i class="fas fa-comment me-1"></i>বিস্তারিত বার্তা *
+                  </label>
+                  <textarea
+                    id="reportMessage"
+                    class="form-control"
+                    rows="4"
+                    required
+                    placeholder="সমস্যার বিবরণ লিখুন..."
+                  ></textarea>
+                </div>
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-paper-plane me-1"></i>
+                    ইমেইল তৈরি করুন
+                  </button>
+                  <button
+                    type="button"
+                    id="cancelReport"
+                    class="btn btn-cancel"
+                  >
+                    <i class="fas fa-times me-1"></i>
+                    বাতিল
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Payment handled externally; direct payments are not accepted on this page -->
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
       (function () {
         const reportBtn = document.getElementById("reportBtn");
@@ -134,23 +691,37 @@
 
         reportBtn &&
           reportBtn.addEventListener("click", function () {
-            issueForm.style.display =
-              issueForm.style.display === "none" ? "block" : "none";
-            reportBtn.textContent =
-              issueForm.style.display === "none"
-                ? "সমস্যা জানান"
-                : "ফর্ম বন্ধ করুন";
+            const isVisible = issueForm.style.display !== "none";
+
+            if (isVisible) {
+              issueForm.style.display = "none";
+              reportBtn.innerHTML = '<i class="fas fa-plus"></i> সমস্যা জানান';
+            } else {
+              issueForm.style.display = "block";
+              reportBtn.innerHTML =
+                '<i class="fas fa-minus"></i> ফর্ম বন্ধ করুন';
+              // Smooth scroll to form
+              setTimeout(() => {
+                issueForm.scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest",
+                });
+              }, 100);
+            }
           });
 
         cancelBtn &&
           cancelBtn.addEventListener("click", function () {
             issueForm.style.display = "none";
-            reportBtn.textContent = "সমস্যা জানান";
+            reportBtn.innerHTML = '<i class="fas fa-plus"></i> সমস্যা জানান';
+            // Reset form
+            reportForm.reset();
           });
 
         reportForm &&
           reportForm.addEventListener("submit", function (e) {
             e.preventDefault();
+
             const name = document.getElementById("reportName").value.trim();
             const email = document.getElementById("reportEmail").value.trim();
             const subject = document
@@ -162,17 +733,38 @@
 
             const to = "support@example.com";
             const mailSubject = encodeURIComponent(
-              subject || "বিল সম্পর্কিত সমস্যা"
+              subject || "বিল সম্পর্কিত সমস্যা - বিল #103"
             );
-            let body = "";
-            if (name) body += `নাম: ${name}\n`;
+
+            let body = `বিল সম্পর্কিত সমস্যা রিপোর্ট\n`;
+            body += `বিল নং: #103\n`;
+            body += `বিলের পরিমাণ: ৳75.00\n`;
+            body += `নির্ধারিত তারিখ: 2025-08-20\n\n`;
+
+            if (name) body += `রিপোর্টকারীর নাম: ${name}\n`;
             if (email) body += `ইমেইল: ${email}\n`;
-            body += `\nবিবরণ:\n${message}`;
+            body += `\nসমস্যার বিবরণ:\n${message}`;
 
             const mailto = `mailto:${to}?subject=${mailSubject}&body=${encodeURIComponent(
               body
             )}`;
-            window.location.href = mailto;
+
+            // Show success message
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML =
+              '<i class="fas fa-check me-1"></i> ইমেইল খোলা হচ্ছে...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+              window.location.href = mailto;
+              submitBtn.innerHTML = originalText;
+              submitBtn.disabled = false;
+              // Reset and hide form
+              reportForm.reset();
+              issueForm.style.display = "none";
+              reportBtn.innerHTML = '<i class="fas fa-plus"></i> সমস্যা জানান';
+            }, 1000);
           });
       })();
     </script>
