@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>বিলের বিশদ</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .bill-details {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">বিলিং অ্যাপ</a>
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="customer_dashboard.html">ড্যাশবোর্ড</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">লগআউট</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <div class="bill-details">
+        <h2 class="mb-4">বিলের বিশদ</h2>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>বিল আইডি:</strong> 103</p>
+            <p><strong>পরিমাণ:</strong> $75.00</p>
+            <p><strong>নির্ধারিত তারিখ:</strong> 2025-08-20</p>
+            <p>
+              <strong>স্থিতি:</strong>
+              <span class="badge bg-danger">বিলবহির্ভূত</span>
+            </p>
+          </div>
+        </div>
+        <hr />
+        <h4 class="mt-4">পেমেন্ট সম্পর্কিত নির্দেশনা</h4>
+        <div class="mb-3">
+          <p class="text-muted">
+            এই পৃষ্ঠায় সরাসরি পেমেন্ট গৃহীত হয় না। পেমেন্ট বা অন্য যেকোনো
+            সমস্যার জন্য দয়া করে আমাদের সাপোর্ট ইমেইলে যোগাযোগ করুন বা অফিসে
+            এসে প্রদান করুন।
+          </p>
+          <div class="d-flex gap-2">
+            <button id="reportBtn" class="btn btn-outline-secondary">
+              সমস্যা জানান
+            </button>
+          </div>
+
+          <div id="issueForm" class="mt-3" style="display: none">
+            <form id="reportIssueForm">
+              <div class="mb-3">
+                <label for="reportName" class="form-label">নাম (ঐচ্ছিক)</label>
+                <input
+                  type="text"
+                  id="reportName"
+                  class="form-control"
+                  placeholder="আপনার নাম"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="reportEmail" class="form-label"
+                  >ইমেইল (ঐচ্ছিক)</label
+                >
+                <input
+                  type="email"
+                  id="reportEmail"
+                  class="form-control"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="reportSubject" class="form-label">বিষয়</label>
+                <input
+                  type="text"
+                  id="reportSubject"
+                  class="form-control"
+                  required
+                  placeholder="কম্প্লেইন/সমস্যার সারাংশ"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="reportMessage" class="form-label"
+                  >বিস্তারিত বার্তা</label
+                >
+                <textarea
+                  id="reportMessage"
+                  class="form-control"
+                  rows="4"
+                  required
+                  placeholder="সমস্যার বিবরণ লিখুন..."
+                ></textarea>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">
+                  ইমেইল তৈরি করুন
+                </button>
+                <button
+                  type="button"
+                  id="cancelReport"
+                  class="btn btn-secondary"
+                >
+                  বাতিল
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment handled externally; direct payments are not accepted on this page -->
+    <script>
+      (function () {
+        const reportBtn = document.getElementById("reportBtn");
+        const issueForm = document.getElementById("issueForm");
+        const reportForm = document.getElementById("reportIssueForm");
+        const cancelBtn = document.getElementById("cancelReport");
+
+        reportBtn &&
+          reportBtn.addEventListener("click", function () {
+            issueForm.style.display =
+              issueForm.style.display === "none" ? "block" : "none";
+            reportBtn.textContent =
+              issueForm.style.display === "none"
+                ? "সমস্যা জানান"
+                : "ফর্ম বন্ধ করুন";
+          });
+
+        cancelBtn &&
+          cancelBtn.addEventListener("click", function () {
+            issueForm.style.display = "none";
+            reportBtn.textContent = "সমস্যা জানান";
+          });
+
+        reportForm &&
+          reportForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const name = document.getElementById("reportName").value.trim();
+            const email = document.getElementById("reportEmail").value.trim();
+            const subject = document
+              .getElementById("reportSubject")
+              .value.trim();
+            const message = document
+              .getElementById("reportMessage")
+              .value.trim();
+
+            const to = "support@example.com";
+            const mailSubject = encodeURIComponent(
+              subject || "বিল সম্পর্কিত সমস্যা"
+            );
+            let body = "";
+            if (name) body += `নাম: ${name}\n`;
+            if (email) body += `ইমেইল: ${email}\n`;
+            body += `\nবিবরণ:\n${message}`;
+
+            const mailto = `mailto:${to}?subject=${mailSubject}&body=${encodeURIComponent(
+              body
+            )}`;
+            window.location.href = mailto;
+          });
+      })();
+    </script>
+  </body>
+</html>
