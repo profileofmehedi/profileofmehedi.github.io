@@ -13,68 +13,363 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+      * {
+        box-sizing: border-box;
+      }
+      
       body {
         background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
       }
+
+      /* Header Styles */
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        max-width: 100%;
+      }
+
+      .header-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .header-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+      }
+
+      .username {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logout-btn {
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .logout-btn:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      /* Sidebar Styles */
       .sidebar {
-        height: 100vh;
-        background-color: #343a40;
+        height: calc(100vh - 80px);
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
         color: #fff;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 280px;
+        padding: 0;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 999;
       }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .sidebar-logo {
+        padding: 2rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        background: rgba(0,0,0,0.1);
+      }
+
+      .sidebar-logo img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid rgba(255,255,255,0.2);
+        margin-bottom: 1rem;
+        object-fit: cover;
+      }
+
+      .sidebar-logo h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ecf0f1;
+      }
+
+      .sidebar-logo p {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.8rem;
+        color: #bdc3c7;
+      }
+
+      .sidebar .nav {
+        padding: 1rem 0;
+      }
+
       .sidebar .nav-link {
+        color: #ecf0f1;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .sidebar .nav-link:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border-left-color: #3498db;
+        transform: translateX(5px);
+      }
+
+      .sidebar .nav-link.active {
+        background: rgba(52, 152, 219, 0.2);
+        border-left-color: #3498db;
         color: #fff;
       }
-      .sidebar .nav-link.active {
-        background-color: #495057;
+
+      .sidebar .nav-link i {
+        width: 20px;
+        text-align: center;
       }
+
+      /* Mobile Toggle Button */
+      .sidebar-toggle {
+        display: none;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-toggle:hover {
+        background: rgba(255,255,255,0.3);
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        margin-top: 80px;
+        transition: margin-left 0.3s ease;
+      }
+
+      /* Cards */
       .card {
         border: none;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      }
+
+      .card-body {
+        padding: 2rem;
+      }
+
+      .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .card-text {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: calc(100vh - 80px);
+        }
+
+        .sidebar-toggle {
+          display: block;
+        }
+
+        .main-content {
+          margin-left: 0;
+          padding: 1rem;
+        }
+
+        .header-content {
+          gap: 1rem;
+        }
+
+        .header-title {
+          font-size: 1.2rem;
+        }
+
+        .username span:last-child {
+          display: none;
+        }
+
+        .card-body {
+          padding: 1.5rem;
+        }
+
+        .card-text {
+          font-size: 2rem;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .sidebar {
+          position: fixed;
+          transform: translateX(0);
+        }
+      }
+
+      /* Overlay for mobile */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background: rgba(0,0,0,0.5);
+        z-index: 998;
+      }
+
+      .sidebar-overlay.show {
+        display: block;
+      }
+
+      /* Gradient backgrounds for cards */
+      .bg-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      }
+
+      .bg-secondary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+      }
+
+      .bg-success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+      }
+
+      .bg-warning {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+      }
+
+      .bg-info {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+      }
+
+      .bg-dark {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+        color: #333 !important;
       }
     </style>
   </head>
   <body>
-    <div class="container-fluid">
-      <div class="row">
-        <nav class="col-md-2 d-none d-md-block sidebar">
-          <div class="sidebar-sticky">
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a class="nav-link active" href="admin_dashboard.html">
-                  <i class="fas fa-tachometer-alt"></i> ড্যাশবোর্ড
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="manage_customers.html">
-                  <i class="fas fa-users"></i> গ্রাহক পরিচালনা
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="generate_bills.html">
-                  <i class="fas fa-cogs"></i> বিল তৈরি
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="view_bills.html">
-                  <i class="fas fa-eye"></i> সকল বিল
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="login.html">
-                  <i class="fas fa-sign-out-alt"></i> লগআউট
-                </a>
-              </li>
-            </ul>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="header-title">অ্যাডমিন ড্যাশবোর্ড</h1>
+        <div class="header-user">
+          <div class="username">
+            <i class="fas fa-user-circle"></i>
+            <span>মেহেদী হাসান</span>
           </div>
-        </nav>
+          <a href="login.html" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> লগআউট
+          </a>
+        </div>
+      </div>
+    </header>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-          <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-          >
-            <h1 class="h2">ড্যাশবোর্ড</h1>
-          </div>
+    <!-- Sidebar Overlay for mobile -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="../img/mehedi.png" alt="Logo" />
+        <h4>বিল ম্যানেজমেন্ট</h4>
+        <p>অ্যাডমিন প্যানেল</p>
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link active" href="admin_dashboard.html">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>ড্যাশবোর্ড</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="manage_customers.html">
+            <i class="fas fa-users"></i>
+            <span>গ্রাহক পরিচালনা</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="generate_bills.html">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>বিল তৈরি</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="view_bills.html">
+            <i class="fas fa-eye"></i>
+            <span>সকল বিল</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="login.html">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>লগআউট</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
 
           <div class="row g-3">
             <div class="col-md-4">
@@ -131,10 +426,43 @@
               </div>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+    </main>
 
-    <!-- Chart removed: this dashboard shows administrative metrics only -->
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        
+        sidebar.classList.toggle('show');
+        overlay.classList.toggle('show');
+      }
+
+      function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+      }
+
+      // Close sidebar when clicking on a nav link on mobile
+      document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 768) {
+            closeSidebar();
+          }
+        });
+      });
+
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          closeSidebar();
+        }
+      });
+    </script>
   </body>
 </html>
