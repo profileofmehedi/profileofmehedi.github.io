@@ -3,66 +3,616 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>লগইন - বিলিং অ্যাপ</title>
+    <title>লগইন - বিল ম্যানেজমেন্ট সিস্টেম</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-      body {
-        background-color: #f8f9fa;
+      * {
+        box-sizing: border-box;
       }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       .login-container {
-        max-width: 400px;
-        margin: 100px auto;
-        padding: 40px;
-        background-color: #fff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 0;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+        max-width: 500px;
+        width: 90%;
+        margin: 2rem;
+      }
+
+      .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .login-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+      }
+
+      .login-header-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .login-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .login-subtitle {
+        opacity: 0.9;
+        font-size: 1rem;
+      }
+
+      .login-body {
+        padding: 2.5rem;
+      }
+
+      .user-info {
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .user-info h6 {
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+      }
+
+      .user-types {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .user-type {
+        background: white;
+        border: 2px solid #e9ecef;
         border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .user-type:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+      }
+
+      .user-type.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+      }
+
+      .user-type i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .user-type-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .input-group {
+        position: relative;
+      }
+
+      .form-control {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
+      .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 10;
+      }
+
+      .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-bottom: 1.5rem;
+      }
+
+      .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+      }
+
+      .btn-login:disabled {
+        opacity: 0.6;
+        transform: none;
+        cursor: not-allowed;
+      }
+
+      .divider {
+        text-align: center;
+        position: relative;
+        margin: 2rem 0;
+      }
+
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e9ecef;
+      }
+
+      .divider span {
+        background: white;
+        padding: 0 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .btn-guest {
+        background: rgba(108, 117, 125, 0.1);
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        padding: 0.875rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+      }
+
+      .btn-guest:hover {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      .alert {
+        border-radius: 10px;
+        border: none;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .info-note {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+        color: #856404;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      /* Loading state */
+      .loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .spinner {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 576px) {
+        .login-container {
+          margin: 1rem;
+          width: calc(100% - 2rem);
+        }
+
+        .login-header {
+          padding: 1.5rem;
+        }
+
+        .login-title {
+          font-size: 1.5rem;
+        }
+
+        .login-body {
+          padding: 2rem 1.5rem;
+        }
+
+        .user-types {
+          grid-template-columns: 1fr;
+        }
+
+        .form-control {
+          padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+          font-size: 0.95rem;
+        }
+
+        .input-icon {
+          left: 0.75rem;
+        }
+
+        .btn-login,
+        .btn-guest {
+          padding: 0.875rem 1.5rem;
+          font-size: 0.95rem;
+        }
+      }
+
+      /* Animation */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-container {
+        animation: fadeInUp 0.8s ease forwards;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="login-container">
-        <h2 class="text-center mb-4">বিলিং অ্যাপ</h2>
+    <div class="login-container">
+      <!-- Header Section -->
+      <div class="login-header">
+        <div class="login-header-content">
+          <div class="logo">
+            <i class="fas fa-file-invoice-dollar"></i>
+          </div>
+          <h1 class="login-title">স্বাগতম</h1>
+          <p class="login-subtitle">বিল ম্যানেজমেন্ট সিস্টেমে লগইন করুন</p>
+        </div>
+      </div>
+
+      <!-- Login Body -->
+      <div class="login-body">
+        <!-- User Type Information -->
+        <div class="user-info">
+          <h6><i class="fas fa-info-circle me-1"></i>ব্যবহারকারী নির্দেশনা</h6>
+          <div class="user-types">
+            <div class="user-type" onclick="selectUserType('admin')">
+              <i class="fas fa-user-shield"></i>
+              <div class="user-type-label">অ্যাডমিন</div>
+            </div>
+            <div class="user-type" onclick="selectUserType('user')">
+              <i class="fas fa-user"></i>
+              <div class="user-type-label">ইউজার</div>
+            </div>
+          </div>
+          <p class="mb-0" style="font-size: 0.9rem; color: #6c757d">
+            ইউজারনেম ক্ষেত্রে <strong>"admin"</strong> অথবা
+            <strong>"user"</strong> টাইপ করুন
+          </p>
+        </div>
+
         <form id="loginForm">
-          <div class="mb-3">
-            <label for="username" class="form-label">ব্যবহারকারীর নাম</label>
-            <input
-              type="text"
-              class="form-control"
-              id="username"
-              required
-              value="admin"
-            />
+          <div class="form-group">
+            <label for="username" class="form-label">
+              <i class="fas fa-user"></i>
+              ব্যবহারকারীর নাম
+            </label>
+            <div class="input-group">
+              <i class="fas fa-user input-icon"></i>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-control"
+                placeholder="admin অথবা user লিখুন"
+                required
+                value="admin"
+              />
+            </div>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">পাসওয়ার্ড</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              required
-              value="123456"
-            />
+
+          <div class="form-group">
+            <label for="password" class="form-label">
+              <i class="fas fa-lock"></i>
+              পাসওয়ার্ড
+            </label>
+            <div class="input-group">
+              <i class="fas fa-lock input-icon"></i>
+              <input
+                name="password"
+                id="password"
+                type="password"
+                class="form-control"
+                placeholder="পাসওয়ার্ড লিখুন"
+                required
+                value="123456"
+              />
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary w-100">লগইন</button>
+
+          <button type="submit" id="loginBtn" class="btn btn-login">
+            <span class="normal-text">
+              <i class="fas fa-sign-in-alt me-2"></i>লগইন করুন
+            </span>
+            <span class="loading-text" style="display: none">
+              <i class="fas fa-spinner spinner me-2"></i>লগইন হচ্ছে...
+            </span>
+          </button>
         </form>
+
+        <div class="divider">
+          <span>অথবা</span>
+        </div>
+
+        <a href="customer_bill_check.html" class="btn btn-guest">
+          <i class="fas fa-search"></i>
+          লগইন ছাড়াই বিল চেক করুন
+        </a>
+
+        <div class="info-note">
+          <i class="fas fa-lightbulb me-1"></i>
+          <strong>টিপস:</strong> লগইন ছাড়াই আপনার বিলের তথ্য দেখতে উপরের "লগইন
+          ছাড়াই বিল চেক করুন" বাটনে ক্লিক করুন
+        </div>
       </div>
     </div>
 
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
+      function selectUserType(type) {
+        // Remove active class from all user types
+        document.querySelectorAll(".user-type").forEach((el) => {
+          el.classList.remove("active");
+        });
+
+        // Add active class to selected type
+        event.target.classList.add("active");
+
+        // Update username field
+        const usernameField = document.getElementById("username");
+        usernameField.value = type;
+        usernameField.focus();
+      }
+
       document
         .getElementById("loginForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
-          const username = document.getElementById("username").value;
-          // বাস্তব অ্যাপে এখানে প্রপার অথেনটিকেশন থাকবে
-          if (username === "admin") {
-            window.location.href = "admin_dashboard.html";
-          } else {
-            window.location.href = "customer_dashboard.html";
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value.trim();
+          const loginBtn = document.getElementById("loginBtn");
+
+          // Clear any existing alerts
+          removeAlert();
+
+          // Validate inputs
+          if (!username || !password) {
+            showAlert("danger", "সকল ক্ষেত্র পূরণ করুন।");
+            return;
+          }
+
+          // Validate username (must be admin or user)
+          if (username !== "admin" && username !== "user") {
+            showAlert(
+              "warning",
+              'ইউজারনেম অবশ্যই "admin" অথবা "user" হতে হবে।'
+            );
+            return;
+          }
+
+          // Show loading state
+          showLoadingState(true);
+
+          // Simulate login process
+          setTimeout(() => {
+            if (
+              (username === "admin" || username === "user") &&
+              password === "123456"
+            ) {
+              showAlert("success", "সফলভাবে লগইন হয়েছে! রিডিরেক্ট হচ্ছে...");
+
+              // Redirect based on username
+              setTimeout(() => {
+                if (username === "admin") {
+                  window.location.href = "admin_dashboard.html";
+                } else {
+                  window.location.href = "customer_dashboard.html";
+                }
+              }, 1500);
+            } else {
+              showAlert(
+                "danger",
+                "ভুল ব্যবহারকারীর নাম বা পাসওয়ার্ড। অনুগ্রহ করে আবার চেষ্টা করুন।"
+              );
+              showLoadingState(false);
+            }
+          }, 2000);
+        });
+
+      function showLoadingState(loading) {
+        const loginBtn = document.getElementById("loginBtn");
+        const normalText = loginBtn.querySelector(".normal-text");
+        const loadingText = loginBtn.querySelector(".loading-text");
+
+        if (loading) {
+          normalText.style.display = "none";
+          loadingText.style.display = "inline-flex";
+          loginBtn.disabled = true;
+        } else {
+          normalText.style.display = "inline-flex";
+          loadingText.style.display = "none";
+          loginBtn.disabled = false;
+        }
+      }
+
+      function showAlert(type, message) {
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type} alert-dismissible fade show login-alert`;
+        alert.innerHTML = `
+          <i class="fas fa-${
+            type === "success"
+              ? "check-circle"
+              : type === "warning"
+              ? "exclamation-triangle"
+              : "exclamation-triangle"
+          } me-2"></i>
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        const form = document.getElementById("loginForm");
+        form.insertBefore(alert, form.firstChild);
+
+        // Auto remove after 6 seconds for error/warning messages
+        if (type !== "success") {
+          setTimeout(() => {
+            if (alert.parentNode) {
+              alert.remove();
+            }
+          }, 6000);
+        }
+      }
+
+      function removeAlert() {
+        const existingAlert = document.querySelector(".login-alert");
+        if (existingAlert) {
+          existingAlert.remove();
+        }
+      }
+
+      // Focus on username input when page loads
+      window.addEventListener("load", function () {
+        document.getElementById("username").focus();
+      });
+
+      // Handle Enter key press in form fields
+      document.querySelectorAll("#loginForm input").forEach((field) => {
+        field.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            document
+              .getElementById("loginForm")
+              .dispatchEvent(new Event("submit"));
+          }
+        });
+      });
+
+      // Auto-update username when typing
+      document
+        .getElementById("username")
+        .addEventListener("input", function () {
+          const value = this.value.toLowerCase();
+          document.querySelectorAll(".user-type").forEach((el) => {
+            el.classList.remove("active");
+          });
+
+          if (value === "admin") {
+            document
+              .querySelector('.user-type[onclick*="admin"]')
+              .classList.add("active");
+          } else if (value === "user") {
+            document
+              .querySelector('.user-type[onclick*="user"]')
+              .classList.add("active");
           }
         });
     </script>
