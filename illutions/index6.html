@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lorentz Attractor Flow</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">Click to spawn a new particle flow</div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor(x, y) {
+                // Initial conditions for Lorentz attractor in 3D space
+                this.x = (Math.random() - 0.5) * 0.1;
+                this.y = (Math.random() - 0.5) * 0.1;
+                this.z = (Math.random() - 0.5) * 0.1 + 25;
+                this.color = `hsl(${Math.random() * 360}, 70%, 70%)`;
+                this.trail = [];
+                this.trailLength = 50;
+                // Screen coordinates for rendering
+                this.screenX = x;
+                this.screenY = y;
+            }
+
+            update(dt) {
+                // Lorentz attractor equations
+                const sigma = 10;
+                const rho = 28;
+                const beta = 8 / 3;
+
+                const dx = sigma * (this.y - this.x) * dt;
+                const dy = (this.x * (rho - this.z) - this.y) * dt;
+                const dz = (this.x * this.y - beta * this.z) * dt;
+
+                this.x += dx;
+                this.y += dy;
+                this.z += dz;
+
+                // Project 3D to 2D for rendering
+                const scale = 10;
+                const projectedX = this.x * scale + this.screenX;
+                const projectedY = this.y * scale + this.screenY;
+
+                // Store trail
+                this.trail.push({ x: projectedX, y: projectedY });
+                if (this.trail.length > this.trailLength) {
+                    this.trail.shift();
+                }
+            }
+
+            draw() {
+                // Draw trail
+                ctx.beginPath();
+                if (this.trail.length > 0) {
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                }
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw particle
+                ctx.beginPath();
+                ctx.arc(this.trail[this.trail.length - 1]?.x || this.screenX,
+                    this.trail[this.trail.length - 1]?.y || this.screenY,
+                    2, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            resize();
+            particles = [];
+            // Start with one particle flow at center
+            particles.push(new Particle(width / 2, height / 2));
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+
+            particles.forEach(p => {
+                p.update(0.016);
+                p.draw();
+            });
+
+            // Remove particles that stray too far
+            particles = particles.filter(p =>
+                Math.abs(p.x) < 100 && Math.abs(p.y) < 100 && Math.abs(p.z) < 100
+            );
+
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        window.addEventListener('resize', init);
+        canvas.addEventListener('click', e => {
+            particles.push(new Particle(e.clientX, e.clientY));
+        });
+
+        init();
+        animate();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reality Distortion Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 70%);
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+        }
+
+        .reality-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: 2000px;
+            overflow: hidden;
+        }
+
+        .dimensional-portal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 400px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: conic-gradient(from 0deg,
+                    #ff0080, #8000ff, #0080ff, #00ff80,
+                    #80ff00, #ff8000, #ff0080);
+            animation: portalSpin 8s linear infinite;
+            filter: blur(2px);
+        }
+
+        .portal-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.1) 20%,
+                    rgba(0, 255, 255, 0.3) 40%,
+                    rgba(255, 0, 255, 0.5) 60%,
+                    rgba(0, 0, 0, 0.8) 80%,
+                    #000000 100%);
+            animation: coreVortex 12s ease-in-out infinite reverse;
+            backdrop-filter: blur(10px);
+        }
+
+        .liquid-morphs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .liquid-blob {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            animation: liquidFlow 15s ease-in-out infinite;
+            filter: blur(3px);
+        }
+
+        .reality-fragments {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .fragment {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.1),
+                    rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fragmentFloat 20s linear infinite;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+
+        .time-distortion {
+            position: absolute;
+            top: 20%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: timeWarp 25s ease-in-out infinite;
+        }
+
+        .time-hand {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 80px;
+            background: linear-gradient(to top, transparent, #fff, #ff00ff);
+            transform-origin: bottom;
+            animation: timeFlow 3s linear infinite;
+        }
+
+        .gravity-well {
+            position: absolute;
+            bottom: 15%;
+            left: 15%;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(128, 0, 255, 0.2) 30%,
+                    rgba(255, 0, 128, 0.3) 60%,
+                    transparent 100%);
+            animation: gravityPulse 8s ease-in-out infinite;
+            filter: blur(1px);
+        }
+
+        .space-ripples {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 0, 0.1) 0%, transparent 50%);
+            animation: spaceRipple 30s ease-in-out infinite;
+        }
+
+        .quantum-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #fff, transparent);
+            border-radius: 50%;
+            animation: quantumMove 12s linear infinite;
+            opacity: 0;
+        }
+
+        .holographic-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridShift 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        .neural-network {
+            position: absolute;
+            top: 10%;
+            left: 70%;
+            width: 300px;
+            height: 300px;
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #00ffff, #0080ff);
+            border-radius: 50%;
+            animation: neuralPulse 4s ease-in-out infinite;
+        }
+
+        .neural-connection {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(0, 255, 255, 0.6),
+                    transparent);
+            animation: neuralFlow 6s linear infinite;
+        }
+
+        .dimension-tears {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .tear {
+            position: absolute;
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 0, 255, 0.8),
+                    rgba(255, 255, 255, 1),
+                    rgba(0, 255, 255, 0.8),
+                    transparent);
+            animation: tearRip 18s ease-in-out infinite;
+            filter: blur(1px);
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-reality {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #00ffff;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 11px;
+            padding: 8px 12px;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .btn-reality:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .intensity-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #00ffff;
+            font-size: 14px;
+            text-shadow: 0 0 10px #00ffff;
+            z-index: 1000;
+        }
+
+        @keyframes portalSpin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) rotate(180deg) scale(1.2);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg) scale(1);
+            }
+        }
+
+        @keyframes coreVortex {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotateZ(0deg);
+                filter: hue-rotate(0deg);
+            }
+
+            25% {
+                transform: translate(-50%, -50%) scale(0.8) rotateZ(90deg);
+                filter: hue-rotate(90deg);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.1) rotateZ(180deg);
+                filter: hue-rotate(180deg);
+            }
+
+            75% {
+                transform: translate(-50%, -50%) scale(0.9) rotateZ(270deg);
+                filter: hue-rotate(270deg);
+            }
+        }
+
+        @keyframes liquidFlow {
+            0% {
+                transform: translateX(-100px) translateY(-100px) scale(0.5);
+                border-radius: 50%;
+            }
+
+            25% {
+                transform: translateX(100px) translateY(-50px) scale(1.2);
+                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            }
+
+            50% {
+                transform: translateX(50px) translateY(100px) scale(0.8);
+                border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+            }
+
+            75% {
+                transform: translateX(-50px) translateY(50px) scale(1.1);
+                border-radius: 40% 60% 60% 40% / 60% 40% 40% 60%;
+            }
+
+            100% {
+                transform: translateX(-100px) translateY(-100px) scale(0.5);
+                border-radius: 50%;
+            }
+        }
+
+        @keyframes fragmentFloat {
+            0% {
+                transform: translateY(100vh) rotateX(0deg) rotateY(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotateX(360deg) rotateY(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes timeWarp {
+
+            0%,
+            100% {
+                transform: scale(1) rotateZ(0deg);
+                filter: hue-rotate(0deg);
+            }
+
+            50% {
+                transform: scale(1.3) rotateZ(180deg);
+                filter: hue-rotate(180deg);
+            }
+        }
+
+        @keyframes timeFlow {
+            0% {
+                transform: translate(-50%, -100%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -100%) rotate(360deg);
+            }
+        }
+
+        @keyframes gravityPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: hue-rotate(0deg) blur(1px);
+            }
+
+            50% {
+                transform: scale(1.4);
+                filter: hue-rotate(180deg) blur(3px);
+            }
+        }
+
+        @keyframes spaceRipple {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.2) rotate(180deg);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes quantumMove {
+            0% {
+                transform: translateX(0px) translateY(0px);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            25% {
+                transform: translateX(200px) translateY(-100px);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: translateX(-100px) translateY(150px);
+                opacity: 1;
+            }
+
+            75% {
+                transform: translateX(150px) translateY(-50px);
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.2;
+            }
+
+            100% {
+                transform: translateX(-200px) translateY(100px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes gridShift {
+            0% {
+                transform: translateX(0) translateY(0);
+            }
+
+            100% {
+                transform: translateX(50px) translateY(50px);
+            }
+        }
+
+        @keyframes neuralPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        @keyframes neuralFlow {
+            0% {
+                transform: scaleX(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scaleX(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scaleX(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes tearRip {
+            0% {
+                transform: translateX(-200px) rotateZ(0deg);
+                opacity: 0;
+            }
+
+            25% {
+                transform: translateX(0px) rotateZ(45deg);
+                opacity: 1;
+            }
+
+            75% {
+                transform: translateX(200px) rotateZ(-45deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(400px) rotateZ(0deg);
+                opacity: 0;
+            }
+        }
+
+        .intensity-1 * {
+            animation-duration: 30s !important;
+        }
+
+        .intensity-2 * {
+            animation-duration: 20s !important;
+        }
+
+        .intensity-3 * {
+            animation-duration: 10s !important;
+        }
+
+        .intensity-4 * {
+            animation-duration: 5s !important;
+        }
+
+        .intensity-5 * {
+            animation-duration: 2s !important;
+        }
+
+        .glitch-mode {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-2px, 2px);
+            }
+
+            40% {
+                transform: translate(-2px, -2px);
+            }
+
+            60% {
+                transform: translate(2px, 2px);
+            }
+
+            80% {
+                transform: translate(2px, -2px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reality-container intensity-3" id="realityContainer">
+        <div class="controls">
+            <button class="btn btn-reality btn-sm" onclick="setIntensity(1)">Reality Level 1</button>
+            <button class="btn btn-reality btn-sm" onclick="setIntensity(2)">Reality Level 2</button>
+            <button class="btn btn-reality btn-sm" onclick="setIntensity(3)">Reality Level 3</button>
+            <button class="btn btn-reality btn-sm" onclick="setIntensity(4)">Reality Level 4</button>
+            <button class="btn btn-reality btn-sm" onclick="setIntensity(5)">BREAK REALITY</button>
+            <button class="btn btn-reality btn-sm mt-2" onclick="toggleGlitch()">Glitch Mode</button>
+            <button class="btn btn-reality btn-sm" onclick="createRealityBurst()">Reality Burst</button>
+            <button class="btn btn-reality btn-sm" onclick="dimensionalShift()">Dimension Shift</button>
+        </div>
+
+        <div class="intensity-indicator" id="intensityIndicator">
+            Reality Integrity: 70%
+        </div>
+
+        <div class="holographic-grid"></div>
+        <div class="space-ripples"></div>
+
+        <div class="dimensional-portal">
+            <div class="portal-core"></div>
+        </div>
+
+        <div class="time-distortion">
+            <div class="time-hand"></div>
+            <div class="time-hand" style="animation-duration: 12s; height: 60px;"></div>
+            <div class="time-hand" style="animation-duration: 60s; height: 40px;"></div>
+        </div>
+
+        <div class="gravity-well"></div>
+
+        <div class="neural-network" id="neuralNetwork"></div>
+
+        <div class="liquid-morphs" id="liquidMorphs"></div>
+        <div class="reality-fragments" id="realityFragments"></div>
+        <div class="quantum-particles" id="quantumParticles"></div>
+        <div class="dimension-tears" id="dimensionTears"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentIntensity = 3;
+        let glitchMode = false;
+        let realityIntegrity = 70;
+
+        function setIntensity(level) {
+            currentIntensity = level;
+            const container = document.getElementById('realityContainer');
+            container.className = `reality-container intensity-${level}`;
+
+            realityIntegrity = Math.max(10, 100 - (level * 18));
+            updateIntegrityDisplay();
+
+            if (level === 5) {
+                createChaos();
+            }
+        }
+
+        function updateIntegrityDisplay() {
+            const indicator = document.getElementById('intensityIndicator');
+            indicator.textContent = `Reality Integrity: ${realityIntegrity}%`;
+
+            if (realityIntegrity < 30) {
+                indicator.style.color = '#ff0040';
+                indicator.style.animation = 'glitch 0.5s infinite';
+            } else if (realityIntegrity < 60) {
+                indicator.style.color = '#ff8000';
+            } else {
+                indicator.style.color = '#00ffff';
+                indicator.style.animation = 'none';
+            }
+        }
+
+        function toggleGlitch() {
+            glitchMode = !glitchMode;
+            const container = document.getElementById('realityContainer');
+
+            if (glitchMode) {
+                container.classList.add('glitch-mode');
+                realityIntegrity = Math.max(5, realityIntegrity - 20);
+            } else {
+                container.classList.remove('glitch-mode');
+                realityIntegrity = Math.min(100, realityIntegrity + 10);
+            }
+            updateIntegrityDisplay();
+        }
+
+        function createRealityBurst() {
+            const burst = document.createElement('div');
+            burst.style.position = 'absolute';
+            burst.style.top = '50%';
+            burst.style.left = '50%';
+            burst.style.width = '20px';
+            burst.style.height = '20px';
+            burst.style.background = 'radial-gradient(circle, #fff, transparent)';
+            burst.style.borderRadius = '50%';
+            burst.style.transform = 'translate(-50%, -50%)';
+            burst.style.animation = 'burst 2s ease-out forwards';
+            burst.style.pointerEvents = 'none';
+            burst.style.zIndex = '100';
+
+            document.getElementById('realityContainer').appendChild(burst);
+
+            // Add burst animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes burst {
+                    0% { 
+                        transform: translate(-50%, -50%) scale(0);
+                        opacity: 1;
+                    }
+                    100% { 
+                        transform: translate(-50%, -50%) scale(50);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            setTimeout(() => {
+                burst.remove();
+                style.remove();
+            }, 2000);
+
+            realityIntegrity = Math.max(0, realityIntegrity - 15);
+            updateIntegrityDisplay();
+        }
+
+        function dimensionalShift() {
+            const container = document.getElementById('realityContainer');
+            const originalFilter = container.style.filter;
+
+            container.style.filter = 'hue-rotate(180deg) invert(0.2) saturate(2)';
+            container.style.transform = 'scale(1.1) rotateZ(5deg)';
+
+            setTimeout(() => {
+                container.style.filter = originalFilter;
+                container.style.transform = '';
+            }, 3000);
+
+            realityIntegrity = Math.max(0, realityIntegrity - 10);
+            updateIntegrityDisplay();
+        }
+
+        function createChaos() {
+            // Create multiple reality bursts
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    createRealityBurst();
+                }, i * 200);
+            }
+
+            // Activate glitch mode temporarily
+            if (!glitchMode) {
+                setTimeout(() => {
+                    toggleGlitch();
+                    setTimeout(() => {
+                        if (glitchMode) toggleGlitch();
+                    }, 5000);
+                }, 1000);
+            }
+        }
+
+        function createLiquidMorphs() {
+            const container = document.getElementById('liquidMorphs');
+            const morphCount = 8;
+
+            for (let i = 0; i < morphCount; i++) {
+                const morph = document.createElement('div');
+                morph.className = 'liquid-blob';
+                morph.style.width = (Math.random() * 100 + 50) + 'px';
+                morph.style.height = morph.style.width;
+                morph.style.left = Math.random() * 100 + '%';
+                morph.style.top = Math.random() * 100 + '%';
+                morph.style.animationDelay = Math.random() * 15 + 's';
+                morph.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(morph);
+            }
+        }
+
+        function createRealityFragments() {
+            const container = document.getElementById('realityFragments');
+            const fragmentCount = 15;
+
+            for (let i = 0; i < fragmentCount; i++) {
+                const fragment = document.createElement('div');
+                fragment.className = 'fragment';
+                fragment.style.left = Math.random() * 100 + '%';
+                fragment.style.animationDelay = Math.random() * 20 + 's';
+                fragment.style.animationDuration = (Math.random() * 15 + 15) + 's';
+                container.appendChild(fragment);
+            }
+        }
+
+        function createQuantumParticles() {
+            const container = document.getElementById('quantumParticles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 12 + 's';
+                particle.style.animationDuration = (Math.random() * 8 + 8) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        function createNeuralNetwork() {
+            const container = document.getElementById('neuralNetwork');
+            const nodeCount = 12;
+            const nodes = [];
+
+            // Create nodes
+            for (let i = 0; i < nodeCount; i++) {
+                const node = document.createElement('div');
+                node.className = 'neural-node';
+                const angle = (i / nodeCount) * 2 * Math.PI;
+                const radius = 100;
+                const x = Math.cos(angle) * radius + 150;
+                const y = Math.sin(angle) * radius + 150;
+                node.style.left = x + 'px';
+                node.style.top = y + 'px';
+                node.style.animationDelay = (i * 0.3) + 's';
+                container.appendChild(node);
+                nodes.push({ element: node, x: x, y: y });
+            }
+
+            // Create connections
+            for (let i = 0; i < nodeCount; i++) {
+                const connections = Math.floor(Math.random() * 3) + 1;
+                for (let j = 0; j < connections; j++) {
+                    const targetIndex = Math.floor(Math.random() * nodeCount);
+                    if (targetIndex !== i) {
+                        const connection = document.createElement('div');
+                        connection.className = 'neural-connection';
+
+                        const dx = nodes[targetIndex].x - nodes[i].x;
+                        const dy = nodes[targetIndex].y - nodes[i].y;
+                        const length = Math.sqrt(dx * dx + dy * dy);
+                        const angle = Math.atan2(dy, dx);
+
+                        connection.style.width = length + 'px';
+                        connection.style.left = nodes[i].x + 'px';
+                        connection.style.top = nodes[i].y + 'px';
+                        connection.style.transform = `rotate(${angle}rad)`;
+                        connection.style.animationDelay = Math.random() * 6 + 's';
+
+                        container.appendChild(connection);
+                    }
+                }
+            }
+        }
+
+        function createDimensionTears() {
+            const container = document.getElementById('dimensionTears');
+            const tearCount = 5;
+
+            for (let i = 0; i < tearCount; i++) {
+                const tear = document.createElement('div');
+                tear.className = 'tear';
+                tear.style.top = Math.random() * 100 + '%';
+                tear.style.left = '-200px';
+                tear.style.animationDelay = Math.random() * 18 + 's';
+                tear.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                tear.style.transform = `rotate(${Math.random() * 60 - 30}deg)`;
+                container.appendChild(tear);
+            }
+        }
+
+        function addMouseInteraction() {
+            const container = document.getElementById('realityContainer');
+            const portal = document.querySelector('.dimensional-portal');
+
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+
+                // Portal follows mouse with lag
+                const portalX = (x - 0.5) * 100;
+                const portalY = (y - 0.5) * 100;
+                portal.style.transform = `translate(calc(-50% + ${portalX}px), calc(-50% + ${portalY}px))`;
+
+                // Adjust perspective
+                const perspectiveX = (x - 0.5) * 1000;
+                const perspectiveY = (y - 0.5) * 1000;
+                container.style.transformOrigin = `${x * 100}% ${y * 100}%`;
+            });
+
+            container.addEventListener('click', (e) => {
+                createRealityBurst();
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            createLiquidMorphs();
+            createRealityFragments();
+            createQuantumParticles();
+            createNeuralNetwork();
+            createDimensionTears();
+            addMouseInteraction();
+            updateIntegrityDisplay();
+
+            // Periodic reality degradation
+            setInterval(() => {
+                if (realityIntegrity > 10) {
+                    realityIntegrity -= Math.random() * 2;
+                    updateIntegrityDisplay();
+                }
+            }, 5000);
+
+            // Occasional automatic reality bursts
+            setInterval(() => {
+                if (Math.random() < 0.3 && currentIntensity >= 3) {
+                    createRealityBurst();
+                }
+            }, 15000);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case '1': setIntensity(1); break;
+                case '2': setIntensity(2); break;
+                case '3': setIntensity(3); break;
+                case '4': setIntensity(4); break;
+                case '5': setIntensity(5); break;
+                case 'g': toggleGlitch(); break;
+                case ' ': createRealityBurst(); e.preventDefault(); break;
+                case 'd': dimensionalShift(); break;
+            }
+        });
+    </script>
+</body>
+
+</html>

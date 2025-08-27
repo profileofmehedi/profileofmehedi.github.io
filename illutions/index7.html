@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Gravitational Orbits</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">Watch the gravitational orbits evolve</div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let bodies = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class CelestialBody {
+            constructor(x, y, mass, vx, vy) {
+                this.x = x;
+                this.y = y;
+                this.mass = mass;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = `hsl(${Math.random() * 360}, 70%, 70%)`;
+                this.trail = [];
+                this.trailLength = 100;
+                this.radius = Math.sqrt(mass) * 2;
+            }
+
+            update(dt) {
+                // Update position
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+
+                // Store trail
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.trailLength) {
+                    this.trail.shift();
+                }
+            }
+
+            applyGravity(bodies, dt) {
+                const G = 100; // Gravitational constant
+                bodies.forEach(other => {
+                    if (other !== this) {
+                        const dx = other.x - this.x;
+                        const dy = other.y - this.y;
+                        const distSq = dx * dx + dy * dy;
+                        const dist = Math.sqrt(distSq) || 1; // Prevent division by zero
+                        const force = G * this.mass * other.mass / distSq;
+                        const ax = force * dx / dist / this.mass;
+                        const ay = force * dy / dist / this.mass;
+                        this.vx += ax * dt;
+                        this.vy += ay * dt;
+                    }
+                });
+            }
+
+            draw() {
+                // Draw trail
+                ctx.beginPath();
+                if (this.trail.length > 0) {
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                }
+                ctx.strokeStyle = `rgba(${parseInt(this.color.slice(4, -1).split(',')[0])}, ${parseInt(this.color.slice(4, -1).split(',')[1])}, ${parseInt(this.color.slice(4, -1).split(',')[2])}, 0.5)`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw body
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            resize();
+            bodies = [];
+            // Create a central massive body (like a star)
+            bodies.push(new CelestialBody(width / 2, height / 2, 1000, 0, 0));
+            // Add orbiting bodies
+            for (let i = 0; i < 5; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 100 + Math.random() * 200;
+                const speed = Math.sqrt(100 * 1000 / radius); // Orbital velocity
+                bodies.push(new CelestialBody(
+                    width / 2 + radius * Math.cos(angle),
+                    height / 2 + radius * Math.sin(angle),
+                    10,
+                    -speed * Math.sin(angle),
+                    speed * Math.cos(angle)
+                ));
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Update all bodies with gravitational forces
+            bodies.forEach(body => {
+                body.applyGravity(bodies, 0.016);
+            });
+
+            // Update positions
+            bodies.forEach(body => {
+                body.update(0.016);
+                body.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Event listener for resize
+        window.addEventListener('resize', init);
+
+        init();
+        animate();
+    </script>
+</body>
+
+</html>

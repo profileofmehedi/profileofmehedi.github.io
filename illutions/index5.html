@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Vortex Galaxy</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">Click to create a new vortex at mouse position</div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let vortices = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Vortex {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.strength = (Math.random() * 0.5 + 0.5) * (Math.random() < 0.5 ? 1 : -1); // Random strength and direction
+                this.radius = 150;
+                this.particles = [];
+                this.color = `hsl(${Math.random() * 360}, 70%, 70%)`;
+                for (let i = 0; i < 200; i++) {
+                    this.particles.push({
+                        theta: Math.random() * Math.PI * 2,
+                        r: Math.random() * this.radius,
+                        angularVel: 0,
+                        alpha: Math.random() * 0.5 + 0.5
+                    });
+                }
+            }
+
+            update(dt) {
+                this.particles.forEach(p => {
+                    // Gravitational vortex dynamics (inverse-square law)
+                    const r = Math.max(p.r, 1); // Prevent division by zero
+                    const accel = this.strength / (r * r);
+                    p.angularVel += accel * dt;
+                    p.angularVel *= 0.99; // Damping
+                    p.theta += p.angularVel * dt;
+                    p.r += (this.radius - p.r) * 0.01; // Gentle pull toward radius
+
+                    // Convert polar to Cartesian for rendering
+                    p.px = this.x + p.r * Math.cos(p.theta);
+                    p.py = this.y + p.r * Math.sin(p.theta);
+                });
+            }
+
+            draw() {
+                // Draw vortex core
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+
+                // Draw particles with trails
+                this.particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.px, p.py, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+
+                // Draw spiral arms
+                ctx.beginPath();
+                for (let i = 0; i < this.particles.length; i += 10) {
+                    const p1 = this.particles[i];
+                    const p2 = this.particles[(i + 1) % this.particles.length];
+                    ctx.moveTo(p1.px, p1.py);
+                    ctx.lineTo(p2.px, p2.py);
+                }
+                ctx.strokeStyle = `rgba(${parseInt(this.color.slice(4, -1).split(',')[0])}, ${parseInt(this.color.slice(4, -1).split(',')[1])}, ${parseInt(this.color.slice(4, -1).split(',')[2])}, 0.3)`;
+                ctx.stroke();
+            }
+        }
+
+        function init() {
+            resize();
+            vortices = [];
+            // Spawn initial vortex at center
+            vortices.push(new Vortex(width / 2, height / 2));
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            vortices.forEach(v => {
+                v.update(0.016);
+                v.draw();
+            });
+
+            // Apply vortex interactions (simplified N-body influence)
+            vortices.forEach((v1, i) => {
+                vortices.forEach((v2, j) => {
+                    if (i !== j) {
+                        const dx = v2.x - v1.x;
+                        const dy = v2.y - v1.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const force = (v1.strength * v2.strength) / (dist * dist) * 0.1;
+                        v1.x += dx / dist * force;
+                        v1.y += dy / dist * force;
+                    }
+                });
+            });
+
+            // Remove off-screen vortices
+            vortices = vortices.filter(v =>
+                v.x >= -v.radius && v.x <= width + v.radius &&
+                v.y >= -v.radius && v.y <= height + v.radius
+            );
+
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        window.addEventListener('resize', init);
+        canvas.addEventListener('click', e => {
+            vortices.push(new Vortex(e.clientX, e.clientY));
+        });
+
+        init();
+        animate();
+    </script>
+</body>
+
+</html>

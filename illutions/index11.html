@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Particle Tunnel</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            perspective: 800px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+        <button onclick="toggleAnimation()">Pause/Resume</button>
+        <button onclick="resetField()">Reset</button>
+        <p>Speed: <span id="speed">0.01</span></p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        // Resize canvas
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Particle system
+        const particles = [];
+        const numParticles = 500;
+        let speed = 0.01;
+        let isPaused = false;
+
+        // Particle class with gravitational dynamics
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // Random position in 3D space
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.random() * Math.PI;
+                const r = 400 + Math.random() * 800;
+                this.x = r * Math.sin(phi) * Math.cos(theta);
+                this.y = r * Math.sin(phi) * Math.sin(theta);
+                this.z = r * Math.cos(phi);
+
+                // Orbital velocity based on inverse-square law
+                const orbitRadius = Math.sqrt(this.x * this.x + this.y * this.y);
+                const v = Math.sqrt(1000 / Math.max(orbitRadius, 1));
+                this.vx = -v * this.y / orbitRadius;
+                this.vy = v * this.x / orbitRadius;
+                this.vz = (Math.random() - 0.5) * 0.1;
+            }
+
+            update() {
+                // Gravitational acceleration toward origin
+                const dist = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+                const force = 1000 / (dist * dist + 100); // Avoid division by zero
+                this.vx -= (this.x / dist) * force * speed;
+                this.vy -= (this.y / dist) * force * speed;
+                this.vz -= (this.z / dist) * force * speed;
+
+                this.x += this.vx;
+                this.y += this.vy;
+                this.z += this.vz;
+
+                // Reset if particle gets too close or too far
+                if (dist < 50 || dist > 2000) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                // Perspective projection
+                const fov = 800;
+                const scale = fov / (fov + this.z);
+                if (scale <= 0) return;
+
+                const px = this.x * scale + width / 2;
+                const py = this.y * scale + height / 2;
+                const size = Math.max(2, 10 * scale);
+
+                // Color based on velocity and distance
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy + this.vz * this.vz);
+                const r = Math.min(255, 100 + speed * 100);
+                const g = Math.min(255, 100 + speed * 50);
+                const b = 255 / (1 + this.z / 400);
+
+                ctx.beginPath();
+                ctx.arc(px, py, size, 0, 2 * Math.PI);
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                ctx.fill();
+            }
+        }
+
+        // Initialize particles
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(new Particle());
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            if (!isPaused) {
+                particles.forEach(p => p.update());
+                particles.sort((a, b) => b.z - a.z); // Depth sorting
+                particles.forEach(p => p.draw());
+                document.getElementById('speed').textContent = speed.toFixed(3);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Controls
+        function toggleAnimation() {
+            isPaused = !isPaused;
+        }
+
+        function resetField() {
+            particles.forEach(p => p.reset());
+            speed = 0.01;
+        }
+
+        // Mouse interaction for speed control
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            speed = 0.005 + (e.clientX - rect.left) / width * 0.05;
+        });
+
+        // Start animation
+        animate();
+    </script>
+</body>
+
+</html>

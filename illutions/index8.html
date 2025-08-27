@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Strange Attractor Nebula</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">Watch the chaotic nebula evolve</div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                // Initial conditions for a strange attractor (Rössler system)
+                this.x = (Math.random() - 0.5) * 0.1;
+                this.y = (Math.random() - 0.5) * 0.1;
+                this.z = (Math.random() - 0.5) * 0.1;
+                this.color = `hsl(${Math.random() * 360}, 70%, 70%)`;
+                this.trail = [];
+                this.trailLength = 80;
+            }
+
+            update(dt) {
+                // Rössler attractor equations
+                const a = 0.2;
+                const b = 0.2;
+                const c = 5.7;
+
+                const dx = (-this.y - this.z) * dt;
+                const dy = (this.x + a * this.y) * dt;
+                const dz = (b + this.z * (this.x - c)) * dt;
+
+                this.x += dx;
+                this.y += dy;
+                this.z += dz;
+
+                // Project 3D to 2D with perspective
+                const scale = 100;
+                const perspective = 1000;
+                const screenX = this.x * scale + width / 2;
+                const screenY = this.y * scale + height / 2;
+                const depth = perspective / (perspective + this.z * scale);
+
+                // Store trail
+                this.trail.push({ x: screenX * depth, y: screenY * depth, depth });
+                if (this.trail.length > this.trailLength) {
+                    this.trail.shift();
+                }
+            }
+
+            draw() {
+                // Draw trail with fading effect
+                ctx.beginPath();
+                for (let i = 0; i < this.trail.length; i++) {
+                    const alpha = i / this.trailLength;
+                    if (i === 0) {
+                        ctx.moveTo(this.trail[i].x, this.trail[i].y);
+                    } else {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                }
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw particle
+                if (this.trail.length > 0) {
+                    const last = this.trail[this.trail.length - 1];
+                    ctx.beginPath();
+                    ctx.arc(last.x, last.y, 2 * last.depth, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = last.depth;
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function init() {
+            resize();
+            particles = [];
+            // Create multiple particles for a nebula effect
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+
+            particles.forEach(p => {
+                p.update(0.05);
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Event listener for resize
+        window.addEventListener('resize', init);
+
+        init();
+        animate();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Torus Optical Illusion</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .container {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 20s linear infinite;
+        }
+
+        .ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            box-sizing: border-box;
+        }
+
+        .ring::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%,
+                    rgba(255, 255, 255, 0.8),
+                    rgba(0, 255, 255, 0.4),
+                    rgba(255, 0, 255, 0.2));
+            clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%);
+            transform: translateZ(0);
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+
+            to {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.4;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="container">
+        <!-- Rings will be added dynamically via JavaScript -->
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const numRings = 60;
+        const torusRadius = 200;
+        const tubeRadius = 50;
+
+        // Generate rings with mathematical positioning
+        for (let i = 0; i < numRings; i++) {
+            const theta = (i / numRings) * 2 * Math.PI;
+            const ring = document.createElement('div');
+            ring.className = 'ring';
+
+            // Parametric equations for torus
+            const x = torusRadius * Math.cos(theta);
+            const z = torusRadius * Math.sin(theta);
+
+            // Apply 3D transforms with dynamic rotation
+            ring.style.transform = `
+                rotateY(${theta * 180 / Math.PI}deg)
+                translateX(${x}px)
+                translateZ(${z}px)
+                rotateX(90deg)
+            `;
+
+            // Add pulsating effect with staggered delay
+            ring.style.animation = `pulse ${2 + Math.sin(theta) * 0.5}s ease-in-out infinite`;
+            ring.style.animationDelay = `${i * 0.05}s`;
+
+            container.appendChild(ring);
+        }
+
+        // Dynamic lighting effect based on mouse movement
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth - 0.5;
+            const mouseY = e.clientY / window.innerHeight - 0.5;
+
+            // Adjust container rotation based on mouse position
+            container.style.transform = `
+                rotateX(${mouseY * 30}deg)
+                rotateY(${mouseX * 30}deg)
+            `;
+        });
+    </script>
+</body>
+
+</html>

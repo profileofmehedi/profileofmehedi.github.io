@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twisting Möbius Strip Illusion</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: #000022;
+            perspective: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            transform-style: preserve-3d;
+            animation: rotate 25s linear infinite;
+        }
+
+        .strip {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #ff00ff, #00ffff);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            transform-origin: center;
+            transform-style: preserve-3d;
+        }
+
+        .strip::before,
+        .strip::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            animation: twist 4s ease-in-out infinite;
+        }
+
+        .strip::before {
+            transform: translateZ(-50px) rotateY(180deg);
+            opacity: 0.8;
+        }
+
+        .strip::after {
+            transform: translateZ(-100px) rotateY(360deg);
+            opacity: 0.5;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+
+            to {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+        }
+
+        @keyframes twist {
+
+            0%,
+            100% {
+                transform: skew(0deg);
+            }
+
+            50% {
+                transform: skew(20deg);
+            }
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background: #00ffff;
+            border: none;
+            color: #000;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="container">
+        <!-- Strips will be added dynamically -->
+    </div>
+    <div class="controls">
+        <button onclick="toggleRotation()">Pause/Resume</button>
+        <button onclick="resetStrip()">Reset</button>
+        <p>Twist Factor: <span id="twist">1.0</span></p>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        let twistFactor = 1.0;
+        let isPaused = false;
+
+        // Generate Möbius strip segments
+        function createStrips() {
+            const numSegments = 24; // For a smooth strip
+            for (let i = 0; i < numSegments; i++) {
+                const angle = (i / numSegments) * 360;
+                const twist = (i / numSegments) * 180 * twistFactor; // Möbius twist
+                const strip = document.createElement('div');
+                strip.className = 'strip';
+                strip.style.transform = `
+                    rotateY(${angle}deg)
+                    rotateZ(${twist}deg)
+                    translateZ(${Math.sin(angle * Math.PI / 180) * 100}px)
+                `;
+                container.appendChild(strip);
+            }
+        }
+
+        // Initialize
+        createStrips();
+
+        // Particle effect along the strip
+        function createParticles() {
+            for (let i = 0; i < 150; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '4px';
+                particle.style.height = '4px';
+                particle.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                particle.style.borderRadius = '50%';
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.random() * Math.PI;
+                particle.style.transform = `
+                    translate3d(
+                        ${Math.sin(phi) * Math.cos(theta) * 200}px,
+                        ${Math.sin(phi) * Math.sin(theta) * 200}px,
+                        ${Math.cos(phi) * 200}px
+                    )
+                `;
+                particle.style.animation = `twist ${4 / twistFactor}s ease-in-out infinite`;
+                particle.style.animationDelay = `${Math.random() * 4}s`;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Animation control
+        function toggleRotation() {
+            isPaused = !isPaused;
+            container.style.animationPlayState = isPaused ? 'paused' : 'running';
+        }
+
+        function resetStrip() {
+            container.innerHTML = '';
+            twistFactor = Math.random() * 1.5 + 0.5;
+            createStrips();
+            createParticles();
+            document.getElementById('twist').textContent = twistFactor.toFixed(1);
+        }
+
+        // Mouse interaction for twist adjustment
+        container.addEventListener('mousemove', (e) => {
+            if (!isPaused) {
+                const rect = container.getBoundingClientRect();
+                const mouseY = e.clientY - rect.top - 250;
+                twistFactor = Math.max(0.5, Math.min(2.0, 1 - mouseY / 250));
+                resetStrip();
+            }
+        });
+    </script>
+</body>
+
+</html>
