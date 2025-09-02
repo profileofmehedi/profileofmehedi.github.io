@@ -200,24 +200,40 @@
         <div class="col-md-4">
           <div class="card p-3">
             <h5 class="mb-2">দৈনিক রিপোর্ট</h5>
-            <p class="mb-2">আজকের রোগী সংখ্যা: <b>১২</b></p>
-            <button class="btn btn-primary btn-sm">প্রিন্ট করুন</button>
+            <p class="mb-2">আজকের রোগী সংখ্যা: <b id="dailyCount">১২</b></p>
+            <button class="btn btn-primary btn-sm" onclick="openReportPreview('daily')">প্রিন্ট করুন</button>
           </div>
         </div>
         <div class="col-md-4">
           <div class="card p-3">
             <h5 class="mb-2">সাপ্তাহিক রিপোর্ট</h5>
-            <p class="mb-2">এই সপ্তাহে রোগী: <b>৭৫</b></p>
-            <button class="btn btn-primary btn-sm">প্রিন্ট করুন</button>
+            <p class="mb-2">এই সপ্তাহে রোগী: <b id="weeklyCount">৭৫</b></p>
+            <button class="btn btn-primary btn-sm" onclick="openReportPreview('weekly')">প্রিন্ট করুন</button>
           </div>
         </div>
         <div class="col-md-4">
           <div class="card p-3">
             <h5 class="mb-2">রোগভিত্তিক রিপোর্ট</h5>
-            <p class="mb-2">ডায়াবেটিস: <b>২০</b>, সর্দি-কাশি: <b>১৫</b></p>
-            <button class="btn btn-primary btn-sm">প্রিন্ট করুন</button>
+            <p class="mb-2">ডায়াবেটিস: <b id="diabetesCount">২০</b>, সর্দি-কাশি: <b id="coldCount">১৫</b></p>
+            <button class="btn btn-primary btn-sm" onclick="openReportPreview('disease')">প্রিন্ট করুন</button>
           </div>
         </div>
+      </div>
+      <div class="mb-3 d-flex flex-wrap gap-2">
+        <input type="text" id="searchInput" class="form-control" placeholder="নাম/রোগ/তারিখ" style="max-width:220px;" />
+        <select id="diseaseFilter" class="form-select" style="max-width:160px;">
+          <option value="">সব রোগ</option>
+          <option value="ডায়াবেটিস">ডায়াবেটিস</option>
+          <option value="সর্দি-কাশি">সর্দি-কাশি</option>
+          <option value="জ্বর">জ্বর</option>
+          <option value="বুক ব্যথা">বুক ব্যথা</option>
+        </select>
+        <select id="dateFilter" class="form-select" style="max-width:160px;">
+          <option value="">সব তারিখ</option>
+          <option value="২০২৫-০৯-০৩">২০২৫-০৯-০৩</option>
+          <option value="২০২৫-০৯-০২">২০২৫-০৯-০২</option>
+          <option value="২০২৫-০৯-০১">২০২৫-০৯-০১</option>
+        </select>
       </div>
       <div class="table-responsive">
         <table class="table table-striped table-hover align-middle">
@@ -231,39 +247,156 @@
               <th>প্রেসক্রিপশন</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>২০২৫-০৯-০৩</td>
-              <td>করিম চৌধুরী</td>
-              <td>ডায়াবেটিস</td>
-              <td>৫০০</td>
-              <td>
-                <a
-                  href="view_prescriptions_doctor.html"
-                  class="btn btn-sm btn-info"
-                  >দেখুন</a
-                >
-              </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>২০২৫-০৯-০৩</td>
-              <td>রহিমা বেগম</td>
-              <td>সর্দি-কাশি</td>
-              <td>৪০০</td>
-              <td>
-                <a
-                  href="view_prescriptions_doctor.html"
-                  class="btn btn-sm btn-info"
-                  >দেখুন</a
-                >
-              </td>
-            </tr>
+          <tbody id="reportTableBody">
+            <!-- Demo data will be rendered by JS -->
           </tbody>
         </table>
+        <nav>
+          <ul class="pagination justify-content-center mb-0" id="pagination"></ul>
+        </nav>
+      </div>
+      <!-- Report Preview Modal -->
+      <div class="modal fade" id="reportPreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="reportPreviewTitle">রিপোর্ট প্রিভিউ</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="reportPreviewBody">
+              <!-- Preview content will be rendered by JS -->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" onclick="window.print()">প্রিন্ট করুন</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বন্ধ করুন</button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Demo report data
+      let reportData = [
+        {id: 1, date: '২০২৫-০৯-০৩', name: 'করিম চৌধুরী', disease: 'ডায়াবেটিস', fee: 500, prescription: 1},
+        {id: 2, date: '২০২৫-০৯-০৩', name: 'রহিমা বেগম', disease: 'সর্দি-কাশি', fee: 400, prescription: 2},
+        {id: 3, date: '২০২৫-০৯-০৩', name: 'জাহিদ হাসান', disease: 'জ্বর', fee: 350, prescription: 3},
+        {id: 4, date: '২০২৫-০৯-০২', name: 'শারমিন আক্তার', disease: 'বুক ব্যথা', fee: 600, prescription: 4},
+        {id: 5, date: '২০২৫-০৯-০২', name: 'রুবিনা আক্তার', disease: 'ডায়াবেটিস', fee: 550, prescription: 5},
+        {id: 6, date: '২০২৫-০৯-০১', name: 'মোস্তাফিজুর রহমান', disease: 'জ্বর', fee: 350, prescription: 6},
+        {id: 7, date: '২০২৫-০৯-০১', name: 'আলমগীর হোসেন', disease: 'সর্দি-কাশি', fee: 400, prescription: 7},
+        {id: 8, date: '২০২৫-০৯-০১', name: 'সাবিনা ইয়াসমিন', disease: 'বুক ব্যথা', fee: 600, prescription: 8},
+        {id: 9, date: '২০২৫-০৯-০৩', name: 'সুমন মিয়া', disease: 'জ্বর', fee: 350, prescription: 9},
+        {id: 10, date: '২০২৫-০৯-০২', name: 'রফিকুল ইসলাম', disease: 'ডায়াবেটিস', fee: 500, prescription: 10},
+      ];
+      let currentPage = 1;
+      const pageSize = 5;
+
+      function renderTable() {
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = '';
+        let filtered = reportData.filter(r => {
+          const search = document.getElementById('searchInput').value.trim();
+          const disease = document.getElementById('diseaseFilter').value;
+          const date = document.getElementById('dateFilter').value;
+          let match = true;
+          if (search) {
+            match = r.name.includes(search) || r.disease.includes(search) || r.date.includes(search);
+          }
+          if (disease) {
+            match = match && r.disease === disease;
+          }
+          if (date) {
+            match = match && r.date === date;
+          }
+          return match;
+        });
+        const totalPages = Math.ceil(filtered.length / pageSize);
+        currentPage = Math.min(currentPage, totalPages || 1);
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        filtered.slice(start, end).forEach((r, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${r.id}</td>
+            <td>${r.date}</td>
+            <td>${r.name}</td>
+            <td>${r.disease}</td>
+            <td>${r.fee}</td>
+            <td><a href="view_prescriptions_doctor.html" class="btn btn-sm btn-info" target="_blank">দেখুন</a></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        renderPagination(totalPages);
+      }
+
+      function renderPagination(totalPages) {
+        const pag = document.getElementById('pagination');
+        pag.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+          const li = document.createElement('li');
+          li.className = 'page-item' + (i === currentPage ? ' active' : '');
+          li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+          li.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentPage = i;
+            renderTable();
+          });
+          pag.appendChild(li);
+        }
+      }
+
+      document.getElementById('searchInput').addEventListener('input', function() {
+        currentPage = 1;
+        renderTable();
+      });
+      document.getElementById('diseaseFilter').addEventListener('change', function() {
+        currentPage = 1;
+        renderTable();
+      });
+      document.getElementById('dateFilter').addEventListener('change', function() {
+        currentPage = 1;
+        renderTable();
+      });
+
+      // Report preview modal logic
+      function openReportPreview(type) {
+        let title = '';
+        let body = '';
+        if (type === 'daily') {
+          title = 'দৈনিক রিপোর্ট';
+          body = `<h5>আজকের রোগী সংখ্যা: <b>${document.getElementById('dailyCount').textContent}</b></h5>`;
+          body += `<table class="table table-bordered mt-3"><thead><tr><th>#</th><th>নাম</th><th>রোগ</th><th>ফি</th></tr></thead><tbody>`;
+          let today = '২০২৫-০৯-০৩';
+          reportData.filter(r => r.date === today).forEach(r => {
+            body += `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.disease}</td><td>${r.fee}</td></tr>`;
+          });
+          body += '</tbody></table>';
+        } else if (type === 'weekly') {
+          title = 'সাপ্তাহিক রিপোর্ট';
+          body = `<h5>এই সপ্তাহে রোগী: <b>${document.getElementById('weeklyCount').textContent}</b></h5>`;
+          body += `<table class="table table-bordered mt-3"><thead><tr><th>#</th><th>নাম</th><th>রোগ</th><th>ফি</th></tr></thead><tbody>`;
+          let weekDates = ['২০২৫-০৯-০৩','২০২৫-০৯-০২','২০২৫-০৯-০১'];
+          reportData.filter(r => weekDates.includes(r.date)).forEach(r => {
+            body += `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.disease}</td><td>${r.fee}</td></tr>`;
+          });
+          body += '</tbody></table>';
+        } else if (type === 'disease') {
+          title = 'রোগভিত্তিক রিপোর্ট';
+          body = `<h5>ডায়াবেটিস: <b>${document.getElementById('diabetesCount').textContent}</b>, সর্দি-কাশি: <b>${document.getElementById('coldCount').textContent}</b></h5>`;
+          body += `<table class="table table-bordered mt-3"><thead><tr><th>#</th><th>নাম</th><th>রোগ</th><th>ফি</th></tr></thead><tbody>`;
+          reportData.filter(r => r.disease === 'ডায়াবেটিস' || r.disease === 'সর্দি-কাশি').forEach(r => {
+            body += `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.disease}</td><td>${r.fee}</td></tr>`;
+          });
+          body += '</tbody></table>';
+        }
+        document.getElementById('reportPreviewTitle').textContent = title;
+        document.getElementById('reportPreviewBody').innerHTML = body;
+        new bootstrap.Modal(document.getElementById('reportPreviewModal')).show();
+      }
+
+      // Initial render
+      renderTable();
+    </script>
   </body>
 </html>
