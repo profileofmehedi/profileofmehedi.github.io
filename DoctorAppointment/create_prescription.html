@@ -1,411 +1,712 @@
 <!DOCTYPE html>
 <html lang="bn">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>প্রেসক্রিপশন তৈরি</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/gh/maten-it/kalpurush-font/kalpurush.css" rel="stylesheet" />
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" />
-  <style>
-    :root {
-      --primary-color: #1977CC;
-      --dark-color: #343a40;
-      --light-gray: #f8f9fa;
-      --border-color: #dee2e6;
-      --sidebar-width: 280px;
-    }
-
-    body {
-      font-family: "Kalpurush", sans-serif;
-      background-color: var(--light-gray);
-    }
-
-    .sidebar {
-      width: var(--sidebar-width);
-      height: 100vh;
-      background-color: var(--dark-color);
-      color: white;
-      position: fixed;
-      top: 0;
-      left: 0;
-      padding-top: 20px;
-      z-index: 100;
-    }
-
-    .sidebar .nav-link {
-      color: #adb5bd;
-      font-size: 1.1em;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-    }
-
-    .sidebar .nav-link i {
-      margin-right: 15px;
-    }
-
-    .sidebar .nav-link:hover,
-    .sidebar .nav-link.active {
-      color: white;
-      background-color: var(--primary-color);
-      border-radius: 5px;
-    }
-
-    .main-content {
-      margin-left: var(--sidebar-width);
-      padding: 2rem;
-    }
-
-    /* Improved Form Styling */
-    .card {
-      border: none;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .card-header {
-      background-color: #e9ecef;
-      border-bottom: 1px solid var(--border-color);
-      font-weight: 600;
-      color: var(--dark-color);
-      border-radius: 10px 10px 0 0 !important;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 0.25rem rgba(25, 119, 204, 0.25);
-    }
-
-    .btn-primary {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-
-    .medicine-card {
-      position: relative;
-      background-color: #fdfdff;
-      border: 1px solid #e7e7e7;
-    }
-
-    .remove-medicine-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
-      line-height: 1;
-      padding: 0;
-      border-radius: 50%;
-    }
-
-    /* Prescription Preview (Unchanged - It's already perfect) */
-    #prescriptionPreviewContainer {
-      position: relative;
-      width: 800px;
-      height: 1131px;
-      background-image: url("prescription.png");
-      background-size: 100% 100%;
-      margin: 0 auto;
-      color: black;
-      font-size: 16px;
-    }
-
-    .preview-data {
-      position: absolute;
-      padding: 2px;
-      white-space: pre-wrap;
-      line-height: 1.7;
-      font-weight: 500;
-    }
-
-    #previewPatientName {
-      top: 152px;
-      left: 120px;
-      width: 350px;
-    }
-
-    #previewPatientAge {
-      top: 152px;
-      left: 550px;
-      width: 100px;
-    }
-
-    #previewPatientDate {
-      top: 152px;
-      left: 680px;
-      width: 150px;
-    }
-
-    #previewCC {
-      top: 215px;
-      left: 35px;
-      width: 260px;
-      height: 240px;
-    }
-
-    #previewOE {
-      top: 485px;
-      left: 35px;
-      width: 260px;
-      height: 230px;
-    }
-
-    #previewInv {
-      top: 755px;
-      left: 35px;
-      width: 260px;
-      height: 240px;
-    }
-
-    #previewRx {
-      top: 215px;
-      left: 350px;
-      width: 420px;
-      height: 800px;
-    }
-
-    #previewRx p {
-      margin-bottom: 14px;
-    }
-
-    @media print {
-      body * {
-        visibility: hidden;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>প্রেসক্রিপশন তৈরি | আধুনিক প্রেসক্রিপশন</title>
+    <link rel="icon" href="../img/mehedi.png" type="image/png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/gh/maten-it/kalpurush-font/kalpurush.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #1977cc;
+        --primary-gradient: linear-gradient(90deg, #1977cc 0%, #67c6e3 100%);
+        --dark-color: #23272b;
+        --light-gray: #f4f8fb;
+        --border-color: #dee2e6;
+        --sidebar-width: 280px;
+        --card-shadow: 0 6px 24px rgba(25, 119, 204, 0.08);
       }
 
-      .modal-backdrop {
-        display: none !important;
-      }
-
-      #prescriptionPreviewContainer,
-      #prescriptionPreviewContainer * {
-        visibility: visible;
-      }
-
-      #prescriptionModal .modal-dialog {
-        max-width: 100% !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-
-      #prescriptionModal .modal-content {
-        border: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-      }
-
-      #prescriptionPreviewContainer {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100vh;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-    }
-
-    @media (max-width: 991.98px) {
-      .main-content {
-        margin-left: 0;
+      body {
+        font-family: "Kalpurush", sans-serif;
+        background: var(--primary-gradient);
+        min-height: 100vh;
+        background-attachment: fixed;
       }
 
       .sidebar {
-        transform: translateX(-100%);
-        /* Hide sidebar by default on smaller screens */
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: linear-gradient(180deg, #23272b 80%, #1977cc 100%);
+        color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding-top: 20px;
+        z-index: 100;
+        box-shadow: 2px 0 16px rgba(25, 119, 204, 0.08);
       }
-    }
-  </style>
-</head>
 
-<body>
-  <nav class="sidebar">
-    <!-- Sidebar Navigation -->
-    <h4 class="px-3 text-center mb-4">ডাক্তার প্যানেল</h4>
-    <ul class="nav flex-column px-3">
-      <li class="nav-item mb-2"><a class="nav-link" href="doctor_dashboard.html"><i
-            class="bi bi-columns-gap"></i>ড্যাশবোর্ড</a></li>
-      <li class="nav-item mb-2"><a class="nav-link" href="manage_appointments.html"><i
-            class="bi bi-calendar-check"></i>অ্যাপয়েন্টমেন্ট</a></li>
-      <li class="nav-item mb-2"><a class="nav-link active" href="create_prescription.html"><i
-            class="bi bi-file-earmark-medical"></i>প্রেসক্রিপশন তৈরি</a></li>
-      <li class="nav-item mb-2"><a class="nav-link" href="view_prescriptions_doctor.html"><i
-            class="bi bi-journal-medical"></i>সংরক্ষিত প্রেসক্রিপশন</a></li>
-      <li class="nav-item mt-4"><a class="nav-link" href="index.html"><i class="bi bi-box-arrow-left"></i>লগআউট</a></li>
-    </ul>
-  </nav>
+      .sidebar .nav-link {
+        color: #adb5bd;
+        font-size: 1.1em;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+      }
 
-  <main class="main-content">
-    <div class="d-flex align-items-center mb-4">
-      <i class="bi bi-file-earmark-medical-fill text-primary me-3" style="font-size: 2.5rem;"></i>
-      <div>
-        <h1 class="h2 mb-0">প্রেসক্রিপশন তৈরি করুন</h1>
-        <p class="text-muted mb-0">রোগীর তথ্য এবং ওষুধের তালিকা পূরণ করুন।</p>
+      .sidebar .nav-link i {
+        margin-right: 15px;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: white;
+        background-color: var(--primary-color);
+        border-radius: 5px;
+      }
+
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 2.5rem 2rem 2rem 2rem;
+        min-height: 100vh;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px 0 0 24px;
+        box-shadow: -8px 0 32px rgba(25, 119, 204, 0.04);
+      }
+
+      /* Improved Form Styling */
+      .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        transition: box-shadow 0.2s;
+      }
+      .card:hover {
+        box-shadow: 0 12px 32px rgba(25, 119, 204, 0.13);
+      }
+
+      .card-header {
+        background-color: #e9ecef;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 600;
+        color: var(--dark-color);
+        border-radius: 10px 10px 0 0 !important;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(25, 119, 204, 0.25);
+      }
+
+      .btn-primary {
+        background: var(--primary-gradient);
+        border: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(25, 119, 204, 0.08);
+        transition: background 0.2s;
+      }
+      .btn-primary:hover,
+      .btn-primary:focus {
+        background: linear-gradient(90deg, #125a99 0%, #1977cc 100%);
+      }
+      .btn-outline-primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s;
+      }
+      .btn-outline-primary:hover,
+      .btn-outline-primary:focus {
+        background: var(--primary-gradient);
+        color: #fff;
+      }
+
+      .medicine-card {
+        position: relative;
+        background: #f8fbff;
+        border: 1px solid #e7e7e7;
+        box-shadow: 0 2px 8px rgba(25, 119, 204, 0.04);
+        transition: box-shadow 0.2s, transform 0.2s;
+        animation: fadeIn 0.4s;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .remove-medicine-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        line-height: 1;
+        padding: 0;
+        border-radius: 50%;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+      }
+      .remove-medicine-btn:hover {
+        opacity: 1;
+        background: #ff4d4f;
+        color: #fff;
+      }
+
+      /* Prescription Preview (Unchanged - It's already perfect) */
+      #prescriptionPreviewContainer {
+        position: relative;
+        width: 800px;
+        height: 1131px;
+        background-image: url("prescription.png");
+        background-size: 100% 100%;
+        margin: 0 auto;
+        color: black;
+        font-size: 16px;
+        box-shadow: 0 8px 32px rgba(25, 119, 204, 0.13);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+      #prescriptionPreviewContainer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("../img/mehedi.png") no-repeat 96% 2%/80px 80px;
+        opacity: 0.08;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .preview-data {
+        position: absolute;
+        padding: 2px;
+        white-space: pre-wrap;
+        line-height: 1.7;
+        font-weight: 500;
+      }
+
+      #previewPatientName {
+        top: 152px;
+        left: 120px;
+        width: 350px;
+      }
+
+      #previewPatientAge {
+        top: 152px;
+        left: 550px;
+        width: 100px;
+      }
+
+      #previewPatientDate {
+        top: 152px;
+        left: 680px;
+        width: 150px;
+      }
+
+      #previewCC {
+        top: 215px;
+        left: 35px;
+        width: 260px;
+        height: 240px;
+      }
+
+      #previewOE {
+        top: 485px;
+        left: 35px;
+        width: 260px;
+        height: 230px;
+      }
+
+      #previewInv {
+        top: 755px;
+        left: 35px;
+        width: 260px;
+        height: 240px;
+      }
+
+      #previewRx {
+        top: 215px;
+        left: 350px;
+        width: 420px;
+        height: 800px;
+      }
+
+      #previewRx p {
+        margin-bottom: 14px;
+      }
+
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+
+        .modal-backdrop {
+          display: none !important;
+        }
+
+        #prescriptionPreviewContainer,
+        #prescriptionPreviewContainer * {
+          visibility: visible;
+        }
+
+        #prescriptionModal .modal-dialog {
+          max-width: 100% !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        #prescriptionModal .modal-content {
+          border: none !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+        }
+
+        #prescriptionPreviewContainer {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100vh;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+
+      @media (max-width: 991.98px) {
+        .main-content {
+          margin-left: 0;
+          border-radius: 0;
+          padding: 1rem;
+        }
+        .sidebar {
+          transform: translateX(-100%);
+          /* Hide sidebar by default on smaller screens */
+        }
+        #prescriptionPreviewContainer {
+          width: 100vw;
+          height: 100vw;
+          min-width: 0;
+          min-height: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="sidebar" aria-label="Doctor Sidebar">
+      <div class="text-center mb-4">
+        <img
+          src="../img/mehedi.png"
+          alt="Doctor Logo"
+          style="
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px #1977cc33;
+          "
+        />
+        <h4 class="mt-2 mb-0">ডাঃ মেহেদী হাসান</h4>
+        <div style="font-size: 0.95em; color: #b0c4d6">
+          MBBS, FCPS (Medicine)<br />Reg: DMC-123456
+        </div>
       </div>
-    </div>
+      <ul class="nav flex-column px-3">
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="doctor_dashboard.html"
+            ><i class="bi bi-columns-gap"></i>ড্যাশবোর্ড</a
+          >
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="manage_appointments.html"
+            ><i class="bi bi-calendar-check"></i>অ্যাপয়েন্টমেন্ট</a
+          >
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link active" href="create_prescription.html"
+            ><i class="bi bi-file-earmark-medical"></i>প্রেসক্রিপশন তৈরি</a
+          >
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="view_prescriptions_doctor.html"
+            ><i class="bi bi-journal-medical"></i>সংরক্ষিত প্রেসক্রিপশন</a
+          >
+        </li>
+        <li class="nav-item mt-4">
+          <a class="nav-link" href="index.html"
+            ><i class="bi bi-box-arrow-left"></i>লগআউট</a
+          >
+        </li>
+      </ul>
+      <div
+        class="text-center mt-5"
+        style="font-size: 0.9em; color: #b0c4d6; opacity: 0.7"
+      >
+        profileofmehedi.github.io
+      </div>
+    </nav>
 
-    <form id="prescriptionForm">
-      <div class="row g-4">
-        <!-- Left Column: Patient & Clinical Info -->
-        <div class="col-lg-7">
-          <div class="card mb-4">
-            <div class="card-header"><i class="bi bi-person-fill me-2"></i>রোগীর তথ্য</div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-6 mb-3"><label for="patientName" class="form-label">রোগীর নাম</label><input
-                    type="text" class="form-control" id="patientName" value="করিম চৌধুরী" required></div>
-                <div class="col-md-3 mb-3"><label for="patientAge" class="form-label">বয়স</label><input type="number"
-                    class="form-control" id="patientAge" value="৩৫" required></div>
-                <div class="col-md-3 mb-3"><label for="prescriptionDate" class="form-label">তারিখ</label><input
-                    type="date" class="form-control" id="prescriptionDate" value="2025-08-26" required></div>
+    <main class="main-content">
+      <div class="d-flex align-items-center mb-4 gap-3">
+        <i
+          class="bi bi-file-earmark-medical-fill text-primary"
+          style="font-size: 2.5rem"
+        ></i>
+        <div>
+          <h1 class="h2 mb-0">প্রেসক্রিপশন তৈরি করুন</h1>
+          <p class="text-muted mb-0">রোগীর তথ্য এবং ওষুধের তালিকা পূরণ করুন।</p>
+        </div>
+        <div class="ms-auto text-end">
+          <span
+            class="badge bg-primary-subtle text-primary fs-6"
+            id="prescriptionNo"
+            style="font-family: monospace"
+            >প্রেসক্রিপশন নং: #<span id="presNoVal"></span
+          ></span>
+        </div>
+      </div>
+
+      <form id="prescriptionForm">
+        <div class="row g-4">
+          <!-- Left Column: Patient & Clinical Info -->
+          <div class="col-lg-7">
+            <div
+              class="card mb-4 border-0"
+              style="
+                background: linear-gradient(90deg, #e3f0fc 60%, #f8fbff 100%);
+                box-shadow: none;
+              "
+            >
+              <div class="card-body d-flex align-items-center gap-3">
+                <img
+                  src="../img/mehedi.png"
+                  alt="Doctor Logo"
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    box-shadow: 0 2px 8px #1977cc33;
+                  "
+                />
+                <div>
+                  <div style="font-weight: 700; font-size: 1.1em">
+                    ডাঃ মেহেদী হাসান
+                  </div>
+                  <div style="font-size: 0.95em">
+                    MBBS, FCPS (Medicine) | Reg: DMC-123456
+                  </div>
+                  <div style="font-size: 0.9em; color: #1977cc">
+                    মোবাইল: ০১৭xxxxxxxx
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header">
+                <i class="bi bi-person-fill me-2"></i>রোগীর তথ্য
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="patientName" class="form-label"
+                      >রোগীর নাম</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="patientName"
+                      value="করিম চৌধুরী"
+                      required
+                      aria-label="Patient Name"
+                    />
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label for="patientAge" class="form-label">বয়স</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="patientAge"
+                      value="৩৫"
+                      required
+                      aria-label="Patient Age"
+                    />
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label for="prescriptionDate" class="form-label"
+                      >তারিখ</label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="prescriptionDate"
+                      value="2025-08-26"
+                      required
+                      aria-label="Prescription Date"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <i class="bi bi-clipboard2-pulse-fill me-2"></i>ক্লিনিক্যাল তথ্য
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="chiefComplaint" class="form-label"
+                    >Chief Complaints:</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="chiefComplaint"
+                    rows="3"
+                    aria-label="Chief Complaints"
+                    placeholder="উদাহরণ: জ্বর, মাথাব্যথা, গলা ব্যথা"
+                  >
+Fever for 3 days.&#10;Headache.&#10;Sore throat.</textarea
+                  >
+                </div>
+                <div class="mb-3">
+                  <label for="onExamination" class="form-label"
+                    >On Examination:</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="onExamination"
+                    rows="3"
+                    aria-label="On Examination"
+                    placeholder="উদাহরণ: তাপমাত্রা, গলা পরীক্ষা"
+                  >
+Temperature: 101°F&#10;Throat: Red & Inflamed</textarea
+                  >
+                </div>
+                <div>
+                  <label for="investigation" class="form-label"
+                    >Investigation:</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="investigation"
+                    rows="3"
+                    aria-label="Investigation"
+                    placeholder="উদাহরণ: CBC, Dengue NS1"
+                  >
+CBC - Np-75%, L-20%&#10;Dengue NS1 Antigen - Negative</textarea
+                  >
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="card">
-            <div class="card-header"><i class="bi bi-clipboard2-pulse-fill me-2"></i>ক্লিনিক্যাল তথ্য</div>
-            <div class="card-body">
-              <div class="mb-3"><label for="chiefComplaint" class="form-label">Chief Complaints:</label><textarea
-                  class="form-control" id="chiefComplaint"
-                  rows="3">Fever for 3 days.&#10;Headache.&#10;Sore throat.</textarea></div>
-              <div class="mb-3"><label for="onExamination" class="form-label">On Examination:</label><textarea
-                  class="form-control" id="onExamination"
-                  rows="3">Temperature: 101°F&#10;Throat: Red & Inflamed</textarea></div>
-              <div><label for="investigation" class="form-label">Investigation:</label><textarea class="form-control"
-                  id="investigation" rows="3">CBC - Np-75%, L-20%&#10;Dengue NS1 Antigen - Negative</textarea></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: Medicines -->
-        <div class="col-lg-5">
-          <div class="card">
-            <div class="card-header"><i class="bi bi-prescription2 me-2"></i>ওষুধের তালিকা (Rx)</div>
-            <div class="card-body">
-              <div id="medicines-container">
-                <!-- Medicine cards will be added here by jQuery -->
+          <!-- Right Column: Medicines -->
+          <div class="col-lg-5">
+            <div class="card">
+              <div class="card-header">
+                <i class="bi bi-prescription2 me-2"></i>ওষুধের তালিকা (Rx)
+              </div>
+              <div class="card-body">
+                <div id="medicines-container">
+                  <!-- Medicine cards will be added here by jQuery -->
+                </div>
+              </div>
+              <div class="card-footer bg-white text-center">
+                <button
+                  type="button"
+                  id="addMedicineBtn"
+                  class="btn btn-outline-primary w-100"
+                >
+                  <i class="bi bi-plus-circle-dotted me-2"></i>নতুন ওষুধ যোগ
+                  করুন
+                </button>
               </div>
             </div>
-            <div class="card-footer bg-white text-center">
-              <button type="button" id="addMedicineBtn" class="btn btn-outline-primary w-100"><i
-                  class="bi bi-plus-circle-dotted me-2"></i>নতুন ওষুধ যোগ করুন</button>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button
+            type="button"
+            id="previewBtn"
+            class="btn btn-primary btn-lg px-5"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="প্রেসক্রিপশন প্রিভিউ দেখুন ও প্রিন্ট করুন"
+          >
+            <i class="bi bi-eye-fill me-2"></i>প্রেসক্রিপশন প্রিভিউ ও প্রিন্ট
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <!-- Hidden Template for Medicine Card -->
+    <div id="medicineTemplate" style="display: none">
+      <div class="medicine-card p-3 mb-3 rounded shadow-sm">
+        <button
+          type="button"
+          class="btn btn-danger btn-sm remove-medicine-btn"
+          data-bs-toggle="tooltip"
+          data-bs-placement="left"
+          title="ওষুধটি মুছুন"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="mb-2">
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            name="med_name"
+            placeholder="ওষুধের নাম"
+            aria-label="Medicine Name"
+          />
+        </div>
+        <div class="mb-2">
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            name="med_dosage"
+            placeholder="মাত্রা (যেমন: 1+0+1)"
+            aria-label="Dosage"
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            name="med_duration"
+            placeholder="সময়কাল (যেমন: ৭ দিন)"
+            aria-label="Duration"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Prescription Preview Modal -->
+    <div class="modal fade" id="prescriptionModal" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">প্রেসক্রিপশন প্রিভিউ</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-0">
+            <div id="prescriptionPreviewContainer">
+              <div id="previewPatientName" class="preview-data"></div>
+              <div id="previewPatientAge" class="preview-data"></div>
+              <div id="previewPatientDate" class="preview-data"></div>
+              <div id="previewCC" class="preview-data"></div>
+              <div id="previewOE" class="preview-data"></div>
+              <div id="previewInv" class="preview-data"></div>
+              <div id="previewRx" class="preview-data"></div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="text-center mt-4">
-        <button type="button" id="previewBtn" class="btn btn-primary btn-lg px-5"><i
-            class="bi bi-eye-fill me-2"></i>প্রেসক্রিপশন প্রিভিউ ও প্রিন্ট</button>
-      </div>
-    </form>
-  </main>
-
-  <!-- Hidden Template for Medicine Card -->
-  <div id="medicineTemplate" style="display: none;">
-    <div class="medicine-card p-3 mb-3 rounded">
-      <button type="button" class="btn btn-danger btn-sm remove-medicine-btn"><i class="bi bi-x-lg"></i></button>
-      <div class="mb-2"><input type="text" class="form-control form-control-sm" name="med_name"
-          placeholder="ওষুধের নাম"></div>
-      <div class="mb-2"><input type="text" class="form-control form-control-sm" name="med_dosage"
-          placeholder="মাত্রা (যেমন: 1+0+1)"></div>
-      <div><input type="text" class="form-control form-control-sm" name="med_duration"
-          placeholder="সময়কাল (যেমন: ৭ দিন)"></div>
-    </div>
-  </div>
-
-  <!-- Prescription Preview Modal -->
-  <div class="modal fade" id="prescriptionModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">প্রেসক্রিপশন প্রিভিউ</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body p-0">
-          <div id="prescriptionPreviewContainer">
-            <div id="previewPatientName" class="preview-data"></div>
-            <div id="previewPatientAge" class="preview-data"></div>
-            <div id="previewPatientDate" class="preview-data"></div>
-            <div id="previewCC" class="preview-data"></div>
-            <div id="previewOE" class="preview-data"></div>
-            <div id="previewInv" class="preview-data"></div>
-            <div id="previewRx" class="preview-data"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বন্ধ করুন
+            </button>
+            <button type="button" id="printBtn" class="btn btn-primary">
+              <i class="bi bi-printer-fill me-2"></i>প্রিন্ট করুন
+            </button>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বন্ধ করুন</button>
-          <button type="button" id="printBtn" class="btn btn-primary"><i class="bi bi-printer-fill me-2"></i>প্রিন্ট
-            করুন</button>
-        </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    $(function () {
-      const medicinesContainer = $('#medicines-container');
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      $(function () {
+        const medicinesContainer = $("#medicines-container");
 
-      // Function to add a new medicine card
-      function addMedicineCard(name = "", dosage = "", duration = "") {
-        const newCard = $('#medicineTemplate').clone().removeAttr('id').removeAttr('style');
-        newCard.find('[name="med_name"]').val(name);
-        newCard.find('[name="med_dosage"]').val(dosage);
-        newCard.find('[name="med_duration"]').val(duration);
-        medicinesContainer.append(newCard);
-      }
+        // Function to add a new medicine card with animation
+        function addMedicineCard(name = "", dosage = "", duration = "") {
+          const newCard = $("#medicineTemplate")
+            .clone()
+            .removeAttr("id")
+            .removeAttr("style");
+          newCard.find('[name="med_name"]').val(name);
+          newCard.find('[name="med_dosage"]').val(dosage);
+          newCard.find('[name="med_duration"]').val(duration);
+          medicinesContainer.append(newCard.hide().fadeIn(350));
+          newCard.find('[data-bs-toggle="tooltip"]').tooltip();
+        }
 
-      // Add initial demo medicines
-      addMedicineCard("Tab. Napa Extend", "1+1+1", "5 days");
-      addMedicineCard("Tab. Fexo 120mg", "0+0+1", "7 days");
+        // Add initial demo medicines
+        addMedicineCard("Tab. Napa Extend", "1+1+1", "5 days");
+        addMedicineCard("Tab. Fexo 120mg", "0+0+1", "7 days");
 
-      // Event handler to add a new blank medicine card
-      $('#addMedicineBtn').on('click', function () {
-        addMedicineCard();
-      });
-
-      // Event handler to remove a medicine card (using event delegation)
-      medicinesContainer.on('click', '.remove-medicine-btn', function () {
-        $(this).closest('.medicine-card').remove();
-      });
-
-      // Preview Modal Logic
-      const previewModal = new bootstrap.Modal($('#prescriptionModal')[0]);
-      $('#previewBtn').on('click', function () {
-        $('#previewPatientName').text($('#patientName').val());
-        $('#previewPatientAge').text($('#patientAge').val());
-        $('#previewPatientDate').text($('#prescriptionDate').val());
-        $('#previewCC').text($('#chiefComplaint').val());
-        $('#previewOE').text($('#onExamination').val());
-        $('#previewInv').text($('#investigation').val());
-
-        const medicinePreviewContainer = $('#previewRx');
-        medicinePreviewContainer.html('');
-        $('.medicine-card').each(function (index) {
-          const name = $(this).find('[name="med_name"]').val();
-          const dosage = $(this).find('[name="med_dosage"]').val();
-          const duration = $(this).find('[name="med_duration"]').val();
-          if (name) {
-            const p = `<p><strong>${index + 1}. ${name}</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;${dosage} --- ${duration}</p>`;
-            medicinePreviewContainer.append(p);
-          }
+        // Event handler to add a new blank medicine card
+        $("#addMedicineBtn").on("click", function () {
+          addMedicineCard();
         });
-        previewModal.show();
-      });
 
-      // Print Logic
-      $('#printBtn').on('click', function () {
-        window.print();
-      });
-    });
-  </script>
-</body>
+        // Event handler to remove a medicine card (using event delegation)
+        medicinesContainer.on("click", ".remove-medicine-btn", function () {
+          $(this)
+            .closest(".medicine-card")
+            .fadeOut(250, function () {
+              $(this).remove();
+            });
+        });
 
+        // Prescription number generator (random for demo)
+        const presNo = Math.floor(100000 + Math.random() * 900000);
+        $("#presNoVal").text(presNo);
+
+        // Enable tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+        // Preview Modal Logic
+        const previewModal = new bootstrap.Modal($("#prescriptionModal")[0]);
+        $("#previewBtn").on("click", function () {
+          $("#previewPatientName").text($("#patientName").val());
+          $("#previewPatientAge").text($("#patientAge").val());
+          $("#previewPatientDate").text($("#prescriptionDate").val());
+          $("#previewCC").text($("#chiefComplaint").val());
+          $("#previewOE").text($("#onExamination").val());
+          $("#previewInv").text($("#investigation").val());
+
+          const medicinePreviewContainer = $("#previewRx");
+          medicinePreviewContainer.html("");
+          $(".medicine-card").each(function (index) {
+            const name = $(this).find('[name="med_name"]').val();
+            const dosage = $(this).find('[name="med_dosage"]').val();
+            const duration = $(this).find('[name="med_duration"]').val();
+            if (name) {
+              const p = `<p><strong>${
+                index + 1
+              }. ${name}</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;${dosage} --- ${duration}</p>`;
+              medicinePreviewContainer.append(p);
+            }
+          });
+          previewModal.show();
+        });
+
+        // Print Logic
+        $("#printBtn").on("click", function () {
+          window.print();
+        });
+      });
+    </script>
+  </body>
 </html>

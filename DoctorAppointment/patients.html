@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="bn">
   <head>
-    <!-- Head content same as doctor_dashboard.html -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>নতুন রোগী যোগ</title>
+    <title>রোগীর তালিকা</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -66,29 +65,23 @@
         background: rgba(255, 255, 255, 0.95);
         border-radius: 24px 0 0 24px;
         box-shadow: -8px 0 32px rgba(25, 119, 204, 0.04);
-        max-width: 600px;
-        margin: 40px auto;
       }
-      .card {
-        border: none;
+      .table-responsive {
+        background: #f8fbff;
         border-radius: 16px;
-        box-shadow: var(--card-shadow);
-        transition: box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(25, 119, 204, 0.04);
+        padding: 2rem;
       }
-      .card:hover {
-        box-shadow: 0 12px 32px rgba(25, 119, 204, 0.13);
-      }
-      .btn-primary {
+      .table thead {
         background: var(--primary-gradient);
-        border: none;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        box-shadow: 0 2px 8px rgba(25, 119, 204, 0.08);
-        transition: background 0.2s;
+        color: #fff;
       }
-      .btn-primary:hover,
-      .btn-primary:focus {
-        background: linear-gradient(90deg, #125a99 0%, #1977cc 100%);
+      .btn-primary,
+      .btn-success,
+      .btn-danger {
+        font-weight: 500;
+        border-radius: 8px;
+        padding: 0.35em 1.2em;
       }
       @media (max-width: 991.98px) {
         .main-content {
@@ -137,7 +130,7 @@
           >
         </li>
         <li class="nav-item mb-2">
-          <a class="nav-link active" href="add_patient.html"
+          <a class="nav-link" href="add_patient.html"
             ><i class="bi bi-person-plus"></i>নতুন রোগী যোগ</a
           >
         </li>
@@ -157,7 +150,7 @@
           >
         </li>
         <li class="nav-item mb-2">
-          <a class="nav-link" href="patients.html"
+          <a class="nav-link active" href="patients.html"
             ><i class="bi bi-people"></i>রোগীর তালিকা</a
           >
         </li>
@@ -186,53 +179,155 @@
     </nav>
     <main class="main-content">
       <div class="d-flex align-items-center mb-4 gap-3">
-        <i class="bi bi-person-plus text-primary" style="font-size: 2.2rem"></i>
+        <i class="bi bi-people text-primary" style="font-size: 2.2rem"></i>
         <div>
-          <h1 class="h2 mb-0">নতুন রোগীর তথ্য যোগ করুন</h1>
-          <p class="text-muted mb-0">নতুন রোগীর তথ্য যুক্ত করুন ও সংরক্ষণ করুন</p>
+          <h1 class="h2 mb-0">রোগীর তালিকা</h1>
+          <p class="text-muted mb-0">সব রোগীর তথ্য ও প্রেসক্রিপশন দেখুন</p>
         </div>
       </div>
-      <div class="bg-white p-4 rounded-4 shadow-sm mb-4" style="width:100%;max-width:none;">
-        <form id="patientForm" class="mx-auto" style="max-width:480px;">
-          <input type="hidden" id="editId" />
-          <div class="mb-3">
-            <label for="modalPatientName" class="form-label">রোগীর নাম</label>
-            <input type="text" class="form-control" id="modalPatientName" required style="border-radius:8px;" />
+      <div
+        class="card mb-4"
+        style="
+          border-radius: 16px;
+          box-shadow: 0 6px 24px rgba(25, 119, 204, 0.08);
+        "
+      >
+        <div
+          class="card-header d-flex flex-wrap align-items-center gap-3"
+          style="
+            background-color: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            color: #23272b;
+            border-radius: 10px 10px 0 0;
+          "
+        >
+          <i class="bi bi-people me-2"></i>রোগীর তালিকা
+          <div class="ms-auto d-flex gap-2 flex-wrap">
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control form-control-sm"
+              placeholder="নাম/ফোন/ID"
+              style="width: 180px; border-radius: 8px"
+            />
+            <select
+              id="genderFilter"
+              class="form-select form-select-sm"
+              style="width: 120px; border-radius: 8px"
+            >
+              <option value="">সব</option>
+              <option value="পুরুষ">পুরুষ</option>
+              <option value="মহিলা">মহিলা</option>
+            </select>
           </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="modalPatientAge" class="form-label">বয়স</label>
-              <input type="number" class="form-control" id="modalPatientAge" required style="border-radius:8px;" />
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="modalPatientGender" class="form-label">লিঙ্গ</label>
-              <select class="form-select" id="modalPatientGender" style="border-radius:8px;">
-                <option>পুরুষ</option>
-                <option>মহিলা</option>
-              </select>
-            </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table
+              class="table table-striped table-hover align-middle mb-0"
+              id="patientsTable"
+            >
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>নাম</th>
+                  <th>বয়স</th>
+                  <th>লিঙ্গ</th>
+                  <th>ফোন</th>
+                  <th>প্রেসক্রিপশন</th>
+                  <th>কার্যক্রম</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Demo data will be rendered by JS -->
+              </tbody>
+            </table>
           </div>
-          <div class="mb-3">
-            <label for="modalPatientPhone" class="form-label">ফোন নম্বর</label>
-            <input type="tel" class="form-control" id="modalPatientPhone" required style="border-radius:8px;" />
-          </div>
-          <div class="text-center mt-4">
-            <button type="submit" class="btn btn-primary px-5">
-              <i class="bi bi-save2 me-2"></i>সংরক্ষণ করুন
-            </button>
-          </div>
-        </form>
+        </div>
+        <div class="card-footer text-center bg-white">
+          <nav>
+            <ul class="pagination justify-content-center mb-0" id="pagination">
+              <!-- Pagination will be rendered by JS -->
+            </ul>
+          </nav>
+        </div>
       </div>
+
+      <!-- View Modal -->
+      <div class="modal fade" id="viewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">রোগীর বিস্তারিত তথ্য</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body" id="viewModalBody">
+              <!-- Details will be rendered by JS -->
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                বন্ধ করুন
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Modal -->
+      <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">রোগী মুছুন</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body" id="deleteModalBody">
+              <!-- Delete info will be rendered by JS -->
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                বাতিল
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                id="confirmDeleteBtn"
+              >
+                মুছুন
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       // Demo patient data
-      let demoPatients = [
+      const demoPatients = [
         {
           id: 1,
           name: "করিম চৌধুরী",
           age: 35,
           gender: "পুরুষ",
           phone: "017XXXXXXXX",
+          prescription: true,
         },
         {
           id: 2,
@@ -240,6 +335,7 @@
           age: 42,
           gender: "মহিলা",
           phone: "018XXXXXXXX",
+          prescription: true,
         },
         {
           id: 3,
@@ -247,6 +343,7 @@
           age: 28,
           gender: "পুরুষ",
           phone: "019XXXXXXXX",
+          prescription: false,
         },
         {
           id: 4,
@@ -254,6 +351,7 @@
           age: 31,
           gender: "মহিলা",
           phone: "016XXXXXXXX",
+          prescription: true,
         },
         {
           id: 5,
@@ -261,6 +359,7 @@
           age: 45,
           gender: "পুরুষ",
           phone: "015XXXXXXXX",
+          prescription: false,
         },
         {
           id: 6,
@@ -268,6 +367,7 @@
           age: 38,
           gender: "মহিলা",
           phone: "017YYYYYYYY",
+          prescription: true,
         },
         {
           id: 7,
@@ -275,6 +375,7 @@
           age: 30,
           gender: "পুরুষ",
           phone: "018YYYYYYYY",
+          prescription: false,
         },
         {
           id: 8,
@@ -282,6 +383,7 @@
           age: 50,
           gender: "পুরুষ",
           phone: "019YYYYYYYY",
+          prescription: true,
         },
         {
           id: 9,
@@ -289,6 +391,7 @@
           age: 36,
           gender: "মহিলা",
           phone: "016YYYYYYYY",
+          prescription: false,
         },
         {
           id: 10,
@@ -296,6 +399,7 @@
           age: 48,
           gender: "পুরুষ",
           phone: "015YYYYYYYY",
+          prescription: true,
         },
       ];
 
@@ -333,8 +437,19 @@
             <td>${p.gender}</td>
             <td>${p.phone}</td>
             <td>
-              <button class="btn btn-sm btn-success me-1 edit-btn" data-id="${p.id}"><i class="bi bi-pencil"></i></button>
-              <button class="btn btn-sm btn-danger delete-btn" data-id="${p.id}"><i class="bi bi-trash"></i></button>
+              ${
+                p.prescription
+                  ? `<a href="view_prescriptions_doctor.html" class="btn btn-sm btn-info">দেখুন</a>`
+                  : '<span class="badge bg-secondary">নেই</span>'
+              }
+            </td>
+            <td>
+              <button class="btn btn-sm btn-success me-1 view-btn" data-id="${
+                p.id
+              }"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-sm btn-danger delete-btn" data-id="${
+                p.id
+              }"><i class="bi bi-trash"></i></button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -371,71 +486,59 @@
           renderTable();
         });
 
-      document
-        .getElementById("addPatientBtn")
-        .addEventListener("click", function () {
-          document.getElementById("patientModalTitle").innerText =
-            "নতুন রোগী যোগ করুন";
-          document.getElementById("editId").value = "";
-          document.getElementById("modalPatientName").value = "";
-          document.getElementById("modalPatientAge").value = "";
-          document.getElementById("modalPatientGender").value = "পুরুষ";
-          document.getElementById("modalPatientPhone").value = "";
-          new bootstrap.Modal(document.getElementById("patientModal")).show();
-        });
-
+      // View modal logic
       document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("edit-btn")) {
+        if (e.target.classList.contains("view-btn")) {
           const id = +e.target.getAttribute("data-id");
           const p = demoPatients.find((x) => x.id === id);
           if (p) {
-            document.getElementById("patientModalTitle").innerText =
-              "রোগীর তথ্য সম্পাদনা করুন";
-            document.getElementById("editId").value = p.id;
-            document.getElementById("modalPatientName").value = p.name;
-            document.getElementById("modalPatientAge").value = p.age;
-            document.getElementById("modalPatientGender").value = p.gender;
-            document.getElementById("modalPatientPhone").value = p.phone;
-            new bootstrap.Modal(document.getElementById("patientModal")).show();
-          }
-        }
-        if (e.target.classList.contains("delete-btn")) {
-          const id = +e.target.getAttribute("data-id");
-          if (confirm("আপনি কি নিশ্চিতভাবে এই রোগীটি মুছতে চান?")) {
-            demoPatients = demoPatients.filter((x) => x.id !== id);
-            renderTable();
+            document.getElementById("viewModalBody").innerHTML = `
+              <ul class="list-group">
+                <li class="list-group-item"><strong>নাম:</strong> ${p.name}</li>
+                <li class="list-group-item"><strong>বয়স:</strong> ${p.age}</li>
+                <li class="list-group-item"><strong>লিঙ্গ:</strong> ${
+                  p.gender
+                }</li>
+                <li class="list-group-item"><strong>ফোন:</strong> ${
+                  p.phone
+                }</li>
+                <li class="list-group-item"><strong>প্রেসক্রিপশন:</strong> ${
+                  p.prescription ? "আছে" : "নেই"
+                }</li>
+              </ul>
+            `;
+            new bootstrap.Modal(document.getElementById("viewModal")).show();
           }
         }
       });
 
-      document
-        .getElementById("patientForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const id = document.getElementById("editId").value;
-          const name = document.getElementById("modalPatientName").value.trim();
-          const age = +document.getElementById("modalPatientAge").value;
-          const gender = document.getElementById("modalPatientGender").value;
-          const phone = document
-            .getElementById("modalPatientPhone")
-            .value.trim();
-          if (id) {
-            // Edit
-            const idx = demoPatients.findIndex((x) => x.id == id);
-            if (idx !== -1) {
-              demoPatients[idx] = { id: +id, name, age, gender, phone };
-            }
-          } else {
-            // Add
-            const newId = demoPatients.length
-              ? Math.max(...demoPatients.map((x) => x.id)) + 1
-              : 1;
-            demoPatients.push({ id: newId, name, age, gender, phone });
+      // Delete modal logic
+      let deleteId = null;
+      document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("delete-btn")) {
+          deleteId = +e.target.getAttribute("data-id");
+          const p = demoPatients.find((x) => x.id === deleteId);
+          if (p) {
+            document.getElementById(
+              "deleteModalBody"
+            ).innerHTML = `<p>আপনি কি নিশ্চিতভাবে <strong>${p.name}</strong> (${p.phone}) রোগীটি মুছতে চান?</p>`;
+            new bootstrap.Modal(document.getElementById("deleteModal")).show();
           }
-          renderTable();
-          bootstrap.Modal.getInstance(
-            document.getElementById("patientModal")
-          ).hide();
+        }
+      });
+      document
+        .getElementById("confirmDeleteBtn")
+        .addEventListener("click", function () {
+          if (deleteId !== null) {
+            const idx = demoPatients.findIndex((x) => x.id === deleteId);
+            if (idx !== -1) {
+              demoPatients.splice(idx, 1);
+              renderTable();
+              bootstrap.Modal.getInstance(
+                document.getElementById("deleteModal")
+              ).hide();
+            }
+          }
         });
 
       // Initial render
