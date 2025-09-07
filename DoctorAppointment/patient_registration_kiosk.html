@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>রোগী নিবন্ধন কিয়স্ক</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/gh/maten-it/kalpurush-font/kalpurush.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #1977cc;
+        --secondary-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --info-color: #17a2b8;
+        --dark-color: #2c3e50;
+        --light-color: #ecf0f1;
+        --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Kalpurush", sans-serif;
+        background: var(--gradient-bg);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .kiosk-container {
+        width: 100%;
+        max-width: 800px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .kiosk-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color),
+          var(--warning-color)
+        );
+      }
+
+      .kiosk-header {
+        margin-bottom: 40px;
+      }
+
+      .kiosk-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .kiosk-subtitle {
+        font-size: 1.5rem;
+        color: var(--dark-color);
+        margin-bottom: 10px;
+      }
+
+      .doctor-info {
+        font-size: 1.2rem;
+        color: var(--info-color);
+        font-weight: 500;
+      }
+
+      .current-status {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--info-color)
+        );
+        color: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin: 30px 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .current-number {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .current-label {
+        font-size: 1.5rem;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+
+      .waiting-stats {
+        display: flex;
+        justify-content: space-around;
+        margin: 30px 0;
+        gap: 20px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        flex: 1;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .total {
+        color: var(--primary-color);
+      }
+      .completed {
+        color: var(--secondary-color);
+      }
+      .waiting {
+        color: var(--warning-color);
+      }
+
+      .register-section {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 20px;
+        padding: 40px;
+        margin: 30px 0;
+        border: 2px dashed var(--primary-color);
+      }
+
+      .register-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+        text-align: left;
+      }
+
+      .form-label {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .form-control {
+        font-size: 1.2rem;
+        padding: 15px 20px;
+        border-radius: 15px;
+        border: 3px solid #e9ecef;
+        background: white;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.3rem rgba(25, 119, 204, 0.25);
+        transform: scale(1.02);
+      }
+
+      .form-select {
+        font-size: 1.2rem;
+        padding: 15px 20px;
+        border-radius: 15px;
+        border: 3px solid #e9ecef;
+        background: white;
+      }
+
+      .btn-register {
+        font-size: 1.5rem;
+        padding: 20px 50px;
+        border-radius: 20px;
+        background: linear-gradient(
+          135deg,
+          var(--secondary-color),
+          var(--primary-color)
+        );
+        border: none;
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-register::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .btn-register:hover::before {
+        left: 100%;
+      }
+
+      .btn-register:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .success-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .success-content {
+        background: white;
+        border-radius: 25px;
+        padding: 50px;
+        text-align: center;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: popIn 0.5s ease-out;
+      }
+
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .success-icon {
+        font-size: 5rem;
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+      }
+
+      .success-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 15px;
+      }
+
+      .success-serial {
+        font-size: 4rem;
+        font-weight: 900;
+        color: var(--primary-color);
+        margin: 20px 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .success-message {
+        font-size: 1.3rem;
+        color: var(--dark-color);
+        margin-bottom: 30px;
+      }
+
+      .btn-close-modal {
+        font-size: 1.2rem;
+        padding: 15px 30px;
+        border-radius: 15px;
+        background: var(--primary-color);
+        border: none;
+        color: white;
+        font-weight: 600;
+      }
+
+      .footer-info {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(44, 62, 80, 0.9);
+        color: white;
+        padding: 15px 0;
+        text-align: center;
+        font-size: 1rem;
+      }
+
+      /* Touch-friendly design */
+      @media (max-width: 768px) {
+        .kiosk-container {
+          margin: 20px;
+          padding: 30px 20px;
+        }
+
+        .kiosk-title {
+          font-size: 2.5rem;
+        }
+
+        .form-control,
+        .form-select {
+          font-size: 1.1rem;
+          padding: 12px 15px;
+        }
+
+        .btn-register {
+          font-size: 1.3rem;
+          padding: 18px 40px;
+        }
+      }
+
+      /* Animation for real-time updates */
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.8s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="kiosk-container fade-in">
+      <!-- Header -->
+      <div class="kiosk-header">
+        <h1 class="kiosk-title">
+          <i class="bi bi-hospital"></i>
+          স্বাগতম
+        </h1>
+        <p class="kiosk-subtitle">মেডিকেয়ার হাসপাতাল ও ডায়াগনস্টিক সেন্টার</p>
+        <p class="doctor-info">
+          <i class="bi bi-person-badge"></i>
+          ডাঃ মেহেদী হাসান - হৃদরোগ বিশেষজ্ঞ
+        </p>
+      </div>
+
+      <!-- Current Status -->
+      <div class="current-status pulse">
+        <div class="current-number" id="currentNumber">13</div>
+        <div class="current-label">বর্তমানে দেখা হচ্ছে</div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="waiting-stats">
+        <div class="stat-card">
+          <div class="stat-number total" id="totalPatients">25</div>
+          <div class="stat-label">মোট রোগী</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number completed" id="completedPatients">12</div>
+          <div class="stat-label">সম্পন্ন</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number waiting" id="waitingPatients">12</div>
+          <div class="stat-label">অপেক্ষমাণ</div>
+        </div>
+      </div>
+
+      <!-- Registration Form -->
+      <div class="register-section">
+        <h2 class="register-title">
+          <i class="bi bi-person-plus-fill"></i>
+          নতুন অ্যাপয়েন্টমেন্ট নিন
+        </h2>
+
+        <form id="registrationForm">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person"></i> আপনার পূর্ণ নাম *
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="patientName"
+                  placeholder="উদাহরণ: মোহাম্মদ রহিম উদ্দিন"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-telephone"></i> মোবাইল নম্বর *
+                </label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="patientPhone"
+                  placeholder="০১৭XX-XXXXXX"
+                  pattern="01[0-9]{9}"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-calendar"></i> বয়স
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="patientAge"
+                  placeholder="বছর"
+                  min="1"
+                  max="120"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-gender-ambiguous"></i> লিঙ্গ
+                </label>
+                <select class="form-select" id="patientGender">
+                  <option value="">নির্বাচন করুন</option>
+                  <option value="male">পুরুষ</option>
+                  <option value="female">মহিলা</option>
+                  <option value="other">অন্যান্য</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-exclamation-triangle"></i> সমস্যার ধরন
+            </label>
+            <select class="form-select" id="problemType">
+              <option value="general">সাধারণ চেকআপ</option>
+              <option value="followup">ফলোআপ</option>
+              <option value="chest-pain">বুকে ব্যথা</option>
+              <option value="heart-problem">হৃদরোগ সংক্রান্ত</option>
+              <option value="high-bp">উচ্চ রক্তচাপ</option>
+              <option value="diabetes">ডায়াবেটিস</option>
+              <option value="emergency">জরুরি সমস্যা</option>
+              <option value="other">অন্যান্য</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-chat-dots"></i> অতিরিক্ত তথ্য (ঐচ্ছিক)
+            </label>
+            <textarea
+              class="form-control"
+              id="additionalInfo"
+              rows="3"
+              placeholder="আপনার সমস্যা সম্পর্কে সংক্ষেপে লিখুন..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-register w-100">
+            <i class="bi bi-check-circle"></i>
+            অ্যাপয়েন্টমেন্ট নিশ্চিত করুন
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+      <div class="success-content">
+        <div class="success-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h2 class="success-title">সফলভাবে নিবন্ধিত!</h2>
+        <div class="success-serial" id="assignedSerial">26</div>
+        <p class="success-message">
+          আপনার সিরিয়াল নম্বর উপরে দেওয়া হয়েছে।<br />
+          অনুগ্রহ করে অপেক্ষা করুন এবং স্ক্রিনে আপনার নম্বর দেখুন।
+        </p>
+        <div class="mb-3">
+          <strong
+            >আনুমানিক অপেক্ষার সময়:
+            <span id="estimatedTime">৪৫ মিনিট</span></strong
+          >
+        </div>
+        <button class="btn btn-close-modal" onclick="closeSuccessModal()">
+          <i class="bi bi-house"></i> হোমে ফিরে যান
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-info">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <i class="bi bi-geo-alt-fill"></i> ১২৩, গুলশান এভিনিউ, ঢাকা-১২১২
+          </div>
+          <div class="col-md-4">
+            <i class="bi bi-telephone-fill"></i> +৮৮০২-৯৮৭৬৫৪ৃ | ০১৭১২-৩৪৫৬৭৮
+          </div>
+          <div class="col-md-4">
+            <i class="bi bi-clock-fill"></i> রবি-বৃহঃ ৯:০০ AM - ৬:০০ PM
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Demo data
+      let kioskData = {
+        currentPatient: 13,
+        totalPatients: 25,
+        completedPatients: 12,
+        waitingPatients: 12,
+        nextSerial: 26,
+      };
+
+      // Update display with real-time data
+      function updateDisplay() {
+        document.getElementById("currentNumber").textContent =
+          kioskData.currentPatient;
+        document.getElementById("totalPatients").textContent =
+          kioskData.totalPatients;
+        document.getElementById("completedPatients").textContent =
+          kioskData.completedPatients;
+        document.getElementById("waitingPatients").textContent =
+          kioskData.waitingPatients;
+      }
+
+      // Calculate estimated waiting time
+      function calculateWaitTime(position) {
+        const avgTimePerPatient = 15; // minutes
+        const waitingPosition = position - kioskData.currentPatient;
+        const estimatedMinutes = waitingPosition * avgTimePerPatient;
+
+        if (estimatedMinutes < 60) {
+          return `${estimatedMinutes} মিনিট`;
+        } else {
+          const hours = Math.floor(estimatedMinutes / 60);
+          const minutes = estimatedMinutes % 60;
+          return `${hours} ঘন্টা ${minutes} মিনিট`;
+        }
+      }
+
+      // Handle form submission
+      document
+        .getElementById("registrationForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          // Get form data
+          const formData = {
+            name: document.getElementById("patientName").value,
+            phone: document.getElementById("patientPhone").value,
+            age: document.getElementById("patientAge").value,
+            gender: document.getElementById("patientGender").value,
+            problemType: document.getElementById("problemType").value,
+            additionalInfo: document.getElementById("additionalInfo").value,
+            timestamp: new Date().toISOString(),
+          };
+
+          // Validate required fields
+          if (!formData.name || !formData.phone) {
+            alert("অনুগ্রহ করে নাম এবং মোবাইল নম্বর পূরণ করুন।");
+            return;
+          }
+
+          // Validate phone number
+          const phoneRegex = /^01[0-9]{9}$/;
+          if (!phoneRegex.test(formData.phone.replace(/[^0-9]/g, ""))) {
+            alert("সঠিক মোবাইল নম্বর দিন। উদাহরণ: 01712345678");
+            return;
+          }
+
+          // Assign serial number
+          const assignedSerial = kioskData.nextSerial;
+
+          // Update data
+          kioskData.totalPatients++;
+          kioskData.waitingPatients++;
+          kioskData.nextSerial++;
+
+          // Show success modal
+          showSuccessModal(assignedSerial, formData);
+
+          // Reset form
+          this.reset();
+          updateDisplay();
+
+          // In real implementation, this would send data to server
+          console.log("New patient registered:", {
+            serial: assignedSerial,
+            ...formData,
+          });
+        });
+
+      // Show success modal
+      function showSuccessModal(serial, patientData) {
+        document.getElementById("assignedSerial").textContent = serial;
+        document.getElementById("estimatedTime").textContent =
+          calculateWaitTime(serial);
+        document.getElementById("successModal").style.display = "flex";
+
+        // Auto-close after 10 seconds
+        setTimeout(() => {
+          closeSuccessModal();
+        }, 10000);
+      }
+
+      // Close success modal
+      function closeSuccessModal() {
+        document.getElementById("successModal").style.display = "none";
+      }
+
+      // Simulate real-time updates
+      function simulateRealTimeUpdates() {
+        setInterval(() => {
+          // Simulate patient progress (for demo)
+          if (Math.random() < 0.3) {
+            // 30% chance of update
+            if (kioskData.waitingPatients > 0) {
+              kioskData.currentPatient++;
+              kioskData.completedPatients++;
+              kioskData.waitingPatients--;
+              updateDisplay();
+
+              // Add animation to current number
+              const currentNumber = document.getElementById("currentNumber");
+              currentNumber.classList.add("pulse");
+              setTimeout(() => {
+                currentNumber.classList.remove("pulse");
+              }, 2000);
+            }
+          }
+        }, 15000); // Check every 15 seconds
+      }
+
+      // Initialize system
+      function initializeKiosk() {
+        updateDisplay();
+        simulateRealTimeUpdates();
+
+        // Add touch/click feedback
+        const formControls = document.querySelectorAll(
+          ".form-control, .form-select"
+        );
+        formControls.forEach((control) => {
+          control.addEventListener("focus", function () {
+            this.parentElement.style.transform = "scale(1.02)";
+          });
+
+          control.addEventListener("blur", function () {
+            this.parentElement.style.transform = "scale(1)";
+          });
+        });
+      }
+
+      // Auto-refresh data every 30 seconds
+      function autoRefresh() {
+        setInterval(() => {
+          // In real implementation, fetch new data from server
+          // For demo, we'll just update the display
+          updateDisplay();
+        }, 30000);
+      }
+
+      // Handle screen timeout (reset to home after inactivity)
+      let inactivityTimer;
+      function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+          // Reset form and close any modals
+          document.getElementById("registrationForm").reset();
+          closeSuccessModal();
+
+          // Scroll to top
+          window.scrollTo(0, 0);
+        }, 120000); // 2 minutes of inactivity
+      }
+
+      // Track user activity
+      document.addEventListener("click", resetInactivityTimer);
+      document.addEventListener("keypress", resetInactivityTimer);
+      document.addEventListener("scroll", resetInactivityTimer);
+
+      // Emergency contact button
+      function showEmergencyContact() {
+        alert(
+          "জরুরি যোগাযোগ:\n\nহাসপাতাল: +৮৮০২-৯৮৭৬৫৪৩\nএম্বুলেন্স: ০১৭১২-৩৪৫৬৭৮\nজাতীয় জরুরি সেবা: ৯৯৯"
+        );
+      }
+
+      // Add emergency button (floating)
+      document.addEventListener("DOMContentLoaded", function () {
+        const emergencyBtn = document.createElement("button");
+        emergencyBtn.innerHTML = '<i class="bi bi-telephone-fill"></i> জরুরি';
+        emergencyBtn.className = "btn btn-danger";
+        emergencyBtn.style.position = "fixed";
+        emergencyBtn.style.top = "20px";
+        emergencyBtn.style.right = "20px";
+        emergencyBtn.style.zIndex = "1000";
+        emergencyBtn.style.borderRadius = "25px";
+        emergencyBtn.style.padding = "10px 20px";
+        emergencyBtn.style.fontWeight = "600";
+        emergencyBtn.onclick = showEmergencyContact;
+        document.body.appendChild(emergencyBtn);
+      });
+
+      // Start the system
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeKiosk();
+        autoRefresh();
+        resetInactivityTimer();
+      });
+
+      // Add speech synthesis for accessibility (optional)
+      function speakText(text) {
+        if ("speechSynthesis" in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "bn-BD";
+          speechSynthesis.speak(utterance);
+        }
+      }
+
+      // Announce current patient number periodically
+      setInterval(() => {
+        const currentPatient = kioskData.currentPatient;
+        speakText(`বর্তমানে সিরিয়াল নম্বর ${currentPatient} এর পালা।`);
+      }, 60000); // Every 1 minute
+    </script>
+  </body>
+</html>
