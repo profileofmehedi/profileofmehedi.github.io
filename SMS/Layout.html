@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Educational OS</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+
+    <!-- Material Symbols Outlined -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --qe-bg: #F9FAFB;
+            --qe-sidebar-bg: #111827;
+            --qe-card-bg: #FFFFFF;
+            --qe-border-color: #E5E7EB;
+            --qe-text-primary: #1F2937;
+            --qe-text-secondary: #6B7280;
+            --qe-text-white: #F9FAFB;
+            --qe-accent: #4338CA;
+            --qe-accent-light: #EEF2FF;
+        }
+
+        /* --- Base Styles --- */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--qe-bg);
+            color: var(--qe-text-primary);
+            font-size: 14px;
+        }
+
+        /* --- Main Layout --- */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--qe-card-bg);
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 280px;
+            background: var(--qe-sidebar-bg);
+            border-right: 1px solid var(--qe-border-color);
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease-in-out;
+            z-index: 1100;
+        }
+
+        .sidebar__header {
+            padding: 1.5rem 1.75rem;
+            color: var(--qe-text-white);
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar__nav {
+            flex-grow: 1;
+            padding: 0 1rem;
+        }
+
+        .sidebar__nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #9CA3AF;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar__nav-link:hover {
+            background-color: #1F2937;
+            color: var(--qe-text-white);
+        }
+
+        .sidebar__nav-link.sidebar__nav-link--active {
+            background-color: var(--qe-accent);
+            color: var(--qe-text-white);
+            font-weight: 600;
+        }
+
+        .sidebar__icon {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .sidebar__footer {
+            padding: 1.5rem;
+        }
+
+        .sidebar__user-profile {
+            display: flex;
+            align-items: center;
+            background: #1F2937;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+        .sidebar__user-profile:hover {
+            background: #374151;
+        }
+
+        .sidebar__user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+        }
+
+        /* User Profile Dropdown */
+        .user-dropdown {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--qe-card-bg);
+            border: 1px solid var(--qe-border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 1200;
+        }
+
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown__header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--qe-border-color);
+            text-align: center;
+        }
+
+        .user-dropdown__avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+            display: block;
+        }
+
+        .user-dropdown__name {
+            font-weight: 600;
+            color: var(--qe-text-primary);
+            margin: 0;
+        }
+
+        .user-dropdown__role {
+            font-size: 0.875rem;
+            color: var(--qe-text-secondary);
+            margin: 0;
+        }
+
+        .user-dropdown__menu {
+            padding: 0.5rem 0;
+        }
+
+        .user-dropdown__item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--qe-text-primary);
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .user-dropdown__item:hover {
+            background: var(--qe-accent-light);
+            color: var(--qe-accent);
+        }
+
+        .user-dropdown__item--danger:hover {
+            background: #FEF2F2;
+            color: #DC2626;
+        }
+
+        .user-dropdown__icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .user-dropdown__submenu {
+            position: relative;
+        }
+
+        .user-dropdown__submenu-content {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: var(--qe-card-bg);
+            border: 1px solid var(--qe-border-color);
+            border-radius: 6px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 1300;
+        }
+
+        .user-dropdown__submenu:hover .user-dropdown__submenu-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .user-dropdown__submenu-item {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: var(--qe-text-primary);
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-dropdown__submenu-item:hover {
+            background: var(--qe-accent-light);
+            color: var(--qe-accent);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--qe-border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header__title h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header__actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Header User Profile and Icons */
+        .header__icon-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--qe-card-bg);
+            color: var(--qe-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .header__icon-btn:hover {
+            background: var(--qe-accent-light);
+            color: var(--qe-accent);
+        }
+
+        .header__icon-btn.active {
+            background: var(--qe-accent);
+            color: white;
+        }
+
+        .header__badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #EF4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .header__user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 50px;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .header__user-profile:hover {
+            background: var(--qe-accent-light);
+        }
+
+        .header__user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .header__user-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .header__user-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--qe-text-primary);
+            margin: 0;
+        }
+
+        .header__user-role {
+            font-size: 0.75rem;
+            color: var(--qe-text-secondary);
+            margin: 0;
+        }
+
+        /* Header Dropdown */
+        .header__dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--qe-card-bg);
+            border: 1px solid var(--qe-border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            min-width: 280px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 1200;
+        }
+
+        .header__dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .header__dropdown-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--qe-border-color);
+            text-align: center;
+        }
+
+        .header__dropdown-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 0.75rem;
+            display: block;
+        }
+
+        .header__dropdown-name {
+            font-weight: 600;
+            color: var(--qe-text-primary);
+            margin: 0 0 0.25rem;
+            font-size: 1.125rem;
+        }
+
+        .header__dropdown-role {
+            color: var(--qe-text-secondary);
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .header__dropdown-menu {
+            padding: 0.75rem 0;
+        }
+
+        .header__dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--qe-text-primary);
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .header__dropdown-item:hover {
+            background: var(--qe-accent-light);
+            color: var(--qe-accent);
+        }
+
+        .header__dropdown-item--danger:hover {
+            background: #FEF2F2;
+            color: #DC2626;
+        }
+
+        .header__dropdown-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        /* --- Components --- */
+        .card {
+            background: var(--qe-card-bg);
+            border: 1px solid var(--qe-border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card__header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--qe-border-color);
+        }
+
+        .card__title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card__body {
+            padding: 1.25rem;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 48px;
+            height: 48px;
+        }
+
+        .progress-ring__circle {
+            transition: 0.35s stroke-dashoffset;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .table-responsive-cards .table {
+            display: none;
+        }
+
+        /* Hide table on mobile */
+
+        /* --- Responsive Styles (Mobile First) --- */
+        @media (max-width: 992px) {
+            .sidebar {
+                position: fixed;
+                height: 100%;
+                margin-left: -280px;
+            }
+
+            .sidebar--open {
+                margin-left: 0;
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1050;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+
+            .sidebar-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .header__mobile-toggle {
+                display: block;
+            }
+
+            /* Card-based list for tables on mobile */
+            .table-responsive-cards .table {
+                display: none;
+            }
+
+            .table-responsive-cards .card-list {
+                display: block;
+            }
+
+            .card-list__item {
+                background: var(--qe-card-bg);
+                border: 1px solid var(--qe-border-color);
+                border-radius: 8px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .card-list__row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .card-list__label {
+                font-weight: 500;
+                color: var(--qe-text-secondary);
+            }
+
+            .card-list__value {
+                font-weight: 600;
+            }
+        }
+
+        @media (min-width: 992.1px) {
+            .header__mobile-toggle {
+                display: none;
+            }
+
+            .table-responsive-cards .table {
+                display: table;
+            }
+
+            .table-responsive-cards .card-list {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar__header">
+                <span>Quantum OS</span>
+                <button class="btn btn-sm btn-link text-white d-lg-none ms-auto" id="sidebar-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <nav class="sidebar__nav">
+                <a href="#" class="sidebar__nav-link sidebar__nav-link--active">
+                    <span class="material-symbols-outlined sidebar__icon">dashboard</span> Dashboard
+                </a>
+                <a href="#" class="sidebar__nav-link">
+                    <span class="material-symbols-outlined sidebar__icon">school</span> Academics
+                </a>
+                <a href="#" class="sidebar__nav-link">
+                    <span class="material-symbols-outlined sidebar__icon">group</span> People
+                </a>
+                <a href="#" class="sidebar__nav-link">
+                    <span class="material-symbols-outlined sidebar__icon">assessment</span> Performance
+                </a>
+                <a href="#" class="sidebar__nav-link">
+                    <span class="material-symbols-outlined sidebar__icon">account_balance_wallet</span> Finance
+                </a>
+            </nav>
+            <div class="sidebar__footer">
+                <div class="sidebar__user-profile" id="user-profile-toggle">
+                    <img src="https://i.pravatar.cc/150?img=32" alt="Admin" class="sidebar__user-avatar">
+                    <div class="text-white flex-grow-1">
+                        <div class="fw-bold">Isabella Chen</div>
+                        <div class="small opacity-75">Administrator</div>
+                    </div>
+                    <span class="material-symbols-outlined text-white ms-auto">expand_less</span>
+
+                    <!-- User Dropdown Menu -->
+                    <div class="user-dropdown" id="user-dropdown">
+                        <div class="user-dropdown__header">
+                            <img src="https://i.pravatar.cc/150?img=32" alt="Admin" class="user-dropdown__avatar">
+                            <h6 class="user-dropdown__name">Isabella Chen</h6>
+                            <p class="user-dropdown__role">Administrator</p>
+                        </div>
+
+                        <div class="user-dropdown__menu">
+                            <a href="#" class="user-dropdown__item" id="my-profile">
+                                <span class="material-symbols-outlined user-dropdown__icon">person</span>
+                                My Profile
+                            </a>
+
+                            <a href="#" class="user-dropdown__item" id="change-password">
+                                <span class="material-symbols-outlined user-dropdown__icon">lock</span>
+                                Change Password
+                            </a>
+
+                            <div class="user-dropdown__submenu">
+                                <div class="user-dropdown__item">
+                                    <span class="material-symbols-outlined user-dropdown__icon">palette</span>
+                                    Theme
+                                    <span class="material-symbols-outlined ms-auto">chevron_right</span>
+                                </div>
+                                <div class="user-dropdown__submenu-content">
+                                    <a href="#" class="user-dropdown__submenu-item" data-theme="light">
+                                        <span class="material-symbols-outlined me-2">light_mode</span>
+                                        Light
+                                    </a>
+                                    <a href="#" class="user-dropdown__submenu-item" data-theme="dark">
+                                        <span class="material-symbols-outlined me-2">dark_mode</span>
+                                        Dark
+                                    </a>
+                                    <a href="#" class="user-dropdown__submenu-item" data-theme="system">
+                                        <span class="material-symbols-outlined me-2">computer</span>
+                                        System
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="user-dropdown__submenu">
+                                <div class="user-dropdown__item">
+                                    <span class="material-symbols-outlined user-dropdown__icon">language</span>
+                                    Language
+                                    <span class="material-symbols-outlined ms-auto">chevron_right</span>
+                                </div>
+                                <div class="user-dropdown__submenu-content">
+                                    <a href="#" class="user-dropdown__submenu-item" data-lang="en">
+                                        <span class="me-2">🇺🇸</span>
+                                        English
+                                    </a>
+                                    <a href="#" class="user-dropdown__submenu-item" data-lang="bn">
+                                        <span class="me-2">🇧🇩</span>
+                                        বাংলা
+                                    </a>
+                                    <a href="#" class="user-dropdown__submenu-item" data-lang="es">
+                                        <span class="me-2">🇪🇸</span>
+                                        Español
+                                    </a>
+                                    <a href="#" class="user-dropdown__submenu-item" data-lang="fr">
+                                        <span class="me-2">🇫🇷</span>
+                                        Français
+                                    </a>
+                                </div>
+                            </div>
+
+                            <hr class="my-2 mx-3">
+
+                            <a href="#" class="user-dropdown__item user-dropdown__item--danger" id="logout">
+                                <span class="material-symbols-outlined user-dropdown__icon">logout</span>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-icon me-3 header__mobile-toggle" id="sidebar-toggle">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <div class="header__title">
+                        <h1>Admin Dashboard</h1>
+                    </div>
+                </div>
+                <div class="header__actions">
+                    <!-- Theme Toggle -->
+                    <button class="header__icon-btn" id="theme-toggle" title="Change Theme">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+
+                    <!-- Language Toggle -->
+                    <button class="header__icon-btn" id="language-toggle" title="Change Language">
+                        <span class="material-symbols-outlined">language</span>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button class="header__icon-btn" id="notifications-toggle" title="Notifications">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="header__badge">3</span>
+                    </button>
+
+                    <!-- Messages -->
+                    <button class="header__icon-btn" id="messages-toggle" title="Messages">
+                        <span class="material-symbols-outlined">mail</span>
+                        <span class="header__badge">7</span>
+                    </button>
+
+                    <!-- User Profile -->
+                    <div class="header__user-profile position-relative" id="header-user-profile">
+                        <img src="https://i.pravatar.cc/150?img=32" alt="Isabella Chen" class="header__user-avatar">
+                        <div class="header__user-info d-none d-md-block">
+                            <div class="header__user-name">Isabella Chen</div>
+                            <div class="header__user-role">Administrator</div>
+                        </div>
+                        <span class="material-symbols-outlined">expand_more</span>
+
+                        <!-- Profile Dropdown -->
+                        <div class="header__dropdown" id="header-dropdown">
+                            <div class="header__dropdown-header">
+                                <img src="https://i.pravatar.cc/150?img=32" alt="Isabella Chen"
+                                    class="header__dropdown-avatar">
+                                <h6 class="header__dropdown-name">Isabella Chen</h6>
+                                <p class="header__dropdown-role">Administrator</p>
+                            </div>
+
+                            <div class="header__dropdown-menu">
+                                <a href="#" class="header__dropdown-item" id="header-my-profile">
+                                    <span class="material-symbols-outlined header__dropdown-icon">person</span>
+                                    My Profile
+                                </a>
+
+                                <a href="#" class="header__dropdown-item" id="header-change-password">
+                                    <span class="material-symbols-outlined header__dropdown-icon">lock</span>
+                                    Change Password
+                                </a>
+
+                                <hr class="my-2 mx-3">
+
+                                <a href="#" class="header__dropdown-item header__dropdown-item--danger"
+                                    id="header-logout">
+                                    <span class="material-symbols-outlined header__dropdown-icon">logout</span>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Key Metrics -->
+                <div class="row g-4 mb-4">
+                    <!-- Metrics cards here -->
+                </div>
+
+                <!-- Performance Chart -->
+                <div class="card mb-4">
+                    <div class="card__header">
+                        <h2 class="card__title">Academic Performance Index</h2>
+                    </div>
+                    <div class="card__body">
+                        <canvas id="performanceChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Student Activity Table -->
+                <div class="card">
+                    <div class="card__header">
+                        <h2 class="card__title">Student Activity</h2>
+                    </div>
+                    <div class="card__body table-responsive-cards">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Class</th>
+                                    <th>Attendance</th>
+                                    <th>Avg. Score</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://i.pravatar.cc/150?img=1" class="sidebar__user-avatar me-3"
+                                                alt="Student">
+                                            <div>
+                                                <div class="fw-bold">Liam Harris</div>
+                                                <div class="small text-secondary">ID: #84321</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Class 10-A</td>
+                                    <td>
+                                        <div class="progress-ring" data-progress="98">
+                                            <svg class="progress-ring__circle" width="48" height="48">
+                                                <circle class="progress-ring__meter" cx="24" cy="24" r="20" fill="none"
+                                                    stroke-width="4" />
+                                            </svg>
+                                            <div class="position-absolute top-50 start-50 translate-middle fw-bold">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span
+                                            class="badge fs-6 bg-success-subtle text-success-emphasis rounded-pill">A+</span>
+                                    </td>
+                                    <td><button class="btn btn-light btn-sm"><span
+                                                class="material-symbols-outlined">more_vert</span></button></td>
+                                </tr>
+                                <!-- More table rows -->
+                            </tbody>
+                        </table>
+                        <!-- Mobile Card List -->
+                        <div class="card-list">
+                            <div class="card-list__item">
+                                <div class="card-list__row"><span class="card-list__label">Student</span> <span
+                                        class="card-list__value">Liam Harris</span></div>
+                                <div class="card-list__row"><span class="card-list__label">Class</span> <span
+                                        class="card-list__value">10-A</span></div>
+                                <div class="card-list__row"><span class="card-list__label">Attendance</span> <span
+                                        class="card-list__value">98%</span></div>
+                                <div class="card-list__row"><span class="card-list__label">Avg. Score</span> <span
+                                        class="card-list__value"><span
+                                            class="badge fs-6 bg-success-subtle text-success-emphasis rounded-pill">A+</span></span>
+                                </div>
+                            </div>
+                            <!-- More mobile cards -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JS Libraries -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // --- Mobile Sidebar Toggle ---
+            function openSidebar() {
+                $('#app-sidebar').addClass('sidebar--open');
+                $('#sidebar-overlay').addClass('show');
+                $('body').css('overflow', 'hidden'); // Prevent body scroll when sidebar is open
+            }
+
+            function closeSidebar() {
+                $('#app-sidebar').removeClass('sidebar--open');
+                $('#sidebar-overlay').removeClass('show');
+                $('body').css('overflow', ''); // Restore body scroll
+            }
+
+            // Toggle sidebar on menu button click
+            $('#sidebar-toggle').on('click', function () {
+                if ($('#app-sidebar').hasClass('sidebar--open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            // Close sidebar on close button click
+            $('#sidebar-close').on('click', function () {
+                closeSidebar();
+            });
+
+            // Close sidebar when clicking on overlay
+            $('#sidebar-overlay').on('click', function () {
+                closeSidebar();
+            });
+
+            // Close sidebar on escape key press
+            $(document).on('keydown', function (e) {
+                if (e.key === 'Escape' && $('#app-sidebar').hasClass('sidebar--open')) {
+                    closeSidebar();
+                }
+            });
+
+            // Close sidebar when window is resized to desktop size
+            $(window).on('resize', function () {
+                if ($(window).width() > 992) {
+                    closeSidebar();
+                }
+            });
+
+            // --- User Profile Dropdown ---
+            let isUserDropdownOpen = false;
+
+            function openUserDropdown() {
+                $('#user-dropdown').addClass('show');
+                $('#user-profile-toggle').find('.material-symbols-outlined').last().text('expand_more');
+                isUserDropdownOpen = true;
+            }
+
+            function closeUserDropdown() {
+                $('#user-dropdown').removeClass('show');
+                $('#user-profile-toggle').find('.material-symbols-outlined').last().text('expand_less');
+                isUserDropdownOpen = false;
+            }
+
+            // Toggle user dropdown
+            $('#user-profile-toggle').on('click', function (e) {
+                e.stopPropagation();
+                if (isUserDropdownOpen) {
+                    closeUserDropdown();
+                } else {
+                    openUserDropdown();
+                }
+            });
+
+            // Close dropdown when clicking outside
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#user-profile-toggle').length) {
+                    closeUserDropdown();
+                }
+            });
+
+            // Handle dropdown menu actions
+            $('#my-profile').on('click', function (e) {
+                e.preventDefault();
+                closeUserDropdown();
+                alert('Opening My Profile...');
+                // Add your profile logic here
+            });
+
+            $('#change-password').on('click', function (e) {
+                e.preventDefault();
+                closeUserDropdown();
+                alert('Opening Change Password...');
+                // Add your change password logic here
+            });
+
+            $('#logout').on('click', function (e) {
+                e.preventDefault();
+                closeUserDropdown();
+                if (confirm('Are you sure you want to logout?')) {
+                    alert('Logging out...');
+                    // Add your logout logic here
+                    // window.location.href = '/login';
+                }
+            });
+
+            // Handle theme changes
+            $('[data-theme]').on('click', function (e) {
+                e.preventDefault();
+                const theme = $(this).data('theme');
+                closeUserDropdown();
+
+                // Apply theme logic
+                applyTheme(theme);
+
+                // Store preference
+                localStorage.setItem('preferred-theme', theme);
+
+                // Show feedback
+                showNotification(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
+            });
+
+            // Handle language changes
+            $('[data-lang]').on('click', function (e) {
+                e.preventDefault();
+                const lang = $(this).data('lang');
+                closeUserDropdown();
+
+                // Store language preference
+                localStorage.setItem('preferred-language', lang);
+
+                // Show feedback
+                const langNames = {
+                    'en': 'English',
+                    'bn': 'বাংলা',
+                    'es': 'Español',
+                    'fr': 'Français'
+                };
+                showNotification(`Language changed to ${langNames[lang]}`);
+
+                // Add your language change logic here
+                // location.reload(); // Reload to apply language changes
+            });
+
+            // Theme application function
+            function applyTheme(theme) {
+                const root = document.documentElement;
+
+                if (theme === 'dark') {
+                    root.style.setProperty('--qe-bg', '#0F172A');
+                    root.style.setProperty('--qe-card-bg', '#1E293B');
+                    root.style.setProperty('--qe-text-primary', '#F1F5F9');
+                    root.style.setProperty('--qe-text-secondary', '#94A3B8');
+                    root.style.setProperty('--qe-border-color', '#334155');
+                } else if (theme === 'light') {
+                    root.style.setProperty('--qe-bg', '#F9FAFB');
+                    root.style.setProperty('--qe-card-bg', '#FFFFFF');
+                    root.style.setProperty('--qe-text-primary', '#1F2937');
+                    root.style.setProperty('--qe-text-secondary', '#6B7280');
+                    root.style.setProperty('--qe-border-color', '#E5E7EB');
+                } else if (theme === 'system') {
+                    // Check system preference
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    applyTheme(prefersDark ? 'dark' : 'light');
+                }
+            }
+
+            // Notification function
+            function showNotification(message) {
+                // Create notification element
+                const notification = $(`
+                    <div class="notification" style="
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: var(--qe-accent);
+                        color: white;
+                        padding: 1rem 1.5rem;
+                        border-radius: 8px;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                        z-index: 9999;
+                        transform: translateX(100%);
+                        transition: transform 0.3s ease;
+                    ">
+                        ${message}
+                    </div>
+                `);
+
+                $('body').append(notification);
+
+                // Animate in
+                setTimeout(() => {
+                    notification.css('transform', 'translateX(0)');
+                }, 100);
+
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.css('transform', 'translateX(100%)');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            // Load saved preferences with defaults
+            const savedTheme = localStorage.getItem('preferred-theme') || 'light';
+            const savedLanguage = localStorage.getItem('preferred-language') || 'bn';
+            applyTheme(savedTheme);
+            updateThemeIcon(savedTheme);
+
+            // --- Header Profile Dropdown ---
+            let isHeaderDropdownOpen = false;
+
+            function openHeaderDropdown() {
+                $('#header-dropdown').addClass('show');
+                $('#header-user-profile').find('.material-symbols-outlined').last().text('expand_less');
+                isHeaderDropdownOpen = true;
+            }
+
+            function closeHeaderDropdown() {
+                $('#header-dropdown').removeClass('show');
+                $('#header-user-profile').find('.material-symbols-outlined').last().text('expand_more');
+                isHeaderDropdownOpen = false;
+            }
+
+            // Toggle header dropdown
+            $('#header-user-profile').on('click', function (e) {
+                e.stopPropagation();
+                if (isHeaderDropdownOpen) {
+                    closeHeaderDropdown();
+                } else {
+                    openHeaderDropdown();
+                }
+            });
+
+            // Header dropdown actions
+            $('#header-my-profile').on('click', function (e) {
+                e.preventDefault();
+                closeHeaderDropdown();
+                showNotification('Opening My Profile...');
+                // Add your profile logic here
+            });
+
+            $('#header-change-password').on('click', function (e) {
+                e.preventDefault();
+                closeHeaderDropdown();
+                showNotification('Opening Change Password...');
+                // Add your change password logic here
+            });
+
+            $('#header-logout').on('click', function (e) {
+                e.preventDefault();
+                closeHeaderDropdown();
+                if (confirm('Are you sure you want to logout?')) {
+                    showNotification('Logging out...');
+                    // Add your logout logic here
+                    // window.location.href = '/login';
+                }
+            });
+
+            // Header icon buttons
+            $('#theme-toggle').on('click', function (e) {
+                e.preventDefault();
+                const currentTheme = localStorage.getItem('preferred-theme') || 'light';
+                const themes = ['light', 'dark', 'system'];
+                const currentIndex = themes.indexOf(currentTheme);
+                const nextTheme = themes[(currentIndex + 1) % themes.length];
+
+                applyTheme(nextTheme);
+                updateThemeIcon(nextTheme);
+                localStorage.setItem('preferred-theme', nextTheme);
+                showNotification(`Theme changed to ${nextTheme.charAt(0).toUpperCase() + nextTheme.slice(1)}`);
+            });
+
+            $('#language-toggle').on('click', function (e) {
+                e.preventDefault();
+                const currentLang = localStorage.getItem('preferred-language') || 'bn';
+                const languages = [
+                    { code: 'bn', name: 'বাংলা' },
+                    { code: 'en', name: 'English' },
+                    { code: 'es', name: 'Español' },
+                    { code: 'fr', name: 'Français' }
+                ];
+
+                const currentIndex = languages.findIndex(lang => lang.code === currentLang);
+                const nextLang = languages[(currentIndex + 1) % languages.length];
+
+                localStorage.setItem('preferred-language', nextLang.code);
+                showNotification(`Language changed to ${nextLang.name}`);
+            });
+
+            $('#notifications-toggle').on('click', function (e) {
+                e.preventDefault();
+                showNotification('Notifications panel opened');
+                // Add your notifications logic here
+            });
+
+            $('#messages-toggle').on('click', function (e) {
+                e.preventDefault();
+                showNotification('Messages panel opened');
+                // Add your messages logic here
+            });
+
+            // Update theme icon based on current theme
+            function updateThemeIcon(theme) {
+                const icon = $('#theme-toggle').find('.material-symbols-outlined');
+                switch (theme) {
+                    case 'light':
+                        icon.text('light_mode');
+                        break;
+                    case 'dark':
+                        icon.text('dark_mode');
+                        break;
+                    case 'system':
+                        icon.text('computer');
+                        break;
+                }
+            }
+
+            // Close dropdowns when clicking outside
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#header-user-profile').length) {
+                    closeHeaderDropdown();
+                }
+            });
+
+            // --- SVG Progress Ring Logic ---
+            function setProgressRing(ring) {
+                const radius = ring.querySelector('.progress-ring__meter').r.baseVal.value;
+                const circumference = radius * 2 * Math.PI;
+                const percent = $(ring).data('progress');
+                const offset = circumference - percent / 100 * circumference;
+
+                ring.querySelector('.progress-ring__meter').style.strokeDasharray = `${circumference} ${circumference}`;
+                ring.querySelector('.progress-ring__meter').style.strokeDashoffset = offset;
+                ring.querySelector('.progress-ring__meter').setAttribute('stroke', 'var(--qe-accent)');
+                $(ring).find('.position-absolute').text(percent + '%');
+            }
+            $('.progress-ring').each(function () {
+                setProgressRing(this);
+            });
+
+            // --- Chart.js: Performance Chart ---
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(67, 56, 202, 0.4)');
+            gradient.addColorStop(1, 'rgba(67, 56, 202, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Performance Index',
+                        data: [75, 78, 82, 80, 85, 88],
+                        backgroundColor: gradient, borderColor: '#4338CA',
+                        pointBackgroundColor: '#FFFFFF', pointBorderColor: '#4338CA',
+                        pointHoverRadius: 7, pointRadius: 5, borderWidth: 2,
+                        fill: true, tension: 0.4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: false, border: { dash: [2, 4] }, grid: { color: '#E5E7EB' } },
+                        x: { grid: { display: false } }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
