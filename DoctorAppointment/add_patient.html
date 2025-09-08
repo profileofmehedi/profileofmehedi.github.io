@@ -98,12 +98,39 @@
         }
         .sidebar {
           transform: translateX(-100%);
+          transition: transform 0.3s ease;
         }
+        .sidebar.show {
+          transform: translateX(0);
+        }
+        .mobile-toggle {
+          display: block;
+        }
+      }
+
+      /* Mobile toggle button */
+      .mobile-toggle {
+        display: none;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(25, 119, 204, 0.3);
       }
     </style>
   </head>
   <body>
-    <nav class="sidebar" aria-label="Doctor Sidebar">
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <nav class="sidebar" aria-label="Medical System Sidebar" id="sidebar">
       <div class="text-center mb-4">
         <img
           src="../img/mehedi.png"
@@ -120,63 +147,117 @@
           MBBS, FCPS (Medicine)<br />Reg: DMC-123456
         </div>
       </div>
+      
       <ul class="nav flex-column px-3">
+        <!-- Dashboard Section -->
         <li class="nav-item mb-2">
           <a class="nav-link" href="doctor_dashboard.html"
-            ><i class="bi bi-columns-gap"></i>ড্যাশবোর্ড</a
-          >
+            ><i class="bi bi-columns-gap"></i>ডাক্তার ড্যাশবোর্ড</a>
         </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="patient_dashboard.html"
+            ><i class="bi bi-person-square"></i>রোগী ড্যাশবোর্ড</a>
+        </li>
+        
+        <!-- Appointment Management -->
         <li class="nav-item mb-2">
           <a class="nav-link" href="manage_appointments.html"
-            ><i class="bi bi-calendar-check"></i>অ্যাপয়েন্টমেন্ট</a
-          >
+            ><i class="bi bi-calendar-check"></i>অ্যাপয়েন্টমেন্ট পরিচালনা</a>
         </li>
         <li class="nav-item mb-2">
-          <a class="nav-link" href="manage_schedule.html"
-            ><i class="bi bi-clock-history"></i>সময়সূচী</a
-          >
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link active" href="add_patient.html"
-            ><i class="bi bi-person-plus"></i>নতুন রোগী যোগ</a
-          >
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link" href="create_prescription.html"
-            ><i class="bi bi-file-earmark-medical"></i>প্রেসক্রিপশন তৈরি</a
-          >
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link" href="view_prescriptions_doctor.html"
-            ><i class="bi bi-journal-medical"></i>সংরক্ষিত প্রেসক্রিপশন</a
-          >
+          <a class="nav-link" href="book_appointment.html"
+            ><i class="bi bi-calendar-plus"></i>অ্যাপয়েন্টমেন্ট বুক</a>
         </li>
         <li class="nav-item mb-2">
           <a class="nav-link" href="online_appointment.html"
-            ><i class="bi bi-globe2"></i>অনলাইন অ্যাপয়েন্টমেন্ট</a
-          >
+            ><i class="bi bi-globe2"></i>অনলাইন অ্যাপয়েন্টমেন্ট</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="manage_schedule.html"
+            ><i class="bi bi-clock-history"></i>সময়সূচী পরিচালনা</a>
+        </li>
+        
+        <!-- Live Consultation -->
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="live_appointment_screen.html"
+            ><i class="bi bi-camera-video"></i>লাইভ পরামর্শ স্ক্রিন</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="live_appointment_control.html"
+            ><i class="bi bi-sliders"></i>লাইভ কন্ট্রোল প্যানেল</a>
+        </li>
+        
+        <!-- Patient Management -->
+        <li class="nav-item mb-2">
+          <a class="nav-link active" href="add_patient.html"
+            ><i class="bi bi-person-plus"></i>নতুন রোগী যোগ</a>
         </li>
         <li class="nav-item mb-2">
           <a class="nav-link" href="patients.html"
-            ><i class="bi bi-people"></i>রোগীর তালিকা</a
-          >
+            ><i class="bi bi-people"></i>রোগীর তালিকা</a>
         </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="patient_profile.html"
+            ><i class="bi bi-person-circle"></i>রোগী প্রোফাইল</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="patient_registration_kiosk.html"
+            ><i class="bi bi-tablet"></i>রেজিস্ট্রেশন কিয়স্ক</a>
+        </li>
+        
+        <!-- Prescription Management -->
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="create_prescription.html"
+            ><i class="bi bi-file-earmark-medical"></i>প্রেসক্রিপশন তৈরি</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="view_prescriptions_doctor.html"
+            ><i class="bi bi-journal-medical"></i>ডাক্তারের প্রেসক্রিপশন</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="view_prescriptions_patient.html"
+            ><i class="bi bi-file-medical"></i>রোগীর প্রেসক্রিপশন</a>
+        </li>
+        
+        <!-- Reports & Analytics -->
         <li class="nav-item mb-2">
           <a class="nav-link" href="reports.html"
-            ><i class="bi bi-bar-chart"></i>রিপোর্ট</a
-          >
+            ><i class="bi bi-bar-chart"></i>রিপোর্ট ও বিশ্লেষণ</a>
         </li>
+        
+        <!-- Profile Management -->
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="doctor_profile.html"
+            ><i class="bi bi-person-badge"></i>ডাক্তার প্রোফাইল</a>
+        </li>
+        
+        <!-- Admin & Settings -->
         <li class="nav-item mb-2">
           <a class="nav-link" href="admin_settings.html"
-            ><i class="bi bi-gear"></i>অ্যাডমিন সেটিংস</a
-          >
+            ><i class="bi bi-gear"></i>অ্যাডমিন সেটিংস</a>
+        </li>
+        
+        <!-- Authentication -->
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="doctor_login.html"
+            ><i class="bi bi-box-arrow-in-right"></i>ডাক্তার লগইন</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="patient_login.html"
+            ><i class="bi bi-person-check"></i>রোগী লগইন</a>
+        </li>
+        
+        <!-- Home & Logout -->
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="index.html"
+            ><i class="bi bi-house"></i>হোম পেজ</a>
         </li>
         <li class="nav-item mt-4">
           <a class="nav-link" href="index.html"
-            ><i class="bi bi-box-arrow-left"></i>লগআউট</a
-          >
+            ><i class="bi bi-box-arrow-left"></i>লগআউট</a>
         </li>
       </ul>
+      
       <div
         class="text-center mt-5"
         style="font-size: 0.9em; color: #b0c4d6; opacity: 0.7"
@@ -440,6 +521,25 @@
 
       // Initial render
       renderTable();
+    </script>
+    
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('show');
+      }
+      
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.querySelector('.mobile-toggle');
+        
+        if (window.innerWidth <= 991.98) {
+          if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+            sidebar.classList.remove('show');
+          }
+        }
+      });
     </script>
   </body>
 </html>
