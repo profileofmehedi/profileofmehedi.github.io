@@ -372,35 +372,206 @@
                         <div class="card-header"><i class="fas fa-id-card"></i> eKYC Verification</div>
                         <div class="card-body">
                             <form id="ekycForm">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label for="nid" class="form-label">National ID Number</label>
-                                        <input type="text" class="form-control" id="nid" required>
+                                <ul class="nav nav-tabs mb-3" id="ekycTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="personal-tab" data-bs-toggle="tab"
+                                            data-bs-target="#personal" type="button" role="tab" aria-controls="personal"
+                                            aria-selected="true"><i class="fas fa-user"></i> Personal Info</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="documents-tab" data-bs-toggle="tab"
+                                            data-bs-target="#documents" type="button" role="tab"
+                                            aria-controls="documents" aria-selected="false"><i
+                                                class="fas fa-file-upload"></i> Documents</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
+                                            data-bs-target="#contact" type="button" role="tab" aria-controls="contact"
+                                            aria-selected="false"><i class="fas fa-phone"></i> Contact</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="consent-tab" data-bs-toggle="tab"
+                                            data-bs-target="#consentTab" type="button" role="tab"
+                                            aria-controls="consentTab" aria-selected="false"><i
+                                                class="fas fa-check-circle"></i> Consent</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="ekycTabContent">
+                                    <div class="tab-pane fade show active" id="personal" role="tabpanel"
+                                        aria-labelledby="personal-tab">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="nid" class="form-label">National ID Number</label>
+                                                <input type="text" class="form-control" id="nid" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="dob" class="form-label">Date of Birth (as per NID)</label>
+                                                <input type="date" class="form-control" id="dob" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="fatherName" class="form-label">Father's Name</label>
+                                                <input type="text" class="form-control" id="fatherName" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="motherName" class="form-label">Mother's Name</label>
+                                                <input type="text" class="form-control" id="motherName" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="spouseName" class="form-label">Spouse Name (if
+                                                    applicable)</label>
+                                                <input type="text" class="form-control" id="spouseName">
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label for="address" class="form-label">Address (as per NID)</label>
+                                                <textarea class="form-control" id="address" rows="2"
+                                                    required></textarea>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="nidPhoto" class="form-label">Upload NID Photo</label>
-                                        <input type="file" class="form-control" id="nidPhoto" accept="image/*" required>
+                                    <div class="tab-pane fade" id="documents" role="tabpanel"
+                                        aria-labelledby="documents-tab">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label class="form-label">NID Photo (Front & Back)</label>
+                                                <div class="d-flex gap-3">
+                                                    <div class="upload-box text-center"
+                                                        onclick="document.getElementById('nidPhoto').click()">
+                                                        <i class="fas fa-id-card fa-2x text-primary mb-2"></i>
+                                                        <div class="small">Upload Front</div>
+                                                    </div>
+                                                    <div class="upload-box text-center"
+                                                        onclick="document.getElementById('nidPhotoBack').click()">
+                                                        <i class="fas fa-id-card fa-2x text-primary mb-2"></i>
+                                                        <div class="small">Upload Back</div>
+                                                    </div>
+                                                </div>
+                                                <input type="file" id="nidPhoto" accept="image/*,application/pdf"
+                                                    style="display:none" required>
+                                                <input type="file" id="nidPhotoBack" accept="image/*,application/pdf"
+                                                    style="display:none" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Live Face Photo</label>
+                                                <div class="live-photo-box text-center">
+                                                    <video id="liveVideo" width="180" height="140" autoplay
+                                                        style="border-radius:10px; background:#eee;"></video>
+                                                    <br>
+                                                    <button type="button" class="btn btn-outline-primary mt-2"
+                                                        id="captureBtn"><i class="fas fa-camera"></i> Capture</button>
+                                                    <canvas id="photoCanvas" width="180" height="140"
+                                                        style="display:none; margin-top:10px; border-radius:10px;"></canvas>
+                                                    <input type="hidden" id="facePhotoData" name="facePhotoData">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="altIdType" class="form-label">Alternate ID Type</label>
+                                                <select class="form-select" id="altIdType">
+                                                    <option value="">Select</option>
+                                                    <option value="Birth Certificate">Birth Certificate</option>
+                                                    <option value="Passport">Passport</option>
+                                                    <option value="Driving License">Driving License</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                                <div class="upload-box text-center mt-2"
+                                                    onclick="document.getElementById('altIdPhoto').click()">
+                                                    <i class="fas fa-file-upload fa-2x text-primary mb-2"></i>
+                                                    <div class="small">Upload Alternate ID</div>
+                                                </div>
+                                                <input type="file" id="altIdPhoto" accept="image/*,application/pdf"
+                                                    style="display:none">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Recent Utility Bill (Proof of Address)</label>
+                                                <div class="upload-box text-center"
+                                                    onclick="document.getElementById('utilityBill').click()">
+                                                    <i class="fas fa-file-invoice fa-2x text-primary mb-2"></i>
+                                                    <div class="small">Upload Utility Bill</div>
+                                                </div>
+                                                <input type="file" id="utilityBill" accept="image/*,application/pdf"
+                                                    style="display:none">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Signature (scan or photo)</label>
+                                                <div class="upload-box text-center"
+                                                    onclick="document.getElementById('signature').click()">
+                                                    <i class="fas fa-pen-fancy fa-2x text-primary mb-2"></i>
+                                                    <div class="small">Upload Signature</div>
+                                                </div>
+                                                <input type="file" id="signature" accept="image/*" style="display:none">
+                                            </div>
+                                        </div>
+                                        <style>
+                                            .upload-box {
+                                                border: 2px dashed #007bff;
+                                                border-radius: 10px;
+                                                padding: 18px 0;
+                                                cursor: pointer;
+                                                background: #f7fafd;
+                                                transition: box-shadow 0.18s;
+                                            }
+
+                                            .upload-box:hover {
+                                                box-shadow: 0 4px 18px rgba(0, 123, 255, 0.12);
+                                                background: #e9f2fb;
+                                            }
+
+                                            .live-photo-box video,
+                                            .live-photo-box canvas {
+                                                border: 2px solid #e0e0e0;
+                                            }
+                                        </style>
+                                        <script>
+                                            // Live photo capture
+                                            let video = null;
+                                            let canvas = null;
+                                            let captureBtn = null;
+                                            $(document).ready(function () {
+                                                video = document.getElementById('liveVideo');
+                                                canvas = document.getElementById('photoCanvas');
+                                                captureBtn = document.getElementById('captureBtn');
+                                                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                                                    navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+                                                        video.srcObject = stream;
+                                                        video.play();
+                                                    });
+                                                }
+                                                $('#captureBtn').on('click', function () {
+                                                    canvas.style.display = 'block';
+                                                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                                                    let dataURL = canvas.toDataURL('image/png');
+                                                    $('#facePhotoData').val(dataURL);
+                                                });
+                                            });
+                                        </script>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="facePhoto" class="form-label">Live Face Photo</label>
-                                        <input type="file" class="form-control" id="facePhoto" accept="image/*"
-                                            required>
+                                    <div class="tab-pane fade" id="contact" role="tabpanel"
+                                        aria-labelledby="contact-tab">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="phone" class="form-label">Mobile Number</label>
+                                                <input type="tel" class="form-control" id="phone" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="email" class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" id="email">
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="dob" class="form-label">Date of Birth (as per NID)</label>
-                                        <input type="date" class="form-control" id="dob" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="fatherName" class="form-label">Father's Name</label>
-                                        <input type="text" class="form-control" id="fatherName" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="motherName" class="form-label">Mother's Name</label>
-                                        <input type="text" class="form-control" id="motherName" required>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label for="address" class="form-label">Address (as per NID)</label>
-                                        <textarea class="form-control" id="address" rows="2" required></textarea>
+                                    <div class="tab-pane fade" id="consentTab" role="tabpanel"
+                                        aria-labelledby="consent-tab">
+                                        <div class="row g-3">
+                                            <div class="col-md-12">
+                                                <label for="consent" class="form-label">Consent for Data
+                                                    Verification</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="consent"
+                                                        required>
+                                                    <label class="form-check-label" for="consent">I hereby consent to
+                                                        the use of my data for identity verification and compliance
+                                                        purposes.</label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="mt-4 text-end">
