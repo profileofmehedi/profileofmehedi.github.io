@@ -341,24 +341,106 @@
             <main class="main-content">
                 <section id="reports-section">
                     <h2 class="page-title">Reports & Compliance</h2>
-                    <div class="card">
-                        <div class="card-header">Bangladesh Bank (BB) Compliance</div>
-                        <div class="card-body">
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Agriculture Sector Lending<div><span class="badge bg-success rounded-pill">18% of
-                                            Portfolio</span><i class="fas fa-check-circle text-success ms-2"></i></div>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">Small
-                                    Loans (&lt;৳50K)<div><span class="badge bg-success rounded-pill">65% of
-                                            Agri-Loans</span><i class="fas fa-check-circle text-success ms-2"></i></div>
-                                </li>
-                            </ul>
-                            <div class="mt-3">
-                                <button class="btn btn-danger"><i class="fas fa-file-pdf me-2"></i>Generate Monthly BB
-                                    Report</button>
-                                <button class="btn btn-outline-secondary"><i class="fas fa-file-excel me-2"></i>Export
-                                    Full Portfolio</button>
+                    <div class="row mb-4">
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">Bangladesh Bank (BB) Compliance <i
+                                        class="fas fa-info-circle text-primary ms-2" data-bs-toggle="tooltip"
+                                        title="Regulatory compliance overview"></i></div>
+                                <div class="card-body">
+                                    <canvas id="complianceChart"
+                                        style="max-width:320px; height:180px; display:block; margin:auto;"></canvas>
+                                    <ul class="list-group mt-4">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Agriculture Sector Lending <i class="fas fa-info-circle text-secondary ms-2"
+                                                data-bs-toggle="tooltip" title="Minimum required: 15%"></i>
+                                            <div><span class="badge bg-success rounded-pill">18% of Portfolio</span><i
+                                                    class="fas fa-check-circle text-success ms-2"></i></div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Small Loans (&lt;৳50K) <i class="fas fa-info-circle text-secondary ms-2"
+                                                data-bs-toggle="tooltip" title="Minimum required: 60%"></i>
+                                            <div><span class="badge bg-success rounded-pill">65% of Agri-Loans</span><i
+                                                    class="fas fa-check-circle text-success ms-2"></i></div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">Report Actions</div>
+                                <div class="card-body">
+                                    <button class="btn btn-danger mb-2" id="generateReportBtn"><i
+                                            class="fas fa-file-pdf me-2"></i>Generate Monthly BB Report</button>
+                                    <button class="btn btn-outline-secondary mb-2" id="exportPortfolioBtn"><i
+                                            class="fas fa-file-excel me-2"></i>Export Full Portfolio</button>
+                                    <hr />
+                                    <h6 class="mb-3">Recent Reports</h6>
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Type</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2025-09-01</td>
+                                                <td>Monthly BB Report</td>
+                                                <td><span class="badge bg-success">Ready</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary"><i
+                                                            class="fas fa-eye"></i> View</button>
+                                                    <button class="btn btn-sm btn-outline-success"><i
+                                                            class="fas fa-download"></i> Download</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2025-08-01</td>
+                                                <td>Monthly BB Report</td>
+                                                <td><span class="badge bg-secondary">Archived</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary"><i
+                                                            class="fas fa-eye"></i> View</button>
+                                                    <button class="btn btn-sm btn-outline-success"><i
+                                                            class="fas fa-download"></i> Download</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>2025-09-10</td>
+                                                <td>Portfolio Export</td>
+                                                <td><span class="badge bg-success">Ready</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-success"><i
+                                                            class="fas fa-download"></i> Download</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Report Modal -->
+                    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="reportModalLabel">Report Action</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="reportModalBody">
+                                    <!-- Details injected by JS -->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -369,8 +451,11 @@
     <!-- Bootstrap & jQuery JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         $(document).ready(function () {
+            // Sidebar collapse
             $("#sidebarCollapse").on("click", function () {
                 $("#sidebar").toggleClass("collapsed");
                 $("#content").toggleClass("full-width");
@@ -379,6 +464,62 @@
             $('#changePasswordBtn').on('click', function (e) {
                 e.preventDefault();
                 alert('Change password functionality coming soon!');
+            });
+
+            // Tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Compliance Chart
+            const ctx = document.getElementById('complianceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Agri Lending', 'Small Loans', 'Other'],
+                    datasets: [{
+                        data: [18, 65, 17],
+                        backgroundColor: ['#198754', '#0dcaf0', '#6c757d'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { enabled: true }
+                    },
+                    responsive: false,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Report modals
+            $('#generateReportBtn').on('click', function () {
+                $('#reportModalLabel').text('Generate Monthly BB Report');
+                $('#reportModalBody').html('<p>Your monthly BB report is being generated. You will be notified when it is ready.</p>');
+                var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                modal.show();
+            });
+            $('#exportPortfolioBtn').on('click', function () {
+                $('#reportModalLabel').text('Export Full Portfolio');
+                $('#reportModalBody').html('<p>Your portfolio export is being prepared. You will be notified when it is ready for download.</p>');
+                var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                modal.show();
+            });
+
+            // Make all table buttons work
+            $(".table .btn-outline-primary").on('click', function () {
+                $('#reportModalLabel').text('View Report');
+                $('#reportModalBody').html('<p>Report preview is coming soon. You will be able to view the report in detail here.</p>');
+                var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                modal.show();
+            });
+            $(".table .btn-outline-success").on('click', function () {
+                $('#reportModalLabel').text('Download Report');
+                $('#reportModalBody').html('<p>Your download will start soon. (Demo: No actual file)</p>');
+                var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                modal.show();
             });
         });
     </script>
