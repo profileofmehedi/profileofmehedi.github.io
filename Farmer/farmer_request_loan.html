@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Loan from Anchor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        #sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 999;
+            background: #fff;
+            color: #333;
+            transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+            overflow: hidden;
+        }
+
+        #sidebar.collapsed {
+            margin-left: -250px;
+        }
+
+        .sidebar-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 0;
+            border-top-right-radius: 18px;
+        }
+
+        .sidebar-header h3 {
+            font-weight: 600;
+        }
+
+        #sidebar .list-unstyled {
+            padding: 24px 0 0 0;
+            margin: 0;
+        }
+
+        #sidebar ul li {
+            margin-bottom: 6px;
+        }
+
+        #sidebar ul li a {
+            padding: 12px 28px;
+            font-size: 1.08em;
+            display: flex;
+            align-items: center;
+            color: #555;
+            border-left: 4px solid transparent;
+            border-radius: 0 16px 16px 0;
+            transition: background 0.18s, color 0.18s, border-left-color 0.18s;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            text-decoration: none !important;
+        }
+
+        #sidebar ul li a:hover,
+        #sidebar ul li.active>a {
+            color: var(--primary-color);
+            background: #f0f4fa;
+            border-left-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        #sidebar ul li a i {
+            margin-right: 16px;
+            font-size: 1.15em;
+        }
+
+        #content {
+            width: calc(100% - 250px);
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        #content.full-width {
+            width: 100%;
+        }
+
+        .navbar {
+            min-height: 70px;
+            height: 70px;
+            padding: 0 1.5rem;
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile {
+            position: relative;
+            margin-right: 1rem;
+        }
+
+        .user-profile .dropdown-toggle::after {
+            display: none;
+        }
+
+        .user-profile img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-profile .profile-name {
+            margin-left: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-width: 220px;
+            right: 0;
+            left: auto;
+            border-radius: 16px;
+            padding: 0.75rem 0.5rem;
+            background: #fff;
+            animation: fadeInDropdown 0.25s ease;
+        }
+
+        @keyframes fadeInDropdown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: background 0.18s;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: #f0f4fa;
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu .btn {
+            width: 100%;
+            margin-top: 8px;
+            border-radius: 8px;
+        }
+
+        .dropdown-menu .px-3.py-2 {
+            padding: 1rem 1rem 0.5rem 1rem !important;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-menu .dropdown-divider {
+            margin: 0.5rem 0;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .main-content {
+            padding: 2.5rem 2rem 2rem 2rem;
+            background: #f7fafd;
+            min-height: 100vh;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            background: #fff;
+            overflow: hidden;
+            transition: box-shadow 0.18s;
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, #f7fafd 60%, #e9f2fb 100%);
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 1.1rem 1.5rem;
+            font-size: 1.15rem;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-header i {
+            font-size: 2rem;
+            margin-right: 12px;
+        }
+
+        .form-label {
+            font-weight: 600;
+        }
+
+        .btn-success {
+            font-weight: 600;
+            padding: 0.6rem 2.5rem;
+            border-radius: 8px;
+        }
+
+        #loanRequestSuccess {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>🌾 Nano Lending</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <p class="text-center text-muted px-2">Welcome, Farmer!</p>
+                <li><a href="farmer_dashboard_main.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="farmer_dashboard_eligibility.html"><i class="fas fa-hand-holding-dollar"></i> Loan
+                        Eligibility</a></li>
+                <li><a href="farmer_dashboard_upload.html"><i class="fas fa-cloud-upload-alt"></i> Crop Upload</a></li>
+                <li class="active"><a href="#"><i class="fas fa-hand-holding-dollar"></i> Request Loan</a></li>
+                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid d-flex align-items-center justify-content-between" style="height:70px;">
+                    <div class="d-flex align-items-center">
+                        <button type="button" id="sidebarCollapse" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                    </div>
+                    <div class="dropdown user-profile">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://i.pravatar.cc/150?u=farmer" alt="User" />
+                            <span class="profile-name d-none d-sm-inline">Rashid Ahmed</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li class="px-3 py-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://i.pravatar.cc/150?u=farmer" alt="User" class="me-2"
+                                        style="width: 50px; height: 50px" />
+                                    <div>
+                                        <strong>Rashid Ahmed</strong>
+                                        <div class="text-muted small">Farmer ID: #FARM5843</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="#" id="changePasswordBtn"><i class="fas fa-key"></i>
+                                    Change Password</a></li>
+                            <li><a class="dropdown-item text-danger" href="login.html"><i
+                                        class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <div class="card mb-4 shadow-lg border-0">
+                    <div class="card-header">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                        Request Loan from Anchor
+                    </div>
+                    <div class="card-body p-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #eef5ff 100%);">
+                        <form id="loanRequestForm">
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <label for="loanAmount" class="form-label">Loan Amount (৳)</label>
+                                    <input type="number" class="form-control" id="loanAmount" name="loanAmount"
+                                        min="1000" step="500" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="loanPurpose" class="form-label">Purpose</label>
+                                    <select class="form-select" id="loanPurpose" name="loanPurpose" required>
+                                        <option value="">Select Purpose</option>
+                                        <option value="Seeds">Seeds</option>
+                                        <option value="Fertilizer">Fertilizer</option>
+                                        <option value="Equipment">Equipment</option>
+                                        <option value="Labor">Labor</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="anchorSelect" class="form-label">Select Anchor</label>
+                                    <select class="form-select" id="anchorSelect" name="anchorSelect" required>
+                                        <option value="">Choose Anchor</option>
+                                        <option value="Anchor Agro Ltd" selected>Anchor Agro Ltd</option>
+                                        <option value="GreenField Group">GreenField Group</option>
+                                        <option value="Rural Support Org">Rural Support Org</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="repaymentTerm" class="form-label">Repayment Term</label>
+                                    <select class="form-select" id="repaymentTerm" name="repaymentTerm" required>
+                                        <option value="">Select Term</option>
+                                        <option value="3 months">3 months</option>
+                                        <option value="6 months">6 months</option>
+                                        <option value="After Harvest">After Harvest</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="loanNotes" class="form-label">Additional Notes (Optional)</label>
+                                    <textarea class="form-control" id="loanNotes" name="loanNotes" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-success px-4"><i
+                                        class="fas fa-paper-plane me-2"></i>Submit Loan Request</button>
+                            </div>
+                        </form>
+                        <div id="loanRequestSuccess" class="alert alert-success mt-3 d-none" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> Your loan request has been submitted to the anchor!
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <a href="farmer_dashboard_main.html" class="btn btn-outline-primary">Back to Dashboard</a>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#sidebarCollapse").on("click", function () {
+                $("#sidebar").toggleClass("collapsed");
+                $("#content").toggleClass("full-width");
+            });
+            $('#changePasswordBtn').on('click', function (e) {
+                e.preventDefault();
+                alert('Change password functionality coming soon!');
+            });
+            $('#loanRequestForm').on('submit', function (e) {
+                e.preventDefault();
+                $('#loanRequestForm :input').prop('disabled', true);
+                $('#loanRequestSuccess').removeClass('d-none');
+                setTimeout(function () {
+                    $('#loanRequestForm :input').prop('disabled', false);
+                    $('#loanRequestForm')[0].reset();
+                    $('#loanRequestSuccess').addClass('d-none');
+                }, 3500);
+            });
+        });
+    </script>
+</body>
+
+</html>
