@@ -360,7 +360,9 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3 text-end">
-                                        <button class="btn btn-sm btn-primary">Review</button>
+                                        <button class="btn btn-sm btn-primary review-btn" data-app="Green Valley Anchor"
+                                            data-amount="৳3,75,000" data-farmers="15" data-crop="Rice" data-risk="15%"
+                                            data-risklevel="LOW">Review</button>
                                     </div>
                                 </div>
                             </div>
@@ -379,7 +381,9 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3 text-end">
-                                        <button class="btn btn-sm btn-primary">Review</button>
+                                        <button class="btn btn-sm btn-primary review-btn" data-app="Rangpur Growers"
+                                            data-amount="৳2,50,000" data-farmers="10" data-crop="Vegetables"
+                                            data-risk="45%" data-risklevel="MEDIUM">Review</button>
                                     </div>
                                 </div>
                             </div>
@@ -399,7 +403,9 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3 text-end">
-                                        <button class="btn btn-sm btn-primary">Review</button>
+                                        <button class="btn btn-sm btn-primary review-btn" data-app="Dinajpur Farmers"
+                                            data-amount="৳1,80,000" data-farmers="8" data-crop="Wheat" data-risk="70%"
+                                            data-risklevel="HIGH">Review</button>
                                     </div>
                                 </div>
                             </div>
@@ -407,6 +413,25 @@
                     </div>
                 </section>
             </main>
+        </div>
+    </div>
+    <!-- Review Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewModalLabel">Application Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalAppDetails"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Request More Info</button>
+                    <button type="button" class="btn btn-danger" id="rejectBtn">Reject</button>
+                    <button type="button" class="btn btn-success" id="approveBtn">Approve Loan</button>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Bootstrap & jQuery JS -->
@@ -422,6 +447,39 @@
             $('#changePasswordBtn').on('click', function (e) {
                 e.preventDefault();
                 alert('Change password functionality coming soon!');
+            });
+            // Review button functionality
+            $('.review-btn').on('click', function () {
+                var app = $(this).data('app');
+                var amount = $(this).data('amount');
+                var farmers = $(this).data('farmers');
+                var crop = $(this).data('crop');
+                var risk = $(this).data('risk');
+                var risklevel = $(this).data('risklevel');
+                var riskColor = risklevel === 'LOW' ? '#28a745' : (risklevel === 'MEDIUM' ? '#ffc107' : '#dc3545');
+                var modalHtml = '<ul class="list-group mb-3">' +
+                    '<li class="list-group-item"><strong>Anchor:</strong> ' + app + '</li>' +
+                    '<li class="list-group-item"><strong>Amount:</strong> ' + amount + '</li>' +
+                    '<li class="list-group-item"><strong>Farmers:</strong> ' + farmers + '</li>' +
+                    '<li class="list-group-item"><strong>Crop:</strong> ' + crop + '</li>' +
+                    '</ul>' +
+                    '<div class="text-center mb-2">' +
+                    '<div style="background:' + riskColor + ';width:100px;height:100px;border-radius:50%;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;margin:auto;">' +
+                    '<span style="font-size:1.5rem;">' + risk + '</span>' +
+                    '<small>' + risklevel + ' RISK</small>' +
+                    '</div></div>';
+                $('#modalAppDetails').html(modalHtml);
+                var modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+                modal.show();
+            });
+            // Approve/Reject button actions
+            $('#approveBtn').on('click', function () {
+                $('#reviewModal').modal('hide');
+                alert('Loan approved!');
+            });
+            $('#rejectBtn').on('click', function () {
+                $('#reviewModal').modal('hide');
+                alert('Loan rejected.');
             });
         });
     </script>

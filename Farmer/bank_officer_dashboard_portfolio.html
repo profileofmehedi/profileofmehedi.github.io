@@ -341,36 +341,167 @@
             <main class="main-content">
                 <section id="portfolio-section">
                     <h2 class="page-title">Portfolio Overview</h2>
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="portfolioSearch"
+                                placeholder="Search by farmer, region, or loan ID..." />
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-outline-primary" id="refreshPortfolio"><i
+                                    class="fas fa-sync-alt"></i> Refresh Data</button>
+                        </div>
+                    </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-4">
                             <div class="card h-100">
                                 <div class="card-header">Portfolio Health</div>
                                 <div class="card-body">
-                                    <h4>Total Portfolio: ৳2.5 Crore</h4>
-                                    <p class="text-muted">Across 150 Active Loans</p>
-                                    <div class="progress" style="height: 20px">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 97%"
-                                            aria-valuenow="97" aria-valuemin="0" aria-valuemax="100">On Track (97%)
+                                    <canvas id="portfolioChart" height="180"></canvas>
+                                        <div class="d-flex justify-content-center">
+                                            <canvas id="portfolioChart" style="max-width:260px; height:140px;"></canvas>
                                         </div>
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 3%"
-                                            aria-valuenow="3" aria-valuemin="0" aria-valuemax="100">Default (3%)</div>
+                                    <div class="mt-3">
+                                        <h4>Total Portfolio: <span data-bs-toggle="tooltip"
+                                                title="Total outstanding loan amount">৳2.5 Crore</span></h4>
+                                        <p class="text-muted">Across <span data-bs-toggle="tooltip"
+                                                title="Number of active loans">150 Active Loans</span></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-4">
                             <div class="card h-100">
                                 <div class="card-header">⚠️ Risk Alerts (3)</div>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item list-group-item-warning"><i
-                                            class="fas fa-cloud-sun-rain me-2"></i>Drought warning in Rangpur region.
+                                    <li
+                                        class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-cloud-sun-rain me-2"></i>Drought warning in Rangpur
+                                            region.</span>
+                                        <button class="btn btn-sm btn-outline-warning view-alert" data-bs-toggle="modal"
+                                            data-bs-target="#alertModal" data-title="Drought Warning"
+                                            data-details="Severe drought conditions reported in Rangpur. 12 farmers at risk.">View
+                                            Details</button>
                                     </li>
-                                    <li class="list-group-item list-group-item-danger"><i
-                                            class="fas fa-triangle-exclamation me-2"></i>Market price for potatoes
-                                        dropped 15%.</li>
-                                    <li class="list-group-item list-group-item-info"><i class="fas fa-bug me-2"></i>Pest
-                                        infestation reported in Dinajpur.</li>
+                                    <li
+                                        class="list-group-item list-group-item-danger d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-triangle-exclamation me-2"></i>Market price for potatoes
+                                            dropped 15%.</span>
+                                        <button class="btn btn-sm btn-outline-danger view-alert" data-bs-toggle="modal"
+                                            data-bs-target="#alertModal" data-title="Market Price Drop"
+                                            data-details="Potato prices have dropped 15%. 8 loans flagged for review.">View
+                                            Details</button>
+                                    </li>
+                                    <li
+                                        class="list-group-item list-group-item-info d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-bug me-2"></i>Pest infestation reported in
+                                            Dinajpur.</span>
+                                        <button class="btn btn-sm btn-outline-info view-alert" data-bs-toggle="modal"
+                                            data-bs-target="#alertModal" data-title="Pest Infestation"
+                                            data-details="Pest infestation in Dinajpur. 5 farmers affected, immediate action required.">View
+                                            Details</button>
+                                    </li>
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">Recent Portfolio Activity</div>
+                                <div class="card-body p-0">
+                                    <table class="table table-hover mb-0" id="portfolioTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Loan ID</th>
+                                                <th>Farmer</th>
+                                                <th>Region</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#LN1023</td>
+                                                <td>Rahim Uddin</td>
+                                                <td>Rangpur</td>
+                                                <td>৳1,20,000</td>
+                                                <td><span class="badge bg-success">Active</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary view-loan"
+                                                        data-bs-toggle="modal" data-bs-target="#loanModal"
+                                                        data-loanid="#LN1023" data-farmer="Rahim Uddin"
+                                                        data-region="Rangpur" data-amount="৳1,20,000"
+                                                        data-status="Active">View</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#LN1045</td>
+                                                <td>Shila Begum</td>
+                                                <td>Dinajpur</td>
+                                                <td>৳95,000</td>
+                                                <td><span class="badge bg-warning text-dark">At Risk</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary view-loan"
+                                                        data-bs-toggle="modal" data-bs-target="#loanModal"
+                                                        data-loanid="#LN1045" data-farmer="Shila Begum"
+                                                        data-region="Dinajpur" data-amount="৳95,000"
+                                                        data-status="At Risk">View</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#LN1088</td>
+                                                <td>Jamal Mia</td>
+                                                <td>Rangpur</td>
+                                                <td>৳1,50,000</td>
+                                                <td><span class="badge bg-danger">Default</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary view-loan"
+                                                        data-bs-toggle="modal" data-bs-target="#loanModal"
+                                                        data-loanid="#LN1088" data-farmer="Jamal Mia"
+                                                        data-region="Rangpur" data-amount="৳1,50,000"
+                                                        data-status="Default">View</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Alert Modal -->
+                    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="alertModalLabel">Alert Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="alertModalBody">
+                                    <!-- Details will be injected by JS -->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Loan Modal -->
+                    <div class="modal fade" id="loanModal" tabindex="-1" aria-labelledby="loanModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="loanModalLabel">Loan Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="loanModalBody">
+                                    <!-- Details will be injected by JS -->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-success" id="markResolvedBtn">Mark as
+                                        Resolved</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -381,16 +512,100 @@
     <!-- Bootstrap & jQuery JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            // Portfolio Chart (smaller size)
         $(document).ready(function () {
+            // Sidebar collapse
             $("#sidebarCollapse").on("click", function () {
                 $("#sidebar").toggleClass("collapsed");
                 $("#content").toggleClass("full-width");
             });
             // Change Password button demo
             $('#changePasswordBtn').on('click', function (e) {
-                e.preventDefault();
+                return new bootstrap.Tooltip(tooltipTriggerEl);
                 alert('Change password functionality coming soon!');
+            });
+
+            // Tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Portfolio Chart
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['On Track', 'Default'],
+                    datasets: [{
+                        data: [97, 3],
+                        backgroundColor: ['#198754', '#dc3545'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { enabled: true }
+                    },
+                    responsive: false,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Alert Modal dynamic content
+            $('.view-alert').on('click', function () {
+                const title = $(this).data('title');
+                const details = $(this).data('details');
+                $('#alertModalLabel').text(title);
+                $('#alertModalBody').html('<p>' + details + '</p>');
+            });
+
+            // Loan Modal dynamic content
+            $('.view-loan').on('click', function () {
+                const loanid = $(this).data('loanid');
+                const farmer = $(this).data('farmer');
+                const region = $(this).data('region');
+                const amount = $(this).data('amount');
+                const status = $(this).data('status');
+                let statusBadge = '';
+                if (status === 'Active') statusBadge = '<span class="badge bg-success">Active</span>';
+                else if (status === 'At Risk') statusBadge = '<span class="badge bg-warning text-dark">At Risk</span>';
+                else statusBadge = '<span class="badge bg-danger">Default</span>';
+                $('#loanModalBody').html(`
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Loan ID:</strong> ${loanid}</li>
+                        <li class="list-group-item"><strong>Farmer:</strong> ${farmer}</li>
+                        <li class="list-group-item"><strong>Region:</strong> ${region}</li>
+                        <li class="list-group-item"><strong>Amount:</strong> ${amount}</li>
+                        <li class="list-group-item"><strong>Status:</strong> ${statusBadge}</li>
+                    </ul>
+                `);
+                // Mark as Resolved button
+                $('#markResolvedBtn').off('click').on('click', function () {
+                    alert('Marked as resolved!');
+                    $('#loanModal').modal('hide');
+                });
+            });
+
+            // Portfolio search filter
+            $('#portfolioSearch').on('keyup', function () {
+                var value = $(this).val().toLowerCase();
+                $('#portfolioTable tbody tr').filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+            // Refresh button demo
+            $('#refreshPortfolio').on('click', function () {
+                $(this).prop('disabled', true).html('<i class="fas fa-sync-alt fa-spin"></i> Refreshing...');
+                setTimeout(() => {
+                    $(this).prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Refresh Data');
+                    alert('Portfolio data refreshed!');
+                }, 1200);
             });
         });
     </script>
