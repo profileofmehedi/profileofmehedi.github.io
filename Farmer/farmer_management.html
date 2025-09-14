@@ -4,14 +4,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Farmer Management - Nano Lending</title>
+    <title>Anchor Dashboard - Nano Lending</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <style>
+        #sidebar ul li a {
+            text-decoration: none !important;
+        }
+
         :root {
             --primary-color: #007bff;
+            /* A slightly different blue for the anchor */
             --secondary-color: #6c757d;
             --light-bg: #f8f9fa;
         }
@@ -26,6 +33,7 @@
             width: 100%;
         }
 
+        /* --- Sidebar --- */
         #sidebar {
             width: 250px;
             position: fixed;
@@ -36,7 +44,10 @@
             background: #fff;
             color: #333;
             transition: all 0.3s;
-            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+            overflow: hidden;
         }
 
         #sidebar.collapsed {
@@ -44,10 +55,15 @@
         }
 
         .sidebar-header {
-            padding: 20px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: var(--primary-color);
             color: white;
             text-align: center;
+            padding: 0;
+            border-top-right-radius: 18px;
         }
 
         .sidebar-header h3 {
@@ -55,28 +71,41 @@
         }
 
         #sidebar .list-unstyled {
-            padding: 20px 0;
+            padding: 24px 0 0 0;
+            margin: 0;
+        }
+
+        #sidebar ul li {
+            margin-bottom: 6px;
         }
 
         #sidebar ul li a {
-            padding: 10px 20px;
-            font-size: 1.1em;
-            display: block;
+            padding: 12px 28px;
+            font-size: 1.08em;
+            display: flex;
+            align-items: center;
             color: #555;
-            border-left: 3px solid transparent;
+            border-left: 4px solid transparent;
+            border-radius: 0 16px 16px 0;
+            transition: background 0.18s, color 0.18s, border-left-color 0.18s;
+            font-weight: 500;
+            letter-spacing: 0.01em;
         }
 
         #sidebar ul li a:hover,
         #sidebar ul li.active>a {
             color: var(--primary-color);
-            background: var(--light-bg);
+            background: #f0f4fa;
             border-left-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         #sidebar ul li a i {
-            margin-right: 15px;
+            margin-right: 16px;
+            font-size: 1.15em;
         }
 
+        /* --- Page Content --- */
         #content {
             width: calc(100% - 250px);
             padding: 0;
@@ -91,18 +120,33 @@
             width: 100%;
         }
 
+        /* --- Top Navbar --- */
         .navbar {
-            padding: 1rem 1.5rem;
+            min-height: 70px;
+            height: 70px;
+            padding: 0 1.5rem;
             background: #fff;
             border-bottom: 1px solid #dee2e6;
             position: sticky;
             top: 0;
             z-index: 998;
+            display: flex;
+            align-items: center;
         }
 
         .navbar-brand {
             color: var(--primary-color);
             font-weight: bold;
+            font-size: 1.5rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+        }
+
+        .user-profile {
+            position: relative;
+            margin-right: 1rem;
         }
 
         .user-profile .dropdown-toggle::after {
@@ -110,39 +154,175 @@
         }
 
         .user-profile img {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-profile .profile-name {
+            margin-left: 10px;
+            font-weight: 500;
+            color: #333;
         }
 
         .dropdown-menu {
             border: none;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-width: 220px;
+            right: 0;
+            left: auto;
         }
 
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+            min-width: 240px;
+            right: 0;
+            left: auto;
+            border-radius: 16px;
+            padding: 0.75rem 0.5rem;
+            background: #fff;
+            animation: fadeInDropdown 0.25s ease;
+        }
+
+        @keyframes fadeInDropdown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: background 0.18s;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: #f0f4fa;
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu .btn {
+            width: 100%;
+            margin-top: 8px;
+            border-radius: 8px;
+        }
+
+        .dropdown-menu .px-3.py-2 {
+            padding: 1rem 1rem 0.5rem 1rem !important;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-menu .dropdown-divider {
+            margin: 0.5rem 0;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* --- Main Content Area --- */
         .main-content {
-            padding: 2rem;
+            padding: 2.5rem 2rem 2rem 2rem;
+            background: #f7fafd;
+            min-height: 100vh;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+        }
+
+        /* DataTables custom style */
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: 6px !important;
+            margin: 0 2px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--primary-color) !important;
+            color: #fff !important;
         }
 
         .page-title {
-            margin-bottom: 2rem;
-            font-weight: 600;
-            color: #343a40;
+            margin-bottom: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 2rem;
+            letter-spacing: 0.01em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .card {
             border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
-            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            background: #fff;
+            overflow: hidden;
+            transition: box-shadow 0.18s;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
 
         .card-header {
-            background-color: transparent;
+            background: linear-gradient(90deg, #f7fafd 60%, #e9f2fb 100%);
             border-bottom: 1px solid #f0f0f0;
             font-weight: 600;
             color: var(--primary-color);
-            padding: 1rem 1.25rem;
+            padding: 1.1rem 1.5rem;
+            font-size: 1.15rem;
+            letter-spacing: 0.01em;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-card h4 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .stat-card p {
+            color: #6c757d;
+            margin: 0;
         }
 
         .farmer-list-item {
@@ -169,6 +349,7 @@
             margin-right: 15px;
         }
 
+        /* --- Responsive --- */
         @media (max-width: 768px) {
             #sidebar {
                 margin-left: -250px;
@@ -201,36 +382,104 @@
                 <h3>🤝 Nano Lending</h3>
             </div>
             <ul class="list-unstyled components">
-                <li><a href="anchor_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li class="active"><a href="farmer_management.html"><i class="fas fa-users"></i> Farmer Management</a>
+                <p class="text-center text-muted px-2">Welcome, Anchor!</p>
+                <li>
+                    <a href="anchor_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 </li>
-                <li><a href="group_loan.html"><i class="fas fa-file-invoice-dollar"></i> Group Loan</a></li>
-                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li class="active">
+                    <a href="farmer_management.html"><i class="fas fa-users"></i> Farmer Management</a>
+                </li>
+                <li>
+                    <a href="group_loan.html"><i class="fas fa-file-invoice-dollar"></i> Group Loan</a>
+                </li>
+                <li>
+                    <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
             </ul>
         </nav>
+
+        <!-- Page Content -->
         <div id="content">
+            <!-- Top Navbar -->
             <nav class="navbar navbar-expand-lg">
-                <div class="container-fluid">
-                    <a class="navbar-brand mx-auto d-none d-md-block" href="#">Contact Farmer (Anchor) Portal</a>
+                <div class="container-fluid d-flex align-items-center justify-content-between" style="height:70px;">
+                    <div class="d-flex align-items-center">
+                        <button type="button" id="sidebarCollapse" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                    </div>
+                    <div class="dropdown user-profile">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://i.pravatar.cc/150?u=anchor" alt="User" />
+                            <span class="profile-name d-none d-sm-inline">Karim Chowdhury</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li class="px-3 py-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://i.pravatar.cc/150?u=anchor" alt="User" class="me-2"
+                                        style="width: 50px; height: 50px" />
+                                    <div>
+                                        <strong>Karim Chowdhury</strong>
+                                        <div class="text-muted small">Anchor ID: #ANCH1029</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="#" id="changePasswordBtn"><i class="fas fa-key"></i>
+                                    Change
+                                    Password</a></li>
+                            <li><a class="dropdown-item text-danger" href="login.html"><i
+                                        class="fas fa-sign-out-alt"></i> Logout</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
+
+            <!-- Main Content Area -->
             <main class="main-content">
                 <section id="farmer-management-section" class="mt-4">
-                    <h2 class="page-title">Farmer Management</h2>
+                    <h2 class="page-title mb-4">Farmer Management</h2>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-card shadow-sm">
+                                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                <h4>3</h4>
+                                <p>Total Farmers</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card shadow-sm">
+                                <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                                <h4>৳75,000</h4>
+                                <p>Total Loans</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card shadow-sm">
+                                <div class="stat-icon"><i class="fas fa-seedling"></i></div>
+                                <h4>2</h4>
+                                <p>Healthy Crops</p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card mb-4">
                         <div
                             class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                             <span class="fw-bold fs-5">My Farmers List</span>
                             <div class="d-flex gap-2 flex-wrap">
-                                <input type="text" id="farmerSearch" class="form-control form-control-sm"
-                                    placeholder="Search by name or status" style="max-width:200px;">
                                 <button class="btn btn-sm btn-outline-primary" id="addFarmerBtn"><i
                                         class="fas fa-plus-circle me-2"></i>Add New Farmer</button>
                             </div>
                         </div>
                         <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0" id="farmerTable">
+                            <div class="table-responsive pt-3 pb-2 px-2">
+                                <table class="table table-hover align-middle mb-2" id="farmerTable"
+                                    style="border-radius:12px;overflow:hidden;">
                                     <thead class="table-light">
                                         <tr>
                                             <th scope="col">Photo</th>
@@ -251,9 +500,11 @@
                                             <td><span class="badge bg-success">Good Standing</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-info viewFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#viewFarmerModal"
                                                     data-name="Rashid Ahmed" data-loan="৳25,000" data-health="85%"
                                                     data-status="Good Standing">View</button>
                                                 <button class="btn btn-sm btn-outline-secondary editFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#editFarmerModal"
                                                     data-name="Rashid Ahmed" data-loan="৳25,000" data-health="85%"
                                                     data-status="Good Standing">Edit</button>
                                             </td>
@@ -267,9 +518,11 @@
                                             <td><span class="badge bg-warning text-dark">Needs Attention</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-info viewFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#viewFarmerModal"
                                                     data-name="Fatima Khatun" data-loan="৳20,000" data-health="65%"
                                                     data-status="Needs Attention">View</button>
                                                 <button class="btn btn-sm btn-outline-secondary editFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#editFarmerModal"
                                                     data-name="Fatima Khatun" data-loan="৳20,000" data-health="65%"
                                                     data-status="Needs Attention">Edit</button>
                                             </td>
@@ -283,11 +536,67 @@
                                             <td><span class="badge bg-success">Good Standing</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-info viewFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#viewFarmerModal"
                                                     data-name="Jamal Uddin" data-loan="৳30,000" data-health="92%"
                                                     data-status="Good Standing">View</button>
                                                 <button class="btn btn-sm btn-outline-secondary editFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#editFarmerModal"
                                                     data-name="Jamal Uddin" data-loan="৳30,000" data-health="92%"
                                                     data-status="Good Standing">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><img src="https://i.pravatar.cc/150?u=farmer4" alt="Shirin Akter"
+                                                    class="rounded-circle" width="40" height="40"></td>
+                                            <td>Shirin Akter</td>
+                                            <td>৳18,000</td>
+                                            <td><span class="badge bg-success">78%</span></td>
+                                            <td><span class="badge bg-success">Good Standing</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info viewFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#viewFarmerModal"
+                                                    data-name="Shirin Akter" data-loan="৳18,000" data-health="78%"
+                                                    data-status="Good Standing">View</button>
+                                                <button class="btn btn-sm btn-outline-secondary editFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#editFarmerModal"
+                                                    data-name="Shirin Akter" data-loan="৳18,000" data-health="78%"
+                                                    data-status="Good Standing">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><img src="https://i.pravatar.cc/150?u=farmer5" alt="Mizanur Rahman"
+                                                    class="rounded-circle" width="40" height="40"></td>
+                                            <td>Mizanur Rahman</td>
+                                            <td>৳22,500</td>
+                                            <td><span class="badge bg-warning text-dark">60%</span></td>
+                                            <td><span class="badge bg-warning text-dark">Needs Attention</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info viewFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#viewFarmerModal"
+                                                    data-name="Mizanur Rahman" data-loan="৳22,500" data-health="60%"
+                                                    data-status="Needs Attention">View</button>
+                                                <button class="btn btn-sm btn-outline-secondary editFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#editFarmerModal"
+                                                    data-name="Mizanur Rahman" data-loan="৳22,500" data-health="60%"
+                                                    data-status="Needs Attention">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><img src="https://i.pravatar.cc/150?u=farmer6" alt="Nasima Begum"
+                                                    class="rounded-circle" width="40" height="40"></td>
+                                            <td>Nasima Begum</td>
+                                            <td>৳27,000</td>
+                                            <td><span class="badge bg-danger">40%</span></td>
+                                            <td><span class="badge bg-danger">Rejected</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info viewFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#viewFarmerModal"
+                                                    data-name="Nasima Begum" data-loan="৳27,000" data-health="40%"
+                                                    data-status="Rejected">View</button>
+                                                <button class="btn btn-sm btn-outline-secondary editFarmerBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#editFarmerModal"
+                                                    data-name="Nasima Begum" data-loan="৳27,000" data-health="40%"
+                                                    data-status="Rejected">Edit</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -296,153 +605,190 @@
                         </div>
                     </div>
                 </section>
+                <!-- Add Farmer Modal -->
+                <div class="modal fade" id="addFarmerModal" tabindex="-1" aria-labelledby="addFarmerModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addFarmerModalLabel">Add New Farmer</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addFarmerForm">
+                                    <div class="mb-3">
+                                        <label for="farmerName" class="form-label">Name</label>
+                                        <input type="text" class="form-control" id="farmerName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="farmerLoan" class="form-label">Loan Amount</label>
+                                        <input type="number" class="form-control" id="farmerLoan" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="farmerHealth" class="form-label">Crop Health (%)</label>
+                                        <input type="number" class="form-control" id="farmerHealth" min="0" max="100"
+                                            required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="farmerStatus" class="form-label">Status</label>
+                                        <select class="form-select" id="farmerStatus" required>
+                                            <option value="Good Standing">Good Standing</option>
+                                            <option value="Needs Attention">Needs Attention</option>
+                                            <option value="Rejected">Rejected</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Add Farmer</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- View Farmer Modal -->
+                <div class="modal fade" id="viewFarmerModal" tabindex="-1" aria-labelledby="viewFarmerModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="viewFarmerModalLabel">Farmer Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="viewFarmerBody">
+                                <!-- Details will be injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Edit Farmer Modal -->
+                <div class="modal fade" id="editFarmerModal" tabindex="-1" aria-labelledby="editFarmerModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editFarmerModalLabel">Edit Farmer</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="editFarmerBody">
+                                <!-- Edit form will be injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
-            <!-- View Farmer Modal -->
-            <div class="modal fade" id="viewFarmerModal" tabindex="-1" aria-labelledby="viewFarmerModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="viewFarmerModalLabel">Farmer Details</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p><strong>Name:</strong> <span id="viewFarmerName"></span></p>
-                            <p><strong>Loan:</strong> <span id="viewFarmerLoan"></span></p>
-                            <p><strong>Crop Health:</strong> <span id="viewFarmerHealth"></span></p>
-                            <p><strong>Status:</strong> <span id="viewFarmerStatus"></span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Edit Farmer Modal -->
-            <div class="modal fade" id="editFarmerModal" tabindex="-1" aria-labelledby="editFarmerModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editFarmerModalLabel">Edit Farmer</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="editFarmerForm">
-                                <div class="mb-3">
-                                    <label for="editFarmerName" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="editFarmerName" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editFarmerLoan" class="form-label">Loan</label>
-                                    <input type="text" class="form-control" id="editFarmerLoan" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editFarmerHealth" class="form-label">Crop Health</label>
-                                    <input type="text" class="form-control" id="editFarmerHealth" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editFarmerStatus" class="form-label">Status</label>
-                                    <input type="text" class="form-control" id="editFarmerStatus" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add Farmer Modal -->
-            <div class="modal fade" id="addFarmerModal" tabindex="-1" aria-labelledby="addFarmerModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addFarmerModalLabel">Add New Farmer</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="addFarmerForm">
-                                <div class="mb-3">
-                                    <label for="addFarmerName" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="addFarmerName" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="addFarmerLoan" class="form-label">Loan</label>
-                                    <input type="text" class="form-control" id="addFarmerLoan" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="addFarmerHealth" class="form-label">Crop Health</label>
-                                    <input type="text" class="form-control" id="addFarmerHealth" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="addFarmerStatus" class="form-label">Status</label>
-                                    <input type="text" class="form-control" id="addFarmerStatus" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Add Farmer</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-    <!-- JS -->
+
+    <!-- Bootstrap & jQuery JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
+        // Initialize DataTable for farmerTable
         $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('collapsed');
-                $('#content').toggleClass('full-width');
+            $('#farmerTable').DataTable({
+                responsive: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50],
+                language: {
+                    search: "Filter:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ farmers",
+                    infoEmpty: "No farmers available",
+                    paginate: {
+                        previous: "<",
+                        next: ">"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: [0, 5] }
+                ]
             });
-            // Search/filter functionality for farmer table
-            $('#farmerSearch').on('input', function () {
-                var value = $(this).val().toLowerCase();
-                $('#farmerTable tbody tr').filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+        $(document).ready(function () {
+            $("#sidebarCollapse").on("click", function () {
+                $("#sidebar").toggleClass("collapsed");
+                $("#content").toggleClass("full-width");
+            });
+            // Profile dropdown already handled by Bootstrap
+
+            // Change Password button demo
+            $('#changePasswordBtn').on('click', function (e) {
+                e.preventDefault();
+                alert('Change password functionality coming soon!');
+            });
+
+            // Add Farmer Modal
+            $('#addFarmerBtn').on('click', function () {
+                $('#addFarmerModal').modal('show');
+            });
+            $('#addFarmerForm').on('submit', function (e) {
+                e.preventDefault();
+                alert('Demo: Farmer added! (Functionality to be implemented)');
+                $('#addFarmerModal').modal('hide');
+                this.reset();
+            });
+
+            // View Farmer Modal
+            $('.viewFarmerBtn').on('click', function () {
+                const name = $(this).data('name');
+                const loan = $(this).data('loan');
+                const health = $(this).data('health');
+                const status = $(this).data('status');
+                $('#viewFarmerBody').html(`
+                  <div class="mb-3 text-center">
+                    <img src="https://i.pravatar.cc/150?u=${name.replace(/\s/g, '').toLowerCase()}" class="rounded-circle mb-2" width="60" height="60" />
+                    <h5>${name}</h5>
+                  </div>
+                  <p><strong>Loan:</strong> ${loan}</p>
+                  <p><strong>Crop Health:</strong> ${health}</p>
+                  <p><strong>Status:</strong> ${status}</p>
+                `);
+            });
+
+            // Edit Farmer Modal
+            $('.editFarmerBtn').on('click', function () {
+                const name = $(this).data('name');
+                const loan = $(this).data('loan').replace(/[^\d]/g, '');
+                const health = $(this).data('health').replace(/[^\d]/g, '');
+                const status = $(this).data('status');
+                $('#editFarmerBody').html(`
+                  <form id="editFarmerForm">
+                    <div class="mb-3">
+                      <label for="editFarmerName" class="form-label">Name</label>
+                      <input type="text" class="form-control" id="editFarmerName" value="${name}" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="editFarmerLoan" class="form-label">Loan Amount</label>
+                      <input type="number" class="form-control" id="editFarmerLoan" value="${loan}" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="editFarmerHealth" class="form-label">Crop Health (%)</label>
+                      <input type="number" class="form-control" id="editFarmerHealth" value="${health}" min="0" max="100" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="editFarmerStatus" class="form-label">Status</label>
+                      <select class="form-select" id="editFarmerStatus" required>
+                        <option value="Good Standing" ${status === "Good Standing" ? "selected" : ""}>Good Standing</option>
+                        <option value="Needs Attention" ${status === "Needs Attention" ? "selected" : ""}>Needs Attention</option>
+                        <option value="Rejected" ${status === "Rejected" ? "selected" : ""}>Rejected</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                  </form>
+                `);
+                // Attach submit handler
+                $('#editFarmerForm').on('submit', function (e) {
+                    e.preventDefault();
+                    alert('Demo: Farmer updated! (Functionality to be implemented)');
+                    $('#editFarmerModal').modal('hide');
                 });
             });
 
-            // View Farmer button
-            $('.viewFarmerBtn').on('click', function () {
-                $('#viewFarmerName').text($(this).data('name'));
-                $('#viewFarmerLoan').text($(this).data('loan'));
-                $('#viewFarmerHealth').text($(this).data('health'));
-                $('#viewFarmerStatus').text($(this).data('status'));
-                var modal = new bootstrap.Modal(document.getElementById('viewFarmerModal'));
-                modal.show();
-            });
-
-            // Edit Farmer button
-            $('.editFarmerBtn').on('click', function () {
-                $('#editFarmerName').val($(this).data('name'));
-                $('#editFarmerLoan').val($(this).data('loan'));
-                $('#editFarmerHealth').val($(this).data('health'));
-                $('#editFarmerStatus').val($(this).data('status'));
-                var modal = new bootstrap.Modal(document.getElementById('editFarmerModal'));
-                modal.show();
-            });
-
-            // Save changes in Edit Farmer modal
-            $('#editFarmerForm').on('submit', function (e) {
-                e.preventDefault();
-                // For demo: just close modal and show success
-                alert('Farmer details updated (demo only).');
-                bootstrap.Modal.getInstance(document.getElementById('editFarmerModal')).hide();
-            });
-
-            // Add New Farmer button
-            $('#addFarmerBtn').on('click', function () {
-                var modal = new bootstrap.Modal(document.getElementById('addFarmerModal'));
-                modal.show();
-            });
-
-            // Add Farmer form submit
-            $('#addFarmerForm').on('submit', function (e) {
-                e.preventDefault();
-                // For demo: just close modal and show success
-                alert('New farmer added (demo only).');
-                bootstrap.Modal.getInstance(document.getElementById('addFarmerModal')).hide();
-            });
         });
     </script>
 </body>
