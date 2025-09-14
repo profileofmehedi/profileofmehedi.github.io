@@ -7,17 +7,26 @@
     <title>Farmer Profile Completion</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --primary-color: #007bff;
+            --primary-color: #0056b3;
+            --primary-light: #eef5ff;
             --secondary-color: #6c757d;
             --light-bg: #f8f9fa;
-            --tab-bg: #e9f2fb;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         body {
             background: var(--light-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
+            color: #333;
         }
 
         .wrapper {
@@ -25,20 +34,17 @@
             width: 100%;
         }
 
+        /* --- Sidebar & Navbar (Original Structure) --- */
         #sidebar {
             width: 250px;
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
-            z-index: 999;
+            z-index: 1000;
             background: #fff;
-            color: #333;
-            transition: all 0.3s;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
-            border-top-right-radius: 18px;
-            border-bottom-right-radius: 18px;
-            overflow: hidden;
+            transition: margin-left 0.35s ease-in-out;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.07);
         }
 
         #sidebar.collapsed {
@@ -52,56 +58,48 @@
             justify-content: center;
             background: var(--primary-color);
             color: white;
-            text-align: center;
-            padding: 0;
-            border-top-right-radius: 18px;
         }
 
         .sidebar-header h3 {
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.5rem;
         }
 
-        #sidebar .list-unstyled {
-            padding: 24px 0 0 0;
-            margin: 0;
-        }
-
-        #sidebar ul li {
-            margin-bottom: 6px;
+        #sidebar ul.components {
+            padding: 20px 0;
+            border-top: 1px solid var(--border-color);
         }
 
         #sidebar ul li a {
-            padding: 12px 28px;
-            font-size: 1.08em;
+            padding: 14px 24px;
+            font-size: 1rem;
             display: flex;
             align-items: center;
-            color: #555;
+            color: #444;
             border-left: 4px solid transparent;
-            border-radius: 0 16px 16px 0;
-            transition: background 0.18s, color 0.18s, border-left-color 0.18s;
             font-weight: 500;
-            letter-spacing: 0.01em;
-            text-decoration: none !important;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
         }
 
         #sidebar ul li a:hover,
         #sidebar ul li.active>a {
             color: var(--primary-color);
-            background: #f0f4fa;
+            background: var(--primary-light);
             border-left-color: var(--primary-color);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         #sidebar ul li a i {
             margin-right: 16px;
-            font-size: 1.15em;
+            font-size: 1.2em;
+            width: 24px;
+            text-align: center;
         }
 
         #content {
             width: calc(100% - 250px);
-            padding: 0;
             min-height: 100vh;
-            transition: all 0.3s;
+            transition: all 0.35s ease-in-out;
             position: absolute;
             top: 0;
             right: 0;
@@ -113,61 +111,170 @@
 
         .navbar {
             min-height: 70px;
-            height: 70px;
             padding: 0 1.5rem;
             background: #fff;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 998;
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            color: var(--primary-color);
-            font-weight: bold;
-            font-size: 1.5rem;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            margin-left: 1rem;
-        }
-
-        .user-profile {
-            position: relative;
-            margin-right: 1rem;
         }
 
         .user-profile img {
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid var(--border-color);
         }
 
-        .user-profile .profile-name {
-            margin-left: 10px;
-            font-weight: 500;
-            color: #333;
+        /* --- Main Content & Redesigned Card --- */
+        .main-content {
+            padding: 2rem;
         }
 
-        .dropdown-menu {
+        .page-title {
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .page-subtitle {
+            margin-bottom: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .card {
             border: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            min-width: 220px;
-            right: 0;
-            left: auto;
-            border-radius: 16px;
-            padding: 0.75rem 0.5rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
             background: #fff;
-            animation: fadeInDropdown 0.25s ease;
         }
 
-        @keyframes fadeInDropdown {
+        /* --- Profile Completion Meter --- */
+        .profile-completion-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--primary-light);
+            border-radius: 10px;
+        }
+
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+
+        .progress-circle-bg {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 8;
+        }
+
+        .progress-circle-bar {
+            fill: none;
+            stroke: var(--success-color);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+
+        .progress-circle-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            fill: var(--primary-color);
+        }
+
+        /* --- Wizard Stepper --- */
+        #profile-wizard-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            list-style-type: none;
+            padding: 0;
+            position: relative;
+        }
+
+        #profile-wizard-steps:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #e9ecef;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        #progress-bar {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 4px;
+            background-color: var(--success-color);
+            transform: translateY(-50%);
+            z-index: 2;
+            width: 0%;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 3;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .step-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: var(--secondary-color);
+            border: 4px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 600;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .step.active .step-icon,
+        .step.completed .step-icon {
+            background-color: var(--success-color);
+            color: #fff;
+            border-color: var(--success-color);
+        }
+
+        .step.active .step-label {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translateY(15px);
             }
 
             to {
@@ -176,171 +283,97 @@
             }
         }
 
-        .dropdown-menu .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: background 0.18s;
-        }
-
-        .dropdown-menu .dropdown-item:hover {
-            background: #f0f4fa;
-            color: var(--primary-color);
-        }
-
-        .dropdown-menu .btn {
-            width: 100%;
-            margin-top: 8px;
-            border-radius: 8px;
-        }
-
-        .dropdown-menu .px-3.py-2 {
-            padding: 1rem 1rem 0.5rem 1rem !important;
-            border-bottom: 1px solid #f0f0f0;
-            margin-bottom: 0.5rem;
-        }
-
-        .dropdown-menu .dropdown-divider {
-            margin: 0.5rem 0;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .main-content {
-            padding: 2.5rem 2rem 2rem 2rem;
-            background: #f7fafd;
-            min-height: 100vh;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
-        }
-
-        .page-title {
-            margin-bottom: 2.2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            font-size: 2rem;
-            letter-spacing: 0.01em;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .card {
-            border: none;
-            border-radius: 18px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
-            margin-bottom: 2rem;
-            background: #fff;
-            overflow: hidden;
-            transition: box-shadow 0.18s;
-        }
-
-        .card:hover {
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
-        }
-
-        .card-header {
-            background: linear-gradient(90deg, #e9f2fb 60%, #f7fafd 100%);
-            border-bottom: 1px solid #f0f0f0;
-            font-weight: 700;
-            color: var(--primary-color);
-            padding: 0.5rem 1.5rem 0 1.5rem;
-            font-size: 1.18rem;
-            letter-spacing: 0.01em;
-        }
-
-        .nav-tabs {
-            border-bottom: none;
-            background: var(--tab-bg);
-            border-radius: 14px 14px 0 0;
-            padding: 0.5rem 0.5rem 0 0.5rem;
-        }
-
-        .nav-tabs .nav-link {
-            border: none;
-            border-radius: 12px 12px 0 0;
-            margin-right: 8px;
-            color: #555;
-            font-weight: 500;
-            background: transparent;
-            transition: background 0.18s, color 0.18s;
-            padding: 0.7rem 1.2rem;
-        }
-
-        .nav-tabs .nav-link.active {
-            background: var(--primary-color);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .tab-content {
-            background: #fff;
-            border-radius: 0 0 18px 18px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            padding: 2rem 1.5rem 1.5rem 1.5rem;
-        }
-
-        /* Remove min-height from .tab-pane to prevent content jumping */
-
+        /* --- Advanced Form Styling --- */
         .form-label {
             font-weight: 600;
-            color: var(--primary-color);
+            color: #495057;
         }
 
         .form-control,
         .form-select {
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-            box-shadow: none;
+            border-radius: 8px;
         }
 
-        .form-control:focus,
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px #e9f2fb;
+        .form-section-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-light);
         }
 
         .btn {
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 1.08em;
+            padding: 0.6rem 1.5rem;
         }
 
-        .mt-4.text-end {
-            margin-top: 2.5rem !important;
+        /* Profile Picture Upload */
+        .profile-pic-uploader {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: auto;
         }
 
-        @media (max-width: 991px) {
-            #sidebar {
-                width: 200px;
-            }
-
-            #content {
-                width: calc(100% - 200px);
-            }
+        .profile-pic-uploader img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 767px) {
-            #sidebar {
-                display: none;
-            }
+        .profile-pic-uploader .upload-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+        }
 
-            #content {
-                width: 100%;
-                position: static;
-            }
+        /* Review Step Styling */
+        .review-section {
+            margin-bottom: 2rem;
+        }
 
-            .main-content {
-                padding: 1rem 0.5rem;
-            }
+        .review-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
 
-            .card {
-                border-radius: 12px;
-            }
+        .review-section-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
 
-            .tab-content {
-                padding: 1rem 0.5rem;
-            }
+        .review-item {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-item-label {
+            font-weight: 600;
+            color: #555;
+            width: 200px;
+        }
+
+        .review-item-value {
+            color: #333;
         }
     </style>
 </head>
@@ -353,236 +386,331 @@
                 <h3>🌾 Nano Lending</h3>
             </div>
             <ul class="list-unstyled components">
-                <p class="text-center text-muted px-2">Welcome, Farmer!</p>
-                <li><a href="farmer_dashboard_main.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="farmer_dashboard_eligibility.html"><i class="fas fa-hand-holding-dollar"></i> Loan
-                        Eligibility</a></li>
-                <li><a href="farmer_dashboard_upload.html"><i class="fas fa-cloud-upload-alt"></i> Crop Upload</a></li>
-                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <p class="text-center text-muted px-2 small">Welcome, Farmer!</p>
+                <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-hand-holding-dollar"></i> Loan Eligibility</a></li>
+                <li><a href="#"><i class="fas fa-cloud-upload-alt"></i> Crop Upload</a></li>
+                <li class="active"><a href="#"><i class="fas fa-user-check"></i> Complete Profile</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </nav>
+
         <!-- Page Content -->
         <div id="content">
             <!-- Top Navbar -->
             <nav class="navbar navbar-expand-lg">
-                <div class="container-fluid d-flex align-items-center justify-content-between" style="height:70px;">
-                    <div class="d-flex align-items-center">
-                        <button type="button" id="sidebarCollapse" class="btn btn-outline-primary me-2">
-                            <i class="fas fa-align-left"></i>
-                        </button>
-                    </div>
-                    <div class="dropdown user-profile">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="https://i.pravatar.cc/150?u=farmer" alt="User" />
-                            <span class="profile-name d-none d-sm-inline">Rashid Ahmed</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                            <li class="px-3 py-2">
-                                <div class="d-flex align-items-center">
-                                    <img src="https://i.pravatar.cc/150?u=farmer" alt="User" class="me-2"
-                                        style="width: 50px; height: 50px" />
-                                    <div>
-                                        <strong>Rashid Ahmed</strong>
-                                        <div class="text-muted small">Farmer ID: #FARM5843</div>
-                                    </div>
-                                </div>
+                <div class="container-fluid"><button type="button" id="sidebarCollapse" class="btn btn-light me-3"><i
+                            class="fas fa-align-left"></i></button>
+                    <div class="ms-auto dropdown user-profile"><a
+                            class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                            data-bs-toggle="dropdown"><img src="https://i.pravatar.cc/150?u=farmer" alt="User" /><span
+                                class="profile-name d-none d-sm-inline ms-2">Rashid Ahmed</span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i> My Profile</a>
                             </li>
-                            <li>
-                                <hr class="dropdown-divider" />
-                            </li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle"></i> My Profile</a></li>
-                            <li><a class="dropdown-item" href="#" id="changePasswordBtn"><i class="fas fa-key"></i>
-                                    Change Password</a></li>
-                            <li><a class="dropdown-item text-danger" href="login.html"><i
-                                        class="fas fa-sign-out-alt"></i> Logout</a></li>
                         </ul>
                     </div>
                 </div>
             </nav>
+
             <!-- Main Content Area -->
             <main class="main-content">
-                <section id="profile-section">
-                    <h2 class="page-title">Complete Your Profile</h2>
-                    <div class="card">
-                        <div class="card-header">
-                            <ul class="nav nav-tabs card-header-tabs" id="profileTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="personal-tab" data-bs-toggle="tab"
-                                        data-bs-target="#personal" type="button" role="tab" aria-controls="personal"
-                                        aria-selected="true"><i class="fas fa-user"></i> Personal Info</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
-                                        data-bs-target="#contact" type="button" role="tab" aria-controls="contact"
-                                        aria-selected="false"><i class="fas fa-address-book"></i> Contact</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="location-tab" data-bs-toggle="tab"
-                                        data-bs-target="#location" type="button" role="tab" aria-controls="location"
-                                        aria-selected="false"><i class="fas fa-map-marker-alt"></i> Location</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="farming-tab" data-bs-toggle="tab"
-                                        data-bs-target="#farming" type="button" role="tab" aria-controls="farming"
-                                        aria-selected="false"><i class="fas fa-seedling"></i> Farming Details</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="documents-tab" data-bs-toggle="tab"
-                                        data-bs-target="#documents" type="button" role="tab" aria-controls="documents"
-                                        aria-selected="false"><i class="fas fa-file-upload"></i> Documents</button>
-                                </li>
-                            </ul>
+                <h2 class="page-title">Complete Your Profile</h2>
+                <p class="page-subtitle">Fill in your details to get full access to our services and loan eligibility.
+                </p>
+                <div class="card">
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Profile Completion Meter -->
+                        <div class="profile-completion-header">
+                            <div class="progress-circle mx-auto"><svg viewBox="0 0 100 100">
+                                    <circle class="progress-circle-bg" cx="50" cy="50" r="42"></circle>
+                                    <circle class="progress-circle-bar" id="profileProgressBar" cx="50" cy="50" r="42"
+                                        stroke-dasharray="264" stroke-dashoffset="264"></circle>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle"><span
+                                        class="progress-circle-text" id="profileProgressText">0%</span></div>
+                            </div>
+                            <h5 class="mt-3 mb-0">Profile Completion</h5>
                         </div>
-                        <div class="card-body tab-content" id="profileTabContent">
-                            <form id="profileForm">
-                                <div class="tab-pane fade show active" id="personal" role="tabpanel"
-                                    aria-labelledby="personal-tab">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="fullName" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="fullName" required>
+
+                        <!-- Wizard Stepper -->
+                        <ul id="profile-wizard-steps">
+                            <li class="step active" data-step="1">
+                                <div class="step-icon"><i class="fas fa-user"></i></div>
+                                <div class="step-label">Personal</div>
+                            </li>
+                            <li class="step" data-step="2">
+                                <div class="step-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="step-label">Contact & Location</div>
+                            </li>
+                            <li class="step" data-step="3">
+                                <div class="step-icon"><i class="fas fa-seedling"></i></div>
+                                <div class="step-label">Farming Details</div>
+                            </li>
+                            <li class="step" data-step="4">
+                                <div class="step-icon"><i class="fas fa-check-double"></i></div>
+                                <div class="step-label">Review</div>
+                            </li>
+                        </ul>
+
+                        <form id="profileForm" novalidate>
+                            <!-- Step 1: Personal Info -->
+                            <div class="form-step active" data-step="1">
+                                <h4 class="form-section-title text-center mb-5">Personal Information</h4>
+                                <div class="row g-4 align-items-center">
+                                    <div class="col-md-4 text-center">
+                                        <div class="profile-pic-uploader"><img id="profilePicPreview"
+                                                src="https://i.pinimg.com/originals/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg"
+                                                alt="Profile Picture">
+                                            <div class="upload-btn"><i class="fas fa-camera"></i></div><input
+                                                type="file" name="photo" id="photo" class="d-none" accept="image/*">
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="dob" class="form-label">Date of Birth</label>
-                                            <input type="date" class="form-control" id="dob" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="gender" class="form-label">Gender</label>
-                                            <select class="form-select" id="gender" required>
-                                                <option value="">Select</option>
-                                                <option value="Male">Male</option>
-                                                <option value="Female">Female</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="marital" class="form-label">Marital Status</label>
-                                            <select class="form-select" id="marital" required>
-                                                <option value="">Select</option>
-                                                <option value="Single">Single</option>
-                                                <option value="Married">Married</option>
-                                                <option value="Widowed">Widowed</option>
-                                            </select>
+                                        <small class="text-muted d-block mt-2">Upload a clear photo</small>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row g-4">
+                                            <div class="col-12"><label for="fullName" class="form-label">Full
+                                                    Name</label><input type="text" class="form-control" name="fullName"
+                                                    id="fullName" required></div>
+                                            <div class="col-md-6"><label for="dob" class="form-label">Date of
+                                                    Birth</label><input type="date" class="form-control" name="dob"
+                                                    id="dob" required></div>
+                                            <div class="col-md-6"><label for="gender"
+                                                    class="form-label">Gender</label><select class="form-select"
+                                                    name="gender" id="gender" required>
+                                                    <option value="">Select...</option>
+                                                    <option>Male</option>
+                                                    <option>Female</option>
+                                                    <option>Other</option>
+                                                </select></div>
+                                            <div class="col-md-6"><label for="marital" class="form-label">Marital
+                                                    Status</label><select class="form-select" name="marital"
+                                                    id="marital" required>
+                                                    <option value="">Select...</option>
+                                                    <option>Single</option>
+                                                    <option>Married</option>
+                                                    <option>Widowed</option>
+                                                </select></div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="phone" class="form-label">Phone Number</label>
-                                            <input type="tel" class="form-control" id="phone" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="email" class="form-label">Email Address</label>
-                                            <input type="email" class="form-control" id="email" required>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label for="address" class="form-label">Address</label>
-                                            <textarea class="form-control" id="address" rows="2" required></textarea>
+                            </div>
+
+                            <!-- Step 2: Contact & Location -->
+                            <div class="form-step" data-step="2">
+                                <h4 class="form-section-title text-center mb-5">Contact & Location</h4>
+                                <div class="row g-4">
+                                    <div class="col-md-6"><label for="phone" class="form-label">Phone
+                                            Number</label><input type="tel" class="form-control" name="phone" id="phone"
+                                            required></div>
+                                    <div class="col-md-6"><label for="email" class="form-label">Email
+                                            Address</label><input type="email" class="form-control" name="email"
+                                            id="email"></div>
+                                    <div class="col-12"><label for="address" class="form-label">Address</label><textarea
+                                            class="form-control" name="address" id="address" rows="2"
+                                            required></textarea></div>
+                                    <div class="col-md-4"><label for="district"
+                                            class="form-label">District</label><input type="text" class="form-control"
+                                            name="district" id="district" required></div>
+                                    <div class="col-md-4"><label for="union" class="form-label">Union</label><input
+                                            type="text" class="form-control" name="union" id="union" required></div>
+                                    <div class="col-md-4"><label for="village" class="form-label">Village</label><input
+                                            type="text" class="form-control" name="village" id="village" required></div>
+                                    <div class="col-12"><label for="gps" class="form-label">GPS Coordinates</label>
+                                        <div class="input-group"><input type="text" class="form-control" name="gps"
+                                                id="gps" placeholder="Latitude, Longitude"><button
+                                                class="btn btn-outline-secondary" type="button" id="getLocationBtn"><i
+                                                    class="fas fa-map-pin me-2"></i> Get Current Location</button></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Farming Details -->
+                            <div class="form-step" data-step="3">
+                                <h4 class="form-section-title text-center mb-5">Farming Details</h4>
+                                <div class="row g-4">
+                                    <div class="col-md-6"><label for="farmSize" class="form-label">Farm Size
+                                            (acres)</label><input type="number" class="form-control" name="farmSize"
+                                            id="farmSize" min="0" step="0.1" required></div>
+                                    <div class="col-md-6"><label for="landOwnership" class="form-label">Land
+                                            Ownership</label><select class="form-select" name="landOwnership"
+                                            id="landOwnership" required>
+                                            <option value="">Select...</option>
+                                            <option>Owned</option>
+                                            <option>Leased</option>
+                                            <option>Family Land</option>
+                                        </select></div>
+                                    <div class="col-md-6"><label for="mainCrop" class="form-label">Main
+                                            Crop</label><input type="text" class="form-control" name="mainCrop"
+                                            id="mainCrop" required></div>
+                                    <div class="col-md-6"><label for="experience" class="form-label">Years of Farming
+                                            Experience</label><input type="number" class="form-control"
+                                            name="experience" id="experience" min="0" required></div>
+                                    <div class="col-12"><label class="form-label">Farming Techniques</label>
+                                        <div>
+                                            <div class="form-check form-check-inline"><input class="form-check-input"
+                                                    type="checkbox" name="techniques" value="Organic"
+                                                    id="techOrganic"><label class="form-check-label"
+                                                    for="techOrganic">Organic</label></div>
+                                            <div class="form-check form-check-inline"><input class="form-check-input"
+                                                    type="checkbox" name="techniques" value="Conventional"
+                                                    id="techConventional"><label class="form-check-label"
+                                                    for="techConventional">Conventional</label></div>
+                                            <div class="form-check form-check-inline"><input class="form-check-input"
+                                                    type="checkbox" name="techniques" value="Hydroponics"
+                                                    id="techHydroponics"><label class="form-check-label"
+                                                    for="techHydroponics">Hydroponics</label></div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="location" role="tabpanel" aria-labelledby="location-tab">
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label for="district" class="form-label">District</label>
-                                            <input type="text" class="form-control" id="district" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="union" class="form-label">Union</label>
-                                            <input type="text" class="form-control" id="union" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="village" class="form-label">Village</label>
-                                            <input type="text" class="form-control" id="village" required>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label for="gps" class="form-label">GPS Coordinates</label>
-                                            <input type="text" class="form-control" id="gps"
-                                                placeholder="Latitude, Longitude">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="farming" role="tabpanel" aria-labelledby="farming-tab">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="farmSize" class="form-label">Farm Size (acres)</label>
-                                            <input type="number" class="form-control" id="farmSize" min="0" step="0.01">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="mainCrop" class="form-label">Main Crop</label>
-                                            <input type="text" class="form-control" id="mainCrop">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="otherCrops" class="form-label">Other Crops</label>
-                                            <input type="text" class="form-control" id="otherCrops">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="experience" class="form-label">Years of Experience</label>
-                                            <input type="number" class="form-control" id="experience" min="0">
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label for="irrigation" class="form-label">Irrigation Type</label>
-                                            <select class="form-select" id="irrigation">
-                                                <option value="">Select</option>
-                                                <option value="Canal">Canal</option>
-                                                <option value="Tube Well">Tube Well</option>
-                                                <option value="Rainfed">Rainfed</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="documents" role="tabpanel"
-                                    aria-labelledby="documents-tab">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label for="photo" class="form-label">Profile Photo</label>
-                                            <input type="file" class="form-control" id="photo" accept="image/*">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="nid" class="form-label">National ID (NID)</label>
-                                            <input type="file" class="form-control" id="nid"
-                                                accept="image/*,application/pdf">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="landDeed" class="form-label">Land Deed</label>
-                                            <input type="file" class="form-control" id="landDeed"
-                                                accept="image/*,application/pdf">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="otherDocs" class="form-label">Other Documents</label>
-                                            <input type="file" class="form-control" id="otherDocs" multiple>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-4 text-end">
-                                    <button type="submit" class="btn btn-primary px-4">Save Profile</button>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+
+                            <!-- Step 4: Review & Submit -->
+                            <div class="form-step" data-step="4">
+                                <h4 class="form-section-title text-center mb-5">Review & Submit</h4>
+                                <div id="review-container"></div>
+                            </div>
+
+                            <!-- Navigation Buttons -->
+                            <div class="d-flex justify-content-between pt-4 mt-5 border-top"><button type="button"
+                                    class="btn btn-secondary" id="prevBtn"
+                                    style="display: none;">Previous</button><button type="button"
+                                    class="btn btn-primary ms-auto" id="nextBtn">Next</button><button type="submit"
+                                    class="btn btn-success" id="submitBtn" style="display: none;"><i
+                                        class="fas fa-check-circle me-2"></i> Submit Profile</button></div>
+                        </form>
                     </div>
-                </section>
+                </div>
             </main>
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
-            $("#sidebarCollapse").on("click", function () {
-                $("#sidebar").toggleClass("collapsed");
-                $("#content").toggleClass("full-width");
+            // --- Basic Setup ---
+            $("#sidebarCollapse").on("click", () => $("#sidebar, #content").toggleClass("collapsed full-width"));
+
+            // --- Form Wizard Logic ---
+            let currentStep = 1;
+            const totalSteps = $(".form-step").length;
+
+            const updateWizard = (targetStep = null) => {
+                if (targetStep) currentStep = targetStep;
+                $(".form-step").removeClass("active").filter(`[data-step="${currentStep}"]`).addClass("active");
+                $("#prevBtn").toggle(currentStep > 1);
+                $("#nextBtn").toggle(currentStep < totalSteps);
+                $("#submitBtn").toggle(currentStep === totalSteps);
+                const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+                $('#progress-bar').css('width', `${progress}%`);
+                $('.step').removeClass('active completed').each((i, el) => {
+                    const stepNum = i + 1;
+                    if (stepNum < currentStep) $(el).addClass('completed');
+                    else if (stepNum === currentStep) $(el).addClass('active');
+                });
+                if (currentStep === totalSteps) populateReview();
+            };
+
+            const validateStep = (step) => {
+                let isValid = true;
+                $(`.form-step[data-step="${step}"] [required]`).each(function () {
+                    $(this).removeClass('is-invalid');
+                    if (!this.value.trim()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    }
+                });
+                return isValid;
+            };
+
+            $("#nextBtn").on("click", () => { if (validateStep(currentStep)) { currentStep++; updateWizard(); } });
+            $("#prevBtn").on("click", () => { currentStep--; updateWizard(); });
+            $('.step').on('click', function () {
+                const targetStep = $(this).data('step');
+                if (targetStep < currentStep) {
+                    updateWizard(targetStep);
+                }
             });
-            $('#changePasswordBtn').on('click', function (e) {
-                e.preventDefault();
-                alert('Change password functionality coming soon!');
+
+            // --- Profile Completion Progress ---
+            const allInputs = $('#profileForm [name]');
+            const totalFields = [...new Set(allInputs.map((i, el) => el.name))].length;
+            const updateProfileProgress = () => {
+                const filledFields = [...new Set(allInputs.filter((i, el) => {
+                    if ($(el).is(':checkbox')) return $(`[name="${el.name}"]:checked`).length > 0;
+                    return $(el).val() && $(el).val().trim() !== '';
+                }).map((i, el) => el.name))].length;
+                const percentage = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
+                $('#profileProgressText').text(`${percentage}%`);
+                const circle = $('#profileProgressBar');
+                const radius = circle.attr('r');
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (percentage / 100) * circumference;
+                circle.css('stroke-dashoffset', offset);
+            };
+            $('#profileForm').on('input change', updateProfileProgress);
+            updateProfileProgress();
+
+            // --- Profile Picture Upload ---
+            $('.profile-pic-uploader .upload-btn').on('click', () => $('#photo').click());
+            $('#photo').on('change', function () {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => $('#profilePicPreview').attr('src', e.target.result);
+                    reader.readAsDataURL(this.files[0]);
+                }
             });
-            $('#profileForm').on('submit', function (e) {
+
+            // --- Get Location Button ---
+            $('#getLocationBtn').on('click', function () {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => { $('#gps').val(`${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`).trigger('input'); },
+                        () => alert('Unable to retrieve your location. Please enable location services.')
+                    );
+                } else {
+                    alert('Geolocation is not supported by your browser.');
+                }
+            });
+
+            // --- Review & Submit Logic ---
+            function populateReview() {
+                const formData = new FormData($('#profileForm')[0]);
+                const data = Object.fromEntries(formData.entries());
+
+                const reviewHtml = `
+                    <div class="review-section">
+                        <div class="review-section-header"><h5>Personal Information</h5><button type="button" class="btn btn-sm btn-outline-secondary edit-section-btn" data-step="1"><i class="fas fa-pencil-alt"></i> Edit</button></div>
+                        <div class="review-item"><div class="review-item-label">Full Name</div><div class="review-item-value">${data.fullName || '-'}</div></div>
+                        <div class="review-item"><div class="review-item-label">Date of Birth</div><div class="review-item-value">${data.dob || '-'}</div></div>
+                        <div class="review-item"><div class="review-item-label">Gender</div><div class="review-item-value">${data.gender || '-'}</div></div>
+                        <div class="review-item"><div class="review-item-label">Marital Status</div><div class="review-item-value">${data.marital || '-'}</div></div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-section-header"><h5>Contact & Location</h5><button type="button" class="btn btn-sm btn-outline-secondary edit-section-btn" data-step="2"><i class="fas fa-pencil-alt"></i> Edit</button></div>
+                        <div class="review-item"><div class="review-item-label">Phone</div><div class="review-item-value">${data.phone || '-'}</div></div>
+                        <div class="review-item"><div class="review-item-label">Address</div><div class="review-item-value">${data.address || '-'}</div></div>
+                        <div class="review-item"><div class="review-item-label">District</div><div class="review-item-value">${data.district || '-'}</div></div>
+                    </div>
+                    <div class="review-section">
+                        <div class="review-section-header"><h5>Farming Details</h5><button type="button" class="btn btn-sm btn-outline-secondary edit-section-btn" data-step="3"><i class="fas fa-pencil-alt"></i> Edit</button></div>
+                        <div class="review-item"><div class="review-item-label">Farm Size</div><div class="review-item-value">${data.farmSize ? data.farmSize + ' acres' : '-'}</div></div>
+                        <div class="review-item"><div class="review-item-label">Main Crop</div><div class="review-item-value">${data.mainCrop || '-'}</div></div>
+                    </div>
+                `;
+                $('#review-container').html(reviewHtml);
+            }
+
+            $(document).on('click', '.edit-section-btn', function () {
+                updateWizard($(this).data('step'));
+            });
+
+            $('#profileForm').on('submit', (e) => {
                 e.preventDefault();
-                alert('Profile saved successfully!');
-                // window.location.href = 'farmer_dashboard_main.html';
+                if (validateStep(currentStep)) {
+                    alert("Profile submitted for verification!");
+                }
             });
         });
     </script>
