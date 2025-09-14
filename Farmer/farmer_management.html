@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farmer Management - Nano Lending</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        #sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 999;
+            background: #fff;
+            color: #333;
+            transition: all 0.3s;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        #sidebar.collapsed {
+            margin-left: -250px;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h3 {
+            font-weight: 600;
+        }
+
+        #sidebar .list-unstyled {
+            padding: 20px 0;
+        }
+
+        #sidebar ul li a {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            display: block;
+            color: #555;
+            border-left: 3px solid transparent;
+        }
+
+        #sidebar ul li a:hover,
+        #sidebar ul li.active>a {
+            color: var(--primary-color);
+            background: var(--light-bg);
+            border-left-color: var(--primary-color);
+        }
+
+        #sidebar ul li a i {
+            margin-right: 15px;
+        }
+
+        #content {
+            width: calc(100% - 250px);
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        #content.full-width {
+            width: 100%;
+        }
+
+        .navbar {
+            padding: 1rem 1.5rem;
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 998;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .user-profile .dropdown-toggle::after {
+            display: none;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 1rem 1.25rem;
+        }
+
+        .farmer-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .farmer-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .farmer-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .farmer-info img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+
+            #sidebar.collapsed {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+            }
+
+            #content.full-width {
+                width: calc(100% - 250px);
+            }
+
+            .navbar-brand {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>🤝 Nano Lending</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li><a href="anchor_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="active"><a href="farmer_management.html"><i class="fas fa-users"></i> Farmer Management</a>
+                </li>
+                <li><a href="group_loan.html"><i class="fas fa-file-invoice-dollar"></i> Group Loan</a></li>
+                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        <div id="content">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <a class="navbar-brand mx-auto d-none d-md-block" href="#">Contact Farmer (Anchor) Portal</a>
+                </div>
+            </nav>
+            <main class="main-content">
+                <section id="farmer-management-section" class="mt-4">
+                    <h2 class="page-title">Farmer Management</h2>
+                    <div class="card mb-4">
+                        <div
+                            class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                            <span class="fw-bold fs-5">My Farmers List</span>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <input type="text" id="farmerSearch" class="form-control form-control-sm"
+                                    placeholder="Search by name or status" style="max-width:200px;">
+                                <button class="btn btn-sm btn-outline-primary"><i
+                                        class="fas fa-plus-circle me-2"></i>Add New Farmer</button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" id="farmerTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">Photo</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Loan</th>
+                                            <th scope="col">Crop Health</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><img src="https://i.pravatar.cc/150?u=farmer" alt="Rashid Ahmed"
+                                                    class="rounded-circle" width="40" height="40"></td>
+                                            <td>Rashid Ahmed</td>
+                                            <td>৳25,000</td>
+                                            <td><span class="badge bg-success">85%</span></td>
+                                            <td><span class="badge bg-success">Good Standing</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info">View</button>
+                                                <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><img src="https://i.pravatar.cc/150?u=farmer2" alt="Fatima Khatun"
+                                                    class="rounded-circle" width="40" height="40"></td>
+                                            <td>Fatima Khatun</td>
+                                            <td>৳20,000</td>
+                                            <td><span class="badge bg-warning text-dark">65%</span></td>
+                                            <td><span class="badge bg-warning text-dark">Needs Attention</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info">View</button>
+                                                <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><img src="https://i.pravatar.cc/150?u=farmer3" alt="Jamal Uddin"
+                                                    class="rounded-circle" width="40" height="40"></td>
+                                            <td>Jamal Uddin</td>
+                                            <td>৳30,000</td>
+                                            <td><span class="badge bg-success">92%</span></td>
+                                            <td><span class="badge bg-success">Good Standing</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info">View</button>
+                                                <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('collapsed');
+                $('#content').toggleClass('full-width');
+            });
+            // Removed sidebar link scroll logic so links work as page navigation
+
+            // Search/filter functionality for farmer table
+            $('#farmerSearch').on('input', function () {
+                var value = $(this).val().toLowerCase();
+                $('#farmerTable tbody tr').filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

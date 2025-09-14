@@ -1,489 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anchor Dashboard - Nano Lending</title>
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
-    <style>
-      :root {
-        --primary-color: #007bff; /* A slightly different blue for the anchor */
-        --secondary-color: #6c757d;
-        --light-bg: #f8f9fa;
-      }
-      body {
-        background-color: var(--light-bg);
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
-      .wrapper {
-        display: flex;
-        width: 100%;
-      }
-      /* --- Sidebar --- */
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor Dashboard - Nano Lending</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #007bff;
+      /* A slightly different blue for the anchor */
+      --secondary-color: #6c757d;
+      --light-bg: #f8f9fa;
+    }
+
+    body {
+      background-color: var(--light-bg);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .wrapper {
+      display: flex;
+      width: 100%;
+    }
+
+    /* --- Sidebar --- */
+    #sidebar {
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 999;
+      background: #fff;
+      color: #333;
+      transition: all 0.3s;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+    }
+
+    #sidebar.collapsed {
+      margin-left: -250px;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: var(--primary-color);
+      color: white;
+      text-align: center;
+    }
+
+    .sidebar-header h3 {
+      font-weight: 600;
+    }
+
+    #sidebar .list-unstyled {
+      padding: 20px 0;
+    }
+
+    #sidebar ul li a {
+      padding: 10px 20px;
+      font-size: 1.1em;
+      display: block;
+      color: #555;
+      border-left: 3px solid transparent;
+    }
+
+    #sidebar ul li a:hover,
+    #sidebar ul li.active>a {
+      color: var(--primary-color);
+      background: var(--light-bg);
+      border-left-color: var(--primary-color);
+    }
+
+    #sidebar ul li a i {
+      margin-right: 15px;
+    }
+
+    /* --- Page Content --- */
+    #content {
+      width: calc(100% - 250px);
+      padding: 0;
+      min-height: 100vh;
+      transition: all 0.3s;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    #content.full-width {
+      width: 100%;
+    }
+
+    /* --- Top Navbar --- */
+    .navbar {
+      padding: 1rem 1.5rem;
+      background: #fff;
+      border-bottom: 1px solid #dee2e6;
+      position: sticky;
+      top: 0;
+      z-index: 998;
+    }
+
+    .navbar-brand {
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    .user-profile .dropdown-toggle::after {
+      display: none;
+    }
+
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .dropdown-menu {
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* --- Main Content Area --- */
+    .main-content {
+      padding: 2rem;
+    }
+
+    .page-title {
+      margin-bottom: 2rem;
+      font-weight: 600;
+      color: #343a40;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      background-color: transparent;
+      border-bottom: 1px solid #f0f0f0;
+      font-weight: 600;
+      color: var(--primary-color);
+      padding: 1rem 1.25rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+    }
+
+    .stat-card .stat-icon {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+
+    .stat-card h4 {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .stat-card p {
+      color: #6c757d;
+      margin: 0;
+    }
+
+    .farmer-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .farmer-list-item:last-child {
+      border-bottom: none;
+    }
+
+    .farmer-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .farmer-info img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 768px) {
       #sidebar {
-        width: 250px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        z-index: 999;
-        background: #fff;
-        color: #333;
-        transition: all 0.3s;
-        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
-      }
-      #sidebar.collapsed {
         margin-left: -250px;
       }
-      .sidebar-header {
-        padding: 20px;
-        background: var(--primary-color);
-        color: white;
-        text-align: center;
+
+      #sidebar.collapsed {
+        margin-left: 0;
       }
-      .sidebar-header h3 {
-        font-weight: 600;
-      }
-      #sidebar .list-unstyled {
-        padding: 20px 0;
-      }
-      #sidebar ul li a {
-        padding: 10px 20px;
-        font-size: 1.1em;
-        display: block;
-        color: #555;
-        border-left: 3px solid transparent;
-      }
-      #sidebar ul li a:hover,
-      #sidebar ul li.active > a {
-        color: var(--primary-color);
-        background: var(--light-bg);
-        border-left-color: var(--primary-color);
-      }
-      #sidebar ul li a i {
-        margin-right: 15px;
-      }
-      /* --- Page Content --- */
+
       #content {
-        width: calc(100% - 250px);
-        padding: 0;
-        min-height: 100vh;
-        transition: all 0.3s;
-        position: absolute;
-        top: 0;
-        right: 0;
-      }
-      #content.full-width {
         width: 100%;
       }
-      /* --- Top Navbar --- */
-      .navbar {
-        padding: 1rem 1.5rem;
-        background: #fff;
-        border-bottom: 1px solid #dee2e6;
-        position: sticky;
-        top: 0;
-        z-index: 998;
+
+      #content.full-width {
+        width: calc(100% - 250px);
       }
+
       .navbar-brand {
-        color: var(--primary-color);
-        font-weight: bold;
-      }
-      .user-profile .dropdown-toggle::after {
         display: none;
       }
-      .user-profile img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-      }
-      .dropdown-menu {
-        border: none;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-      /* --- Main Content Area --- */
-      .main-content {
-        padding: 2rem;
-      }
-      .page-title {
-        margin-bottom: 2rem;
-        font-weight: 600;
-        color: #343a40;
-      }
-      .card {
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
-        margin-bottom: 1.5rem;
-      }
-      .card-header {
-        background-color: transparent;
-        border-bottom: 1px solid #f0f0f0;
-        font-weight: 600;
-        color: var(--primary-color);
-        padding: 1rem 1.25rem;
-      }
-      .stat-card {
-        text-align: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
-      }
-      .stat-card .stat-icon {
-        font-size: 2rem;
-        color: var(--primary-color);
-        margin-bottom: 10px;
-      }
-      .stat-card h4 {
-        font-size: 1.75rem;
-        font-weight: 700;
-      }
-      .stat-card p {
-        color: #6c757d;
-        margin: 0;
-      }
-      .farmer-list-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-      }
-      .farmer-list-item:last-child {
-        border-bottom: none;
-      }
-      .farmer-info {
-        display: flex;
-        align-items: center;
-      }
-      .farmer-info img {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        margin-right: 15px;
-      }
-      /* --- Responsive --- */
-      @media (max-width: 768px) {
-        #sidebar {
-          margin-left: -250px;
-        }
-        #sidebar.collapsed {
-          margin-left: 0;
-        }
-        #content {
-          width: 100%;
-        }
-        #content.full-width {
-          width: calc(100% - 250px);
-        }
-        .navbar-brand {
-          display: none;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrapper">
-      <!-- Sidebar -->
-      <nav id="sidebar">
-        <div class="sidebar-header">
-          <h3>🤝 Nano Lending</h3>
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <h3>🤝 Nano Lending</h3>
+      </div>
+      <ul class="list-unstyled components">
+        <p class="text-center text-muted px-2">Welcome, Anchor!</p>
+        <li class="active">
+          <a href="anchor_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        </li>
+        <li>
+          <a href="farmer_management.html"><i class="fas fa-users"></i> Farmer Management</a>
+        </li>
+        <li>
+          <a href="group_loan.html"><i class="fas fa-file-invoice-dollar"></i> Group Loan</a>
+        </li>
+        <li>
+          <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content">
+      <!-- Top Navbar -->
+      <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+          <button type="button" id="sidebarCollapse" class="btn btn-outline-primary">
+            <i class="fas fa-align-left"></i>
+          </button>
+          <a class="navbar-brand mx-auto d-none d-md-block" href="#">Contact Farmer (Anchor) Portal</a>
+
+          <div class="dropdown user-profile">
+            <a class="nav-link dropdown-toggle d-flex align-items:center" href="#" id="navbarDropdown" role="button"
+              data-bs-toggle="dropdown">
+              <img src="https://i.pravatar.cc/150?u=anchor" alt="User" class="me-2" />
+              <span class="d-none d-sm-inline">Karim Chowdhury</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li class="px-3 py-2">
+                <div class="d-flex align-items-center">
+                  <img src="https://i.pravatar.cc/150?u=anchor" alt="User" class="me-2"
+                    style="width: 50px; height: 50px" />
+                  <div>
+                    <strong>Karim Chowdhury</strong>
+                    <div class="text-muted small">Anchor ID: #ANCH1029</div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i> My Profile</a>
+              </li>
+              <li>
+                <a class="dropdown-item text-danger" href="login.html"><i class="fas fa-sign-out-alt me-2"></i>
+                  Logout</a>
+              </li>
+            </ul>
+          </div>
         </div>
-        <ul class="list-unstyled components">
-          <p class="text-center text-muted px-2">Welcome, Anchor!</p>
-          <li class="active">
-            <a href="#dashboard-section"
-              ><i class="fas fa-tachometer-alt"></i> Dashboard</a
-            >
-          </li>
-          <li>
-            <a href="#farmer-management-section"
-              ><i class="fas fa-users"></i> Farmer Management</a
-            >
-          </li>
-          <li>
-            <a href="#group-loan-section"
-              ><i class="fas fa-file-invoice-dollar"></i> Group Loan</a
-            >
-          </li>
-          <li>
-            <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
-          </li>
-        </ul>
       </nav>
 
-      <!-- Page Content -->
-      <div id="content">
-        <!-- Top Navbar -->
-        <nav class="navbar navbar-expand-lg">
-          <div class="container-fluid">
-            <button
-              type="button"
-              id="sidebarCollapse"
-              class="btn btn-outline-primary"
-            >
-              <i class="fas fa-align-left"></i>
-            </button>
-            <a class="navbar-brand mx-auto d-none d-md-block" href="#"
-              >Contact Farmer (Anchor) Portal</a
-            >
-
-            <div class="dropdown user-profile">
-              <a
-                class="nav-link dropdown-toggle d-flex align-items:center"
-                href="#"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-              >
-                <img
-                  src="https://i.pravatar.cc/150?u=anchor"
-                  alt="User"
-                  class="me-2"
-                />
-                <span class="d-none d-sm-inline">Karim Chowdhury</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li class="px-3 py-2">
-                  <div class="d-flex align-items-center">
-                    <img
-                      src="https://i.pravatar.cc/150?u=anchor"
-                      alt="User"
-                      class="me-2"
-                      style="width: 50px; height: 50px"
-                    />
-                    <div>
-                      <strong>Karim Chowdhury</strong>
-                      <div class="text-muted small">Anchor ID: #ANCH1029</div>
-                    </div>
-                  </div>
-                </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li>
-                  <a class="dropdown-item" href="#"
-                    ><i class="fas fa-user-circle me-2"></i> My Profile</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item text-danger" href="login.html"
-                    ><i class="fas fa-sign-out-alt me-2"></i> Logout</a
-                  >
-                </li>
-              </ul>
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard-section">
+          <h2 class="page-title">Anchor Dashboard</h2>
+          <div class="row">
+            <div class="col-md-4 mb-4">
+              <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <h4>25</h4>
+                <p>Total Farmers Managed</p>
+              </div>
+            </div>
+            <div class="col-md-4 mb-4">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-hand-holding-dollar"></i>
+                </div>
+                <h4>৳5,00,000</h4>
+                <p>Total Loan Amount</p>
+              </div>
+            </div>
+            <div class="col-md-4 mb-4">
+              <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-percent"></i></div>
+                <h4>95%</h4>
+                <p>Group Repayment Rate</p>
+              </div>
             </div>
           </div>
-        </nav>
-
-        <!-- Main Content Area -->
-        <main class="main-content">
-          <!-- Dashboard Section -->
-          <section id="dashboard-section">
-            <h2 class="page-title">Anchor Dashboard</h2>
-            <div class="row">
-              <div class="col-md-4 mb-4">
-                <div class="stat-card">
-                  <div class="stat-icon"><i class="fas fa-users"></i></div>
-                  <h4>25</h4>
-                  <p>Total Farmers Managed</p>
-                </div>
-              </div>
-              <div class="col-md-4 mb-4">
-                <div class="stat-card">
-                  <div class="stat-icon">
-                    <i class="fas fa-hand-holding-dollar"></i>
-                  </div>
-                  <h4>৳5,00,000</h4>
-                  <p>Total Loan Amount</p>
-                </div>
-              </div>
-              <div class="col-md-4 mb-4">
-                <div class="stat-card">
-                  <div class="stat-icon"><i class="fas fa-percent"></i></div>
-                  <h4>95%</h4>
-                  <p>Group Repayment Rate</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Farmer Management Section -->
-          <section id="farmer-management-section" class="mt-4">
-            <h2 class="page-title">Farmer Management</h2>
-            <div class="card">
-              <div
-                class="card-header d-flex justify-content-between align-items-center"
-              >
-                <span>My Farmers List</span>
-                <button class="btn btn-sm btn-outline-primary">
-                  <i class="fas fa-plus-circle me-2"></i>Add New Farmer
-                </button>
-              </div>
-              <div class="card-body">
-                <div class="farmer-list-item">
-                  <div class="farmer-info">
-                    <img
-                      src="https://i.pravatar.cc/150?u=farmer"
-                      alt="Farmer"
-                    />
-                    <div>
-                      <strong>Rashid Ahmed</strong>
-                      <div class="text-muted small">
-                        Loan: ৳25K | Crop Health: 85%
-                      </div>
-                    </div>
-                  </div>
-                  <span class="badge bg-success">Good Standing</span>
-                </div>
-                <div class="farmer-list-item">
-                  <div class="farmer-info">
-                    <img
-                      src="https://i.pravatar.cc/150?u=farmer2"
-                      alt="Farmer"
-                    />
-                    <div>
-                      <strong>Fatima Khatun</strong>
-                      <div class="text-muted small">
-                        Loan: ৳20K | Crop Health: 65%
-                      </div>
-                    </div>
-                  </div>
-                  <span class="badge bg-warning text-dark"
-                    >Needs Attention</span
-                  >
-                </div>
-                <div class="farmer-list-item">
-                  <div class="farmer-info">
-                    <img
-                      src="https://i.pravatar.cc/150?u=farmer3"
-                      alt="Farmer"
-                    />
-                    <div>
-                      <strong>Jamal Uddin</strong>
-                      <div class="text-muted small">
-                        Loan: ৳30K | Crop Health: 92%
-                      </div>
-                    </div>
-                  </div>
-                  <span class="badge bg-success">Good Standing</span>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header">Recent Farmer Activity (Demo)</div>
+                <div class="card-body">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Loan</th>
+                        <th>Crop Health</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Rashid Ahmed</td>
+                        <td>৳25,000</td>
+                        <td>85%</td>
+                        <td><span class="badge bg-success">Good Standing</span></td>
+                      </tr>
+                      <tr>
+                        <td>Fatima Khatun</td>
+                        <td>৳20,000</td>
+                        <td>65%</td>
+                        <td><span class="badge bg-warning text-dark">Needs Attention</span></td>
+                      </tr>
+                      <tr>
+                        <td>Jamal Uddin</td>
+                        <td>৳30,000</td>
+                        <td>92%</td>
+                        <td><span class="badge bg-success">Good Standing</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-          </section>
-
-          <!-- Group Loan Application Section -->
-          <section id="group-loan-section" class="mt-4">
-            <h2 class="page-title">Group Loan Application</h2>
-            <div class="card">
-              <div class="card-header">
-                Create a New Loan Application for Your Group
-              </div>
-              <div class="card-body">
-                <form>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label"
-                        ><strong>Crop Type</strong></label
-                      >
-                      <select class="form-select">
-                        <option selected>Rice</option>
-                        <option>Wheat</option>
-                        <option>Vegetables</option>
-                      </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label"
-                        ><strong>Planting Season</strong></label
-                      >
-                      <select class="form-select">
-                        <option>Rabi</option>
-                        <option selected>Kharif</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label"
-                        ><strong>Number of Farmers in Group</strong></label
-                      >
-                      <input type="number" class="form-control" value="15" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label"
-                        ><strong>Total Sales Forecast (BDT)</strong></label
-                      >
-                      <input
-                        type="number"
-                        class="form-control"
-                        value="800000"
-                      />
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label"
-                      ><strong>Upload Forward Sales Contract</strong></label
-                    >
-                    <input type="file" class="form-control" />
-                    <div class="form-text">
-                      Upload the sales agreement with the buyer (if any).
-                    </div>
-                  </div>
-                  <div class="alert alert-info">
-                    <strong>💰 Estimated Loan Amount: ৳3,75,000</strong>
-                    <br />
-                    <small
-                      >This is calculated based on your sales forecast and the
-                      number of farmers.</small
-                    >
-                  </div>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-check-circle me-2"></i>Submit Application
-                    to Bank
-                  </button>
-                </form>
+            <div class="col-md-6">
+              <div class="card mb-4">
+                <div class="card-header">Recent Group Loan Applications (Demo)</div>
+                <div class="card-body">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>App ID</th>
+                        <th>Crop</th>
+                        <th>Farmers</th>
+                        <th>Loan</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>#GLA-2025-001</td>
+                        <td>Rice</td>
+                        <td>15</td>
+                        <td>৳375,000</td>
+                        <td><span class="badge bg-warning text-dark">Pending</span></td>
+                      </tr>
+                      <tr>
+                        <td>#GLA-2025-002</td>
+                        <td>Wheat</td>
+                        <td>10</td>
+                        <td>৳220,000</td>
+                        <td><span class="badge bg-success">Approved</span></td>
+                      </tr>
+                      <tr>
+                        <td>#GLA-2025-003</td>
+                        <td>Vegetables</td>
+                        <td>8</td>
+                        <td>৳120,000</td>
+                        <td><span class="badge bg-danger">Rejected</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </section>
-        </main>
-      </div>
+          </div>
+        </section>
+      </main>
     </div>
+  </div>
 
-    <!-- Bootstrap & jQuery JS -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      $(document).ready(function () {
-        $("#sidebarCollapse").on("click", function () {
-          $("#sidebar").toggleClass("collapsed");
-          $("#content").toggleClass("full-width");
-        });
-
-        $("#sidebar a").on("click", function (e) {
-          if ($(this).attr("href") !== "login.html") {
-            e.preventDefault();
-            var target = $($(this).attr("href"));
-            if (target.length) {
-              $("html, body").animate(
-                {
-                  scrollTop: target.offset().top - 80,
-                },
-                500
-              );
-              $("#sidebar li").removeClass("active");
-              $(this).parent("li").addClass("active");
-            }
-          }
-        });
+  <!-- Bootstrap & jQuery JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("#sidebarCollapse").on("click", function () {
+        $("#sidebar").toggleClass("collapsed");
+        $("#content").toggleClass("full-width");
       });
-    </script>
-  </body>
+      // Removed sidebar link scroll logic so links work as page navigation
+    });
+  </script>
+</body>
+
 </html>
