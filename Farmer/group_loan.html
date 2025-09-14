@@ -358,13 +358,13 @@
             </div>
             <ul class="list-unstyled components">
                 <p class="text-center text-muted px-2">Welcome, Anchor!</p>
-                <li class="active">
+                <li>
                     <a href="anchor_dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 </li>
                 <li>
                     <a href="farmer_management.html"><i class="fas fa-users"></i> Farmer Management</a>
                 </li>
-                <li>
+                <li class="active">
                     <a href="group_loan.html"><i class="fas fa-file-invoice-dollar"></i> Group Loan</a>
                 </li>
                 <li>
@@ -418,7 +418,7 @@
             <!-- Main Content Area -->
             <main class="main-content">
                 <section id="group-loan-section" class="mt-4">
-                    <h2 class="page-title">Group Loan Application</h2>
+                    <h2 class="page-title mb-4">Group Loan Application</h2>
                     <div class="card mb-4">
                         <div class="card-header">Create a New Loan Application for Your Group</div>
                         <div class="card-body">
@@ -443,21 +443,23 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label"><strong>Number of Farmers in Group</strong></label>
-                                        <input type="number" class="form-control" id="numFarmers" value="15" />
+                                        <input type="number" class="form-control" id="numFarmers" value="15" min="1"
+                                            required />
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label"><strong>Total Sales Forecast (BDT)</strong></label>
-                                        <input type="number" class="form-control" id="salesForecast" value="800000" />
+                                        <input type="number" class="form-control" id="salesForecast" value="800000"
+                                            min="0" required />
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label"><strong>Upload Forward Sales Contract</strong></label>
-                                    <input type="file" class="form-control" />
+                                    <input type="file" class="form-control" id="salesContract" />
                                     <div class="form-text">Upload the sales agreement with the buyer (if any).</div>
                                 </div>
                                 <div class="alert alert-info">
                                     <strong>💰 Estimated Loan Amount: <span
-                                            id="loanEstimate">৳3,75,000</span></strong><br />
+                                            id="loanEstimate">৳375,000</span></strong><br />
                                     <small>This is calculated based on your sales forecast and the number of
                                         farmers.</small>
                                 </div>
@@ -469,8 +471,9 @@
                     <div class="card">
                         <div class="card-header">Recent Group Loan Applications (Demo)</div>
                         <div class="card-body">
-                            <table class="table table-hover">
-                                <thead>
+                            <table class="table table-hover align-middle mb-2" id="groupLoanTable"
+                                style="border-radius:12px;overflow:hidden;">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Application ID</th>
                                         <th>Crop</th>
@@ -513,6 +516,28 @@
                             </table>
                         </div>
                     </div>
+                    <!-- Application Submitted Modal -->
+                    <div class="modal fade" id="applicationSubmittedModal" tabindex="-1"
+                        aria-labelledby="applicationSubmittedModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="applicationSubmittedModalLabel">Application Submitted
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                    <p>Your group loan application has been submitted to the bank. You will be notified
+                                        once it is reviewed.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             </main>
         </div>
@@ -536,6 +561,43 @@
                 alert('Change password functionality coming soon!');
             });
 
+            // --- Main Content Interactivity ---
+            function calculateLoanEstimate() {
+                const numFarmers = parseInt($('#numFarmers').val()) || 0;
+                const salesForecast = parseInt($('#salesForecast').val()) || 0;
+                // Example formula: 45% of sales forecast, max 50,000 per farmer
+                let estimate = Math.min(Math.round(salesForecast * 0.45), numFarmers * 50000);
+                if (isNaN(estimate) || estimate < 0) estimate = 0;
+                $('#loanEstimate').text('৳' + estimate.toLocaleString());
+                return estimate;
+            }
+            $('#numFarmers, #salesForecast').on('input', calculateLoanEstimate);
+            calculateLoanEstimate();
+
+            // Form submission
+            $('#groupLoanForm').on('submit', function (e) {
+                e.preventDefault();
+                // Simple validation
+                let valid = true;
+                if (!$('#numFarmers').val() || $('#numFarmers').val() < 1) {
+                    $('#numFarmers').addClass('is-invalid');
+                    valid = false;
+                } else {
+                    $('#numFarmers').removeClass('is-invalid');
+                }
+                if (!$('#salesForecast').val() || $('#salesForecast').val() < 0) {
+                    $('#salesForecast').addClass('is-invalid');
+                    valid = false;
+                } else {
+                    $('#salesForecast').removeClass('is-invalid');
+                }
+                if (!valid) return;
+                // Show modal
+                $('#applicationSubmittedModal').modal('show');
+                // Optionally, reset form after submission
+                // this.reset();
+                // calculateLoanEstimate();
+            });
         });
     </script>
 </body>
