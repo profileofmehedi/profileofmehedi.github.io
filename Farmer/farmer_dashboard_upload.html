@@ -99,7 +99,7 @@
 
         #content {
             width: calc(100% - 250px);
-            padding: 0;
+            padding: 0 2.5rem 0 2.5rem;
             min-height: 100vh;
             transition: all 0.3s;
             position: absolute;
@@ -237,6 +237,7 @@
             background: #fff;
             overflow: hidden;
             transition: box-shadow 0.18s;
+            padding: 1.5rem 1.5rem 1.2rem 1.5rem;
         }
 
         .card:hover {
@@ -248,7 +249,7 @@
             border-bottom: 1px solid #f0f0f0;
             font-weight: 600;
             color: var(--primary-color);
-            padding: 1.1rem 1.5rem;
+            padding: 1.1rem 0 1.1rem 0;
             font-size: 1.15rem;
             letter-spacing: 0.01em;
         }
@@ -257,8 +258,8 @@
             background: #f0f9ff;
             border: 1px solid #0ea5e9;
             border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
+            padding: 18px 10px 18px 10px;
+            margin: 16px 0 0 0;
             font-size: 0.95rem;
         }
 
@@ -273,10 +274,23 @@
 
             #content {
                 width: 100%;
+                padding: 0 0.5rem 0 0.5rem;
             }
 
             #content.full-width {
                 width: calc(100% - 250px);
+            }
+
+            .main-content {
+                padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+            }
+
+            .card {
+                padding: 1rem 0.5rem 1rem 0.5rem;
+            }
+
+            .dashboard-card {
+                padding: 12px 4px 12px 4px;
             }
 
             .navbar-brand {
@@ -362,8 +376,13 @@
                                         <div class="mb-3">
                                             <label for="cropPhoto" class="form-label"><strong>1. Take Crop
                                                     Photo</strong></label>
-                                            <input class="form-control" type="file" id="cropPhoto">
+                                            <input class="form-control" type="file" id="cropPhoto" accept="image/*"
+                                                aria-label="Upload crop photo">
                                             <div class="form-text">📍 GPS & ⏰ Timestamp will be auto-tagged.</div>
+                                            <div id="photoPreview" class="mt-2" style="display:none;">
+                                                <img src="#" alt="Crop Preview" class="img-thumbnail"
+                                                    style="max-width:180px; max-height:180px;">
+                                            </div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label"><strong>2. Select Growth Stage</strong></label>
@@ -380,20 +399,40 @@
                                             <textarea class="form-control" id="notes" rows="3"
                                                 placeholder="Any issues or observations? e.g., pest attack, weather effects..."></textarea>
                                         </div>
-                                        <button type="submit" class="btn btn-primary"><i
+                                        <button type="submit" class="btn btn-primary" id="submitBtn"><i
                                                 class="fas fa-check-circle me-2"></i>Submit Update</button>
+                                        <span id="loadingSpinner" class="spinner-border text-primary ms-2"
+                                            style="display:none;" role="status" aria-hidden="true"></span>
                                     </form>
                                 </div>
                                 <div class="col-lg-5 mt-4 mt-lg-0">
-                                    <strong>🤖 AI Health Score (from last update):</strong>
+                                    <strong>🤖 AI Health Score <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+                                            title="AI Health Score is calculated based on crop growth and notes."></i></strong>
                                     <div class="dashboard-card text-center bg-light mt-2">
-                                        <div class="display-4 fw-bold text-success" id="aiHealthScore">85%</div>
+                                        <div class="progress-circle mx-auto mb-2 position-relative"
+                                            style="width:90px; height:90px;">
+                                            <svg viewBox="0 0 36 36" class="circular-chart"
+                                                style="width:90px; height:90px;">
+                                                <path class="circle-bg"
+                                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                    fill="none" stroke="#eee" stroke-width="3" />
+                                                <path id="healthCircle" class="circle"
+                                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                    fill="none" stroke="#10b981" stroke-width="3"
+                                                    stroke-dasharray="85,100" />
+                                            </svg>
+                                            <div class="fw-bold text-success position-absolute top-50 start-50 translate-middle"
+                                                id="aiHealthScore"
+                                                style="width:70px;text-align:center;pointer-events:none;font-size:1.35rem;">
+                                                85%</div>
+                                        </div>
                                         <div class="text-muted" id="aiHealthComment">Good growth, monitor for pests.
                                         </div>
                                     </div>
                                     <div class="alert alert-info mt-3">
-                                        <i class="fas fa-info-circle me-2"></i>A higher health score can improve your
-                                        eligibility for future loans!
+                                        <i class="fas fa-info-circle me-2" data-bs-toggle="tooltip"
+                                            title="Higher scores improve loan eligibility."></i>A higher health score
+                                        can improve your eligibility for future loans!
                                     </div>
                                 </div>
                             </div>
@@ -412,37 +451,113 @@
                 $("#sidebar").toggleClass("collapsed");
                 $("#content").toggleClass("full-width");
             });
-            // Profile dropdown already handled by Bootstrap
+            // Enable tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
             // Change Password button demo
             $('#changePasswordBtn').on('click', function (e) {
                 e.preventDefault();
-                alert('Change password functionality coming soon!');
+                showModal('Change Password', 'Change password functionality coming soon!');
+            });
+            // Image preview for crop photo
+            $('#cropPhoto').on('change', function (e) {
+                var input = this;
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#photoPreview img').attr('src', e.target.result);
+                        $('#photoPreview').show();
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    $('#photoPreview').hide();
+                }
             });
             // Crop upload form logic
             $('#cropUploadForm').on('submit', function (e) {
                 e.preventDefault();
                 var stage = $('#growthStage').val();
                 var notes = $('#notes').val();
-                var score = 85;
-                var comment = 'Good growth, monitor for pests.';
-                if (stage === 'Harvesting') {
-                    score = 95;
-                    comment = 'Excellent! Ready for harvest.';
-                } else if (stage === 'Vegetative') {
-                    score = 80;
-                    comment = 'Healthy vegetative growth.';
-                } else if (stage === 'Seedling') {
-                    score = 70;
-                    comment = 'Seedlings established. Watch for weeds.';
+                var file = $('#cropPhoto')[0].files[0];
+                if (!file) {
+                    showModal('Error', 'Please upload a crop photo.');
+                    return;
                 }
-                if (notes.toLowerCase().includes('pest')) {
-                    score -= 10;
-                    comment = 'Pest issue detected. Take action!';
+                if (!file.type.startsWith('image/')) {
+                    showModal('Error', 'Only image files are allowed.');
+                    return;
                 }
-                $('#aiHealthScore').text(score + '%');
-                $('#aiHealthComment').text(comment);
-                alert('Crop update submitted! AI Health Score updated.');
+                if (file.size > 2 * 1024 * 1024) {
+                    showModal('Error', 'Image size should be less than 2MB.');
+                    return;
+                }
+                $('#submitBtn').prop('disabled', true);
+                $('#loadingSpinner').show();
+                setTimeout(function () {
+                    var score = 85;
+                    var comment = 'Good growth, monitor for pests.';
+                    if (stage === 'Harvesting') {
+                        score = 95;
+                        comment = 'Excellent! Ready for harvest.';
+                    } else if (stage === 'Vegetative') {
+                        score = 80;
+                        comment = 'Healthy vegetative growth.';
+                    } else if (stage === 'Seedling') {
+                        score = 70;
+                        comment = 'Seedlings established. Watch for weeds.';
+                    }
+                    if (notes.toLowerCase().includes('pest')) {
+                        score -= 10;
+                        comment = 'Pest issue detected. Take action!';
+                    }
+                    animateHealthScore(score);
+                    $('#aiHealthComment').text(comment);
+                    $('#submitBtn').prop('disabled', false);
+                    $('#loadingSpinner').hide();
+                    showModal('Success', 'Crop update submitted! AI Health Score updated.');
+                }, 1200);
             });
+            // Animate health score circle and number
+            function animateHealthScore(targetScore) {
+                var $score = $('#aiHealthScore');
+                var $circle = $('#healthCircle');
+                var current = parseInt($score.text());
+                var step = (targetScore - current) / 30;
+                var i = 0;
+                function update() {
+                    if (i < 30) {
+                        current += step;
+                        var val = Math.round(current);
+                        $score.text(val + '%');
+                        $circle.attr('stroke-dasharray', val + ',100');
+                        i++;
+                        setTimeout(update, 18);
+                    } else {
+                        $score.text(targetScore + '%');
+                        $circle.attr('stroke-dasharray', targetScore + ',100');
+                    }
+                }
+                update();
+            }
+            // Modal dialog for confirmation and alerts
+            function showModal(title, message) {
+                var modalHtml = '<div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">' +
+                    '<div class="modal-dialog modal-dialog-centered">' +
+                    '<div class="modal-content">' +
+                    '<div class="modal-header"><h5 class="modal-title" id="customModalLabel">' + title + '</h5>' +
+                    '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>' +
+                    '<div class="modal-body">' + message + '</div>' +
+                    '<div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button></div>' +
+                    '</div></div></div>';
+                $('body').append(modalHtml);
+                var modal = new bootstrap.Modal(document.getElementById('customModal'));
+                modal.show();
+                $('#customModal').on('hidden.bs.modal', function () {
+                    $('#customModal').remove();
+                });
+            }
         });
     </script>
 </body>
