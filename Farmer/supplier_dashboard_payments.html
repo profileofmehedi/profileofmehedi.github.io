@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Status - Supplier Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        /* Notification bell */
+        .notification-bell {
+            position: relative;
+            margin-right: 1.5rem;
+            cursor: pointer;
+        }
+
+        .notification-bell .fa-bell {
+            font-size: 1.5em;
+            color: var(--primary-color);
+        }
+
+        .notification-bell .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc3545;
+            color: #fff;
+            font-size: 0.75em;
+            border-radius: 50%;
+            padding: 2px 6px;
+        }
+
+        .dropdown-notifications {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            min-width: 280px;
+            background: #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+            border-radius: 14px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown-notifications.active {
+            display: block;
+        }
+
+        .dropdown-notifications .notif-item {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.98em;
+            color: #333;
+        }
+
+        .dropdown-notifications .notif-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-notifications .notif-item i {
+            color: var(--primary-color);
+            margin-right: 8px;
+        }
+
+        /* Summary cards */
+        .summary-cards {
+            margin-bottom: 2.2rem;
+        }
+
+        .summary-card {
+            background: linear-gradient(90deg, #e9f2fb 60%, #f7fafd 100%);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-card .icon {
+            font-size: 2.2em;
+            color: var(--primary-color);
+        }
+
+        .summary-card .value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .summary-card .label {
+            font-size: 1em;
+            color: #666;
+        }
+
+        /* Transactions table */
+        .transactions-table {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .transactions-table th {
+            background: #f7fafd;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .transactions-table td {
+            vertical-align: middle;
+        }
+
+        .search-box {
+            margin-bottom: 1rem;
+        }
+
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .tooltip-inner {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        #sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 999;
+            background: #fff;
+            color: #333;
+            transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+            overflow: hidden;
+        }
+
+        #sidebar.collapsed {
+            margin-left: -250px;
+        }
+
+        .sidebar-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 0;
+            border-top-right-radius: 18px;
+        }
+
+        .sidebar-header h3 {
+            font-weight: 600;
+        }
+
+        #sidebar .list-unstyled {
+            padding: 24px 0 0 0;
+            margin: 0;
+        }
+
+        #sidebar ul li {
+            margin-bottom: 6px;
+        }
+
+        #sidebar ul li a {
+            padding: 12px 28px;
+            font-size: 1.08em;
+            display: flex;
+            align-items: center;
+            color: #555;
+            border-left: 4px solid transparent;
+            border-radius: 0 16px 16px 0;
+            transition: background 0.18s, color 0.18s, border-left-color 0.18s;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            text-decoration: none !important;
+        }
+
+        #sidebar ul li a:hover,
+        #sidebar ul li.active>a {
+            color: var(--primary-color);
+            background: #f0f4fa;
+            border-left-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        #sidebar ul li a i {
+            margin-right: 16px;
+            font-size: 1.15em;
+        }
+
+        #content {
+            width: calc(100% - 250px);
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        #content.full-width {
+            width: 100%;
+        }
+
+        .navbar {
+            min-height: 70px;
+            height: 70px;
+            padding: 0 1.5rem;
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+        }
+
+        .user-profile {
+            position: relative;
+            margin-right: 1rem;
+        }
+
+        .user-profile img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-profile .profile-name {
+            margin-left: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-width: 220px;
+            right: 0;
+            left: auto;
+            border-radius: 16px;
+            padding: 0.75rem 0.5rem;
+            background: #fff;
+            animation: fadeInDropdown 0.25s ease;
+        }
+
+        @keyframes fadeInDropdown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: background 0.18s;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: #f0f4fa;
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu .btn {
+            width: 100%;
+            margin-top: 8px;
+            border-radius: 8px;
+        }
+
+        .dropdown-menu .px-3.py-2 {
+            padding: 1rem 1rem 0.5rem 1rem !important;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-menu .dropdown-divider {
+            margin: 0.5rem 0;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .main-content {
+            padding: 2.5rem 2rem 2rem 2rem;
+            background: #f7fafd;
+            min-height: 100vh;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+        }
+
+        .page-title {
+            margin-bottom: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 2rem;
+            letter-spacing: 0.01em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            background: #fff;
+            overflow: hidden;
+            transition: box-shadow 0.18s;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, #f7fafd 60%, #e9f2fb 100%);
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 1.1rem 1.5rem;
+            font-size: 1.15rem;
+            letter-spacing: 0.01em;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+
+            #sidebar.collapsed {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+            }
+
+            #content.full-width {
+                width: calc(100% - 250px);
+            }
+
+            .navbar-brand {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>🚛 Nano Lending</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <p class="text-center text-muted px-2">Welcome, Supplier!</p>
+                <li><a href="supplier_dashboard_orders.html"><i class="fas fa-box-open"></i> Order Management</a></li>
+                <li class="active"><a href="supplier_dashboard_payments.html"><i class="fas fa-money-bill-wave"></i>
+                        Payment Status</a></li>
+                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid d-flex align-items-center justify-content-between" style="height:70px;">
+                    <div class="d-flex align-items-center">
+                        <button type="button" id="sidebarCollapse" class="btn btn-outline-primary me-2"
+                            data-bs-toggle="tooltip" title="Toggle Sidebar">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                        <div class="notification-bell" id="notifBell" data-bs-toggle="tooltip" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">2</span>
+                            <div class="dropdown-notifications" id="notifDropdown">
+                                <div class="notif-item"><i class="fas fa-money-bill-wave"></i> Payment received for
+                                    #SED2024001</div>
+                                <div class="notif-item"><i class="fas fa-exclamation-circle"></i> Payment pending for
+                                    #PEST83720</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown user-profile">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://i.pravatar.cc/150?u=supplier" alt="User" />
+                            <span class="profile-name d-none d-sm-inline">ACI Agro</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li class="px-3 py-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://i.pravatar.cc/150?u=supplier" alt="User" class="me-2"
+                                        style="width: 50px; height: 50px" />
+                                    <div>
+                                        <strong>ACI Agro Ltd.</strong>
+                                        <div class="text-muted small">Supplier ID: #SUPP982</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="login.html"><i
+                                        class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <!-- Summary Cards -->
+                <div class="summary-cards row">
+                    <div class="col-md-3 col-6">
+                        <div class="summary-card">
+                            <span class="icon"><i class="fas fa-money-bill-wave"></i></span>
+                            <div>
+                                <div class="value">৳1,25,000</div>
+                                <div class="label">Pending Payments</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="summary-card">
+                            <span class="icon"><i class="fas fa-check-circle"></i></span>
+                            <div>
+                                <div class="value">৳3,50,000</div>
+                                <div class="label">Paid This Month</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="summary-card">
+                            <span class="icon"><i class="fas fa-list"></i></span>
+                            <div>
+                                <div class="value">15</div>
+                                <div class="label">Orders Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="summary-card">
+                            <span class="icon"><i class="fas fa-clock"></i></span>
+                            <div>
+                                <div class="value">৳2,00,000</div>
+                                <div class="label">Total Paid</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Transactions Table -->
+                <div class="transactions-table">
+                    <!-- Removed extra search box, DataTable search will be used -->
+                    <table class="table table-hover" id="paymentsTable">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#SED2024001</td>
+                                <td>৳45,000</td>
+                                <td><span class="badge bg-success">Paid</span></td>
+                                <td>Sep 12, 2025</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal"
+                                        data-bs-target="#invoiceModal" data-order="#SED2024001" data-bs-toggle="tooltip"
+                                        title="View Invoice"><i class="fas fa-download"></i> Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#PEST83720</td>
+                                <td>৳80,000</td>
+                                <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                <td>-</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark disabled" data-bs-toggle="tooltip"
+                                        title="Invoice not available"><i class="fas fa-download"></i> Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#FERT2024002</td>
+                                <td>৳60,000</td>
+                                <td><span class="badge bg-success">Paid</span></td>
+                                <td>Aug 28, 2025</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal"
+                                        data-bs-target="#invoiceModal" data-order="#FERT2024002"
+                                        data-bs-toggle="tooltip" title="View Invoice"><i class="fas fa-download"></i>
+                                        Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#SED2023998</td>
+                                <td>৳30,000</td>
+                                <td><span class="badge bg-danger">Failed</span></td>
+                                <td>Aug 15, 2025</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark disabled" data-bs-toggle="tooltip"
+                                        title="Payment Failed"><i class="fas fa-download"></i> Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#PEST83719</td>
+                                <td>৳55,000</td>
+                                <td><span class="badge bg-success">Paid</span></td>
+                                <td>Jul 30, 2025</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal"
+                                        data-bs-target="#invoiceModal" data-order="#PEST83719" data-bs-toggle="tooltip"
+                                        title="View Invoice"><i class="fas fa-download"></i> Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#FERT2024002</td>
+                                <td>৳60,000</td>
+                                <td><span class="badge bg-success">Paid</span></td>
+                                <td>Aug 28, 2025</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal"
+                                        data-bs-target="#invoiceModal" data-order="#FERT2024002"
+                                        data-bs-toggle="tooltip" title="View Invoice"><i class="fas fa-download"></i>
+                                        Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#SED2023998</td>
+                                <td>৳30,000</td>
+                                <td><span class="badge bg-danger">Failed</span></td>
+                                <td>Aug 15, 2025</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark disabled" data-bs-toggle="tooltip"
+                                        title="Payment Failed"><i class="fas fa-download"></i> Invoice</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#PEST83719</td>
+                                <td>৳55,000</td>
+                                <td><span class="badge bg-success">Paid</span></td>
+                                <td>Jul 30, 2025</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal"
+                                        data-bs-target="#invoiceModal" data-order="#PEST83719" data-bs-toggle="tooltip"
+                                        title="View Invoice"><i class="fas fa-download"></i> Invoice</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Modals -->
+                <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="invoiceModalLabel">Invoice Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="list-unstyled">
+                                    <li><strong>Order ID:</strong> <span id="invoiceOrderId">#SED2024001</span></li>
+                                    <li><strong>Amount:</strong> ৳45,000</li>
+                                    <li><strong>Status:</strong> <span class="badge bg-success">Paid</span></li>
+                                    <li><strong>Date:</strong> Sep 12, 2025</li>
+                                    <li><strong>Payment Method:</strong> Bank Transfer</li>
+                                </ul>
+                                <hr>
+                                <button class="btn btn-primary w-100" id="downloadInvoiceBtn"><i
+                                        class="fas fa-download"></i> Download PDF</button>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Bootstrap & jQuery JS -->
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Sidebar toggle
+            $("#sidebarCollapse").on("click", function () {
+                $("#sidebar").toggleClass("collapsed");
+                $("#content").toggleClass("full-width");
+            });
+
+            // Tooltip
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Notification bell dropdown
+            $("#notifBell").on("click", function (e) {
+                e.stopPropagation();
+                $("#notifDropdown").toggleClass("active");
+            });
+            $(document).on("click", function () {
+                $("#notifDropdown").removeClass("active");
+            });
+
+            // Initialize DataTable
+            $('#paymentsTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                lengthChange: false,
+                pageLength: 5,
+                language: {
+                    search: "Search:"
+                }
+            });
+
+            // Invoice modal: pass order id
+            $('#invoiceModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var orderId = button.data('order');
+                $('#invoiceOrderId').text(orderId);
+            });
+
+            // Download invoice button feedback
+            $('#downloadInvoiceBtn').on('click', function () {
+                var btn = $(this);
+                btn.addClass('btn-loading').html('<i class="fas fa-spinner fa-spin"></i> Downloading...');
+                setTimeout(function () {
+                    btn.removeClass('btn-loading').html('<i class="fas fa-download"></i> Download PDF');
+                    alert('Invoice PDF downloaded!');
+                }, 1200);
+            });
+        });
+    </script>
+</body>
+
+</html>

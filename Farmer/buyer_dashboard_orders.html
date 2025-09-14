@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buyer Dashboard - Orders</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        #sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 999;
+            background: #fff;
+            color: #333;
+            transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+            overflow: hidden;
+        }
+
+        #sidebar.collapsed {
+            margin-left: -250px;
+        }
+
+        .sidebar-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 0;
+            border-top-right-radius: 18px;
+        }
+
+        .sidebar-header h3 {
+            font-weight: 600;
+        }
+
+        #sidebar .list-unstyled {
+            padding: 24px 0 0 0;
+            margin: 0;
+        }
+
+        #sidebar ul li {
+            margin-bottom: 6px;
+        }
+
+        #sidebar ul li a {
+            padding: 12px 28px;
+            font-size: 1.08em;
+            display: flex;
+            align-items: center;
+            color: #555;
+            border-left: 4px solid transparent;
+            border-radius: 0 16px 16px 0;
+            transition: background 0.18s, color 0.18s, border-left-color 0.18s;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            text-decoration: none !important;
+        }
+
+        #sidebar ul li a:hover,
+        #sidebar ul li.active>a {
+            color: var(--primary-color);
+            background: #f0f4fa;
+            border-left-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        #sidebar ul li a i {
+            margin-right: 16px;
+            font-size: 1.15em;
+        }
+
+        #content {
+            width: calc(100% - 250px);
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        #content.full-width {
+            width: 100%;
+        }
+
+        .navbar {
+            min-height: 70px;
+            height: 70px;
+            padding: 0 1.5rem;
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+        }
+
+        .user-profile {
+            position: relative;
+            margin-right: 1rem;
+        }
+
+        .user-profile img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-profile .profile-name {
+            margin-left: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-width: 220px;
+            right: 0;
+            left: auto;
+            border-radius: 16px;
+            padding: 0.75rem 0.5rem;
+            background: #fff;
+            animation: fadeInDropdown 0.25s ease;
+        }
+
+        @keyframes fadeInDropdown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: background 0.18s;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: #f0f4fa;
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu .btn {
+            width: 100%;
+            margin-top: 8px;
+            border-radius: 8px;
+        }
+
+        .dropdown-menu .px-3.py-2 {
+            padding: 1rem 1rem 0.5rem 1rem !important;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-menu .dropdown-divider {
+            margin: 0.5rem 0;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .main-content {
+            padding: 2.5rem 2rem 2rem 2rem;
+            background: #f7fafd;
+            min-height: 100vh;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+        }
+
+        .page-title {
+            margin-bottom: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 2rem;
+            letter-spacing: 0.01em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+
+            #sidebar.collapsed {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+            }
+
+            #content.full-width {
+                width: calc(100% - 250px);
+            }
+
+            .navbar-brand {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>🛒 Nano Lending</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <p class="text-center text-muted px-2">Welcome, Buyer!</p>
+                <li><a href="buyer_dashboard_main.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="active"><a href="buyer_dashboard_orders.html"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a href="buyer_dashboard_payments.html"><i class="fas fa-money-bill-wave"></i> Payments</a></li>
+                <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid d-flex align-items-center justify-content-between" style="height:70px;">
+                    <div class="d-flex align-items-center">
+                        <button type="button" id="sidebarCollapse" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                    </div>
+                    <div class="dropdown user-profile">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://i.pravatar.cc/150?u=buyer" alt="User" />
+                            <span class="profile-name d-none d-sm-inline">Rahim Buyer</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li class="px-3 py-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://i.pravatar.cc/150?u=buyer" alt="User" class="me-2"
+                                        style="width: 50px; height: 50px" />
+                                    <div>
+                                        <strong>Rahim Buyer</strong>
+                                        <div class="text-muted small">Buyer ID: #BUY1029</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle"></i> My Profile</a></li>
+                            <li><a class="dropdown-item text-danger" href="login.html"><i
+                                        class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <section id="orders-section">
+                    <h2 class="page-title">My Orders</h2>
+                    <div class="table-responsive">
+                        <table id="ordersTable" class="table table-striped table-bordered">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Amount (৳)</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ORD-1001</td>
+                                    <td>2024-06-01</td>
+                                    <td>Rice</td>
+                                    <td>50 kg</td>
+                                    <td>3,500</td>
+                                    <td><span class="badge bg-success">Delivered</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-order-btn"
+                                            data-order-id="ORD-1001" data-date="2024-06-01" data-product="Rice"
+                                            data-quantity="50 kg" data-amount="3,500"
+                                            data-status="Delivered">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>ORD-1002</td>
+                                    <td>2024-06-03</td>
+                                    <td>Wheat</td>
+                                    <td>30 kg</td>
+                                    <td>2,100</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-order-btn"
+                                            data-order-id="ORD-1002" data-date="2024-06-03" data-product="Wheat"
+                                            data-quantity="30 kg" data-amount="2,100"
+                                            data-status="Pending">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>ORD-1003</td>
+                                    <td>2024-06-05</td>
+                                    <td>Potato</td>
+                                    <td>100 kg</td>
+                                    <td>4,000</td>
+                                    <td><span class="badge bg-danger">Cancelled</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-order-btn"
+                                            data-order-id="ORD-1003" data-date="2024-06-05" data-product="Potato"
+                                            data-quantity="100 kg" data-amount="4,000"
+                                            data-status="Cancelled">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>ORD-1004</td>
+                                    <td>2024-06-07</td>
+                                    <td>Onion</td>
+                                    <td>40 kg</td>
+                                    <td>2,800</td>
+                                    <td><span class="badge bg-success">Delivered</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-order-btn"
+                                            data-order-id="ORD-1004" data-date="2024-06-07" data-product="Onion"
+                                            data-quantity="40 kg" data-amount="2,800"
+                                            data-status="Delivered">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>ORD-1005</td>
+                                    <td>2024-06-09</td>
+                                    <td>Tomato</td>
+                                    <td>60 kg</td>
+                                    <td>3,600</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-order-btn"
+                                            data-order-id="ORD-1005" data-date="2024-06-09" data-product="Tomato"
+                                            data-quantity="60 kg" data-amount="3,600"
+                                            data-status="Pending">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>ORD-1006</td>
+                                    <td>2024-06-10</td>
+                                    <td>Eggplant</td>
+                                    <td>25 kg</td>
+                                    <td>1,250</td>
+                                    <td><span class="badge bg-success">Delivered</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-order-btn"
+                                            data-order-id="ORD-1006" data-date="2024-06-10" data-product="Eggplant"
+                                            data-quantity="25 kg" data-amount="1,250"
+                                            data-status="Delivered">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+            <!-- Order Details Modal -->
+            <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>Order ID:</strong> <span id="modalOrderId"></span>
+                                </li>
+                                <li class="list-group-item"><strong>Date:</strong> <span id="modalOrderDate"></span>
+                                </li>
+                                <li class="list-group-item"><strong>Product:</strong> <span
+                                        id="modalOrderProduct"></span></li>
+                                <li class="list-group-item"><strong>Quantity:</strong> <span
+                                        id="modalOrderQuantity"></span></li>
+                                <li class="list-group-item"><strong>Amount:</strong> <span id="modalOrderAmount"></span>
+                                </li>
+                                <li class="list-group-item"><strong>Status:</strong> <span id="modalOrderStatus"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#sidebarCollapse").on("click", function () {
+                $("#sidebar").toggleClass("collapsed");
+                $("#content").toggleClass("full-width");
+            });
+            $('#ordersTable').DataTable();
+            // Modal logic for View buttons
+            $('.view-order-btn').on('click', function () {
+                $('#modalOrderId').text($(this).data('order-id'));
+                $('#modalOrderDate').text($(this).data('date'));
+                $('#modalOrderProduct').text($(this).data('product'));
+                $('#modalOrderQuantity').text($(this).data('quantity'));
+                $('#modalOrderAmount').text($(this).data('amount'));
+                $('#modalOrderStatus').text($(this).data('status'));
+                var modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                modal.show();
+            });
+        });
+    </script>
+</body>
+
+</html>
