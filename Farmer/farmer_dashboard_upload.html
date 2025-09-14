@@ -439,6 +439,29 @@
                         </div>
                     </div>
                 </section>
+                <!-- Uploaded Crop Updates List -->
+                <div class="card mt-4">
+                    <div class="card-header">Previous Crop Updates</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle mb-0" id="uploadsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:80px;">Photo</th>
+                                        <th>Growth Stage</th>
+                                        <th>Notes</th>
+                                        <th>Health Score</th>
+                                        <th>Date/Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- JS will populate -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </section>
             </main>
         </div>
     </div>
@@ -475,6 +498,9 @@
                     $('#photoPreview').hide();
                 }
             });
+            // Crop upload form logic
+            // Store uploads in-memory for demo
+            var uploads = [];
             // Crop upload form logic
             $('#cropUploadForm').on('submit', function (e) {
                 e.preventDefault();
@@ -514,11 +540,44 @@
                     }
                     animateHealthScore(score);
                     $('#aiHealthComment').text(comment);
+                    // Save upload to list
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        uploads.unshift({
+                            photo: e.target.result,
+                            stage: stage,
+                            notes: notes,
+                            score: score,
+                            date: new Date().toLocaleString()
+                        });
+                        renderUploads();
+                    };
+                    reader.readAsDataURL(file);
                     $('#submitBtn').prop('disabled', false);
                     $('#loadingSpinner').hide();
                     showModal('Success', 'Crop update submitted! AI Health Score updated.');
                 }, 1200);
             });
+            // Render uploads list
+            function renderUploads() {
+                var $tbody = $('#uploadsTable tbody');
+                $tbody.empty();
+                if (uploads.length === 0) {
+                    $tbody.append('<tr><td colspan="5" class="text-center text-muted">No uploads yet.</td></tr>');
+                    return;
+                }
+                uploads.forEach(function (item) {
+                    $tbody.append('<tr>' +
+                        '<td><img src="' + item.photo + '" alt="Crop" style="width:60px;height:60px;object-fit:cover;border-radius:8px;" /></td>' +
+                        '<td>' + item.stage + '</td>' +
+                        '<td>' + (item.notes ? item.notes : '-') + '</td>' +
+                        '<td><span class="badge bg-success">' + item.score + '%</span></td>' +
+                        '<td>' + item.date + '</td>' +
+                        '</tr>');
+                });
+            }
+            // Initial render
+            renderUploads();
             // Animate health score circle and number
             function animateHealthScore(targetScore) {
                 var $score = $('#aiHealthScore');
