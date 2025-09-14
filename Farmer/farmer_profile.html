@@ -12,6 +12,7 @@
             --primary-color: #007bff;
             --secondary-color: #6c757d;
             --light-bg: #f8f9fa;
+            --tab-bg: #e9f2fb;
         }
 
         body {
@@ -226,8 +227,8 @@
 
         .card {
             border: none;
-            border-radius: 14px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
             margin-bottom: 2rem;
             background: #fff;
             overflow: hidden;
@@ -235,30 +236,111 @@
         }
 
         .card:hover {
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
         }
 
         .card-header {
-            background: linear-gradient(90deg, #f7fafd 60%, #e9f2fb 100%);
+            background: linear-gradient(90deg, #e9f2fb 60%, #f7fafd 100%);
             border-bottom: 1px solid #f0f0f0;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary-color);
-            padding: 1.1rem 1.5rem;
-            font-size: 1.15rem;
+            padding: 0.5rem 1.5rem 0 1.5rem;
+            font-size: 1.18rem;
             letter-spacing: 0.01em;
         }
 
-        .form-label {
+        .nav-tabs {
+            border-bottom: none;
+            background: var(--tab-bg);
+            border-radius: 14px 14px 0 0;
+            padding: 0.5rem 0.5rem 0 0.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 12px 12px 0 0;
+            margin-right: 8px;
+            color: #555;
             font-weight: 500;
+            background: transparent;
+            transition: background 0.18s, color 0.18s;
+            padding: 0.7rem 1.2rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-content {
+            background: #fff;
+            border-radius: 0 0 18px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+        }
+
+        /* Remove min-height from .tab-pane to prevent content jumping */
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .form-control,
         .form-select {
-            border-radius: 8px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: none;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px #e9f2fb;
         }
 
         .btn {
-            border-radius: 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.08em;
+        }
+
+        .mt-4.text-end {
+            margin-top: 2.5rem !important;
+        }
+
+        @media (max-width: 991px) {
+            #sidebar {
+                width: 200px;
+            }
+
+            #content {
+                width: calc(100% - 200px);
+            }
+        }
+
+        @media (max-width: 767px) {
+            #sidebar {
+                display: none;
+            }
+
+            #content {
+                width: 100%;
+                position: static;
+            }
+
+            .main-content {
+                padding: 1rem 0.5rem;
+            }
+
+            .card {
+                border-radius: 12px;
+            }
+
+            .tab-content {
+                padding: 1rem 0.5rem;
+            }
         }
     </style>
 </head>
@@ -323,54 +405,156 @@
                 <section id="profile-section">
                     <h2 class="page-title">Complete Your Profile</h2>
                     <div class="card">
-                        <div class="card-header">Profile Information</div>
-                        <div class="card-body">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" id="profileTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="personal-tab" data-bs-toggle="tab"
+                                        data-bs-target="#personal" type="button" role="tab" aria-controls="personal"
+                                        aria-selected="true"><i class="fas fa-user"></i> Personal Info</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
+                                        data-bs-target="#contact" type="button" role="tab" aria-controls="contact"
+                                        aria-selected="false"><i class="fas fa-address-book"></i> Contact</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="location-tab" data-bs-toggle="tab"
+                                        data-bs-target="#location" type="button" role="tab" aria-controls="location"
+                                        aria-selected="false"><i class="fas fa-map-marker-alt"></i> Location</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="farming-tab" data-bs-toggle="tab"
+                                        data-bs-target="#farming" type="button" role="tab" aria-controls="farming"
+                                        aria-selected="false"><i class="fas fa-seedling"></i> Farming Details</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="documents-tab" data-bs-toggle="tab"
+                                        data-bs-target="#documents" type="button" role="tab" aria-controls="documents"
+                                        aria-selected="false"><i class="fas fa-file-upload"></i> Documents</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body tab-content" id="profileTabContent">
                             <form id="profileForm">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label for="fullName" class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" id="fullName" required>
+                                <div class="tab-pane fade show active" id="personal" role="tabpanel"
+                                    aria-labelledby="personal-tab">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="fullName" class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" id="fullName" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="dob" class="form-label">Date of Birth</label>
+                                            <input type="date" class="form-control" id="dob" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="gender" class="form-label">Gender</label>
+                                            <select class="form-select" id="gender" required>
+                                                <option value="">Select</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="marital" class="form-label">Marital Status</label>
+                                            <select class="form-select" id="marital" required>
+                                                <option value="">Select</option>
+                                                <option value="Single">Single</option>
+                                                <option value="Married">Married</option>
+                                                <option value="Widowed">Widowed</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="dob" class="form-label">Date of Birth</label>
-                                        <input type="date" class="form-control" id="dob" required>
+                                </div>
+                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="phone" class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" id="phone" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="email" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="address" class="form-label">Address</label>
+                                            <textarea class="form-control" id="address" rows="2" required></textarea>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="gender" class="form-label">Gender</label>
-                                        <select class="form-select" id="gender" required>
-                                            <option value="">Select</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Other">Other</option>
-                                        </select>
+                                </div>
+                                <div class="tab-pane fade" id="location" role="tabpanel" aria-labelledby="location-tab">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="district" class="form-label">District</label>
+                                            <input type="text" class="form-control" id="district" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="union" class="form-label">Union</label>
+                                            <input type="text" class="form-control" id="union" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="village" class="form-label">Village</label>
+                                            <input type="text" class="form-control" id="village" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="gps" class="form-label">GPS Coordinates</label>
+                                            <input type="text" class="form-control" id="gps"
+                                                placeholder="Latitude, Longitude">
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="phone" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" required>
+                                </div>
+                                <div class="tab-pane fade" id="farming" role="tabpanel" aria-labelledby="farming-tab">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="farmSize" class="form-label">Farm Size (acres)</label>
+                                            <input type="number" class="form-control" id="farmSize" min="0" step="0.01">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="mainCrop" class="form-label">Main Crop</label>
+                                            <input type="text" class="form-control" id="mainCrop">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="otherCrops" class="form-label">Other Crops</label>
+                                            <input type="text" class="form-control" id="otherCrops">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="experience" class="form-label">Years of Experience</label>
+                                            <input type="number" class="form-control" id="experience" min="0">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="irrigation" class="form-label">Irrigation Type</label>
+                                            <select class="form-select" id="irrigation">
+                                                <option value="">Select</option>
+                                                <option value="Canal">Canal</option>
+                                                <option value="Tube Well">Tube Well</option>
+                                                <option value="Rainfed">Rainfed</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="col-md-12">
-                                        <label for="email" class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" id="email" required>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label for="address" class="form-label">Address</label>
-                                        <textarea class="form-control" id="address" rows="2" required></textarea>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="district" class="form-label">District</label>
-                                        <input type="text" class="form-control" id="district" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="union" class="form-label">Union</label>
-                                        <input type="text" class="form-control" id="union" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="village" class="form-label">Village</label>
-                                        <input type="text" class="form-control" id="village" required>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label for="photo" class="form-label">Profile Photo</label>
-                                        <input type="file" class="form-control" id="photo" accept="image/*">
+                                </div>
+                                <div class="tab-pane fade" id="documents" role="tabpanel"
+                                    aria-labelledby="documents-tab">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="photo" class="form-label">Profile Photo</label>
+                                            <input type="file" class="form-control" id="photo" accept="image/*">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="nid" class="form-label">National ID (NID)</label>
+                                            <input type="file" class="form-control" id="nid"
+                                                accept="image/*,application/pdf">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="landDeed" class="form-label">Land Deed</label>
+                                            <input type="file" class="form-control" id="landDeed"
+                                                accept="image/*,application/pdf">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="otherDocs" class="form-label">Other Documents</label>
+                                            <input type="file" class="form-control" id="otherDocs" multiple>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="mt-4 text-end">
