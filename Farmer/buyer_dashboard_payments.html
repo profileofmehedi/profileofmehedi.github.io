@@ -330,7 +330,10 @@
                                     <td>3,500</td>
                                     <td>Bank Transfer</td>
                                     <td><span class="badge bg-success">Paid</span></td>
-                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-payment-btn"
+                                            data-payment-id="PAY-2001" data-date="2024-06-02" data-order-id="ORD-1001"
+                                            data-amount="3,500" data-method="Bank Transfer"
+                                            data-status="Paid">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>PAY-2002</td>
@@ -339,7 +342,10 @@
                                     <td>2,100</td>
                                     <td>Mobile Banking</td>
                                     <td><span class="badge bg-warning text-dark">Pending</span></td>
-                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-payment-btn"
+                                            data-payment-id="PAY-2002" data-date="2024-06-04" data-order-id="ORD-1002"
+                                            data-amount="2,100" data-method="Mobile Banking"
+                                            data-status="Pending">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>PAY-2003</td>
@@ -348,7 +354,10 @@
                                     <td>4,000</td>
                                     <td>Cash</td>
                                     <td><span class="badge bg-danger">Failed</span></td>
-                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-payment-btn"
+                                            data-payment-id="PAY-2003" data-date="2024-06-06" data-order-id="ORD-1003"
+                                            data-amount="4,000" data-method="Cash" data-status="Failed">View</button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>PAY-2004</td>
@@ -357,7 +366,10 @@
                                     <td>2,800</td>
                                     <td>Bank Transfer</td>
                                     <td><span class="badge bg-success">Paid</span></td>
-                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-payment-btn"
+                                            data-payment-id="PAY-2004" data-date="2024-06-08" data-order-id="ORD-1004"
+                                            data-amount="2,800" data-method="Bank Transfer"
+                                            data-status="Paid">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>PAY-2005</td>
@@ -366,7 +378,10 @@
                                     <td>3,600</td>
                                     <td>Mobile Banking</td>
                                     <td><span class="badge bg-warning text-dark">Pending</span></td>
-                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-payment-btn"
+                                            data-payment-id="PAY-2005" data-date="2024-06-10" data-order-id="ORD-1005"
+                                            data-amount="3,600" data-method="Mobile Banking"
+                                            data-status="Pending">View</button></td>
                                 </tr>
                                 <tr>
                                     <td>PAY-2006</td>
@@ -375,13 +390,46 @@
                                     <td>1,250</td>
                                     <td>Cash</td>
                                     <td><span class="badge bg-success">Paid</span></td>
-                                    <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                                    <td><button class="btn btn-sm btn-outline-primary view-payment-btn"
+                                            data-payment-id="PAY-2006" data-date="2024-06-11" data-order-id="ORD-1006"
+                                            data-amount="1,250" data-method="Cash" data-status="Paid">View</button></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </section>
             </main>
+            <!-- Payment Details Modal -->
+            <div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="paymentDetailsModalLabel">Payment Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>Payment ID:</strong> <span
+                                        id="modalPaymentId"></span></li>
+                                <li class="list-group-item"><strong>Date:</strong> <span id="modalPaymentDate"></span>
+                                </li>
+                                <li class="list-group-item"><strong>Order ID:</strong> <span
+                                        id="modalPaymentOrderId"></span></li>
+                                <li class="list-group-item"><strong>Amount:</strong> <span
+                                        id="modalPaymentAmount"></span></li>
+                                <li class="list-group-item"><strong>Method:</strong> <span
+                                        id="modalPaymentMethod"></span></li>
+                                <li class="list-group-item"><strong>Status:</strong> <span
+                                        id="modalPaymentStatus"></span></li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Bootstrap & jQuery JS -->
@@ -397,6 +445,17 @@
                 $("#content").toggleClass("full-width");
             });
             $('#paymentsTable').DataTable();
+            // Modal logic for View buttons
+            $('.view-payment-btn').on('click', function () {
+                $('#modalPaymentId').text($(this).data('payment-id'));
+                $('#modalPaymentDate').text($(this).data('date'));
+                $('#modalPaymentOrderId').text($(this).data('order-id'));
+                $('#modalPaymentAmount').text($(this).data('amount'));
+                $('#modalPaymentMethod').text($(this).data('method'));
+                $('#modalPaymentStatus').text($(this).data('status'));
+                var modal = new bootstrap.Modal(document.getElementById('paymentDetailsModal'));
+                modal.show();
+            });
         });
     </script>
 </body>
