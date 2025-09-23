@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Investigations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Using same CSS from bank_user_dashboard.html -->
+    <style>
+        :root {
+            --primary-color: #003B5C;
+            --secondary-color: #F4C300;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: #f4f7fc;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        #sidebar {
+            background-color: var(--primary-color);
+            min-width: var(--sidebar-width);
+            max-width: var(--sidebar-width);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        #sidebar.active {
+            margin-left: calc(-1 * var(--sidebar-width));
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #002a42;
+            text-align: center;
+        }
+
+        #sidebar .nav-link {
+            color: #adb5bd;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        #sidebar .nav-link:hover,
+        #sidebar .nav-link.active {
+            color: #fff;
+            background: #002a42;
+            border-left-color: var(--secondary-color);
+        }
+
+        #sidebar .nav-link i {
+            margin-right: 10px;
+        }
+
+        #content {
+            width: 100%;
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        .topbar {
+            padding: 15px 30px;
+            background: #fff;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+
+            #sidebar.active {
+                margin-left: 0;
+            }
+        }
+
+        .modal-body img {
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="bi bi-bank2"></i> Bank Portal</h3>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="bank_user_dashboard.html"><i
+                            class="bi bi-house-door-fill"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="create_vendor.html"><i
+                            class="bi bi-person-plus-fill"></i> Create Vendor</a></li>
+                <li class="nav-item"><a class="nav-link" href="assign_investigation.html"><i
+                            class="bi bi-card-checklist"></i> Assign Investigation</a></li>
+                <li class="nav-item"><a class="nav-link active" href="view_investigations.html"><i
+                            class="bi bi-eye-fill"></i> View Investigations</a></li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="topbar">
+                <button type="button" id="sidebarCollapse" class="btn btn-light d-md-none"><i
+                        class="bi bi-list"></i></button>
+                <div class="project-logo d-none d-md-block"><img
+                        src="https://via.placeholder.com/150x40.png?text=Bank+Logo" alt="Bank Logo" height="30"></div>
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://i.pravatar.cc/40?u=bank" alt="" width="32" height="32"
+                            class="rounded-circle me-2"><strong>Bank User</strong>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="login.html">Sign out</a></li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="main-content">
+                <h2 class="mb-4">All Investigations</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>App ID</th>
+                                    <th>Customer</th>
+                                    <th>Vendor</th>
+                                    <th>Status</th>
+                                    <th>Submitted On</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="verify-row-101">
+                                    <td>CC-APP-101</td>
+                                    <td>John Doe</td>
+                                    <td>XYZ Inc</td>
+                                    <td><span class="badge bg-warning text-dark">Pending Vendor</span></td>
+                                    <td>-</td>
+                                    <td><button class="btn btn-secondary btn-sm" disabled>View</button></td>
+                                </tr>
+                                <tr id="verify-row-102">
+                                    <td>CC-APP-102</td>
+                                    <td>Jane Smith</td>
+                                    <td>ABC Corp</td>
+                                    <td><span class="badge bg-info">Ready for Verification</span></td>
+                                    <td>2025-09-23</td>
+                                    <td><button class="btn btn-primary btn-sm view-verify-btn" data-bs-toggle="modal"
+                                            data-bs-target="#verificationModal" data-customer="Jane Smith"
+                                            data-rowid="102">View & Verify</button></td>
+                                </tr>
+                                <tr id="verify-row-103">
+                                    <td>CC-APP-103</td>
+                                    <td>Sam Wilson</td>
+                                    <td>XYZ Inc</td>
+                                    <td><span class="badge bg-success">Verified</span></td>
+                                    <td>2025-09-22</td>
+                                    <td><button class="btn btn-success btn-sm" disabled><i
+                                                class="bi bi-check-circle-fill"></i> Verified</button></td>
+                                </tr>
+                                <tr id="verify-row-104">
+                                    <td>CC-APP-104</td>
+                                    <td>Peter Jones</td>
+                                    <td>ABC Corp</td>
+                                    <td><span class="badge bg-danger">Rejected</span></td>
+                                    <td>2025-09-21</td>
+                                    <td><button class="btn btn-danger btn-sm" disabled><i
+                                                class="bi bi-x-circle-fill"></i> Rejected</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="verificationModalLabel">Verification Details for: <span></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h5><i class="bi bi-file-earmark-text"></i> Submitted Form Data</h5>
+                            <table class="table table-sm table-bordered">
+                                <tr>
+                                    <th>Field Agent:</th>
+                                    <td>Mike Ross</td>
+                                </tr>
+                                <tr>
+                                    <th>Meeting Location:</th>
+                                    <td>Customer's Office</td>
+                                </tr>
+                                <tr>
+                                    <th>Address Verified:</th>
+                                    <td><span class="badge bg-success">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Identity Confirmed:</th>
+                                    <td><span class="badge bg-success">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Agent Notes:</th>
+                                    <td>Customer was cooperative and provided all necessary documents. Office location
+                                        is legitimate and well-maintained. Recommend approval.</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-5">
+                            <h5><i class="bi bi-images"></i> Uploaded Photos</h5>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <p><strong>Customer Selfie</strong></p>
+                                    <img src="https://i.pravatar.cc/300?u=jane" class="img-fluid rounded"
+                                        alt="Customer Selfie">
+                                </div>
+                                <div class="col-6">
+                                    <p><strong>Location Photo</strong></p>
+                                    <img src="https://via.placeholder.com/300x300.png?text=Office+Front"
+                                        class="img-fluid rounded" alt="Office Photo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger action-btn" data-action="reject"><i
+                            class="bi bi-x-circle"></i> Reject</button>
+                    <button type="button" class="btn btn-success action-btn" data-action="accept"><i
+                            class="bi bi-check-circle"></i> Accept Verification</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var currentRowId = null;
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+
+            $('.view-verify-btn').on('click', function () {
+                var customerName = $(this).data('customer');
+                currentRowId = $(this).data('rowid');
+                $('#verificationModalLabel span').text(customerName);
+            });
+
+            $('.action-btn').on('click', function () {
+                var action = $(this).data('action');
+                var row = $('#verify-row-' + currentRowId);
+
+                // Close the modal
+                var modal = bootstrap.Modal.getInstance(document.getElementById('verificationModal'));
+                modal.hide();
+
+                if (action === 'accept') {
+                    row.find('td:eq(3)').html('<span class="badge bg-success">Verified</span>');
+                    row.find('td:eq(5)').html('<button class="btn btn-success btn-sm" disabled><i class="bi bi-check-circle-fill"></i> Verified</button>');
+                } else {
+                    row.find('td:eq(3)').html('<span class="badge bg-danger">Rejected</span>');
+                    row.find('td:eq(5)').html('<button class="btn btn-danger btn-sm" disabled><i class="bi bi-x-circle-fill"></i> Rejected</button>');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Investigation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Using same CSS from bank_user_dashboard.html -->
+    <style>
+        :root {
+            --primary-color: #003B5C;
+            --secondary-color: #F4C300;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: #f4f7fc;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        #sidebar {
+            background-color: var(--primary-color);
+            min-width: var(--sidebar-width);
+            max-width: var(--sidebar-width);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        #sidebar.active {
+            margin-left: calc(-1 * var(--sidebar-width));
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #002a42;
+            text-align: center;
+        }
+
+        #sidebar .nav-link {
+            color: #adb5bd;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        #sidebar .nav-link:hover,
+        #sidebar .nav-link.active {
+            color: #fff;
+            background: #002a42;
+            border-left-color: var(--secondary-color);
+        }
+
+        #sidebar .nav-link i {
+            margin-right: 10px;
+        }
+
+        #content {
+            width: 100%;
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        .topbar {
+            padding: 15px 30px;
+            background: #fff;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+
+            #sidebar.active {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="bi bi-bank2"></i> Bank Portal</h3>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="bank_user_dashboard.html"><i
+                            class="bi bi-house-door-fill"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="create_vendor.html"><i
+                            class="bi bi-person-plus-fill"></i> Create Vendor</a></li>
+                <li class="nav-item"><a class="nav-link active" href="assign_investigation.html"><i
+                            class="bi bi-card-checklist"></i> Assign Investigation</a></li>
+                <li class="nav-item"><a class="nav-link" href="view_investigations.html"><i class="bi bi-eye-fill"></i>
+                        View Investigations</a></li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="topbar">
+                <button type="button" id="sidebarCollapse" class="btn btn-light d-md-none"><i
+                        class="bi bi-list"></i></button>
+                <div class="project-logo d-none d-md-block"><img
+                        src="https://via.placeholder.com/150x40.png?text=Bank+Logo" alt="Bank Logo" height="30"></div>
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://i.pravatar.cc/40?u=bank" alt="" width="32" height="32"
+                            class="rounded-circle me-2"><strong>Bank User</strong>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="login.html">Sign out</a></li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="main-content">
+                <h2 class="mb-4">Assign Investigations</h2>
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="bi bi-person-lines-fill"></i> New Applications Pending Assignment</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="assignment-alert-placeholder"></div>
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>App ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Application Date</th>
+                                    <th>Assign to Vendor</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignmentTableBody">
+                                <tr id="app-101">
+                                    <td>CC-APP-101</td>
+                                    <td>John Doe</td>
+                                    <td>2025-09-22</td>
+                                    <td>
+                                        <select class="form-select" id="vendor-101">
+                                            <option selected disabled>Choose Vendor...</option>
+                                            <option value="ABC Corp">ABC Corp</option>
+                                            <option value="XYZ Inc">XYZ Inc</option>
+                                            <option value="Global Verify">Global Verify</option>
+                                        </select>
+                                    </td>
+                                    <td><button class="btn btn-primary btn-sm assign-btn"
+                                            data-appid="101">Assign</button></td>
+                                </tr>
+                                <tr id="app-102">
+                                    <td>CC-APP-102</td>
+                                    <td>Jane Smith</td>
+                                    <td>2025-09-21</td>
+                                    <td>
+                                        <select class="form-select" id="vendor-102">
+                                            <option selected disabled>Choose Vendor...</option>
+                                            <option value="ABC Corp">ABC Corp</option>
+                                            <option value="XYZ Inc">XYZ Inc</option>
+                                            <option value="Global Verify">Global Verify</option>
+                                        </select>
+                                    </td>
+                                    <td><button class="btn btn-primary btn-sm assign-btn"
+                                            data-appid="102">Assign</button></td>
+                                </tr>
+                                <tr id="app-103">
+                                    <td>CC-APP-103</td>
+                                    <td>Sam Wilson</td>
+                                    <td>2025-09-20</td>
+                                    <td>
+                                        <select class="form-select" id="vendor-103">
+                                            <option selected disabled>Choose Vendor...</option>
+                                            <option value="ABC Corp">ABC Corp</option>
+                                            <option value="XYZ Inc">XYZ Inc</option>
+                                            <option value="Global Verify">Global Verify</option>
+                                        </select>
+                                    </td>
+                                    <td><button class="btn btn-primary btn-sm assign-btn"
+                                            data-appid="103">Assign</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+
+            $('.assign-btn').on('click', function () {
+                var appId = $(this).data('appid');
+                var selectedVendor = $('#vendor-' + appId).val();
+
+                if (selectedVendor) {
+                    // Visually confirm assignment
+                    $(this).removeClass('btn-primary').addClass('btn-success').text('Assigned').prop('disabled', true);
+                    $('#vendor-' + appId).prop('disabled', true);
+
+                    // Show success message
+                    $('#assignment-alert-placeholder').html('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                        'Application CC-APP-' + appId + ' assigned to ' + selectedVendor + ' successfully.' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+
+                    // Optional: remove the row after a delay
+                    // setTimeout(function() {
+                    //     $('#app-' + appId).fadeOut(500, function() { $(this).remove(); });
+                    // }, 2000);
+
+                } else {
+                    alert('Please select a vendor first.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
