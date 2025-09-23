@@ -1,150 +1,1800 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apply for Credit Card</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apply for Credit Card - Advanced Application</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+      rel="stylesheet"
+    />
     <!-- Customer specific theme -->
     <style>
-        :root {
-            --primary-color: #6f42c1;
-            --secondary-color: #dee2e6;
-            --sidebar-width: 280px;
-        }
+      :root {
+        --primary-color: #6f42c1;
+        --secondary-color: #dee2e6;
+        --sidebar-width: 280px;
+        --gold-gradient: linear-gradient(135deg, #ffd700, #ffa500);
+        --platinum-gradient: linear-gradient(135deg, #c0c0c0, #e6e6fa);
+        --silver-gradient: linear-gradient(135deg, #c0c0c0, #dcdcdc);
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+      }
 
-        body {
-            background-color: #f4f7fc;
-        }
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
 
+      .wrapper {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+      }
+
+      #sidebar {
+        background: rgba(111, 66, 193, 0.95);
+        backdrop-filter: blur(10px);
+        min-width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        min-height: 100vh;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar-header {
+        padding: 20px;
+        background: rgba(90, 53, 158, 0.9);
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      #sidebar .nav-link {
+        color: #e9ecef;
+        padding: 15px 20px;
+        font-size: 1.1em;
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      #sidebar .nav-link:hover,
+      #sidebar .nav-link.active {
+        color: #fff;
+        background: rgba(90, 53, 158, 0.8);
+        border-left-color: var(--secondary-color);
+        transform: translateX(5px);
+      }
+
+      #sidebar .nav-link i {
+        margin-right: 10px;
+      }
+
+      #content {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar {
+        padding: 15px 30px;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .main-content {
+        padding: 30px;
+        background: transparent;
+      }
+
+      /* Card Selection Styles */
+      .card-selection {
+        margin-bottom: 30px;
+      }
+
+      .credit-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 25px;
+        margin: 15px 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .credit-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transform: rotate(45deg);
+        transition: all 0.6s;
+        opacity: 0;
+      }
+
+      .credit-card:hover::before {
+        animation: shine 0.6s ease-in-out;
+      }
+
+      .credit-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .credit-card.selected {
+        border-color: var(--primary-color);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(111, 66, 193, 0.3);
+      }
+
+      .card-platinum {
+        background: var(--platinum-gradient);
+        color: #333;
+      }
+      .card-gold {
+        background: var(--gold-gradient);
+        color: #333;
+      }
+      .card-silver {
+        background: var(--silver-gradient);
+        color: #333;
+      }
+
+      .card-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      .card-benefits {
+        list-style: none;
+        padding: 0;
+      }
+
+      .card-benefits li {
+        padding: 5px 0;
+        position: relative;
+        padding-left: 25px;
+      }
+
+      .card-benefits li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--success-color);
+        font-weight: bold;
+      }
+
+      /* Progress Bar */
+      .progress-container {
+        margin-bottom: 30px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .step-progress {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+      }
+
+      .step::before {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        right: -50%;
+        height: 3px;
+        background: #e9ecef;
+        z-index: 1;
+      }
+
+      .step:last-child::before {
+        display: none;
+      }
+
+      .step.active::before {
+        background: var(--primary-color);
+      }
+
+      .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #6c757d;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      .step.active .step-number {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.2);
+      }
+
+      .step.completed .step-number {
+        background: var(--success-color);
+        color: white;
+      }
+
+      .step-title {
+        margin-top: 10px;
+        font-size: 0.85rem;
+        text-align: center;
+        color: #6c757d;
+      }
+
+      .step.active .step-title {
+        color: var(--primary-color);
+        font-weight: bold;
+      }
+
+      /* Form Steps */
+      .form-step {
+        display: none;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      .form-step.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
+          opacity: 0;
+        }
+      }
+
+      /* Enhanced Form Styling */
+      .form-control,
+      .form-select {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+        transform: translateY(-2px);
+      }
+
+      .btn {
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .card-body {
+        padding: 40px;
+      }
+
+      /* Validation Styling */
+      .is-valid {
+        border-color: var(--success-color);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.4.4 3-3 1.4-1.4L6.7 2.2 2.7 6.2 1.3 4.8l.4-.4z'/%3e%3c/svg%3e");
+      }
+
+      .is-invalid {
+        border-color: var(--danger-color);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='m5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      }
+
+      /* File Upload Styles */
+      .file-upload-area {
+        border: 3px dashed #dee2e6;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .file-upload-area:hover {
+        border-color: var(--primary-color);
+        background: rgba(111, 66, 193, 0.05);
+      }
+
+      .file-upload-area.dragover {
+        border-color: var(--primary-color);
+        background: rgba(111, 66, 193, 0.1);
+        transform: scale(1.02);
+      }
+
+      .uploaded-file {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 5px 0;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
         .wrapper {
-            display: flex;
-            width: 100%;
+          flex-direction: column;
         }
 
         #sidebar {
-            background-color: var(--primary-color);
-            min-width: var(--sidebar-width);
-            max-width: var(--sidebar-width);
-            min-height: 100vh;
+          min-width: 100%;
+          max-width: 100%;
+          min-height: auto;
         }
 
-        .sidebar-header {
-            padding: 20px;
-            background: #5a359e;
-            text-align: center;
+        .step-progress {
+          flex-direction: column;
         }
 
-        #sidebar .nav-link {
-            color: #e9ecef;
-            padding: 15px 20px;
-            font-size: 1.1em;
-            border-left: 4px solid transparent;
+        .step::before {
+          display: none;
         }
-
-        #sidebar .nav-link:hover,
-        #sidebar .nav-link.active {
-            color: #fff;
-            background: #5a359e;
-            border-left-color: var(--secondary-color);
-        }
-
-        #sidebar .nav-link i {
-            margin-right: 10px;
-        }
-
-        #content {
-            width: 100%;
-        }
-
-        .topbar {
-            padding: 15px 30px;
-            background: #fff;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .main-content {
-            padding: 30px;
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="wrapper">
-        <!-- Sidebar -->
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <h3><i class="bi bi-person-circle"></i> Customer Portal</h3>
-            </div>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link" href="customer_dashboard.html"><i
-                            class="bi bi-house-door-fill"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link active" href="apply_credit_card.html"><i
-                            class="bi bi-credit-card-2-front-fill"></i> Apply for Card</a></li>
-                <li class="nav-item"><a class="nav-link" href="application_status.html"><i
-                            class="bi bi-patch-question-fill"></i> Application Status</a></li>
-            </ul>
-        </nav>
-        <!-- Page Content -->
-        <div id="content">
-            <nav class="topbar">
-                <div class="project-logo d-none d-md-block"><img
-                        src="https://via.placeholder.com/150x40.png?text=Bank+Logo" alt="Bank Logo" height="30"></div>
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
-                        data-bs-toggle="dropdown"><img src="https://i.pravatar.cc/40?u=customer" alt="" width="32"
-                            height="32" class="rounded-circle me-2"><strong>Customer</strong></a>
-                    <ul class="dropdown-menu dropdown-menu-end text-small shadow">
-                        <li><a class="dropdown-item" href="#">Profile</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="login.html">Sign out</a></li>
-                    </ul>
-                </div>
-            </nav>
-            <div class="main-content">
-                <h2 class="mb-4">Credit Card Application</h2>
-                <div class="card">
-                    <div class="card-body">
-                        <div id="form-alert-placeholder"></div>
-                        <form id="applicationForm">
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">First Name</label><input
-                                        type="text" class="form-control" required></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Last Name</label><input type="text"
-                                        class="form-control" required></div>
-                            </div>
-                            <div class="mb-3"><label class="form-label">Email</label><input type="email"
-                                    class="form-control" required></div>
-                            <div class="mb-3"><label class="form-label">Home Address</label><input type="text"
-                                    class="form-control" required></div>
-                            <div class="mb-3"><label class="form-label">Office Address</label><input type="text"
-                                    class="form-control" required></div>
-                            <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="terms"
-                                    required><label class="form-check-label" for="terms">I agree to the terms and
-                                    conditions.</label></div>
-                            <button type="submit" class="btn btn-primary">Submit Application</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+      <!-- Sidebar -->
+      <nav id="sidebar">
+        <div class="sidebar-header">
+          <h3><i class="bi bi-person-circle"></i> Customer Portal</h3>
         </div>
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="customer_dashboard.html"
+              ><i class="bi bi-house-door-fill"></i> Dashboard</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="apply_credit_card.html"
+              ><i class="bi bi-credit-card-2-front-fill"></i> Apply for Card</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="application_status.html"
+              ><i class="bi bi-patch-question-fill"></i> Application Status</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <!-- Page Content -->
+      <div id="content">
+        <nav class="topbar">
+          <div class="project-logo d-none d-md-block">
+            <img
+              src="https://via.placeholder.com/150x40.png?text=Bank+Logo"
+              alt="Bank Logo"
+              height="30"
+            />
+          </div>
+          <div class="dropdown">
+            <a
+              href="#"
+              class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+              data-bs-toggle="dropdown"
+              ><img
+                src="https://i.pravatar.cc/40?u=customer"
+                alt=""
+                width="32"
+                height="32"
+                class="rounded-circle me-2"
+              /><strong>Customer</strong></a
+            >
+            <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li><a class="dropdown-item" href="login.html">Sign out</a></li>
+            </ul>
+          </div>
+        </nav>
+        <div class="main-content">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0" data-aos="fade-right">Credit Card Application</h2>
+            <div class="text-muted" data-aos="fade-left">
+              <i class="bi bi-shield-check"></i> Secure & Fast Application
+              Process
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-container" data-aos="fade-up">
+            <div class="step-progress">
+              <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-title">Card Selection</div>
+              </div>
+              <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-title">Personal Info</div>
+              </div>
+              <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-title">Financial Details</div>
+              </div>
+              <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-title">Documents</div>
+              </div>
+              <div class="step" data-step="5">
+                <div class="step-number">5</div>
+                <div class="step-title">Review & Submit</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="form-alert-placeholder"></div>
+
+          <form id="applicationForm">
+            <!-- Step 1: Card Selection -->
+            <div class="form-step active" id="step1">
+              <div class="card" data-aos="fade-up">
+                <div class="card-body">
+                  <h4 class="mb-4 text-center">
+                    Choose Your Perfect Credit Card
+                  </h4>
+                  <div class="row card-selection">
+                    <div class="col-lg-4 col-md-6">
+                      <div
+                        class="credit-card card-platinum"
+                        data-card="platinum"
+                        data-aos="zoom-in"
+                        data-aos-delay="100"
+                      >
+                        <div class="text-center">
+                          <i class="bi bi-star-fill card-icon"></i>
+                          <h5>Platinum Elite</h5>
+                          <p class="text-muted">Premium Benefits</p>
+                        </div>
+                        <ul class="card-benefits">
+                          <li>No Annual Fee for First Year</li>
+                          <li>5% Cashback on All Purchases</li>
+                          <li>Airport Lounge Access</li>
+                          <li>Travel Insurance Coverage</li>
+                          <li>24/7 Concierge Service</li>
+                          <li>$50,000 Credit Limit</li>
+                        </ul>
+                        <div class="mt-3 text-center">
+                          <span class="badge bg-primary">Most Popular</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                      <div
+                        class="credit-card card-gold"
+                        data-card="gold"
+                        data-aos="zoom-in"
+                        data-aos-delay="200"
+                      >
+                        <div class="text-center">
+                          <i class="bi bi-gem card-icon"></i>
+                          <h5>Gold Preferred</h5>
+                          <p class="text-muted">Great Value</p>
+                        </div>
+                        <ul class="card-benefits">
+                          <li>Low Annual Fee</li>
+                          <li>3% Cashback on Dining</li>
+                          <li>2% Cashback on Gas</li>
+                          <li>Extended Warranty</li>
+                          <li>Purchase Protection</li>
+                          <li>$25,000 Credit Limit</li>
+                        </ul>
+                        <div class="mt-3 text-center">
+                          <span class="badge bg-warning">Best Value</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                      <div
+                        class="credit-card card-silver"
+                        data-card="silver"
+                        data-aos="zoom-in"
+                        data-aos-delay="300"
+                      >
+                        <div class="text-center">
+                          <i class="bi bi-credit-card card-icon"></i>
+                          <h5>Silver Classic</h5>
+                          <p class="text-muted">Perfect Start</p>
+                        </div>
+                        <ul class="card-benefits">
+                          <li>No Annual Fee</li>
+                          <li>1% Cashback on All Purchases</li>
+                          <li>Fraud Protection</li>
+                          <li>Mobile Banking</li>
+                          <li>Online Account Management</li>
+                          <li>$10,000 Credit Limit</li>
+                        </ul>
+                        <div class="mt-3 text-center">
+                          <span class="badge bg-secondary">Great Starter</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-center mt-4">
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-lg"
+                      id="nextStep1"
+                      disabled
+                    >
+                      Continue Application <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Personal Information -->
+            <div class="form-step" id="step2">
+              <div class="card" data-aos="fade-up">
+                <div class="card-body">
+                  <h4 class="mb-4">Personal Information</h4>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">First Name *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="firstName"
+                        required
+                      />
+                      <div class="invalid-feedback">
+                        Please provide your first name.
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Last Name *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="lastName"
+                        required
+                      />
+                      <div class="invalid-feedback">
+                        Please provide your last name.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Email Address *</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        required
+                      />
+                      <div class="invalid-feedback">
+                        Please provide a valid email address.
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Phone Number *</label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="phone"
+                        required
+                        pattern="[0-9]{10,}"
+                      />
+                      <div class="invalid-feedback">
+                        Please provide a valid phone number.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Date of Birth *</label>
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="dob"
+                        required
+                      />
+                      <div class="invalid-feedback">
+                        Please provide your date of birth.
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Social Security Number *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="ssn"
+                        required
+                        pattern="[0-9]{9}"
+                        maxlength="9"
+                      />
+                      <div class="invalid-feedback">
+                        Please provide a valid SSN (9 digits).
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Citizenship Status *</label>
+                      <select class="form-select" id="citizenship" required>
+                        <option value="">Select Status</option>
+                        <option value="citizen">US Citizen</option>
+                        <option value="permanent">Permanent Resident</option>
+                        <option value="visa">Visa Holder</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Please select your citizenship status.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Home Address *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="homeAddress"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Please provide your home address.
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">City *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="city"
+                        required
+                      />
+                      <div class="invalid-feedback">
+                        Please provide your city.
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">State *</label>
+                      <select class="form-select" id="state" required>
+                        <option value="">Select State</option>
+                        <option value="AL">Alabama</option>
+                        <option value="AK">Alaska</option>
+                        <option value="AZ">Arizona</option>
+                        <option value="AR">Arkansas</option>
+                        <option value="CA">California</option>
+                        <option value="NY">New York</option>
+                        <option value="TX">Texas</option>
+                        <!-- Add more states as needed -->
+                      </select>
+                      <div class="invalid-feedback">
+                        Please select your state.
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">ZIP Code *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="zipCode"
+                        required
+                        pattern="[0-9]{5}"
+                      />
+                      <div class="invalid-feedback">
+                        Please provide a valid ZIP code.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between mt-4">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      id="prevStep2"
+                    >
+                      <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      id="nextStep2"
+                    >
+                      Continue <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Financial Information -->
+            <div class="form-step" id="step3">
+              <div class="card" data-aos="fade-up">
+                <div class="card-body">
+                  <h4 class="mb-4">Financial Information</h4>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Employment Status *</label>
+                      <select class="form-select" id="employment" required>
+                        <option value="">Select Status</option>
+                        <option value="employed">Employed Full-Time</option>
+                        <option value="parttime">Employed Part-Time</option>
+                        <option value="selfemployed">Self-Employed</option>
+                        <option value="unemployed">Unemployed</option>
+                        <option value="retired">Retired</option>
+                        <option value="student">Student</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Please select your employment status.
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Annual Income *</label>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="income"
+                          required
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
+                      <div class="invalid-feedback">
+                        Please provide your annual income.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Employer Name</label>
+                      <input type="text" class="form-control" id="employer" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Years at Current Job</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="yearsEmployed"
+                        min="0"
+                        max="50"
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label"
+                        >Monthly Housing Payment *</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="housingPayment"
+                          required
+                          min="0"
+                        />
+                      </div>
+                      <div class="invalid-feedback">
+                        Please provide your monthly housing payment.
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Housing Status *</label>
+                      <select class="form-select" id="housingStatus" required>
+                        <option value="">Select Status</option>
+                        <option value="own">Own</option>
+                        <option value="rent">Rent</option>
+                        <option value="mortgage">Mortgage</option>
+                        <option value="other">Other</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Please select your housing status.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Existing Credit Cards</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="existingCards"
+                        min="0"
+                        max="20"
+                        value="0"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Total Credit Card Debt</label>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="creditDebt"
+                          min="0"
+                          value="0"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Credit Score Estimation -->
+                  <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="mb-3">Estimated Credit Score Range</h6>
+                    <div class="progress mb-2" style="height: 20px">
+                      <div
+                        class="progress-bar"
+                        role="progressbar"
+                        id="creditScoreBar"
+                        style="width: 0%"
+                      ></div>
+                    </div>
+                    <div
+                      class="d-flex justify-content-between small text-muted"
+                    >
+                      <span>Poor (300-579)</span>
+                      <span>Fair (580-669)</span>
+                      <span>Good (670-739)</span>
+                      <span>Excellent (740-850)</span>
+                    </div>
+                    <div class="text-center mt-2">
+                      <span id="creditScoreText" class="fw-bold"
+                        >Complete the form to see estimate</span
+                      >
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-between mt-4">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      id="prevStep3"
+                    >
+                      <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      id="nextStep3"
+                    >
+                      Continue <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: Document Upload -->
+            <div class="form-step" id="step4">
+              <div class="card" data-aos="fade-up">
+                <div class="card-body">
+                  <h4 class="mb-4">Required Documents</h4>
+                  <p class="text-muted mb-4">
+                    Please upload the following documents to complete your
+                    application:
+                  </p>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label">Government Issued ID *</label>
+                      <div class="file-upload-area" data-upload="govId">
+                        <i
+                          class="bi bi-cloud-arrow-up display-4 text-muted mb-3"
+                        ></i>
+                        <p class="mb-2">
+                          Drag & drop your ID here, or
+                          <strong>click to browse</strong>
+                        </p>
+                        <small class="text-muted"
+                          >Accepted: JPG, PNG, PDF (Max 5MB)</small
+                        >
+                        <input
+                          type="file"
+                          class="d-none"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          id="govIdFile"
+                        />
+                      </div>
+                      <div class="uploaded-files" id="govIdUploaded"></div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label">Proof of Income *</label>
+                      <div class="file-upload-area" data-upload="income">
+                        <i
+                          class="bi bi-cloud-arrow-up display-4 text-muted mb-3"
+                        ></i>
+                        <p class="mb-2">
+                          Drag & drop your pay stub or tax return
+                        </p>
+                        <small class="text-muted"
+                          >Accepted: JPG, PNG, PDF (Max 5MB)</small
+                        >
+                        <input
+                          type="file"
+                          class="d-none"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          id="incomeFile"
+                        />
+                      </div>
+                      <div class="uploaded-files" id="incomeUploaded"></div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label">Proof of Address</label>
+                      <div class="file-upload-area" data-upload="address">
+                        <i
+                          class="bi bi-cloud-arrow-up display-4 text-muted mb-3"
+                        ></i>
+                        <p class="mb-2">Utility bill or bank statement</p>
+                        <small class="text-muted"
+                          >Accepted: JPG, PNG, PDF (Max 5MB)</small
+                        >
+                        <input
+                          type="file"
+                          class="d-none"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          id="addressFile"
+                        />
+                      </div>
+                      <div class="uploaded-files" id="addressUploaded"></div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label">Additional Documents</label>
+                      <div class="file-upload-area" data-upload="additional">
+                        <i
+                          class="bi bi-cloud-arrow-up display-4 text-muted mb-3"
+                        ></i>
+                        <p class="mb-2">Any additional supporting documents</p>
+                        <small class="text-muted"
+                          >Accepted: JPG, PNG, PDF (Max 5MB)</small
+                        >
+                        <input
+                          type="file"
+                          class="d-none"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          id="additionalFile"
+                          multiple
+                        />
+                      </div>
+                      <div class="uploaded-files" id="additionalUploaded"></div>
+                    </div>
+                  </div>
+
+                  <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Document Tips:</strong>
+                    <ul class="mb-0 mt-2">
+                      <li>Ensure all documents are clear and readable</li>
+                      <li>Documents should not be older than 3 months</li>
+                      <li>
+                        Personal information should match your application
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="d-flex justify-content-between mt-4">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      id="prevStep4"
+                    >
+                      <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      id="nextStep4"
+                    >
+                      Review Application <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 5: Review & Submit -->
+            <div class="form-step" id="step5">
+              <div class="card" data-aos="fade-up">
+                <div class="card-body">
+                  <h4 class="mb-4">Review Your Application</h4>
+
+                  <div class="row">
+                    <div class="col-md-8">
+                      <div class="review-section mb-4">
+                        <h6 class="text-primary border-bottom pb-2">
+                          Selected Card
+                        </h6>
+                        <div id="selectedCardReview"></div>
+                      </div>
+
+                      <div class="review-section mb-4">
+                        <h6 class="text-primary border-bottom pb-2">
+                          Personal Information
+                        </h6>
+                        <div id="personalInfoReview"></div>
+                      </div>
+
+                      <div class="review-section mb-4">
+                        <h6 class="text-primary border-bottom pb-2">
+                          Financial Information
+                        </h6>
+                        <div id="financialInfoReview"></div>
+                      </div>
+
+                      <div class="review-section mb-4">
+                        <h6 class="text-primary border-bottom pb-2">
+                          Uploaded Documents
+                        </h6>
+                        <div id="documentsReview"></div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="card bg-light">
+                        <div class="card-body">
+                          <h6 class="card-title">Application Summary</h6>
+                          <div class="mb-3">
+                            <small class="text-muted"
+                              >Estimated Processing Time</small
+                            >
+                            <div class="fw-bold">5-7 Business Days</div>
+                          </div>
+                          <div class="mb-3">
+                            <small class="text-muted">Application Status</small>
+                            <div class="fw-bold text-success">
+                              Ready to Submit
+                            </div>
+                          </div>
+                          <div class="mb-3">
+                            <small class="text-muted">Next Steps</small>
+                            <ul class="small mb-0 ps-3">
+                              <li>Application review (1-2 days)</li>
+                              <li>Credit check & verification</li>
+                              <li>Approval decision</li>
+                              <li>Card delivery (7-10 days)</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border-top pt-4">
+                    <div class="form-check mb-3">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="terms"
+                        required
+                      />
+                      <label class="form-check-label" for="terms">
+                        I agree to the
+                        <a href="#" class="text-primary"
+                          >Terms and Conditions</a
+                        >
+                        and <a href="#" class="text-primary">Privacy Policy</a>.
+                        I understand that this application will result in a hard
+                        credit inquiry.
+                      </label>
+                      <div class="invalid-feedback">
+                        You must agree to the terms and conditions.
+                      </div>
+                    </div>
+
+                    <div class="form-check mb-4">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="marketing"
+                      />
+                      <label class="form-check-label" for="marketing">
+                        I agree to receive marketing communications about
+                        products and services.
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-between">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      id="prevStep5"
+                    >
+                      <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button type="submit" class="btn btn-success btn-lg">
+                      <i class="bi bi-check-circle me-2"></i> Submit Application
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script>
-        $('#applicationForm').submit(function (e) {
-            e.preventDefault();
-            $('#form-alert-placeholder').html('<div class="alert alert-success">Application submitted successfully! You can now check its status.</div>');
-            $('#applicationForm')[0].reset();
-        });
-    </script>
-</body>
+      // Initialize AOS animations
+      AOS.init({
+        duration: 800,
+        easing: "ease-in-out",
+        once: true,
+      });
 
+      // Application state
+      let applicationData = {
+        selectedCard: null,
+        personalInfo: {},
+        financialInfo: {},
+        documents: {},
+      };
+
+      let currentStep = 1;
+      const totalSteps = 5;
+
+      // Initialize the application
+      $(document).ready(function () {
+        setupCardSelection();
+        setupStepNavigation();
+        setupFormValidation();
+        setupFileUploads();
+        setupCreditScoreEstimation();
+      });
+
+      // Card selection functionality
+      function setupCardSelection() {
+        $(".credit-card").click(function () {
+          $(".credit-card").removeClass("selected");
+          $(this).addClass("selected");
+          applicationData.selectedCard = $(this).data("card");
+          $("#nextStep1").prop("disabled", false);
+
+          // Add selection animation
+          $(this).removeClass("animate__animated animate__pulse");
+          setTimeout(() => {
+            $(this).addClass("animate__animated animate__pulse");
+          }, 100);
+        });
+
+        $("#nextStep1").click(() => goToStep(2));
+      }
+
+      // Step navigation
+      function setupStepNavigation() {
+        $("#prevStep2").click(() => goToStep(1));
+        $("#nextStep2").click(() => validateAndProceed(2, 3));
+
+        $("#prevStep3").click(() => goToStep(2));
+        $("#nextStep3").click(() => validateAndProceed(3, 4));
+
+        $("#prevStep4").click(() => goToStep(3));
+        $("#nextStep4").click(() => validateAndProceed(4, 5));
+
+        $("#prevStep5").click(() => goToStep(4));
+      }
+
+      function goToStep(step) {
+        // Update progress bar
+        $(".step").removeClass("active completed");
+        for (let i = 1; i < step; i++) {
+          $(`.step[data-step="${i}"]`).addClass("completed");
+        }
+        $(`.step[data-step="${step}"]`).addClass("active");
+
+        // Show/hide form steps
+        $(".form-step").removeClass("active");
+        $(`#step${step}`).addClass("active");
+
+        currentStep = step;
+
+        // Update review section if going to step 5
+        if (step === 5) {
+          updateReviewSection();
+        }
+
+        // Scroll to top smoothly
+        $("html, body").animate(
+          {
+            scrollTop: $(".main-content").offset().top - 100,
+          },
+          300
+        );
+      }
+
+      function validateAndProceed(fromStep, toStep) {
+        if (validateStep(fromStep)) {
+          collectStepData(fromStep);
+          goToStep(toStep);
+        }
+      }
+
+      // Form validation
+      function setupFormValidation() {
+        // Real-time validation for all inputs
+        $("#applicationForm input, #applicationForm select").on(
+          "input change",
+          function () {
+            validateField($(this));
+          }
+        );
+
+        // Special validation for specific fields
+        $("#email").on("blur", function () {
+          if (this.value && !isValidEmail(this.value)) {
+            $(this).addClass("is-invalid").removeClass("is-valid");
+          } else if (this.value) {
+            $(this).addClass("is-valid").removeClass("is-invalid");
+          }
+        });
+
+        $("#phone").on("input", function () {
+          let value = this.value.replace(/\D/g, "");
+          if (value.length >= 10) {
+            let formatted =
+              value.substring(0, 3) +
+              "-" +
+              value.substring(3, 6) +
+              "-" +
+              value.substring(6, 10);
+            this.value = formatted;
+          }
+        });
+
+        $("#ssn").on("input", function () {
+          this.value = this.value.replace(/\D/g, "").substring(0, 9);
+        });
+
+        $("#zipCode").on("input", function () {
+          this.value = this.value.replace(/\D/g, "").substring(0, 5);
+        });
+      }
+
+      function validateField(field) {
+        const value = field.val().trim();
+        const fieldId = field.attr("id");
+        let isValid = true;
+
+        if (field.prop("required") && !value) {
+          isValid = false;
+        } else if (value) {
+          switch (fieldId) {
+            case "email":
+              isValid = isValidEmail(value);
+              break;
+            case "phone":
+              isValid =
+                /^\d{3}-\d{3}-\d{4}$/.test(value) ||
+                /^\d{10,}$/.test(value.replace(/\D/g, ""));
+              break;
+            case "ssn":
+              isValid = /^\d{9}$/.test(value);
+              break;
+            case "zipCode":
+              isValid = /^\d{5}$/.test(value);
+              break;
+            case "dob":
+              const age = calculateAge(new Date(value));
+              isValid = age >= 18 && age <= 120;
+              if (!isValid) {
+                field
+                  .siblings(".invalid-feedback")
+                  .text("You must be at least 18 years old.");
+              }
+              break;
+            case "income":
+              isValid = parseInt(value) >= 0;
+              break;
+          }
+        }
+
+        field.removeClass("is-valid is-invalid");
+        if (field.prop("required") || value) {
+          field.addClass(isValid ? "is-valid" : "is-invalid");
+        }
+
+        return isValid;
+      }
+
+      function validateStep(step) {
+        let isValid = true;
+        const stepSelector = `#step${step}`;
+
+        $(
+          stepSelector +
+            " input[required], " +
+            stepSelector +
+            " select[required]"
+        ).each(function () {
+          if (!validateField($(this))) {
+            isValid = false;
+          }
+        });
+
+        if (!isValid) {
+          showAlert("Please fill in all required fields correctly.", "danger");
+        }
+
+        return isValid;
+      }
+
+      function collectStepData(step) {
+        switch (step) {
+          case 2: // Personal Info
+            applicationData.personalInfo = {
+              firstName: $("#firstName").val(),
+              lastName: $("#lastName").val(),
+              email: $("#email").val(),
+              phone: $("#phone").val(),
+              dob: $("#dob").val(),
+              ssn: $("#ssn").val(),
+              citizenship: $("#citizenship").val(),
+              address: $("#homeAddress").val(),
+              city: $("#city").val(),
+              state: $("#state").val(),
+              zipCode: $("#zipCode").val(),
+            };
+            break;
+          case 3: // Financial Info
+            applicationData.financialInfo = {
+              employment: $("#employment").val(),
+              income: $("#income").val(),
+              employer: $("#employer").val(),
+              yearsEmployed: $("#yearsEmployed").val(),
+              housingPayment: $("#housingPayment").val(),
+              housingStatus: $("#housingStatus").val(),
+              existingCards: $("#existingCards").val(),
+              creditDebt: $("#creditDebt").val(),
+            };
+            break;
+        }
+      }
+
+      // Credit score estimation
+      function setupCreditScoreEstimation() {
+        $(
+          "#income, #creditDebt, #existingCards, #housingPayment, #employment"
+        ).on("change input", function () {
+          estimateCreditScore();
+        });
+      }
+
+      function estimateCreditScore() {
+        const income = parseInt($("#income").val()) || 0;
+        const debt = parseInt($("#creditDebt").val()) || 0;
+        const cards = parseInt($("#existingCards").val()) || 0;
+        const housing = parseInt($("#housingPayment").val()) || 0;
+        const employment = $("#employment").val();
+
+        if (income === 0) return;
+
+        let score = 650; // Base score
+
+        // Income factor
+        if (income > 100000) score += 50;
+        else if (income > 75000) score += 30;
+        else if (income > 50000) score += 10;
+        else if (income < 25000) score -= 20;
+
+        // Debt to income ratio
+        const debtRatio = (debt * 12) / income;
+        if (debtRatio < 0.1) score += 30;
+        else if (debtRatio < 0.3) score += 10;
+        else if (debtRatio > 0.5) score -= 30;
+
+        // Number of existing cards
+        if (cards === 0) score -= 10; // No credit history
+        else if (cards > 5) score -= 20;
+
+        // Housing payment to income ratio
+        const housingRatio = (housing * 12) / income;
+        if (housingRatio < 0.25) score += 20;
+        else if (housingRatio > 0.4) score -= 20;
+
+        // Employment stability
+        if (employment === "employed") score += 20;
+        else if (employment === "selfemployed") score += 10;
+        else if (employment === "unemployed") score -= 50;
+
+        // Keep score in valid range
+        score = Math.max(300, Math.min(850, score));
+
+        updateCreditScoreDisplay(score);
+      }
+
+      function updateCreditScoreDisplay(score) {
+        const percentage = ((score - 300) / (850 - 300)) * 100;
+        $("#creditScoreBar").css("width", percentage + "%");
+
+        let category, color;
+        if (score < 580) {
+          category = "Poor";
+          color = "bg-danger";
+        } else if (score < 670) {
+          category = "Fair";
+          color = "bg-warning";
+        } else if (score < 740) {
+          category = "Good";
+          color = "bg-info";
+        } else {
+          category = "Excellent";
+          color = "bg-success";
+        }
+
+        $("#creditScoreBar")
+          .removeClass("bg-danger bg-warning bg-info bg-success")
+          .addClass(color);
+        $("#creditScoreText").text(`Estimated Score: ${score} (${category})`);
+      }
+
+      // File upload functionality
+      function setupFileUploads() {
+        $(".file-upload-area").each(function () {
+          const uploadArea = $(this);
+          const uploadType = uploadArea.data("upload");
+          const fileInput = uploadArea.find('input[type="file"]').length
+            ? uploadArea.find('input[type="file"]')
+            : $(`#${uploadType}File`);
+
+          // Click to browse
+          uploadArea.click(function () {
+            fileInput.click();
+          });
+
+          // File input change
+          fileInput.change(function () {
+            handleFileSelection(this.files, uploadType, uploadArea);
+          });
+
+          // Drag and drop
+          uploadArea.on("dragover", function (e) {
+            e.preventDefault();
+            $(this).addClass("dragover");
+          });
+
+          uploadArea.on("dragleave", function (e) {
+            e.preventDefault();
+            $(this).removeClass("dragover");
+          });
+
+          uploadArea.on("drop", function (e) {
+            e.preventDefault();
+            $(this).removeClass("dragover");
+            const files = e.originalEvent.dataTransfer.files;
+            handleFileSelection(files, uploadType, uploadArea);
+          });
+        });
+      }
+
+      function handleFileSelection(files, uploadType, uploadArea) {
+        const uploadedContainer = $(`#${uploadType}Uploaded`);
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+
+        Array.from(files).forEach((file) => {
+          if (file.size > maxSize) {
+            showAlert(
+              `File "${file.name}" is too large. Maximum size is 5MB.`,
+              "danger"
+            );
+            return;
+          }
+
+          if (!allowedTypes.includes(file.type)) {
+            showAlert(
+              `File "${file.name}" is not a supported format.`,
+              "danger"
+            );
+            return;
+          }
+
+          // Create file preview
+          const filePreview = createFilePreview(file, uploadType);
+          uploadedContainer.append(filePreview);
+
+          // Store file reference
+          if (!applicationData.documents[uploadType]) {
+            applicationData.documents[uploadType] = [];
+          }
+          applicationData.documents[uploadType].push(file);
+
+          // Update upload area appearance
+          uploadArea.addClass("has-files");
+        });
+      }
+
+      function createFilePreview(file, uploadType) {
+        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+        const fileIcon = getFileIcon(file.type);
+
+        return $(`
+                <div class="uploaded-file">
+                    <div class="d-flex align-items-center">
+                        <i class="${fileIcon} me-2"></i>
+                        <div>
+                            <div class="fw-bold">${file.name}</div>
+                            <small class="text-muted">${fileSize} MB</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(this, '${uploadType}', '${file.name}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `);
+      }
+
+      function getFileIcon(fileType) {
+        if (fileType.includes("pdf")) return "bi bi-file-pdf text-danger";
+        if (fileType.includes("image")) return "bi bi-file-image text-primary";
+        return "bi bi-file text-secondary";
+      }
+
+      function removeFile(button, uploadType, fileName) {
+        $(button).closest(".uploaded-file").remove();
+        // Remove from applicationData.documents
+        if (applicationData.documents[uploadType]) {
+          applicationData.documents[uploadType] = applicationData.documents[
+            uploadType
+          ].filter((file) => file.name !== fileName);
+        }
+      }
+
+      // Review section
+      function updateReviewSection() {
+        // Selected Card Review
+        const cardNames = {
+          platinum: "Platinum Elite",
+          gold: "Gold Preferred",
+          silver: "Silver Classic",
+        };
+        $("#selectedCardReview").html(`
+                <p><strong>Card Type:</strong> ${
+                  cardNames[applicationData.selectedCard]
+                }</p>
+            `);
+
+        // Personal Info Review
+        const personal = applicationData.personalInfo;
+        $("#personalInfoReview").html(`
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> ${personal.firstName} ${personal.lastName}</p>
+                        <p><strong>Email:</strong> ${personal.email}</p>
+                        <p><strong>Phone:</strong> ${personal.phone}</p>
+                        <p><strong>Date of Birth:</strong> ${personal.dob}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Address:</strong> ${personal.address}</p>
+                        <p><strong>City, State:</strong> ${personal.city}, ${personal.state}</p>
+                        <p><strong>ZIP Code:</strong> ${personal.zipCode}</p>
+                        <p><strong>Citizenship:</strong> ${personal.citizenship}</p>
+                    </div>
+                </div>
+            `);
+
+        // Financial Info Review
+        const financial = applicationData.financialInfo;
+        $("#financialInfoReview").html(`
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Employment:</strong> ${
+                          financial.employment
+                        }</p>
+                        <p><strong>Annual Income:</strong> $${parseInt(
+                          financial.income
+                        ).toLocaleString()}</p>
+                        <p><strong>Employer:</strong> ${
+                          financial.employer || "N/A"
+                        }</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Housing Payment:</strong> $${parseInt(
+                          financial.housingPayment
+                        ).toLocaleString()}</p>
+                        <p><strong>Housing Status:</strong> ${
+                          financial.housingStatus
+                        }</p>
+                        <p><strong>Existing Cards:</strong> ${
+                          financial.existingCards
+                        }</p>
+                    </div>
+                </div>
+            `);
+
+        // Documents Review
+        let documentsHtml = "";
+        Object.keys(applicationData.documents).forEach((type) => {
+          if (applicationData.documents[type].length > 0) {
+            documentsHtml += `<p><strong>${type}:</strong> ${applicationData.documents[type].length} file(s) uploaded</p>`;
+          }
+        });
+        $("#documentsReview").html(
+          documentsHtml || '<p class="text-muted">No documents uploaded</p>'
+        );
+      }
+
+      // Form submission
+      $("#applicationForm").submit(function (e) {
+        e.preventDefault();
+
+        if (!$("#terms").is(":checked")) {
+          showAlert("Please agree to the terms and conditions.", "danger");
+          return;
+        }
+
+        // Simulate application submission
+        const submitBtn = $('button[type="submit"]');
+        const originalText = submitBtn.html();
+
+        submitBtn
+          .prop("disabled", true)
+          .html('<i class="bi bi-hourglass-split me-2"></i> Submitting...');
+
+        setTimeout(() => {
+          showAlert(
+            `
+                    <div class="text-center">
+                        <i class="bi bi-check-circle display-4 text-success mb-3"></i>
+                        <h4>Application Submitted Successfully!</h4>
+                        <p class="mb-3">Your application reference number is: <strong>CC-${Date.now()}</strong></p>
+                        <p>You will receive an email confirmation shortly. Processing typically takes 5-7 business days.</p>
+                        <div class="mt-3">
+                            <a href="application_status.html" class="btn btn-primary me-2">Track Application</a>
+                            <a href="customer_dashboard.html" class="btn btn-outline-secondary">Back to Dashboard</a>
+                        </div>
+                    </div>
+                `,
+            "success"
+          );
+
+          submitBtn.prop("disabled", false).html(originalText);
+
+          // Reset form after success
+          setTimeout(() => {
+            $("#applicationForm")[0].reset();
+            applicationData = {
+              selectedCard: null,
+              personalInfo: {},
+              financialInfo: {},
+              documents: {},
+            };
+            goToStep(1);
+          }, 5000);
+        }, 2000);
+      });
+
+      // Utility functions
+      function isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+      }
+
+      function calculateAge(birthDate) {
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+          return age - 1;
+        }
+        return age;
+      }
+
+      function showAlert(message, type) {
+        const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        $("#form-alert-placeholder").html(alertHtml);
+
+        // Auto-dismiss after 10 seconds unless it's a success message
+        if (type !== "success") {
+          setTimeout(() => {
+            $(".alert").alert("close");
+          }, 10000);
+        }
+      }
+
+      // Additional enhancements
+      $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+          $(".topbar").addClass("shadow-lg");
+        } else {
+          $(".topbar").removeClass("shadow-lg");
+        }
+      });
+
+      // Add hover effects for interactive elements
+      $(".btn").hover(
+        function () {
+          $(this).addClass("shadow");
+        },
+        function () {
+          $(this).removeClass("shadow");
+        }
+      );
+    </script>
+  </body>
 </html>
