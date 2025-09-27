@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customers - TallyKhata</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <!-- Use same CSS as customer_dashboard.html -->
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .sidebar {
+        background-color: #fff;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .sidebar .navbar-brand {
+        color: #0d6efd;
+        font-weight: 600;
+      }
+      .sidebar .nav-link {
+        color: #555;
+        padding: 12px 15px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+      }
+      .sidebar .nav-link:hover {
+        background-color: #e9ecef;
+      }
+      .sidebar .nav-link.active {
+        color: #fff;
+        background-color: #0d6efd;
+        font-weight: 500;
+      }
+      .topbar {
+        background-color: #fff;
+        height: 60px;
+        position: fixed;
+        top: 0;
+        left: 250px;
+        right: 0;
+        z-index: 99;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 30px;
+      }
+      .lang-switcher {
+        display: flex;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .lang-btn {
+        border: none;
+        background: transparent;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .lang-btn.active {
+        background-color: #0d6efd;
+        color: white;
+      }
+      .lang-btn:hover:not(.active) {
+        background-color: #e9ecef;
+        color: #495057;
+      }
+      .main-content {
+        margin-left: 250px;
+        margin-top: 60px;
+        padding: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar p-3">
+      <a class="navbar-brand d-block text-center mb-4" href="#">TallyKhata</a>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="customer_dashboard.html"
+            ><i class="bi bi-grid-fill me-2"></i>
+            <span data-lang="dashboard">ড্যাশবোর্ড</span></a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="customers_page.html"
+            ><i class="bi bi-people-fill me-2"></i>
+            <span data-lang="customers">গ্রাহকগণ</span></a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="suppliers_page.html"
+            ><i class="bi bi-person-rolodex me-2"></i>
+            <span data-lang="suppliers">সরবরাহকারী</span></a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="reports_page.html"
+            ><i class="bi bi-bar-chart-line-fill me-2"></i>
+            <span data-lang="reports">রিপোর্ট</span></a
+          >
+        </li>
+        <li class="nav-item mt-auto">
+          <a class="nav-link" href="#" onclick="Auth.logout()"
+            ><i class="bi bi-box-arrow-left me-2"></i>
+            <span data-lang="logout">লগআউট</span></a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="lang-switcher">
+        <button
+          class="lang-btn active"
+          data-lang-code="bn"
+          onclick="LanguageManager.setLanguage('bn')"
+        >
+          বাংলা
+        </button>
+        <button
+          class="lang-btn"
+          data-lang-code="en"
+          onclick="LanguageManager.setLanguage('en')"
+        >
+          English
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 data-lang="manageCustomers">গ্রাহক পরিচালনা</h3>
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#addCustomerModal"
+        >
+          <i class="bi bi-plus-circle-fill me-2"></i>
+          <span data-lang="addCustomer">গ্রাহক যোগ করুন</span>
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th data-lang="name">নাম</th>
+                <th data-lang="phone">ফোন</th>
+                <th data-lang="email">ইমেইল</th>
+                <th class="text-end" data-lang="dueAmount">বকেয়া পরিমাণ</th>
+                <th data-lang="actions">কার্যক্রম</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <!-- Demo customers will be populated here via JavaScript -->
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center"
+                      style="width: 40px; height: 40px; font-weight: bold"
+                    >
+                      M
+                    </div>
+                    <div>
+                      <h6 class="mb-0">Mohammad Ali</h6>
+                      <small class="text-muted">ali@email.com</small>
+                    </div>
+                  </div>
+                </td>
+                <td>+880-1700-111001</td>
+                <td>ali@email.com</td>
+                <td class="text-end text-success fw-bold">৳15,000</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button
+                      class="btn btn-outline-primary"
+                      title="View Details"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button
+                      class="btn btn-outline-success"
+                      title="Edit"
+                      data-bs-toggle="modal"
+                      data-bs-target="#addCustomerModal"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="bg-success text-white rounded-circle me-3 d-flex align-items-center justify-content-center"
+                      style="width: 40px; height: 40px; font-weight: bold"
+                    >
+                      F
+                    </div>
+                    <div>
+                      <h6 class="mb-0">Fatima Begum</h6>
+                      <small class="text-muted">fatima@email.com</small>
+                    </div>
+                  </div>
+                </td>
+                <td>+880-1700-111002</td>
+                <td>fatima@email.com</td>
+                <td class="text-end text-danger fw-bold">৳5,000 (Due)</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button
+                      class="btn btn-outline-primary"
+                      title="View Details"
+                      onclick="viewCustomer(2)"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button
+                      class="btn btn-outline-success"
+                      title="Edit"
+                      onclick="editCustomer(2)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#addCustomerModal"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      class="btn btn-outline-danger"
+                      title="Delete"
+                      onclick="deleteCustomerConfirm(2)"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="bg-info text-white rounded-circle me-3 d-flex align-items-center justify-content-center"
+                      style="width: 40px; height: 40px; font-weight: bold"
+                    >
+                      K
+                    </div>
+                    <div>
+                      <h6 class="mb-0">Karim Rahman</h6>
+                      <small class="text-muted">karim@email.com</small>
+                    </div>
+                  </div>
+                </td>
+                <td>+880-1700-111003</td>
+                <td>karim@email.com</td>
+                <td class="text-end text-success fw-bold">৳8,500</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button
+                      class="btn btn-outline-primary"
+                      title="View Details"
+                      onclick="viewCustomer(3)"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button
+                      class="btn btn-outline-success"
+                      title="Edit"
+                      onclick="editCustomer(3)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#addCustomerModal"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      class="btn btn-outline-danger"
+                      title="Delete"
+                      onclick="deleteCustomerConfirm(3)"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="bg-warning text-dark rounded-circle me-3 d-flex align-items-center justify-content-center"
+                      style="width: 40px; height: 40px; font-weight: bold"
+                    >
+                      R
+                    </div>
+                    <div>
+                      <h6 class="mb-0">Rashida Khatun</h6>
+                      <small class="text-muted">rashida@email.com</small>
+                    </div>
+                  </div>
+                </td>
+                <td>+880-1700-111004</td>
+                <td>rashida@email.com</td>
+                <td class="text-end text-success fw-bold">৳12,000</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button
+                      class="btn btn-outline-primary"
+                      title="View Details"
+                      onclick="viewCustomer(4)"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button
+                      class="btn btn-outline-success"
+                      title="Edit"
+                      onclick="editCustomer(4)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#addCustomerModal"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      class="btn btn-outline-danger"
+                      title="Delete"
+                      onclick="deleteCustomerConfirm(4)"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div class="modal fade" id="addCustomerModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" data-lang="addNewCustomer">
+              নতুন গ্রাহক যোগ করুন
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addCustomerForm">
+              <div class="mb-3">
+                <label for="customerName" class="form-label" data-lang="name"
+                  >নাম</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="customerName"
+                  name="name"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="customerPhone" class="form-label" data-lang="phone"
+                  >ফোন</label
+                >
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="customerPhone"
+                  name="phone"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="customerEmail" class="form-label" data-lang="email"
+                  >ইমেইল</label
+                >
+                <input
+                  type="email"
+                  class="form-control"
+                  id="customerEmail"
+                  name="email"
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="customerAddress"
+                  class="form-label"
+                  data-lang="address"
+                  >ঠিকানা</label
+                >
+                <textarea
+                  class="form-control"
+                  id="customerAddress"
+                  name="address"
+                  rows="2"
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              data-lang="close"
+            >
+              বন্ধ
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="saveCustomer"
+              data-lang="saveCustomer"
+            >
+              গ্রাহক সংরক্ষণ
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
