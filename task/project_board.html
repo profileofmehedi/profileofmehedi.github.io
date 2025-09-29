@@ -68,6 +68,13 @@
           </div>
           <div class="task-list" id="inprogress-list"></div>
         </div>
+        <div class="kanban-column" data-status="Review">
+          <div class="kanban-column-header">
+            <h5>Review</h5>
+            <span class="badge bg-secondary" id="review-count">0</span>
+          </div>
+          <div class="task-list" id="review-list"></div>
+        </div>
         <div class="kanban-column" data-status="Done">
           <div class="kanban-column-header">
             <h5>Done</h5>
@@ -97,17 +104,47 @@
               <div class="col-md-8">
                 <label class="form-label text-muted small">Title</label>
                 <h4 id="task-modal-title"></h4>
+                <div id="task-modal-description-section" style="display: none">
+                  <label class="form-label text-muted small mt-3"
+                    >Description</label
+                  >
+                  <div
+                    id="task-modal-description"
+                    class="border p-2 rounded bg-light"
+                  ></div>
+                </div>
+                <div id="task-modal-images-section" style="display: none">
+                  <label class="form-label text-muted small mt-3"
+                    >Attachments</label
+                  >
+                  <div
+                    id="task-modal-images"
+                    class="d-flex flex-wrap gap-2"
+                  ></div>
+                </div>
               </div>
               <div class="col-md-4">
                 <label class="form-label text-muted small">Assignee</label>
                 <div id="task-modal-assignee"></div>
                 <label class="form-label text-muted small mt-3">Priority</label>
                 <div id="task-modal-priority"></div>
-                <label class="form-label text-muted small mt-3">Status</label
-                ><select
+                <label class="form-label text-muted small mt-3">Status</label>
+                <select
                   class="form-select form-select-sm"
                   id="task-modal-status"
                 ></select>
+                <div id="task-modal-duedate-section" style="display: none">
+                  <label class="form-label text-muted small mt-3"
+                    >Due Date</label
+                  >
+                  <div id="task-modal-duedate"></div>
+                </div>
+                <div id="task-modal-created-section" style="display: none">
+                  <label class="form-label text-muted small mt-3"
+                    >Created By</label
+                  >
+                  <div id="task-modal-created"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -118,8 +155,17 @@
               id="delete-task-btn"
               style="display: none"
             >
-              Delete Issue</button
-            ><button
+              Delete Issue
+            </button>
+            <button
+              type="button"
+              class="btn btn-warning me-2"
+              id="edit-task-btn"
+              style="display: none"
+            >
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button
               type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
@@ -130,6 +176,125 @@
         </div>
       </div>
     </div>
+
+    <!-- Add/Edit Task Modal -->
+    <div class="modal fade" id="addEditTaskModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEditTaskModalTitle">Add New Task</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addEditTaskForm">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label"
+                    >Title <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="modal-task-title-input"
+                    class="form-control"
+                    placeholder="Enter task title..."
+                    required
+                  />
+                  <div class="invalid-feedback">
+                    Please provide a task title.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Type</label>
+                  <select id="modal-task-type-select" class="form-select">
+                    <option value="Task">Task</option>
+                    <option value="Story">Story</option>
+                    <option value="Bug">Bug</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Priority</label>
+                  <select id="modal-task-priority-select" class="form-select">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Assignee</label>
+                  <select id="modal-task-assignee-select" class="form-select">
+                    <option value="">Unassigned</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select id="modal-task-status-select" class="form-select">
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Review">Review</option>
+                    <option value="Done">Done</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Due Date</label>
+                  <input
+                    type="date"
+                    id="modal-task-duedate-input"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Description</label>
+                  <textarea
+                    id="modal-task-description-input"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Add task description..."
+                  ></textarea>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Attachments</label>
+                  <input
+                    type="file"
+                    id="modal-task-images-input"
+                    class="form-control"
+                    accept="image/*"
+                    multiple
+                  />
+                  <div class="form-text">
+                    You can attach multiple images (PNG, JPG, GIF)
+                  </div>
+                  <div id="image-preview-container" class="mt-2"></div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-primary" id="saveTaskBtn">
+              Save Task
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -140,6 +305,8 @@
         // --- State and Config ---
         const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
         const isLead = loggedInUser.role === "lead";
+        const isTester = loggedInUser.role === "tester";
+        const isAdmin = loggedInUser.role === "admin";
         const taskDetailModal = new bootstrap.Modal($("#taskDetailModal"));
         let currentProjectId;
         let currentProject;
@@ -167,7 +334,6 @@
             .append(projectFilter);
           currentProjectId =
             leadProjects.length > 0 ? leadProjects[0].id : null;
-          setupInlineAddTask();
         } else {
           currentProject = projects.find((p) => {
             const lead = users.find((u) => u.id === p.leadId);
@@ -209,13 +375,73 @@
               (t) => t.priority === filters.priority
             );
 
-          let counts = { "To Do": 0, "In Progress": 0, Done: 0 };
+          let counts = { "To Do": 0, "In Progress": 0, Review: 0, Done: 0 };
 
           projectTasks.forEach((task) => {
             const assignee = users.find((u) => u.id === task.assignee);
+
+            // Check for due date and if it's overdue
+            let dueDateHtml = "";
+            if (task.dueDate) {
+              const dueDate = new Date(task.dueDate);
+              const isOverdue = dueDate < new Date() && task.status !== "Done";
+              const dueDateFormatted = dueDate.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              });
+              dueDateHtml = `<div class="task-due-date ${
+                isOverdue ? "overdue" : ""
+              }" title="Due: ${dueDate.toLocaleDateString()}">
+                <i class="fas fa-calendar-alt"></i> ${dueDateFormatted}
+              </div>`;
+            }
+
+            // Description preview
+            let descriptionHtml = "";
+            if (task.description && task.description.length > 0) {
+              const shortDesc =
+                task.description.length > 60
+                  ? task.description.substring(0, 60) + "..."
+                  : task.description;
+              descriptionHtml = `<div class="task-description-preview" title="${task.description}">
+                <i class="fas fa-align-left"></i> ${shortDesc}
+              </div>`;
+            }
+
+            // Image thumbnails
+            let imageHtml = "";
+            if (task.images && task.images.length > 0) {
+              const imageCount = task.images.length;
+              const firstImage = task.images[0];
+              imageHtml = `<div class="task-images-preview">
+                <img src="${firstImage}" class="task-image-thumb" alt="Attachment">
+                ${
+                  imageCount > 1
+                    ? `<span class="image-count">+${imageCount - 1}</span>`
+                    : ""
+                }
+              </div>`;
+            }
+
+            // Additional task info
+            let additionalInfo = "";
+            if (task.createdAt) {
+              const createdDate = new Date(task.createdAt);
+              const timeAgo = getTimeAgo(createdDate);
+              additionalInfo = `<div class="task-created-info">
+                <i class="fas fa-clock"></i> ${timeAgo}
+              </div>`;
+            }
+
             const taskCardHtml = `
 <div class="task-card" data-task-id="${task.id}">
+<div class="task-card-header">
 <p class="task-card-title">${task.title}</p>
+${imageHtml}
+</div>
+${dueDateHtml}
+${descriptionHtml}
+${additionalInfo}
 <div class="task-card-footer">
 <div class="task-meta">
 <span class="task-type-icon ${task.type}" title="${task.type}"><i class="${
@@ -224,7 +450,6 @@
 <span class="task-priority p-icon ${
               priorityClasses[task.priority]
             }"><i class="fas fa-circle"></i></span>
-<span class="task-id">TASK-${task.id}</span>
 </div>
 ${
   assignee
@@ -244,11 +469,29 @@ ${
           $("#inprogress-count").text(
             `${counts["In Progress"]} / ${currentProject.wipLimit}`
           );
+          $("#review-count").text(counts["Review"]);
           $("#done-count").text(counts["Done"]);
           $("#inprogress-header").toggleClass(
             "wip-limit-exceeded",
             counts["In Progress"] > currentProject.wipLimit
           );
+        }
+
+        // Helper function to get time ago string
+        function getTimeAgo(date) {
+          const now = new Date();
+          const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+
+          if (diffInMinutes < 1) return "Just now";
+          if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+
+          const diffInHours = Math.floor(diffInMinutes / 60);
+          if (diffInHours < 24) return `${diffInHours}h ago`;
+
+          const diffInDays = Math.floor(diffInHours / 24);
+          if (diffInDays < 7) return `${diffInDays}d ago`;
+
+          return date.toLocaleDateString();
         }
 
         // --- Drag-and-Drop ---
@@ -291,8 +534,60 @@ ${
             }"><i class="fas fa-circle"></i></span> ${task.priority}`
           );
 
+          // Show/hide description section
+          if (task.description) {
+            $("#task-modal-description").text(task.description);
+            $("#task-modal-description-section").show();
+          } else {
+            $("#task-modal-description-section").hide();
+          }
+
+          // Show/hide due date section
+          if (task.dueDate) {
+            const dueDate = new Date(task.dueDate);
+            const isOverdue = dueDate < new Date() && task.status !== "Done";
+            $("#task-modal-duedate").html(
+              `<span class="badge ${
+                isOverdue ? "bg-danger" : "bg-secondary"
+              }">${dueDate.toLocaleDateString()}</span>`
+            );
+            $("#task-modal-duedate-section").show();
+          } else {
+            $("#task-modal-duedate-section").hide();
+          }
+
+          // Show/hide created by section
+          if (task.createdBy) {
+            const creator = users.find((u) => u.id === task.createdBy);
+            const createdDate = task.createdAt
+              ? new Date(task.createdAt).toLocaleDateString()
+              : "";
+            $("#task-modal-created").html(
+              creator
+                ? `${creator.name}${createdDate ? ` on ${createdDate}` : ""}`
+                : "Unknown"
+            );
+            $("#task-modal-created-section").show();
+          } else {
+            $("#task-modal-created-section").hide();
+          }
+
+          // Show/hide images section
+          if (task.images && task.images.length > 0) {
+            const imagesHtml = task.images
+              .map(
+                (image) =>
+                  `<img src="${image}" class="task-modal-image" alt="Task attachment" onclick="openImageModal('${image}')">`
+              )
+              .join("");
+            $("#task-modal-images").html(imagesHtml);
+            $("#task-modal-images-section").show();
+          } else {
+            $("#task-modal-images-section").hide();
+          }
+
           const statusSelect = $("#task-modal-status").empty();
-          ["To Do", "In Progress", "Done"].forEach((s) =>
+          ["To Do", "In Progress", "Review", "Done"].forEach((s) =>
             statusSelect.append(
               `<option value="${s}" ${
                 s === task.status ? "selected" : ""
@@ -301,7 +596,14 @@ ${
           );
           statusSelect.data("taskId", task.id);
 
-          $("#delete-task-btn").toggle(isLead).data("taskId", task.id);
+          $("#delete-task-btn")
+            .toggle(isLead || isAdmin)
+            .data("taskId", task.id);
+
+          $("#edit-task-btn")
+            .toggle(isLead || isAdmin)
+            .data("taskId", task.id);
+
           taskDetailModal.show();
         });
 
@@ -330,8 +632,8 @@ ${
           }
         );
 
-        // --- Lead-Specific Features ---
-        if (isLead) {
+        // --- Lead/Admin-Specific Features ---
+        if (isLead || isAdmin) {
           $("#delete-task-btn").on("click", function () {
             if (confirm("Are you sure you want to delete this issue?")) {
               tasks = tasks.filter((t) => t.id != $(this).data("taskId"));
@@ -342,51 +644,256 @@ ${
           });
         }
 
-        function setupInlineAddTask() {
-          const container = $("#inline-add-container");
-          const addButton = $(
-            '<button class="btn btn-secondary btn-sm mt-2 w-100"><i class="fas fa-plus"></i> Add Issue</button>'
+        // --- Modal Management ---
+        const addEditTaskModal = new bootstrap.Modal($("#addEditTaskModal"));
+        let currentEditingTaskId = null;
+
+        // Populate team members dropdown in modal
+        function populateTeamMembers() {
+          const teamMembers = users.filter(
+            (u) => u.teamId === loggedInUser.teamId || u.role === "admin"
           );
-          container.append(addButton);
-
-          addButton.on("click", function () {
-            $(this).hide();
-            const formHtml = `
-<div class="inline-add-form card card-body">
-<textarea id="inline-task-title" class="form-control form-control-sm" placeholder="What needs to be done?"></textarea>                <div class="d-flex justify-content-end mt-2">
-                    <button class="btn btn-sm btn-light" id="cancel-inline-add">Cancel</button>
-                    <button class="btn btn-sm btn-primary ms-2" id="save-inline-add">Add</button>
-                </div>
-            </div>`;
-            container.append(formHtml);
-          });
-
-          $(document).on("click", "#cancel-inline-add", function () {
-            $(".inline-add-form").remove();
-            addButton.show();
-          });
-
-          $(document).on("click", "#save-inline-add", function () {
-            const title = $("#inline-task-title").val();
-            if (title) {
-              tasks.push({
-                id: Math.max(...tasks.map((t) => t.id), 0) + 1,
-                projectId: currentProjectId,
-                title,
-                status: "To Do",
-                assignee: null,
-                priority: "Medium",
-                type: "Task",
-              });
-              renderBoard();
-              $(".inline-add-form").remove();
-              addButton.show();
-              showToast("Issue created!");
-            }
+          const select = $("#modal-task-assignee-select");
+          select.empty().append('<option value="">Unassigned</option>');
+          teamMembers.forEach((user) => {
+            select.append(`<option value="${user.id}">${user.name}</option>`);
           });
         }
 
+        // Reset modal form
+        function resetModalForm() {
+          $("#addEditTaskForm")[0].reset();
+          $("#modal-task-title-input").removeClass("is-invalid");
+          $("#modal-task-priority-select").val("Medium");
+          $("#modal-task-status-select").val("To Do");
+          $("#image-preview-container").empty();
+          window.currentTaskImages = [];
+          currentEditingTaskId = null;
+        }
+
+        // Open modal for adding new task
+        function openAddTaskModal() {
+          resetModalForm();
+          $("#addEditTaskModalTitle").text("Add New Task");
+          $("#saveTaskBtn").text("Create Task");
+          populateTeamMembers();
+          addEditTaskModal.show();
+        }
+
+        // Open modal for editing existing task
+        function openEditTaskModal(taskId) {
+          const task = tasks.find((t) => t.id == taskId);
+          if (!task) return;
+
+          resetModalForm();
+          currentEditingTaskId = taskId;
+          $("#addEditTaskModalTitle").text("Edit Task");
+          $("#saveTaskBtn").text("Update Task");
+
+          // Populate form with task data
+          $("#modal-task-title-input").val(task.title);
+          $("#modal-task-type-select").val(task.type);
+          $("#modal-task-priority-select").val(task.priority);
+          $("#modal-task-status-select").val(task.status);
+          $("#modal-task-assignee-select").val(task.assignee || "");
+          $("#modal-task-duedate-input").val(task.dueDate || "");
+          $("#modal-task-description-input").val(task.description || "");
+
+          // Handle existing images
+          if (task.images && task.images.length > 0) {
+            window.currentTaskImages = [...task.images];
+            task.images.forEach((imageData, i) => {
+              const previewHtml = `
+                <div class="image-preview-item d-inline-block position-relative me-2 mb-2">
+                  <img src="${imageData}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                  <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle" 
+                          onclick="removeImage(${i})" style="width: 20px; height: 20px; padding: 0; line-height: 1;">
+                    <i class="fas fa-times" style="font-size: 10px;"></i>
+                  </button>
+                </div>`;
+              $("#image-preview-container").append(previewHtml);
+            });
+          }
+
+          populateTeamMembers();
+          addEditTaskModal.show();
+        }
+
+        // Save task (create or update)
+        $("#saveTaskBtn").on("click", function () {
+          const title = $("#modal-task-title-input").val().trim();
+
+          if (!title) {
+            $("#modal-task-title-input").addClass("is-invalid");
+            return;
+          }
+
+          $("#modal-task-title-input").removeClass("is-invalid");
+
+          const taskData = {
+            title,
+            type: $("#modal-task-type-select").val(),
+            priority: $("#modal-task-priority-select").val(),
+            status: $("#modal-task-status-select").val(),
+            assignee: $("#modal-task-assignee-select").val()
+              ? parseInt($("#modal-task-assignee-select").val())
+              : null,
+            dueDate: $("#modal-task-duedate-input").val() || null,
+            description:
+              $("#modal-task-description-input").val().trim() || null,
+            images: window.currentTaskImages || [],
+          };
+
+          if (currentEditingTaskId) {
+            // Update existing task
+            const task = tasks.find((t) => t.id == currentEditingTaskId);
+            Object.assign(task, taskData);
+            showToast("Task updated successfully!");
+          } else {
+            // Create new task
+            const newTask = {
+              id: Math.max(...tasks.map((t) => t.id), 0) + 1,
+              projectId: currentProjectId,
+              createdBy: loggedInUser.id,
+              createdAt: new Date().toISOString(),
+              ...taskData,
+            };
+            tasks.push(newTask);
+            showToast(`${taskData.type} created successfully!`);
+          }
+
+          addEditTaskModal.hide();
+          renderBoard();
+        });
+
+        // Handle button clicks
+        $(document).on("click", "#add-task-modal-btn", function () {
+          openAddTaskModal();
+        });
+
+        $(document).on("click", "#report-bug-modal-btn", function () {
+          resetModalForm();
+          $("#addEditTaskModalTitle").text("Report Bug");
+          $("#saveTaskBtn").text("Report Bug");
+          $("#modal-task-type-select").val("Bug");
+          $("#modal-task-priority-select").val("High");
+          $("#modal-task-assignee-select").val(loggedInUser.id);
+          populateTeamMembers();
+          addEditTaskModal.show();
+        });
+
+        $(document).on("click", "#edit-task-btn", function () {
+          const taskId = $(this).data("taskId");
+          taskDetailModal.hide();
+          openEditTaskModal(taskId);
+        });
+
+        function setupInlineActions() {
+          const container = $("#inline-add-container");
+
+          // Clear any existing buttons first
+          container.empty();
+
+          if (isLead || isAdmin) {
+            // Setup Add Issue button for leads and admins
+            const addButton = $(
+              '<button class="btn btn-secondary btn-sm mt-2 w-100" id="add-task-modal-btn"><i class="fas fa-plus"></i> Add Issue</button>'
+            );
+            container.append(addButton);
+          } else if (isTester) {
+            // Setup Report Bug button for testers
+            const bugButton = $(
+              '<button class="btn btn-danger btn-sm mt-2 w-100" id="report-bug-modal-btn"><i class="fas fa-bug"></i> Report Bug</button>'
+            );
+            container.append(bugButton);
+          }
+          // Regular users get no add buttons
+        }
+
+        // --- Image Handling ---
+        window.currentTaskImages = [];
+
+        // Handle image file selection
+        $("#modal-task-images-input").on("change", function (e) {
+          const files = e.target.files;
+          $("#image-preview-container").empty();
+          window.currentTaskImages = [];
+
+          if (files.length > 0) {
+            Array.from(files).forEach((file, index) => {
+              if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                  const imageData = e.target.result;
+                  window.currentTaskImages.push(imageData);
+
+                  const previewHtml = `
+                    <div class="image-preview-item d-inline-block position-relative me-2 mb-2">
+                      <img src="${imageData}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                      <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle" 
+                              onclick="removeImage(${
+                                window.currentTaskImages.length - 1
+                              })" style="width: 20px; height: 20px; padding: 0; line-height: 1;">
+                        <i class="fas fa-times" style="font-size: 10px;"></i>
+                      </button>
+                    </div>`;
+                  $("#image-preview-container").append(previewHtml);
+                };
+                reader.readAsDataURL(file);
+              }
+            });
+          }
+        });
+
+        // Remove image from preview
+        window.removeImage = function (index) {
+          window.currentTaskImages.splice(index, 1);
+          // Rebuild preview
+          $("#image-preview-container").empty();
+          window.currentTaskImages.forEach((imageData, i) => {
+            const previewHtml = `
+              <div class="image-preview-item d-inline-block position-relative me-2 mb-2">
+                <img src="${imageData}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle" 
+                        onclick="removeImage(${i})" style="width: 20px; height: 20px; padding: 0; line-height: 1;">
+                  <i class="fas fa-times" style="font-size: 10px;"></i>
+                </button>
+              </div>`;
+            $("#image-preview-container").append(previewHtml);
+          });
+        };
+
+        // Open image in modal
+        window.openImageModal = function (imageSrc) {
+          const imageModal = `
+            <div class="modal fade" id="imageViewModal" tabindex="-1">
+              <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Image View</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <img src="${imageSrc}" class="img-fluid" alt="Task attachment">
+                  </div>
+                </div>
+              </div>
+            </div>`;
+
+          // Remove any existing image modal
+          $("#imageViewModal").remove();
+          $("body").append(imageModal);
+          const modal = new bootstrap.Modal($("#imageViewModal"));
+          modal.show();
+
+          // Clean up when modal is hidden
+          $("#imageViewModal").on("hidden.bs.modal", function () {
+            $(this).remove();
+          });
+        };
+
         // --- Initial Load ---
+        setupInlineActions();
         renderBoard();
       });
     </script>

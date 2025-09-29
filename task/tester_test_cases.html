@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Cases Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="visibility: hidden">
+    <div id="app-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Test Cases Management</h2>
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#testCaseModal"
+        >
+          <i class="fas fa-plus"></i> Create Test Case
+        </button>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="stat-card mb-4 p-3">
+        <div class="row align-items-center">
+          <div class="col-md-3">
+            <label class="form-label">Filter by Project:</label>
+            <select id="project-filter" class="form-select form-select-sm">
+              <option value="">All Projects</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Filter by Status:</label>
+            <select id="status-filter" class="form-select form-select-sm">
+              <option value="">All Statuses</option>
+              <option value="Draft">Draft</option>
+              <option value="Ready">Ready</option>
+              <option value="Executed">Executed</option>
+              <option value="Passed">Passed</option>
+              <option value="Failed">Failed</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Filter by Priority:</label>
+            <select id="priority-filter" class="form-select form-select-sm">
+              <option value="">All Priorities</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <button id="clear-filters" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-times"></i> Clear Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Cases Table -->
+      <div class="stat-card p-3">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Project</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Last Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="test-cases-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Case Modal -->
+    <div class="modal fade" id="testCaseModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create Test Case</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="test-case-form">
+              <input type="hidden" id="test-case-id" />
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Project</label>
+                  <select
+                    class="form-select"
+                    id="test-case-project"
+                    required
+                  ></select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Priority</label>
+                  <select class="form-select" id="test-case-priority" required>
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Test Case Title</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="test-case-title"
+                  required
+                  placeholder="Enter descriptive test case title"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Test Scenario</label>
+                <textarea
+                  class="form-control"
+                  id="test-case-scenario"
+                  rows="3"
+                  placeholder="Describe what you are testing"
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Test Steps</label>
+                <textarea
+                  class="form-control"
+                  id="test-case-steps"
+                  rows="4"
+                  placeholder="1. Step one&#10;2. Step two&#10;3. Step three"
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Expected Result</label>
+                <textarea
+                  class="form-control"
+                  id="test-case-expected"
+                  rows="3"
+                  placeholder="What should happen when the test is executed correctly"
+                ></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" id="test-case-status">
+                    <option value="Draft" selected>Draft</option>
+                    <option value="Ready">Ready</option>
+                    <option value="Executed">Executed</option>
+                    <option value="Passed">Passed</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Execution Date</label>
+                  <input type="date" class="form-control" id="test-case-date" />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-danger me-auto"
+              id="delete-test-case-btn"
+              style="display: none"
+            >
+              Delete
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="save-test-case-btn"
+            >
+              Save Test Case
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="db.js"></script>
+    <script src="layout.js"></script>
+    <script>
+      $(document).ready(function () {
+        const testCaseModal = new bootstrap.Modal($("#testCaseModal"));
+        let testCases = JSON.parse(localStorage.getItem("testCases")) || [];
+        let editingTestCaseId = null;
+
+        // Initialize test cases with some sample data if empty
+        if (testCases.length === 0) {
+          testCases = [
+            {
+              id: 1,
+              title: "User Login Functionality",
+              projectId: 1,
+              priority: "High",
+              status: "Passed",
+              scenario: "Test user login with valid credentials",
+              steps:
+                "1. Navigate to login page\n2. Enter valid username\n3. Enter valid password\n4. Click login button",
+              expected: "User should be logged in and redirected to dashboard",
+              lastUpdated: "2025-09-29",
+              executionDate: "2025-09-29",
+            },
+            {
+              id: 2,
+              title: "Payment Processing Flow",
+              projectId: 1,
+              priority: "High",
+              status: "Failed",
+              scenario: "Test payment processing with credit card",
+              steps:
+                "1. Add items to cart\n2. Go to checkout\n3. Enter payment details\n4. Submit payment",
+              expected: "Payment should be processed successfully",
+              lastUpdated: "2025-09-28",
+              executionDate: "2025-09-28",
+            },
+            {
+              id: 3,
+              title: "Mobile App Navigation",
+              projectId: 2,
+              priority: "Medium",
+              status: "Ready",
+              scenario: "Test navigation between different screens",
+              steps:
+                "1. Open app\n2. Navigate to different sections\n3. Use back button\n4. Test drawer menu",
+              expected: "Navigation should be smooth and intuitive",
+              lastUpdated: "2025-09-27",
+              executionDate: null,
+            },
+          ];
+          localStorage.setItem("testCases", JSON.stringify(testCases));
+        }
+
+        const statusColors = {
+          Draft: "secondary",
+          Ready: "primary",
+          Executed: "info",
+          Passed: "success",
+          Failed: "danger",
+        };
+
+        const priorityIcons = {
+          High: "priority-High",
+          Medium: "priority-Medium",
+          Low: "priority-Low",
+        };
+
+        function populateProjectDropdowns() {
+          const selects = $("#test-case-project, #project-filter");
+          selects.each(function () {
+            const isFilter = $(this).is("#project-filter");
+            if (!isFilter) $(this).empty();
+
+            projects.forEach((project) => {
+              $(this).append(
+                `<option value="${project.id}">${project.name}</option>`
+              );
+            });
+          });
+        }
+
+        function renderTestCases() {
+          const tableBody = $("#test-cases-table");
+          tableBody.empty();
+
+          let filteredCases = testCases;
+
+          // Apply filters
+          const projectFilter = $("#project-filter").val();
+          const statusFilter = $("#status-filter").val();
+          const priorityFilter = $("#priority-filter").val();
+
+          if (projectFilter) {
+            filteredCases = filteredCases.filter(
+              (tc) => tc.projectId == projectFilter
+            );
+          }
+          if (statusFilter) {
+            filteredCases = filteredCases.filter(
+              (tc) => tc.status === statusFilter
+            );
+          }
+          if (priorityFilter) {
+            filteredCases = filteredCases.filter(
+              (tc) => tc.priority === priorityFilter
+            );
+          }
+
+          if (filteredCases.length === 0) {
+            tableBody.append(
+              '<tr><td colspan="7" class="text-center py-4">No test cases found.</td></tr>'
+            );
+            return;
+          }
+
+          filteredCases.forEach((testCase) => {
+            const project = projects.find((p) => p.id === testCase.projectId);
+            tableBody.append(`
+              <tr>
+                <td>TC-${testCase.id}</td>
+                <td>${testCase.title}</td>
+                <td>${project ? project.name : "Unknown"}</td>
+                <td>
+                  <span class="task-priority ${
+                    priorityIcons[testCase.priority]
+                  }">
+                    <i class="fas fa-circle"></i> ${testCase.priority}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge bg-${statusColors[testCase.status]}">
+                    ${testCase.status}
+                  </span>
+                </td>
+                <td>${testCase.lastUpdated || "N/A"}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary edit-test-case-btn" data-id="${
+                    testCase.id
+                  }">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-test-case-btn" data-id="${
+                    testCase.id
+                  }">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            `);
+          });
+        }
+
+        // Event handlers
+        $("#save-test-case-btn").on("click", function () {
+          const formData = {
+            title: $("#test-case-title").val(),
+            projectId: parseInt($("#test-case-project").val()),
+            priority: $("#test-case-priority").val(),
+            status: $("#test-case-status").val(),
+            scenario: $("#test-case-scenario").val(),
+            steps: $("#test-case-steps").val(),
+            expected: $("#test-case-expected").val(),
+            executionDate: $("#test-case-date").val() || null,
+            lastUpdated: new Date().toISOString().split("T")[0],
+          };
+
+          if (!formData.title || !formData.projectId) {
+            alert("Please fill in all required fields.");
+            return;
+          }
+
+          if (editingTestCaseId) {
+            // Update existing test case
+            const index = testCases.findIndex(
+              (tc) => tc.id === editingTestCaseId
+            );
+            if (index !== -1) {
+              testCases[index] = { ...testCases[index], ...formData };
+            }
+          } else {
+            // Create new test case
+            const newTestCase = {
+              id: Math.max(...testCases.map((tc) => tc.id), 0) + 1,
+              ...formData,
+            };
+            testCases.push(newTestCase);
+          }
+
+          localStorage.setItem("testCases", JSON.stringify(testCases));
+          renderTestCases();
+          testCaseModal.hide();
+          $("#test-case-form")[0].reset();
+          editingTestCaseId = null;
+          showToast(
+            editingTestCaseId ? "Test case updated!" : "Test case created!"
+          );
+        });
+
+        // Edit test case
+        $(document).on("click", ".edit-test-case-btn", function () {
+          const testCaseId = parseInt($(this).data("id"));
+          const testCase = testCases.find((tc) => tc.id === testCaseId);
+
+          if (testCase) {
+            editingTestCaseId = testCaseId;
+            $("#test-case-id").val(testCase.id);
+            $("#test-case-title").val(testCase.title);
+            $("#test-case-project").val(testCase.projectId);
+            $("#test-case-priority").val(testCase.priority);
+            $("#test-case-status").val(testCase.status);
+            $("#test-case-scenario").val(testCase.scenario);
+            $("#test-case-steps").val(testCase.steps);
+            $("#test-case-expected").val(testCase.expected);
+            $("#test-case-date").val(testCase.executionDate);
+
+            $(".modal-title").text("Edit Test Case");
+            $("#delete-test-case-btn").show();
+            testCaseModal.show();
+          }
+        });
+
+        // Delete test case
+        $(document).on("click", ".delete-test-case-btn", function () {
+          const testCaseId = parseInt($(this).data("id"));
+          if (confirm("Are you sure you want to delete this test case?")) {
+            testCases = testCases.filter((tc) => tc.id !== testCaseId);
+            localStorage.setItem("testCases", JSON.stringify(testCases));
+            renderTestCases();
+            showToast("Test case deleted!", "danger");
+          }
+        });
+
+        // Modal delete button
+        $("#delete-test-case-btn").on("click", function () {
+          if (confirm("Are you sure you want to delete this test case?")) {
+            testCases = testCases.filter((tc) => tc.id !== editingTestCaseId);
+            localStorage.setItem("testCases", JSON.stringify(testCases));
+            renderTestCases();
+            testCaseModal.hide();
+            editingTestCaseId = null;
+            showToast("Test case deleted!", "danger");
+          }
+        });
+
+        // Reset modal when creating new test case
+        $("#testCaseModal").on("hidden.bs.modal", function () {
+          if (!editingTestCaseId) {
+            $("#test-case-form")[0].reset();
+            $(".modal-title").text("Create Test Case");
+            $("#delete-test-case-btn").hide();
+          }
+          editingTestCaseId = null;
+        });
+
+        // Filter handlers
+        $("#project-filter, #status-filter, #priority-filter").on(
+          "change",
+          renderTestCases
+        );
+
+        $("#clear-filters").on("click", function () {
+          $("#project-filter, #status-filter, #priority-filter").val("");
+          renderTestCases();
+        });
+
+        // Initialize
+        populateProjectDropdowns();
+        renderTestCases();
+      });
+    </script>
+  </body>
+</html>

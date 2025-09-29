@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bug Reports</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="visibility: hidden">
+    <div id="app-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Bug Reports</h2>
+        <button
+          class="btn btn-danger"
+          data-bs-toggle="modal"
+          data-bs-target="#bugReportModal"
+        >
+          <i class="fas fa-bug"></i> Report Bug
+        </button>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-3">
+          <div class="stat-card text-center">
+            <h3 id="total-bugs" class="display-4 fw-bold text-danger">0</h3>
+            <p class="text-muted">Total Bugs</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card text-center">
+            <h3 id="open-bugs" class="display-4 fw-bold text-warning">0</h3>
+            <p class="text-muted">Open Bugs</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card text-center">
+            <h3 id="resolved-bugs" class="display-4 fw-bold text-success">0</h3>
+            <p class="text-muted">Resolved</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card text-center">
+            <h3 id="critical-bugs" class="display-4 fw-bold text-dark">0</h3>
+            <p class="text-muted">Critical</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="stat-card mb-4 p-3">
+        <div class="row align-items-center">
+          <div class="col-md-2">
+            <label class="form-label">Project:</label>
+            <select id="project-filter" class="form-select form-select-sm">
+              <option value="">All Projects</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Status:</label>
+            <select id="status-filter" class="form-select form-select-sm">
+              <option value="">All Status</option>
+              <option value="Open">Open</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Priority:</label>
+            <select id="priority-filter" class="form-select form-select-sm">
+              <option value="">All Priorities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Severity:</label>
+            <select id="severity-filter" class="form-select form-select-sm">
+              <option value="">All Severities</option>
+              <option value="Blocker">Blocker</option>
+              <option value="Major">Major</option>
+              <option value="Minor">Minor</option>
+              <option value="Trivial">Trivial</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Reporter:</label>
+            <select id="reporter-filter" class="form-select form-select-sm">
+              <option value="">All Reporters</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button id="clear-filters" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-times"></i> Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bug Reports Table -->
+      <div class="stat-card p-3">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Project</th>
+                <th>Priority</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Reporter</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bug-reports-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bug Report Modal -->
+    <div class="modal fade" id="bugReportModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Report New Bug</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="bug-report-form">
+              <input type="hidden" id="bug-id" />
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Project <span class="text-danger">*</span></label
+                  >
+                  <select
+                    class="form-select"
+                    id="bug-project"
+                    required
+                  ></select>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label"
+                    >Priority <span class="text-danger">*</span></label
+                  >
+                  <select class="form-select" id="bug-priority" required>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label"
+                    >Severity <span class="text-danger">*</span></label
+                  >
+                  <select class="form-select" id="bug-severity" required>
+                    <option value="Blocker">Blocker</option>
+                    <option value="Major">Major</option>
+                    <option value="Minor" selected>Minor</option>
+                    <option value="Trivial">Trivial</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-8 mb-3">
+                  <label class="form-label"
+                    >Bug Title <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="bug-title"
+                    required
+                    placeholder="Brief description of the bug"
+                  />
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Environment</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="bug-environment"
+                    placeholder="e.g., Chrome 118, iOS 17"
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label"
+                  >Description <span class="text-danger">*</span></label
+                >
+                <textarea
+                  class="form-control"
+                  id="bug-description"
+                  rows="4"
+                  required
+                  placeholder="Detailed description of the bug"
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Steps to Reproduce</label>
+                <textarea
+                  class="form-control"
+                  id="bug-steps"
+                  rows="4"
+                  placeholder="1. Go to...&#10;2. Click on...&#10;3. Expected: ...&#10;4. Actual: ..."
+                ></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Expected Result</label>
+                  <textarea
+                    class="form-control"
+                    id="bug-expected"
+                    rows="3"
+                    placeholder="What should happen"
+                  ></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Actual Result</label>
+                  <textarea
+                    class="form-control"
+                    id="bug-actual"
+                    rows="3"
+                    placeholder="What actually happens"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" id="bug-status">
+                    <option value="Open" selected>Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Assignee</label>
+                  <select class="form-select" id="bug-assignee">
+                    <option value="">Unassigned</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Attachment URL</label>
+                  <input
+                    type="url"
+                    class="form-control"
+                    id="bug-attachment"
+                    placeholder="Link to screenshot or video"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-danger me-auto"
+              id="delete-bug-btn"
+              style="display: none"
+            >
+              Delete Bug
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="save-bug-btn">
+              Report Bug
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="db.js"></script>
+    <script src="layout.js"></script>
+    <script>
+      $(document).ready(function () {
+        const bugReportModal = new bootstrap.Modal($("#bugReportModal"));
+        const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+        let bugReports = JSON.parse(localStorage.getItem("bugReports")) || [];
+        let editingBugId = null;
+
+        // Initialize with sample data if empty
+        if (bugReports.length === 0) {
+          bugReports = [
+            {
+              id: 1,
+              title: "Login button not working on Safari",
+              projectId: 1,
+              priority: "High",
+              severity: "Major",
+              status: "Open",
+              reporterId: 6,
+              assigneeId: 3,
+              environment: "Safari 17, macOS",
+              description: "Users cannot login using Safari browser",
+              steps:
+                "1. Open Safari\n2. Go to login page\n3. Enter credentials\n4. Click login button\n5. Nothing happens",
+              expected: "User should be logged in",
+              actual: "Button click has no effect",
+              attachment: "",
+              createdDate: "2025-09-29",
+              updatedDate: "2025-09-29",
+            },
+            {
+              id: 2,
+              title: "Payment page crashes on mobile",
+              projectId: 1,
+              priority: "Critical",
+              severity: "Blocker",
+              status: "In Progress",
+              reporterId: 6,
+              assigneeId: 4,
+              environment: "iOS 17, iPhone 15",
+              description:
+                "Mobile payment page crashes when processing payments",
+              steps:
+                "1. Add items to cart\n2. Go to checkout\n3. Enter payment details\n4. Click pay button",
+              expected: "Payment should be processed",
+              actual: "App crashes and closes",
+              attachment: "",
+              createdDate: "2025-09-28",
+              updatedDate: "2025-09-29",
+            },
+            {
+              id: 3,
+              title: "App performance slow on older devices",
+              projectId: 2,
+              priority: "Medium",
+              severity: "Minor",
+              status: "Open",
+              reporterId: 6,
+              assigneeId: null,
+              environment: "Android 10, Samsung Galaxy S9",
+              description:
+                "App loads slowly and animations are choppy on older Android devices",
+              steps:
+                "1. Open app on older device\n2. Navigate between screens\n3. Observe loading times",
+              expected: "Smooth performance",
+              actual: "Slow loading and choppy animations",
+              attachment: "",
+              createdDate: "2025-09-27",
+              updatedDate: "2025-09-27",
+            },
+          ];
+          localStorage.setItem("bugReports", JSON.stringify(bugReports));
+        }
+
+        const statusColors = {
+          Open: "danger",
+          "In Progress": "warning",
+          Resolved: "success",
+          Closed: "secondary",
+        };
+
+        const priorityColors = {
+          Critical: "danger",
+          High: "warning",
+          Medium: "primary",
+          Low: "secondary",
+        };
+
+        const severityColors = {
+          Blocker: "danger",
+          Major: "warning",
+          Minor: "info",
+          Trivial: "secondary",
+        };
+
+        function updateStatistics() {
+          const totalBugs = bugReports.length;
+          const openBugs = bugReports.filter(
+            (bug) => bug.status === "Open"
+          ).length;
+          const resolvedBugs = bugReports.filter(
+            (bug) => bug.status === "Resolved"
+          ).length;
+          const criticalBugs = bugReports.filter(
+            (bug) => bug.priority === "Critical"
+          ).length;
+
+          $("#total-bugs").text(totalBugs);
+          $("#open-bugs").text(openBugs);
+          $("#resolved-bugs").text(resolvedBugs);
+          $("#critical-bugs").text(criticalBugs);
+        }
+
+        function populateDropdowns() {
+          // Projects
+          const projectSelects = $("#bug-project, #project-filter");
+          projectSelects.each(function () {
+            const isFilter = $(this).is("#project-filter");
+            if (!isFilter) $(this).empty();
+
+            projects.forEach((project) => {
+              $(this).append(
+                `<option value="${project.id}">${project.name}</option>`
+              );
+            });
+          });
+
+          // Users for assignee and reporter filters
+          const userSelects = $("#bug-assignee, #reporter-filter");
+          userSelects.each(function () {
+            const isReporter = $(this).is("#reporter-filter");
+            if (!isReporter)
+              $(this).empty().append('<option value="">Unassigned</option>');
+
+            users.forEach((user) => {
+              $(this).append(
+                `<option value="${user.id}">${user.name}</option>`
+              );
+            });
+          });
+        }
+
+        function renderBugReports() {
+          const tableBody = $("#bug-reports-table");
+          tableBody.empty();
+
+          let filteredBugs = bugReports;
+
+          // Apply filters
+          const projectFilter = $("#project-filter").val();
+          const statusFilter = $("#status-filter").val();
+          const priorityFilter = $("#priority-filter").val();
+          const severityFilter = $("#severity-filter").val();
+          const reporterFilter = $("#reporter-filter").val();
+
+          if (projectFilter)
+            filteredBugs = filteredBugs.filter(
+              (bug) => bug.projectId == projectFilter
+            );
+          if (statusFilter)
+            filteredBugs = filteredBugs.filter(
+              (bug) => bug.status === statusFilter
+            );
+          if (priorityFilter)
+            filteredBugs = filteredBugs.filter(
+              (bug) => bug.priority === priorityFilter
+            );
+          if (severityFilter)
+            filteredBugs = filteredBugs.filter(
+              (bug) => bug.severity === severityFilter
+            );
+          if (reporterFilter)
+            filteredBugs = filteredBugs.filter(
+              (bug) => bug.reporterId == reporterFilter
+            );
+
+          if (filteredBugs.length === 0) {
+            tableBody.append(
+              '<tr><td colspan="9" class="text-center py-4">No bug reports found.</td></tr>'
+            );
+            return;
+          }
+
+          filteredBugs.forEach((bug) => {
+            const project = projects.find((p) => p.id === bug.projectId);
+            const reporter = users.find((u) => u.id === bug.reporterId);
+
+            tableBody.append(`
+              <tr class="bug-row" data-id="${bug.id}">
+                <td>BUG-${bug.id}</td>
+                <td class="bug-title-cell">
+                  <div class="fw-bold">${bug.title}</div>
+                  <small class="text-muted">${bug.environment || "N/A"}</small>
+                </td>
+                <td>${project ? project.name : "Unknown"}</td>
+                <td><span class="badge bg-${priorityColors[bug.priority]}">${
+              bug.priority
+            }</span></td>
+                <td><span class="badge bg-${severityColors[bug.severity]}">${
+              bug.severity
+            }</span></td>
+                <td><span class="badge bg-${statusColors[bug.status]}">${
+              bug.status
+            }</span></td>
+                <td>${reporter ? reporter.name : "Unknown"}</td>
+                <td>${bug.createdDate}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary edit-bug-btn" data-id="${
+                    bug.id
+                  }">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-bug-btn" data-id="${
+                    bug.id
+                  }">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            `);
+          });
+        }
+
+        // Event handlers
+        $("#save-bug-btn").on("click", function () {
+          const formData = {
+            title: $("#bug-title").val(),
+            projectId: parseInt($("#bug-project").val()),
+            priority: $("#bug-priority").val(),
+            severity: $("#bug-severity").val(),
+            status: $("#bug-status").val(),
+            reporterId: loggedInUser.id,
+            assigneeId: parseInt($("#bug-assignee").val()) || null,
+            environment: $("#bug-environment").val(),
+            description: $("#bug-description").val(),
+            steps: $("#bug-steps").val(),
+            expected: $("#bug-expected").val(),
+            actual: $("#bug-actual").val(),
+            attachment: $("#bug-attachment").val(),
+            updatedDate: new Date().toISOString().split("T")[0],
+          };
+
+          if (!formData.title || !formData.projectId || !formData.description) {
+            alert("Please fill in all required fields.");
+            return;
+          }
+
+          if (editingBugId) {
+            // Update existing bug
+            const index = bugReports.findIndex(
+              (bug) => bug.id === editingBugId
+            );
+            if (index !== -1) {
+              bugReports[index] = { ...bugReports[index], ...formData };
+            }
+          } else {
+            // Create new bug
+            const newBug = {
+              id: Math.max(...bugReports.map((bug) => bug.id), 0) + 1,
+              createdDate: new Date().toISOString().split("T")[0],
+              ...formData,
+            };
+            bugReports.push(newBug);
+          }
+
+          localStorage.setItem("bugReports", JSON.stringify(bugReports));
+          updateStatistics();
+          renderBugReports();
+          bugReportModal.hide();
+          $("#bug-report-form")[0].reset();
+          editingBugId = null;
+          showToast(
+            editingBugId ? "Bug report updated!" : "Bug report created!"
+          );
+        });
+
+        // Edit bug
+        $(document).on("click", ".edit-bug-btn", function () {
+          const bugId = parseInt($(this).data("id"));
+          const bug = bugReports.find((b) => b.id === bugId);
+
+          if (bug) {
+            editingBugId = bugId;
+            $("#bug-id").val(bug.id);
+            $("#bug-title").val(bug.title);
+            $("#bug-project").val(bug.projectId);
+            $("#bug-priority").val(bug.priority);
+            $("#bug-severity").val(bug.severity);
+            $("#bug-status").val(bug.status);
+            $("#bug-assignee").val(bug.assigneeId);
+            $("#bug-environment").val(bug.environment);
+            $("#bug-description").val(bug.description);
+            $("#bug-steps").val(bug.steps);
+            $("#bug-expected").val(bug.expected);
+            $("#bug-actual").val(bug.actual);
+            $("#bug-attachment").val(bug.attachment);
+
+            $(".modal-title").text("Edit Bug Report");
+            $("#save-bug-btn").text("Update Bug");
+            $("#delete-bug-btn").show();
+            bugReportModal.show();
+          }
+        });
+
+        // Delete bug
+        $(document).on("click", ".delete-bug-btn", function () {
+          const bugId = parseInt($(this).data("id"));
+          if (confirm("Are you sure you want to delete this bug report?")) {
+            bugReports = bugReports.filter((bug) => bug.id !== bugId);
+            localStorage.setItem("bugReports", JSON.stringify(bugReports));
+            updateStatistics();
+            renderBugReports();
+            showToast("Bug report deleted!", "danger");
+          }
+        });
+
+        // Modal delete button
+        $("#delete-bug-btn").on("click", function () {
+          if (confirm("Are you sure you want to delete this bug report?")) {
+            bugReports = bugReports.filter((bug) => bug.id !== editingBugId);
+            localStorage.setItem("bugReports", JSON.stringify(bugReports));
+            updateStatistics();
+            renderBugReports();
+            bugReportModal.hide();
+            editingBugId = null;
+            showToast("Bug report deleted!", "danger");
+          }
+        });
+
+        // Reset modal
+        $("#bugReportModal").on("hidden.bs.modal", function () {
+          if (!editingBugId) {
+            $("#bug-report-form")[0].reset();
+            $(".modal-title").text("Report New Bug");
+            $("#save-bug-btn").text("Report Bug");
+            $("#delete-bug-btn").hide();
+          }
+          editingBugId = null;
+        });
+
+        // Filter handlers
+        $(
+          "#project-filter, #status-filter, #priority-filter, #severity-filter, #reporter-filter"
+        ).on("change", renderBugReports);
+
+        $("#clear-filters").on("click", function () {
+          $(
+            "#project-filter, #status-filter, #priority-filter, #severity-filter, #reporter-filter"
+          ).val("");
+          renderBugReports();
+        });
+
+        // Initialize
+        populateDropdowns();
+        updateStatistics();
+        renderBugReports();
+      });
+    </script>
+  </body>
+</html>

@@ -38,12 +38,35 @@ $(document).ready(function () {
         text: "Project Board",
       },
     ],
+    tester: [
+      {
+        href: "tester_dashboard.html",
+        icon: "fa-chart-line",
+        text: "Dashboard",
+      },
+      {
+        href: "project_board.html",
+        icon: "fa-clipboard-list",
+        text: "Project Board",
+      },
+      {
+        href: "tester_test_cases.html",
+        icon: "fa-tasks",
+        text: "Test Cases",
+      },
+      {
+        href: "tester_bug_reports.html",
+        icon: "fa-bug",
+        text: "Bug Reports",
+      },
+    ],
   };
 
   const roleConfig = {
     admin: { logo: "Admin Panel", bg: "var(--admin-sidebar-bg)" },
     lead: { logo: "Team Lead", bg: "var(--lead-sidebar-bg)" },
     user: { logo: "User Panel", bg: "var(--user-sidebar-bg)" },
+    tester: { logo: "Tester Panel", bg: "var(--tester-sidebar-bg)" },
   };
 
   const userRole = loggedInUser.role;
