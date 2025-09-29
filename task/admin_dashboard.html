@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Admin Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="visibility: hidden">
+    <div id="app-content">
+      <h2 id="welcome-message" class="mb-4"></h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="stat-card text-center">
+            <h3 class="display-4 fw-bold">${users.length}</h3>
+            <p class="text-muted">Total Users</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card text-center">
+            <h3 class="display-4 fw-bold">${projects.length}</h3>
+            <p class="text-muted">Total Projects</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card text-center">
+            <h3 class="display-4 fw-bold">${tasks.length}</h3>
+            <p class="text-muted">Total Tasks</p>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="stat-card">
+            <h5 class="mb-3">Tasks per Project</h5>
+            <div class="chart-container">
+              <canvas id="tasksPerProjectChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="db.js"></script>
+    <script src="layout.js"></script>
+    <script>
+      const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+      $("#welcome-message").text(`Welcome, ${loggedInUser.name}!`);
+
+      // Chart.js - Tasks per Project
+      const projectTaskCounts = projects.map((p) => ({
+        name: p.name,
+        count: tasks.filter((t) => t.projectId === p.id).length,
+      }));
+
+      new Chart(document.getElementById("tasksPerProjectChart"), {
+        type: "pie",
+        data: {
+          labels: projectTaskCounts.map((p) => p.name),
+          datasets: [
+            {
+              label: "Tasks",
+              data: projectTaskCounts.map((p) => p.count),
+              backgroundColor: [
+                "#0d6efd",
+                "#6f42c1",
+                "#d63384",
+                "#fd7e14",
+                "#198754",
+              ],
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>
+```**`admin_user_management.html`** ```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>User Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="visibility: hidden">
+    <div id="app-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>User Management</h2>
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#userModal"
+        >
+          <i class="fas fa-plus"></i> Add User
+        </button>
+      </div>
+      <div class="stat-card p-3">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Team ID</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal fade" id="userModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New User</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="user-form">
+              <div class="mb-3">
+                <label class="form-label">Name</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  id="new-user-name"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Username</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  id="new-user-username"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Password</label
+                ><input
+                  type="password"
+                  class="form-control"
+                  id="new-user-password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Role</label
+                ><select class="form-select" id="new-user-role">
+                  <option value="user">User</option>
+                  <option value="lead">Team Lead</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Team ID</label
+                ><input
+                  type="number"
+                  class="form-control"
+                  id="new-user-teamId"
+                  placeholder="e.g., 1 or 2"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close</button
+            ><button type="button" class="btn btn-primary" id="save-user-btn">
+              Create User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="db.js"></script>
+    <script src="layout.js"></script>
+    <script>
+      const userModal = new bootstrap.Modal($("#userModal"));
+      function renderUsers() {
+        $("#users-table").empty();
+        users.forEach((u) => {
+          $("#users-table").append(
+            `<tr><td>${u.id}</td><td>${u.name}</td><td>${
+              u.username
+            }</td><td><span class="badge bg-secondary text-uppercase">${
+              u.role
+            }</span></td><td>${
+              u.teamId || "N/A"
+            }</td><td><button class="btn btn-sm btn-outline-danger delete-user-btn" data-id="${
+              u.id
+            }"><i class="fas fa-trash"></i></button></td></tr>`
+          );
+        });
+      }
+      $("#save-user-btn").on("click", function () {
+        /* ... CRUD Logic ... */
+      });
+      $(document).on("click", ".delete-user-btn", function () {
+        /* ... CRUD Logic ... */
+      });
+      renderUsers();
+    </script>
+  </body>
+</html>

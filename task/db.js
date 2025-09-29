@@ -1,0 +1,151 @@
+// A simple in-browser database using modifiable JavaScript arrays
+
+// Users data (Admin, Lead, User roles)
+let users = [
+  {
+    id: 1,
+    name: "Alex Admin",
+    username: "admin",
+    password: "password",
+    role: "admin",
+    teamId: 0,
+    avatar: "AA",
+  },
+  {
+    id: 2,
+    name: "Laura Lead",
+    username: "lead",
+    password: "password",
+    role: "lead",
+    teamId: 1,
+    avatar: "LL",
+  },
+  {
+    id: 3,
+    name: "Sam Smith",
+    username: "user",
+    password: "password",
+    role: "user",
+    teamId: 1,
+    avatar: "SS",
+  },
+  {
+    id: 4,
+    name: "Mia Jones",
+    username: "mia",
+    password: "password",
+    role: "user",
+    teamId: 1,
+    avatar: "MJ",
+  },
+  {
+    id: 5,
+    name: "David Lee",
+    username: "david",
+    password: "password",
+    role: "user",
+    teamId: 2,
+    avatar: "DL",
+  },
+];
+
+// Projects data: Added wipLimit
+let projects = [
+  {
+    id: 1,
+    name: "E-commerce Platform",
+    leadId: 2,
+    description: "Developing a new online store.",
+    wipLimit: 2,
+  },
+  {
+    id: 2,
+    name: "Mobile App - Phoenix",
+    leadId: null,
+    description: "Creating a new app for iOS and Android.",
+    wipLimit: 3,
+  },
+  {
+    id: 3,
+    name: "Q4 Marketing Campaign",
+    leadId: null,
+    description: "A new campaign for Q4.",
+    wipLimit: 4,
+  },
+];
+
+// Tasks data: Added 'type' property
+let tasks = [
+  {
+    id: 1,
+    projectId: 1,
+    title: "Set up project repository on GitHub",
+    status: "Done",
+    assignee: 3,
+    priority: "Medium",
+    type: "Task",
+  },
+  {
+    id: 2,
+    projectId: 1,
+    title: "Design the homepage and product pages",
+    status: "In Progress",
+    assignee: 4,
+    priority: "High",
+    type: "Story",
+  },
+  {
+    id: 3,
+    projectId: 1,
+    title: "User authentication is failing on Safari",
+    status: "In Progress",
+    assignee: 3,
+    priority: "High",
+    type: "Bug",
+  },
+  {
+    id: 4,
+    projectId: 1,
+    title: "Integrate Stripe for payment processing",
+    status: "To Do",
+    assignee: 4,
+    priority: "Medium",
+    type: "Story",
+  },
+  {
+    id: 5,
+    projectId: 2,
+    title: "Plan core app features and user stories",
+    status: "Done",
+    assignee: 5,
+    priority: "High",
+    type: "Task",
+  },
+  {
+    id: 6,
+    projectId: 2,
+    title: "Set up dev environment for React Native",
+    status: "In Progress",
+    assignee: 5,
+    priority: "Medium",
+    type: "Task",
+  },
+  {
+    id: 7,
+    projectId: 2,
+    title: "App crashes when opening settings page",
+    status: "To Do",
+    assignee: 5,
+    priority: "High",
+    type: "Bug",
+  },
+  {
+    id: 8,
+    projectId: 1,
+    title: "Implement the product search functionality",
+    status: "To Do",
+    assignee: 3,
+    priority: "Low",
+    type: "Story",
+  },
+];

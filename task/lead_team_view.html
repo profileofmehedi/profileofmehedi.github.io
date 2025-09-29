@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Team View</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="visibility: hidden">
+    <div id="app-content">
+      <h2 class="mb-4">Project Team Members</h2>
+      <div id="team-view-container" class="row g-4"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="db.js"></script>
+    <script src="layout.js"></script>
+    <script>
+      const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+      const myTeam = users.filter((u) => u.teamId === loggedInUser.teamId);
+      const myProject = projects.find((p) => p.leadId === loggedInUser.id);
+      const container = $("#team-view-container");
+
+      if (myProject && myTeam.length > 0) {
+        myTeam.forEach((member) => {
+          const memberTasks = tasks.filter(
+            (t) => t.assignee === member.id && t.projectId === myProject.id
+          );
+          let tasksHtml =
+            memberTasks.length > 0
+              ? memberTasks
+                  .map(
+                    (t) =>
+                      `<li><span class="fw-bold">TASK-${t.id}:</span> ${t.title}</li>`
+                  )
+                  .join("")
+              : "<li>No tasks assigned in this project.</li>";
+
+          container.append(`
+                <div class="col-md-6">
+                    <div class="team-member-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="assignee-avatar me-3">${member.avatar}</div>
+                            <div>
+                                <h5 class="mb-0">${member.name}</h5>
+                                <small class="text-muted">${member.username} (${member.role})</small>
+                            </div>
+                        </div>
+                        <h6>Assigned Tasks:</h6>
+                        <ul class="list-unstyled">${tasksHtml}</ul>
+                    </div>
+                </div>`);
+        });
+      } else {
+        container.html(
+          '<div class="col-12"><div class="alert alert-warning">No team members or project found.</div></div>'
+        );
+      }
+    </script>
+  </body>
+</html>

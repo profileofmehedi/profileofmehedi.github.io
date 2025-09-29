@@ -1,0 +1,317 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --page-bg: #f4f5f7;
+  --text-color: #172b4d;
+  --text-color-light: #5e6c84;
+  --border-color: #dfe1e6;
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 78px;
+  --primary-blue: #0052cc;
+  --admin-sidebar-bg: #172b4d;
+  --lead-sidebar-bg: #0747a6;
+  --user-sidebar-bg: #0052cc;
+  --priority-high: #dc3545;
+  --priority-medium: #ffc107;
+  --priority-low: #0d6efd;
+  --type-bug: #e44d42;
+  --type-story: #4caf50;
+  --type-task: #007bff;
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--text-color);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  transition: all 0.5s ease;
+  min-height: 100vh;
+}
+
+/* Sidebar & Layout */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: var(--sidebar-width);
+  color: #fff;
+  padding: 6px 14px;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+.sidebar.active {
+  width: var(--sidebar-collapsed-width);
+}
+.sidebar .logo-details {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  color: #fff;
+}
+.sidebar .logo-details .logo-icon {
+  font-size: 28px;
+  margin-right: 5px;
+  min-width: 50px;
+  text-align: center;
+}
+.sidebar .logo-details .logo_name {
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 1;
+  transition: 0.3s ease;
+  white-space: nowrap;
+}
+.sidebar.active .logo-details .logo_name {
+  opacity: 0;
+  pointer-events: none;
+}
+.sidebar .nav-link {
+  color: #deebff;
+  padding: 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  background: rgba(255, 255, 255, 0.15);
+}
+.sidebar .nav-link .nav-icon {
+  font-size: 18px;
+  min-width: 50px;
+  text-align: center;
+}
+.sidebar .nav-text {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+.sidebar.active .nav-text {
+  opacity: 0;
+  pointer-events: none;
+}
+.main-content {
+  position: relative;
+  min-height: 100vh;
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  transition: all 0.3s ease;
+}
+.sidebar.active ~ .main-content {
+  left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* Top Navigation (Glassmorphism) */
+.main-content .top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+.top-nav .nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.top-nav .sidebar-button .sidebarBtn {
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-color-light);
+}
+.search-container .form-control {
+  width: 300px;
+}
+.content-area {
+  padding: 24px;
+}
+
+/* Filter Controls */
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.filter-controls .btn-check + .btn {
+  color: var(--text-color-light);
+  background-color: #fff;
+  border-color: var(--border-color);
+}
+.filter-controls .btn-check:checked + .btn {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: #fff;
+}
+.priority-filter .p-icon {
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+.priority-filter .p-icon:hover,
+.priority-filter .p-icon.active {
+  opacity: 1;
+  transform: scale(1.2);
+}
+.priority-filter .p-icon.High {
+  color: var(--priority-high);
+}
+.priority-filter .p-icon.Medium {
+  color: var(--priority-medium);
+}
+.priority-filter .p-icon.Low {
+  color: var(--priority-low);
+}
+
+/* Kanban Board */
+.kanban-board {
+  display: grid;
+  grid-auto-columns: minmax(320px, 1fr);
+  grid-auto-flow: column;
+  gap: 1.5rem;
+}
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  background-color: #ebecf0;
+  border-radius: 8px;
+}
+.kanban-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border-color);
+  background: linear-gradient(to bottom, #f4f5f7, #ebecf0);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+.kanban-column-header h5 {
+  margin: 0;
+  color: var(--text-color-light);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.task-list {
+  flex-grow: 1;
+  min-height: 150px;
+  padding: 8px;
+  overflow-y: auto;
+}
+.task-card {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 4px rgba(9, 30, 66, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(9, 30, 66, 0.12);
+}
+.task-card-title {
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.task-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.task-type-icon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  color: #fff;
+}
+.task-type-icon.Bug {
+  background-color: var(--type-bug);
+}
+.task-type-icon.Story {
+  background-color: var(--type-story);
+}
+.task-type-icon.Task {
+  background-color: var(--type-task);
+}
+.task-id {
+  color: var(--text-color-light);
+  font-size: 0.8rem;
+}
+.assignee-avatar {
+  width: 28px;
+  height: 28px;
+  background-color: var(--primary-blue);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.wip-limit-exceeded {
+  background: #fff3cd !important;
+  color: #856404 !important;
+}
+
+/* Inline Add Task Form */
+.inline-add-form {
+  padding: 8px;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* SortableJS Ghost */
+.sortable-ghost {
+  background: rgba(0, 82, 204, 0.1);
+  border: 1px dashed var(--primary-blue);
+}
+
+/* Task Modal */
+.modal-content {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+.modal-header {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+}
+.modal-title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

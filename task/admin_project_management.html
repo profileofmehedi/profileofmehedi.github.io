@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="visibility: hidden">
+    <div id="app-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Project Management</h2>
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#projectModal"
+        >
+          <i class="fas fa-plus"></i> Add Project
+        </button>
+      </div>
+      <div class="stat-card p-3">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Team Lead</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="projects-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add/Edit Project Modal -->
+    <div class="modal fade" id="projectModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New Project</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="project-form">
+              <div class="mb-3">
+                <label class="form-label">Project Name</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  id="new-project-name"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Description</label
+                ><textarea
+                  class="form-control"
+                  id="new-project-desc"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Assign Team Lead</label
+                ><select class="form-select" id="new-project-lead"></select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="save-project-btn">
+              Create Project
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="db.js"></script>
+    <script src="layout.js"></script>
+    <script>
+      $(document).ready(function () {
+        const projectModal = new bootstrap.Modal($("#projectModal"));
+
+        function populateLeads() {
+          const leadSelect = $("#new-project-lead")
+            .empty()
+            .append('<option value="">None</option>');
+          users
+            .filter((u) => u.role === "lead")
+            .forEach((lead) => {
+              leadSelect.append(
+                `<option value="${lead.id}">${lead.name}</option>`
+              );
+            });
+        }
+
+        function renderProjects() {
+          const projectsTable = $("#projects-table").empty();
+          projects.forEach((p) => {
+            const lead = users.find((u) => u.id === p.leadId);
+            projectsTable.append(`
+                <tr>
+                    <td>PROJ-${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>${lead ? lead.name : "Unassigned"}</td>
+                    <td>${p.description}</td>
+                    <td><button class="btn btn-sm btn-outline-danger delete-project-btn" data-id="${
+                      p.id
+                    }"><i class="fas fa-trash"></i></button></td>
+                </tr>`);
+          });
+        }
+
+        $("#save-project-btn").on("click", function () {
+          const name = $("#new-project-name").val();
+          if (name) {
+            projects.push({
+              id: Math.max(...projects.map((p) => p.id), 0) + 1,
+              name,
+              description: $("#new-project-desc").val(),
+              leadId: parseInt($("#new-project-lead").val()) || null,
+            });
+            renderProjects();
+            projectModal.hide();
+            $("#project-form")[0].reset();
+            showToast("Project created successfully!");
+          }
+        });
+
+        $(document).on("click", ".delete-project-btn", function () {
+          if (
+            confirm("Are you sure? This will also delete all associated tasks.")
+          ) {
+            const projectId = $(this).data("id");
+            projects = projects.filter((p) => p.id != projectId);
+            tasks = tasks.filter((t) => t.projectId != projectId);
+            renderProjects();
+            showToast("Project and its tasks deleted!", "danger");
+          }
+        });
+
+        populateLeads();
+        renderProjects();
+      });
+    </script>
+  </body>
+</html>

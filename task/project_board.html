@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Board</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="visibility: hidden">
+    <div id="app-content">
+      <!-- Board Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div id="project-header-container"></div>
+        <div class="filter-controls">
+          <input
+            type="checkbox"
+            class="btn-check"
+            id="my-issues-filter"
+            autocomplete="off"
+          />
+          <label class="btn btn-sm btn-outline-secondary" for="my-issues-filter"
+            >Only My Issues</label
+          >
+          <div class="priority-filter d-flex align-items-center gap-2 ms-2">
+            <span
+              data-priority="High"
+              class="p-icon High"
+              title="Filter High Priority"
+              ><i class="fas fa-circle"></i
+            ></span>
+            <span
+              data-priority="Medium"
+              class="p-icon Medium"
+              title="Filter Medium Priority"
+              ><i class="fas fa-circle"></i
+            ></span>
+            <span
+              data-priority="Low"
+              class="p-icon Low"
+              title="Filter Low Priority"
+              ><i class="fas fa-circle"></i
+            ></span>
+          </div>
+        </div>
+      </div>
+      <!-- Kanban Board -->
+      <div class="kanban-board">
+        <div class="kanban-column" data-status="To Do">
+          <div class="kanban-column-header">
+            <h5>To Do</h5>
+            <span class="badge bg-secondary" id="todo-count">0</span>
+          </div>
+          <div class="task-list" id="todo-list"></div>
+          <div id="inline-add-container"></div>
+        </div>
+        <div class="kanban-column" data-status="In Progress">
+          <div class="kanban-column-header" id="inprogress-header">
+            <h5>In Progress</h5>
+            <span class="badge bg-secondary" id="inprogress-count">0</span>
+          </div>
+          <div class="task-list" id="inprogress-list"></div>
+        </div>
+        <div class="kanban-column" data-status="Done">
+          <div class="kanban-column-header">
+            <h5>Done</h5>
+            <span class="badge bg-secondary" id="done-count">0</span>
+          </div>
+          <div class="task-list" id="done-list"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Task Detail Modal -->
+    <div class="modal fade" id="taskDetailModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-title-container">
+              <span id="modal-task-type-icon" class="task-type-icon"></span>
+              <h5 class="modal-title mb-0" id="modal-task-id"></h5>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-8">
+                <label class="form-label text-muted small">Title</label>
+                <h4 id="task-modal-title"></h4>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted small">Assignee</label>
+                <div id="task-modal-assignee"></div>
+                <label class="form-label text-muted small mt-3">Priority</label>
+                <div id="task-modal-priority"></div>
+                <label class="form-label text-muted small mt-3">Status</label
+                ><select
+                  class="form-select form-select-sm"
+                  id="task-modal-status"
+                ></select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-danger me-auto"
+              id="delete-task-btn"
+              style="display: none"
+            >
+              Delete Issue</button
+            ><button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="db.js"></script>
+    <script src="layout.js"></script>
+    <script>
+      $(document).ready(function () {
+        // --- State and Config ---
+        const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+        const isLead = loggedInUser.role === "lead";
+        const taskDetailModal = new bootstrap.Modal($("#taskDetailModal"));
+        let currentProjectId;
+        let currentProject;
+
+        const typeIcons = {
+          Bug: "fa-solid fa-circle-exclamation",
+          Story: "fa-solid fa-book-bookmark",
+          Task: "fa-solid fa-check-square",
+        };
+        const priorityClasses = { High: "High", Medium: "Medium", Low: "Low" };
+
+        // --- Role-based Setup ---
+        if (isLead) {
+          const leadProjects = projects.filter(
+            (p) => p.leadId === loggedInUser.id
+          );
+          const projectFilter = $(
+            '<select id="project-filter" class="form-select"></select>'
+          );
+          leadProjects.forEach((p) =>
+            projectFilter.append(`<option value="${p.id}">${p.name}</option>`)
+          );
+          $("#project-header-container")
+            .append(`<h2>Board</h2>`)
+            .append(projectFilter);
+          currentProjectId =
+            leadProjects.length > 0 ? leadProjects[0].id : null;
+          setupInlineAddTask();
+        } else {
+          currentProject = projects.find((p) => {
+            const lead = users.find((u) => u.id === p.leadId);
+            return lead && lead.teamId === loggedInUser.teamId;
+          });
+          if (currentProject) {
+            $("#project-header-container").html(
+              `<h2 class="mb-0">${currentProject.name}</h2>`
+            );
+            currentProjectId = currentProject.id;
+          }
+        }
+        currentProject = projects.find((p) => p.id == currentProjectId);
+
+        // --- Board Rendering ---
+        function renderBoard() {
+          if (!currentProjectId) {
+            $(".kanban-board").html(
+              '<div class="alert alert-warning">No project selected or assigned.</div>'
+            );
+            return;
+          }
+          $(".task-list").empty();
+
+          const filters = {
+            onlyMine: $("#my-issues-filter").is(":checked"),
+            priority: $(".priority-filter .p-icon.active").data("priority"),
+          };
+
+          let projectTasks = tasks.filter(
+            (t) => t.projectId == currentProjectId
+          );
+          if (filters.onlyMine)
+            projectTasks = projectTasks.filter(
+              (t) => t.assignee === loggedInUser.id
+            );
+          if (filters.priority)
+            projectTasks = projectTasks.filter(
+              (t) => t.priority === filters.priority
+            );
+
+          let counts = { "To Do": 0, "In Progress": 0, Done: 0 };
+
+          projectTasks.forEach((task) => {
+            const assignee = users.find((u) => u.id === task.assignee);
+            const taskCardHtml = `
+<div class="task-card" data-task-id="${task.id}">
+<p class="task-card-title">${task.title}</p>
+<div class="task-card-footer">
+<div class="task-meta">
+<span class="task-type-icon ${task.type}" title="${task.type}"><i class="${
+              typeIcons[task.type]
+            }"></i></span>
+<span class="task-priority p-icon ${
+              priorityClasses[task.priority]
+            }"><i class="fas fa-circle"></i></span>
+<span class="task-id">TASK-${task.id}</span>
+</div>
+${
+  assignee
+    ? `<div class="assignee-avatar" title="${assignee.name}">${assignee.avatar}</div>`
+    : ""
+}
+</div>
+</div>`;
+            $(`#${task.status.toLowerCase().replace(" ", "")}-list`).append(
+              taskCardHtml
+            );
+            counts[task.status]++;
+          });
+
+          // Update counts and WIP Limits
+          $("#todo-count").text(counts["To Do"]);
+          $("#inprogress-count").text(
+            `${counts["In Progress"]} / ${currentProject.wipLimit}`
+          );
+          $("#done-count").text(counts["Done"]);
+          $("#inprogress-header").toggleClass(
+            "wip-limit-exceeded",
+            counts["In Progress"] > currentProject.wipLimit
+          );
+        }
+
+        // --- Drag-and-Drop ---
+        $(".task-list").each(function () {
+          new Sortable(this, {
+            group: "tasks",
+            animation: 150,
+            ghostClass: "sortable-ghost",
+            onEnd: function (evt) {
+              const taskId = $(evt.item).data("task-id");
+              const newStatus = $(evt.to)
+                .closest(".kanban-column")
+                .data("status");
+              tasks.find((t) => t.id == taskId).status = newStatus;
+              showToast(`Task ${taskId} moved to ${newStatus}`);
+              renderBoard(); // Re-render to update counts and WIP
+            },
+          });
+        });
+
+        // --- Event Handlers ---
+        $(document).on("click", ".task-card", function () {
+          // Open Detail Modal
+          const task = tasks.find((t) => t.id == $(this).data("task-id"));
+          $("#modal-task-id").text(`TASK-${task.id}`);
+          $("#task-modal-title").text(task.title);
+          $("#modal-task-type-icon")
+            .attr("class", `task-type-icon ${task.type}`)
+            .html(`<i class="${typeIcons[task.type]}"></i>`);
+
+          const assignee = users.find((u) => u.id === task.assignee);
+          $("#task-modal-assignee").html(
+            assignee
+              ? `<div class="d-flex align-items-center"><div class="assignee-avatar me-2">${assignee.avatar}</div> ${assignee.name}</div>`
+              : "Unassigned"
+          );
+          $("#task-modal-priority").html(
+            `<span class="task-priority p-icon ${
+              priorityClasses[task.priority]
+            }"><i class="fas fa-circle"></i></span> ${task.priority}`
+          );
+
+          const statusSelect = $("#task-modal-status").empty();
+          ["To Do", "In Progress", "Done"].forEach((s) =>
+            statusSelect.append(
+              `<option value="${s}" ${
+                s === task.status ? "selected" : ""
+              }>${s}</option>`
+            )
+          );
+          statusSelect.data("taskId", task.id);
+
+          $("#delete-task-btn").toggle(isLead).data("taskId", task.id);
+          taskDetailModal.show();
+        });
+
+        $("#task-modal-status").on("change", function () {
+          // Change status from modal
+          const taskId = $(this).data("taskId");
+          tasks.find((t) => t.id == taskId).status = $(this).val();
+          renderBoard();
+        });
+
+        $("#project-filter").on("change", function () {
+          // Lead switches project
+          currentProjectId = parseInt($(this).val());
+          currentProject = projects.find((p) => p.id == currentProjectId);
+          renderBoard();
+        });
+
+        // --- Filters ---
+        $("#my-issues-filter, .priority-filter .p-icon").on(
+          "click",
+          function () {
+            if ($(this).hasClass("p-icon")) {
+              $(this).toggleClass("active").siblings().removeClass("active");
+            }
+            renderBoard();
+          }
+        );
+
+        // --- Lead-Specific Features ---
+        if (isLead) {
+          $("#delete-task-btn").on("click", function () {
+            if (confirm("Are you sure you want to delete this issue?")) {
+              tasks = tasks.filter((t) => t.id != $(this).data("taskId"));
+              taskDetailModal.hide();
+              renderBoard();
+              showToast("Issue deleted!", "danger");
+            }
+          });
+        }
+
+        function setupInlineAddTask() {
+          const container = $("#inline-add-container");
+          const addButton = $(
+            '<button class="btn btn-secondary btn-sm mt-2 w-100"><i class="fas fa-plus"></i> Add Issue</button>'
+          );
+          container.append(addButton);
+
+          addButton.on("click", function () {
+            $(this).hide();
+            const formHtml = `
+<div class="inline-add-form card card-body">
+<textarea id="inline-task-title" class="form-control form-control-sm" placeholder="What needs to be done?"></textarea>                <div class="d-flex justify-content-end mt-2">
+                    <button class="btn btn-sm btn-light" id="cancel-inline-add">Cancel</button>
+                    <button class="btn btn-sm btn-primary ms-2" id="save-inline-add">Add</button>
+                </div>
+            </div>`;
+            container.append(formHtml);
+          });
+
+          $(document).on("click", "#cancel-inline-add", function () {
+            $(".inline-add-form").remove();
+            addButton.show();
+          });
+
+          $(document).on("click", "#save-inline-add", function () {
+            const title = $("#inline-task-title").val();
+            if (title) {
+              tasks.push({
+                id: Math.max(...tasks.map((t) => t.id), 0) + 1,
+                projectId: currentProjectId,
+                title,
+                status: "To Do",
+                assignee: null,
+                priority: "Medium",
+                type: "Task",
+              });
+              renderBoard();
+              $(".inline-add-form").remove();
+              addButton.show();
+              showToast("Issue created!");
+            }
+          });
+        }
+
+        // --- Initial Load ---
+        renderBoard();
+      });
+    </script>
+  </body>
+</html>
