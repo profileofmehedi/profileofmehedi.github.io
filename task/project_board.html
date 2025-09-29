@@ -494,6 +494,32 @@ ${
           return date.toLocaleDateString();
         }
 
+        // Update column counts without regenerating the board
+        function updateColumnCounts() {
+          if (!currentProjectId) return;
+
+          const projectTasks = tasks.filter(
+            (t) => t.projectId == currentProjectId
+          );
+          let counts = { "To Do": 0, "In Progress": 0, Review: 0, Done: 0 };
+
+          projectTasks.forEach((task) => {
+            counts[task.status]++;
+          });
+
+          // Update counts and WIP Limits
+          $("#todo-count").text(counts["To Do"]);
+          $("#inprogress-count").text(
+            `${counts["In Progress"]} / ${currentProject.wipLimit}`
+          );
+          $("#review-count").text(counts["Review"]);
+          $("#done-count").text(counts["Done"]);
+          $("#inprogress-header").toggleClass(
+            "wip-limit-exceeded",
+            counts["In Progress"] > currentProject.wipLimit
+          );
+        }
+
         // --- Drag-and-Drop ---
         $(".task-list").each(function () {
           new Sortable(this, {
@@ -610,8 +636,114 @@ ${
         $("#task-modal-status").on("change", function () {
           // Change status from modal
           const taskId = $(this).data("taskId");
-          tasks.find((t) => t.id == taskId).status = $(this).val();
-          renderBoard();
+          const newStatus = $(this).val();
+          const task = tasks.find((t) => t.id == taskId);
+          const oldStatus = task.status;
+
+          // Update task status
+          task.status = newStatus;
+
+          // Move the task card to the new column without regenerating
+          const taskCard = $(`.task-card[data-task-id="${taskId}"]`);
+          if (taskCard.length > 0) {
+            // Remove from current column
+            taskCard.remove();
+
+            // Add to new column
+            const newColumnId = `#${newStatus
+              .toLowerCase()
+              .replace(" ", "")}-list`;
+
+            // Regenerate just this task card
+            const assignee = users.find((u) => u.id === task.assignee);
+
+            // Check for due date and if it's overdue
+            let dueDateHtml = "";
+            if (task.dueDate) {
+              const dueDate = new Date(task.dueDate);
+              const isOverdue = dueDate < new Date() && task.status !== "Done";
+              const dueDateFormatted = dueDate.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              });
+              dueDateHtml = `<div class="task-due-date ${
+                isOverdue ? "overdue" : ""
+              }" title="Due: ${dueDate.toLocaleDateString()}">
+                <i class="fas fa-calendar-alt"></i> ${dueDateFormatted}
+              </div>`;
+            }
+
+            // Description preview
+            let descriptionHtml = "";
+            if (task.description && task.description.length > 0) {
+              const shortDesc =
+                task.description.length > 60
+                  ? task.description.substring(0, 60) + "..."
+                  : task.description;
+              descriptionHtml = `<div class="task-description-preview" title="${task.description}">
+                <i class="fas fa-align-left"></i> ${shortDesc}
+              </div>`;
+            }
+
+            // Image thumbnails
+            let imageHtml = "";
+            if (task.images && task.images.length > 0) {
+              const imageCount = task.images.length;
+              const firstImage = task.images[0];
+              imageHtml = `<div class="task-images-preview">
+                <img src="${firstImage}" class="task-image-thumb" alt="Attachment">
+                ${
+                  imageCount > 1
+                    ? `<span class="image-count">+${imageCount - 1}</span>`
+                    : ""
+                }
+              </div>`;
+            }
+
+            // Additional task info
+            let additionalInfo = "";
+            if (task.createdAt) {
+              const createdDate = new Date(task.createdAt);
+              const timeAgo = getTimeAgo(createdDate);
+              additionalInfo = `<div class="task-created-info">
+                <i class="fas fa-clock"></i> ${timeAgo}
+              </div>`;
+            }
+
+            const taskCardHtml = `
+<div class="task-card" data-task-id="${task.id}">
+<div class="task-card-header">
+<p class="task-card-title">${task.title}</p>
+${imageHtml}
+</div>
+${dueDateHtml}
+${descriptionHtml}
+${additionalInfo}
+<div class="task-card-footer">
+<div class="task-meta">
+<span class="task-type-icon ${task.type}" title="${task.type}"><i class="${
+              typeIcons[task.type]
+            }"></i></span>
+<span class="task-priority p-icon ${
+              priorityClasses[task.priority]
+            }"><i class="fas fa-circle"></i></span>
+</div>
+${
+  assignee
+    ? `<div class="assignee-avatar" title="${assignee.name}">${assignee.avatar}</div>`
+    : ""
+}
+</div>
+</div>`;
+
+            $(newColumnId).append(taskCardHtml);
+
+            // Update counts only
+            updateColumnCounts();
+
+            // Show toast notification
+            showToast(`Task moved to ${newStatus}`);
+          }
         });
 
         $("#project-filter").on("change", function () {

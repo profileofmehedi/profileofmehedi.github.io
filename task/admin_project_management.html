@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Management</title>
+    <title>Advanced Project Management - Jira Clone</title>
+    <meta
+      name="description"
+      content="Comprehensive project management system with advanced analytics and team coordination"
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -12,42 +16,340 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.min.css"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body style="visibility: hidden">
     <div id="app-content">
+      <!-- Header Section -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Project Management</h2>
-        <button
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#projectModal"
-        >
-          <i class="fas fa-plus"></i> Add Project
-        </button>
+        <div>
+          <h2 class="mb-1">Project Management</h2>
+          <p class="text-muted mb-0">
+            Manage projects, track progress, and coordinate teams
+          </p>
+        </div>
+        <div class="d-flex gap-2">
+          <button
+            class="btn btn-outline-success btn-sm"
+            onclick="exportProjects()"
+          >
+            <i class="fas fa-download"></i> Export
+          </button>
+          <button
+            class="btn btn-outline-info btn-sm"
+            onclick="generateProjectReport()"
+          >
+            <i class="fas fa-chart-line"></i> Analytics
+          </button>
+          <button
+            class="btn btn-outline-secondary btn-sm"
+            onclick="archiveCompleted()"
+          >
+            <i class="fas fa-archive"></i> Archive
+          </button>
+          <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#projectModal"
+            onclick="openAddProjectModal()"
+          >
+            <i class="fas fa-plus"></i> New Project
+          </button>
+        </div>
       </div>
-      <div class="stat-card p-3">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Team Lead</th>
-              <th>Description</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="projects-table"></tbody>
-        </table>
+
+      <!-- Statistics Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="stat-card text-center h-100">
+            <div class="stat-icon">
+              <i class="fas fa-project-diagram fa-2x text-primary"></i>
+            </div>
+            <h4 class="mt-2 mb-1" id="total-projects-count">0</h4>
+            <p class="text-muted mb-0">Total Projects</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card text-center h-100">
+            <div class="stat-icon">
+              <i class="fas fa-play fa-2x text-success"></i>
+            </div>
+            <h4 class="mt-2 mb-1" id="active-projects-count">0</h4>
+            <p class="text-muted mb-0">Active Projects</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card text-center h-100">
+            <div class="stat-icon">
+              <i class="fas fa-check-circle fa-2x text-info"></i>
+            </div>
+            <h4 class="mt-2 mb-1" id="completed-projects-count">0</h4>
+            <p class="text-muted mb-0">Completed</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card text-center h-100">
+            <div class="stat-icon">
+              <i class="fas fa-clock fa-2x text-warning"></i>
+            </div>
+            <h4 class="mt-2 mb-1" id="overdue-projects-count">0</h4>
+            <p class="text-muted mb-0">Overdue</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Analytics Dashboard -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-8">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">Project Progress Overview</h5>
+              <div class="btn-group btn-group-sm" role="group">
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="chartType"
+                  id="chartProgress"
+                  checked
+                />
+                <label class="btn btn-outline-primary" for="chartProgress"
+                  >Progress</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="chartType"
+                  id="chartTeams"
+                />
+                <label class="btn btn-outline-primary" for="chartTeams"
+                  >Teams</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="chartType"
+                  id="chartTimeline"
+                />
+                <label class="btn btn-outline-primary" for="chartTimeline"
+                  >Timeline</label
+                >
+              </div>
+            </div>
+            <canvas id="projectChart" height="300"></canvas>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card h-100">
+            <h5 class="mb-3">Team Performance</h5>
+            <div id="team-performance-list">
+              <!-- Team performance will be populated here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search and Filter Section -->
+      <div class="stat-card mb-4">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-4">
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="fas fa-search"></i
+              ></span>
+              <input
+                type="text"
+                class="form-control"
+                id="search-projects"
+                placeholder="Search projects by name or description..."
+              />
+            </div>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="filter-status">
+              <option value="">All Status</option>
+              <option value="planning">Planning</option>
+              <option value="active">Active</option>
+              <option value="on-hold">On Hold</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="filter-lead">
+              <option value="">All Leads</option>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" id="filter-priority">
+              <option value="">All Priority</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button
+              class="btn btn-outline-secondary w-100"
+              onclick="clearProjectFilters()"
+            >
+              <i class="fas fa-times"></i> Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects Management Section -->
+      <div class="stat-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Projects Overview</h5>
+          <div class="d-flex gap-2">
+            <div class="btn-group btn-group-sm" role="group">
+              <input
+                type="radio"
+                class="btn-check"
+                name="viewMode"
+                id="tableView"
+                checked
+              />
+              <label class="btn btn-outline-primary" for="tableView">
+                <i class="fas fa-table"></i> Table
+              </label>
+              <input
+                type="radio"
+                class="btn-check"
+                name="viewMode"
+                id="cardView"
+              />
+              <label class="btn btn-outline-primary" for="cardView">
+                <i class="fas fa-th-large"></i> Cards
+              </label>
+              <input
+                type="radio"
+                class="btn-check"
+                name="viewMode"
+                id="kanbanView"
+              />
+              <label class="btn btn-outline-primary" for="kanbanView">
+                <i class="fas fa-columns"></i> Kanban
+              </label>
+            </div>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              onclick="toggleBulkProjectActions()"
+            >
+              <i class="fas fa-check-square"></i> Bulk Actions
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="bulk-project-actions-bar"
+          class="alert alert-primary d-none mb-3"
+        >
+          <div class="d-flex justify-content-between align-items-center">
+            <span
+              ><strong><span id="selected-projects-count">0</span></strong>
+              projects selected</span
+            >
+            <div class="btn-group btn-group-sm">
+              <button
+                class="btn btn-primary"
+                onclick="bulkChangeProjectStatus()"
+              >
+                <i class="fas fa-exchange-alt"></i> Change Status
+              </button>
+              <button class="btn btn-warning" onclick="bulkAssignLead()">
+                <i class="fas fa-user-tie"></i> Assign Lead
+              </button>
+              <button class="btn btn-danger" onclick="bulkArchiveProjects()">
+                <i class="fas fa-archive"></i> Archive
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div id="table-view">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th width="50">
+                    <input
+                      type="checkbox"
+                      id="select-all-projects"
+                      class="form-check-input"
+                    />
+                  </th>
+                  <th>Project</th>
+                  <th>Lead</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th>Team</th>
+                  <th>Priority</th>
+                  <th>Due Date</th>
+                  <th width="120">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="projects-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card View -->
+        <div id="card-view" class="d-none">
+          <div class="row g-3" id="projects-cards">
+            <!-- Project cards will be populated here -->
+          </div>
+        </div>
+
+        <!-- Kanban View -->
+        <div id="kanban-view" class="d-none">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="kanban-column">
+                <h6 class="text-center mb-3">Planning</h6>
+                <div id="planning-projects" class="kanban-items"></div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="kanban-column">
+                <h6 class="text-center mb-3">Active</h6>
+                <div id="active-projects" class="kanban-items"></div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="kanban-column">
+                <h6 class="text-center mb-3">On Hold</h6>
+                <div id="onhold-projects" class="kanban-items"></div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="kanban-column">
+                <h6 class="text-center mb-3">Completed</h6>
+                <div id="completed-projects" class="kanban-items"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="mt-3" id="project-pagination-container">
+          <!-- Pagination will be generated here -->
+        </nav>
       </div>
     </div>
 
-    <!-- Add/Edit Project Modal -->
+    <!-- Project Modal -->
     <div class="modal fade" id="projectModal" tabindex="-1">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add New Project</h5>
+            <h5 class="modal-title" id="projectModalTitle">Add New Project</h5>
             <button
               type="button"
               class="btn-close"
@@ -55,29 +357,315 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form id="project-form">
-              <div class="mb-3">
-                <label class="form-label">Project Name</label
-                ><input
-                  type="text"
-                  class="form-control"
-                  id="new-project-name"
-                  required
-                />
+            <form id="projectForm">
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label for="project-name" class="form-label"
+                    >Project Name <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="project-name"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="project-code" class="form-label"
+                    >Project Code</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="project-code"
+                    placeholder="AUTO"
+                  />
+                </div>
+                <div class="col-12">
+                  <label for="project-description" class="form-label"
+                    >Description</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="project-description"
+                    rows="3"
+                    placeholder="Brief description of the project..."
+                  ></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label for="project-lead" class="form-label">Team Lead</label>
+                  <select class="form-select" id="project-lead">
+                    <option value="">No Lead Assigned</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="project-status" class="form-label">Status</label>
+                  <select class="form-select" id="project-status">
+                    <option value="planning">Planning</option>
+                    <option value="active" selected>Active</option>
+                    <option value="on-hold">On Hold</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="project-priority" class="form-label"
+                    >Priority</label
+                  >
+                  <select class="form-select" id="project-priority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="project-budget" class="form-label"
+                    >Budget ($)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="project-budget"
+                    min="0"
+                    step="1000"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="project-start-date" class="form-label"
+                    >Start Date</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="project-start-date"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="project-due-date" class="form-label"
+                    >Due Date</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="project-due-date"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="project-category" class="form-label"
+                    >Category</label
+                  >
+                  <select class="form-select" id="project-category">
+                    <option value="">Select Category</option>
+                    <option value="web-development">Web Development</option>
+                    <option value="mobile-development">
+                      Mobile Development
+                    </option>
+                    <option value="marketing">Marketing</option>
+                    <option value="design">Design</option>
+                    <option value="research">Research</option>
+                    <option value="infrastructure">Infrastructure</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="project-wip-limit" class="form-label"
+                    >WIP Limit</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="project-wip-limit"
+                    min="1"
+                    max="10"
+                    value="3"
+                  />
+                </div>
+                <div class="col-12">
+                  <label for="project-objectives" class="form-label"
+                    >Key Objectives</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="project-objectives"
+                    rows="2"
+                    placeholder="List key objectives and goals for this project..."
+                  ></textarea>
+                </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Description</label
-                ><textarea
-                  class="form-control"
-                  id="new-project-desc"
-                  rows="3"
-                ></textarea>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Assign Team Lead</label
-                ><select class="form-select" id="new-project-lead"></select>
-              </div>
+              <input type="hidden" id="project-id" />
             </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="saveProject()"
+            >
+              <i class="fas fa-save"></i> Save Project
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Details Modal -->
+    <div class="modal fade" id="projectDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Project Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="text-center mb-4">
+                  <div class="project-icon mb-3">
+                    <i class="fas fa-project-diagram fa-4x text-primary"></i>
+                  </div>
+                  <h4 id="detail-project-name">Project Name</h4>
+                  <p class="text-muted" id="detail-project-code">PROJ-001</p>
+                  <span class="badge bg-success" id="detail-project-status"
+                    >Active</span
+                  >
+                </div>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item d-flex justify-content-between">
+                    <strong>Lead:</strong>
+                    <span id="detail-project-lead">-</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <strong>Priority:</strong>
+                    <span id="detail-project-priority">-</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <strong>Budget:</strong>
+                    <span id="detail-project-budget">-</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <strong>Start Date:</strong>
+                    <span id="detail-project-start">-</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <strong>Due Date:</strong>
+                    <span id="detail-project-due">-</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <strong>Progress:</strong>
+                    <span id="detail-project-progress">0%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link active"
+                      data-bs-toggle="tab"
+                      href="#overview-tab"
+                      >Overview</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tasks-tab"
+                      >Tasks</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#team-tab"
+                      >Team</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      data-bs-toggle="tab"
+                      href="#timeline-tab"
+                      >Timeline</a
+                    >
+                  </li>
+                </ul>
+
+                <div class="tab-content">
+                  <div class="tab-pane fade show active" id="overview-tab">
+                    <div class="row g-3 mb-3">
+                      <div class="col-md-3">
+                        <div class="stat-card-small text-center">
+                          <h4 id="detail-total-tasks">0</h4>
+                          <small class="text-muted">Total Tasks</small>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="stat-card-small text-center">
+                          <h4 id="detail-completed-tasks" class="text-success">
+                            0
+                          </h4>
+                          <small class="text-muted">Completed</small>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="stat-card-small text-center">
+                          <h4 id="detail-pending-tasks" class="text-warning">
+                            0
+                          </h4>
+                          <small class="text-muted">In Progress</small>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="stat-card-small text-center">
+                          <h4 id="detail-team-size" class="text-info">0</h4>
+                          <small class="text-muted">Team Members</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <h6>Description</h6>
+                      <p id="detail-project-description" class="text-muted"></p>
+                    </div>
+                    <div class="mb-3">
+                      <h6>Key Objectives</h6>
+                      <p id="detail-project-objectives" class="text-muted"></p>
+                    </div>
+                    <div class="progress mb-2">
+                      <div
+                        class="progress-bar"
+                        role="progressbar"
+                        id="detail-progress-bar"
+                        style="width: 0%"
+                      ></div>
+                    </div>
+                    <small class="text-muted">Project Completion</small>
+                  </div>
+
+                  <div class="tab-pane fade" id="tasks-tab">
+                    <div id="project-tasks-list">
+                      <!-- Project tasks will be loaded here -->
+                    </div>
+                  </div>
+
+                  <div class="tab-pane fade" id="team-tab">
+                    <div id="project-team-list">
+                      <!-- Project team will be loaded here -->
+                    </div>
+                  </div>
+
+                  <div class="tab-pane fade" id="timeline-tab">
+                    <div id="project-timeline">
+                      <!-- Project timeline will be loaded here -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button
@@ -87,8 +675,99 @@
             >
               Close
             </button>
-            <button type="button" class="btn btn-primary" id="save-project-btn">
-              Create Project
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="editProjectFromDetails()"
+            >
+              <i class="fas fa-edit"></i> Edit Project
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Actions Modals -->
+    <div class="modal fade" id="bulkStatusModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Change Status for Selected Projects</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Select new status for
+              <strong><span id="bulk-status-count">0</span></strong> selected
+              projects:
+            </p>
+            <select class="form-select" id="bulk-new-status">
+              <option value="planning">Planning</option>
+              <option value="active">Active</option>
+              <option value="on-hold">On Hold</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="applyBulkStatus()"
+            >
+              <i class="fas fa-check"></i> Apply Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="bulkLeadModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Assign Lead for Selected Projects</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Select lead for
+              <strong><span id="bulk-lead-count">0</span></strong> selected
+              projects:
+            </p>
+            <select class="form-select" id="bulk-new-lead">
+              <option value="">No Lead</option>
+              <!-- Populated dynamically -->\n
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="applyBulkLead()"
+            >
+              <i class="fas fa-check"></i> Apply Changes
             </button>
           </div>
         </div>
@@ -97,73 +776,1217 @@
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.js"></script>
     <script src="db.js"></script>
     <script src="layout.js"></script>
     <script>
-      $(document).ready(function () {
-        const projectModal = new bootstrap.Modal($("#projectModal"));
+      // Enhanced Project Management System
+      let currentPage = 1;
+      let projectsPerPage = 10;
+      let filteredProjects = [...projects];
+      let selectedProjects = new Set();
+      let bulkProjectActionsVisible = false;
+      let currentViewMode = "table";
+      let isEditMode = false;
+      let editingProjectId = null;
+      let projectChart = null;
 
-        function populateLeads() {
-          const leadSelect = $("#new-project-lead")
-            .empty()
-            .append('<option value="">None</option>');
-          users
-            .filter((u) => u.role === "lead")
-            .forEach((lead) => {
-              leadSelect.append(
-                `<option value="${lead.id}">${lead.name}</option>`
-              );
+      // Initialize the page
+      $(document).ready(function () {
+        initializeEventListeners();
+        populateDropdowns();
+        updateProjectStatistics();
+        renderProjects();
+        initializeChart();
+        setupSearchAndFilters();
+      });
+
+      function initializeEventListeners() {
+        // Search functionality
+        $("#search-projects").on("input", debounce(handleProjectSearch, 300));
+
+        // Filter functionality
+        $("#filter-status, #filter-lead, #filter-priority").on(
+          "change",
+          applyProjectFilters
+        );
+
+        // View mode switching
+        $('input[name="viewMode"]').on("change", function () {
+          currentViewMode = this.id.replace("View", "");
+          switchViewMode();
+        });
+
+        // Chart type switching
+        $('input[name="chartType"]').on("change", function () {
+          updateChart(this.id.replace("chart", "").toLowerCase());
+        });
+
+        // Select all checkbox
+        $("#select-all-projects").on("change", handleSelectAllProjects);
+
+        // Form submission
+        $("#projectForm").on("submit", function (e) {
+          e.preventDefault();
+          saveProject();
+        });
+      }
+
+      function populateDropdowns() {
+        // Populate lead dropdowns
+        const leadOptions = users
+          .filter((u) => u.role === "lead")
+          .map((lead) => `<option value="${lead.id}">${lead.name}</option>`)
+          .join("");
+
+        $("#project-lead, #filter-lead, #bulk-new-lead").append(leadOptions);
+
+        // Set default dates
+        const today = new Date().toISOString().split("T")[0];
+        const nextMonth = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+        $("#project-start-date").val(today);
+        $("#project-due-date").val(nextMonth);
+      }
+
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      function handleProjectSearch() {
+        applyProjectFilters();
+      }
+
+      function applyProjectFilters() {
+        const searchTerm = $("#search-projects").val().toLowerCase();
+        const statusFilter = $("#filter-status").val();
+        const leadFilter = $("#filter-lead").val();
+        const priorityFilter = $("#filter-priority").val();
+
+        filteredProjects = projects.filter((project) => {
+          const matchesSearch =
+            !searchTerm ||
+            project.name.toLowerCase().includes(searchTerm) ||
+            (project.description &&
+              project.description.toLowerCase().includes(searchTerm));
+
+          const matchesStatus =
+            !statusFilter || (project.status || "active") === statusFilter;
+          const matchesLead =
+            !leadFilter || project.leadId?.toString() === leadFilter;
+          const matchesPriority =
+            !priorityFilter ||
+            (project.priority || "medium") === priorityFilter;
+
+          return (
+            matchesSearch && matchesStatus && matchesLead && matchesPriority
+          );
+        });
+
+        currentPage = 1;
+        renderProjects();
+      }
+
+      function clearProjectFilters() {
+        $("#search-projects").val("");
+        $("#filter-status").val("");
+        $("#filter-lead").val("");
+        $("#filter-priority").val("");
+        applyProjectFilters();
+      }
+
+      function updateProjectStatistics() {
+        const totalProjects = projects.length;
+        const activeProjects = projects.filter(
+          (p) => (p.status || "active") === "active"
+        ).length;
+        const completedProjects = projects.filter(
+          (p) => p.status === "completed"
+        ).length;
+        const overdueProjects = projects.filter((p) => {
+          return (
+            p.dueDate &&
+            new Date(p.dueDate) < new Date() &&
+            p.status !== "completed"
+          );
+        }).length;
+
+        $("#total-projects-count").text(totalProjects);
+        $("#active-projects-count").text(activeProjects);
+        $("#completed-projects-count").text(completedProjects);
+        $("#overdue-projects-count").text(overdueProjects);
+
+        updateTeamPerformance();
+      }
+
+      function updateTeamPerformance() {
+        const teamPerformance = {};
+
+        users
+          .filter((u) => u.role === "lead")
+          .forEach((lead) => {
+            const leadProjects = projects.filter((p) => p.leadId === lead.id);
+            const completedProjects = leadProjects.filter(
+              (p) => p.status === "completed"
+            ).length;
+            const totalTasks = tasks.filter((t) =>
+              leadProjects.some((p) => p.id === t.projectId)
+            ).length;
+            const completedTasks = tasks.filter(
+              (t) =>
+                leadProjects.some((p) => p.id === t.projectId) &&
+                t.status === "done"
+            ).length;
+
+            teamPerformance[lead.name] = {
+              projects: leadProjects.length,
+              completed: completedProjects,
+              taskCompletion:
+                totalTasks > 0
+                  ? Math.round((completedTasks / totalTasks) * 100)
+                  : 0,
+            };
+          });
+
+        const performanceHTML = Object.entries(teamPerformance)
+          .map(
+            ([name, stats]) => `
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="fw-semibold">${name}</div>
+              <small class="text-muted">${stats.projects} projects, ${
+              stats.completed
+            } completed</small>
+            </div>
+            <div class="text-end">
+              <div class="badge bg-${
+                stats.taskCompletion >= 80
+                  ? "success"
+                  : stats.taskCompletion >= 60
+                  ? "warning"
+                  : "danger"
+              }">${stats.taskCompletion}%</div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        $("#team-performance-list").html(
+          performanceHTML || '<p class="text-muted">No team leads assigned</p>'
+        );
+      }
+
+      function initializeChart() {
+        const ctx = document.getElementById("projectChart").getContext("2d");
+        projectChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Planning", "Active", "On Hold", "Completed"],
+            datasets: [
+              {
+                data: [0, 0, 0, 0],
+                backgroundColor: ["#ffc107", "#28a745", "#dc3545", "#007bff"],
+                borderWidth: 2,
+                borderColor: "#fff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+              },
+            },
+          },
+        });
+
+        updateChart("progress");
+      }
+
+      function updateChart(type) {
+        if (!projectChart) return;
+
+        switch (type) {
+          case "progress":
+            const statusCounts = {
+              planning: projects.filter(
+                (p) => (p.status || "active") === "planning"
+              ).length,
+              active: projects.filter(
+                (p) => (p.status || "active") === "active"
+              ).length,
+              "on-hold": projects.filter((p) => p.status === "on-hold").length,
+              completed: projects.filter((p) => p.status === "completed")
+                .length,
+            };
+
+            projectChart.data.labels = [
+              "Planning",
+              "Active",
+              "On Hold",
+              "Completed",
+            ];
+            projectChart.data.datasets[0].data = Object.values(statusCounts);
+            break;
+
+          case "teams":
+            const teamCounts = {};
+            users
+              .filter((u) => u.role === "lead")
+              .forEach((lead) => {
+                teamCounts[lead.name] = projects.filter(
+                  (p) => p.leadId === lead.id
+                ).length;
+              });
+            teamCounts["Unassigned"] = projects.filter((p) => !p.leadId).length;
+
+            projectChart.data.labels = Object.keys(teamCounts);
+            projectChart.data.datasets[0].data = Object.values(teamCounts);
+            break;
+
+          case "timeline":
+            const timelineCounts = {
+              "This Week": 0,
+              "Next Week": 0,
+              "This Month": 0,
+              Future: 0,
+            };
+
+            const now = new Date();
+            const thisWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const nextWeek = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+            const thisMonth = new Date(
+              now.getTime() + 30 * 24 * 60 * 60 * 1000
+            );
+
+            projects.forEach((project) => {
+              if (!project.dueDate) {
+                timelineCounts["Future"]++;
+                return;
+              }
+
+              const dueDate = new Date(project.dueDate);
+              if (dueDate <= thisWeek) timelineCounts["This Week"]++;
+              else if (dueDate <= nextWeek) timelineCounts["Next Week"]++;
+              else if (dueDate <= thisMonth) timelineCounts["This Month"]++;
+              else timelineCounts["Future"]++;
             });
+
+            projectChart.data.labels = Object.keys(timelineCounts);
+            projectChart.data.datasets[0].data = Object.values(timelineCounts);
+            break;
         }
 
-        function renderProjects() {
-          const projectsTable = $("#projects-table").empty();
-          projects.forEach((p) => {
-            const lead = users.find((u) => u.id === p.leadId);
-            projectsTable.append(`
-                <tr>
-                    <td>PROJ-${p.id}</td>
-                    <td>${p.name}</td>
-                    <td>${lead ? lead.name : "Unassigned"}</td>
-                    <td>${p.description}</td>
-                    <td><button class="btn btn-sm btn-outline-danger delete-project-btn" data-id="${
-                      p.id
-                    }"><i class="fas fa-trash"></i></button></td>
-                </tr>`);
+        projectChart.update();
+      }
+
+      function switchViewMode() {
+        // Hide all views
+        $("#table-view, #card-view, #kanban-view").addClass("d-none");
+
+        // Show selected view
+        $(`#${currentViewMode}-view`).removeClass("d-none");
+
+        // Render based on view mode
+        renderProjects();
+      }
+
+      function renderProjects() {
+        switch (currentViewMode) {
+          case "table":
+            renderTableView();
+            break;
+          case "card":
+            renderCardView();
+            break;
+          case "kanban":
+            renderKanbanView();
+            break;
+        }
+      }
+
+      function renderTableView() {
+        const startIndex = (currentPage - 1) * projectsPerPage;
+        const endIndex = startIndex + projectsPerPage;
+        const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
+
+        const tbody = $("#projects-table").empty();
+
+        if (paginatedProjects.length === 0) {
+          tbody.append(`
+            <tr>
+              <td colspan="9" class="text-center py-4">
+                <i class="fas fa-project-diagram fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No projects found</p>
+              </td>
+            </tr>
+          `);
+          return;
+        }
+
+        paginatedProjects.forEach((project) => {
+          const projectTasks = tasks.filter((t) => t.projectId === project.id);
+          const completedTasks = projectTasks.filter(
+            (t) => t.status === "done"
+          ).length;
+          const progress =
+            projectTasks.length > 0
+              ? Math.round((completedTasks / projectTasks.length) * 100)
+              : 0;
+          const isSelected = selectedProjects.has(project.id);
+
+          const lead = users.find((u) => u.id === project.leadId);
+          const statusBadge = getProjectStatusBadge(project.status || "active");
+          const priorityBadge = getPriorityBadge(project.priority || "medium");
+          const teamMembers = getProjectTeamMembers(project.id);
+
+          tbody.append(`
+            <tr ${isSelected ? 'class="table-active"' : ""}>
+              <td>
+                <input type="checkbox" class="form-check-input project-checkbox" 
+                       value="${project.id}" ${isSelected ? "checked" : ""}>
+              </td>
+              <td>
+                <div>
+                  <div class="fw-semibold">${project.name}</div>
+                  <small class="text-muted">PROJ-${project.id
+                    .toString()
+                    .padStart(3, "0")}</small>
+                </div>
+              </td>
+              <td>
+                ${
+                  lead
+                    ? `
+                  <div class="d-flex align-items-center">
+                    <div class="assignee-avatar me-2">${lead.avatar}</div>
+                    <span>${lead.name}</span>
+                  </div>
+                `
+                    : '<span class="text-muted">Unassigned</span>'
+                }
+              </td>
+              <td>${statusBadge}</td>
+              <td>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar" style="width: ${progress}%"></div>
+                </div>
+                <small class="text-muted">${progress}% (${completedTasks}/${
+            projectTasks.length
+          })</small>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark">${
+                  teamMembers.length
+                }</span>
+                <small class="text-muted ms-1">members</small>
+              </td>
+              <td>${priorityBadge}</td>
+              <td>
+                <small class="text-muted">${
+                  project.dueDate
+                    ? new Date(project.dueDate).toLocaleDateString()
+                    : "No due date"
+                }</small>
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" onclick="viewProjectDetails(${
+                    project.id
+                  })" 
+                          title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn btn-outline-secondary" onclick="editProject(${
+                    project.id
+                  })" 
+                          title="Edit Project">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-outline-danger" onclick="deleteProject(${
+                    project.id
+                  })" 
+                          title="Delete Project">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `);
+        });
+
+        // Attach checkbox event listeners
+        $(".project-checkbox").on("change", handleProjectSelection);
+      }
+
+      function renderCardView() {
+        const container = $("#projects-cards").empty();
+
+        if (filteredProjects.length === 0) {
+          container.append(`
+            <div class="col-12 text-center py-5">
+              <i class="fas fa-project-diagram fa-3x text-muted mb-3"></i>
+              <p class="text-muted">No projects found</p>
+            </div>
+          `);
+          return;
+        }
+
+        filteredProjects.forEach((project) => {
+          const projectTasks = tasks.filter((t) => t.projectId === project.id);
+          const completedTasks = projectTasks.filter(
+            (t) => t.status === "done"
+          ).length;
+          const progress =
+            projectTasks.length > 0
+              ? Math.round((completedTasks / projectTasks.length) * 100)
+              : 0;
+          const lead = users.find((u) => u.id === project.leadId);
+          const statusBadge = getProjectStatusBadge(project.status || "active");
+          const priorityBadge = getPriorityBadge(project.priority || "medium");
+
+          container.append(`
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 project-card" data-project-id="${
+                project.id
+              }">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="mb-0">${project.name}</h6>
+                    <small class="text-muted">PROJ-${project.id
+                      .toString()
+                      .padStart(3, "0")}</small>
+                  </div>
+                  ${priorityBadge}
+                </div>
+                <div class="card-body">
+                  <p class="card-text text-muted small">${
+                    project.description || "No description"
+                  }</p>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <small>Progress</small>
+                      <small>${progress}%</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                      <div class="progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      ${
+                        lead
+                          ? `
+                        <div class="d-flex align-items-center">
+                          <div class="assignee-avatar me-1" style="width: 24px; height: 24px; font-size: 10px;">${lead.avatar}</div>
+                          <small>${lead.name}</small>
+                        </div>
+                      `
+                          : '<small class="text-muted">No lead</small>'
+                      }
+                    </div>
+                    ${statusBadge}
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="btn-group w-100" role="group">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewProjectDetails(${
+                      project.id
+                    })">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="editProject(${
+                      project.id
+                    })">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `);
+        });
+      }
+
+      function renderKanbanView() {
+        const statuses = ["planning", "active", "on-hold", "completed"];
+
+        statuses.forEach((status) => {
+          const container = $(`#${status.replace("-", "")}-projects`).empty();
+          const statusProjects = filteredProjects.filter(
+            (p) => (p.status || "active") === status
+          );
+
+          statusProjects.forEach((project) => {
+            const lead = users.find((u) => u.id === project.leadId);
+            const projectTasks = tasks.filter(
+              (t) => t.projectId === project.id
+            );
+            const completedTasks = projectTasks.filter(
+              (t) => t.status === "done"
+            ).length;
+            const progress =
+              projectTasks.length > 0
+                ? Math.round((completedTasks / projectTasks.length) * 100)
+                : 0;
+
+            container.append(`
+              <div class="kanban-item mb-3" data-project-id="${project.id}">
+                <div class="card">
+                  <div class="card-body p-3">
+                    <h6 class="card-title mb-2">${project.name}</h6>
+                    <p class="card-text small text-muted mb-2">${
+                      project.description || "No description"
+                    }</p>
+                    <div class="progress mb-2" style="height: 4px;">
+                      <div class="progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-muted">${progress}%</small>
+                      ${
+                        lead
+                          ? `<div class="assignee-avatar" style="width: 20px; height: 20px; font-size: 8px;">${lead.avatar}</div>`
+                          : ""
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `);
+          });
+        });
+      }
+
+      function getProjectStatusBadge(status) {
+        const badges = {
+          planning: '<span class="badge bg-warning">Planning</span>',
+          active: '<span class="badge bg-success">Active</span>',
+          "on-hold": '<span class="badge bg-danger">On Hold</span>',
+          completed: '<span class="badge bg-info">Completed</span>',
+          archived: '<span class="badge bg-secondary">Archived</span>',
+        };
+        return badges[status] || badges["active"];
+      }
+
+      function getPriorityBadge(priority) {
+        const badges = {
+          low: '<span class="badge bg-success">Low</span>',
+          medium: '<span class="badge bg-warning">Medium</span>',
+          high: '<span class="badge bg-danger">High</span>',
+        };
+        return badges[priority] || badges["medium"];
+      }
+
+      function getProjectTeamMembers(projectId) {
+        return tasks
+          .filter((t) => t.projectId === projectId)
+          .map((t) => t.assignee)
+          .filter((value, index, self) => self.indexOf(value) === index)
+          .map((userId) => users.find((u) => u.id === userId))
+          .filter((user) => user);
+      }
+
+      // Project CRUD Operations
+      function openAddProjectModal() {
+        isEditMode = false;
+        editingProjectId = null;
+        $("#projectModalTitle").text("Add New Project");
+        $("#projectForm")[0].reset();
+        $("#project-code").val("AUTO");
+        $("#project-status").val("active");
+        $("#project-priority").val("medium");
+
+        // Set default dates
+        const today = new Date().toISOString().split("T")[0];
+        const nextMonth = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+        $("#project-start-date").val(today);
+        $("#project-due-date").val(nextMonth);
+      }
+
+      function editProject(projectId) {
+        isEditMode = true;
+        editingProjectId = projectId;
+        const project = projects.find((p) => p.id === projectId);
+
+        if (!project) return;
+
+        $("#projectModalTitle").text("Edit Project");
+        $("#project-id").val(project.id);
+        $("#project-name").val(project.name);
+        $("#project-code").val(
+          `PROJ-${project.id.toString().padStart(3, "0")}`
+        );
+        $("#project-description").val(project.description || "");
+        $("#project-lead").val(project.leadId || "");
+        $("#project-status").val(project.status || "active");
+        $("#project-priority").val(project.priority || "medium");
+        $("#project-budget").val(project.budget || "");
+        $("#project-start-date").val(project.startDate || "");
+        $("#project-due-date").val(project.dueDate || "");
+        $("#project-category").val(project.category || "");
+        $("#project-wip-limit").val(project.wipLimit || 3);
+        $("#project-objectives").val(project.objectives || "");
+
+        new bootstrap.Modal($("#projectModal")).show();
+      }
+
+      function saveProject() {
+        const formData = {
+          name: $("#project-name").val().trim(),
+          description: $("#project-description").val().trim(),
+          leadId: parseInt($("#project-lead").val()) || null,
+          status: $("#project-status").val(),
+          priority: $("#project-priority").val(),
+          budget: parseFloat($("#project-budget").val()) || null,
+          startDate: $("#project-start-date").val(),
+          dueDate: $("#project-due-date").val(),
+          category: $("#project-category").val(),
+          wipLimit: parseInt($("#project-wip-limit").val()) || 3,
+          objectives: $("#project-objectives").val().trim(),
+        };
+
+        // Validation
+        if (!formData.name) {
+          showToast("Please enter a project name", "danger");
+          return;
+        }
+
+        if (isEditMode) {
+          // Update existing project
+          const projectIndex = projects.findIndex(
+            (p) => p.id === editingProjectId
+          );
+          if (projectIndex !== -1) {
+            projects[projectIndex] = { ...projects[projectIndex], ...formData };
+            showToast("Project updated successfully", "success");
+          }
+        } else {
+          // Create new project
+          const newProject = {
+            id: Math.max(...projects.map((p) => p.id)) + 1,
+            ...formData,
+            createdAt: new Date().toISOString(),
+          };
+          projects.push(newProject);
+          showToast("Project created successfully", "success");
+        }
+
+        bootstrap.Modal.getInstance($("#projectModal")).hide();
+        updateProjectStatistics();
+        applyProjectFilters();
+        updateChart("progress");
+      }
+
+      function deleteProject(projectId) {
+        const project = projects.find((p) => p.id === projectId);
+        if (!project) return;
+
+        if (
+          confirm(
+            `Are you sure you want to delete "${project.name}"? This will also delete all associated tasks.`
+          )
+        ) {
+          projects = projects.filter((p) => p.id !== projectId);
+          tasks = tasks.filter((t) => t.projectId !== projectId);
+          selectedProjects.delete(projectId);
+          updateProjectStatistics();
+          applyProjectFilters();
+          updateChart("progress");
+          showToast("Project and its tasks deleted successfully", "success");
+        }
+      }
+
+      function viewProjectDetails(projectId) {
+        const project = projects.find((p) => p.id === projectId);
+        if (!project) return;
+
+        const lead = users.find((u) => u.id === project.leadId);
+        const projectTasks = tasks.filter((t) => t.projectId === projectId);
+        const completedTasks = projectTasks.filter(
+          (t) => t.status === "done"
+        ).length;
+        const progress =
+          projectTasks.length > 0
+            ? Math.round((completedTasks / projectTasks.length) * 100)
+            : 0;
+        const teamMembers = getProjectTeamMembers(projectId);
+
+        // Populate project details modal
+        $("#detail-project-name").text(project.name);
+        $("#detail-project-code").text(
+          `PROJ-${project.id.toString().padStart(3, "0")}`
+        );
+        $("#detail-project-lead").text(lead ? lead.name : "Unassigned");
+        $("#detail-project-priority").text(
+          (project.priority || "medium").charAt(0).toUpperCase() +
+            (project.priority || "medium").slice(1)
+        );
+        $("#detail-project-budget").text(
+          project.budget ? `$${project.budget.toLocaleString()}` : "Not set"
+        );
+        $("#detail-project-start").text(
+          project.startDate
+            ? new Date(project.startDate).toLocaleDateString()
+            : "Not set"
+        );
+        $("#detail-project-due").text(
+          project.dueDate
+            ? new Date(project.dueDate).toLocaleDateString()
+            : "Not set"
+        );
+        $("#detail-project-progress").text(`${progress}%`);
+        $("#detail-project-description").text(
+          project.description || "No description available"
+        );
+        $("#detail-project-objectives").text(
+          project.objectives || "No objectives defined"
+        );
+
+        // Update status badge
+        $("#detail-project-status")
+          .removeClass()
+          .addClass("badge")
+          .addClass(getProjectStatusColor(project.status || "active"))
+          .text(
+            (project.status || "active").charAt(0).toUpperCase() +
+              (project.status || "active").slice(1)
+          );
+
+        // Update progress bar
+        $("#detail-progress-bar").css("width", `${progress}%`);
+
+        // Update statistics
+        $("#detail-total-tasks").text(projectTasks.length);
+        $("#detail-completed-tasks").text(completedTasks);
+        $("#detail-pending-tasks").text(
+          projectTasks.filter((t) => t.status === "in-progress").length
+        );
+        $("#detail-team-size").text(teamMembers.length);
+
+        // Load project data
+        loadProjectTasks(projectId);
+        loadProjectTeam(projectId);
+        loadProjectTimeline(projectId);
+
+        new bootstrap.Modal($("#projectDetailsModal")).show();
+      }
+
+      function getProjectStatusColor(status) {
+        const colors = {
+          planning: "bg-warning",
+          active: "bg-success",
+          "on-hold": "bg-danger",
+          completed: "bg-info",
+          archived: "bg-secondary",
+        };
+        return colors[status] || "bg-success";
+      }
+
+      function loadProjectTasks(projectId) {
+        const projectTasks = tasks.filter((t) => t.projectId === projectId);
+
+        const tasksHTML = projectTasks
+          .map((task) => {
+            const assignee = users.find((u) => u.id === task.assignee);
+            return `
+            <div class="card mb-2">
+              <div class="card-body py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="card-title mb-1">${task.title}</h6>
+                    <small class="text-muted">${
+                      task.description || "No description"
+                    }</small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-${getTaskStatusColor(task.status)}">${
+              task.status
+            }</span>
+                    ${
+                      assignee
+                        ? `<br><small class="text-muted">${assignee.name}</small>`
+                        : ""
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+
+        $("#project-tasks-list").html(
+          tasksHTML ||
+            '<p class="text-muted">No tasks assigned to this project</p>'
+        );
+      }
+
+      function loadProjectTeam(projectId) {
+        const teamMembers = getProjectTeamMembers(projectId);
+
+        const teamHTML = teamMembers
+          .map(
+            (member) => `
+          <div class="d-flex align-items-center mb-3">
+            <div class="assignee-avatar me-3">${member.avatar}</div>
+            <div>
+              <div class="fw-semibold">${member.name}</div>
+              <small class="text-muted">${
+                member.role.charAt(0).toUpperCase() + member.role.slice(1)
+              }</small>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        $("#project-team-list").html(
+          teamHTML || '<p class="text-muted">No team members assigned</p>'
+        );
+      }
+
+      function loadProjectTimeline(projectId) {
+        const project = projects.find((p) => p.id === projectId);
+        const projectTasks = tasks.filter((t) => t.projectId === projectId);
+
+        const timelineEvents = [
+          {
+            date: project.createdAt || project.startDate,
+            event: "Project Created",
+            icon: "plus",
+            color: "primary",
+          },
+          {
+            date: project.startDate,
+            event: "Project Started",
+            icon: "play",
+            color: "success",
+          },
+        ];
+
+        // Add task completion events
+        projectTasks
+          .filter((t) => t.status === "done")
+          .forEach((task) => {
+            timelineEvents.push({
+              date: new Date().toISOString(), // Simulate completion date
+              event: `Task Completed: ${task.title}`,
+              icon: "check",
+              color: "info",
+            });
+          });
+
+        if (project.dueDate) {
+          timelineEvents.push({
+            date: project.dueDate,
+            event: "Project Due Date",
+            icon: "calendar",
+            color: "warning",
           });
         }
 
-        $("#save-project-btn").on("click", function () {
-          const name = $("#new-project-name").val();
-          if (name) {
-            projects.push({
-              id: Math.max(...projects.map((p) => p.id), 0) + 1,
-              name,
-              description: $("#new-project-desc").val(),
-              leadId: parseInt($("#new-project-lead").val()) || null,
-            });
-            renderProjects();
-            projectModal.hide();
-            $("#project-form")[0].reset();
-            showToast("Project created successfully!");
+        // Sort by date
+        timelineEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        const timelineHTML = timelineEvents
+          .map(
+            (event) => `
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-${event.color} rounded-circle p-2 me-3">
+              <i class="fas fa-${event.icon} text-white"></i>
+            </div>
+            <div>
+              <div>${event.event}</div>
+              <small class="text-muted">${
+                event.date
+                  ? new Date(event.date).toLocaleDateString()
+                  : "No date"
+              }</small>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        $("#project-timeline").html(timelineHTML);
+      }
+
+      function getTaskStatusColor(status) {
+        const colors = {
+          "to-do": "secondary",
+          "in-progress": "warning",
+          review: "info",
+          done: "success",
+        };
+        return colors[status] || "secondary";
+      }
+
+      function editProjectFromDetails() {
+        const projectName = $("#detail-project-name").text();
+        const project = projects.find((p) => p.name === projectName);
+        if (project) {
+          bootstrap.Modal.getInstance($("#projectDetailsModal")).hide();
+          setTimeout(() => editProject(project.id), 300);
+        }
+      }
+
+      // Selection and Bulk Operations
+      function handleSelectAllProjects() {
+        const isChecked = $("#select-all-projects").is(":checked");
+        $(".project-checkbox").prop("checked", isChecked);
+
+        if (isChecked) {
+          filteredProjects.forEach((project) =>
+            selectedProjects.add(project.id)
+          );
+        } else {
+          selectedProjects.clear();
+        }
+
+        updateBulkProjectActionsBar();
+      }
+
+      function handleProjectSelection() {
+        const projectId = parseInt($(this).val());
+
+        if ($(this).is(":checked")) {
+          selectedProjects.add(projectId);
+        } else {
+          selectedProjects.delete(projectId);
+        }
+
+        updateBulkProjectActionsBar();
+
+        // Update select all checkbox
+        const totalVisible = $(".project-checkbox").length;
+        const totalSelected = $(".project-checkbox:checked").length;
+        $("#select-all-projects").prop(
+          "checked",
+          totalSelected === totalVisible && totalSelected > 0
+        );
+      }
+
+      function updateBulkProjectActionsBar() {
+        const count = selectedProjects.size;
+        $("#selected-projects-count").text(count);
+
+        if (count > 0 && bulkProjectActionsVisible) {
+          $("#bulk-project-actions-bar").removeClass("d-none");
+        } else {
+          $("#bulk-project-actions-bar").addClass("d-none");
+        }
+      }
+
+      function toggleBulkProjectActions() {
+        bulkProjectActionsVisible = !bulkProjectActionsVisible;
+        updateBulkProjectActionsBar();
+      }
+
+      function bulkChangeProjectStatus() {
+        $("#bulk-status-count").text(selectedProjects.size);
+        new bootstrap.Modal($("#bulkStatusModal")).show();
+      }
+
+      function bulkAssignLead() {
+        $("#bulk-lead-count").text(selectedProjects.size);
+        new bootstrap.Modal($("#bulkLeadModal")).show();
+      }
+
+      function bulkArchiveProjects() {
+        if (
+          confirm(
+            `Are you sure you want to archive ${selectedProjects.size} selected projects?`
+          )
+        ) {
+          selectedProjects.forEach((projectId) => {
+            const projectIndex = projects.findIndex((p) => p.id === projectId);
+            if (projectIndex !== -1) {
+              projects[projectIndex].status = "archived";
+            }
+          });
+
+          selectedProjects.clear();
+          updateProjectStatistics();
+          applyProjectFilters();
+          updateChart("progress");
+          showToast("Selected projects archived successfully", "success");
+        }
+      }
+
+      function applyBulkStatus() {
+        const newStatus = $("#bulk-new-status").val();
+        selectedProjects.forEach((projectId) => {
+          const projectIndex = projects.findIndex((p) => p.id === projectId);
+          if (projectIndex !== -1) {
+            projects[projectIndex].status = newStatus;
           }
         });
 
-        $(document).on("click", ".delete-project-btn", function () {
-          if (
-            confirm("Are you sure? This will also delete all associated tasks.")
-          ) {
-            const projectId = $(this).data("id");
-            projects = projects.filter((p) => p.id != projectId);
-            tasks = tasks.filter((t) => t.projectId != projectId);
-            renderProjects();
-            showToast("Project and its tasks deleted!", "danger");
+        bootstrap.Modal.getInstance($("#bulkStatusModal")).hide();
+        selectedProjects.clear();
+        updateProjectStatistics();
+        applyProjectFilters();
+        updateChart("progress");
+        showToast("Project statuses updated successfully", "success");
+      }
+
+      function applyBulkLead() {
+        const newLeadId = parseInt($("#bulk-new-lead").val()) || null;
+        selectedProjects.forEach((projectId) => {
+          const projectIndex = projects.findIndex((p) => p.id === projectId);
+          if (projectIndex !== -1) {
+            projects[projectIndex].leadId = newLeadId;
           }
         });
 
-        populateLeads();
-        renderProjects();
-      });
+        bootstrap.Modal.getInstance($("#bulkLeadModal")).hide();
+        selectedProjects.clear();
+        updateProjectStatistics();
+        applyProjectFilters();
+        showToast("Project leads updated successfully", "success");
+      }
+
+      // Export and Reporting
+      function exportProjects() {
+        const csvContent =
+          "data:text/csv;charset=utf-8," +
+          "Name,Code,Lead,Status,Priority,Budget,Start Date,Due Date,Progress,Description\n" +
+          projects
+            .map((project) => {
+              const lead = users.find((u) => u.id === project.leadId);
+              const projectTasks = tasks.filter(
+                (t) => t.projectId === project.id
+              );
+              const completedTasks = projectTasks.filter(
+                (t) => t.status === "done"
+              ).length;
+              const progress =
+                projectTasks.length > 0
+                  ? Math.round((completedTasks / projectTasks.length) * 100)
+                  : 0;
+
+              return `"${project.name}","PROJ-${project.id
+                .toString()
+                .padStart(3, "0")}","${lead ? lead.name : "Unassigned"}","${
+                project.status || "active"
+              }","${project.priority || "medium"}","${project.budget || ""}","${
+                project.startDate || ""
+              }","${project.dueDate || ""}","${progress}%","${
+                project.description || ""
+              }"`;
+            })
+            .join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "projects_export.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showToast("Projects exported successfully", "success");
+      }
+
+      function generateProjectReport() {
+        const report = {
+          totalProjects: projects.length,
+          byStatus: {
+            planning: projects.filter(
+              (p) => (p.status || "active") === "planning"
+            ).length,
+            active: projects.filter((p) => (p.status || "active") === "active")
+              .length,
+            onHold: projects.filter((p) => p.status === "on-hold").length,
+            completed: projects.filter((p) => p.status === "completed").length,
+          },
+          byPriority: {
+            high: projects.filter((p) => (p.priority || "medium") === "high")
+              .length,
+            medium: projects.filter(
+              (p) => (p.priority || "medium") === "medium"
+            ).length,
+            low: projects.filter((p) => (p.priority || "medium") === "low")
+              .length,
+          },
+          teamPerformance: {},
+        };
+
+        console.log("Project Analytics Report:", report);
+        showToast("Project analytics generated (check console)", "info");
+      }
+
+      function archiveCompleted() {
+        const completedProjects = projects.filter(
+          (p) => p.status === "completed"
+        );
+        if (completedProjects.length === 0) {
+          showToast("No completed projects to archive", "warning");
+          return;
+        }
+
+        if (
+          confirm(`Archive ${completedProjects.length} completed projects?`)
+        ) {
+          completedProjects.forEach((project) => {
+            const projectIndex = projects.findIndex((p) => p.id === project.id);
+            if (projectIndex !== -1) {
+              projects[projectIndex].status = "archived";
+            }
+          });
+
+          updateProjectStatistics();
+          applyProjectFilters();
+          updateChart("progress");
+          showToast(
+            `${completedProjects.length} projects archived successfully`,
+            "success"
+          );
+        }
+      }
+
+      // Utility function for toast notifications
+      function showToast(message, type = "primary") {
+        // Create toast if it doesn't exist
+        if (!$("#toast-container").length) {
+          $("body").append(
+            '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>'
+          );
+        }
+
+        const toastId = "toast-" + Date.now();
+        const toast = `
+          <div id="${toastId}" class="toast align-items-center text-white bg-${type}" role="alert">
+            <div class="d-flex">
+              <div class="toast-body">${message}</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>
+        `;
+
+        $("#toast-container").append(toast);
+        const toastElement = new bootstrap.Toast($("#" + toastId));
+        toastElement.show();
+
+        // Remove toast element after it's hidden
+        $("#" + toastId).on("hidden.bs.toast", function () {
+          $(this).remove();
+        });
+      }
     </script>
   </body>
 </html>
