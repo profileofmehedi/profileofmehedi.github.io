@@ -1,174 +1,701 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Recruitment System</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared/common-styles.css" />
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
+      /* Professional Admin Dashboard Styles */
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+      }
 
-        .sidebar {
-            height: 100vh;
-            background-color: #343a40;
-            color: white;
-        }
+      .admin-sidebar {
+        width: 280px;
+        height: 100vh;
+        background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+        position: fixed;
+        left: 0;
+        top: 0;
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
 
-        .stat-card {
-            border-left: 5px solid;
-        }
+      .admin-sidebar.collapsed {
+        width: 80px;
+      }
 
-        .card-primary {
-            border-left-color: #0d6efd;
-        }
+      .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-        .card-success {
-            border-left-color: #198754;
-        }
+      .sidebar-brand {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+      }
 
-        .card-info {
-            border-left-color: #0dcaf0;
-        }
+      .sidebar-brand i {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.25rem;
+      }
 
-        .card-warning {
-            border-left-color: #ffc107;
-        }
+      .sidebar-nav {
+        padding: 1rem 0;
+      }
+
+      .nav-item {
+        margin-bottom: 0.5rem;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .nav-link.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+      }
+
+      .nav-link i {
+        width: 20px;
+        margin-right: 1rem;
+        text-align: center;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        min-height: 100vh;
+        transition: all 0.3s ease;
+      }
+
+      .main-content.expanded {
+        margin-left: 80px;
+      }
+
+      .top-bar {
+        background: white;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+      }
+
+      .sidebar-toggle {
+        background: none;
+        border: none;
+        color: #64748b;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+      }
+
+      .content-area {
+        padding: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--gradient);
+      }
+
+      .stat-card.primary::before {
+        --gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      }
+
+      .stat-card.success::before {
+        --gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      .stat-card.warning::before {
+        --gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      }
+
+      .stat-card.danger::before {
+        --gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        color: #64748b;
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+
+      .stat-change {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+      }
+
+      .stat-change.positive {
+        color: #10b981;
+      }
+
+      .stat-change.negative {
+        color: #ef4444;
+      }
+
+      .chart-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+      }
+
+      .activity-item {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+      }
+
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1rem;
+      }
+
+      .activity-icon.blue {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+
+      .activity-icon.green {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+
+      .activity-icon.orange {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+      }
+
+      .page-header {
+        margin-bottom: 2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+      }
+
+      .page-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <div class="d-flex">
-        <div class="sidebar p-3 d-flex flex-column">
-            <h4>Admin Panel</h4>
-            <hr>
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item"><a href="#" class="nav-link active"><i class="bi bi-speedometer2"></i>
-                        Dashboard</a></li>
-                <li><a href="#" class="nav-link text-white"><i class="bi bi-building"></i> Organizations</a></li>
-                <li><a href="#" class="nav-link text-white"><i class="bi bi-receipt"></i> Billing</a></li>
+  <body>
+    <!-- Professional Admin Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <a href="admin_dashboard.html" class="sidebar-brand">
+          <i class="bi bi-shield-check"></i>
+          <span class="brand-text">Admin Panel</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="admin_dashboard.html" class="nav-link active">
+            <i class="bi bi-speedometer2"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_organizations.html" class="nav-link">
+            <i class="bi bi-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_billing.html" class="nav-link">
+            <i class="bi bi-credit-card"></i>
+            <span class="nav-text">Billing</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_users.html" class="nav-link">
+            <i class="bi bi-people"></i>
+            <span class="nav-text">User Management</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_analytics.html" class="nav-link">
+            <i class="bi bi-graph-up"></i>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_settings.html" class="nav-link">
+            <i class="bi bi-gear"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </div>
+        <div class="nav-item mt-auto">
+          <a href="login.html" class="nav-link">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="nav-text">Logout</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="d-flex align-items-center">
+          <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 class="page-title mb-0">Admin Dashboard</h1>
+        </div>
+        <div class="d-flex align-items-center">
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              <i class="bi bi-person-circle me-1"></i> Admin User
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-person me-2"></i>Profile</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-gear me-2"></i>Settings</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="login.html"
+                  ><i class="bi bi-box-arrow-right me-2"></i>Logout</a
+                >
+              </li>
             </ul>
-            <hr>
-            <a href="login.html" class="nav-link text-white"><i class="bi bi-box-arrow-right"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">System Overview</h1>
+          <p class="page-subtitle">
+            Monitor and manage your recruitment platform
+          </p>
         </div>
 
-        <div class="flex-grow-1 p-4">
-            <h1 class="mb-4">Dashboard</h1>
-
-            <!-- Stats -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card stat-card card-primary">
-                        <div class="card-body">
-                            <h5>Total Organizations</h5>
-                            <p class="fs-3">12</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card card-success">
-                        <div class="card-body">
-                            <h5>Total Jobs Posted</h5>
-                            <p class="fs-3">75</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card card-info">
-                        <div class="card-body">
-                            <h5>Total Applicants</h5>
-                            <p class="fs-3">1,480</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card card-warning">
-                        <div class="card-body">
-                            <h5>Pending Bills</h5>
-                            <p class="fs-3">3</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card primary">
+              <div class="stat-value" id="totalOrgs">12</div>
+              <div class="stat-label">Total Organizations</div>
+              <div class="stat-change positive">
+                <i class="bi bi-arrow-up me-1"></i>
+                <span>+2 this month</span>
+              </div>
             </div>
-
-            <!-- Organization Management Table -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>Organization Management</h4>
-                    <button class="btn btn-primary" id="createOrgBtn"><i class="bi bi-plus-circle"></i> Create
-                        Organization</button>
-                </div>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Organization Name</th>
-                                <th>Active Jobs</th>
-                                <th>Status</th>
-                                <th>Billing Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Demo Data -->
-                            <tr>
-                                <td>Tech Innovators Inc.</td>
-                                <td>5</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td><span class="badge bg-success">Paid</span></td>
-                                <td><button class="btn btn-sm btn-info"><i class="bi bi-eye"></i></button> <button
-                                        class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button></td>
-                            </tr>
-                            <tr>
-                                <td>HealthBridge Solutions</td>
-                                <td>3</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td><span class="badge bg-warning">Pending</span></td>
-                                <td><button class="btn btn-sm btn-info"><i class="bi bi-eye"></i></button> <button
-                                        class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button></td>
-                            </tr>
-                            <tr>
-                                <td>EduGate Learning</td>
-                                <td>0</td>
-                                <td><span class="badge bg-secondary">Inactive</span></td>
-                                <td><span class="badge bg-success">Paid</span></td>
-                                <td><button class="btn btn-sm btn-info"><i class="bi bi-eye"></i></button> <button
-                                        class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card success">
+              <div class="stat-value" id="totalJobs">247</div>
+              <div class="stat-label">Active Job Postings</div>
+              <div class="stat-change positive">
+                <i class="bi bi-arrow-up me-1"></i>
+                <span>+18 this week</span>
+              </div>
             </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card warning">
+              <div class="stat-value" id="totalApplicants">5,432</div>
+              <div class="stat-label">Total Applicants</div>
+              <div class="stat-change positive">
+                <i class="bi bi-arrow-up me-1"></i>
+                <span>+156 today</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card danger">
+              <div class="stat-value" id="pendingBills">3</div>
+              <div class="stat-label">Pending Bills</div>
+              <div class="stat-change negative">
+                <i class="bi bi-arrow-down me-1"></i>
+                <span>-2 resolved</span>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Charts and Analytics -->
+        <div class="row mb-4">
+          <div class="col-lg-8 mb-4">
+            <div class="chart-card">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h5 class="mb-0">Platform Usage Overview</h5>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary active">7 Days</button>
+                  <button class="btn btn-outline-primary">30 Days</button>
+                  <button class="btn btn-outline-primary">3 Months</button>
+                </div>
+              </div>
+              <div class="chart-placeholder text-center py-5">
+                <i class="bi bi-bar-chart display-1 text-muted"></i>
+                <p class="text-muted mt-3">
+                  Platform usage analytics will be displayed here
+                </p>
+                <small class="text-muted"
+                  >Integration with Chart.js or similar library pending</small
+                >
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 mb-4">
+            <div class="chart-card">
+              <h5 class="mb-3">Recent Activity</h5>
+              <div class="activity-list">
+                <div class="activity-item">
+                  <div class="activity-icon blue">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium">New Organization Registered</div>
+                    <small class="text-muted"
+                      >TechCorpX joined the platform</small
+                    >
+                    <div class="small text-muted">2 hours ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon green">
+                    <i class="bi bi-briefcase"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium">Job Posted</div>
+                    <small class="text-muted"
+                      >Senior Developer position at HealthBridge</small
+                    >
+                    <div class="small text-muted">4 hours ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon orange">
+                    <i class="bi bi-credit-card"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium">Payment Received</div>
+                    <small class="text-muted"
+                      >Monthly subscription from EduGate</small
+                    >
+                    <div class="small text-muted">6 hours ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon blue">
+                    <i class="bi bi-people"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium">Bulk Applications</div>
+                    <small class="text-muted"
+                      >25 new applications received</small
+                    >
+                    <div class="small text-muted">8 hours ago</div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center mt-3">
+                <a href="#" class="btn btn-outline-primary btn-sm"
+                  >View All Activity</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row">
+          <div class="col-12">
+            <div class="chart-card">
+              <h5 class="mb-3">Quick Actions</h5>
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <a
+                    href="admin_organizations.html"
+                    class="btn btn-outline-primary w-100 py-3"
+                  >
+                    <i class="bi bi-building display-6 d-block mb-2"></i>
+                    Manage Organizations
+                  </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <a
+                    href="admin_billing.html"
+                    class="btn btn-outline-success w-100 py-3"
+                  >
+                    <i class="bi bi-credit-card display-6 d-block mb-2"></i>
+                    View Billing
+                  </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <a
+                    href="admin_users.html"
+                    class="btn btn-outline-warning w-100 py-3"
+                  >
+                    <i class="bi bi-people display-6 d-block mb-2"></i>
+                    User Management
+                  </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <a
+                    href="admin_settings.html"
+                    class="btn btn-outline-info w-100 py-3"
+                  >
+                    <i class="bi bi-gear display-6 d-block mb-2"></i>
+                    System Settings
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        $("#createOrgBtn").on("click", function () {
-            Swal.fire({
-                title: 'Create New Organization',
-                html: `
-                    <input id="swal-org-name" class="swal2-input" placeholder="Organization Name">
-                    <input id="swal-org-email" class="swal2-input" placeholder="Contact Email">`,
-                confirmButtonText: 'Create',
-                focusConfirm: false,
-                preConfirm: () => {
-                    return [
-                        document.getElementById('swal-org-name').value,
-                        document.getElementById('swal-org-email').value
-                    ]
-                }
-            }).then((result) => {
-                if (result.isConfirmed && result.value[0] && result.value[1]) {
-                    Swal.fire('Created!', 'New organization has been created.', 'success');
-                }
-            })
+      $(document).ready(function () {
+        // Sidebar toggle functionality
+        $("#sidebarToggle").on("click", function () {
+          $("#adminSidebar").toggleClass("collapsed");
+          $("#mainContent").toggleClass("expanded");
         });
-    </script>
-</body>
 
+        // Animate statistics counters
+        function animateCounters() {
+          $(".stat-value").each(function () {
+            const $this = $(this);
+            const countTo = parseInt($this.text().replace(/,/g, ""));
+
+            $({ countNum: 0 }).animate(
+              {
+                countNum: countTo,
+              },
+              {
+                duration: 2000,
+                easing: "swing",
+                step: function () {
+                  $this.text(Math.floor(this.countNum).toLocaleString());
+                },
+                complete: function () {
+                  $this.text(countTo.toLocaleString());
+                },
+              }
+            );
+          });
+        }
+
+        // Start counter animation on page load
+        setTimeout(animateCounters, 500);
+
+        // Professional notification system
+        function showNotification(type, title, message, duration = 5000) {
+          const icons = {
+            success: '<i class="fas fa-check-circle me-2 text-success"></i>',
+            error: '<i class="fas fa-exclamation-circle me-2 text-danger"></i>',
+            info: '<i class="fas fa-info-circle me-2 text-info"></i>',
+            warning:
+              '<i class="fas fa-exclamation-triangle me-2 text-warning"></i>',
+          };
+
+          // Create notification container if it doesn't exist
+          if ($("#notificationContainer").length === 0) {
+            $("body").append(
+              '<div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>'
+            );
+          }
+
+          const notification = $(`
+                    <div class="notification ${type}" style="background: white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 10px; overflow: hidden; transform: translateX(100%); transition: all 0.3s ease; border-left: 5px solid ${
+            type === "success"
+              ? "#28a745"
+              : type === "error"
+              ? "#dc3545"
+              : type === "warning"
+              ? "#ffc107"
+              : "#17a2b8"
+          };">
+                        <div style="padding: 15px 20px 10px; display: flex; align-items: center; justify-content: space-between;">
+                            <h6 style="font-weight: 600; font-size: 16px; margin: 0; display: flex; align-items: center;">
+                                ${icons[type]}${title}
+                            </h6>
+                            <button type="button" style="background: none; border: none; font-size: 18px; color: #adb5bd; cursor: pointer; padding: 0; width: 20px; height: 20px;" onclick="$(this).closest('.notification').removeClass('show'); setTimeout(() => $(this).closest('.notification').remove(), 300);">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <div style="padding: 0 20px 15px; color: #6c757d; font-size: 14px;">${message}</div>
+                    </div>
+                `);
+
+          $("#notificationContainer").append(notification);
+
+          // Show notification
+          setTimeout(
+            () =>
+              notification.addClass("show").css("transform", "translateX(0)"),
+            100
+          );
+
+          // Auto remove
+          setTimeout(() => {
+            notification
+              .removeClass("show")
+              .css("transform", "translateX(100%)");
+            setTimeout(() => notification.remove(), 300);
+          }, duration);
+        }
+
+        // Real-time data updates (mock)
+        function updateDashboardData() {
+          // This would typically fetch real data from an API
+          // For now, we'll just add some variation to demonstrate real-time updates
+
+          const variations = {
+            totalOrgs: Math.floor(Math.random() * 3) - 1, // -1 to 1
+            totalJobs: Math.floor(Math.random() * 10) - 5, // -5 to 4
+            totalApplicants: Math.floor(Math.random() * 50) - 25, // -25 to 24
+          };
+
+          // Update values (in a real app, this would come from the server)
+          Object.keys(variations).forEach((key) => {
+            const currentVal = parseInt(
+              $("#" + key)
+                .text()
+                .replace(/,/g, "")
+            );
+            const newVal = Math.max(0, currentVal + variations[key]);
+            $("#" + key).text(newVal.toLocaleString());
+          });
+        }
+
+        // Update dashboard every 30 seconds (in a real app, you might use WebSockets)
+        setInterval(updateDashboardData, 30000);
+
+        // Add smooth scrolling for internal links
+        $('a[href^="#"]').on("click", function (event) {
+          const target = $(this.getAttribute("href"));
+          if (target.length) {
+            event.preventDefault();
+            $("html, body")
+              .stop()
+              .animate(
+                {
+                  scrollTop: target.offset().top - 100,
+                },
+                1000
+              );
+          }
+        });
+
+        // Show welcome message on first load
+        setTimeout(() => {
+          showNotification(
+            "info",
+            "Welcome Back!",
+            "Admin dashboard loaded successfully. All systems operational.",
+            4000
+          );
+        }, 1000);
+      });
+    </script>
+  </body>
 </html>

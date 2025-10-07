@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management - Bangladesh Rice Research Institute</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared/common-styles.css" />
+    <link rel="stylesheet" href="shared/admin-styles.css" />
+  </head>
+
+  <body>
+    <!-- Professional admin sidebar will be injected by JavaScript -->
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation -->
+      <div class="top-bar">
+        <div class="d-flex align-items-center">
+          <button class="sidebar-toggle me-3">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 class="page-title">User Management</h1>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              placeholder="Search users..."
+              id="globalSearch"
+            />
+          </div>
+
+          <button class="btn btn-outline-primary">
+            <i class="bi bi-bell"></i>
+          </button>
+
+          <div class="dropdown">
+            <button
+              class="btn btn-link dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              <div class="user-avatar">A</div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-person"></i> Profile</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-gear"></i> Settings</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-box-arrow-right"></i> Logout</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-primary">
+                <i class="bi bi-people"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="totalUsers">156</h3>
+                <p>Total Users</p>
+                <small class="text-success">
+                  <i class="bi bi-arrow-up"></i> +12% from last month
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-success">
+                <i class="bi bi-person-check"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="activeUsers">142</h3>
+                <p>Active Users</p>
+                <small class="text-success">
+                  <i class="bi bi-arrow-up"></i> +8% from last month
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-warning">
+                <i class="bi bi-person-dash"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="inactiveUsers">14</h3>
+                <p>Inactive Users</p>
+                <small class="text-warning">
+                  <i class="bi bi-arrow-down"></i> -2% from last month
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-info">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="adminUsers">8</h3>
+                <p>Admin Users</p>
+                <small class="text-muted"> No change </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Management Section -->
+        <div class="card">
+          <div
+            class="card-header d-flex justify-content-between align-items-center"
+          >
+            <h5 class="mb-0">User Management</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-success" id="addUserBtn">
+                <i class="bi bi-plus"></i> Add New User
+              </button>
+              <button class="btn btn-outline-primary" id="exportUsersBtn">
+                <i class="bi bi-download"></i> Export
+              </button>
+              <button class="btn btn-outline-secondary" id="refreshUsersBtn">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Filters -->
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <select class="form-select" id="statusFilter">
+                  <option value="">All Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="roleFilter">
+                  <option value="">All Roles</option>
+                  <option value="Admin">Admin</option>
+                  <option value="HR Manager">HR Manager</option>
+                  <option value="Department Head">Department Head</option>
+                  <option value="Staff">Staff</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="departmentFilter">
+                  <option value="">All Departments</option>
+                  <option value="Research">Research</option>
+                  <option value="Administration">Administration</option>
+                  <option value="IT">IT</option>
+                  <option value="Finance">Finance</option>
+                  <option value="HR">Human Resources</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex gap-2">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="selectAll"
+                  />
+                  <label class="form-check-label" for="selectAll"
+                    >Select All</label
+                  >
+                  <button
+                    class="btn btn-sm btn-outline-warning"
+                    id="bulkActionBtn"
+                  >
+                    <i class="bi bi-gear"></i> Bulk Actions
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th width="3%">
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="selectAllTable"
+                      />
+                    </th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <!-- Users will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Users pagination">
+              <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active">
+                  <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link" href="#">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="userModalTitle">Add New User</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="userForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">First Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="firstName"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Last Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="lastName"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Email *</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-control" id="phone" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Role *</label>
+                    <select class="form-select" id="role" required>
+                      <option value="">Select Role</option>
+                      <option value="Admin">Admin</option>
+                      <option value="HR Manager">HR Manager</option>
+                      <option value="Department Head">Department Head</option>
+                      <option value="Staff">Staff</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Department *</label>
+                    <select class="form-select" id="department" required>
+                      <option value="">Select Department</option>
+                      <option value="Research">Research</option>
+                      <option value="Administration">Administration</option>
+                      <option value="IT">IT</option>
+                      <option value="Finance">Finance</option>
+                      <option value="HR">Human Resources</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Employee ID</label>
+                    <input type="text" class="form-control" id="employeeId" />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="status">
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                      <option value="Suspended">Suspended</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Permissions</label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="permissionUsers"
+                      />
+                      <label class="form-check-label" for="permissionUsers">
+                        Manage Users
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="permissionJobs"
+                      />
+                      <label class="form-check-label" for="permissionJobs">
+                        Manage Jobs
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="permissionApplicants"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="permissionApplicants"
+                      >
+                        Manage Applicants
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="permissionReports"
+                      />
+                      <label class="form-check-label" for="permissionReports">
+                        View Reports
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="permissionSettings"
+                      />
+                      <label class="form-check-label" for="permissionSettings">
+                        System Settings
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="permissionAnalytics"
+                      />
+                      <label class="form-check-label" for="permissionAnalytics">
+                        View Analytics
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-primary" id="saveUserBtn">
+              Save User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">User Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="userDetails">
+            <!-- User details will be populated by JavaScript -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="editUserFromDetailsBtn"
+            >
+              Edit User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="shared/common-scripts.js"></script>
+    <script src="shared/admin-sidebar.js"></script>
+    <script>
+      $(document).ready(function () {
+        let allUsers = [];
+        let editingUserId = null;
+
+        // Load users data
+        function loadUsersData() {
+          allUsers = [
+            {
+              id: 1,
+              firstName: "Dr. Ahmed",
+              lastName: "Rahman",
+              email: "ahmed.rahman@brri.gov.bd",
+              phone: "+880-1711-123456",
+              role: "Admin",
+              department: "Administration",
+              employeeId: "BRRI001",
+              status: "Active",
+              lastLogin: "2024-10-08",
+              created: "2023-01-15",
+              permissions: [
+                "users",
+                "jobs",
+                "applicants",
+                "reports",
+                "settings",
+                "analytics",
+              ],
+            },
+            {
+              id: 2,
+              firstName: "Ms. Fatima",
+              lastName: "Khan",
+              email: "fatima.khan@brri.gov.bd",
+              phone: "+880-1712-234567",
+              role: "HR Manager",
+              department: "HR",
+              employeeId: "BRRI002",
+              status: "Active",
+              lastLogin: "2024-10-07",
+              created: "2023-02-20",
+              permissions: ["jobs", "applicants", "reports"],
+            },
+            {
+              id: 3,
+              firstName: "Dr. Mohammad",
+              lastName: "Hassan",
+              email: "m.hassan@brri.gov.bd",
+              phone: "+880-1713-345678",
+              role: "Department Head",
+              department: "Research",
+              employeeId: "BRRI003",
+              status: "Active",
+              lastLogin: "2024-10-06",
+              created: "2023-03-10",
+              permissions: ["applicants", "reports"],
+            },
+            {
+              id: 4,
+              firstName: "Ms. Rashida",
+              lastName: "Begum",
+              email: "rashida.begum@brri.gov.bd",
+              phone: "+880-1714-456789",
+              role: "Staff",
+              department: "Finance",
+              employeeId: "BRRI004",
+              status: "Active",
+              lastLogin: "2024-10-05",
+              created: "2023-04-05",
+              permissions: ["reports"],
+            },
+            {
+              id: 5,
+              firstName: "Mr. Karim",
+              lastName: "Uddin",
+              email: "karim.uddin@brri.gov.bd",
+              phone: "+880-1715-567890",
+              role: "Staff",
+              department: "IT",
+              employeeId: "BRRI005",
+              status: "Inactive",
+              lastLogin: "2024-09-28",
+              created: "2023-05-12",
+              permissions: ["settings"],
+            },
+          ];
+
+          filterAndDisplayUsers();
+          updateStats();
+        }
+
+        function updateStats() {
+          const total = allUsers.length;
+          const active = allUsers.filter((u) => u.status === "Active").length;
+          const inactive = allUsers.filter(
+            (u) => u.status === "Inactive"
+          ).length;
+          const admins = allUsers.filter((u) => u.role === "Admin").length;
+
+          $("#totalUsers").text(total);
+          $("#activeUsers").text(active);
+          $("#inactiveUsers").text(inactive);
+          $("#adminUsers").text(admins);
+        }
+
+        function filterAndDisplayUsers() {
+          const statusFilter = $("#statusFilter").val();
+          const roleFilter = $("#roleFilter").val();
+          const departmentFilter = $("#departmentFilter").val();
+          const searchTerm = $("#globalSearch").val().toLowerCase();
+
+          let filteredUsers = allUsers.filter((user) => {
+            const matchesStatus = !statusFilter || user.status === statusFilter;
+            const matchesRole = !roleFilter || user.role === roleFilter;
+            const matchesDepartment =
+              !departmentFilter || user.department === departmentFilter;
+            const matchesSearch =
+              !searchTerm ||
+              user.firstName.toLowerCase().includes(searchTerm) ||
+              user.lastName.toLowerCase().includes(searchTerm) ||
+              user.email.toLowerCase().includes(searchTerm) ||
+              user.employeeId.toLowerCase().includes(searchTerm);
+
+            return (
+              matchesStatus && matchesRole && matchesDepartment && matchesSearch
+            );
+          });
+
+          displayUsers(filteredUsers);
+        }
+
+        function displayUsers(users) {
+          const usersHtml = users
+            .map(
+              (user) => `
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="form-check-input user-checkbox" data-id="${
+                              user.id
+                            }">
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    ${user.firstName
+                                      .charAt(0)
+                                      .toUpperCase()}${user.lastName
+                .charAt(0)
+                .toUpperCase()}
+                                </div>
+                                <div>
+                                    <div class="fw-medium">${user.firstName} ${
+                user.lastName
+              }</div>
+                                    <small class="text-muted">${
+                                      user.email
+                                    }</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${user.role}</td>
+                        <td>${user.department}</td>
+                        <td>${getStatusBadge(user.status)}</td>
+                        <td>${formatDate(user.lastLogin)}</td>
+                        <td>${formatDate(user.created)}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary view-user-btn" data-id="${
+                                  user.id
+                                }" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success edit-user-btn" data-id="${
+                                  user.id
+                                }" title="Edit User">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning toggle-status-btn" data-id="${
+                                  user.id
+                                }" title="Toggle Status">
+                                    <i class="bi bi-power"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-user-btn" data-id="${
+                                  user.id
+                                }" title="Delete User">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `
+            )
+            .join("");
+
+          $("#usersTableBody").html(usersHtml);
+        }
+
+        function getStatusBadge(status) {
+          const statusClasses = {
+            Active: "badge bg-success",
+            Inactive: "badge bg-warning text-dark",
+            Suspended: "badge bg-danger",
+          };
+          return `<span class="${
+            statusClasses[status] || "badge bg-secondary"
+          }">${status}</span>`;
+        }
+
+        function formatDate(dateString) {
+          return new Date(dateString).toLocaleDateString();
+        }
+
+        function findUserById(id) {
+          return allUsers.find((user) => user.id === parseInt(id));
+        }
+
+        function resetUserForm() {
+          $("#userForm")[0].reset();
+          editingUserId = null;
+          $("#userModalTitle").text("Add New User");
+          $("#saveUserBtn").text("Save User");
+        }
+
+        // Event handlers
+        $("#statusFilter, #roleFilter, #departmentFilter").on(
+          "change",
+          function () {
+            filterAndDisplayUsers();
+          }
+        );
+
+        $("#globalSearch").on("input", function () {
+          filterAndDisplayUsers();
+        });
+
+        $("#refreshUsersBtn").on("click", function () {
+          loadUsersData();
+          showNotification("User data refreshed", "success");
+        });
+
+        // Add new user
+        $("#addUserBtn").on("click", function () {
+          resetUserForm();
+          $("#userModal").modal("show");
+        });
+
+        // Save user
+        $("#saveUserBtn").on("click", function () {
+          const formData = {
+            firstName: $("#firstName").val(),
+            lastName: $("#lastName").val(),
+            email: $("#email").val(),
+            phone: $("#phone").val(),
+            role: $("#role").val(),
+            department: $("#department").val(),
+            employeeId: $("#employeeId").val(),
+            status: $("#status").val(),
+            permissions: [],
+          };
+
+          // Get selected permissions
+          $('.form-check-input[id^="permission"]:checked').each(function () {
+            const permission = this.id.replace("permission", "").toLowerCase();
+            formData.permissions.push(permission);
+          });
+
+          if (editingUserId) {
+            // Update existing user
+            const userIndex = allUsers.findIndex((u) => u.id === editingUserId);
+            if (userIndex !== -1) {
+              allUsers[userIndex] = { ...allUsers[userIndex], ...formData };
+              showNotification("User updated successfully", "success");
+            }
+          } else {
+            // Add new user
+            const newUser = {
+              id: Math.max(...allUsers.map((u) => u.id)) + 1,
+              ...formData,
+              lastLogin: "Never",
+              created: new Date().toISOString().split("T")[0],
+            };
+            allUsers.push(newUser);
+            showNotification("User added successfully", "success");
+          }
+
+          $("#userModal").modal("hide");
+          filterAndDisplayUsers();
+          updateStats();
+        });
+
+        // View user details
+        $(document).on("click", ".view-user-btn", function () {
+          const userId = $(this).data("id");
+          const user = findUserById(userId);
+
+          if (user) {
+            const userDetails = `
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center mb-4">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2rem;">
+                                        ${user.firstName
+                                          .charAt(0)
+                                          .toUpperCase()}${user.lastName
+              .charAt(0)
+              .toUpperCase()}
+                                    </div>
+                                    <h5>${user.firstName} ${user.lastName}</h5>
+                                    <p class="text-muted">${user.role}</p>
+                                    ${getStatusBadge(user.status)}
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Email:</strong></div>
+                                    <div class="col-sm-8">${user.email}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Phone:</strong></div>
+                                    <div class="col-sm-8">${user.phone}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Employee ID:</strong></div>
+                                    <div class="col-sm-8">${
+                                      user.employeeId
+                                    }</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Department:</strong></div>
+                                    <div class="col-sm-8">${
+                                      user.department
+                                    }</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Last Login:</strong></div>
+                                    <div class="col-sm-8">${
+                                      user.lastLogin === "Never"
+                                        ? user.lastLogin
+                                        : formatDate(user.lastLogin)
+                                    }</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Created:</strong></div>
+                                    <div class="col-sm-8">${formatDate(
+                                      user.created
+                                    )}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Permissions:</strong></div>
+                                    <div class="col-sm-8">
+                                        ${user.permissions
+                                          .map(
+                                            (p) =>
+                                              `<span class="badge bg-secondary me-1">${p}</span>`
+                                          )
+                                          .join("")}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+            $("#userDetails").html(userDetails);
+            $("#userDetailsModal").modal("show");
+          }
+        });
+
+        // Edit user
+        $(document).on("click", ".edit-user-btn", function () {
+          const userId = $(this).data("id");
+          const user = findUserById(userId);
+
+          if (user) {
+            editingUserId = userId;
+            $("#userModalTitle").text("Edit User");
+            $("#saveUserBtn").text("Update User");
+
+            // Populate form
+            $("#firstName").val(user.firstName);
+            $("#lastName").val(user.lastName);
+            $("#email").val(user.email);
+            $("#phone").val(user.phone);
+            $("#role").val(user.role);
+            $("#department").val(user.department);
+            $("#employeeId").val(user.employeeId);
+            $("#status").val(user.status);
+
+            // Set permissions
+            $('.form-check-input[id^="permission"]').prop("checked", false);
+            user.permissions.forEach((permission) => {
+              $(
+                `#permission${
+                  permission.charAt(0).toUpperCase() + permission.slice(1)
+                }`
+              ).prop("checked", true);
+            });
+
+            $("#userModal").modal("show");
+          }
+        });
+
+        // Toggle user status
+        $(document).on("click", ".toggle-status-btn", function () {
+          const userId = $(this).data("id");
+          const userIndex = allUsers.findIndex(
+            (u) => u.id === parseInt(userId)
+          );
+
+          if (userIndex !== -1) {
+            const currentStatus = allUsers[userIndex].status;
+            const newStatus =
+              currentStatus === "Active" ? "Inactive" : "Active";
+
+            if (
+              confirm(
+                `${
+                  newStatus === "Active" ? "Activate" : "Deactivate"
+                } this user?`
+              )
+            ) {
+              allUsers[userIndex].status = newStatus;
+              filterAndDisplayUsers();
+              updateStats();
+              showNotification(
+                `User ${newStatus.toLowerCase()} successfully`,
+                "success"
+              );
+            }
+          }
+        });
+
+        // Delete user
+        $(document).on("click", ".delete-user-btn", function () {
+          const userId = $(this).data("id");
+
+          if (
+            confirm(
+              "Are you sure you want to delete this user? This action cannot be undone."
+            )
+          ) {
+            allUsers = allUsers.filter((u) => u.id !== parseInt(userId));
+            filterAndDisplayUsers();
+            updateStats();
+            showNotification("User deleted successfully", "success");
+          }
+        });
+
+        // Select all checkboxes
+        $("#selectAll, #selectAllTable").on("change", function () {
+          const isChecked = this.checked;
+          $(".user-checkbox").prop("checked", isChecked);
+        });
+
+        // Export users
+        $("#exportUsersBtn").on("click", function () {
+          showNotification("User data is being exported...", "info");
+        });
+
+        // Bulk actions
+        $("#bulkActionBtn").on("click", function () {
+          const selectedCount = $(".user-checkbox:checked").length;
+          if (selectedCount === 0) {
+            showNotification("Please select users first", "warning");
+            return;
+          }
+
+          // Create professional bulk action modal
+          const bulkModal = document.createElement("div");
+          bulkModal.className = "modal fade";
+          bulkModal.innerHTML = `
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Bulk Actions</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Selected ${selectedCount} user(s)</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Choose Action</label>
+                                    <select id="bulkAction" class="form-select">
+                                        <option value="">Choose Action</option>
+                                        <option value="activate">Activate All</option>
+                                        <option value="deactivate">Deactivate All</option>
+                                        <option value="suspend">Suspend All</option>
+                                        <option value="export">Export Selected</option>
+                                        <option value="delete">Delete All</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="applyBulkAction">Apply Action</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+          document.body.appendChild(bulkModal);
+          const modal = new bootstrap.Modal(bulkModal);
+          modal.show();
+
+          document
+            .getElementById("applyBulkAction")
+            .addEventListener("click", function () {
+              const action = document.getElementById("bulkAction").value;
+              if (action) {
+                showNotification(
+                  `Bulk action "${action}" applied to ${selectedCount} users`,
+                  "success"
+                );
+                loadUsersData();
+              }
+              modal.hide();
+              bulkModal.remove();
+            });
+
+          bulkModal.addEventListener("hidden.bs.modal", function () {
+            bulkModal.remove();
+          });
+        });
+
+        // Initialize data
+        loadUsersData();
+      });
+    </script>
+  </body>
+</html>

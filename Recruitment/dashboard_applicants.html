@@ -1,442 +1,628 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Applicant Management - Bangladesh Rice Research Institute</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="shared/common-styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared/common-styles.css" />
+    <link rel="stylesheet" href="shared/admin-styles.css" />
+  </head>
 
-<body>
-    <!-- Advanced Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="bi bi-building"></i>
-            </div>
-            <div class="brand">BRRI Dashboard</div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-item">
-                <a href="dashboard_overview.html" class="nav-link">
-                    <i class="bi bi-speedometer2"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="dashboard_jobs.html" class="nav-link">
-                    <i class="bi bi-briefcase"></i>
-                    <span class="nav-text">Job Management</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="dashboard_applicants.html" class="nav-link active">
-                    <i class="bi bi-people"></i>
-                    <span class="nav-text">Applicants</span>
-                    <span class="notification-badge">12</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="dashboard_interviews.html" class="nav-link">
-                    <i class="bi bi-calendar-check"></i>
-                    <span class="nav-text">Interviews</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="dashboard_analytics.html" class="nav-link">
-                    <i class="bi bi-graph-up"></i>
-                    <span class="nav-text">Analytics</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="dashboard_reports.html" class="nav-link">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span class="nav-text">Reports</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="dashboard_settings.html" class="nav-link">
-                    <i class="bi bi-gear"></i>
-                    <span class="nav-text">Settings</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="login.html" class="nav-link">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span class="nav-text">Logout</span>
-                </a>
-            </div>
-        </nav>
-    </div>
+  <body>
+    <!-- Professional admin sidebar will be injected by JavaScript -->
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Top Navigation -->
-        <div class="top-nav">
-            <div class="top-nav-left">
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="bi bi-list"></i>
-                </button>
-                <h1 class="page-title">Applicant Management</h1>
-            </div>
-
-            <div class="top-nav-right">
-                <div class="search-box">
-                    <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search applicants, jobs..." id="globalSearch">
-                </div>
-
-                <button class="notification-icon" id="notificationBtn">
-                    <i class="bi bi-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
-
-                <div class="user-menu" id="userMenu">
-                    <div class="user-avatar">
-                        HR
-                    </div>
-                    <div>
-                        <div style="font-weight: 600;">HR Manager</div>
-                        <div style="font-size: 0.875rem; color: var(--text-secondary);">admin@brri.gov.bd</div>
-                    </div>
-                    <i class="bi bi-chevron-down"></i>
-                </div>
-            </div>
+      <!-- Top Navigation -->
+      <div class="top-bar">
+        <div class="d-flex align-items-center">
+          <button class="sidebar-toggle me-3">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 class="page-title">Applicant Management</h1>
         </div>
 
-        <!-- Dashboard Content -->
-        <div class="dashboard-content">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Applicant Management</h2>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-primary" id="exportApplicantsBtn">
-                        <i class="bi bi-download"></i> Export Data
-                    </button>
-                    <button class="btn btn-primary" id="bulkActionBtn">
-                        <i class="bi bi-layers"></i> Bulk Actions
-                    </button>
-                </div>
-            </div>
+        <div class="d-flex align-items-center gap-3">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              placeholder="Search applicants..."
+              id="globalSearch"
+            />
+          </div>
 
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3 class="card-title">All Applicants</h3>
-                    <div class="d-flex gap-2">
-                        <input type="text" class="form-control" placeholder="Search applicants..."
-                            style="width: 250px;">
-                        <select class="form-select" style="width: auto;">
-                            <option>All Positions</option>
-                            <option>Data Analyst</option>
-                            <option>Research Assistant</option>
-                            <option>Field Officer</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="selectAll"></th>
-                                <th>Applicant</th>
-                                <th>Position</th>
-                                <th>Experience</th>
-                                <th>Education</th>
-                                <th>Status</th>
-                                <th>Applied Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="applicantsTableBody">
-                            <!-- Applicants will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+          <button class="btn btn-outline-primary">
+            <i class="bi bi-bell"></i>
+          </button>
+
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-secondary dropdown-toggle"
+              data-bs-toggle="dropdown"
+            >
+              <i class="bi bi-person-circle"></i> Admin
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-person"></i> Profile</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-gear"></i> Settings</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="login.html"
+                  ><i class="bi bi-box-arrow-right"></i> Logout</a
+                >
+              </li>
+            </ul>
+          </div>
         </div>
+      </div>
+
+      <!-- Page Content -->
+      <div class="content-area">
+        <div class="page-header">
+          <h2 class="page-title">Applicant Management</h2>
+          <p class="page-subtitle">Review and manage job applications</p>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="d-flex gap-2">
+            <select class="form-select" id="statusFilter" style="width: auto">
+              <option value="">All Status</option>
+              <option value="Applied">Applied</option>
+              <option value="Shortlisted">Shortlisted</option>
+              <option value="Interview Scheduled">Interview Scheduled</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Hired">Hired</option>
+            </select>
+            <select class="form-select" id="jobFilter" style="width: auto">
+              <option value="">All Positions</option>
+              <option value="Senior Research Scientist">
+                Senior Research Scientist
+              </option>
+              <option value="Data Analyst">Data Analyst</option>
+              <option value="Agricultural Extension Officer">
+                Agricultural Extension Officer
+              </option>
+              <option value="Laboratory Technician">
+                Laboratory Technician
+              </option>
+              <option value="Field Operations Manager">
+                Field Operations Manager
+              </option>
+            </select>
+            <button class="btn btn-outline-primary" id="refreshApplicantsBtn">
+              <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" id="exportApplicantsBtn">
+              <i class="bi bi-download"></i> Export Data
+            </button>
+            <button class="btn btn-primary" id="bulkActionBtn">
+              <i class="bi bi-layers"></i> Bulk Actions
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">All Applicants</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="selectAll"
+                      />
+                    </th>
+                    <th>Applicant</th>
+                    <th>Position</th>
+                    <th>Status</th>
+                    <th>Applied Date</th>
+                    <th>Experience</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="applicantsTableBody">
+                  <!-- Applicants will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Applicant Details Modal -->
     <div class="modal fade" id="applicantModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Applicant Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="applicantDetails">
-                    <!-- Applicant details will be populated by JavaScript -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-warning">Schedule Interview</button>
-                    <button type="button" class="btn btn-success">Shortlist</button>
-                    <button type="button" class="btn btn-danger">Reject</button>
-                </div>
-            </div>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Applicant Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="applicantDetails">
+            <!-- Applicant details will be populated by JavaScript -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-success">Shortlist</button>
+            <button type="button" class="btn btn-primary">
+              Schedule Interview
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="shared/common-scripts.js"></script>
+    <script src="shared/admin-sidebar.js"></script>
     <script>
-        $(document).ready(function () {
-            // Load applicants data on page load
-            loadApplicantsData();
+      $(document).ready(function () {
+        let allApplicants = [];
 
-            // Applicants Management
-            function loadApplicantsData() {
-                const applicants = [
-                    {
-                        id: 1,
-                        name: 'Dr. Ahmed Rahman',
-                        email: 'ahmed.rahman@email.com',
-                        position: 'Senior Research Scientist',
-                        experience: '8 years',
-                        education: 'PhD in Agriculture',
-                        status: 'shortlisted',
-                        appliedDate: '2024-10-02'
-                    },
-                    {
-                        id: 2,
-                        name: 'Ms. Fatima Khan',
-                        email: 'fatima.khan@email.com',
-                        position: 'Data Analyst',
-                        experience: '3 years',
-                        education: 'MSc in Statistics',
-                        status: 'pending',
-                        appliedDate: '2024-10-06'
-                    },
-                    {
-                        id: 3,
-                        name: 'Mr. Karim Hassan',
-                        email: 'karim.hassan@email.com',
-                        position: 'Field Operations Manager',
-                        experience: '6 years',
-                        education: 'BSc in Agriculture',
-                        status: 'interviewed',
-                        appliedDate: '2024-09-25'
-                    },
-                    {
-                        id: 4,
-                        name: 'Dr. Rashida Begum',
-                        email: 'rashida.begum@email.com',
-                        position: 'Agricultural Extension Officer',
-                        experience: '10 years',
-                        education: 'PhD in Agricultural Extension',
-                        status: 'shortlisted',
-                        appliedDate: '2024-09-18'
-                    },
-                    {
-                        id: 5,
-                        name: 'Mr. Sajjad Ali',
-                        email: 'sajjad.ali@email.com',
-                        position: 'Laboratory Technician',
-                        experience: '2 years',
-                        education: 'BSc in Chemistry',
-                        status: 'pending',
-                        appliedDate: '2024-09-30'
-                    }
-                ];
+        // Load applicants data
+        function loadApplicantsData() {
+          allApplicants = [
+            {
+              id: 1,
+              name: "Dr. Sarah Ahmed",
+              email: "sarah.ahmed@email.com",
+              phone: "+880-1711-123456",
+              job: "Senior Research Scientist",
+              status: "Applied",
+              appliedDate: "2024-10-15",
+              experience: "8 years",
+              education: "PhD in Plant Sciences",
+              resume: "resume_sarah_ahmed.pdf",
+            },
+            {
+              id: 2,
+              name: "Mohammad Rahman",
+              email: "m.rahman@email.com",
+              phone: "+880-1712-234567",
+              job: "Data Analyst",
+              status: "Shortlisted",
+              appliedDate: "2024-10-12",
+              experience: "5 years",
+              education: "Masters in Statistics",
+              resume: "resume_mohammad_rahman.pdf",
+            },
+            {
+              id: 3,
+              name: "Fatima Khatun",
+              email: "fatima.k@email.com",
+              phone: "+880-1713-345678",
+              job: "Agricultural Extension Officer",
+              status: "Interview Scheduled",
+              appliedDate: "2024-10-08",
+              experience: "3 years",
+              education: "BSc Agriculture",
+              resume: "resume_fatima_khatun.pdf",
+            },
+            {
+              id: 4,
+              name: "Ahmed Hassan",
+              email: "ahmed.hassan@email.com",
+              phone: "+880-1714-456789",
+              job: "Laboratory Technician",
+              status: "Rejected",
+              appliedDate: "2024-10-05",
+              experience: "2 years",
+              education: "BSc Chemistry",
+              resume: "resume_ahmed_hassan.pdf",
+            },
+            {
+              id: 5,
+              name: "Nasreen Begum",
+              email: "nasreen.b@email.com",
+              phone: "+880-1715-567890",
+              job: "Field Operations Manager",
+              status: "Applied",
+              appliedDate: "2024-10-20",
+              experience: "10 years",
+              education: "MSc Agriculture",
+              resume: "resume_nasreen_begum.pdf",
+            },
+          ];
 
-                const applicantsHtml = applicants.map(applicant => `
+          filterAndDisplayApplicants();
+        }
+
+        function filterAndDisplayApplicants() {
+          const statusFilter = $("#statusFilter").val();
+          const jobFilter = $("#jobFilter").val();
+          const searchTerm = $("#globalSearch").val().toLowerCase();
+
+          let filteredApplicants = allApplicants.filter((applicant) => {
+            const matchesStatus =
+              !statusFilter || applicant.status === statusFilter;
+            const matchesJob = !jobFilter || applicant.job === jobFilter;
+            const matchesSearch =
+              !searchTerm ||
+              applicant.name.toLowerCase().includes(searchTerm) ||
+              applicant.email.toLowerCase().includes(searchTerm) ||
+              applicant.job.toLowerCase().includes(searchTerm);
+
+            return matchesStatus && matchesJob && matchesSearch;
+          });
+
+          displayApplicants(filteredApplicants);
+        }
+
+        function displayApplicants(applicants) {
+          const applicantsHtml = applicants
+            .map(
+              (applicant) => `
                     <tr>
                         <td>
-                            <input type="checkbox" class="applicant-checkbox" data-id="${applicant.id}">
+                            <input type="checkbox" class="form-check-input applicant-checkbox" data-id="${
+                              applicant.id
+                            }">
                         </td>
                         <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="user-avatar" style="width: 35px; height: 35px; font-size: 0.875rem;">
-                                    ${applicant.name.charAt(0)}
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    ${applicant.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <div class="fw-medium">${applicant.name}</div>
-                                    <small class="text-muted">${applicant.email}</small>
+                                    <div class="fw-medium">${
+                                      applicant.name
+                                    }</div>
+                                    <small class="text-muted">${
+                                      applicant.email
+                                    }</small>
                                 </div>
                             </div>
                         </td>
-                        <td>${applicant.position}</td>
+                        <td>${applicant.job}</td>
+                        <td>${getStatusBadge(applicant.status)}</td>
+                        <td>${formatDate(applicant.appliedDate)}</td>
                         <td>${applicant.experience}</td>
-                        <td>${applicant.education}</td>
-                        <td>
-                            ${dashboardUtils.createStatusBadge(applicant.status)}
-                        </td>
-                        <td>${dashboardUtils.formatDate(applicant.appliedDate)}</td>
                         <td>
                             <div class="d-flex gap-1">
-                                <button class="btn btn-sm btn-outline-primary view-applicant-btn" data-id="${applicant.id}">
+                                <button class="btn btn-sm btn-outline-primary view-applicant-btn" data-id="${
+                                  applicant.id
+                                }" title="View Details">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-success shortlist-applicant-btn" data-id="${applicant.id}">
-                                    <i class="bi bi-star"></i>
+                                <button class="btn btn-sm btn-outline-success shortlist-applicant-btn" data-id="${
+                                  applicant.id
+                                }" title="Shortlist">
+                                    <i class="bi bi-check-circle"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning interview-btn" data-id="${applicant.id}">
-                                    <i class="bi bi-calendar"></i>
+                                <button class="btn btn-sm btn-outline-info interview-btn" data-id="${
+                                  applicant.id
+                                }" title="Schedule Interview">
+                                    <i class="bi bi-calendar-plus"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger reject-btn" data-id="${
+                                  applicant.id
+                                }" title="Reject">
+                                    <i class="bi bi-x-circle"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
-                `).join('');
+                `
+            )
+            .join("");
 
-                $('#applicantsTableBody').html(applicantsHtml);
-            }
+          $("#applicantsTableBody").html(applicantsHtml);
+        }
 
-            // View applicant details
-            $(document).on('click', '.view-applicant-btn', function () {
-                const applicantId = $(this).data('id');
-                showApplicantDetails(applicantId);
-            });
+        function getStatusBadge(status) {
+          const statusClasses = {
+            Applied: "badge bg-info",
+            Shortlisted: "badge bg-success",
+            "Interview Scheduled": "badge bg-warning text-dark",
+            Rejected: "badge bg-danger",
+            Hired: "badge bg-primary",
+          };
+          return `<span class="${
+            statusClasses[status] || "badge bg-secondary"
+          }">${status}</span>`;
+        }
 
-            function showApplicantDetails(id) {
-                // Simulate loading applicant details
-                const applicantDetails = `
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <div class="user-avatar mb-3" style="width: 100px; height: 100px; font-size: 2rem; margin: 0 auto;">
-                                A
+        function formatDate(dateString) {
+          return new Date(dateString).toLocaleDateString();
+        }
+
+        function findApplicantById(id) {
+          return allApplicants.find(
+            (applicant) => applicant.id === parseInt(id)
+          );
+        }
+
+        // Event handlers
+        $("#statusFilter, #jobFilter").on("change", function () {
+          filterAndDisplayApplicants();
+        });
+
+        $("#globalSearch").on("input", function () {
+          filterAndDisplayApplicants();
+        });
+
+        $("#refreshApplicantsBtn").on("click", function () {
+          loadApplicantsData();
+          showNotification("Applicant data refreshed", "success");
+        });
+
+        // View applicant details
+        $(document).on("click", ".view-applicant-btn", function () {
+          const applicantId = $(this).data("id");
+          const applicant = findApplicantById(applicantId);
+
+          if (applicant) {
+            const applicantDetails = `
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center mb-4">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2rem;">
+                                        ${applicant.name
+                                          .charAt(0)
+                                          .toUpperCase()}
+                                    </div>
+                                    <h5>${applicant.name}</h5>
+                                    <p class="text-muted">${applicant.job}</p>
+                                    ${getStatusBadge(applicant.status)}
+                                </div>
                             </div>
-                            <h5>Dr. Ahmed Rahman</h5>
-                            <p class="text-muted">ahmed.rahman@email.com</p>
+                            <div class="col-md-8">
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Email:</strong></div>
+                                    <div class="col-sm-8">${
+                                      applicant.email
+                                    }</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Phone:</strong></div>
+                                    <div class="col-sm-8">${
+                                      applicant.phone
+                                    }</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Experience:</strong></div>
+                                    <div class="col-sm-8">${
+                                      applicant.experience
+                                    }</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Education:</strong></div>
+                                    <div class="col-sm-8">${
+                                      applicant.education
+                                    }</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Applied Date:</strong></div>
+                                    <div class="col-sm-8">${formatDate(
+                                      applicant.appliedDate
+                                    )}</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Resume:</strong></div>
+                                    <div class="col-sm-8">
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-download"></i> Download Resume
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-8">
-                            <h6>Personal Information</h6>
-                            <table class="table table-sm">
-                                <tr><td><strong>Phone:</strong></td><td>+880-1234567890</td></tr>
-                                <tr><td><strong>Address:</strong></td><td>Dhaka, Bangladesh</td></tr>
-                                <tr><td><strong>Experience:</strong></td><td>8 years</td></tr>
-                                <tr><td><strong>Education:</strong></td><td>PhD in Agriculture</td></tr>
-                            </table>
-                            
-                            <h6 class="mt-4">Application Details</h6>
-                            <table class="table table-sm">
-                                <tr><td><strong>Position:</strong></td><td>Senior Research Scientist</td></tr>
-                                <tr><td><strong>Applied Date:</strong></td><td>October 2, 2024</td></tr>
-                                <tr><td><strong>Status:</strong></td><td><span class="status-badge shortlisted">Shortlisted</span></td></tr>
-                            </table>
+                    `;
 
-                            <h6 class="mt-4">Skills & Qualifications</h6>
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge bg-primary">Research Methodology</span>
-                                <span class="badge bg-primary">Data Analysis</span>
-                                <span class="badge bg-primary">Statistical Software</span>
-                                <span class="badge bg-primary">Laboratory Management</span>
-                                <span class="badge bg-primary">Publication Writing</span>
+            $("#applicantDetails").html(applicantDetails);
+            $("#applicantModal").modal("show");
+          }
+        });
+
+        // Shortlist applicant
+        $(document).on("click", ".shortlist-applicant-btn", function () {
+          const applicantId = $(this).data("id");
+          if (confirm("Shortlist this applicant?")) {
+            const applicantIndex = allApplicants.findIndex(
+              (a) => a.id === parseInt(applicantId)
+            );
+            if (applicantIndex !== -1) {
+              allApplicants[applicantIndex].status = "Shortlisted";
+              filterAndDisplayApplicants();
+              showNotification("Applicant has been shortlisted", "success");
+            }
+          }
+        });
+
+        // Schedule interview
+        $(document).on("click", ".interview-btn", function () {
+          const applicantId = $(this).data("id");
+
+          // Create professional interview scheduling modal
+          const interviewModal = document.createElement("div");
+          interviewModal.className = "modal fade";
+          interviewModal.innerHTML = `
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Schedule Interview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
-
-                            <h6 class="mt-4">Documents</h6>
-                            <div class="list-group">
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <i class="bi bi-file-earmark-pdf"></i> Resume/CV
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <i class="bi bi-file-earmark-pdf"></i> Cover Letter
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <i class="bi bi-file-earmark-pdf"></i> Educational Certificates
-                                </a>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Interview Date</label>
+                                    <input type="date" id="interviewDate" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Interview Time</label>
+                                    <input type="time" id="interviewTime" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Interview Type</label>
+                                    <select id="interviewType" class="form-select">
+                                        <option>In-person</option>
+                                        <option>Virtual</option>
+                                        <option>Phone</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="confirmInterview">Schedule Interview</button>
                             </div>
                         </div>
                     </div>
                 `;
 
-                $('#applicantDetails').html(applicantDetails);
-                $('#applicantModal').modal('show');
-            }
+          document.body.appendChild(interviewModal);
+          const modal = new bootstrap.Modal(interviewModal);
+          modal.show();
 
-            // Event handlers
-            $(document).on('click', '.shortlist-applicant-btn', function () {
-                const applicantId = $(this).data('id');
-                Swal.fire({
-                    title: 'Shortlist Applicant?',
-                    text: 'This applicant will be moved to the shortlisted candidates.',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, shortlist!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire('Success!', 'Applicant has been shortlisted.', 'success');
-                        loadApplicantsData();
-                    }
-                });
+          document
+            .getElementById("confirmInterview")
+            .addEventListener("click", function () {
+              const applicantIndex = allApplicants.findIndex(
+                (a) => a.id === parseInt(applicantId)
+              );
+              if (applicantIndex !== -1) {
+                allApplicants[applicantIndex].status = "Interview Scheduled";
+                filterAndDisplayApplicants();
+                showNotification("Interview has been scheduled", "success");
+              }
+              modal.hide();
+              interviewModal.remove();
             });
 
-            $(document).on('click', '.interview-btn', function () {
-                const applicantId = $(this).data('id');
-                Swal.fire({
-                    title: 'Schedule Interview',
-                    html: `
-                        <div class="text-start">
-                            <label class="form-label">Interview Date</label>
-                            <input type="date" id="interviewDate" class="form-control mb-3">
-                            <label class="form-label">Interview Time</label>
-                            <input type="time" id="interviewTime" class="form-control mb-3">
-                            <label class="form-label">Interview Type</label>
-                            <select id="interviewType" class="form-select">
-                                <option>In-person</option>
-                                <option>Virtual</option>
-                                <option>Phone</option>
-                            </select>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Schedule Interview'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire('Success!', 'Interview has been scheduled.', 'success');
-                        loadApplicantsData();
-                    }
-                });
-            });
-
-            $('#selectAll').on('change', function () {
-                $('.applicant-checkbox').prop('checked', this.checked);
-            });
-
-            $('#exportApplicantsBtn').on('click', function () {
-                Swal.fire('Export Started', 'Applicant data is being exported...', 'info');
-            });
-
-            $('#bulkActionBtn').on('click', function () {
-                const selectedCount = $('.applicant-checkbox:checked').length;
-                if (selectedCount === 0) {
-                    Swal.fire('No Selection', 'Please select applicants first.', 'warning');
-                    return;
-                }
-
-                Swal.fire({
-                    title: 'Bulk Actions',
-                    html: `
-                        <div class="text-start">
-                            <p>Selected ${selectedCount} applicant(s)</p>
-                            <select id="bulkAction" class="form-select">
-                                <option value="">Choose Action</option>
-                                <option value="shortlist">Shortlist All</option>
-                                <option value="reject">Reject All</option>
-                                <option value="interview">Schedule Interviews</option>
-                                <option value="export">Export Selected</option>
-                            </select>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Apply Action'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const action = $('#bulkAction').val();
-                        if (action) {
-                            Swal.fire('Success!', `Bulk action "${action}" applied to ${selectedCount} applicants.`, 'success');
-                            loadApplicantsData();
-                        }
-                    }
-                });
-            });
+          interviewModal.addEventListener("hidden.bs.modal", function () {
+            interviewModal.remove();
+          });
         });
-    </script>
-</body>
 
+        // Reject applicant
+        $(document).on("click", ".reject-btn", function () {
+          const applicantId = $(this).data("id");
+          if (confirm("Reject this applicant?")) {
+            const applicantIndex = allApplicants.findIndex(
+              (a) => a.id === parseInt(applicantId)
+            );
+            if (applicantIndex !== -1) {
+              allApplicants[applicantIndex].status = "Rejected";
+              filterAndDisplayApplicants();
+              showNotification("Applicant has been rejected", "info");
+            }
+          }
+        });
+
+        // Select all checkbox
+        $("#selectAll").on("change", function () {
+          $(".applicant-checkbox").prop("checked", this.checked);
+        });
+
+        // Export applicants
+        $("#exportApplicantsBtn").on("click", function () {
+          showNotification("Applicant data is being exported...", "info");
+        });
+
+        // Bulk actions
+        $("#bulkActionBtn").on("click", function () {
+          const selectedCount = $(".applicant-checkbox:checked").length;
+          if (selectedCount === 0) {
+            showNotification("Please select applicants first", "warning");
+            return;
+          }
+
+          // Create professional bulk action modal
+          const bulkModal = document.createElement("div");
+          bulkModal.className = "modal fade";
+          bulkModal.innerHTML = `
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Bulk Actions</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Selected ${selectedCount} applicant(s)</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Choose Action</label>
+                                    <select id="bulkAction" class="form-select">
+                                        <option value="">Choose Action</option>
+                                        <option value="shortlist">Shortlist All</option>
+                                        <option value="reject">Reject All</option>
+                                        <option value="interview">Schedule Interviews</option>
+                                        <option value="export">Export Selected</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="applyBulkAction">Apply Action</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+          document.body.appendChild(bulkModal);
+          const modal = new bootstrap.Modal(bulkModal);
+          modal.show();
+
+          document
+            .getElementById("applyBulkAction")
+            .addEventListener("click", function () {
+              const action = document.getElementById("bulkAction").value;
+              if (action) {
+                showNotification(
+                  `Bulk action "${action}" applied to ${selectedCount} applicants`,
+                  "success"
+                );
+                loadApplicantsData();
+              }
+              modal.hide();
+              bulkModal.remove();
+            });
+
+          bulkModal.addEventListener("hidden.bs.modal", function () {
+            bulkModal.remove();
+          });
+        });
+
+        // Initialize data
+        loadApplicantsData();
+      });
+    </script>
+  </body>
 </html>

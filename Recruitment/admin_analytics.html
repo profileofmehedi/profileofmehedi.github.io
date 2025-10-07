@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics Dashboard - Bangladesh Rice Research Institute</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared/common-styles.css" />
+    <link rel="stylesheet" href="shared/admin-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body>
+    <!-- Professional admin sidebar will be injected by JavaScript -->
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation -->
+      <div class="top-bar">
+        <div class="d-flex align-items-center">
+          <button class="sidebar-toggle me-3">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 class="page-title">Analytics Dashboard</h1>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              placeholder="Search analytics..."
+              id="globalSearch"
+            />
+          </div>
+
+          <button class="btn btn-outline-primary">
+            <i class="bi bi-bell"></i>
+          </button>
+
+          <div class="dropdown">
+            <button
+              class="btn btn-link dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              <div class="user-avatar">A</div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-person"></i> Profile</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-gear"></i> Settings</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-box-arrow-right"></i> Logout</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Date Range Filter -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label class="form-label">From Date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="fromDate"
+                          value="2024-01-01"
+                        />
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">To Date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="toDate"
+                          value="2024-10-08"
+                        />
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">Department</label>
+                        <select class="form-select" id="departmentFilter">
+                          <option value="">All Departments</option>
+                          <option value="Research">Research</option>
+                          <option value="Administration">Administration</option>
+                          <option value="IT">IT</option>
+                          <option value="Finance">Finance</option>
+                          <option value="HR">Human Resources</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                          <button class="btn btn-primary" id="applyFiltersBtn">
+                            Apply Filters
+                          </button>
+                          <button
+                            class="btn btn-outline-secondary"
+                            id="resetFiltersBtn"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-end">
+                    <button class="btn btn-success" id="exportAnalyticsBtn">
+                      <i class="bi bi-download"></i> Export Report
+                    </button>
+                    <button
+                      class="btn btn-outline-primary"
+                      id="refreshAnalyticsBtn"
+                    >
+                      <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-primary">
+                <i class="bi bi-briefcase"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="totalJobs">24</h3>
+                <p>Total Job Postings</p>
+                <small class="text-success">
+                  <i class="bi bi-arrow-up"></i> +15% from last month
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-info">
+                <i class="bi bi-people"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="totalApplications">342</h3>
+                <p>Total Applications</p>
+                <small class="text-success">
+                  <i class="bi bi-arrow-up"></i> +23% from last month
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-success">
+                <i class="bi bi-person-check"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="totalHired">18</h3>
+                <p>Successful Hires</p>
+                <small class="text-success">
+                  <i class="bi bi-arrow-up"></i> +12% from last month
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+              <div class="stats-icon bg-warning">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div class="stats-info">
+                <h3 id="avgTimeToHire">28</h3>
+                <p>Avg. Time to Hire (days)</p>
+                <small class="text-warning">
+                  <i class="bi bi-arrow-down"></i> -5% from last month
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row mb-4">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Applications Trend</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="applicationsTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Application Status Distribution</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="applicationStatusChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row mb-4">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Department-wise Hiring</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="departmentHiringChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Monthly Recruitment Activity</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="monthlyActivityChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Recruitment Performance Metrics</h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-item">
+                      <div class="metric-label">
+                        Application Conversion Rate
+                      </div>
+                      <div class="metric-value text-success">5.3%</div>
+                      <div class="metric-progress">
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-success"
+                            style="width: 53%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-item">
+                      <div class="metric-label">Interview-to-Hire Ratio</div>
+                      <div class="metric-value text-primary">72%</div>
+                      <div class="metric-progress">
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-primary"
+                            style="width: 72%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-item">
+                      <div class="metric-label">Cost per Hire</div>
+                      <div class="metric-value text-warning">৳45,000</div>
+                      <div class="metric-progress">
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-warning"
+                            style="width: 60%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-item">
+                      <div class="metric-label">Quality of Hire Score</div>
+                      <div class="metric-value text-info">8.2/10</div>
+                      <div class="metric-progress">
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-info"
+                            style="width: 82%"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Performing Jobs -->
+        <div class="row mb-4">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Top Performing Job Postings</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Job Title</th>
+                        <th>Applications</th>
+                        <th>Hired</th>
+                        <th>Success Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody id="topJobsTable">
+                      <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Application Sources</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="applicationSourcesChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Recent Analytics Activity</h5>
+              </div>
+              <div class="card-body">
+                <div class="activity-feed" id="activityFeed">
+                  <!-- Activity items will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="shared/common-scripts.js"></script>
+    <script src="shared/admin-sidebar.js"></script>
+    <script>
+      $(document).ready(function () {
+        let charts = {};
+
+        // Initialize all charts
+        function initializeCharts() {
+          initApplicationsTrendChart();
+          initApplicationStatusChart();
+          initDepartmentHiringChart();
+          initMonthlyActivityChart();
+          initApplicationSourcesChart();
+          loadTopJobs();
+          loadRecentActivity();
+        }
+
+        // Applications Trend Chart
+        function initApplicationsTrendChart() {
+          const ctx = document
+            .getElementById("applicationsTrendChart")
+            .getContext("2d");
+          charts.applicationsTrend = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+              ],
+              datasets: [
+                {
+                  label: "Applications Received",
+                  data: [23, 45, 32, 67, 49, 78, 65, 84, 92, 76],
+                  borderColor: "#0d6efd",
+                  backgroundColor: "rgba(13, 110, 253, 0.1)",
+                  borderWidth: 2,
+                  fill: true,
+                  tension: 0.4,
+                },
+                {
+                  label: "Applications Processed",
+                  data: [20, 42, 30, 63, 45, 74, 61, 80, 88, 72],
+                  borderColor: "#198754",
+                  backgroundColor: "rgba(25, 135, 84, 0.1)",
+                  borderWidth: 2,
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        }
+
+        // Application Status Chart
+        function initApplicationStatusChart() {
+          const ctx = document
+            .getElementById("applicationStatusChart")
+            .getContext("2d");
+          charts.applicationStatus = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: [
+                "Applied",
+                "Shortlisted",
+                "Interview Scheduled",
+                "Hired",
+                "Rejected",
+              ],
+              datasets: [
+                {
+                  data: [45, 20, 15, 12, 8],
+                  backgroundColor: [
+                    "#0dcaf0",
+                    "#198754",
+                    "#ffc107",
+                    "#0d6efd",
+                    "#dc3545",
+                  ],
+                  borderWidth: 2,
+                  borderColor: "#fff",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                },
+              },
+            },
+          });
+        }
+
+        // Department Hiring Chart
+        function initDepartmentHiringChart() {
+          const ctx = document
+            .getElementById("departmentHiringChart")
+            .getContext("2d");
+          charts.departmentHiring = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: ["Research", "IT", "HR", "Finance", "Admin"],
+              datasets: [
+                {
+                  label: "Hired",
+                  data: [8, 4, 3, 2, 1],
+                  backgroundColor: "#198754",
+                  borderColor: "#146c43",
+                  borderWidth: 1,
+                },
+                {
+                  label: "In Process",
+                  data: [12, 6, 4, 3, 2],
+                  backgroundColor: "#ffc107",
+                  borderColor: "#ffb607",
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        }
+
+        // Monthly Activity Chart
+        function initMonthlyActivityChart() {
+          const ctx = document
+            .getElementById("monthlyActivityChart")
+            .getContext("2d");
+          charts.monthlyActivity = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+              ],
+              datasets: [
+                {
+                  label: "Job Postings",
+                  data: [3, 5, 2, 4, 6, 8, 7, 9, 6, 4],
+                  backgroundColor: "#0d6efd",
+                  borderColor: "#0a58ca",
+                  borderWidth: 1,
+                },
+                {
+                  label: "Interviews Conducted",
+                  data: [15, 25, 18, 32, 28, 45, 38, 52, 44, 36],
+                  backgroundColor: "#dc3545",
+                  borderColor: "#b02a37",
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        }
+
+        // Application Sources Chart
+        function initApplicationSourcesChart() {
+          const ctx = document
+            .getElementById("applicationSourcesChart")
+            .getContext("2d");
+          charts.applicationSources = new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels: [
+                "Website",
+                "Job Portals",
+                "Social Media",
+                "Referrals",
+                "Walk-ins",
+              ],
+              datasets: [
+                {
+                  data: [40, 30, 15, 10, 5],
+                  backgroundColor: [
+                    "#0d6efd",
+                    "#198754",
+                    "#ffc107",
+                    "#dc3545",
+                    "#6f42c1",
+                  ],
+                  borderWidth: 2,
+                  borderColor: "#fff",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                },
+              },
+            },
+          });
+        }
+
+        // Load top performing jobs
+        function loadTopJobs() {
+          const topJobs = [
+            {
+              title: "Senior Research Scientist",
+              applications: 45,
+              hired: 3,
+              successRate: "6.7%",
+            },
+            {
+              title: "Data Analyst",
+              applications: 32,
+              hired: 2,
+              successRate: "6.3%",
+            },
+            {
+              title: "Lab Technician",
+              applications: 28,
+              hired: 2,
+              successRate: "7.1%",
+            },
+            {
+              title: "Field Officer",
+              applications: 25,
+              hired: 1,
+              successRate: "4.0%",
+            },
+            {
+              title: "Admin Assistant",
+              applications: 18,
+              hired: 1,
+              successRate: "5.6%",
+            },
+          ];
+
+          const tableHtml = topJobs
+            .map(
+              (job) => `
+                    <tr>
+                        <td>${job.title}</td>
+                        <td><span class="badge bg-info">${job.applications}</span></td>
+                        <td><span class="badge bg-success">${job.hired}</span></td>
+                        <td><span class="badge bg-primary">${job.successRate}</span></td>
+                    </tr>
+                `
+            )
+            .join("");
+
+          $("#topJobsTable").html(tableHtml);
+        }
+
+        // Load recent activity
+        function loadRecentActivity() {
+          const activities = [
+            {
+              icon: "bi-person-plus",
+              title: "New application received",
+              description:
+                "Dr. Sarah Ahmed applied for Senior Research Scientist position",
+              time: "2 hours ago",
+              type: "success",
+            },
+            {
+              icon: "bi-calendar-check",
+              title: "Interview scheduled",
+              description:
+                "Mohammad Rahman - Data Analyst position interview scheduled for tomorrow",
+              time: "4 hours ago",
+              type: "info",
+            },
+            {
+              icon: "bi-briefcase",
+              title: "New job posting published",
+              description:
+                "Laboratory Technician position posted in Research department",
+              time: "6 hours ago",
+              type: "primary",
+            },
+            {
+              icon: "bi-person-check",
+              title: "Candidate hired",
+              description:
+                "Fatima Khatun hired for Agricultural Extension Officer position",
+              time: "1 day ago",
+              type: "success",
+            },
+            {
+              icon: "bi-graph-up",
+              title: "Analytics report generated",
+              description:
+                "Monthly recruitment analytics report has been generated",
+              time: "2 days ago",
+              type: "warning",
+            },
+          ];
+
+          const activityHtml = activities
+            .map(
+              (activity) => `
+                    <div class="activity-item">
+                        <div class="activity-icon bg-${activity.type}">
+                            <i class="${activity.icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">${activity.title}</div>
+                            <div class="activity-description">${activity.description}</div>
+                            <small class="text-muted">${activity.time}</small>
+                        </div>
+                    </div>
+                `
+            )
+            .join("");
+
+          $("#activityFeed").html(activityHtml);
+        }
+
+        // Event handlers
+        $("#applyFiltersBtn").on("click", function () {
+          // Refresh charts with new filters
+          showNotification("Filters applied successfully", "success");
+          // Here you would typically fetch new data and update charts
+        });
+
+        $("#resetFiltersBtn").on("click", function () {
+          $("#fromDate").val("2024-01-01");
+          $("#toDate").val("2024-10-08");
+          $("#departmentFilter").val("");
+          showNotification("Filters reset", "info");
+        });
+
+        $("#refreshAnalyticsBtn").on("click", function () {
+          showNotification("Analytics data refreshed", "success");
+          // Refresh all charts and data
+          initializeCharts();
+        });
+
+        $("#exportAnalyticsBtn").on("click", function () {
+          showNotification("Analytics report is being exported...", "info");
+        });
+
+        // Initialize everything
+        initializeCharts();
+
+        // Resize charts on window resize
+        $(window).on("resize", function () {
+          Object.values(charts).forEach((chart) => {
+            if (chart) chart.resize();
+          });
+        });
+      });
+    </script>
+
+    <style>
+      .stats-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .metric-item {
+        padding: 1rem;
+        border-radius: 8px;
+        background: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+      }
+
+      .metric-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+      }
+
+      .metric-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .metric-progress .progress {
+        height: 6px;
+        border-radius: 3px;
+      }
+
+      .activity-feed {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+      }
+
+      .activity-content {
+        flex: 1;
+      }
+
+      .activity-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .activity-description {
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+      }
+
+      canvas {
+        height: 300px !important;
+      }
+    </style>
+  </body>
+</html>

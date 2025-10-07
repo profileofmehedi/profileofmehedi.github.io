@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Billing Management - Admin Panel</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared/common-styles.css" />
+    <style>
+      /* Professional Admin Dashboard Styles */
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+      }
+
+      .admin-sidebar {
+        width: 280px;
+        height: 100vh;
+        background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+        position: fixed;
+        left: 0;
+        top: 0;
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .admin-sidebar.collapsed {
+        width: 80px;
+      }
+
+      .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .sidebar-brand {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+      }
+
+      .sidebar-brand i {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.25rem;
+      }
+
+      .sidebar-nav {
+        padding: 1rem 0;
+      }
+
+      .nav-item {
+        margin-bottom: 0.5rem;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .nav-link.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+      }
+
+      .nav-link i {
+        width: 20px;
+        margin-right: 1rem;
+        text-align: center;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        min-height: 100vh;
+        transition: all 0.3s ease;
+      }
+
+      .main-content.expanded {
+        margin-left: 80px;
+      }
+
+      .top-bar {
+        background: white;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .sidebar-toggle {
+        background: none;
+        border: none;
+        color: #64748b;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+      }
+
+      .content-area {
+        padding: 2rem;
+      }
+
+      .page-header {
+        margin-bottom: 2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+      }
+
+      .page-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+      }
+
+      .billing-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+      }
+
+      .billing-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .revenue-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .revenue-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+
+      .billing-status {
+        padding: 0.25rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .status-paid {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+
+      .status-pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+      }
+
+      .status-overdue {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+
+      .status-refunded {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+      }
+
+      .invoice-item {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+      }
+
+      .invoice-item:hover {
+        background: #f8fafc;
+      }
+
+      .invoice-item:last-child {
+        border-bottom: none;
+      }
+
+      .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+      }
+
+      .payment-method {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .payment-method:hover {
+        border-color: #3b82f6;
+        background: #f8fafc;
+      }
+
+      .payment-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.25rem;
+      }
+
+      .visa-icon {
+        background: linear-gradient(135deg, #1a1f71 0%, #0f3460 100%);
+        color: white;
+      }
+
+      .mastercard-icon {
+        background: linear-gradient(135deg, #eb001b 0%, #f79e1b 100%);
+        color: white;
+      }
+
+      .paypal-icon {
+        background: linear-gradient(135deg, #003087 0%, #009cde 100%);
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Professional Admin Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <a href="admin_dashboard.html" class="sidebar-brand">
+          <i class="bi bi-shield-check"></i>
+          <span class="brand-text">Admin Panel</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="admin_dashboard.html" class="nav-link">
+            <i class="bi bi-speedometer2"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_organizations.html" class="nav-link">
+            <i class="bi bi-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_billing.html" class="nav-link active">
+            <i class="bi bi-credit-card"></i>
+            <span class="nav-text">Billing</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_users.html" class="nav-link">
+            <i class="bi bi-people"></i>
+            <span class="nav-text">User Management</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_analytics.html" class="nav-link">
+            <i class="bi bi-graph-up"></i>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_settings.html" class="nav-link">
+            <i class="bi bi-gear"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </div>
+        <div class="nav-item mt-auto">
+          <a href="login.html" class="nav-link">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="nav-text">Logout</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="d-flex align-items-center">
+          <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 class="page-title mb-0">Billing Management</h1>
+        </div>
+        <div class="d-flex align-items-center">
+          <button
+            class="btn btn-primary me-2"
+            data-bs-toggle="modal"
+            data-bs-target="#generateInvoiceModal"
+          >
+            <i class="bi bi-plus-circle me-1"></i> Generate Invoice
+          </button>
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              <i class="bi bi-person-circle me-1"></i> Admin User
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-person me-2"></i>Profile</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-gear me-2"></i>Settings</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="login.html"
+                  ><i class="bi bi-box-arrow-right me-2"></i>Logout</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Billing & Revenue Management</h1>
+          <p class="page-subtitle">
+            Monitor payments, invoices, and financial performance
+          </p>
+        </div>
+
+        <!-- Revenue Statistics -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="billing-card revenue-card">
+              <div class="stat-value" id="totalRevenue">$45,678</div>
+              <div class="stat-label">Monthly Revenue</div>
+              <div class="mt-2">
+                <i class="bi bi-arrow-up"></i> +12.5% from last month
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="billing-card">
+              <div class="stat-value text-success" id="paidInvoices">187</div>
+              <div class="stat-label text-muted">Paid Invoices</div>
+              <div class="small text-muted mt-1">This month</div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="billing-card">
+              <div class="stat-value text-warning" id="pendingInvoices">23</div>
+              <div class="stat-label text-muted">Pending Invoices</div>
+              <div class="small text-muted mt-1">Awaiting payment</div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="billing-card">
+              <div class="stat-value text-danger" id="overdueInvoices">5</div>
+              <div class="stat-label text-muted">Overdue Invoices</div>
+              <div class="small text-muted mt-1">Requires attention</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts and Recent Activity -->
+        <div class="row mb-4">
+          <div class="col-lg-8 mb-4">
+            <div class="chart-container">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h5 class="mb-0">Revenue Trends</h5>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary active">
+                    6 Months
+                  </button>
+                  <button class="btn btn-outline-primary">12 Months</button>
+                  <button class="btn btn-outline-primary">All Time</button>
+                </div>
+              </div>
+              <div class="chart-placeholder text-center py-5">
+                <i class="bi bi-graph-up display-1 text-muted"></i>
+                <p class="text-muted mt-3">
+                  Revenue analytics chart will be displayed here
+                </p>
+                <small class="text-muted"
+                  >Integration with Chart.js pending</small
+                >
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 mb-4">
+            <div class="billing-card">
+              <h5 class="mb-3">Payment Methods</h5>
+              <div class="payment-method">
+                <div class="payment-icon visa-icon">
+                  <i class="bi bi-credit-card"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold">Credit Cards</div>
+                  <small class="text-muted">68% of transactions</small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-semibold">$31,240</div>
+                </div>
+              </div>
+              <div class="payment-method">
+                <div class="payment-icon paypal-icon">
+                  <i class="bi bi-paypal"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold">PayPal</div>
+                  <small class="text-muted">22% of transactions</small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-semibold">$10,052</div>
+                </div>
+              </div>
+              <div class="payment-method">
+                <div class="payment-icon mastercard-icon">
+                  <i class="bi bi-bank"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold">Bank Transfer</div>
+                  <small class="text-muted">10% of transactions</small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-semibold">$4,386</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Invoices -->
+        <div class="billing-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Recent Invoices</h5>
+            <div class="d-flex gap-2">
+              <select
+                class="form-select form-select-sm"
+                style="width: auto"
+                id="statusFilter"
+              >
+                <option value="">All Status</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="overdue">Overdue</option>
+              </select>
+              <button class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-download me-1"></i>Export
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Organization</th>
+                  <th>Plan</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invoicesTableBody">
+                <!-- Invoices will be loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div
+            class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top"
+          >
+            <div class="text-muted">Showing 1 to 10 of 245 invoices</div>
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active">
+                  <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate Invoice Modal -->
+    <div class="modal fade" id="generateInvoiceModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-primary text-white border-0">
+            <div>
+              <h4 class="modal-title mb-0">Generate New Invoice</h4>
+              <small class="opacity-75"
+                >Create invoice for organization billing</small
+              >
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="generateInvoiceForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="invoiceOrg" class="form-label fw-semibold"
+                    >Organization</label
+                  >
+                  <select class="form-select" id="invoiceOrg" required>
+                    <option value="">Select organization...</option>
+                    <option value="1">TechInnovate Solutions</option>
+                    <option value="2">HealthBridge Medical</option>
+                    <option value="3">EduGate Learning</option>
+                    <option value="4">GreenEnergy Corp</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="invoicePlan" class="form-label fw-semibold"
+                    >Billing Plan</label
+                  >
+                  <select class="form-select" id="invoicePlan" required>
+                    <option value="">Select plan...</option>
+                    <option value="basic">Basic Plan - $29/month</option>
+                    <option value="premium">Premium Plan - $79/month</option>
+                    <option value="enterprise">
+                      Enterprise Plan - $199/month
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="billingPeriod" class="form-label fw-semibold"
+                    >Billing Period</label
+                  >
+                  <select class="form-select" id="billingPeriod" required>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="annually">Annually</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="invoiceDue" class="form-label fw-semibold"
+                    >Due Date</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="invoiceDue"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="baseAmount" class="form-label fw-semibold"
+                    >Base Amount ($)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="baseAmount"
+                    step="0.01"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="taxRate" class="form-label fw-semibold"
+                    >Tax Rate (%)</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="taxRate"
+                    step="0.01"
+                    value="8.5"
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="invoiceNotes" class="form-label fw-semibold"
+                  >Additional Notes</label
+                >
+                <textarea
+                  class="form-control"
+                  id="invoiceNotes"
+                  rows="3"
+                  placeholder="Any additional charges, discounts, or notes..."
+                ></textarea>
+              </div>
+              <div class="p-3 bg-light rounded">
+                <h6>Invoice Summary</h6>
+                <div class="d-flex justify-content-between">
+                  <span>Subtotal:</span>
+                  <span id="subtotalAmount">$0.00</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Tax:</span>
+                  <span id="taxAmount">$0.00</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between fw-bold">
+                  <span>Total:</span>
+                  <span id="totalAmount">$0.00</span>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer bg-light border-0">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="generateInvoiceBtn"
+            >
+              <i class="bi bi-file-earmark-plus me-1"></i>Generate Invoice
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Details Modal -->
+    <div class="modal fade" id="invoiceDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-info text-white border-0">
+            <div>
+              <h4 class="modal-title mb-0" id="invoiceDetailsTitle">
+                Invoice Details
+              </h4>
+              <small class="opacity-75">Complete invoice information</small>
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4" id="invoiceDetailsContent">
+            <!-- Invoice details will be loaded dynamically -->
+          </div>
+          <div class="modal-footer bg-light border-0">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              id="downloadInvoiceBtn"
+            >
+              <i class="bi bi-download me-1"></i>Download PDF
+            </button>
+            <button type="button" class="btn btn-primary" id="sendInvoiceBtn">
+              <i class="bi bi-envelope me-1"></i>Send Invoice
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Sidebar toggle functionality
+        $("#sidebarToggle").on("click", function () {
+          $("#adminSidebar").toggleClass("collapsed");
+          $("#mainContent").toggleClass("expanded");
+        });
+
+        // Mock invoice data
+        const invoices = [
+          {
+            id: "INV-2024-001",
+            organization: "TechInnovate Solutions",
+            plan: "Premium",
+            amount: 79.0,
+            status: "paid",
+            date: "2024-03-01",
+            dueDate: "2024-03-15",
+            paymentMethod: "Credit Card",
+          },
+          {
+            id: "INV-2024-002",
+            organization: "HealthBridge Medical",
+            plan: "Enterprise",
+            amount: 199.0,
+            status: "pending",
+            date: "2024-03-05",
+            dueDate: "2024-03-20",
+            paymentMethod: "Bank Transfer",
+          },
+          {
+            id: "INV-2024-003",
+            organization: "EduGate Learning",
+            plan: "Basic",
+            amount: 29.0,
+            status: "overdue",
+            date: "2024-02-15",
+            dueDate: "2024-03-01",
+            paymentMethod: "PayPal",
+          },
+          {
+            id: "INV-2024-004",
+            organization: "GreenEnergy Corp",
+            plan: "Premium",
+            amount: 79.0,
+            status: "paid",
+            date: "2024-03-08",
+            dueDate: "2024-03-22",
+            paymentMethod: "Credit Card",
+          },
+          {
+            id: "INV-2024-005",
+            organization: "FinanceFirst Bank",
+            plan: "Enterprise",
+            amount: 199.0,
+            status: "pending",
+            date: "2024-03-10",
+            dueDate: "2024-03-25",
+            paymentMethod: "Bank Transfer",
+          },
+        ];
+
+        // Load invoices into table
+        function loadInvoices(filteredInvoices = invoices) {
+          const tbody = $("#invoicesTableBody");
+          tbody.empty();
+
+          filteredInvoices.forEach((invoice) => {
+            const statusClass =
+              invoice.status === "paid"
+                ? "status-paid"
+                : invoice.status === "pending"
+                ? "status-pending"
+                : invoice.status === "overdue"
+                ? "status-overdue"
+                : "status-refunded";
+
+            const row = `
+                        <tr data-invoice-id="${invoice.id}">
+                            <td>
+                                <div class="fw-semibold">${invoice.id}</div>
+                            </td>
+                            <td>
+                                <div class="fw-medium">${
+                                  invoice.organization
+                                }</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">${
+                                  invoice.plan
+                                }</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">$${invoice.amount.toFixed(
+                                  2
+                                )}</div>
+                            </td>
+                            <td>
+                                <span class="billing-status ${statusClass}">
+                                    ${
+                                      invoice.status.charAt(0).toUpperCase() +
+                                      invoice.status.slice(1)
+                                    }
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small">${new Date(
+                                  invoice.date
+                                ).toLocaleDateString()}</div>
+                                <div class="small text-muted">Due: ${new Date(
+                                  invoice.dueDate
+                                ).toLocaleDateString()}</div>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info me-1 view-invoice-btn" data-id="${
+                                  invoice.id
+                                }" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary me-1 download-invoice-btn" data-id="${
+                                  invoice.id
+                                }" title="Download">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                ${
+                                  invoice.status === "pending"
+                                    ? `<button class="btn btn-sm btn-outline-success mark-paid-btn" data-id="${invoice.id}" title="Mark as Paid">
+                                        <i class="bi bi-check"></i>
+                                    </button>`
+                                    : ""
+                                }
+                            </td>
+                        </tr>
+                    `;
+            tbody.append(row);
+          });
+        }
+
+        // Initial load
+        loadInvoices();
+
+        // Filter invoices by status
+        $("#statusFilter").on("change", function () {
+          const status = $(this).val();
+          const filtered = status
+            ? invoices.filter((inv) => inv.status === status)
+            : invoices;
+          loadInvoices(filtered);
+        });
+
+        // Generate invoice functionality
+        $("#generateInvoiceBtn").on("click", function () {
+          if (validateInvoiceForm()) {
+            const invoiceData = {
+              id: `INV-2024-${String(invoices.length + 1).padStart(3, "0")}`,
+              organization: $("#invoiceOrg option:selected").text(),
+              plan:
+                $("#invoicePlan").val().charAt(0).toUpperCase() +
+                $("#invoicePlan").val().slice(1),
+              amount: parseFloat($("#totalAmount").text().replace("$", "")),
+              status: "pending",
+              date: new Date().toISOString().split("T")[0],
+              dueDate: $("#invoiceDue").val(),
+              paymentMethod: "Pending",
+            };
+
+            invoices.push(invoiceData);
+            loadInvoices();
+            $("#generateInvoiceModal").modal("hide");
+            $("#generateInvoiceForm")[0].reset();
+            updateInvoiceSummary();
+
+            showNotification(
+              "success",
+              "Invoice Generated!",
+              `Invoice ${invoiceData.id} has been created for ${invoiceData.organization}.`
+            );
+          }
+        });
+
+        // Calculate invoice amounts
+        $("#baseAmount, #taxRate").on("input", updateInvoiceSummary);
+
+        function updateInvoiceSummary() {
+          const baseAmount = parseFloat($("#baseAmount").val()) || 0;
+          const taxRate = parseFloat($("#taxRate").val()) || 0;
+          const taxAmount = (baseAmount * taxRate) / 100;
+          const totalAmount = baseAmount + taxAmount;
+
+          $("#subtotalAmount").text(`$${baseAmount.toFixed(2)}`);
+          $("#taxAmount").text(`$${taxAmount.toFixed(2)}`);
+          $("#totalAmount").text(`$${totalAmount.toFixed(2)}`);
+        }
+
+        // View invoice details
+        $(document).on("click", ".view-invoice-btn", function () {
+          const invoiceId = $(this).data("id");
+          const invoice = invoices.find((inv) => inv.id === invoiceId);
+
+          if (invoice) {
+            showInvoiceDetails(invoice);
+          }
+        });
+
+        // Mark invoice as paid
+        $(document).on("click", ".mark-paid-btn", function () {
+          const invoiceId = $(this).data("id");
+          const invoice = invoices.find((inv) => inv.id === invoiceId);
+
+          if (invoice) {
+            invoice.status = "paid";
+            invoice.paymentMethod = "Manual Entry";
+            loadInvoices();
+
+            showNotification(
+              "success",
+              "Payment Recorded",
+              `Invoice ${invoiceId} has been marked as paid.`
+            );
+          }
+        });
+
+        // Helper functions
+        function validateInvoiceForm() {
+          const requiredFields = [
+            "#invoiceOrg",
+            "#invoicePlan",
+            "#billingPeriod",
+            "#invoiceDue",
+            "#baseAmount",
+          ];
+          let isValid = true;
+
+          requiredFields.forEach((field) => {
+            if (!$(field).val()) {
+              $(field).addClass("is-invalid");
+              isValid = false;
+            } else {
+              $(field).removeClass("is-invalid");
+            }
+          });
+
+          if (!isValid) {
+            showNotification(
+              "error",
+              "Validation Error",
+              "Please fill in all required fields."
+            );
+          }
+
+          return isValid;
+        }
+
+        function showInvoiceDetails(invoice) {
+          $("#invoiceDetailsTitle").text(`Invoice ${invoice.id}`);
+          $("#invoiceDetailsContent").html(`
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Invoice Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Invoice ID:</strong></td>
+                                    <td>${invoice.id}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Organization:</strong></td>
+                                    <td>${invoice.organization}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Plan:</strong></td>
+                                    <td><span class="badge bg-info">${
+                                      invoice.plan
+                                    }</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Amount:</strong></td>
+                                    <td class="fw-bold">$${invoice.amount.toFixed(
+                                      2
+                                    )}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Payment Details</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        <span class="billing-status ${
+                                          invoice.status === "paid"
+                                            ? "status-paid"
+                                            : invoice.status === "pending"
+                                            ? "status-pending"
+                                            : "status-overdue"
+                                        }">
+                                            ${
+                                              invoice.status
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                              invoice.status.slice(1)
+                                            }
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Issue Date:</strong></td>
+                                    <td>${new Date(
+                                      invoice.date
+                                    ).toLocaleDateString()}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Due Date:</strong></td>
+                                    <td>${new Date(
+                                      invoice.dueDate
+                                    ).toLocaleDateString()}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Payment Method:</strong></td>
+                                    <td>${invoice.paymentMethod}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                `);
+          $("#invoiceDetailsModal").modal("show");
+        }
+
+        // Professional notification system
+        function showNotification(type, title, message, duration = 5000) {
+          const icons = {
+            success: '<i class="bi bi-check-circle me-2 text-success"></i>',
+            error: '<i class="bi bi-exclamation-circle me-2 text-danger"></i>',
+            info: '<i class="bi bi-info-circle me-2 text-info"></i>',
+            warning:
+              '<i class="bi bi-exclamation-triangle me-2 text-warning"></i>',
+          };
+
+          if ($("#notificationContainer").length === 0) {
+            $("body").append(
+              '<div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>'
+            );
+          }
+
+          const notification = $(`
+                    <div class="notification ${type}" style="background: white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 10px; overflow: hidden; transform: translateX(100%); transition: all 0.3s ease; border-left: 5px solid ${
+            type === "success"
+              ? "#28a745"
+              : type === "error"
+              ? "#dc3545"
+              : type === "warning"
+              ? "#ffc107"
+              : "#17a2b8"
+          };">
+                        <div style="padding: 15px 20px 10px; display: flex; align-items: center; justify-content: space-between;">
+                            <h6 style="font-weight: 600; font-size: 16px; margin: 0; display: flex; align-items: center;">
+                                ${icons[type]}${title}
+                            </h6>
+                            <button type="button" style="background: none; border: none; font-size: 18px; color: #adb5bd; cursor: pointer; padding: 0; width: 20px; height: 20px;" onclick="$(this).closest('.notification').removeClass('show'); setTimeout(() => $(this).closest('.notification').remove(), 300);">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <div style="padding: 0 20px 15px; color: #6c757d; font-size: 14px;">${message}</div>
+                    </div>
+                `);
+
+          $("#notificationContainer").append(notification);
+          setTimeout(
+            () =>
+              notification.addClass("show").css("transform", "translateX(0)"),
+            100
+          );
+          setTimeout(() => {
+            notification
+              .removeClass("show")
+              .css("transform", "translateX(100%)");
+            setTimeout(() => notification.remove(), 300);
+          }, duration);
+        }
+
+        // Set minimum due date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        $("#invoiceDue").attr("min", tomorrow.toISOString().split("T")[0]);
+
+        // Auto-fill amount based on plan selection
+        $("#invoicePlan").on("change", function () {
+          const plan = $(this).val();
+          let amount = 0;
+
+          switch (plan) {
+            case "basic":
+              amount = 29;
+              break;
+            case "premium":
+              amount = 79;
+              break;
+            case "enterprise":
+              amount = 199;
+              break;
+          }
+
+          $("#baseAmount").val(amount);
+          updateInvoiceSummary();
+        });
+      });
+    </script>
+  </body>
+</html>

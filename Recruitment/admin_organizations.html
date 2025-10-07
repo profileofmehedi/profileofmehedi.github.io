@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Organizations Management - Admin Panel</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared/common-styles.css" />
+    <style>
+      /* Professional Admin Dashboard Styles */
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+      }
+
+      .admin-sidebar {
+        width: 280px;
+        height: 100vh;
+        background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+        position: fixed;
+        left: 0;
+        top: 0;
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .admin-sidebar.collapsed {
+        width: 80px;
+      }
+
+      .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .sidebar-brand {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+      }
+
+      .sidebar-brand i {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.25rem;
+      }
+
+      .sidebar-nav {
+        padding: 1rem 0;
+      }
+
+      .nav-item {
+        margin-bottom: 0.5rem;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .nav-link.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+      }
+
+      .nav-link i {
+        width: 20px;
+        margin-right: 1rem;
+        text-align: center;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        min-height: 100vh;
+        transition: all 0.3s ease;
+      }
+
+      .main-content.expanded {
+        margin-left: 80px;
+      }
+
+      .top-bar {
+        background: white;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .sidebar-toggle {
+        background: none;
+        border: none;
+        color: #64748b;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+      }
+
+      .content-area {
+        padding: 2rem;
+      }
+
+      .page-header {
+        margin-bottom: 2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+      }
+
+      .page-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+      }
+
+      .org-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+      }
+
+      .org-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .org-status {
+        padding: 0.25rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .status-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+
+      .status-inactive {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+      }
+
+      .status-suspended {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+      }
+
+      .table th {
+        background: #f8fafc;
+        border: none;
+        color: #64748b;
+        font-weight: 600;
+        padding: 1rem;
+      }
+
+      .table td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+      }
+
+      .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0.25rem;
+        transition: all 0.3s ease;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .search-filters {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 2rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Professional Admin Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <a href="admin_dashboard.html" class="sidebar-brand">
+          <i class="bi bi-shield-check"></i>
+          <span class="brand-text">Admin Panel</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="admin_dashboard.html" class="nav-link">
+            <i class="bi bi-speedometer2"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_organizations.html" class="nav-link active">
+            <i class="bi bi-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_billing.html" class="nav-link">
+            <i class="bi bi-credit-card"></i>
+            <span class="nav-text">Billing</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_users.html" class="nav-link">
+            <i class="bi bi-people"></i>
+            <span class="nav-text">User Management</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_analytics.html" class="nav-link">
+            <i class="bi bi-graph-up"></i>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="admin_settings.html" class="nav-link">
+            <i class="bi bi-gear"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </div>
+        <div class="nav-item mt-auto">
+          <a href="login.html" class="nav-link">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="nav-text">Logout</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="d-flex align-items-center">
+          <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 class="page-title mb-0">Organizations Management</h1>
+        </div>
+        <div class="d-flex align-items-center">
+          <button
+            class="btn btn-primary me-2"
+            data-bs-toggle="modal"
+            data-bs-target="#createOrgModal"
+          >
+            <i class="bi bi-plus-circle me-1"></i> Add Organization
+          </button>
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              <i class="bi bi-person-circle me-1"></i> Admin User
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-person me-2"></i>Profile</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="#"
+                  ><i class="bi bi-gear me-2"></i>Settings</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="login.html"
+                  ><i class="bi bi-box-arrow-right me-2"></i>Logout</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Organizations Management</h1>
+          <p class="page-subtitle">
+            Manage and monitor all registered organizations on the platform
+          </p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="search-filters">
+          <div class="row align-items-end">
+            <div class="col-md-4">
+              <label for="searchOrg" class="form-label fw-semibold"
+                >Search Organizations</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-search"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="searchOrg"
+                  placeholder="Search by name, email, or domain..."
+                />
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label for="statusFilter" class="form-label fw-semibold"
+                >Status</label
+              >
+              <select class="form-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label for="planFilter" class="form-label fw-semibold"
+                >Plan Type</label
+              >
+              <select class="form-select" id="planFilter">
+                <option value="">All Plans</option>
+                <option value="basic">Basic</option>
+                <option value="premium">Premium</option>
+                <option value="enterprise">Enterprise</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label for="sortBy" class="form-label fw-semibold">Sort By</label>
+              <select class="form-select" id="sortBy">
+                <option value="name">Organization Name</option>
+                <option value="created">Date Created</option>
+                <option value="jobs">Active Jobs</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-outline-secondary w-100" id="resetFilters">
+                <i class="bi bi-arrow-clockwise me-1"></i> Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organizations Table -->
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0" id="organizationsTable">
+              <thead>
+                <tr>
+                  <th>Organization</th>
+                  <th>Contact Info</th>
+                  <th>Plan</th>
+                  <th>Active Jobs</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="organizationsTableBody">
+                <!-- Organizations will be dynamically loaded here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div
+            class="d-flex justify-content-between align-items-center p-3 border-top"
+          >
+            <div class="text-muted">
+              Showing <span id="showingFrom">1</span> to
+              <span id="showingTo">10</span> of
+              <span id="totalOrgs">25</span> organizations
+            </div>
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active">
+                  <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Organization Modal -->
+    <div class="modal fade" id="createOrgModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-primary text-white border-0">
+            <div>
+              <h4 class="modal-title mb-0">Create New Organization</h4>
+              <small class="opacity-75"
+                >Register a new organization on the platform</small
+              >
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="createOrgForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="orgName" class="form-label fw-semibold"
+                    >Organization Name</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="orgName"
+                    required
+                    placeholder="Enter organization name"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="orgDomain" class="form-label fw-semibold"
+                    >Domain</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="orgDomain"
+                    required
+                    placeholder="company.com"
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="contactEmail" class="form-label fw-semibold"
+                    >Contact Email</label
+                  >
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="contactEmail"
+                    required
+                    placeholder="contact@company.com"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="contactPhone" class="form-label fw-semibold"
+                    >Contact Phone</label
+                  >
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="contactPhone"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="industry" class="form-label fw-semibold"
+                    >Industry</label
+                  >
+                  <select class="form-select" id="industry" required>
+                    <option value="">Select industry...</option>
+                    <option value="technology">Technology</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="finance">Finance</option>
+                    <option value="education">Education</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="retail">Retail</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="planType" class="form-label fw-semibold"
+                    >Plan Type</label
+                  >
+                  <select class="form-select" id="planType" required>
+                    <option value="">Select plan...</option>
+                    <option value="basic">Basic Plan ($29/month)</option>
+                    <option value="premium">Premium Plan ($79/month)</option>
+                    <option value="enterprise">
+                      Enterprise Plan ($199/month)
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="orgDescription" class="form-label fw-semibold"
+                  >Description</label
+                >
+                <textarea
+                  class="form-control"
+                  id="orgDescription"
+                  rows="3"
+                  placeholder="Brief description about the organization..."
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="orgAddress" class="form-label fw-semibold"
+                  >Address</label
+                >
+                <textarea
+                  class="form-control"
+                  id="orgAddress"
+                  rows="2"
+                  placeholder="Organization address..."
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer bg-light border-0">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-primary" id="createOrgBtn">
+              <i class="bi bi-plus-circle me-1"></i>Create Organization
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Organization Details Modal -->
+    <div class="modal fade" id="orgDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-info text-white border-0">
+            <div>
+              <h4 class="modal-title mb-0" id="orgDetailsTitle">
+                Organization Details
+              </h4>
+              <small class="opacity-75"
+                >Comprehensive organization information</small
+              >
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-0" id="orgDetailsContent">
+            <!-- Details will be loaded dynamically -->
+          </div>
+          <div class="modal-footer bg-light border-0">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="editOrgFromDetails"
+            >
+              <i class="bi bi-pencil me-1"></i>Edit Organization
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Sidebar toggle functionality
+        $("#sidebarToggle").on("click", function () {
+          $("#adminSidebar").toggleClass("collapsed");
+          $("#mainContent").toggleClass("expanded");
+        });
+
+        // Mock organization data
+        const organizations = [
+          {
+            id: 1,
+            name: "TechInnovate Solutions",
+            domain: "techinnovate.com",
+            email: "contact@techinnovate.com",
+            phone: "+1 (555) 123-4567",
+            industry: "Technology",
+            plan: "Premium",
+            status: "active",
+            activeJobs: 12,
+            totalApplicants: 345,
+            created: "2024-01-15",
+            description:
+              "Leading technology solutions provider specializing in AI and machine learning.",
+            address: "123 Tech Street, Silicon Valley, CA 94000",
+          },
+          {
+            id: 2,
+            name: "HealthBridge Medical",
+            domain: "healthbridge.com",
+            email: "hr@healthbridge.com",
+            phone: "+1 (555) 987-6543",
+            industry: "Healthcare",
+            plan: "Enterprise",
+            status: "active",
+            activeJobs: 8,
+            totalApplicants: 156,
+            created: "2024-02-20",
+            description:
+              "Comprehensive healthcare services and medical research organization.",
+            address: "456 Medical Center Dr, Boston, MA 02101",
+          },
+          {
+            id: 3,
+            name: "EduGate Learning",
+            domain: "edugate.edu",
+            email: "admin@edugate.edu",
+            phone: "+1 (555) 456-7890",
+            industry: "Education",
+            plan: "Basic",
+            status: "inactive",
+            activeJobs: 0,
+            totalApplicants: 89,
+            created: "2024-03-10",
+            description:
+              "Online education platform providing courses and certifications.",
+            address: "789 Education Blvd, Austin, TX 78701",
+          },
+          {
+            id: 4,
+            name: "GreenEnergy Corp",
+            domain: "greenenergy.com",
+            email: "careers@greenenergy.com",
+            phone: "+1 (555) 234-5678",
+            industry: "Manufacturing",
+            plan: "Premium",
+            status: "active",
+            activeJobs: 15,
+            totalApplicants: 423,
+            created: "2024-01-28",
+            description:
+              "Renewable energy solutions and sustainable technology development.",
+            address: "321 Green Way, Portland, OR 97201",
+          },
+          {
+            id: 5,
+            name: "FinanceFirst Bank",
+            domain: "financefirst.com",
+            email: "jobs@financefirst.com",
+            phone: "+1 (555) 345-6789",
+            industry: "Finance",
+            plan: "Enterprise",
+            status: "suspended",
+            activeJobs: 3,
+            totalApplicants: 67,
+            created: "2024-02-14",
+            description:
+              "Full-service banking and financial solutions provider.",
+            address: "654 Finance Ave, New York, NY 10001",
+          },
+        ];
+
+        // Load organizations into table
+        function loadOrganizations(filteredOrgs = organizations) {
+          const tbody = $("#organizationsTableBody");
+          tbody.empty();
+
+          filteredOrgs.forEach((org) => {
+            const statusClass =
+              org.status === "active"
+                ? "status-active"
+                : org.status === "inactive"
+                ? "status-inactive"
+                : "status-suspended";
+
+            const row = `
+                        <tr data-org-id="${org.id}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="fw-semibold">${
+                                          org.name
+                                        }</div>
+                                        <small class="text-muted">${
+                                          org.domain
+                                        }</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <i class="bi bi-envelope me-1"></i>${
+                                      org.email
+                                    }<br>
+                                    <i class="bi bi-telephone me-1"></i>${
+                                      org.phone
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">${org.plan}</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">${
+                                  org.activeJobs
+                                }</span>
+                                <small class="text-muted d-block">${
+                                  org.totalApplicants
+                                } applicants</small>
+                            </td>
+                            <td>
+                                <span class="org-status ${statusClass}">${
+              org.status.charAt(0).toUpperCase() + org.status.slice(1)
+            }</span>
+                            </td>
+                            <td>
+                                <small class="text-muted">${new Date(
+                                  org.created
+                                ).toLocaleDateString()}</small>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info action-btn view-org-btn" data-id="${
+                                  org.id
+                                }" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary action-btn edit-org-btn" data-id="${
+                                  org.id
+                                }" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning action-btn toggle-status-btn" data-id="${
+                                  org.id
+                                }" title="Toggle Status">
+                                    <i class="bi bi-power"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger action-btn delete-org-btn" data-id="${
+                                  org.id
+                                }" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+            tbody.append(row);
+          });
+
+          // Update pagination info
+          $("#showingFrom").text(1);
+          $("#showingTo").text(Math.min(10, filteredOrgs.length));
+          $("#totalOrgs").text(filteredOrgs.length);
+        }
+
+        // Initial load
+        loadOrganizations();
+
+        // Search functionality
+        $("#searchOrg").on("input", function () {
+          const searchTerm = $(this).val().toLowerCase();
+          const filtered = organizations.filter(
+            (org) =>
+              org.name.toLowerCase().includes(searchTerm) ||
+              org.email.toLowerCase().includes(searchTerm) ||
+              org.domain.toLowerCase().includes(searchTerm)
+          );
+          loadOrganizations(filtered);
+        });
+
+        // Filter functionality
+        $("#statusFilter, #planFilter").on("change", function () {
+          let filtered = organizations;
+
+          const statusFilter = $("#statusFilter").val();
+          const planFilter = $("#planFilter").val();
+
+          if (statusFilter) {
+            filtered = filtered.filter((org) => org.status === statusFilter);
+          }
+
+          if (planFilter) {
+            filtered = filtered.filter(
+              (org) => org.plan.toLowerCase() === planFilter
+            );
+          }
+
+          loadOrganizations(filtered);
+        });
+
+        // Reset filters
+        $("#resetFilters").on("click", function () {
+          $("#searchOrg, #statusFilter, #planFilter").val("");
+          loadOrganizations();
+        });
+
+        // Create organization
+        $("#createOrgBtn").on("click", function () {
+          if (validateCreateForm()) {
+            const newOrg = {
+              id: organizations.length + 1,
+              name: $("#orgName").val(),
+              domain: $("#orgDomain").val(),
+              email: $("#contactEmail").val(),
+              phone: $("#contactPhone").val(),
+              industry: $("#industry").val(),
+              plan:
+                $("#planType").val().charAt(0).toUpperCase() +
+                $("#planType").val().slice(1),
+              status: "active",
+              activeJobs: 0,
+              totalApplicants: 0,
+              created: new Date().toISOString().split("T")[0],
+              description: $("#orgDescription").val(),
+              address: $("#orgAddress").val(),
+            };
+
+            organizations.push(newOrg);
+            loadOrganizations();
+            $("#createOrgModal").modal("hide");
+            $("#createOrgForm")[0].reset();
+
+            showNotification(
+              "success",
+              "Organization Created!",
+              `${newOrg.name} has been successfully registered on the platform.`
+            );
+          }
+        });
+
+        // View organization details
+        $(document).on("click", ".view-org-btn", function () {
+          const orgId = parseInt($(this).data("id"));
+          const org = organizations.find((o) => o.id === orgId);
+
+          if (org) {
+            showOrganizationDetails(org);
+          }
+        });
+
+        // Toggle organization status
+        $(document).on("click", ".toggle-status-btn", function () {
+          const orgId = parseInt($(this).data("id"));
+          const org = organizations.find((o) => o.id === orgId);
+
+          if (org) {
+            org.status = org.status === "active" ? "inactive" : "active";
+            loadOrganizations();
+
+            showNotification(
+              "info",
+              "Status Updated",
+              `${org.name} status changed to ${org.status}.`
+            );
+          }
+        });
+
+        // Delete organization
+        $(document).on("click", ".delete-org-btn", function () {
+          const orgId = parseInt($(this).data("id"));
+          const org = organizations.find((o) => o.id === orgId);
+
+          if (
+            org &&
+            confirm(
+              `Are you sure you want to delete ${org.name}? This action cannot be undone.`
+            )
+          ) {
+            const index = organizations.findIndex((o) => o.id === orgId);
+            organizations.splice(index, 1);
+            loadOrganizations();
+
+            showNotification(
+              "success",
+              "Organization Deleted",
+              `${org.name} has been removed from the platform.`
+            );
+          }
+        });
+
+        // Helper functions
+        function validateCreateForm() {
+          const requiredFields = [
+            "#orgName",
+            "#orgDomain",
+            "#contactEmail",
+            "#industry",
+            "#planType",
+          ];
+          let isValid = true;
+
+          requiredFields.forEach((field) => {
+            if (!$(field).val().trim()) {
+              $(field).addClass("is-invalid");
+              isValid = false;
+            } else {
+              $(field).removeClass("is-invalid");
+            }
+          });
+
+          if (!isValid) {
+            showNotification(
+              "error",
+              "Validation Error",
+              "Please fill in all required fields."
+            );
+          }
+
+          return isValid;
+        }
+
+        function showOrganizationDetails(org) {
+          $("#orgDetailsTitle").text(org.name);
+          $("#orgDetailsContent").html(`
+                    <div class="p-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-header bg-white">
+                                        <h6 class="mb-0"><i class="bi bi-building me-2"></i>Organization Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <strong>Name:</strong> ${
+                                              org.name
+                                            }<br>
+                                            <strong>Domain:</strong> ${
+                                              org.domain
+                                            }<br>
+                                            <strong>Industry:</strong> ${
+                                              org.industry
+                                            }<br>
+                                            <strong>Plan:</strong> <span class="badge bg-info">${
+                                              org.plan
+                                            }</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Status:</strong> 
+                                            <span class="org-status ${
+                                              org.status === "active"
+                                                ? "status-active"
+                                                : org.status === "inactive"
+                                                ? "status-inactive"
+                                                : "status-suspended"
+                                            }">
+                                                ${
+                                                  org.status
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                  org.status.slice(1)
+                                                }
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <strong>Description:</strong><br>
+                                            <p class="text-muted">${
+                                              org.description ||
+                                              "No description available"
+                                            }</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-header bg-white">
+                                        <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Statistics & Contact</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <div class="h3 text-primary">${
+                                                      org.activeJobs
+                                                    }</div>
+                                                    <small class="text-muted">Active Jobs</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <div class="h3 text-success">${
+                                                      org.totalApplicants
+                                                    }</div>
+                                                    <small class="text-muted">Total Applicants</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Contact Information:</strong><br>
+                                            <i class="bi bi-envelope me-1"></i>${
+                                              org.email
+                                            }<br>
+                                            <i class="bi bi-telephone me-1"></i>${
+                                              org.phone
+                                            }<br>
+                                            <i class="bi bi-calendar me-1"></i>Created: ${new Date(
+                                              org.created
+                                            ).toLocaleDateString()}
+                                        </div>
+                                        <div>
+                                            <strong>Address:</strong><br>
+                                            <p class="text-muted">${
+                                              org.address ||
+                                              "No address provided"
+                                            }</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+          $("#orgDetailsModal").modal("show");
+        }
+
+        // Professional notification system
+        function showNotification(type, title, message, duration = 5000) {
+          const icons = {
+            success: '<i class="bi bi-check-circle me-2 text-success"></i>',
+            error: '<i class="bi bi-exclamation-circle me-2 text-danger"></i>',
+            info: '<i class="bi bi-info-circle me-2 text-info"></i>',
+            warning:
+              '<i class="bi bi-exclamation-triangle me-2 text-warning"></i>',
+          };
+
+          if ($("#notificationContainer").length === 0) {
+            $("body").append(
+              '<div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>'
+            );
+          }
+
+          const notification = $(`
+                    <div class="notification ${type}" style="background: white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 10px; overflow: hidden; transform: translateX(100%); transition: all 0.3s ease; border-left: 5px solid ${
+            type === "success"
+              ? "#28a745"
+              : type === "error"
+              ? "#dc3545"
+              : type === "warning"
+              ? "#ffc107"
+              : "#17a2b8"
+          };">
+                        <div style="padding: 15px 20px 10px; display: flex; align-items: center; justify-content: space-between;">
+                            <h6 style="font-weight: 600; font-size: 16px; margin: 0; display: flex; align-items: center;">
+                                ${icons[type]}${title}
+                            </h6>
+                            <button type="button" style="background: none; border: none; font-size: 18px; color: #adb5bd; cursor: pointer; padding: 0; width: 20px; height: 20px;" onclick="$(this).closest('.notification').removeClass('show'); setTimeout(() => $(this).closest('.notification').remove(), 300);">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <div style="padding: 0 20px 15px; color: #6c757d; font-size: 14px;">${message}</div>
+                    </div>
+                `);
+
+          $("#notificationContainer").append(notification);
+          setTimeout(
+            () =>
+              notification.addClass("show").css("transform", "translateX(0)"),
+            100
+          );
+          setTimeout(() => {
+            notification
+              .removeClass("show")
+              .css("transform", "translateX(100%)");
+            setTimeout(() => notification.remove(), 300);
+          }, duration);
+        }
+      });
+    </script>
+  </body>
+</html>
