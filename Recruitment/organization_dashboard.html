@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Dashboard - Bangladesh Rice Research Institute</title>
+    <script>
+        // Redirect to the new dashboard overview page
+        window.location.href = 'dashboard_overview.html';
+    </script>
+</head>
+
+<body>
+    <div style="text-align: center; padding: 50px;">
+        <h2>Redirecting to Dashboard...</h2>
+        <p>If you are not redirected automatically, <a href="dashboard_overview.html">click here</a>.</p>
+    </div>
+</body>
+
+</html>
+<style>
+    :root {
+        --primary-color: #3c8d48;
+        --secondary-color: #2a5f34;
+        --accent-color: #28a745;
+        --light-green: #d4e9d7;
+        --dark-green: #1e4a26;
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --border-color: #e0e6ed;
+        --background-light: #f8fffe;
+        --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
+        --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.1);
+        --shadow-heavy: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, var(--background-light) 0%, #f1f8f2 100%);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+    }
+
+    /* Advanced Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .sidebar.collapsed {
+        width: 80px;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .sidebar-header .logo {
+        width: 45px;
+        height: 45px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .sidebar-header .brand {
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed .brand {
+        opacity: 0;
+    }
+
+    .sidebar-nav {
+        padding: 1rem 0;
+    }
+
+    .nav-item {
+        margin: 0.25rem 1rem;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.875rem 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        position: relative;
+    }
+
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .nav-link.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-link i {
+        font-size: 1.25rem;
+        width: 20px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .nav-text {
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed .nav-text {
+        opacity: 0;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #ff4757;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 280px;
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+    }
+
+    .sidebar.collapsed+.main-content {
+        margin-left: 80px;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: var(--shadow-light);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .top-nav-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .sidebar-toggle {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-toggle:hover {
+        background: var(--light-green);
+        color: var(--primary-color);
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .top-nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-box input {
+        width: 300px;
+        padding: 0.5rem 1rem 0.5rem 2.5rem;
+        border: 2px solid var(--border-color);
+        border-radius: 25px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(60, 141, 72, 0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+    }
+
+    .notification-icon {
+        position: relative;
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .notification-icon:hover {
+        background: var(--light-green);
+        color: var(--primary-color);
+    }
+
+    .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .user-menu:hover {
+        background: var(--light-green);
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    /* Dashboard Content */
+    .dashboard-content {
+        padding: 2rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .stat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-icon.primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    }
+
+    .stat-icon.info {
+        background: linear-gradient(135deg, #17a2b8, #20c997);
+    }
+
+    .stat-icon.warning {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+    }
+
+    .stat-icon.danger {
+        background: linear-gradient(135deg, #dc3545, #e74c3c);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .stat-change.positive {
+        color: var(--accent-color);
+    }
+
+    .stat-change.negative {
+        color: #dc3545;
+    }
+
+    /* Advanced Cards */
+    .dashboard-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #fafbfc, #f8f9fa);
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Advanced Table */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        background: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+    }
+
+    .data-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    /* Advanced Buttons */
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(60, 141, 72, 0.3);
+    }
+
+    .btn-outline-primary {
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-badge.pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-badge.completed {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    /* Charts Container */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-color);
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-wrapper {
+        flex: 1;
+        position: relative;
+        height: 300px;
+        min-height: 300px;
+        max-height: 300px;
+    }
+
+    .chart-wrapper canvas {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .top-nav {
+            padding: 1rem;
+        }
+
+        .search-box input {
+            width: 200px;
+        }
+
+        .dashboard-content {
+            padding: 1rem;
+        }
+
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--secondary-color);
+    }
+
+    /* Loading States */
+    .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* Advanced Modals */
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem 2rem;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--border-color);
+        padding: 1.5rem 2rem;
+    }
+</style>
+</head>
+
+<body>
+    <!-- Advanced Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="brand">BRRI Dashboard</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="jobs">
+                    <i class="bi bi-briefcase"></i>
+                    <span class="nav-text">Job Management</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="applicants">
+                    <i class="bi bi-people"></i>
+                    <span class="nav-text">Applicants</span>
+                    <span class="notification-badge">12</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="interviews">
+                    <i class="bi bi-calendar-check"></i>
+                    <span class="nav-text">Interviews</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="analytics">
+                    <i class="bi bi-graph-up"></i>
+                    <span class="nav-text">Analytics</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="reports">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="nav-text">Reports</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="settings">
+                    <i class="bi bi-gear"></i>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="login.html" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h1 class="page-title" id="pageTitle">Dashboard Overview</h1>
+            </div>
+
+            <div class="top-nav-right">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Search applicants, jobs..." id="globalSearch">
+                </div>
+
+                <button class="notification-icon" id="notificationBtn">
+                    <i class="bi bi-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar">
+                        HR
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">HR Manager</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">admin@brri.gov.bd</div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-content">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-value" id="totalJobs">24</div>
+                                <div class="stat-label">Active Job Postings</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> +12% this month
+                                </div>
+                            </div>
+                            <div class="stat-icon primary">
+                                <i class="bi bi-briefcase"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-value" id="totalApplicants">1,847</div>
+                                <div class="stat-label">Total Applicants</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> +8% this week
+                                </div>
+                            </div>
+                            <div class="stat-icon info">
+                                <i class="bi bi-people"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-value" id="shortlisted">342</div>
+                                <div class="stat-label">Shortlisted Candidates</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> +15% this month
+                                </div>
+                            </div>
+                            <div class="stat-icon warning">
+                                <i class="bi bi-star"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-value" id="hired">67</div>
+                                <div class="stat-label">Hired This Month</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> +22% vs last month
+                                </div>
+                            </div>
+                            <div class="stat-icon danger">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 style="margin-bottom: 1rem;">Application Trends</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="applicationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 style="margin-bottom: 1rem;">Hiring Pipeline</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="pipelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-list" id="activityList">
+                            <!-- Activity items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Management Page -->
+            <div id="jobsPage" class="page-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Job Management</h2>
+                    <button class="btn btn-primary" id="addJobBtn">
+                        <i class="bi bi-plus-lg"></i> Create New Job
+                    </button>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Job Postings</h3>
+                        <div class="d-flex gap-2">
+                            <select class="form-select" style="width: auto;">
+                                <option>All Departments</option>
+                                <option>Research</option>
+                                <option>Administration</option>
+                                <option>Field Operations</option>
+                            </select>
+                            <select class="form-select" style="width: auto;">
+                                <option>All Status</option>
+                                <option>Active</option>
+                                <option>Closed</option>
+                                <option>Draft</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Job Title</th>
+                                    <th>Department</th>
+                                    <th>Applications</th>
+                                    <th>Shortlisted</th>
+                                    <th>Status</th>
+                                    <th>Posted Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobsTableBody">
+                                <!-- Jobs will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applicants Page -->
+            <div id="applicantsPage" class="page-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Applicant Management</h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" id="exportApplicantsBtn">
+                            <i class="bi bi-download"></i> Export Data
+                        </button>
+                        <button class="btn btn-primary" id="bulkActionBtn">
+                            <i class="bi bi-layers"></i> Bulk Actions
+                        </button>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Applicants</h3>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control" placeholder="Search applicants..."
+                                style="width: 250px;">
+                            <select class="form-select" style="width: auto;">
+                                <option>All Positions</option>
+                                <option>Data Analyst</option>
+                                <option>Research Assistant</option>
+                                <option>Field Officer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll"></th>
+                                    <th>Applicant</th>
+                                    <th>Position</th>
+                                    <th>Experience</th>
+                                    <th>Education</th>
+                                    <th>Status</th>
+                                    <th>Applied Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicantsTableBody">
+                                <!-- Applicants will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other pages will be similarly structured -->
+            <div id="interviewsPage" class="page-content" style="display: none;">
+                <h2>Interview Management</h2>
+                <p class="text-muted">Interview scheduling and management features will be displayed here.</p>
+            </div>
+
+            <div id="analyticsPage" class="page-content" style="display: none;">
+                <h2>Analytics & Reports</h2>
+                <p class="text-muted">Detailed analytics and reporting features will be displayed here.</p>
+            </div>
+
+            <div id="reportsPage" class="page-content" style="display: none;">
+                <h2>Reports</h2>
+                <p class="text-muted">Report generation and management features will be displayed here.</p>
+            </div>
+
+            <div id="settingsPage" class="page-content" style="display: none;">
+                <h2>Settings</h2>
+                <p class="text-muted">System settings and configuration options will be displayed here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Modals -->
+    <div class="modal fade" id="jobModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Job Posting</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="jobForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Job Title</label>
+                                <input type="text" class="form-control" id="jobTitle" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Department</label>
+                                <select class="form-select" id="jobDepartment" required>
+                                    <option value="">Select Department</option>
+                                    <option value="research">Research</option>
+                                    <option value="admin">Administration</option>
+                                    <option value="field">Field Operations</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Employment Type</label>
+                                <select class="form-select" id="employmentType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="full-time">Full Time</option>
+                                    <option value="part-time">Part Time</option>
+                                    <option value="contract">Contract</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Experience Level</label>
+                                <select class="form-select" id="experienceLevel" required>
+                                    <option value="">Select Level</option>
+                                    <option value="entry">Entry Level</option>
+                                    <option value="mid">Mid Level</option>
+                                    <option value="senior">Senior Level</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Application Deadline</label>
+                                <input type="date" class="form-control" id="deadline" required>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Job Description</label>
+                            <textarea class="form-control" id="jobDescription" rows="4" required></textarea>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Requirements</label>
+                            <textarea class="form-control" id="jobRequirements" rows="3" required></textarea>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Minimum Salary</label>
+                                <input type="number" class="form-control" id="minSalary">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Maximum Salary</label>
+                                <input type="number" class="form-control" id="maxSalary">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-primary" id="saveDraftBtn">Save as Draft</button>
+                    <button type="button" class="btn btn-primary" id="publishJobBtn">Publish Job</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applicant Details Modal -->
+    <div class="modal fade" id="applicantModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Applicant Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="applicantDetails">
+                    <!-- Applicant details will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning">Schedule Interview</button>
+                    <button type="button" class="btn btn-success">Shortlist</button>
+                    <button type="button" class="btn btn-danger">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Advanced Dashboard Functionality
+
+            // Sidebar toggle
+            $('#sidebarToggle').on('click', function () {
+                $('#sidebar').toggleClass('collapsed');
+            });
+
+            // Page navigation
+            $('.nav-link[data-page]').on('click', function (e) {
+                e.preventDefault();
+                const page = $(this).data('page');
+                showPage(page);
+
+                // Update active state
+                $('.nav-link').removeClass('active');
+                $(this).addClass('active');
+
+                // Update page title
+                const pageTitle = $(this).find('.nav-text').text();
+                $('#pageTitle').text(pageTitle);
+            });
+
+            function showPage(page) {
+                $('.page-content').hide();
+                $(`#${page}Page`).show();
+
+                // Initialize page-specific content
+                switch (page) {
+                    case 'dashboard':
+                        initializeDashboard();
+                        break;
+                    case 'jobs':
+                        loadJobsData();
+                        break;
+                    case 'applicants':
+                        loadApplicantsData();
+                        break;
+                }
+            }
+
+            // Initialize Dashboard
+            function initializeDashboard() {
+                // Initialize charts
+                initializeApplicationChart();
+                initializePipelineChart();
+                loadRecentActivity();
+
+                // Animate counters
+                animateCounters();
+            }
+
+            function animateCounters() {
+                $('.stat-value').each(function () {
+                    const $this = $(this);
+                    const countTo = parseInt($this.text().replace(/,/g, ''));
+
+                    $({ countNum: 0 }).animate({
+                        countNum: countTo
+                    }, {
+                        duration: 2000,
+                        easing: 'swing',
+                        step: function () {
+                            $this.text(Math.floor(this.countNum).toLocaleString());
+                        },
+                        complete: function () {
+                            $this.text(countTo.toLocaleString());
+                        }
+                    });
+                });
+            }
+
+            function initializeApplicationChart() {
+                const ctx = document.getElementById('applicationChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Applications Received',
+                            data: [120, 190, 300, 500, 200, 300],
+                            borderColor: 'rgb(60, 141, 72)',
+                            backgroundColor: 'rgba(60, 141, 72, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Applications Processed',
+                            data: [100, 150, 250, 400, 180, 250],
+                            borderColor: 'rgb(40, 167, 69)',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        layout: {
+                            padding: 0
+                        }
+                    }
+                });
+            }
+
+            function initializePipelineChart() {
+                const ctx = document.getElementById('pipelineChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Applied', 'Screening', 'Interview', 'Final Review', 'Hired'],
+                        datasets: [{
+                            data: [450, 200, 80, 40, 20],
+                            backgroundColor: [
+                                '#e3f2fd',
+                                '#bbdefb',
+                                '#90caf9',
+                                '#64b5f6',
+                                '#42a5f5'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        layout: {
+                            padding: 10
+                        }
+                    }
+                });
+            }
+
+            function loadRecentActivity() {
+                const activities = [
+                    {
+                        type: 'application',
+                        message: 'New application received for Data Analyst position',
+                        time: '2 minutes ago',
+                        icon: 'bi-person-plus',
+                        color: 'success'
+                    },
+                    {
+                        type: 'interview',
+                        message: 'Interview scheduled with John Smith for Research Assistant',
+                        time: '15 minutes ago',
+                        icon: 'bi-calendar-check',
+                        color: 'primary'
+                    },
+                    {
+                        type: 'shortlist',
+                        message: '5 candidates shortlisted for Field Officer position',
+                        time: '1 hour ago',
+                        icon: 'bi-star',
+                        color: 'warning'
+                    },
+                    {
+                        type: 'hire',
+                        message: 'Sarah Johnson hired as Senior Researcher',
+                        time: '3 hours ago',
+                        icon: 'bi-check-circle',
+                        color: 'success'
+                    }
+                ];
+
+                const activityHtml = activities.map(activity => `
+                    <div class="d-flex align-items-start gap-3 mb-3 p-3 rounded" style="background: #f8f9fa;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 40px; height: 40px; background: var(--bs-${activity.color}); color: white;">
+                            <i class="bi ${activity.icon}"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">${activity.message}</div>
+                            <small class="text-muted">${activity.time}</small>
+                        </div>
+                    </div>
+                `).join('');
+
+                $('#activityList').html(activityHtml);
+            }
+
+            // Jobs Management
+            function loadJobsData() {
+                const jobs = [
+                    {
+                        id: 1,
+                        title: 'Senior Research Scientist',
+                        department: 'Research',
+                        applications: 145,
+                        shortlisted: 12,
+                        status: 'active',
+                        postedDate: '2024-10-01'
+                    },
+                    {
+                        id: 2,
+                        title: 'Data Analyst',
+                        department: 'Administration',
+                        applications: 89,
+                        shortlisted: 8,
+                        status: 'active',
+                        postedDate: '2024-10-05'
+                    },
+                    {
+                        id: 3,
+                        title: 'Field Operations Manager',
+                        department: 'Field Operations',
+                        applications: 67,
+                        shortlisted: 15,
+                        status: 'closed',
+                        postedDate: '2024-09-20'
+                    }
+                ];
+
+                const jobsHtml = jobs.map(job => `
+                    <tr>
+                        <td>
+                            <div class="fw-medium">${job.title}</div>
+                            <small class="text-muted">ID: #${job.id}</small>
+                        </td>
+                        <td>${job.department}</td>
+                        <td>
+                            <span class="badge bg-light text-dark">${job.applications}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning">${job.shortlisted}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge ${job.status}">${job.status.charAt(0).toUpperCase() + job.status.slice(1)}</span>
+                        </td>
+                        <td>${new Date(job.postedDate).toLocaleDateString()}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary view-job-btn" data-id="${job.id}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary edit-job-btn" data-id="${job.id}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-job-btn" data-id="${job.id}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                $('#jobsTableBody').html(jobsHtml);
+            }
+
+            // Applicants Management
+            function loadApplicantsData() {
+                const applicants = [
+                    {
+                        id: 1,
+                        name: 'Dr. Ahmed Rahman',
+                        email: 'ahmed.rahman@email.com',
+                        position: 'Senior Research Scientist',
+                        experience: '8 years',
+                        education: 'PhD in Agriculture',
+                        status: 'shortlisted',
+                        appliedDate: '2024-10-02'
+                    },
+                    {
+                        id: 2,
+                        name: 'Ms. Fatima Khan',
+                        email: 'fatima.khan@email.com',
+                        position: 'Data Analyst',
+                        experience: '3 years',
+                        education: 'MSc in Statistics',
+                        status: 'pending',
+                        appliedDate: '2024-10-06'
+                    },
+                    {
+                        id: 3,
+                        name: 'Mr. Karim Hassan',
+                        email: 'karim.hassan@email.com',
+                        position: 'Field Operations Manager',
+                        experience: '6 years',
+                        education: 'BSc in Agriculture',
+                        status: 'interviewed',
+                        appliedDate: '2024-09-25'
+                    }
+                ];
+
+                const applicantsHtml = applicants.map(applicant => `
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="applicant-checkbox" data-id="${applicant.id}">
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="user-avatar" style="width: 35px; height: 35px; font-size: 0.875rem;">
+                                    ${applicant.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="fw-medium">${applicant.name}</div>
+                                    <small class="text-muted">${applicant.email}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${applicant.position}</td>
+                        <td>${applicant.experience}</td>
+                        <td>${applicant.education}</td>
+                        <td>
+                            <span class="status-badge ${applicant.status}">${applicant.status.charAt(0).toUpperCase() + applicant.status.slice(1)}</span>
+                        </td>
+                        <td>${new Date(applicant.appliedDate).toLocaleDateString()}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary view-applicant-btn" data-id="${applicant.id}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success shortlist-applicant-btn" data-id="${applicant.id}">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning interview-btn" data-id="${applicant.id}">
+                                    <i class="bi bi-calendar"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                $('#applicantsTableBody').html(applicantsHtml);
+            }
+
+            // Event Handlers
+            $('#addJobBtn').on('click', function () {
+                $('#jobModal').modal('show');
+            });
+
+            $('#publishJobBtn').on('click', function () {
+                // Validate form
+                if (validateJobForm()) {
+                    const jobData = getJobFormData();
+
+                    Swal.fire({
+                        title: 'Publish Job?',
+                        text: 'This job will be visible to all applicants.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, publish it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#jobModal').modal('hide');
+                            Swal.fire('Success!', 'Job has been published successfully.', 'success');
+                            loadJobsData(); // Refresh the jobs list
+                        }
+                    });
+                }
+            });
+
+            $('#saveDraftBtn').on('click', function () {
+                const jobData = getJobFormData();
+                Swal.fire('Saved!', 'Job has been saved as draft.', 'success');
+                $('#jobModal').modal('hide');
+            });
+
+            function validateJobForm() {
+                const requiredFields = ['jobTitle', 'jobDepartment', 'employmentType', 'experienceLevel', 'deadline', 'jobDescription', 'jobRequirements'];
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    const value = $(`#${field}`).val();
+                    if (!value || value.trim() === '') {
+                        $(`#${field}`).addClass('is-invalid');
+                        isValid = false;
+                    } else {
+                        $(`#${field}`).removeClass('is-invalid');
+                    }
+                });
+
+                if (!isValid) {
+                    Swal.fire('Error', 'Please fill in all required fields.', 'error');
+                }
+
+                return isValid;
+            }
+
+            function getJobFormData() {
+                return {
+                    title: $('#jobTitle').val(),
+                    department: $('#jobDepartment').val(),
+                    employmentType: $('#employmentType').val(),
+                    experienceLevel: $('#experienceLevel').val(),
+                    deadline: $('#deadline').val(),
+                    description: $('#jobDescription').val(),
+                    requirements: $('#jobRequirements').val(),
+                    minSalary: $('#minSalary').val(),
+                    maxSalary: $('#maxSalary').val()
+                };
+            }
+
+            // View applicant details
+            $(document).on('click', '.view-applicant-btn', function () {
+                const applicantId = $(this).data('id');
+                showApplicantDetails(applicantId);
+            });
+
+            function showApplicantDetails(id) {
+                // Simulate loading applicant details
+                const applicantDetails = `
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="user-avatar mb-3" style="width: 100px; height: 100px; font-size: 2rem; margin: 0 auto;">
+                                A
+                            </div>
+                            <h5>Dr. Ahmed Rahman</h5>
+                            <p class="text-muted">ahmed.rahman@email.com</p>
+                        </div>
+                        <div class="col-md-8">
+                            <h6>Personal Information</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>Phone:</strong></td><td>+880-1234567890</td></tr>
+                                <tr><td><strong>Address:</strong></td><td>Dhaka, Bangladesh</td></tr>
+                                <tr><td><strong>Experience:</strong></td><td>8 years</td></tr>
+                                <tr><td><strong>Education:</strong></td><td>PhD in Agriculture</td></tr>
+                            </table>
+                            
+                            <h6 class="mt-4">Application Details</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>Position:</strong></td><td>Senior Research Scientist</td></tr>
+                                <tr><td><strong>Applied Date:</strong></td><td>October 2, 2024</td></tr>
+                                <tr><td><strong>Status:</strong></td><td><span class="status-badge shortlisted">Shortlisted</span></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                $('#applicantDetails').html(applicantDetails);
+                $('#applicantModal').modal('show');
+            }
+
+            // Global search functionality
+            $('#globalSearch').on('input', function () {
+                const searchTerm = $(this).val().toLowerCase();
+                // Implement search logic here
+                console.log('Searching for:', searchTerm);
+            });
+
+            // Notification handler
+            $('#notificationBtn').on('click', function () {
+                Swal.fire({
+                    title: 'Notifications',
+                    html: `
+                        <div class="text-start">
+                            <div class="mb-3 p-3 rounded" style="background: #f8f9fa;">
+                                <div class="fw-medium">New Application Received</div>
+                                <small class="text-muted">Data Analyst position - 2 minutes ago</small>
+                            </div>
+                            <div class="mb-3 p-3 rounded" style="background: #f8f9fa;">
+                                <div class="fw-medium">Interview Scheduled</div>
+                                <small class="text-muted">John Smith - Research Assistant - 15 minutes ago</small>
+                            </div>
+                            <div class="mb-3 p-3 rounded" style="background: #f8f9fa;">
+                                <div class="fw-medium">Deadline Reminder</div>
+                                <small class="text-muted">Field Officer position expires in 3 days</small>
+                            </div>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    width: 500
+                });
+            });
+
+            // Initialize dashboard on page load
+            initializeDashboard();
+
+            // Responsive sidebar for mobile
+            $(window).on('resize', function () {
+                if ($(window).width() < 768) {
+                    $('#sidebar').addClass('collapsed');
+                }
+            });
+
+            // Auto-refresh data every 30 seconds
+            setInterval(function () {
+                if ($('#dashboardPage').is(':visible')) {
+                    loadRecentActivity();
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+
+</html>

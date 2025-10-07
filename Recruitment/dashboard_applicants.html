@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant Management - Bangladesh Rice Research Institute</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared/common-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <!-- Advanced Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="brand">BRRI Dashboard</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="dashboard_overview.html" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="dashboard_jobs.html" class="nav-link">
+                    <i class="bi bi-briefcase"></i>
+                    <span class="nav-text">Job Management</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="dashboard_applicants.html" class="nav-link active">
+                    <i class="bi bi-people"></i>
+                    <span class="nav-text">Applicants</span>
+                    <span class="notification-badge">12</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="dashboard_interviews.html" class="nav-link">
+                    <i class="bi bi-calendar-check"></i>
+                    <span class="nav-text">Interviews</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="dashboard_analytics.html" class="nav-link">
+                    <i class="bi bi-graph-up"></i>
+                    <span class="nav-text">Analytics</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="dashboard_reports.html" class="nav-link">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="nav-text">Reports</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="dashboard_settings.html" class="nav-link">
+                    <i class="bi bi-gear"></i>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="login.html" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h1 class="page-title">Applicant Management</h1>
+            </div>
+
+            <div class="top-nav-right">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Search applicants, jobs..." id="globalSearch">
+                </div>
+
+                <button class="notification-icon" id="notificationBtn">
+                    <i class="bi bi-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar">
+                        HR
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">HR Manager</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">admin@brri.gov.bd</div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Applicant Management</h2>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" id="exportApplicantsBtn">
+                        <i class="bi bi-download"></i> Export Data
+                    </button>
+                    <button class="btn btn-primary" id="bulkActionBtn">
+                        <i class="bi bi-layers"></i> Bulk Actions
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">All Applicants</h3>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control" placeholder="Search applicants..."
+                            style="width: 250px;">
+                        <select class="form-select" style="width: auto;">
+                            <option>All Positions</option>
+                            <option>Data Analyst</option>
+                            <option>Research Assistant</option>
+                            <option>Field Officer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
+                                <th>Applicant</th>
+                                <th>Position</th>
+                                <th>Experience</th>
+                                <th>Education</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicantsTableBody">
+                            <!-- Applicants will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applicant Details Modal -->
+    <div class="modal fade" id="applicantModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Applicant Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="applicantDetails">
+                    <!-- Applicant details will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning">Schedule Interview</button>
+                    <button type="button" class="btn btn-success">Shortlist</button>
+                    <button type="button" class="btn btn-danger">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="shared/common-scripts.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Load applicants data on page load
+            loadApplicantsData();
+
+            // Applicants Management
+            function loadApplicantsData() {
+                const applicants = [
+                    {
+                        id: 1,
+                        name: 'Dr. Ahmed Rahman',
+                        email: 'ahmed.rahman@email.com',
+                        position: 'Senior Research Scientist',
+                        experience: '8 years',
+                        education: 'PhD in Agriculture',
+                        status: 'shortlisted',
+                        appliedDate: '2024-10-02'
+                    },
+                    {
+                        id: 2,
+                        name: 'Ms. Fatima Khan',
+                        email: 'fatima.khan@email.com',
+                        position: 'Data Analyst',
+                        experience: '3 years',
+                        education: 'MSc in Statistics',
+                        status: 'pending',
+                        appliedDate: '2024-10-06'
+                    },
+                    {
+                        id: 3,
+                        name: 'Mr. Karim Hassan',
+                        email: 'karim.hassan@email.com',
+                        position: 'Field Operations Manager',
+                        experience: '6 years',
+                        education: 'BSc in Agriculture',
+                        status: 'interviewed',
+                        appliedDate: '2024-09-25'
+                    },
+                    {
+                        id: 4,
+                        name: 'Dr. Rashida Begum',
+                        email: 'rashida.begum@email.com',
+                        position: 'Agricultural Extension Officer',
+                        experience: '10 years',
+                        education: 'PhD in Agricultural Extension',
+                        status: 'shortlisted',
+                        appliedDate: '2024-09-18'
+                    },
+                    {
+                        id: 5,
+                        name: 'Mr. Sajjad Ali',
+                        email: 'sajjad.ali@email.com',
+                        position: 'Laboratory Technician',
+                        experience: '2 years',
+                        education: 'BSc in Chemistry',
+                        status: 'pending',
+                        appliedDate: '2024-09-30'
+                    }
+                ];
+
+                const applicantsHtml = applicants.map(applicant => `
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="applicant-checkbox" data-id="${applicant.id}">
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="user-avatar" style="width: 35px; height: 35px; font-size: 0.875rem;">
+                                    ${applicant.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="fw-medium">${applicant.name}</div>
+                                    <small class="text-muted">${applicant.email}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${applicant.position}</td>
+                        <td>${applicant.experience}</td>
+                        <td>${applicant.education}</td>
+                        <td>
+                            ${dashboardUtils.createStatusBadge(applicant.status)}
+                        </td>
+                        <td>${dashboardUtils.formatDate(applicant.appliedDate)}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary view-applicant-btn" data-id="${applicant.id}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success shortlist-applicant-btn" data-id="${applicant.id}">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning interview-btn" data-id="${applicant.id}">
+                                    <i class="bi bi-calendar"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                $('#applicantsTableBody').html(applicantsHtml);
+            }
+
+            // View applicant details
+            $(document).on('click', '.view-applicant-btn', function () {
+                const applicantId = $(this).data('id');
+                showApplicantDetails(applicantId);
+            });
+
+            function showApplicantDetails(id) {
+                // Simulate loading applicant details
+                const applicantDetails = `
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="user-avatar mb-3" style="width: 100px; height: 100px; font-size: 2rem; margin: 0 auto;">
+                                A
+                            </div>
+                            <h5>Dr. Ahmed Rahman</h5>
+                            <p class="text-muted">ahmed.rahman@email.com</p>
+                        </div>
+                        <div class="col-md-8">
+                            <h6>Personal Information</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>Phone:</strong></td><td>+880-1234567890</td></tr>
+                                <tr><td><strong>Address:</strong></td><td>Dhaka, Bangladesh</td></tr>
+                                <tr><td><strong>Experience:</strong></td><td>8 years</td></tr>
+                                <tr><td><strong>Education:</strong></td><td>PhD in Agriculture</td></tr>
+                            </table>
+                            
+                            <h6 class="mt-4">Application Details</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>Position:</strong></td><td>Senior Research Scientist</td></tr>
+                                <tr><td><strong>Applied Date:</strong></td><td>October 2, 2024</td></tr>
+                                <tr><td><strong>Status:</strong></td><td><span class="status-badge shortlisted">Shortlisted</span></td></tr>
+                            </table>
+
+                            <h6 class="mt-4">Skills & Qualifications</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-primary">Research Methodology</span>
+                                <span class="badge bg-primary">Data Analysis</span>
+                                <span class="badge bg-primary">Statistical Software</span>
+                                <span class="badge bg-primary">Laboratory Management</span>
+                                <span class="badge bg-primary">Publication Writing</span>
+                            </div>
+
+                            <h6 class="mt-4">Documents</h6>
+                            <div class="list-group">
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-file-earmark-pdf"></i> Resume/CV
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-file-earmark-pdf"></i> Cover Letter
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-file-earmark-pdf"></i> Educational Certificates
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('#applicantDetails').html(applicantDetails);
+                $('#applicantModal').modal('show');
+            }
+
+            // Event handlers
+            $(document).on('click', '.shortlist-applicant-btn', function () {
+                const applicantId = $(this).data('id');
+                Swal.fire({
+                    title: 'Shortlist Applicant?',
+                    text: 'This applicant will be moved to the shortlisted candidates.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, shortlist!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire('Success!', 'Applicant has been shortlisted.', 'success');
+                        loadApplicantsData();
+                    }
+                });
+            });
+
+            $(document).on('click', '.interview-btn', function () {
+                const applicantId = $(this).data('id');
+                Swal.fire({
+                    title: 'Schedule Interview',
+                    html: `
+                        <div class="text-start">
+                            <label class="form-label">Interview Date</label>
+                            <input type="date" id="interviewDate" class="form-control mb-3">
+                            <label class="form-label">Interview Time</label>
+                            <input type="time" id="interviewTime" class="form-control mb-3">
+                            <label class="form-label">Interview Type</label>
+                            <select id="interviewType" class="form-select">
+                                <option>In-person</option>
+                                <option>Virtual</option>
+                                <option>Phone</option>
+                            </select>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Schedule Interview'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire('Success!', 'Interview has been scheduled.', 'success');
+                        loadApplicantsData();
+                    }
+                });
+            });
+
+            $('#selectAll').on('change', function () {
+                $('.applicant-checkbox').prop('checked', this.checked);
+            });
+
+            $('#exportApplicantsBtn').on('click', function () {
+                Swal.fire('Export Started', 'Applicant data is being exported...', 'info');
+            });
+
+            $('#bulkActionBtn').on('click', function () {
+                const selectedCount = $('.applicant-checkbox:checked').length;
+                if (selectedCount === 0) {
+                    Swal.fire('No Selection', 'Please select applicants first.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Bulk Actions',
+                    html: `
+                        <div class="text-start">
+                            <p>Selected ${selectedCount} applicant(s)</p>
+                            <select id="bulkAction" class="form-select">
+                                <option value="">Choose Action</option>
+                                <option value="shortlist">Shortlist All</option>
+                                <option value="reject">Reject All</option>
+                                <option value="interview">Schedule Interviews</option>
+                                <option value="export">Export Selected</option>
+                            </select>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Apply Action'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const action = $('#bulkAction').val();
+                        if (action) {
+                            Swal.fire('Success!', `Bulk action "${action}" applied to ${selectedCount} applicants.`, 'success');
+                            loadApplicantsData();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
