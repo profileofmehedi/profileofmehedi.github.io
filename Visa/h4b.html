@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H4 Visa Interview Flashcards</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .language-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .language-btn {
+            padding: 10px 30px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .language-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .language-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 8px 20px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .category-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 12px 45px 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            min-height: 300px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flashcard:hover {
+            box-shadow: var(--card-hover);
+            transform: translateY(-5px);
+        }
+
+        .flashcard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .answer {
+            font-size: 1.1rem;
+            color: #4b5563;
+            line-height: 1.8;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .answer-label {
+            color: var(--success-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .card-counter {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4b5563;
+            padding: 10px 20px;
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+
+        .progress-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .progress {
+            height: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            transition: width 0.5s ease;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 10px 25px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .flashcard {
+                padding: 25px;
+                min-height: 250px;
+            }
+
+            .question {
+                font-size: 1.1rem;
+            }
+
+            .answer {
+                font-size: 1rem;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .category-filter {
+                justify-content: center;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-passport"></i> H4 Visa Interview Flashcards</h1>
+            <p>Comprehensive preparation guide for spouse visa interview</p>
+        </div>
+
+        <div class="controls">
+            <h5 class="mb-3"><i class="fas fa-language"></i> Select Language</h5>
+            <div class="language-toggle">
+                <button class="language-btn active" data-lang="english">English</button>
+                <button class="language-btn" data-lang="bangla">বাংলা</button>
+            </div>
+
+            <h5 class="mb-3 mt-4"><i class="fas fa-filter"></i> Filter by Category</h5>
+            <div class="category-filter" id="categoryFilter">
+                <button class="category-btn active" data-category="all">All Questions</button>
+                <button class="category-btn" data-category="personal">Personal Plans</button>
+                <button class="category-btn" data-category="marriage">Marriage</button>
+                <button class="category-btn" data-category="husband">Husband's Details</button>
+                <button class="category-btn" data-category="living">Living Arrangements</button>
+                <button class="category-btn" data-category="ties">Bangladesh Ties</button>
+            </div>
+
+            <div class="search-box mt-3">
+                <input type="text" id="searchInput" placeholder="Search questions...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="d-flex justify-content-between mb-2">
+                <span><strong>Progress:</strong></span>
+                <span id="progressText">0 of 0</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="flashcardArea"></div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
+            <div class="card-counter" id="cardCounter">1 / 1</div>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div class="action-buttons mt-4 text-center">
+            <button class="action-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle Cards</button>
+            <button class="action-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+const flashcardsData = [
+    {
+        category: "personal",
+        questionEn: "Why do you want to go to the USA?",
+        answerEn: "I want to join my husband and live together as a family with our son while he is working in the United States.",
+        questionBn: "আপনি কেন মার্কিন যুক্তরাষ্ট্রে যেতে চান?",
+        answerBn: "আমি আমার স্বামীর সাথে যোগ দিতে এবং মার্কিন যুক্তরাষ্ট্রে তার কাজের সময় আমাদের ছেলেকে নিয়ে একটি পরিবার হিসাবে একসাথে থাকতে চাই।"
+    },
+    {
+        category: "personal",
+        questionEn: "Your husband's petition was approved some time ago. Why are you all applying for your visas together now?",
+        answerEn: "We had to wait for my passport and our newborn son's passport to be ready. Our plan was always to attend the interview and travel together as a family. As soon as our documents were ready, my husband booked this appointment for all of us.",
+        questionBn: "আপনার স্বামীর পিটিশন তো আগেই অনুমোদিত হয়েছে। আপনারা সবাই এখন একসাথে ভিসার জন্য আবেদন করছেন কেন?",
+        answerBn: "আমাদেরকে আমার এবং আমাদের নবজাতক ছেলের পাসপোর্টের জন্য অপেক্ষা করতে হয়েছিল। আমাদের পরিকল্পনা ছিল সবসময় পরিবার হিসাবে একসাথে ইন্টারভিউ দেওয়া এবং ভ্রমণ করা। আমাদের কাগজপত্র প্রস্তুত হওয়ার সাথে সাথেই আমার স্বামী আমাদের সকলের জন্য এই অ্যাপয়েন্টমেন্টটি বুক করেছেন।"
+    },
+    {
+        category: "personal",
+        questionEn: "What will you do in the USA?",
+        answerEn: "I will be a homemaker. My main focus will be caring for our son and supporting my husband.",
+        questionBn: "আপনি মার্কিন যুক্তরাষ্ট্রে গিয়ে কী করবেন?",
+        answerBn: "আমি একজন গৃহিণী হিসেবে থাকব। আমার মূল কাজ হবে আমাদের ছেলের যত্ন নেওয়া এবং আমার পরিবারে সময় দেওয়া।"
+    },
+    {
+        category: "personal",
+        questionEn: "What is your current job?",
+        answerEn: "I work as a Senior Staff Nurse at the Rajnagar Upazila Health Complex in Moulovibazar. I started working there on [Please state your joining date].",
+        questionBn: "আপনি বর্তমানে কী চাকরি করেন?",
+        answerBn: "আমি মৌলভীবাজারের রাজনগর উপজেলা স্বাস্থ্য কমপ্লেক্সে একজন সিনিয়র স্টাফ নার্স হিসেবে কাজ করি। আমার যোগদানের তারিখ হলো [এখানে আপনার যোগদানের তারিখটি বলুন]।"
+    },
+    {
+        category: "personal",
+        questionEn: "What are your plans for your job?",
+        answerEn: "I will be resigning from my position before we travel. My priority is to be with my family.",
+        questionBn: "আপনার চাকরির কী হবে?",
+        answerBn: "ভ্রমণের আগেই আমি আমার চাকরি থেকে পদত্যাগ করব। আমার অগ্রাধিকার হলো আমার পরিবারের সাথে থাকা।"
+    },
+    {
+        category: "personal",
+        questionEn: "Are you aware that you cannot work on an H4 visa?",
+        answerEn: "Yes, I am fully aware of that. My husband's salary is sufficient to support our family, and I have no plans to work.",
+        questionBn: "আপনি কি জানেন যে H4 ভিসায় আপনি কাজ করতে পারবেন না?",
+        answerBn: "হ্যাঁ, আমি এ বিষয়ে সম্পূর্ণ অবগত। আমাদের পরিবারের ভরণপোষণের জন্য আমার স্বামীর বেতনই যথেষ্ট এবং আমার কাজ করার কোনো পরিকল্পনা নেই।"
+    },
+    {
+        category: "marriage",
+        questionEn: "Can I see your marriage certificate?",
+        answerEn: "Yes, certainly. Here it is.",
+        questionBn: "আমি কি আপনার বিয়ের সার্টিফিকেট দেখতে পারি?",
+        answerBn: "হ্যাঁ, নিশ্চয়ই। এই নিন।"
+    },
+    {
+        category: "marriage",
+        questionEn: "When did you get married?",
+        answerEn: "We were married on December 15th, 2023.",
+        questionBn: "আপনাদের বিয়ে কবে হয়েছে?",
+        answerBn: "আমাদের বিয়ে হয়েছে ১৫ই ডিসেম্বর, ২০২৩ তারিখে।"
+    },
+    {
+        category: "marriage",
+        questionEn: "Was your marriage arranged or a love marriage?",
+        answerEn: "We loved each other and informed our families, and then our families arranged the wedding ceremony for us.",
+        questionBn: "আপনাদের বিয়ে কি পারিবারিকভাবে হয়েছে নাকি প্রেমের বিয়ে?",
+        answerBn: "আমরা একে অপরকে ভালোবাসতাম এবং আমাদের পরিবারকে জানাই, এরপর আমাদের পরিবারই বিয়ের অনুষ্ঠান আয়োজন করে।"
+    },
+    {
+        category: "marriage",
+        questionEn: "Do you have your wedding photos?",
+        answerEn: "Yes, I do.",
+        questionBn: "আপনার কাছে কি বিয়ের ছবি আছে?",
+        answerBn: "হ্যাঁ, আছে।"
+    },
+    {
+        category: "marriage",
+        questionEn: "What is your husband's date of birth?",
+        answerEn: "It is June 12th, 1995.",
+        questionBn: "আপনার স্বামীর জন্মদিন কবে?",
+        answerBn: "তার জন্মদিন ১২ই জুন, ১৯৯৫।"
+    },
+    {
+        category: "husband",
+        questionEn: "Where will your husband work in the US?",
+        answerEn: "He will be working for Ascend Technologies Incorporation in San Jose, California.",
+        questionBn: "আপনার স্বামী মার্কিন যুক্তরাষ্ট্রে কোন কোম্পানিতে কাজ করবেন?",
+        answerBn: "তিনি ক্যালিফোর্নিয়ার সান জোসে-তে অ্যাসেন্ড টেকনোলজিস ইনকর্পোরেশন (Ascend Technologies Incorporation) এ কাজ করবেন।"
+    },
+    {
+        category: "husband",
+        questionEn: "What is his job title?",
+        answerEn: "He will be a Software Quality Assurance Analyst and Tester.",
+        questionBn: "তার পদবী কী হবে?",
+        answerBn: "তিনি সফটওয়্যার কোয়ালিটি অ্যাসুরেন্স অ্যানালিস্ট অ্যান্ড টেস্টার (Software Quality Assurance Analyst and Tester) হিসেবে কাজ করবেন।"
+    },
+    {
+        category: "husband",
+        questionEn: "What is his salary in the US?",
+        answerEn: "His annual salary will be $141,378.",
+        questionBn: "মার্কিন যুক্তরাষ্ট্রে তার বেতন কত হবে?",
+        answerBn: "তার বার্ষিক বেতন হবে ১,৪১,৩৭৮ মার্কিন ডলার।"
+    },
+    {
+        category: "husband",
+        questionEn: "What is your husband's current job in Bangladesh?",
+        answerEn: "He is a Software Engineer at OPUS Technology Ltd.",
+        questionBn: "আপনার স্বামী বর্তমানে বাংলাদেশে কী চাকরি করেন?",
+        answerBn: "তিনি ওপাস টেকনোলজি লিমিটেড (OPUS Technology Ltd.) এ সফটওয়্যার ইঞ্জিনিয়ার হিসেবে কাজ করেন।"
+    },
+    {
+        category: "husband",
+        questionEn: "Do you know his current salary?",
+        answerEn: "Yes, it is 70,000 BDT per month.",
+        questionBn: "আপনি কি তার বর্তমান বেতন জানেন?",
+        answerBn: "হ্যাঁ, তার বর্তমান বেতন মাসে ৭০,০০০ টাকা।"
+    },
+    {
+        category: "living",
+        questionEn: "Does your husband have any family in the USA?",
+        answerEn: "Yes, his brother lives there.",
+        questionBn: "মার্কিন যুক্তরাষ্ট্রে আপনার স্বামীর কোনো আত্মীয়স্বজন আছেন কি?",
+        answerBn: "হ্যাঁ, সেখানে তার ভাই থাকেন।"
+    },
+    {
+        category: "living",
+        questionEn: "What does his brother do?",
+        answerEn: "He works as a consultant for Dell.",
+        questionBn: "তার ভাই কী করেন?",
+        answerBn: "তিনি ডেল (Dell) কোম্পানিতে কনসালট্যান্ট হিসেবে কাজ করেন।"
+    },
+    {
+        category: "living",
+        questionEn: "Where will you be living there?",
+        answerEn: "For the first month, my husband's employer will provide our accommodation. During that time, my husband will arrange a permanent apartment for us to live in.",
+        questionBn: "আপনারা সেখানে কোথায় থাকবেন?",
+        answerBn: "প্রথম মাসের জন্য, আমার স্বামীর কোম্পানি আমাদের থাকার ব্যবস্থা করবে। সেই সময়ের মধ্যে, আমার স্বামী আমাদের থাকার জন্য একটি স্থায়ী অ্যাপার্টমেন্টের ব্যবস্থা করবেন।"
+    },
+    {
+        category: "living",
+        questionEn: "Do you know the address where you will be staying initially?",
+        answerEn: "Yes, it is 2485 Alvarado Dr, in Santa Clara, California.",
+        questionBn: "আপনারা প্রাথমিকভাবে যেখানে থাকবেন, সেই ঠিকানা কি আপনি জানেন?",
+        answerBn: "হ্যাঁ, ঠিকানাটি হলো ২৪৮৫ আলভারাডো ড্রাইভ, সান্তা ক্লারা, ক্যালিফোর্নিয়া (2485 Alvarado Dr, Santa Clara, California)।"
+    },
+    {
+        category: "ties",
+        questionEn: "How long do you plan to stay in the USA?",
+        answerEn: "We will stay for as long as my husband's work visa is valid, which is until September 2027.",
+        questionBn: "আপনারা মার্কিন যুক্তরাষ্ট্রে কতদিন থাকার পরিকল্পনা করছেন?",
+        answerBn: "যতদিন আমার স্বামীর কাজের ভিসা বৈধ থাকবে, অর্থাৎ ৩০শে সেপ্টেম্বর, ২০২৭ পর্যন্ত, আমরা ততদিন থাকার পরিকল্পনা করছি।"
+    },
+    {
+        category: "ties",
+        questionEn: "What will you do after your visa expires?",
+        answerEn: "We will return to Bangladesh. This is our home and where both of our families live.",
+        questionBn: "ভিসার মেয়াদ শেষ হয়ে গেলে আপনারা কী করবেন?",
+        answerBn: "আমরা বাংলাদেশে ফিরে আসব। এটিই আমাদের বাড়ি এবং আমাদের দুজনের পরিবারই এখানে থাকে।"
+    },
+    {
+        category: "ties",
+        questionEn: "What are your career plans after you return to Bangladesh?",
+        answerEn: "I am a career nurse with valuable experience in the public health sector. When we return, I plan to resume my nursing career. There is always a high demand for experienced nurses in Bangladesh, so I am confident I can continue my profession here.",
+        questionBn: "বাংলাদেশে ফিরে আসার পর আপনার ক্যারিয়ার নিয়ে কী পরিকল্পনা আছে?",
+        answerBn: "আমি একজন পেশাদার নার্স এবং জনস্বাস্থ্য খাতে আমার মূল্যবান অভিজ্ঞতা রয়েছে। আমরা যখন ফিরে আসব, আমি আমার নার্সিং পেশায় পুনরায় যোগ দেওয়ার পরিকল্পনা করছি। বাংলাদেশে অভিজ্ঞ নার্সদের সবসময়ই উচ্চ চাহিদা থাকে, তাই আমি আত্মবিশ্বাসী যে আমি এখানে আমার পেশা চালিয়ে যেতে পারব।"
+    },
+    {
+        category: "ties",
+        questionEn: "Do you have family here in Bangladesh?",
+        answerEn: "Yes, both my parents and my husband's parents, and all of our extended family, live here.",
+        questionBn: "বাংলাদেশে কি আপনার পরিবার আছে?",
+        answerBn: "হ্যাঁ, আমার বাবা-মা এবং আমার স্বামীর বাবা-মা সব আমাদের সকল আত্মীয়স্বজন এখানেই থাকেন।"
+    }
+];
+
+let currentIndex = 0;
+let filteredCards = [...flashcardsData];
+let viewedCards = new Set();
+let currentLanguage = 'english';
+
+function renderFlashcard() {
+    if (filteredCards.length === 0) {
+        $('#flashcardArea').html(`
+            <div class="no-results fade-in">
+                <i class="fas fa-search" style="font-size: 3rem; color: #d1d5db; margin-bottom: 20px;"></i>
+                <p>No flashcards found matching your criteria.</p>
+            </div>
+        `);
+        $('#prevBtn, #nextBtn').prop('disabled', true);
+        $('#cardCounter').text('0 / 0');
+        updateProgress();
+        return;
+    }
+
+    const card = filteredCards[currentIndex];
+    viewedCards.add(currentIndex);
+
+    const categoryName = card.category.charAt(0).toUpperCase() + card.category.slice(1);
+    const question = currentLanguage === 'english' ? card.questionEn : card.questionBn;
+    const answer = currentLanguage === 'english' ? card.answerEn : card.answerBn;
+    const answerLabel = currentLanguage === 'english' ? 'Answer' : 'উত্তর';
+    
+    $('#flashcardArea').html(`
+        <div class="flashcard-container fade-in">
+            <div class="flashcard">
+                <span class="category-badge">${categoryName}</span>
+                <div class="question">
+                    <i class="fas fa-question-circle" style="color: var(--primary-color); margin-right: 10px;"></i>
+                    ${question}
+                </div>
+                <div class="answer">
+                    <div class="answer-label"><i class="fas fa-check-circle"></i> ${answerLabel}:</div>
+                    ${answer}
+                </div>
+            </div>
+        </div>
+    `);
+
+    $('#cardCounter').text(`${currentIndex + 1} / ${filteredCards.length}`);
+    $('#prevBtn').prop('disabled', currentIndex === 0);
+    $('#nextBtn').prop('disabled', currentIndex === filteredCards.length - 1);
+
+    updateProgress();
+}
+
+function updateProgress() {
+    const progress = filteredCards.length > 0 ? (viewedCards.size / filteredCards.length) * 100 : 0;
+    $('#progressBar').css('width', progress + '%');
+    $('#progressText').text(`${viewedCards.size} of ${filteredCards.length}`);
+}
+
+function filterCards(category) {
+    if (category === 'all') {
+        filteredCards = [...flashcardsData];
+    } else {
+        filteredCards = flashcardsData.filter(card => card.category === category);
+    }
+    currentIndex = 0;
+    viewedCards.clear();
+    renderFlashcard();
+}
+
+function searchCards(query) {
+    const searchTerm = query.toLowerCase();
+    if (searchTerm === '') {
+        const activeCategory = $('.category-btn.active').data('category');
+        filterCards(activeCategory);
+    } else {
+        const lang = currentLanguage;
+        filteredCards = flashcardsData.filter(card => {
+            const question = lang === 'english' ? card.questionEn : card.questionBn;
+            const answer = lang === 'english' ? card.answerEn : card.answerBn;
+            return question.toLowerCase().includes(searchTerm) || answer.toLowerCase().includes(searchTerm);
+        });
+        currentIndex = 0;
+        viewedCards.clear();
+        renderFlashcard();
+    }
+}
+
+function shuffleCards() {
+    for (let i = filteredCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+    }
+    currentIndex = 0;
+    viewedCards.clear();
+    renderFlashcard();
+}
+
+$(document).ready(function() {
+    renderFlashcard();
+
+    $('#nextBtn').click(function() {
+        if (currentIndex < filteredCards.length - 1) {
+            currentIndex++;
+            renderFlashcard();
+        }
+    });
+
+    $('#prevBtn').click(function() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderFlashcard();
+        }
+    });
+
+    $('.language-btn').click(function() {
+        $('.language-btn').removeClass('active');
+        $(this).addClass('active');
+        currentLanguage = $(this).data('lang');
+        renderFlashcard();
+    });
+
+    $('.category-btn').click(function() {
+        $('.category-btn').removeClass('active');
+        $(this).addClass('active');
+        const category = $(this).data('category');
+        $('#searchInput').val('');
+        filterCards(category);
+    });
+
+    $('#searchInput').on('input', function() {
+        searchCards($(this).val());
+    });
+
+    $('#shuffleBtn').click(function() {
+        shuffleCards();
+    });
+
+    $('#resetBtn').click(function() {
+        viewedCards.clear();
+        updateProgress();
+    });
+
+    $(document).keydown(function(e) {
+        if (e.key === 'ArrowRight' && currentIndex < filteredCards.length - 1) {
+            currentIndex++;
+            renderFlashcard();
+        } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+            currentIndex--;
+            renderFlashcard();
+        }
+    });
+});
+        </script>
