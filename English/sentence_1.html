@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>English Learning Flashcards</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #312e81;
+            --accent-color: #10b981;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #7158e2 0%, #341f97 100%);
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .flashcard-container {
+            perspective: 1500px;
+            margin-bottom: 25px;
+            height: 350px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .flashcard-front {
+            background: #ffffff;
+        }
+        
+        .flashcard-back {
+            background: #f0fdf4;
+            transform: rotateY(180deg);
+            border: 2px solid var(--accent-color);
+        }
+
+        #englishSentence {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        #banglaTranslation {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .click-to-reveal {
+            position: absolute;
+            bottom: 20px;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .translation-label {
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .listen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f3f4f6;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        .listen-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .progress-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+        }
+        .progress { height: 15px; border-radius: 10px; }
+        .progress-bar { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 0;
+            width: 120px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+
+        .card-counter {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            padding: 10px 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .action-buttons {
+            display: flex; gap: 10px; justify-content: center; margin-top: 25px;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            font-weight: 500;
+        }
+        .action-btn:hover {
+             background: rgba(255,255,255,0.3);
+             border-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-comments"></i> Everyday English Sentences</h1>
+            <p>Master 100 common phrases with Bangla translations</p>
+        </div>
+
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-face flashcard-front">
+                    <button class="listen-btn" id="listenBtn" title="Listen"><i class="fas fa-volume-up"></i></button>
+                    <p id="englishSentence">Loading...</p>
+                    <span class="click-to-reveal"><i class="fas fa-mouse-pointer"></i> Click card to reveal</span>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <div class="translation-label">Bangla Translation</div>
+                    <p id="banglaTranslation">লোড হচ্ছে...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="d-flex justify-content-between mb-2">
+                <span><strong>Progress:</strong></span>
+                <span id="progressText">0 of 100</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
+            <div class="card-counter" id="cardCounter">1 / 100</div>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn action-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle</button>
+            <button class="btn action-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const flashcardsData = [
+                { english: "I'm running a little late.", bangla: "আমার একটু দেরি হচ্ছে।" },
+                { english: "Could you please repeat that?", bangla: "আপনি কি দয়া করে আবার বলবেন?" },
+                { english: "What do you do for a living?", bangla: "আপনি জীবিকার জন্য কি করেন?" },
+                { english: "That's a good point.", bangla: "এটা একটা ভালো কথা।" },
+                { english: "Let's agree to disagree.", bangla: "চলুন আমরা ভিন্নমত পোষণ করতে সম্মত হই।" },
+                { english: "How do I get to the nearest station?", bangla: "সবচেয়ে কাছের স্টেশনে কিভাবে যাব?" },
+                { english: "I'm looking forward to it.", bangla: "আমি এটার জন্য অধীর আগ্রহে অপেক্ষা করছি।" },
+                { english: "It's not a big deal.", bangla: "এটা কোনো বড় ব্যাপার না।" },
+                { english: "Can I have the bill, please?", bangla: "আমি কি বিলটা পেতে পারি, দয়া করে?" },
+                { english: "I'll have to think about it.", bangla: "আমাকে এটা নিয়ে ভাবতে হবে।" },
+                { english: "It's on the tip of my tongue.", bangla: "এটা আমার মুখে আসছে কিন্তু মনে পড়ছে না।" },
+                { english: "Could you give me a hand with this?", bangla: "আপনি কি এটাতে আমাকে একটু সাহায্য করতে পারেন?" },
+                { english: "I'm sorry, I didn't catch that.", bangla: "দুঃখিত, আমি বুঝতে পারিনি।" },
+                { english: "What's the weather like today?", bangla: "আজকের আবহাওয়া কেমন?" },
+                { english: "Let's keep in touch.", bangla: "চলুন যোগাযোগ রাখি।" },
+                { english: "I'm feeling under the weather.", bangla: "আমার শরীরটা ভালো লাগছে না।" },
+                { english: "Do you have any recommendations?", bangla: "আপনার কি কোনো সুপারিশ আছে?" },
+                { english: "I'll take your word for it.", bangla: "আমি আপনার কথা বিশ্বাস করলাম।" },
+                { english: "It's better to be safe than sorry.", bangla: "দুঃখ করার চেয়ে নিরাপদ থাকা ভালো।" },
+                { english: "I'm just browsing, thanks.", bangla: "আমি শুধু দেখছি, ধন্যবাদ।" },
+                { english: "Could we reschedule our meeting?", bangla: "আমরা কি আমাদের মিটিং পুনরায় নির্ধারণ করতে পারি?" },
+                { english: "I see what you mean.", bangla: "আমি বুঝতে পারছি আপনি কি বলতে চাইছেন।" },
+                { english: "Let's get down to business.", bangla: "চলুন আসল কাজ শুরু করা যাক।" },
+                { english: "Long time no see!", bangla: "অনেক দিন দেখা নেই!" },
+                { english: "What have you been up to?", bangla: "আপনি আজকাল কি করছেন?" },
+                { english: "You can't judge a book by its cover.", bangla: "겉 देखकर किताब का न्याय नहीं कर सकते।" },
+                { english: "I'm on my way.", bangla: "আমি আসছি।" },
+                { english: "Could you speak a little slower?", bangla: "আপনি কি আরেকটু আস্তে কথা বলতে পারেন?" },
+                { english: "I'll get back to you on that.", bangla: "আমি আপনাকে এ বিষয়ে পরে জানাব।" },
+                { english: "It's a piece of cake.", bangla: "এটা খুব সহজ কাজ।" },
+                { english: "Let's call it a day.", bangla: "চলুন আজকের মতো কাজ শেষ করি।" },
+                { english: "I'm not sure I follow.", bangla: "আমি ঠিক বুঝতে পারছি না।" },
+                { english: "What do you think about this?", bangla: "আপনি এটা সম্পর্কে কি মনে করেন?" },
+                { english: "I couldn't agree more.", bangla: "আমি পুরোপুরি একমত।" },
+                { english: "Actions speak louder than words.", bangla: "কথার চেয়ে কাজের জোর বেশি।" },
+                { english: "How was your weekend?", bangla: "আপনার সপ্তাহান্ত কেমন কাটলো?" },
+                { english: "I need to catch up on some work.", bangla: "আমার কিছু কাজ সেরে ফেলতে হবে।" },
+                { english: "I'll see you in a bit.", bangla: "একটু পরেই আপনার সাথে দেখা হবে।" },
+                { english: "Take your time.", bangla: "সময় নিন।" },
+                { english: "Is this seat taken?", bangla: "এই আসনটি কি খালি আছে?" },
+                { english: "I'll be right with you.", bangla: "আমি এখনই আপনার কাছে আসছি।" },
+                { english: "Let's play it by ear.", bangla: "চলুন পরিস্থিতি অনুযায়ী সিদ্ধান্ত নিই।" },
+                { english: "Could you spell that for me?", bangla: "আপনি কি আমার জন্য এটা বানান করতে পারেন?" },
+                { english: "I'm afraid I have another appointment.", bangla: "দুঃখিত, আমার আরেকটি কাজ আছে।" },
+                { english: "It's up to you.", bangla: "এটা আপনার উপর নির্ভর করছে।" },
+                { english: "That's very kind of you.", bangla: "আপনার অনেক দয়া।" },
+                { english: "I'm sorry for the inconvenience.", bangla: "অসুবিধার জন্য আমি দুঃখিত।" },
+                { english: "Never mind, it's not important.", bangla: "কিছু মনে করবেন না, এটা জরুরি না।" },
+                { english: "What are the options?", bangla: "বিকল্পগুলো কি কি?" },
+                { english: "I'm having second thoughts.", bangla: "আমি আবার ভাবছি।" },
+                { english: "That makes sense.", bangla: "এটা যুক্তিযুক্ত।" },
+                { english: "Can you clarify that for me?", bangla: "আপনি কি এটা আমার জন্য স্পষ্ট করতে পারেন?" },
+                { english: "I'll do my best.", bangla: "আমি আমার সেরাটা চেষ্টা করব।" },
+                { english: "We're in the same boat.", bangla: "আমরা একই পরিস্থিতিতে আছি।" },
+                { english: "So far, so good.", bangla: "এখন পর্যন্ত সব ঠিক আছে।" },
+                { english: "What time works best for you?", bangla: "আপনার জন্য কোন সময়টা সবচেয়ে ভালো হবে?" },
+                { english: "I'm tied up at the moment.", bangla: "আমি এই মুহূর্তে ব্যস্ত আছি।" },
+                { english: "Let's touch base next week.", bangla: "চলুন আগামী সপ্তাহে যোগাযোগ করি।" },
+                { english: "It slipped my mind.", bangla: "আমি ভুলে গিয়েছিলাম।" },
+                { english: "I appreciate your concern.", bangla: "আপনার উদ্বেগের জন্য আমি কৃতজ্ঞ।" },
+                { english: "Can I make a suggestion?", bangla: "আমি কি একটি পরামর্শ দিতে পারি?" },
+                { english: "That's easier said than done.", bangla: "বলা সহজ, করা কঠিন।" },
+                { english: "I'm open to suggestions.", bangla: "আমি পরামর্শের জন্য প্রস্তুত।" },
+                { english: "What's the catch?", bangla: "এতে সমস্যাটা কোথায়?" },
+                { english: "Let me double-check that.", bangla: "আমি এটা আবার পরীক্ষা করে নিই।" },
+                { english: "I'll look into it.", bangla: "আমি বিষয়টি খতিয়ে দেখব।" },
+                { english: "It's a win-win situation.", bangla: "এটা উভয় পক্ষের জন্য লাভজনক পরিস্থিতি।" },
+                { english: "I'm about to leave.", bangla: "আমি এখনই বের হচ্ছি।" },
+                { english: "Let's get straight to the point.", bangla: "চলুন সরাসরি আসল কথায় আসি।" },
+                { english: "I'm not feeling well.", bangla: "আমার ভালো লাগছে না।" },
+                { english: "What's on your mind?", bangla: "আপনি কি ভাবছেন?" },
+                { english: "That's out of the question.", bangla: "এটা অসম্ভব।" },
+                { english: "I'll keep that in mind.", bangla: "আমি এটা মনে রাখব।" },
+                { english: "We need to think outside the box.", bangla: "আমাদের গতানুগতিক চিন্তার বাইরে ভাবতে হবে।" },
+                { english: "Could you elaborate on that?", bangla: "আপনি কি এ বিষয়ে বিস্তারিত বলতে পারেন?" },
+                { english: "Let's wrap this up.", bangla: "চলুন এটা শেষ করি।" },
+                { english: "I'm swamped with work.", bangla: "আমি কাজে ডুবে আছি।" },
+                { english: "It's not worth the trouble.", bangla: "এটার জন্য কষ্ট করা বৃথা।" },
+                { english: "I'll be there in five minutes.", bangla: "আমি পাঁচ মিনিটের মধ্যে সেখানে থাকব।" },
+                { english: "Can you do me a favor?", bangla: "আপনি কি আমার একটা উপকার করতে পারেন?" },
+                { english: "The sooner, the better.", bangla: "যত তাড়াতাড়ি, তত ভালো।" },
+                { english: "That's a valid concern.", bangla: "এটা একটি যুক্তিসঙ্গত উদ্বেগ।" },
+                { english: "I'll take care of it.", bangla: "আমি এটার যত্ন নেব।" },
+                { english: "You read my mind.", bangla: "আপনি আমার মনের কথা বলে দিয়েছেন।" },
+                { english: "I'm just killing time.", bangla: "আমি শুধু সময় কাটাচ্ছি।" },
+                { english: "Let's agree on that.", bangla: "চলুন এতে একমত হই।" },
+                { english: "What is the deadline for this?", bangla: "এটার শেষ তারিখ কবে?" },
+                { english: "I'm all ears.", bangla: "আমি মনোযোগ দিয়ে শুনছি।" },
+                { english: "That rings a bell.", bangla: "এটা শুনে চেনা চেনা মনে হচ্ছে।" },
+                { english: "Let's not jump to conclusions.", bangla: "চলুন তাড়াহুড়ো করে সিদ্ধান্তে না আসি।" },
+                { english: "I'm on a tight budget.", bangla: "আমার বাজেট খুব সীমিত।" },
+                { english: "It's a matter of opinion.", bangla: "এটা মতামতের বিষয়।" },
+                { english: "I'm exhausted.", bangla: "আমি খুব ক্লান্ত।" },
+                { english: "Let's take a break.", bangla: "চলুন একটা বিরতি নিই।" },
+                { english: "Could you be more specific?", bangla: "আপনি কি আরও নির্দিষ্ট করে বলতে পারেন?" },
+                { english: "I'll cross that bridge when I come to it.", bangla: "যখন সময় আসবে তখন এটা নিয়ে ভাবব।" },
+                { english: "That's a relief.", bangla: "এটা একটা স্বস্তির বিষয়।" },
+                { english: "I'm counting on you.", bangla: "আমি আপনার উপর নির্ভর করছি।" }
+            ];
+
+            let currentIndex = 0;
+            let currentCards = [...flashcardsData];
+            let isFlipped = false;
+
+            function renderFlashcard() {
+                isFlipped = false;
+                $('#flashcard').removeClass('flipped');
+                const card = currentCards[currentIndex];
+
+                // Add a fade-out-in animation for a smoother transition
+                $('.flashcard-face').fadeOut(150, function() {
+                    $('#englishSentence').text(card.english);
+                    $('#banglaTranslation').text(card.bangla);
+                    $(this).fadeIn(150);
+                });
+
+                updateNavigation();
+            }
+            
+            function updateNavigation() {
+                const total = currentCards.length;
+                $('#cardCounter').text(`${currentIndex + 1} / ${total}`);
+                $('#progressText').text(`${currentIndex + 1} of ${total}`);
+                $('#progressBar').css('width', `${((currentIndex + 1) / total) * 100}%`);
+                $('#prevBtn').prop('disabled', currentIndex === 0);
+                $('#nextBtn').prop('disabled', currentIndex === total - 1);
+            }
+
+            $('#flashcard').on('click', function() {
+                $(this).toggleClass('flipped');
+                isFlipped = !isFlipped;
+            });
+
+            $('#nextBtn').on('click', () => {
+                if (currentIndex < currentCards.length - 1) {
+                    currentIndex++;
+                    renderFlashcard();
+                }
+            });
+
+            $('#prevBtn').on('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    renderFlashcard();
+                }
+            });
+
+            $('#shuffleBtn').on('click', () => {
+                for (let i = currentCards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+                }
+                currentIndex = 0;
+                renderFlashcard();
+            });
+            
+            $('#resetBtn').on('click', () => {
+                currentCards = [...flashcardsData];
+                currentIndex = 0;
+                renderFlashcard();
+            });
+
+            $('#listenBtn').on('click', function(e) {
+                e.stopPropagation(); // Prevents the card from flipping
+                const text = $('#englishSentence').text();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            });
+
+            // Initial Load
+            renderFlashcard();
+        });
+    </script>
+</body>
+</html>
