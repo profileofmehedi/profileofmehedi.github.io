@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H1B Visa Interview Flashcards</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 8px 20px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .category-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 12px 45px 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            min-height: 300px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flashcard:hover {
+            box-shadow: var(--card-hover);
+            transform: translateY(-5px);
+        }
+
+        .flashcard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .answer {
+            font-size: 1.1rem;
+            color: #4b5563;
+            line-height: 1.8;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .answer-label {
+            color: var(--success-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .card-counter {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4b5563;
+            padding: 10px 20px;
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+
+        .progress-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .progress {
+            height: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            transition: width 0.5s ease;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 10px 25px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .flashcard {
+                padding: 25px;
+                min-height: 250px;
+            }
+
+            .question {
+                font-size: 1.1rem;
+            }
+
+            .answer {
+                font-size: 1rem;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .category-filter {
+                justify-content: center;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-passport"></i> H1B Visa Interview Flashcards</h1>
+            <p>Comprehensive preparation guide for your visa interview</p>
+        </div>
+
+        <div class="controls">
+            <h5 class="mb-3"><i class="fas fa-filter"></i> Filter by Category</h5>
+            <div class="category-filter" id="categoryFilter">
+                <button class="category-btn active" data-category="all">All Questions</button>
+                <button class="category-btn" data-category="introduction">Introduction</button>
+                <button class="category-btn" data-category="employer">US Employer</button>
+                <button class="category-btn" data-category="job">Job Role</button>
+                <button class="category-btn" data-category="background">Background</button>
+                <button class="category-btn" data-category="family">Family</button>
+                <button class="category-btn" data-category="relatives">Relatives in USA</button>
+                <button class="category-btn" data-category="intentions">Future Plans</button>
+                <button class="category-btn" data-category="general">General</button>
+            </div>
+
+            <div class="search-box mt-3">
+                <input type="text" id="searchInput" placeholder="Search questions...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="d-flex justify-content-between mb-2">
+                <span><strong>Progress:</strong></span>
+                <span id="progressText">0 of 0</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="flashcardArea"></div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
+            <div class="card-counter" id="cardCounter">1 / 1</div>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div class="action-buttons mt-4 text-center">
+            <button class="action-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle Cards</button>
+            <button class="action-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const flashcardsData = [
+            {category: "introduction", question: "Are you applying for an H1B Visa?", answer: "Yes."},
+            {category: "introduction", question: "Can I see your approval letter (I-797)?", answer: "Yes, here it is."},
+            {category: "introduction", question: "Is this the first time you have applied for a US visa?", answer: "Yes."},
+            {category: "introduction", question: "Your H1B petition was approved. Why are you attending the interview now? / Did you have a previous appointment?", answer: "I had to cancel my initial appointment which was on March 25th, 2025. At that time, my wife's and our newborn son's passports were not ready. It is very important for us to apply and travel together as a family, so I booked this new appointment as soon as their passports were issued."},
+            {category: "introduction", question: "What is your visa validity period?", answer: "My approved petition is valid from October 23rd, 2024, to September 30th, 2027."},
+            {category: "introduction", question: "When was your H1B petition approved?", answer: "The official approval date is October 23rd, 2024."},
+            {category: "introduction", question: "What is your date of birth?", answer: "It was 12th of June, 1995."},
+            
+            {category: "employer", question: "Who is your petitioner? / For which company are you applying for H1B?", answer: "My petitioner is Ascend Technology Inc."},
+            {category: "employer", question: "What does your US employer do? / What does Ascend do?", answer: "Ascend is a technology solutions provider focused on Unified Communications and custom software development. They help businesses, from mid-size to Fortune 500 companies, by providing IT consulting and building complex applications using technologies from partners like Cisco, Avaya, and Microsoft."},
+            {category: "employer", question: "What kind of IT solution do they provide?", answer: "They offer hardware installations, maintenance services, and IT consulting based on their technology partnerships."},
+            {category: "employer", question: "What kind of software do they develop? / What types of products/services do they offer?", answer: "Primarily, they develop custom communication software. A key example is the REVE OTT application they are building for Comcast, which includes features like video calling, instant messaging, and file transfers."},
+            {category: "employer", question: "For what platform do they develop?", answer: "They develop software for Mobile, Web, and Desktop platforms."},
+            {category: "employer", question: "Who are their clients?", answer: "They work with mid-size to large enterprise clients. A major client mentioned in my petition is Comcast Corporation."},
+            {category: "employer", question: "Where is Ascend located?", answer: "Its head office is at 1879 Lundy Avenue, Suite 289, in San Jose, California."},
+            {category: "employer", question: "What is the annual revenue/turnover of the company?", answer: "Their gross revenue for the 2022-2023 tax year was $6.85 million."},
+            {category: "employer", question: "Who is the CEO of the company?", answer: "The CEO is Kawser Jamal."},
+            {category: "employer", question: "How many people work there?", answer: "They have 14 employees in the United States."},
+            {category: "employer", question: "When did the company start its operation?", answer: "In 2003."},
+            
+            {category: "job", question: "What will be your role or designation?", answer: "I will be a Software Quality Assurance Analyst and Tester."},
+            {category: "job", question: "What will your salary be?", answer: "$141,378 per year."},
+            {category: "job", question: "What are your job responsibilities?", answer: "My primary role is to ensure the quality of their software projects. About 40% of my time will be focused on designing test plans and writing test automation scripts. The rest will involve manual and automated testing, debugging issues with developers, participating in sprint planning, and helping mentor junior team members."},
+            {category: "job", question: "Will you be working on in-house projects or external projects?", answer: "I will be working for Ascend directly on their in-house projects. Specifically, I will be working on the REVE OTT project, which is a custom communication application they are developing for their client, Comcast."},
+            {category: "job", question: "What are the project details?", answer: "REVE OTT is a communication application for mobile and web that allows users to make calls, video chat, and send messages over various networks. My job is to test its features and performance to ensure it is highly reliable."},
+            {category: "job", question: "Will you be working for the clients?", answer: "No, I will be working for Ascend directly."},
+            {category: "job", question: "For which platform will you be working?", answer: "I will be working as a Software Tester, responsible for testing both the server and client side. The client side is primarily a web and mobile platform."},
+            {category: "job", question: "What tools will you use to test the application?", answer: "The development team uses Microsoft TFS and GIT. For my QA work, I will use tools like Selenium for automation, JIRA for bug tracking, and Postman for API testing."},
+            {category: "job", question: "Are you able to work remotely from your home country?", answer: "No. My job requires direct interaction with the development team in the US, requirement collection, and real-time feedback. Time zone differences would make this impossible."},
+            
+            {category: "background", question: "How did you find this job?", answer: "I found the job on LinkedIn, and the job description matched my experience. I applied, got the offer, and now I'm applying for the H1B visa."},
+            {category: "background", question: "How many rounds of interviews were there?", answer: "There were three rounds: a technical interview, an HR interview, and an introductory interview with the CEO."},
+            {category: "background", question: "Who was present in the interview?", answer: "Three people: the Project Manager, a Technical Person, and an HR Representative."},
+            {category: "background", question: "Where are you working now?", answer: "I am working for OPUS Technology Ltd., which is a software company."},
+            {category: "background", question: "What is your designation here?", answer: "I am a Software Developer."},
+            {category: "background", question: "What is your current salary?", answer: "My current salary is 70,000 BDT per month."},
+            {category: "background", question: "What experience do you have in software testing?", answer: "I have experience in both manual and automated testing, bug tracking, and ensuring applications meet quality standards, particularly in financial software."},
+            {category: "background", question: "Why are you planning to move from software development to QA?", answer: "I enjoy finding and fixing problems to make sure the software works well. I want to focus on ensuring the product is high quality and error-free."},
+            {category: "background", question: "What is your educational background?", answer: "I completed my graduation in Mathematics and then did an IT scholarship program under IDB-BISEW."},
+            {category: "background", question: "What is your favorite programming language?", answer: "C#, Python, and Java."},
+            
+            {category: "family", question: "When did you get married?", answer: "We were married on December 15th, 2023."},
+            {category: "family", question: "Was your marriage arranged or a love marriage?", answer: "We loved each other and informed our families, and then our families arranged the wedding ceremony for us."},
+            {category: "family", question: "What will your spouse do there?", answer: "She will be a homemaker and will take care of our son."},
+            {category: "family", question: "Are you aware that your spouse will not be allowed to work in the USA?", answer: "Yes, I am aware of it."},
+            {category: "family", question: "What is your wife's current profession?", answer: "She works as a Senior Staff Nurse at the Rajnagar Upazila Health Complex."},
+            {category: "family", question: "What are her plans for her job?", answer: "She will be resigning from her position before we depart so she can accompany me."},
+            
+            {category: "relatives", question: "Do you have any relatives living in the United States?", answer: "Yes, my brother lives in the US."},
+            {category: "relatives", question: "What does your brother do?", answer: "He works as a consultant for Dell."},
+            {category: "relatives", question: "Did your brother help you find this job?", answer: "No, he did not. I found this opportunity on my own through LinkedIn and went through the entire interview process independently."},
+            {category: "relatives", question: "Will you be living with your brother?", answer: "No. For the first month, my employer has arranged temporary accommodation for my family. During that time, I will arrange a permanent apartment for us to live in independently."},
+            
+            {category: "intentions", question: "Why are you going to the USA?", answer: "I applied for the H1B visa, my petition was approved, and now I am going to the USA to join my employer."},
+            {category: "intentions", question: "How long have you been working for Ascend?", answer: "I have not started yet. Since it is an on-site job position, I am preparing to go there."},
+            {category: "intentions", question: "Where will you work? / Which city are you headed to?", answer: "My job location will be at the Ascend Head Office in San Jose, California."},
+            {category: "intentions", question: "Where will you be staying?", answer: "Initially, at 2485 Alvarado Dr, Santa Clara, CA 95051."},
+            {category: "intentions", question: "How will you manage your accommodation during your stay?", answer: "My employer will take care of my accommodation for the first month. After that, I will manage it myself using my personal savings and my income from the job."},
+            {category: "intentions", question: "How much is needed to live in Santa Clara monthly?", answer: "I have researched the cost of living and I estimate it will be around $4,000 to $5,000 per month for a small family, which my salary can comfortably cover."},
+            {category: "intentions", question: "How long will you be staying there?", answer: "Until the expiration of my H1B status, which is September 30, 2027."},
+            {category: "intentions", question: "What will you do after then? / What will you do after the expiration of your H1B petition?", answer: "I hope my employer will extend my H1B. If not, I will return to my home country."},
+            {category: "intentions", question: "Will you come back after completion of your job?", answer: "Yes, if my company does not extend my H1B status, I will come back."},
+            {category: "intentions", question: "Why will you come back to Bangladesh?", answer: "This is my home. Both my and my wife's families are here. I am very close to my parents, and my son has just been born, so our family ties are very strong in Bangladesh."},
+            
+            {category: "general", question: "As an employee, do you know your rights?", answer: "Yes, I know my rights. My salary is $141,378 per year. I will work 40 hours per week, and overtime will be paid if I work beyond that. The company will provide health insurance, covering 50% of the premium, and I will receive 5 paid holidays."},
+            {category: "general", question: "Have you ever paid any money to your employer for this visa?", answer: "No, not a single penny."},
+            {category: "general", question: "Did you travel to any country in the past five years?", answer: "No."},
+            {category: "general", question: "Have you ever been deported from any country?", answer: "No, never."}
+        ];
+
+        let currentIndex = 0;
+        let filteredCards = [...flashcardsData];
+        let viewedCards = new Set();
+
+        function renderFlashcard() {
+            if (filteredCards.length === 0) {
+                $('#flashcardArea').html(`
+                    <div class="no-results fade-in">
+                        <i class="fas fa-search" style="font-size: 3rem; color: #d1d5db; margin-bottom: 20px;"></i>
+                        <p>No flashcards found matching your criteria.</p>
+                    </div>
+                `);
+                $('#prevBtn, #nextBtn').prop('disabled', true);
+                $('#cardCounter').text('0 / 0');
+                return;
+            }
+
+            const card = filteredCards[currentIndex];
+            viewedCards.add(currentIndex);
+
+            const categoryName = card.category.charAt(0).toUpperCase() + card.category.slice(1);
+            
+            $('#flashcardArea').html(`
+                <div class="flashcard-container fade-in">
+                    <div class="flashcard">
+                        <span class="category-badge">${categoryName}</span>
+                        <div class="question">
+                            <i class="fas fa-question-circle" style="color: var(--primary-color); margin-right: 10px;"></i>
+                            ${card.question}
+                        </div>
+                        <div class="answer">
+                            <div class="answer-label"><i class="fas fa-check-circle"></i> Answer:</div>
+                            ${card.answer}
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            $('#cardCounter').text(`${currentIndex + 1} / ${filteredCards.length}`);
+            $('#prevBtn').prop('disabled', currentIndex === 0);
+            $('#nextBtn').prop('disabled', currentIndex === filteredCards.length - 1);
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (viewedCards.size / filteredCards.length) * 100;
+            $('#progressBar').css('width', progress + '%');
+            $('#progressText').text(`${viewedCards.size} of ${filteredCards.length}`);
+        }
+
+        function filterCards(category) {
+            if (category === 'all') {
+                filteredCards = [...flashcardsData];
+            } else {
+                filteredCards = flashcardsData.filter(card => card.category === category);
+            }
+            currentIndex = 0;
+            viewedCards.clear();
+            renderFlashcard();
+        }
+
+        function searchCards(query) {
+            const searchTerm = query.toLowerCase();
+            if (searchTerm === '') {
+                const activeCategory = $('.category-btn.active').data('category');
+                filterCards(activeCategory);
+            } else {
+                filteredCards = flashcardsData.filter(card => 
+                    card.question.toLowerCase().includes(searchTerm) || 
+                    card.answer.toLowerCase().includes(searchTerm)
+                );
+                currentIndex = 0;
+                viewedCards.clear();
+                renderFlashcard();
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = filteredCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+            }
+            currentIndex = 0;
+            viewedCards.clear();
+            renderFlashcard();
+        }
+
+        $(document).ready(function() {
+            renderFlashcard();
+
+            $('#nextBtn').click(function() {
+                if (currentIndex < filteredCards.length - 1) {
+                    currentIndex++;
+                    renderFlashcard();
+                }
+            });
+
+            $('#prevBtn').click(function() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    renderFlashcard();
+                }
+            });
+
+            $('.category-btn').click(function() {
+                $('.category-btn').removeClass('active');
+                $(this).addClass('active');
+                const category = $(this).data('category');
+                $('#searchInput').val('');
+                filterCards(category);
+            });
+
+            $('#searchInput').on('input', function() {
+                searchCards($(this).val());
+            });
+
+            $('#shuffleBtn').click(function() {
+                shuffleCards();
+            });
+
+            $('#resetBtn').click(function() {
+                viewedCards.clear();
+                updateProgress();
+            });
+
+            $(document).keydown(function(e) {
+                if (e.key === 'ArrowRight' && currentIndex < filteredCards.length - 1) {
+                    currentIndex++;
+                    renderFlashcard();
+                } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                    currentIndex--;
+                    renderFlashcard();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
