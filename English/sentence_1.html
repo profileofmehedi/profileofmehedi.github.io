@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale-1.0">
-    <title>English Learning Flashcards</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced English Learning Flashcards</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +14,7 @@
             --primary-color: #4f46e5;
             --secondary-color: #312e81;
             --accent-color: #10b981;
+            --completed-color: #22c55e;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --card-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
@@ -75,7 +76,28 @@
             text-align: center;
             border-radius: 20px;
             box-shadow: var(--card-shadow);
+            border: 3px solid transparent;
+            transition: border-color 0.3s ease;
         }
+        
+        .flashcard.completed .flashcard-front {
+            border-color: var(--completed-color);
+        }
+        
+        .completed-icon {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 1.8rem;
+            color: var(--completed-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .flashcard.completed .completed-icon {
+            opacity: 1;
+        }
+
 
         .flashcard-front {
             background: #ffffff;
@@ -180,17 +202,46 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         
-        .action-buttons {
-            display: flex; gap: 10px; justify-content: center; margin-top: 25px;
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
 
-        .action-btn {
+        .main-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #completeBtn {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        #completeBtn:hover {
+            opacity: 0.9;
+        }
+        #completeBtn.completed {
+            background-color: #f97316; /* Orange color for incomplete */
+            border-color: #f97316;
+        }
+
+        .utility-buttons {
+            display: flex; gap: 10px; justify-content: center; margin-top: 15px;
+        }
+
+        .utility-btn {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.5);
             color: white;
             font-weight: 500;
         }
-        .action-btn:hover {
+        .utility-btn:hover {
              background: rgba(255,255,255,0.3);
              border-color: white;
         }
@@ -207,6 +258,7 @@
         <div class="flashcard-container">
             <div class="flashcard" id="flashcard">
                 <div class="flashcard-face flashcard-front">
+                    <i class="fas fa-check-circle completed-icon"></i>
                     <button class="listen-btn" id="listenBtn" title="Listen"><i class="fas fa-volume-up"></i></button>
                     <p id="englishSentence">Loading...</p>
                     <span class="click-to-reveal"><i class="fas fa-mouse-pointer"></i> Click card to reveal</span>
@@ -219,31 +271,36 @@
         </div>
 
         <div class="progress-section">
-            <div class="d-flex justify-content-between mb-2">
-                <span><strong>Progress:</strong></span>
-                <span id="progressText">0 of 100</span>
+            <div class="status-bar">
+                <span id="progressText">Progress: 0 of 100</span>
+                <span id="scoreText">Score: 0</span>
             </div>
             <div class="progress">
                 <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
             </div>
         </div>
+        
+        <div class="main-actions">
+            <button class="btn btn-success" id="completeBtn"><i class="fas fa-check"></i> Mark as Completed</button>
+        </div>
 
-        <div class="navigation">
+        <div class="navigation mt-3">
             <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
             <div class="card-counter" id="cardCounter">1 / 100</div>
             <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
         </div>
         
-        <div class="action-buttons">
-            <button class="btn action-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle</button>
-            <button class="btn action-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+        <div class="utility-buttons">
+            <button class="btn utility-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle</button>
+            <button class="btn utility-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
-            const flashcardsData = [
+            // --- DATA ---
+            const initialFlashcardsData = [
                 { english: "I'm running a little late.", bangla: "আমার একটু দেরি হচ্ছে।" },
                 { english: "Could you please repeat that?", bangla: "আপনি কি দয়া করে আবার বলবেন?" },
                 { english: "What do you do for a living?", bangla: "আপনি জীবিকার জন্য কি করেন?" },
@@ -341,80 +398,140 @@
                 { english: "Could you be more specific?", bangla: "আপনি কি আরও নির্দিষ্ট করে বলতে পারেন?" },
                 { english: "I'll cross that bridge when I come to it.", bangla: "যখন সময় আসবে তখন এটা নিয়ে ভাবব।" },
                 { english: "That's a relief.", bangla: "এটা একটা স্বস্তির বিষয়।" },
-                { english: "I'm counting on you.", bangla: "আমি আপনার উপর নির্ভর করছি।" }
+                { english: "I'm counting on you.", bangla: "আমি আপনার উপর নির্ভর করছি।" },
+                { english: "Where are you from?", bangla: "আপনি কোথা থেকে এসেছেন?" },
+                { english: "Have a great day!", bangla: "আপনার দিনটি শুভ হোক!" }
             ];
 
-            let currentIndex = 0;
-            let currentCards = [...flashcardsData];
-            let isFlipped = false;
+            // --- STATE MANAGEMENT ---
+            let appState = {
+                cards: [],
+                currentIndex: 0
+            };
 
+            function saveState() {
+                localStorage.setItem('flashcardState', JSON.stringify(appState));
+            }
+
+            function loadState() {
+                const savedState = localStorage.getItem('flashcardState');
+                if (savedState) {
+                    appState = JSON.parse(savedState);
+                } else {
+                    // Initialize for the first time
+                    appState.cards = initialFlashcardsData.map((card, index) => ({
+                        ...card,
+                        id: index,
+                        completed: false
+                    }));
+                    appState.currentIndex = 0;
+                    saveState();
+                }
+            }
+
+            // --- UI RENDERING ---
             function renderFlashcard() {
-                isFlipped = false;
+                // Ensure the card is flipped back to the front on navigation
                 $('#flashcard').removeClass('flipped');
-                const card = currentCards[currentIndex];
+                
+                const card = appState.cards[appState.currentIndex];
+                if (!card) return;
 
-                // Add a fade-out-in animation for a smoother transition
+                // Fade out, update content, fade in
                 $('.flashcard-face').fadeOut(150, function() {
                     $('#englishSentence').text(card.english);
                     $('#banglaTranslation').text(card.bangla);
                     $(this).fadeIn(150);
                 });
 
-                updateNavigation();
+                // Update UI based on completion status
+                if (card.completed) {
+                    $('#flashcard').addClass('completed');
+                    $('#completeBtn').addClass('completed').html('<i class="fas fa-times"></i> Mark as Incomplete');
+                } else {
+                    $('#flashcard').removeClass('completed');
+                    $('#completeBtn').removeClass('completed').html('<i class="fas fa-check"></i> Mark as Completed');
+                }
+
+                updateNavigationAndProgress();
             }
             
-            function updateNavigation() {
-                const total = currentCards.length;
-                $('#cardCounter').text(`${currentIndex + 1} / ${total}`);
-                $('#progressText').text(`${currentIndex + 1} of ${total}`);
-                $('#progressBar').css('width', `${((currentIndex + 1) / total) * 100}%`);
-                $('#prevBtn').prop('disabled', currentIndex === 0);
-                $('#nextBtn').prop('disabled', currentIndex === total - 1);
+            function updateNavigationAndProgress() {
+                const total = appState.cards.length;
+                const score = appState.cards.filter(c => c.completed).length;
+
+                $('#cardCounter').text(`${appState.currentIndex + 1} / ${total}`);
+                $('#progressText').text(`Progress: ${appState.currentIndex + 1} of ${total}`);
+                $('#scoreText').text(`Score: ${score}`);
+                
+                // Progress bar for cards viewed, not completed
+                const progressPercentage = total > 0 ? ((appState.currentIndex + 1) / total) * 100 : 0;
+                $('#progressBar').css('width', `${progressPercentage}%`);
+
+                $('#prevBtn').prop('disabled', appState.currentIndex === 0);
+                $('#nextBtn').prop('disabled', appState.currentIndex === total - 1);
             }
 
+            // --- EVENT HANDLERS ---
             $('#flashcard').on('click', function() {
                 $(this).toggleClass('flipped');
-                isFlipped = !isFlipped;
             });
 
             $('#nextBtn').on('click', () => {
-                if (currentIndex < currentCards.length - 1) {
-                    currentIndex++;
+                if (appState.currentIndex < appState.cards.length - 1) {
+                    appState.currentIndex++;
+                    saveState();
                     renderFlashcard();
                 }
             });
 
             $('#prevBtn').on('click', () => {
-                if (currentIndex > 0) {
-                    currentIndex--;
+                if (appState.currentIndex > 0) {
+                    appState.currentIndex--;
+                    saveState();
                     renderFlashcard();
                 }
             });
 
+            $('#completeBtn').on('click', () => {
+                const card = appState.cards[appState.currentIndex];
+                card.completed = !card.completed;
+                saveState();
+                renderFlashcard();
+            });
+
             $('#shuffleBtn').on('click', () => {
-                for (let i = currentCards.length - 1; i > 0; i--) {
+                for (let i = appState.cards.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
-                    [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+                    [appState.cards[i], appState.cards[j]] = [appState.cards[j], appState.cards[i]];
                 }
-                currentIndex = 0;
+                appState.currentIndex = 0;
+                saveState();
                 renderFlashcard();
             });
             
             $('#resetBtn').on('click', () => {
-                currentCards = [...flashcardsData];
-                currentIndex = 0;
-                renderFlashcard();
+                if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
+                    localStorage.removeItem('flashcardState');
+                    loadState(); // This will re-initialize the state
+                    renderFlashcard();
+                }
             });
 
             $('#listenBtn').on('click', function(e) {
-                e.stopPropagation(); // Prevents the card from flipping
+                e.stopPropagation(); // Prevent card from flipping
                 const text = $('#englishSentence').text();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                window.speechSynthesis.speak(utterance);
+                if ('speechSynthesis' in window && text) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    alert('Sorry, your browser does not support text-to-speech.');
+                }
             });
 
-            // Initial Load
+            // --- INITIALIZATION ---
+            loadState();
             renderFlashcard();
         });
     </script>
