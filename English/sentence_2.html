@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced English Flashcards (Part 2)</title>
+    <title>Advanced English Flashcards (Part 2) - Upgraded</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,8 +15,8 @@
             --secondary-color: #86198f; /* Darker Fuchsia */
             --accent-color: #16a34a; /* Green */
             --completed-color: #2563eb; /* Blue */
+            --bookmark-color: #f59e0b; /* Amber color */
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --card-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
 
         body {
@@ -36,7 +36,7 @@
         .header {
             text-align: center;
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
@@ -44,6 +44,34 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
+        /* --- Filter Controls --- */
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+        .filter-btn:hover {
+             background: rgba(255,255,255,0.4);
+             border-color: white;
+        }
+        .filter-btn.active {
+            background: white;
+            color: var(--primary-color);
+            border-color: white;
+            font-weight: 600;
+        }
+
+
+        /* --- Flashcard Styles --- */
         .flashcard-container {
             perspective: 1500px;
             margin-bottom: 25px;
@@ -51,199 +79,96 @@
         }
 
         .flashcard {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s ease;
-            cursor: pointer;
+            width: 100%; height: 100%; position: relative;
+            transform-style: preserve-3d; transition: transform 0.6s ease; cursor: pointer;
         }
 
-        .flashcard.flipped {
-            transform: rotateY(180deg);
-        }
+        .flashcard.flipped { transform: rotateY(180deg); }
 
         .flashcard-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            text-align: center;
-            border-radius: 20px;
-            box-shadow: var(--card-shadow);
-            border: 3px solid transparent;
-            transition: border-color 0.3s ease;
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 30px;
+            text-align: center; border-radius: 20px; box-shadow: var(--card-shadow);
+            border: 3px solid transparent; transition: border-color 0.3s ease;
         }
         
-        .flashcard.completed .flashcard-front {
-            border-color: var(--completed-color);
-        }
-        
-        .completed-icon {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            font-size: 1.8rem;
-            color: var(--completed-color);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
+        .flashcard.completed .flashcard-front { border-color: var(--completed-color); }
 
-        .flashcard.completed .completed-icon {
-            opacity: 1;
-        }
-
-        .flashcard-front {
-            background: #ffffff;
-        }
-        
-        .flashcard-back {
-            background: #f0fdf4;
-            transform: rotateY(180deg);
-            border: 2px solid var(--accent-color);
-        }
+        .flashcard-front { background: #ffffff; }
+        .flashcard-back { background: #f0fdf4; transform: rotateY(180deg); border: 2px solid var(--accent-color); }
 
         #englishSentence {
-            font-size: 1.6rem;
-            font-weight: 600;
-            color: #1f2937;
+            font-size: 1.6rem; font-weight: 600; color: #1f2937;
+            padding: 0 2rem;
         }
-        
-        #banglaTranslation {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
+        #banglaTranslation { font-size: 1.4rem; font-weight: 600; color: #1f2937; }
 
-        .click-to-reveal {
-            position: absolute;
-            bottom: 20px;
-            color: #9ca3af;
-            font-size: 0.9rem;
+        /* --- Icons on the Card --- */
+        .card-icon {
+            position: absolute; font-size: 1.8rem;
+            opacity: 0; transition: opacity 0.3s ease;
         }
-
-        .translation-label {
-            color: var(--accent-color);
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
+        .completed-icon { top: 15px; left: 20px; color: var(--completed-color); }
+        .bookmark-icon { top: 15px; right: 65px; color: var(--bookmark-color); font-size: 1.6rem; }
+        .flashcard.completed .completed-icon, .flashcard.bookmarked .bookmark-icon { opacity: 1; }
 
         .listen-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f3f4f6;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            transition: all 0.3s ease;
+            position: absolute; top: 20px; right: 20px; background: #f3f4f6;
+            border: none; width: 45px; height: 45px; border-radius: 50%;
+            font-size: 1.2rem; color: var(--primary-color); transition: all 0.3s ease; z-index: 10;
         }
-        .listen-btn:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: scale(1.1);
-        }
-
+        .listen-btn:hover { background-color: var(--primary-color); color: white; transform: scale(1.1); }
+        
+        /* --- Progress Section Styles --- */
         .progress-section {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 25px;
+            background: white; padding: 20px; border-radius: 15px;
+            box-shadow: var(--card-shadow); margin-bottom: 25px;
         }
+        .status-bar { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
         .progress { height: 15px; border-radius: 10px; }
         .progress-bar { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); }
 
+        /* --- Button Layout --- */
+        .primary-actions {
+            display: flex; gap: 15px; margin-bottom: 25px;
+        }
+        .action-btn {
+            flex: 1; padding: 12px; font-size: 1.1rem;
+            font-weight: bold; transition: all 0.3s ease;
+        }
+        #completeBtn { background-color: var(--accent-color); border-color: var(--accent-color); }
+        #completeBtn.completed { background-color: #eab308; border-color: #eab308; }
+        #bookmarkBtn { background-color: var(--bookmark-color); border-color: var(--bookmark-color); }
+        #bookmarkBtn.bookmarked { background-color: #6b7280; border-color: #6b7280; }
+
         .navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
+            display: flex; justify-content: space-between;
+            align-items: center; gap: 15px; margin-bottom: 25px;
         }
-
         .nav-btn {
-            padding: 12px 0;
-            width: 120px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 1rem;
+            padding: 12px 0; width: 120px; background: var(--primary-color); color: white;
+            border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;
+            font-weight: 600; font-size: 1rem;
         }
-
-        .nav-btn:hover:not(:disabled) {
-            background: var(--secondary-color);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
+        .nav-btn:hover:not(:disabled) { background: var(--secondary-color); transform: translateY(-3px); }
         .nav-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+        .card-counter { font-size: 1.25rem; font-weight: 700; color: white; padding: 10px 20px; }
 
-        .card-counter {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: white;
-            padding: 10px 20px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        .settings-actions {
+            display: flex; gap: 10px; justify-content: center;
         }
+        .settings-btn {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5);
+            color: white; font-weight: 500;
+        }
+        .settings-btn:hover { background: rgba(255,255,255,0.3); border-color: white; }
         
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-weight: 600;
+        @media (max-width: 576px) {
+            #englishSentence { font-size: 1.4rem; }
+            .primary-actions { flex-direction: column; }
         }
 
-        .main-actions {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        #completeBtn {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-        #completeBtn:hover {
-            opacity: 0.9;
-        }
-        #completeBtn.completed {
-            background-color: #f97316; /* Orange color for incomplete */
-            border-color: #f97316;
-        }
-
-        .utility-buttons {
-            display: flex; gap: 10px; justify-content: center; margin-top: 15px;
-        }
-
-        .utility-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.5);
-            color: white;
-            font-weight: 500;
-        }
-        .utility-btn:hover {
-             background: rgba(255,255,255,0.3);
-             border-color: white;
-        }
     </style>
 </head>
 <body>
@@ -254,13 +179,22 @@
             <p>Challenge yourself with 100 complex phrases</p>
         </div>
 
+        <!-- Group 0: Filter Controls -->
+        <div class="filter-controls">
+            <button class="btn filter-btn" data-filter="all">All Cards</button>
+            <button class="btn filter-btn" data-filter="bookmarked">Bookmarked</button>
+            <button class="btn filter-btn" data-filter="completed">Completed</button>
+            <button class="btn filter-btn" data-filter="incomplete">Incomplete</button>
+        </div>
+
+        <!-- Flashcard -->
         <div class="flashcard-container">
             <div class="flashcard" id="flashcard">
                 <div class="flashcard-face flashcard-front">
-                    <i class="fas fa-check-circle completed-icon"></i>
+                    <i class="fas fa-check-circle card-icon completed-icon"></i>
+                    <i class="fas fa-bookmark card-icon bookmark-icon"></i>
                     <button class="listen-btn" id="listenBtn" title="Listen"><i class="fas fa-volume-up"></i></button>
                     <p id="englishSentence">Loading...</p>
-                    <span class="click-to-reveal"><i class="fas fa-mouse-pointer"></i> Click card to reveal</span>
                 </div>
                 <div class="flashcard-face flashcard-back">
                     <div class="translation-label">Bangla Translation</div>
@@ -269,6 +203,7 @@
             </div>
         </div>
 
+        <!-- Progress -->
         <div class="progress-section">
             <div class="status-bar">
                 <span id="progressText">Progress: 0 of 100</span>
@@ -279,19 +214,23 @@
             </div>
         </div>
         
-        <div class="main-actions">
-            <button class="btn btn-success" id="completeBtn"><i class="fas fa-check"></i> Mark as Completed</button>
+        <!-- Group 1: Primary Card Actions -->
+        <div class="primary-actions">
+            <button class="btn btn-success action-btn" id="completeBtn"><i class="fas fa-check"></i> Mark as Completed</button>
+            <button class="btn action-btn" id="bookmarkBtn"><i class="far fa-bookmark"></i> Bookmark</button>
         </div>
 
-        <div class="navigation mt-3">
+        <!-- Group 2: Navigation -->
+        <div class="navigation">
             <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
             <div class="card-counter" id="cardCounter">1 / 100</div>
             <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
         </div>
         
-        <div class="utility-buttons">
-            <button class="btn utility-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle</button>
-            <button class="btn utility-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
+        <!-- Group 3: Deck Settings -->
+        <div class="settings-actions">
+            <button class="btn settings-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle Deck</button>
+            <button class="btn settings-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
         </div>
     </div>
 
@@ -300,137 +239,81 @@
         $(document).ready(function() {
             // --- DATA ---
             const initialFlashcardsData = [
-                { english: "Despite the heavy traffic, we arrived on time.", bangla: "প্রচুর যানজট থাকা সত্ত্বেও, আমরা সময়মতো পৌঁছেছিলাম।" },
-                { english: "He is considered a pioneer in the field of artificial intelligence.", bangla: "তাকে কৃত্রিম বুদ্ধিমত্তার ক্ষেত্রে একজন পথিকৃৎ হিসেবে বিবেচনা করা হয়।" },
-                { english: "Had I known you were coming, I would have baked a cake.", bangla: "যদি আমি জানতাম তুমি আসছ, আমি একটি কেক বানাতাম।" },
-                { english: "The new policy is intended to streamline the workflow.", bangla: "নতুন নীতিটির উদ্দেশ্য হলো কর্মপ্রবাহকে আরও কার্যকর করা।" },
-                { english: "It's imperative that we address this issue immediately.", bangla: "আমাদের জন্য এই বিষয়টি অবিলম্বে সমাধান করা অপরিহার্য।" },
-                { english: "She had to bite the bullet and admit her mistake.", bangla: "তাকে কঠিন সিদ্ধান্ত নিতে হয়েছিল এবং তার ভুল স্বীকার করতে হয়েছিল।" },
-                { english: "The onus is on the management to ensure employee satisfaction.", bangla: "কর্মচারীদের সন্তুষ্টি নিশ্চিত করার দায়িত্ব ব্যবস্থাপনার উপর।" },
-                { english: "They were on the fence about whether to move to a new city.", bangla: "তারা নতুন শহরে স্থানান্তরিত হবে কিনা তা নিয়ে দ্বিধায় ছিল।" },
-                { english: "Let's not jump the gun; we need more information first.", bangla: "চলুন তাড়াহুড়ো না করি; আমাদের প্রথমে আরও তথ্য প্রয়োজন।" },
-                { english: "The project was a resounding success, thanks to the team's effort.", bangla: "দলটির প্রচেষ্টার কারণে প্রকল্পটি একটি অসাধারণ সাফল্য ছিল।" },
-                { english: "He has a vested interest in the company's success.", bangla: "কোম্পানির সাফল্যে তার একটি ব্যক্তিগত স্বার্থ রয়েছে।" },
-                { english: "We need to weigh the pros and cons before making a decision.", bangla: "সিদ্ধান্ত নেওয়ার আগে আমাদের সুবিধা এবং অসুবিধাগুলো বিবেচনা করতে হবে।" },
-                { english: "Her performance exceeded all our expectations.", bangla: "তার পারফরম্যান্স আমাদের সমস্ত প্রত্যাশা ছাড়িয়ে গেছে।" },
-                { english: "It's a double-edged sword; it has both advantages and disadvantages.", bangla: "এটি একটি উভয়সঙ্কট; এর সুবিধাও আছে এবং অসুবিধাও আছে।" },
-                { english: "The company is trying to get a foothold in the Asian market.", bangla: "কোম্পানিটি এশিয়ার বাজারে একটি শক্ত অবস্থান তৈরির চেষ্টা করছে।" },
-                { english: "I'm inclined to agree with your assessment of the situation.", bangla: "আমি পরিস্থিতির বিষয়ে আপনার মূল্যায়নের সাথে একমত হতে আগ্রহী।" },
-                { english: "The seminar provided a comprehensive overview of the topic.", bangla: "সেমিনারটি বিষয়টির একটি ব্যাপক ধারণা প্রদান করেছে।" },
-                { english: "You'll have to take what he says with a grain of salt.", bangla: "তার কথা আপনাকে কিছুটা সন্দেহের সাথে নিতে হবে।" },
-                { english: "The details of the plan are still up in the air.", bangla: "পরিকল্পনার বিবরণ এখনও অনিশ্চিত।" },
-                { english: "He managed to kill two birds with one stone.", bangla: "সে এক ঢিলে দুই পাখি মারতে সক্ষম হয়েছিল।" },
-                { english: "The issue at hand requires careful consideration.", bangla: "আলোচ্য বিষয়টি সতর্ক বিবেচনার দাবি রাখে।" },
-                { english: "His claims are, for the most part, unsubstantiated.", bangla: "তার দাবিগুলো, বেশিরভাগ ক্ষেত্রে, অপ্রমাণিত।" },
-                { english: "We should capitalize on this unique opportunity.", bangla: "আমাদের এই অনন্য সুযোগটির সদ্ব্যবহার করা উচিত।" },
-                { english: "The politician's speech did not sit well with the audience.", bangla: "রাজনীতিবিদের বক্তৃতা দর্শকদের পছন্দ হয়নি।" },
-                { english: "It's crucial to foster a culture of innovation.", bangla: "উদ্ভাবনের সংস্কৃতি গড়ে তোলা অত্যন্ত গুরুত্বপূর্ণ।" },
-                { english: "I can't make heads or tails of this complex document.", bangla: "আমি এই জটিল নথির আগামাথা কিছুই বুঝতে পারছি না।" },
-                { english: "The negotiations reached a stalemate yesterday.", bangla: "আলোচনা গতকাল একটি অচলাবস্থায় পৌঁছেছে।" },
-                { english: "She gave a ballpark figure for the estimated costs.", bangla: "তিনি আনুমানিক খরচের একটি মোটাদাগের হিসাব দিয়েছেন।" },
-                { english: "We need a contingency plan in case something goes wrong.", bangla: "যদি কিছু ভুল হয়ে যায় তার জন্য আমাদের একটি জরুরি পরিকল্পনা প্রয়োজন।" },
-                { english: "His ambiguous response left us feeling uncertain.", bangla: "তার দ্ব্যর্থক উত্তর আমাদের অনিশ্চিত করে রেখেছিল।" },
-                { english: "The company decided to outsource its customer service.", bangla: "কোম্পানিটি তার গ্রাহক পরিষেবা আউটসোর্স করার সিদ্ধান্ত নিয়েছে।" },
-                { english: "It's a nuanced issue with no simple solution.", bangla: "এটি একটি সূক্ষ্ম বিষয় যার কোনো সহজ সমাধান নেই।" },
-                { english: "They were working against the clock to meet the deadline.", bangla: "তারা সময়সীমা পূরণের জন্য দ্রুত কাজ করছিল।" },
-                { english: "His dedication to his craft is truly commendable.", bangla: "তার কাজের প্রতি তার নিষ্ঠা সত্যিই প্রশংসনীয়।" },
-                { english: "We have to address the root cause of the problem.", bangla: "আমাদের সমস্যার মূল কারণ খুঁজে বের করতে হবে।" },
-                { english: "She has an innate talent for music.", bangla: "সংগীতে তার একটি সহজাত প্রতিভা রয়েছে।" },
-                { english: "The preliminary results of the study are promising.", bangla: "গবেষণার প্রাথমিক ফলাফল আশাব্যঞ্জক।" },
-                { english: "He tends to play devil's advocate in every discussion.", bangla: "সে প্রতিটি আলোচনায় ইচ্ছাকৃতভাবে বিরোধী পক্ষ নেয়।" },
-                { english: "Their business venture eventually paid dividends.", bangla: "তাদের ব্যবসায়িক উদ্যোগ অবশেষে লাভজনক হয়েছিল।" },
-                { english: "The new software is not compatible with our current system.", bangla: "নতুন সফটওয়্যারটি আমাদের বর্তমান সিস্টেমের সাথে সামঞ্জস্যপূর্ণ নয়।" },
-                { english: "It's prudent to save money for a rainy day.", bangla: "দুর্দিনের জন্য টাকা জমানো বুদ্ধিমানের কাজ।" },
-                { english: "The evidence to support his theory is tenuous at best.", bangla: "তার তত্ত্বকে সমর্থন করার প্রমাণ খুব দুর্বল।" },
-                { english: "We must adhere to the safety guidelines at all times.", bangla: "আমাদের অবশ্যই সর্বদা নিরাপত্তা নির্দেশিকা মেনে চলতে হবে।" },
-                { english: "The election result was a foregone conclusion.", bangla: "নির্বাচনের ফলাফল একটি পূর্বনির্ধারিত বিষয় ছিল।" },
-                { english: "He made a compelling argument for his case.", bangla: "তিনি তার ক্ষেত্রের জন্য একটি জোরালো যুক্তি উপস্থাপন করেছেন।" },
-                { english: "The market is saturated with similar products.", bangla: "বাজার একই ধরনের পণ্যে পরিপূর্ণ।" },
-                { english: "She has a meticulous approach to her work.", bangla: "তার কাজের প্রতি একটি অত্যন্ত সতর্ক দৃষ্টিভঙ্গি রয়েছে।" },
-                { english: "Let's not get bogged down in minor details.", bangla: "চলুন আমরা ছোটখাটো বিবরণে আটকে না যাই।" },
-                { english: "The documentary provides a poignant look at the issue.", bangla: "তথ্যচিত্রটি বিষয়টির একটি মর্মস্পর্শী চিত্র তুলে ধরে।" },
-                { english: "His promotion was a testament to his hard work.", bangla: "তার পদোন্নতি তার কঠোর পরিশ্রমের প্রমাণ ছিল।" },
-                { english: "The two events happened in quick succession.", bangla: "দুটি ঘটনা খুব দ্রুত পরপর ঘটেছিল।" },
-                { english: "It is incumbent upon us to protect the environment.", bangla: "পরিবেশ রক্ষা করা আমাদের উপর অর্পিত দায়িত্ব।" },
-                { english: "The team's morale was at an all-time low after the defeat.", bangla: "পরাজয়ের পর দলের মনোবল সর্বকালের সর্বনিম্নে ছিল।" },
-                { english: "We need to look at this problem from a different perspective.", bangla: "আমাদের এই সমস্যাটিকে একটি ভিন্ন দৃষ্টিকোণ থেকে দেখতে হবে।" },
-                { english: "The initial investment is substantial, but the returns are high.", bangla: "প্রাথমিক বিনিয়োগ যথেষ্ট, কিন্তু এর থেকে আয় অনেক বেশি।" },
-                { english: "He has an eloquent way of speaking.", bangla: "তার কথা বলার একটি প্রাঞ্জল ভঙ্গি আছে।" },
-                { english: "The new regulations will have far-reaching consequences.", bangla: "নতুন নিয়মগুলোর সুদূরপ্রসারী পরিণতি হবে।" },
-                { english: "Their collaborative effort resulted in a groundbreaking discovery.", bangla: "তাদের সম্মিলিত প্রচেষ্টার ফলে একটি যুগান্তকারী আবিষ্কার হয়েছে।" },
-                { english: "This is a pivotal moment in our company's history.", bangla: "এটি আমাদের কোম্পানির ইতিহাসে একটি গুরুত্বপূর্ণ মুহূর্ত।" },
-                { english: "She remained steadfast in her beliefs despite the criticism.", bangla: "সমালোচনা সত্ত্বেও তিনি তার বিশ্বাসে অটল ছিলেন।" },
-                { english: "The city's infrastructure is struggling to keep pace with its growth.", bangla: "শহরের অবকাঠামো তার বৃদ্ধির সাথে তাল মেলাতে হিমশিম খাচ্ছে।" },
-                { english: "He was exonerated after new evidence came to light.", bangla: "নতুন প্রমাণ সামনে আসার পর তিনি নির্দোষ প্রমাণিত হন।" },
-                { english: "The article offers a critique of modern consumer culture.", bangla: "প্রবন্ধটি আধুনিক ভোগবাদী সংস্কৃতির একটি সমালোচনাเสนอ করে।" },
-                { english: "Let's try to find a mutually acceptable solution.", bangla: "চলুন আমরা একটি পারস্পরিক গ্রহণযোগ্য সমাধান খোঁজার চেষ্টা করি।" },
-                { english: "The company is on the brink of bankruptcy.", bangla: "কোম্পানিটি দেউলিয়া হওয়ার দ্বারপ্রান্তে।" },
-                { english: "His work is the epitome of modern art.", bangla: "তার কাজ আধুনিক শিল্পের প্রতিচ্ছবি।" },
-                { english: "We must remain vigilant against potential cyber threats.", bangla: "সম্ভাব্য সাইবার হুমকির বিরুদ্ধে আমাদের অবশ্যই সতর্ক থাকতে হবে।" },
-                { english: "The tranquil atmosphere of the library helps me to concentrate.", bangla: "গ্রন্থাগারের শান্ত পরিবেশ আমাকে মনোযোগ দিতে সাহায্য করে।" },
-                { english: "There is a discrepancy between the two reports.", bangla: "দুটি রিপোর্টের মধ্যে একটি অমিল রয়েছে।" },
-                { english: "She has a propensity to procrastinate.", bangla: "তার দীর্ঘসূত্রতা করার প্রবণতা আছে।" },
-                { english: "The politician tried to placate the angry crowd.", bangla: "রাজনীতিবিদ ক্রুদ্ধ জনতাকে শান্ত করার চেষ্টা করেছিলেন।" },
-                { english: "His alibi turned out to be fabricated.", bangla: "তার অজুহাতটি বানানো বলে প্রমাণিত হয়েছিল।" },
-                { english: "The project is still in its nascent stages.", bangla: "প্রকল্পটি এখনও তার প্রাথমিক পর্যায়ে রয়েছে।" },
-                { english: "They reached a consensus after a long discussion.", bangla: "দীর্ঘ আলোচনার পর তারা একটি সর্বসম্মত সিদ্ধান্তে পৌঁছেছিল।" },
-                { english: "The ubiquitous nature of smartphones has changed society.", bangla: "স্মার্টফোনের সর্বব্যাপী উপস্থিতি সমাজকে পরিবর্তন করেছে।" },
-                { english: "He made some derogatory remarks about his opponent.", bangla: "তিনি তার প্রতিপক্ষ সম্পর্কে কিছু অবমাননাকর মন্তব্য করেছেন।" },
-                { english: "The treaty was ratified by all member states.", bangla: "চুক্তিটি সমস্ত সদস্য রাষ্ট্র দ্বারা অনুমোদিত হয়েছিল।" },
-                { english: "She gave a succinct summary of the main points.", bangla: "তিনি মূল বিষয়গুলোর একটি সংক্ষিপ্ত সারসংক্ষেপ দিয়েছেন।" },
-                { english: "The government implemented austerity measures to reduce debt.", bangla: "সরকার ঋণ কমাতে কঠোরতামূলক ব্যবস্থা গ্রহণ করেছে।" },
-                { english: "His gregarious personality makes him popular at parties.", bangla: "তার মিশুক ব্যক্তিত্ব তাকে পার্টিতে জনপ্রিয় করে তোলে।" },
-                { english: "The company's perennial problem is high employee turnover.", bangla: "কোম্পানির দীর্ঘস্থায়ী সমস্যা হলো উচ্চ কর্মচারী পরিবর্তন হার।" },
-                { english: "He was ostracized by his community for his radical views.", bangla: "তার চরমপন্থী মতামতের জন্য তাকে তার সম্প্রদায় থেকে একঘরে করা হয়েছিল।" },
-                { english: "The lecture was so esoteric that few could understand it.", bangla: "বক্তৃতাটি এতই দুর্বোধ্য ছিল যে খুব কম লোকই তা বুঝতে পেরেছিল।" },
-                { english: "We need to expedite the approval process.", bangla: "আমাদের অনুমোদন প্রক্রিয়াটি দ্রুততর করতে হবে।" },
-                { english: "The novel's protagonist is a quintessential anti-hero.", bangla: "উপন্যাসের প্রধান চরিত্র একজন আদর্শ খলনায়ক।" },
-                { english: "Her nonchalant attitude during the crisis was surprising.", bangla: "সঙ্কটের সময় তার উদাসীন মনোভাব আশ্চর্যজনক ছিল।" },
-                { english: "The evidence was irrefutable, leading to a conviction.", bangla: "প্রমাণটি অকাট্য ছিল, যার ফলে দোষী সাব্যস্ত হয়।" },
-                { english: "The company is looking for a paradigm shift in its strategy.", bangla: "কোম্পানিটি তার কৌশলে একটি মৌলিক পরিবর্তনের সন্ধান করছে।" },
-                { english: "He has an insatiable appetite for knowledge.", bangla: "জ্ঞানের প্রতি তার অতৃপ্ত ক্ষুধা রয়েছে।" },
-                { english: "The politician's speech was full of platitudes and clichés.", bangla: "রাজনীতিবিদের বক্তৃতাটি গতানুগতিক ও মামুলি কথায় পূর্ণ ছিল।" },
-                { english: "Their clandestine meetings were eventually discovered.", bangla: "তাদের গোপন বৈঠকগুলো অবশেষে আবিষ্কৃত হয়েছিল।" },
-                { english: "The juxtaposition of old and new architecture is fascinating.", bangla: "পুরানো এবং নতুন স্থাপত্যের পাশাপাশি অবস্থান আকর্ষণীয়।" },
-                { english: "He has a phlegmatic temperament, rarely showing emotion.", bangla: "তার একটি শান্ত মেজাজ আছে, তিনি খুব কমই আবেগ দেখান।" },
-                { english: "The situation calls for a pragmatic approach, not an idealistic one.", bangla: "পরিস্থিতিটি একটি বাস্তববাদী পদ্ধতির দাবি করে, আদর্শবাদী নয়।" },
-                { english: "The pandemic has exacerbated existing social inequalities.", bangla: "মহামারী বিদ্যমান সামাজিক বৈষম্যকে আরও বাড়িয়ে দিয়েছে।" },
-                { english: "His languid movements suggested a state of utter exhaustion.", bangla: "তার ধীর গতিবিধি চরম ক্লান্তির অবস্থা নির্দেশ করছিল।" },
-                { english: "She is a prolific writer with over fifty published novels.", bangla: "তিনি একজন উর্বর লেখক যার পঞ্চাশটিরও বেশি প্রকাশিত উপন্যাস রয়েছে।" },
-                { english: "His hubris was the ultimate cause of his downfall.", bangla: "তার অহংকারই ছিল তার পতনের চূড়ান্ত কারণ।" }
+                { english: "Despite the heavy traffic, we arrived on time.", bangla: "প্রচুর যানজট থাকা সত্ত্বেও, আমরা সময়মতো পৌঁছেছিলাম।" }, { english: "He is considered a pioneer in the field of artificial intelligence.", bangla: "তাকে কৃত্রিম বুদ্ধিমত্তার ক্ষেত্রে একজন পথিকৃৎ হিসেবে বিবেচনা করা হয়।" }, { english: "Had I known you were coming, I would have baked a cake.", bangla: "যদি আমি জানতাম তুমি আসছ, আমি একটি কেক বানাতাম।" }, { english: "The new policy is intended to streamline the workflow.", bangla: "নতুন নীতিটির উদ্দেশ্য হলো কর্মপ্রবাহকে আরও কার্যকর করা।" }, { english: "It's imperative that we address this issue immediately.", bangla: "আমাদের জন্য এই বিষয়টি অবিলম্বে সমাধান করা অপরিহার্য।" }, { english: "She had to bite the bullet and admit her mistake.", bangla: "তাকে কঠিন সিদ্ধান্ত নিতে হয়েছিল এবং তার ভুল স্বীকার করতে হয়েছিল।" }, { english: "The onus is on the management to ensure employee satisfaction.", bangla: "কর্মচারীদের সন্তুষ্টি নিশ্চিত করার দায়িত্ব ব্যবস্থাপনার উপর।" }, { english: "They were on the fence about whether to move to a new city.", bangla: "তারা নতুন শহরে স্থানান্তরিত হবে কিনা তা নিয়ে দ্বিধায় ছিল।" }, { english: "Let's not jump the gun; we need more information first.", bangla: "চলুন তাড়াহুড়ো না করি; আমাদের প্রথমে আরও তথ্য প্রয়োজন।" }, { english: "The project was a resounding success, thanks to the team's effort.", bangla: "দলটির প্রচেষ্টার কারণে প্রকল্পটি একটি অসাধারণ সাফল্য ছিল।" }, { english: "He has a vested interest in the company's success.", bangla: "কোম্পানির সাফল্যে তার একটি ব্যক্তিগত স্বার্থ রয়েছে।" }, { english: "We need to weigh the pros and cons before making a decision.", bangla: "সিদ্ধান্ত নেওয়ার আগে আমাদের সুবিধা এবং অসুবিধাগুলো বিবেচনা করতে হবে।" }, { english: "Her performance exceeded all our expectations.", bangla: "তার পারফরম্যান্স আমাদের সমস্ত প্রত্যাশা ছাড়িয়ে গেছে।" }, { english: "It's a double-edged sword; it has both advantages and disadvantages.", bangla: "এটি একটি উভয়সঙ্কট; এর সুবিধাও আছে এবং অসুবিধাও আছে।" }, { english: "The company is trying to get a foothold in the Asian market.", bangla: "কোম্পানিটি এশিয়ার বাজারে একটি শক্ত অবস্থান তৈরির চেষ্টা করছে।" }, { english: "I'm inclined to agree with your assessment of the situation.", bangla: "আমি পরিস্থিতির বিষয়ে আপনার মূল্যায়নের সাথে একমত হতে আগ্রহী।" }, { english: "The seminar provided a comprehensive overview of the topic.", bangla: "সেমিনারটি বিষয়টির একটি ব্যাপক ধারণা প্রদান করেছে।" }, { english: "You'll have to take what he says with a grain of salt.", bangla: "তার কথা আপনাকে কিছুটা সন্দেহের সাথে নিতে হবে।" }, { english: "The details of the plan are still up in the air.", bangla: "পরিকল্পনার বিবরণ এখনও অনিশ্চিত।" }, { english: "He managed to kill two birds with one stone.", bangla: "সে এক ঢিলে দুই পাখি মারতে সক্ষম হয়েছিল।" }, { english: "The issue at hand requires careful consideration.", bangla: "আলোচ্য বিষয়টি সতর্ক বিবেচনার দাবি রাখে।" }, { english: "His claims are, for the most part, unsubstantiated.", bangla: "তার দাবিগুলো, বেশিরভাগ ক্ষেত্রে, অপ্রমাণিত।" }, { english: "We should capitalize on this unique opportunity.", bangla: "আমাদের এই অনন্য সুযোগটির সদ্ব্যব্যবহার করা উচিত।" }, { english: "The politician's speech did not sit well with the audience.", bangla: "রাজনীতিবিদের বক্তৃতা দর্শকদের পছন্দ হয়নি।" }, { english: "It's crucial to foster a culture of innovation.", bangla: "উদ্ভাবনের সংস্কৃতি গড়ে তোলা অত্যন্ত গুরুত্বপূর্ণ।" }, { english: "I can't make heads or tails of this complex document.", bangla: "আমি এই জটিল নথির আগামাথা কিছুই বুঝতে পারছি না।" }, { english: "The negotiations reached a stalemate yesterday.", bangla: "আলোচনা গতকাল একটি অচলাবস্থায় পৌঁছেছে।" }, { english: "She gave a ballpark figure for the estimated costs.", bangla: "তিনি আনুমানিক খরচের একটি মোটাদাগের হিসাব দিয়েছেন।" }, { english: "We need a contingency plan in case something goes wrong.", bangla: "যদি কিছু ভুল হয়ে যায় তার জন্য আমাদের একটি জরুরি পরিকল্পনা প্রয়োজন।" }, { english: "His ambiguous response left us feeling uncertain.", bangla: "তার দ্ব্যর্থক উত্তর আমাদের অনিশ্চিত করে রেখেছিল।" }, { english: "The company decided to outsource its customer service.", bangla: "কোম্পানিটি তার গ্রাহক পরিষেবা আউটসোর্স করার সিদ্ধান্ত নিয়েছে।" }, { english: "It's a nuanced issue with no simple solution.", bangla: "এটি একটি সূক্ষ্ম বিষয় যার কোনো সহজ সমাধান নেই।" }, { english: "They were working against the clock to meet the deadline.", bangla: "তারা সময়সীমা পূরণের জন্য দ্রুত কাজ করছিল।" }, { english: "His dedication to his craft is truly commendable.", bangla: "তার কাজের প্রতি তার নিষ্ঠা সত্যিই প্রশংসনীয়।" }, { english: "We have to address the root cause of the problem.", bangla: "আমাদের সমস্যার মূল কারণ খুঁজে বের করতে হবে।" }, { english: "She has an innate talent for music.", bangla: "সংগীতে তার একটি সহজাত প্রতিভা রয়েছে।" }, { english: "The preliminary results of the study are promising.", bangla: "গবেষণার প্রাথমিক ফলাফল আশাব্যঞ্জক।" }, { english: "He tends to play devil's advocate in every discussion.", bangla: "সে প্রতিটি আলোচনায় ইচ্ছাকৃতভাবে বিরোধী পক্ষ নেয়।" }, { english: "Their business venture eventually paid dividends.", bangla: "তাদের ব্যবসায়িক উদ্যোগ অবশেষে লাভজনক হয়েছিল।" }, { english: "The new software is not compatible with our current system.", bangla: "নতুন সফটওয়্যারটি আমাদের বর্তমান সিস্টেমের সাথে সামঞ্জস্যপূর্ণ নয়।" }, { english: "It's prudent to save money for a rainy day.", bangla: "দুর্দিনের জন্য টাকা জমানো বুদ্ধিমানের কাজ।" }, { english: "The evidence to support his theory is tenuous at best.", bangla: "তার তত্ত্বকে সমর্থন করার প্রমাণ খুব দুর্বল।" }, { english: "We must adhere to the safety guidelines at all times.", bangla: "আমাদের অবশ্যই সর্বদা নিরাপত্তা নির্দেশিকা মেনে চলতে হবে।" }, { english: "The election result was a foregone conclusion.", bangla: "নির্বাচনের ফলাফল একটি পূর্বনির্ধারিত বিষয় ছিল।" }, { english: "He made a compelling argument for his case.", bangla: "তিনি তার ক্ষেত্রের জন্য একটি জোরালো যুক্তি উপস্থাপন করেছেন।" }, { english: "The market is saturated with similar products.", bangla: "বাজার একই ধরনের পণ্যে পরিপূর্ণ।" }, { english: "She has a meticulous approach to her work.", bangla: "তার কাজের প্রতি একটি অত্যন্ত সতর্ক দৃষ্টিভঙ্গি রয়েছে।" }, { english: "Let's not get bogged down in minor details.", bangla: "চলুন আমরা ছোটখাটো বিবরণে আটকে না যাই।" }, { english: "The documentary provides a poignant look at the issue.", bangla: "তথ্যচিত্রটি বিষয়টির একটি মর্মস্পর্শী চিত্র তুলে ধরে।" }, { english: "His promotion was a testament to his hard work.", bangla: "তার পদোন্নতি তার কঠোর পরিশ্রমের প্রমাণ ছিল।" }, { english: "The two events happened in quick succession.", bangla: "দুটি ঘটনা খুব দ্রুত পরপর ঘটেছিল।" }, { english: "It is incumbent upon us to protect the environment.", bangla: "পরিবেশ রক্ষা করা আমাদের উপর অর্পিত দায়িত্ব।" }, { english: "The team's morale was at an all-time low after the defeat.", bangla: "পরাজয়ের পর দলের মনোবল সর্বকালের সর্বনিম্নে ছিল।" }, { english: "We need to look at this problem from a different perspective.", bangla: "আমাদের এই সমস্যাটিকে একটি ভিন্ন দৃষ্টিকোণ থেকে দেখতে হবে।" }, { english: "The initial investment is substantial, but the returns are high.", bangla: "প্রাথমিক বিনিয়োগ যথেষ্ট, কিন্তু এর থেকে আয় অনেক বেশি।" }, { english: "He has an eloquent way of speaking.", bangla: "তার কথা বলার একটি প্রাঞ্জল ভঙ্গি আছে।" }, { english: "The new regulations will have far-reaching consequences.", bangla: "নতুন নিয়মগুলোর সুদূরপ্রসারী পরিণতি হবে।" }, { english: "Their collaborative effort resulted in a groundbreaking discovery.", bangla: "তাদের সম্মিলিত প্রচেষ্টার ফলে একটি যুগান্তকারী আবিষ্কার হয়েছে।" }, { english: "This is a pivotal moment in our company's history.", bangla: "এটি আমাদের কোম্পানির ইতিহাসে একটি গুরুত্বপূর্ণ মুহূর্ত।" }, { english: "She remained steadfast in her beliefs despite the criticism.", bangla: "সমালোচনা সত্ত্বেও তিনি তার বিশ্বাসে অটল ছিলেন।" }, { english: "The city's infrastructure is struggling to keep pace with its growth.", bangla: "শহরের অবকাঠামো তার বৃদ্ধির সাথে তাল মেলাতে হিমশিম খাচ্ছে।" }, { english: "He was exonerated after new evidence came to light.", bangla: "নতুন প্রমাণ সামনে আসার পর তিনি নির্দোষ প্রমাণিত হন।" }, { english: "The article offers a critique of modern consumer culture.", bangla: "প্রবন্ধটি আধুনিক ভোগবাদী সংস্কৃতির একটি সমালোচনাเสนอ করে।" }, { english: "Let's try to find a mutually acceptable solution.", bangla: "চলুন আমরা একটি পারস্পরিক গ্রহণযোগ্য সমাধান খোঁজার চেষ্টা করি।" }, { english: "The company is on the brink of bankruptcy.", bangla: "কোম্পানিটি দেউলিয়া হওয়ার দ্বারপ্রান্তে।" }, { english: "His work is the epitome of modern art.", bangla: "তার কাজ আধুনিক শিল্পের প্রতিচ্ছবি।" }, { english: "We must remain vigilant against potential cyber threats.", bangla: "সম্ভাব্য সাইবার হুমকির বিরুদ্ধে আমাদের অবশ্যই সতর্ক থাকতে হবে।" }, { english: "The tranquil atmosphere of the library helps me to concentrate.", bangla: "গ্রন্থাগারের শান্ত পরিবেশ আমাকে মনোযোগ দিতে সাহায্য করে।" }, { english: "There is a discrepancy between the two reports.", bangla: "দুটি রিপোর্টের মধ্যে একটি অমিল রয়েছে।" }, { english: "She has a propensity to procrastinate.", bangla: "তার দীর্ঘসূত্রতা করার প্রবণতা আছে।" }, { english: "The politician tried to placate the angry crowd.", bangla: "রাজনীতিবিদ ক্রুদ্ধ জনতাকে শান্ত করার চেষ্টা করেছিলেন।" }, { english: "His alibi turned out to be fabricated.", bangla: "তার অজুহাতটি বানানো বলে প্রমাণিত হয়েছিল।" }, { english: "The project is still in its nascent stages.", bangla: "প্রকল্পটি এখনও তার প্রাথমিক পর্যায়ে রয়েছে।" }, { english: "They reached a consensus after a long discussion.", bangla: "দীর্ঘ আলোচনার পর তারা একটি সর্বসম্মত সিদ্ধান্তে পৌঁছেছিল।" }, { english: "The ubiquitous nature of smartphones has changed society.", bangla: "স্মার্টফোনের সর্বব্যাপী উপস্থিতি সমাজকে পরিবর্তন করেছে।" }, { english: "He made some derogatory remarks about his opponent.", bangla: "তিনি তার প্রতিপক্ষ সম্পর্কে কিছু অবমাননাকর মন্তব্য করেছেন।" }, { english: "The treaty was ratified by all member states.", bangla: "চুক্তিটি সমস্ত সদস্য রাষ্ট্র দ্বারা অনুমোদিত হয়েছিল।" }, { english: "She gave a succinct summary of the main points.", bangla: "তিনি মূল বিষয়গুলোর একটি সংক্ষিপ্ত সারসংক্ষেপ দিয়েছেন।" }, { english: "The government implemented austerity measures to reduce debt.", bangla: "সরকার ঋণ কমাতে কঠোরতামূলক ব্যবস্থা গ্রহণ করেছে।" }, { english: "His gregarious personality makes him popular at parties.", bangla: "তার মিশুক ব্যক্তিত্ব তাকে পার্টিতে জনপ্রিয় করে তোলে।" }, { english: "The company's perennial problem is high employee turnover.", bangla: "কোম্পানির দীর্ঘস্থায়ী সমস্যা হলো উচ্চ কর্মচারী পরিবর্তন হার।" }, { english: "He was ostracized by his community for his radical views.", bangla: "তার চরমপন্থী মতামতের জন্য তাকে তার সম্প্রদায় থেকে একঘরে করা হয়েছিল।" }, { english: "The lecture was so esoteric that few could understand it.", bangla: "বক্তৃতাটি এতই দুর্বোধ্য ছিল যে খুব কম লোকই তা বুঝতে পেরেছিল।" }, { english: "We need to expedite the approval process.", bangla: "আমাদের অনুমোদন প্রক্রিয়াটি দ্রুততর করতে হবে।" }, { english: "The novel's protagonist is a quintessential anti-hero.", bangla: "উপন্যাসের প্রধান চরিত্র একজন আদর্শ খলনায়ক।" }, { english: "Her nonchalant attitude during the crisis was surprising.", bangla: "সঙ্কটের সময় তার উদাসীন মনোভাব আশ্চর্যজনক ছিল।" }, { english: "The evidence was irrefutable, leading to a conviction.", bangla: "প্রমাণটি অকাট্য ছিল, যার ফলে দোষী সাব্যস্ত হয়।" }, { english: "The company is looking for a paradigm shift in its strategy.", bangla: "কোম্পানিটি তার কৌশলে একটি মৌলিক পরিবর্তনের সন্ধান করছে।" }, { english: "He has an insatiable appetite for knowledge.", bangla: "জ্ঞানের প্রতি তার অতৃপ্ত ক্ষুধা রয়েছে।" }, { english: "The politician's speech was full of platitudes and clichés.", bangla: "রাজনীতিবিদের বক্তৃতাটি গতানুগতিক ও মামুলি কথায় পূর্ণ ছিল।" }, { english: "Their clandestine meetings were eventually discovered.", bangla: "তাদের গোপন বৈঠকগুলো অবশেষে আবিষ্কৃত হয়েছিল।" }, { english: "The juxtaposition of old and new architecture is fascinating.", bangla: "পুরানো এবং নতুন স্থাপত্যের পাশাপাশি অবস্থান আকর্ষণীয়।" }, { english: "He has a phlegmatic temperament, rarely showing emotion.", bangla: "তার একটি শান্ত মেজাজ আছে, তিনি খুব কমই আবেগ দেখান।" }, { english: "The situation calls for a pragmatic approach, not an idealistic one.", bangla: "পরিস্থিতিটি একটি বাস্তববাদী পদ্ধতির দাবি করে, আদর্শবাদী নয়।" }, { english: "The pandemic has exacerbated existing social inequalities.", bangla: "মহামারী বিদ্যমান সামাজিক বৈষম্যকে আরও বাড়িয়ে দিয়েছে।" }, { english: "His languid movements suggested a state of utter exhaustion.", bangla: "তার ধীর গতিবিধি চরম ক্লান্তির অবস্থা নির্দেশ করছিল।" }, { english: "She is a prolific writer with over fifty published novels.", bangla: "তিনি একজন উর্বর লেখক যার পঞ্চাশটিরও বেশি প্রকাশিত উপন্যাস রয়েছে।" }, { english: "His hubris was the ultimate cause of his downfall.", bangla: "তার অহংকারই ছিল তার পতনের চূড়ান্ত কারণ।" }
             ];
 
             // --- STATE MANAGEMENT ---
             let appState = {
-                cards: [],
-                currentIndex: 0
+                allCards: [],
+                viewingCards: [],
+                currentIndex: 0,
+                filter: 'all'
             };
 
             function saveState() {
-                localStorage.setItem('flashcardStateAdvanced', JSON.stringify(appState));
+                // IMPORTANT: Use a different key to keep the two apps' progress separate
+                localStorage.setItem('flashcardStateAdvanced', JSON.stringify({ allCards: appState.allCards }));
             }
 
             function loadState() {
-                const savedState = localStorage.getItem('flashcardStateAdvanced');
-                if (savedState) {
-                    appState = JSON.parse(savedState);
-                } else {
-                    // Initialize for the first time
-                    appState.cards = initialFlashcardsData.map((card, index) => ({
-                        ...card,
-                        id: index,
-                        completed: false
-                    }));
-                    appState.currentIndex = 0;
-                    saveState();
+                let savedState = null;
+                try {
+                    // Use the specific key for this advanced deck
+                    savedState = JSON.parse(localStorage.getItem('flashcardStateAdvanced'));
+                } catch (e) {
+                    console.error("Error parsing saved state for advanced deck:", e);
                 }
+
+                if (savedState && Array.isArray(savedState.allCards)) {
+                    appState.allCards = savedState.allCards;
+                    appState.allCards.forEach(card => {
+                        if (card.bookmarked === undefined) {
+                            card.bookmarked = false;
+                        }
+                    });
+                } else {
+                    appState.allCards = initialFlashcardsData.map((card, index) => ({
+                        ...card, id: index, completed: false, bookmarked: false 
+                    }));
+                }
+                applyFilter();
+            }
+
+            // --- Filter Logic ---
+            function applyFilter() {
+                const { filter, allCards } = appState;
+                switch (filter) {
+                    case 'bookmarked':
+                        appState.viewingCards = allCards.filter(card => card.bookmarked);
+                        break;
+                    case 'completed':
+                        appState.viewingCards = allCards.filter(card => card.completed);
+                        break;
+                    case 'incomplete':
+                        appState.viewingCards = allCards.filter(card => !card.completed);
+                        break;
+                    default: // 'all'
+                        appState.viewingCards = [...allCards];
+                        break;
+                }
+                appState.currentIndex = 0;
             }
 
             // --- UI RENDERING ---
             function renderFlashcard() {
                 $('#flashcard').removeClass('flipped');
+
+                if (appState.viewingCards.length === 0) {
+                    $('#englishSentence').text(`No ${appState.filter} cards found.`);
+                    $('#banglaTranslation').text('Please try another filter.');
+                    $('#flashcard, .primary-actions, .navigation').hide();
+                    updateNavigationAndProgress();
+                    return;
+                }
                 
-                const card = appState.cards[appState.currentIndex];
+                $('#flashcard, .primary-actions, .navigation').show();
+                
+                const card = appState.viewingCards[appState.currentIndex];
                 if (!card) return;
 
                 $('.flashcard-face').fadeOut(150, function() {
@@ -447,33 +330,37 @@
                     $('#completeBtn').removeClass('completed').html('<i class="fas fa-check"></i> Mark as Completed');
                 }
 
+                if (card.bookmarked) {
+                    $('#flashcard').addClass('bookmarked');
+                    $('#bookmarkBtn').addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Remove Bookmark');
+                } else {
+                    $('#flashcard').removeClass('bookmarked');
+                    $('#bookmarkBtn').removeClass('bookmarked').html('<i class="far fa-bookmark"></i> Bookmark');
+                }
                 updateNavigationAndProgress();
             }
             
             function updateNavigationAndProgress() {
-                const total = appState.cards.length;
-                const score = appState.cards.filter(c => c.completed).length;
+                const totalInView = appState.viewingCards.length;
+                const score = appState.allCards.filter(c => c.completed).length;
+                const totalCards = appState.allCards.length;
 
-                $('#cardCounter').text(`${appState.currentIndex + 1} / ${total}`);
-                $('#progressText').text(`Progress: ${appState.currentIndex + 1} of ${total}`);
+                $('#cardCounter').text(totalInView > 0 ? `${appState.currentIndex + 1} / ${totalInView}`: '0 / 0');
+                $('#progressText').text(`Progress: ${score} of ${totalCards}`);
                 $('#scoreText').text(`Score: ${score}`);
-                
-                const progressPercentage = total > 0 ? ((appState.currentIndex + 1) / total) * 100 : 0;
+                const progressPercentage = totalCards > 0 ? (score / totalCards) * 100 : 0;
                 $('#progressBar').css('width', `${progressPercentage}%`);
 
                 $('#prevBtn').prop('disabled', appState.currentIndex === 0);
-                $('#nextBtn').prop('disabled', appState.currentIndex === total - 1);
+                $('#nextBtn').prop('disabled', appState.currentIndex >= totalInView - 1);
             }
 
             // --- EVENT HANDLERS ---
-            $('#flashcard').on('click', function() {
-                $(this).toggleClass('flipped');
-            });
+            $('#flashcard').on('click', function() { $(this).toggleClass('flipped'); });
 
             $('#nextBtn').on('click', () => {
-                if (appState.currentIndex < appState.cards.length - 1) {
+                if (appState.currentIndex < appState.viewingCards.length - 1) {
                     appState.currentIndex++;
-                    saveState();
                     renderFlashcard();
                 }
             });
@@ -481,30 +368,52 @@
             $('#prevBtn').on('click', () => {
                 if (appState.currentIndex > 0) {
                     appState.currentIndex--;
-                    saveState();
                     renderFlashcard();
                 }
             });
 
-            $('#completeBtn').on('click', () => {
-                const card = appState.cards[appState.currentIndex];
-                card.completed = !card.completed;
+            $('#completeBtn, #bookmarkBtn').on('click', function() {
+                if (appState.viewingCards.length === 0) return;
+                const card = appState.viewingCards[appState.currentIndex];
+                
+                if ($(this).attr('id') === 'completeBtn') card.completed = !card.completed;
+                else card.bookmarked = !card.bookmarked;
+                
                 saveState();
+                
+                const cardStillMatchesFilter = (
+                    (appState.filter === 'incomplete' && !card.completed) ||
+                    (appState.filter === 'completed' && card.completed) ||
+                    (appState.filter === 'bookmarked' && card.bookmarked) ||
+                    appState.filter === 'all'
+                );
+
+                if (!cardStillMatchesFilter) {
+                    applyFilter();
+                }
+                renderFlashcard();
+            });
+            
+            $('.filter-btn').on('click', function() {
+                appState.filter = $(this).data('filter');
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                applyFilter();
                 renderFlashcard();
             });
 
             $('#shuffleBtn').on('click', () => {
-                for (let i = appState.cards.length - 1; i > 0; i--) {
+                for (let i = appState.viewingCards.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
-                    [appState.cards[i], appState.cards[j]] = [appState.cards[j], appState.cards[i]];
+                    [appState.viewingCards[i], appState.viewingCards[j]] = [appState.viewingCards[j], appState.viewingCards[i]];
                 }
                 appState.currentIndex = 0;
-                saveState();
                 renderFlashcard();
             });
             
             $('#resetBtn').on('click', () => {
-                if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
+                if (confirm('Are you sure you want to reset all your progress for this advanced deck? This cannot be undone.')) {
+                    // Use the specific key for this advanced deck
                     localStorage.removeItem('flashcardStateAdvanced');
                     loadState(); 
                     renderFlashcard();
@@ -513,6 +422,7 @@
 
             $('#listenBtn').on('click', function(e) {
                 e.stopPropagation(); 
+                if (appState.viewingCards.length === 0) return;
                 const text = $('#englishSentence').text();
                 if ('speechSynthesis' in window && text) {
                     const utterance = new SpeechSynthesisUtterance(text);
@@ -525,6 +435,7 @@
 
             // --- INITIALIZATION ---
             loadState();
+            $('.filter-btn[data-filter="all"]').addClass('active');
             renderFlashcard();
         });
     </script>

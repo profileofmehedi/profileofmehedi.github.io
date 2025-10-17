@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Daily Used Words</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d946ef; /* Fuchsia */
+            --secondary-color: #a21caf;
+            --accent-color: #3b82f6; /* Blue */
+            --completed-color: #22c55e;
+            --bookmark-color: #f97316; /* Orange */
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #6d28d9 0%, #312e81 100%); min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+        .main-container { width: 100%; max-width: 600px; }
+        .header { text-align: center; color: white; margin-bottom: 20px; }
+        .header h1 { font-weight: 700; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); }
+        .filter-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .filter-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; font-weight: 500; transition: all 0.2s ease-in-out; }
+        .filter-btn:hover { background: rgba(255,255,255,0.4); border-color: white; }
+        .filter-btn.active { background: white; color: var(--primary-color); border-color: white; font-weight: 600; }
+        .flashcard-container { perspective: 1500px; margin-bottom: 25px; height: 350px; }
+        .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s ease; cursor: pointer; }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; border-radius: 20px; box-shadow: var(--card-shadow); border: 3px solid transparent; transition: border-color 0.3s ease; }
+        .flashcard.completed .flashcard-front { border-color: var(--completed-color); }
+        .flashcard-front { background: #ffffff; }
+        .flashcard-back { background: #f0fdf4; transform: rotateY(180deg); border: 2px solid var(--accent-color); justify-content: space-evenly; }
+        #englishWord { font-size: 3rem; font-weight: 700; color: #1f2937; }
+        .back-content { width: 100%; }
+        #banglaMeaning { font-size: 2rem; font-weight: 600; color: #1f2937; margin-bottom: 0; }
+        #exampleSentence { font-size: 1.1rem; font-style: italic; color: #4b5563; margin-top: 10px; padding: 0 15px;}
+        .translation-label { color: var(--accent-color); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .card-icon { position: absolute; font-size: 1.8rem; opacity: 0; transition: opacity 0.3s ease; }
+        .completed-icon { top: 15px; left: 20px; color: var(--completed-color); }
+        .bookmark-icon { top: 15px; right: 65px; color: var(--bookmark-color); font-size: 1.6rem; }
+        .flashcard.completed .completed-icon, .flashcard.bookmarked .bookmark-icon { opacity: 1; }
+        .listen-btn { position: absolute; top: 20px; right: 20px; background: #f3f4f6; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; color: var(--primary-color); transition: all 0.3s ease; z-index: 10; }
+        .listen-btn:hover { background-color: var(--primary-color); color: white; transform: scale(1.1); }
+        .progress-section { background: white; padding: 20px; border-radius: 15px; box-shadow: var(--card-shadow); margin-bottom: 25px; }
+        .status-bar { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
+        .progress { height: 15px; border-radius: 10px; }
+        .progress-bar { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); }
+        .primary-actions { display: flex; gap: 15px; margin-bottom: 25px; }
+        .action-btn { flex: 1; padding: 12px; font-size: 1.1rem; font-weight: bold; transition: all 0.3s ease; }
+        #completeBtn { background-color: var(--completed-color); border-color: var(--completed-color); }
+        #completeBtn.completed { background-color: #eab308; border-color: #eab308; }
+        #bookmarkBtn { background-color: var(--bookmark-color); border-color: var(--bookmark-color); }
+        #bookmarkBtn.bookmarked { background-color: #6b7280; border-color: #6b7280; }
+        .navigation { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .nav-btn { padding: 12px 0; width: 120px; background: var(--primary-color); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 1rem; }
+        .nav-btn:hover:not(:disabled) { background: var(--secondary-color); transform: translateY(-3px); }
+        .nav-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+        .card-counter { font-size: 1.25rem; font-weight: 700; color: white; padding: 10px 20px; }
+        .settings-actions { display: flex; gap: 10px; justify-content: center; }
+        .settings-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; font-weight: 500; }
+        .settings-btn:hover { background: rgba(255,255,255,0.3); border-color: white; }
+        @media (max-width: 576px) { #englishWord { font-size: 2.5rem; } #banglaMeaning { font-size: 1.8rem; } .primary-actions { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-sun"></i> 100 Daily Used Words</h1>
+            <p>Master Essential English Vocabulary</p>
+        </div>
+        <div class="filter-controls">
+            <button class="btn filter-btn" data-filter="all">All Words</button>
+            <button class="btn filter-btn" data-filter="bookmarked">Bookmarked</button>
+            <button class="btn filter-btn" data-filter="completed">Completed</button>
+            <button class="btn filter-btn" data-filter="incomplete">Incomplete</button>
+        </div>
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-face flashcard-front">
+                    <i class="fas fa-check-circle card-icon completed-icon"></i>
+                    <i class="fas fa-bookmark card-icon bookmark-icon"></i>
+                    <button class="listen-btn" id="listenBtn" title="Listen"><i class="fas fa-volume-up"></i></button>
+                    <p id="englishWord">Loading...</p>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <div class="back-content">
+                        <div class="translation-label">Bangla Meaning</div>
+                        <p id="banglaMeaning">লোড হচ্ছে...</p>
+                    </div>
+                    <div class="back-content">
+                        <div class="translation-label">Example Sentence</div>
+                        <p id="exampleSentence">লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="progress-section">
+            <div class="status-bar">
+                <span id="progressText">Progress: 0 of 100</span>
+                <span id="scoreText">Score: 0</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="primary-actions">
+            <button class="btn btn-success action-btn" id="completeBtn"><i class="fas fa-check"></i> Mark as Completed</button>
+            <button class="btn action-btn" id="bookmarkBtn"><i class="far fa-bookmark"></i> Bookmark</button>
+        </div>
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
+            <div class="card-counter" id="cardCounter">1 / 100</div>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="settings-actions">
+            <button class="btn settings-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle Deck</button>
+            <button class="btn settings-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const initialFlashcardsData = [
+                { word: "Always", meaning: "সর্বদা", sentence: "She always arrives early for meetings." },
+                { word: "Happy", meaning: "সুখী", sentence: "The children were happy to receive gifts." },
+                { word: "Important", meaning: "গুরুত্বপূর্ণ", sentence: "It is important to follow the rules." },
+                { word: "Friend", meaning: "বন্ধু", sentence: "He is my best friend." },
+                { word: "Because", meaning: "কারণ", sentence: "I am tired because I worked all day." },
+                { word: "Water", meaning: "পানি", sentence: "Please give me a glass of water." },
+                { word: "Beautiful", meaning: "সুন্দর", sentence: "The view from the mountain is beautiful." },
+                { word: "Question", meaning: "প্রশ্ন", sentence: "Do you have any questions?" },
+                { word: "Listen", meaning: "শোনা", sentence: "You should listen to your parents." },
+                { word: "Family", meaning: "পরিবার", sentence: "My family lives in a small house." },
+                { word: "Work", meaning: "কাজ", sentence: "He has to go to work now." },
+                { word: "Home", meaning: "বাড়ি", sentence: "I want to go home." },
+                { word: "Today", meaning: "আজ", sentence: "What are you doing today?" },
+                { word: "Tomorrow", meaning: "আগামীকাল", sentence: "We will visit the museum tomorrow." },
+                { word: "Yesterday", meaning: "গতকাল", sentence: "I saw him yesterday." },
+                { word: "Money", meaning: "টাকা", sentence: "He needs more money to buy a car." },
+                { word: "Love", meaning: "ভালোবাসা", sentence: "She expressed her love for him." },
+                { word: "Help", meaning: "সাহায্য", sentence: "Can you help me with this box?" },
+                { word: "Change", meaning: "পরিবর্তন", sentence: "The weather can change quickly." },
+                { word: "Understand", meaning: "বোঝা", sentence: "I don't understand the problem." },
+                { word: "Time", meaning: "সময়", sentence: "What time is it?" },
+                { word: "People", meaning: "মানুষ", sentence: "There are many people in the park." },
+                { word: "Never", meaning: "কখনো না", sentence: "I will never forget your kindness." },
+                { word: "Often", meaning: "প্রায়ই", sentence: "He often goes for a walk in the evening." },
+                { word: "Sometimes", meaning: "মাঝে মাঝে", sentence: "Sometimes I like to read books." },
+                { word: "Food", meaning: "খাবার", sentence: "This restaurant serves delicious food." },
+                { word: "Book", meaning: "বই", sentence: "I am reading an interesting book." },
+                { word: "School", meaning: "স্কুল", sentence: "The children are going to school." },
+                { word: "Country", meaning: "দেশ", sentence: "Bangladesh is a beautiful country." },
+                { word: "City", meaning: "শহর", sentence: "Dhaka is a very busy city." },
+                { word: "Problem", meaning: "সমস্যা", sentence: "Every problem has a solution." },
+                { word: "Solution", meaning: "সমাধান", sentence: "We need to find a solution." },
+                { word: "Morning", meaning: "সকাল", sentence: "I wake up early in the morning." },
+                { word: "Evening", meaning: "সন্ধ্যা", sentence: "Let's meet in the evening." },
+                { word: "Night", meaning: "রাত", sentence: "The stars shine brightly at night." },
+                { word: "Possible", meaning: "সম্ভব", sentence: "Is it possible to finish this today?" },
+                { word: "Difficult", meaning: "কঠিন", sentence: "The exam was very difficult." },
+                { word: "Easy", meaning: "সহজ", sentence: "This puzzle is easy to solve." },
+                { word: "Different", meaning: "ভিন্ন", sentence: "They have very different opinions." },
+                { word: "Similar", meaning: "একই রকম", sentence: "Our houses are similar in size." },
+                { word: "Big", meaning: "বড়", sentence: "An elephant is a big animal." },
+                { word: "Small", meaning: "ছোট", sentence: "An ant is a small insect." },
+                { word: "Good", meaning: "ভালো", sentence: "He is a good student." },
+                { word: "Bad", meaning: "খারাপ", sentence: "Smoking is a bad habit." },
+                { word: "New", meaning: "নতুন", sentence: "I bought a new shirt." },
+                { word: "Old", meaning: "পুরানো", sentence: "This is an old building." },
+                { word: "Right", meaning: "সঠিক", sentence: "Your answer is right." },
+                { word: "Wrong", meaning: "ভুল", sentence: "What he did was wrong." },
+                { word: "Believe", meaning: "বিশ্বাস করা", sentence: "I believe in hard work." },
+                { word: "Remember", meaning: "মনে রাখা", sentence: "Please remember to lock the door." },
+                { word: "Forget", meaning: "ভুলে যাওয়া", sentence: "Don't forget to call me." },
+                { word: "Dream", meaning: "স্বপ্ন", sentence: "He had a strange dream last night." },
+                { word: "Future", meaning: "ভবিষ্যৎ", sentence: "We should plan for the future." },
+                { word: "Past", meaning: "অতীত", sentence: "Let's not dwell on the past." },
+                { word: "Present", meaning: "বর্তমান", sentence: "Live in the present moment." },
+                { word: "Idea", meaning: "ধারণা", sentence: "That's a brilliant idea." },
+                { word: "Information", meaning: "তথ্য", sentence: "We need more information." },
+                { word: "Knowledge", meaning: "জ্ঞান", sentence: "Knowledge is power." },
+                { word: "Power", meaning: "শক্তি", sentence: "The king has great power." },
+                { word: "Success", meaning: "সফলতা", sentence: "Hard work is the key to success." },
+                { word: "Failure", meaning: "ব্যর্থতা", sentence: "Failure is the pillar of success." },
+                { word: "Experience", meaning: "অভিজ্ঞতা", sentence: "He has a lot of experience in teaching." },
+                { word: "Mistake", meaning: "ভুল", sentence: "Everyone makes mistakes." },
+                { word: "Opportunity", meaning: "সুযোগ", sentence: "This is a great opportunity for you." },
+                { word: "Health", meaning: "স্বাস্থ্য", sentence: "Health is wealth." },
+                { word: "Nature", meaning: "প্রকৃতি", sentence: "We should protect nature." },
+                { word: "World", meaning: "পৃথিবী", sentence: "The world is a beautiful place." },
+                { word: "Language", meaning: "ভাষা", sentence: "He can speak three languages." },
+                { word: "Music", meaning: "গান", sentence: "I love listening to music." },
+                { word: "Story", meaning: "গল্প", sentence: "My grandmother tells interesting stories." },
+                { word: "Movie", meaning: "সিনেমা", sentence: "We watched a movie last night." },
+                { word: "Game", meaning: "খেলা", sentence: "Cricket is a popular game." },
+                { word: "Color", meaning: "রং", sentence: "What is your favorite color?" },
+                { word: "Number", meaning: "সংখ্যা", sentence: "Choose a number between one and ten." },
+                { word: "Reason", meaning: "কারণ", sentence: "There is no reason to be sad." },
+                { word: "Result", meaning: "ফল", sentence: "The result of the exam will be published soon." },
+                { word: "Journey", meaning: "যাত্রা", sentence: "Life is a journey." },
+                { word: "Decision", meaning: "সিদ্ধান্ত", sentence: "It was a difficult decision to make." },
+                { word: "Advice", meaning: "উপদেশ", sentence: "He gave me some good advice." },
+                { word: "Promise", meaning: "প্রতিজ্ঞা", sentence: "You must keep your promise." },
+                { word: "Hope", meaning: "আশা", sentence: "There is always hope." },
+                { word: "Fear", meaning: "ভয়", sentence: "He has a fear of heights." },
+                { word: "Courage", meaning: "সাহস", sentence: "She showed great courage in a difficult situation." },
+                { word: "Patience", meaning: "ধৈর্য", sentence: "Patience is a virtue." },
+                { word: "Honesty", meaning: "সততা", sentence: "Honesty is the best policy." },
+                { word: "Kindness", meaning: "দয়া", sentence: "We should always show kindness to others." },
+                { word: "Respect", meaning: "সম্মান", sentence: "You should respect your elders." },
+                { word: "Freedom", meaning: "স্বাধীনতা", sentence: "They fought for their freedom." },
+                { word: "Peace", meaning: "শান্তি", sentence: "Everyone wants peace in the world." },
+                { word: "Happiness", meaning: "সুখ", sentence: "Money cannot buy happiness." },
+                { word: "Sadness", meaning: "দুঃখ", sentence: "Sadness is a part of life." },
+                { word: "Anger", meaning: "রাগ", sentence: "Anger is a destructive emotion." },
+                { word: "Emotion", meaning: "অনুভূতি", sentence: "He finds it hard to express his emotions." },
+                { word: "Thought", meaning: "চিন্তা", sentence: "A positive thought can change your day." },
+                { word: "Feeling", meaning: "অনুভব", sentence: "I have a good feeling about this." },
+                { word: "Memory", meaning: "স্মৃতি", sentence: "This photo brings back old memories." },
+                { word: "System", meaning: "পদ্ধতি", sentence: "The new system is more efficient." }
+            ];
+            let appState = { allCards: [], viewingCards: [], currentIndex: 0, filter: 'all' };
+            function saveState() { localStorage.setItem('flashcardStateDailyWords', JSON.stringify({ allCards: appState.allCards })); }
+            function loadState() {
+                let savedState = null;
+                try { savedState = JSON.parse(localStorage.getItem('flashcardStateDailyWords')); } catch (e) { console.error("Error parsing saved state:", e); }
+                if (savedState && Array.isArray(savedState.allCards)) {
+                    appState.allCards = savedState.allCards;
+                    appState.allCards.forEach(card => { if (card.bookmarked === undefined) card.bookmarked = false; });
+                } else { appState.allCards = initialFlashcardsData.map((card, index) => ({ ...card, id: index, completed: false, bookmarked: false })); }
+                applyFilter();
+            }
+            function applyFilter() {
+                const { filter, allCards } = appState;
+                switch (filter) {
+                    case 'bookmarked': appState.viewingCards = allCards.filter(card => card.bookmarked); break;
+                    case 'completed': appState.viewingCards = allCards.filter(card => card.completed); break;
+                    case 'incomplete': appState.viewingCards = allCards.filter(card => !card.completed); break;
+                    default: appState.viewingCards = [...allCards]; break;
+                }
+                appState.currentIndex = 0;
+            }
+            function renderFlashcard() {
+                $('#flashcard').removeClass('flipped');
+                if (appState.viewingCards.length === 0) {
+                    $('#englishWord').text(`No ${appState.filter} words found.`);
+                    $('#banglaMeaning, #exampleSentence').text('');
+                    $('#flashcard, .primary-actions, .navigation').hide();
+                    updateNavigationAndProgress(); return;
+                }
+                $('#flashcard, .primary-actions, .navigation').show();
+                const card = appState.viewingCards[appState.currentIndex];
+                if (!card) return;
+                $('.flashcard-face').fadeOut(150, function() {
+                    $('#englishWord').text(card.word);
+                    $('#banglaMeaning').text(card.meaning);
+                    $('#exampleSentence').text(card.sentence);
+                    $(this).fadeIn(150);
+                });
+                if (card.completed) { $('#flashcard').addClass('completed'); $('#completeBtn').addClass('completed').html('<i class="fas fa-times"></i> Mark as Incomplete'); } 
+                else { $('#flashcard').removeClass('completed'); $('#completeBtn').removeClass('completed').html('<i class="fas fa-check"></i> Mark as Completed'); }
+                if (card.bookmarked) { $('#flashcard').addClass('bookmarked'); $('#bookmarkBtn').addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Remove Bookmark'); } 
+                else { $('#flashcard').removeClass('bookmarked'); $('#bookmarkBtn').removeClass('bookmarked').html('<i class="far fa-bookmark"></i> Bookmark'); }
+                updateNavigationAndProgress();
+            }
+            function updateNavigationAndProgress() {
+                const totalInView = appState.viewingCards.length, score = appState.allCards.filter(c => c.completed).length, totalCards = appState.allCards.length;
+                $('#cardCounter').text(totalInView > 0 ? `${appState.currentIndex + 1} / ${totalInView}`: '0 / 0');
+                $('#progressText').text(`Progress: ${score} of ${totalCards}`);
+                $('#scoreText').text(`Score: ${score}`);
+                const progressPercentage = totalCards > 0 ? (score / totalCards) * 100 : 0;
+                $('#progressBar').css('width', `${progressPercentage}%`);
+                $('#prevBtn').prop('disabled', appState.currentIndex === 0);
+                $('#nextBtn').prop('disabled', appState.currentIndex >= totalInView - 1);
+            }
+            $('#flashcard').on('click', function() { $(this).toggleClass('flipped'); });
+            $('#nextBtn').on('click', () => { if (appState.currentIndex < appState.viewingCards.length - 1) { appState.currentIndex++; renderFlashcard(); } });
+            $('#prevBtn').on('click', () => { if (appState.currentIndex > 0) { appState.currentIndex--; renderFlashcard(); } });
+            $('#completeBtn, #bookmarkBtn').on('click', function() {
+                if (appState.viewingCards.length === 0) return;
+                const card = appState.viewingCards[appState.currentIndex];
+                if ($(this).attr('id') === 'completeBtn') card.completed = !card.completed;
+                else card.bookmarked = !card.bookmarked;
+                saveState();
+                const cardStillMatchesFilter = ((appState.filter === 'incomplete' && !card.completed) || (appState.filter === 'completed' && card.completed) || (appState.filter === 'bookmarked' && card.bookmarked) || appState.filter === 'all');
+                if (!cardStillMatchesFilter) { applyFilter(); }
+                renderFlashcard();
+            });
+            $('.filter-btn').on('click', function() { appState.filter = $(this).data('filter'); $('.filter-btn').removeClass('active'); $(this).addClass('active'); applyFilter(); renderFlashcard(); });
+            $('#shuffleBtn').on('click', () => { for (let i = appState.viewingCards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [appState.viewingCards[i], appState.viewingCards[j]] = [appState.viewingCards[j], appState.viewingCards[i]]; } appState.currentIndex = 0; renderFlashcard(); });
+            $('#resetBtn').on('click', () => { if (confirm('Are you sure? This will reset all progress for daily words.')) { localStorage.removeItem('flashcardStateDailyWords'); loadState(); renderFlashcard(); } });
+            $('#listenBtn').on('click', function(e) { e.stopPropagation(); if (appState.viewingCards.length === 0) return; const text = $('#englishWord').text(); if ('speechSynthesis' in window && text) { const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; window.speechSynthesis.speak(utterance); } else { alert('Speech synthesis not supported.'); } });
+            loadState();
+            $('.filter-btn[data-filter="all"]').addClass('active');
+            renderFlashcard();
+        });
+    </script>
+</body>
+</html>

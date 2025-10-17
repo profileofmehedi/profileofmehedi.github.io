@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official English Sentences</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d6efd; /* Professional Blue */
+            --secondary-color: #0b5ed7; /* Darker Blue */
+            --accent-color: #0dcaf0; /* Teal */
+            --completed-color: #198754; /* Green */
+            --bookmark-color: #fd7e14; /* Orange */
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #343a40 0%, #16181b 100%); /* Dark Gray Gradient */
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Filter Controls --- */
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+        .filter-btn:hover {
+             background: rgba(255,255,255,0.3);
+             border-color: white;
+        }
+        .filter-btn.active {
+            background: white;
+            color: var(--primary-color);
+            border-color: white;
+            font-weight: 600;
+        }
+
+
+        /* --- Flashcard Styles --- */
+        .flashcard-container {
+            perspective: 1500px;
+            margin-bottom: 25px;
+            height: 350px;
+        }
+
+        .flashcard {
+            width: 100%; height: 100%; position: relative;
+            transform-style: preserve-3d; transition: transform 0.6s ease; cursor: pointer;
+        }
+
+        .flashcard.flipped { transform: rotateY(180deg); }
+
+        .flashcard-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 30px;
+            text-align: center; border-radius: 20px; box-shadow: var(--card-shadow);
+            border: 3px solid transparent; transition: border-color 0.3s ease;
+        }
+        
+        .flashcard.completed .flashcard-front { border-color: var(--completed-color); }
+
+        .flashcard-front { background: #ffffff; }
+        .flashcard-back { background: #f8f9fa; transform: rotateY(180deg); border: 2px solid var(--accent-color); }
+
+        #englishSentence {
+            font-size: 1.6rem; font-weight: 600; color: #1f2937;
+            padding: 0 2rem;
+        }
+        #banglaTranslation { font-size: 1.4rem; font-weight: 600; color: #1f2937; }
+
+        /* --- Icons on the Card --- */
+        .card-icon {
+            position: absolute; font-size: 1.8rem;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .completed-icon { top: 15px; left: 20px; color: var(--completed-color); }
+        .bookmark-icon { top: 15px; right: 65px; color: var(--bookmark-color); font-size: 1.6rem; }
+        .flashcard.completed .completed-icon, .flashcard.bookmarked .bookmark-icon { opacity: 1; }
+
+        .listen-btn {
+            position: absolute; top: 20px; right: 20px; background: #f3f4f6;
+            border: none; width: 45px; height: 45px; border-radius: 50%;
+            font-size: 1.2rem; color: var(--primary-color); transition: all 0.3s ease; z-index: 10;
+        }
+        .listen-btn:hover { background-color: var(--primary-color); color: white; transform: scale(1.1); }
+        
+        /* --- Progress Section Styles --- */
+        .progress-section {
+            background: white; padding: 20px; border-radius: 15px;
+            box-shadow: var(--card-shadow); margin-bottom: 25px;
+        }
+        .status-bar { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
+        .progress { height: 15px; border-radius: 10px; }
+        .progress-bar { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); }
+
+        /* --- Button Layout --- */
+        .primary-actions {
+            display: flex; gap: 15px; margin-bottom: 25px;
+        }
+        .action-btn {
+            flex: 1; padding: 12px; font-size: 1.1rem;
+            font-weight: bold; transition: all 0.3s ease;
+        }
+        #completeBtn { background-color: var(--completed-color); border-color: var(--completed-color); }
+        #completeBtn.completed { background-color: #6c757d; border-color: #6c757d; }
+        #bookmarkBtn { background-color: var(--bookmark-color); border-color: var(--bookmark-color); }
+        #bookmarkBtn.bookmarked { background-color: #6c757d; border-color: #6c757d; }
+
+        .navigation {
+            display: flex; justify-content: space-between;
+            align-items: center; gap: 15px; margin-bottom: 25px;
+        }
+        .nav-btn {
+            padding: 12px 0; width: 120px; background: var(--primary-color); color: white;
+            border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;
+            font-weight: 600; font-size: 1rem;
+        }
+        .nav-btn:hover:not(:disabled) { background: var(--secondary-color); transform: translateY(-3px); }
+        .nav-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+        .card-counter { font-size: 1.25rem; font-weight: 700; color: white; padding: 10px 20px; }
+
+        .settings-actions {
+            display: flex; gap: 10px; justify-content: center;
+        }
+        .settings-btn {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4);
+            color: white; font-weight: 500;
+        }
+        .settings-btn:hover { background: rgba(255,255,255,0.3); border-color: white; }
+        
+        @media (max-width: 576px) {
+            #englishSentence { font-size: 1.4rem; }
+            .primary-actions { flex-direction: column; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-briefcase"></i> Official English Sentences</h1>
+            <p>For Business, Emails, and Professional Communication</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <button class="btn filter-btn" data-filter="all">All Cards</button>
+            <button class="btn filter-btn" data-filter="bookmarked">Bookmarked</button>
+            <button class="btn filter-btn" data-filter="completed">Completed</button>
+            <button class="btn filter-btn" data-filter="incomplete">Incomplete</button>
+        </div>
+
+        <!-- Flashcard -->
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-face flashcard-front">
+                    <i class="fas fa-check-circle card-icon completed-icon"></i>
+                    <i class="fas fa-bookmark card-icon bookmark-icon"></i>
+                    <button class="listen-btn" id="listenBtn" title="Listen"><i class="fas fa-volume-up"></i></button>
+                    <p id="englishSentence">Loading...</p>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <div class="translation-label">Bangla Translation</div>
+                    <p id="banglaTranslation">লোড হচ্ছে...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-section">
+            <div class="status-bar">
+                <span id="progressText">Progress: 0 of 100</span>
+                <span id="scoreText">Score: 0</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <!-- Primary Card Actions -->
+        <div class="primary-actions">
+            <button class="btn btn-success action-btn" id="completeBtn"><i class="fas fa-check"></i> Mark as Completed</button>
+            <button class="btn action-btn" id="bookmarkBtn"><i class="far fa-bookmark"></i> Bookmark</button>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
+            <div class="card-counter" id="cardCounter">1 / 100</div>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <!-- Deck Settings -->
+        <div class="settings-actions">
+            <button class="btn settings-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle Deck</button>
+            <button class="btn settings-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // --- DATA ---
+            const initialFlashcardsData = [
+                { english: "Please find the attached document for your review.", bangla: "আপনার পর্যালোচনার জন্য সংযুক্ত ডকুমেন্টটি দেখুন।" },
+                { english: "I am writing to inquire about the status of my application.", bangla: "আমি আমার আবেদনের অবস্থা সম্পর্কে জানতে এই চিঠিটি লিখছি।" },
+                { english: "Thank you for your prompt response.", bangla: "আপনার দ্রুত উত্তরের জন্য ধন্যবাদ।" },
+                { english: "We need to finalize the agenda for the upcoming meeting.", bangla: "আমাদের আসন্ন সভার জন্য কার্যসূচি চূড়ান্ত করতে হবে।" },
+                { english: "Could you please provide an update on this matter?", bangla: "আপনি কি দয়া করে এই বিষয়ে একটি আপডেট প্রদান করতে পারেন?" },
+                { english: "Let's schedule a conference call to discuss this further.", bangla: "আসুন বিষয়টি নিয়ে আরও আলোচনার জন্য একটি কনফারেন্স কলের সময় নির্ধারণ করি।" },
+                { english: "I look forward to hearing from you at your earliest convenience.", bangla: "আমি আপনার সুবিধামত সময়ে আপনার কাছ থেকে শোনার অপেক্ষায় রইলাম।" },
+                { english: "The proposal has been approved by the board of directors.", bangla: "প্রস্তাবটি পরিচালনা পর্ষদ কর্তৃক অনুমোদিত হয়েছে।" },
+                { english: "We need to ensure compliance with the new regulations.", bangla: "আমাদের নতুন নিয়মাবলীর সাথে সম্মতি নিশ্চিত করতে হবে।" },
+                { english: "Please do not hesitate to contact me if you require further information.", bangla: "আপনার যদি আরও তথ্যের প্রয়োজন হয় তবে আমার সাথে যোগাযোগ করতে দ্বিধা করবেন না।" },
+                { english: "As per our conversation, I have initiated the process.", bangla: "আমাদের কথোপকথন অনুযায়ী, আমি প্রক্রিয়াটি শুরু করেছি।" },
+                { english: "This is to confirm my attendance at the workshop.", bangla: "আমি কর্মশালায় আমার উপস্থিতি নিশ্চিত করার জন্য এটি জানাচ্ছি।" },
+                { english: "We appreciate your cooperation in this matter.", bangla: "এই বিষয়ে আপনার সহযোগিতার জন্য আমরা কৃতজ্ঞ।" },
+                { english: "The deadline for submission is close of business on Friday.", bangla: "জমা দেওয়ার শেষ তারিখ শুক্রবারের কার্যদিবসের শেষ পর্যন্ত।" },
+                { english: "Let's touch base next week to review the progress.", bangla: "আসুন অগ্রগতি পর্যালোচনা করার জন্য আগামী সপ্তাহে যোগাযোগ করি।" },
+                { english: "The minutes of the last meeting have been circulated.", bangla: "গত সভার কার্যবিবরণী বিতরণ করা হয়েছে।" },
+                { english: "I would like to bring to your attention a critical issue.", bangla: "আমি আপনার দৃষ্টি আকর্ষণ করে একটি গুরুতর বিষয় জানাতে চাই।" },
+                { english: "We need to delegate these tasks to the appropriate team members.", bangla: "আমাদের এই কাজগুলো উপযুক্ত দলের সদস্যদেরকে অর্পণ করতে হবে।" },
+                { english: "Please be advised that the office will be closed on Monday.", bangla: "অনুগ্রহ করে জেনে রাখুন যে সোমবার অফিস বন্ধ থাকবে।" },
+                { english: "We need to streamline our internal processes for better efficiency.", bangla: "উন্নত দক্ষতার জন্য আমাদের অভ্যন্তরীণ প্রক্রিয়াগুলো সুসংগঠিত করতে হবে।" },
+                { english: "I am writing on behalf of the management.", bangla: "আমি ব্যবস্থাপনার পক্ষ থেকে লিখছি।" },
+                { english: "The terms and conditions are outlined in the contract.", bangla: "শর্তাবলী চুক্তিতে উল্লেখ করা হয়েছে।" },
+                { english: "We need to conduct a thorough analysis of the market trends.", bangla: "আমাদের বাজারের প্রবণতা নিয়ে একটি পুঙ্খানুপুঙ্খ বিশ্লেষণ করতে হবে।" },
+                { english: "Your feedback would be greatly appreciated.", bangla: "আপনার মতামত অত্যন্ত প্রশংসিত হবে।" },
+                { english: "The implementation of the new system will begin next quarter.", bangla: "নতুন সিস্টেমের বাস্তবায়ন আগামী ত্রৈমাসিকে শুরু হবে।" },
+                { english: "This matter requires your immediate attention.", bangla: "এই বিষয়টি আপনার অবিলম্বে মনোযোগের দাবি রাখে।" },
+                { english: "We must adhere to the project timeline.", bangla: "আমাদের অবশ্যই প্রকল্পের সময়সীমা মেনে চলতে হবে।" },
+                { english: "I will revert to you with the details shortly.", bangla: "আমি শীঘ্রই বিস্তারিত তথ্য নিয়ে আপনার কাছে ফিরে আসব।" },
+                { english: "The objective is to enhance customer satisfaction.", bangla: "উদ্দেশ্য হলো গ্রাহক সন্তুষ্টি বৃদ্ধি করা।" },
+                { english: "Please accept my sincere apologies for the oversight.", bangla: "অনিচ্ছাকৃত ভুলের জন্য আমার আন্তরিক ক্ষমা গ্রহণ করুন।" },
+                { english: "We need to leverage our core competencies to gain an advantage.", bangla: "সুবিধা অর্জনের জন্য আমাদের মূল দক্ষতাগুলোকে কাজে লাগাতে হবে।" },
+                { english: "The preliminary findings will be presented tomorrow.", bangla: "প্রাথমিক ফলাফল আগামীকাল উপস্থাপন করা হবে।" },
+                { english: "We are committed to maintaining the highest standards of quality.", bangla: "আমরা মানের সর্বোচ্চ মান বজায় রাখতে প্রতিশ্রুতিবদ্ধ।" },
+                { english: "Could you please elaborate on the key deliverables?", bangla: "আপনি কি মূল সরবরাহযোগ্য বিষয়গুলো সম্পর্কে বিস্তারিত বলতে পারেন?" },
+                { english: "This email serves as a formal notification of the change.", bangla: "এই ইমেলটি পরিবর্তনের একটি আনুষ্ঠানিক বিজ্ঞপ্তি হিসাবে কাজ করবে।" },
+                { english: "We are currently assessing the feasibility of the project.", bangla: "আমরা বর্তমানে প্রকল্পটির সম্ভাব্যতা মূল্যায়ন করছি।" },
+                { english: "All expenses must be submitted with valid receipts.", bangla: "সমস্ত খরচ অবশ্যই বৈধ রশিদ সহ জমা দিতে হবে।" },
+                { english: "The quarterly performance review is scheduled for next month.", bangla: "ত্রৈমাসিক কর্মক্ষমতা পর্যালোচনা আগামী মাসের জন্য নির্ধারিত হয়েছে।" },
+                { english: "We need to establish clear key performance indicators (KPIs).", bangla: "আমাদের সুস্পষ্ট মূল কর্মক্ষমতা সূচক (KPIs) স্থাপন করতে হবে।" },
+                { english: "For your reference, I have included the previous correspondence.", bangla: "আপনার অবগতির জন্য, আমি পূর্ববর্তী চিঠিপত্র অন্তর্ভুক্ত করেছি।" },
+                { english: "We are pleased to announce the promotion of Mr. Smith.", bangla: "আমরা জনাব স্মিথের পদোন্নতির ঘোষণা করতে পেরে আনন্দিত।" },
+                { english: "Action items from the meeting have been assigned.", bangla: "সভা থেকে করণীয় কাজগুলো বরাদ্দ করা হয়েছে।" },
+                { english: "It is imperative that we meet the regulatory requirements.", bangla: "আমাদের অবশ্যই নিয়ন্ত্রক প্রয়োজনীয়তা পূরণ করতে হবে।" },
+                { english: "The budget for the next fiscal year is under review.", bangla: "পরবর্তী অর্থ বছরের জন্য বাজেট পর্যালোচনাধীন রয়েছে।" },
+                { english: "We need to mitigate the potential risks involved.", bangla: "আমাদের জড়িত সম্ভাব্য ঝুঁকিগুলো হ্রাস করতে হবে।" },
+                { english: "I am confident that we can achieve the desired outcome.", bangla: "আমি নিশ্চিত যে আমরা কাঙ্ক্ষিত ফলাফল অর্জন করতে পারব।" },
+                { english: "Please let me know your availability for a brief call.", bangla: "একটি সংক্ষিপ্ত কলের জন্য আপনার সময়সূচী আমাকে জানান।" },
+                { english: "We are exploring alternative solutions to this problem.", bangla: "আমরা এই সমস্যার বিকল্প সমাধান অন্বেষণ করছি।" },
+                { english: "The data suggests a significant increase in market share.", bangla: "তথ্য অনুযায়ী বাজারের শেয়ারে একটি উল্লেখযোগ্য বৃদ্ধি দেখা যাচ্ছে।" },
+                { english: "Your prompt attention to this matter would be appreciated.", bangla: "এই বিষয়ে আপনার দ্রুত মনোযোগ প্রশংসিত হবে।" },
+                { english: "We need to align our strategy with the company's vision.", bangla: "আমাদের কৌশলকে কোম্পানির লক্ষ্যের সাথে সামঞ্জস্যপূর্ণ করতে হবে।" },
+                { english: "This is a follow-up to my previous email.", bangla: "এটি আমার আগের ইমেলের একটি ফলো-আপ।" },
+                { english: "The onboarding process for new employees has been updated.", bangla: "নতুন কর্মচারীদের জন্য অনবোর্ডিং প্রক্রিয়া আপডেট করা হয়েছে।" },
+                { english: "We need to benchmark our performance against our competitors.", bangla: "আমাদের প্রতিযোগীদের তুলনায় আমাদের কর্মক্ষমতা পরিমাপ করতে হবে।" },
+                { english: "Let's reconvene in an hour to finalize the details.", bangla: "আসুন বিস্তারিত চূড়ান্ত করার জন্য এক ঘন্টা পরে আবার సమావేశ হই।" },
+                { english: "The information provided is strictly confidential.", bangla: "প্রদত্ত তথ্য কঠোরভাবে গোপনীয়।" },
+                { english: "I would be grateful if you could expedite this request.", bangla: "আপনি যদি এই অনুরোধটি দ্রুত সম্পন্ন করতে পারেন তবে আমি কৃতজ্ঞ থাকব।" },
+                { english: "The stakeholder meeting has been postponed until further notice.", bangla: "অংশীদারদের সভা পরবর্তী বিজ্ঞপ্তি না দেওয়া পর্যন্ত স্থগিত করা হয়েছে।" },
+                { english: "We need to gain consensus from all team members.", bangla: "আমাদের দলের সকল সদস্যের কাছ থেকে ঐক্যমত্য অর্জন করতে হবে।" },
+                { english: "The scope of the project needs to be clearly defined.", bangla: "প্রকল্পের পরিধি স্পষ্টভাবে সংজ্ঞায়িত করা প্রয়োজন।" },
+                { english: "This proposal is subject to approval from senior management.", bangla: "এই প্রস্তাবটি ঊর্ধ্বতন ব্যবস্থাপনার অনুমোদন সাপেক্ষ।" },
+                { english: "We need to address the concerns raised by the client.", bangla: "আমাদের ক্লায়েন্টের উত্থাপিত উদ্বেগগুলো সমাধান করতে হবে।" },
+                { english: "I am writing to formally request a leave of absence.", bangla: "আমি আনুষ্ঠানিকভাবে ছুটির জন্য আবেদন করতে লিখছি।" },
+                { english: "The R&D department is working on a new product prototype.", bangla: "গবেষণা ও উন্নয়ন বিভাগ একটি নতুন পণ্যের প্রোটোটাইপ নিয়ে কাজ করছে।" },
+                { english: "Kindly confirm receipt of this email.", bangla: "দয়া করে এই ইমেল প্রাপ্তি নিশ্চিত করুন।" },
+                { english: "We need to allocate sufficient resources to this initiative.", bangla: "আমাদের এই উদ্যোগে পর্যাপ্ত সম্পদ বরাদ্দ করতে হবে।" },
+                { english: "The audit will be conducted in the first week of March.", bangla: "নিরীক্ষা মার্চের প্রথম সপ্তাহে অনুষ্ঠিত হবে।" },
+                { english: "Let's proceed as per the agreed-upon plan.", bangla: "আসুন সম্মত পরিকল্পনা অনুযায়ী এগিয়ে যাই।" },
+                { english: "We have identified a bottleneck in the production line.", bangla: "আমরা উৎপাদন লাইনে একটি প্রতিবন্ধকতা চিহ্নিত করেছি।" },
+                { english: "The purpose of this memo is to inform you of a policy change.", bangla: "এই স্মারকলিপির উদ্দেশ্য হলো আপনাকে একটি নীতি পরিবর্তন সম্পর্কে অবহিত করা।" },
+                { english: "We have to consider the long-term implications of this decision.", bangla: "আমাদের এই সিদ্ধান্তের দীর্ঘমেয়াদী প্রভাব বিবেচনা করতে হবে।" },
+                { english: "The vendor has not yet met their contractual obligations.", bangla: "বিক্রেতা এখনও তাদের চুক্তিগত বাধ্যবাধকতা পূরণ করেনি।" },
+                { english: "Your input on this matter would be invaluable.", bangla: "এই বিষয়ে আপনার মতামত অমূল্য হবে।" },
+                { english: "The new marketing campaign will be launched next month.", bangla: "নতুন বিপণন প্রচারণা আগামী মাসে শুরু হবে।" },
+                { english: "We need to optimize the supply chain management.", bangla: "আমাদের সরবরাহ শৃঙ্খল ব্যবস্থাপনা অপ্টিমাইজ করতে হবে।" },
+                { english: "I have cc'd the relevant stakeholders in this email.", bangla: "আমি এই ইমেইলে প্রাসঙ্গিক অংশীদারদের সিসি করেছি।" },
+                { english: "The company will not be liable for any damages.", bangla: "কোনো ক্ষতির জন্য কোম্পানি দায়ী থাকবে না।" },
+                { english: "We need to formulate a strategic plan for the next five years.", bangla: "আমাদের আগামী পাঁচ বছরের জন্য একটি কৌশলগত পরিকল্পনা প্রণয়ন করতে হবে।" },
+                { english: "The resolution was passed unanimously.", bangla: "প্রস্তাবটি সর্বসম্মতিক্রমে পাস হয়েছে।" },
+                { english: "We are seeking a candidate with extensive experience.", bangla: "আমরা ব্যাপক অভিজ্ঞতাসম্পন্ন একজন প্রার্থী খুঁজছি।" },
+                { english: "The intellectual property rights belong to the company.", bangla: "মেধাস্বত্ব অধিকার কোম্পানির।" },
+                { english: "We will provide comprehensive training for the new software.", bangla: "আমরা নতুন সফটওয়্যারের জন্য ব্যাপক প্রশিক্ষণ প্রদান করব।" },
+                { english: "The project is currently behind schedule.", bangla: "প্রকল্পটি বর্তমানে সময়সূচীর পিছনে রয়েছে।" },
+                { english: "We need to ensure the accuracy of the financial report.", bangla: "আমাদের আর্থিক প্রতিবেদনের নির্ভুলতা নিশ্চিত করতে হবে।" },
+                { english: "This agreement is legally binding.", bangla: "এই চুক্তিটি আইনত বাধ্যতামূলক।" },
+                { english: "Thank you for bringing this matter to our attention.", bangla: "এই বিষয়টি আমাদের নজরে আনার জন্য আপনাকে ধন্যবাদ।" },
+                { english: "We need to conduct a risk assessment before proceeding.", bangla: "এগিয়ে যাওয়ার আগে আমাদের একটি ঝুঁকি মূল্যায়ন করতে হবে।" },
+                { english: "The merger is expected to be finalized by the end of the year.", bangla: "একীভূতকরণ বছরের শেষের দিকে চূড়ান্ত হবে বলে আশা করা হচ্ছে।" },
+                { english: "This serves as a gentle reminder about the pending invoice.", bangla: "এটি বকেয়া চালান সম্পর্কে একটি মৃদু অনুস্মারক হিসাবে কাজ করে।" },
+                { english: "All personnel are required to attend the mandatory safety drill.", bangla: "সকল কর্মীকে বাধ্যতামূলক নিরাপত্তা মহড়ায় অংশ নিতে হবে।" },
+                { english: "We need to build a strong rapport with our clients.", bangla: "আমাদের ক্লায়েন্টদের সাথে একটি শক্তিশালী সম্পর্ক তৈরি করতে হবে।" },
+                { english: "The logistics of the event are being coordinated by the admin team.", bangla: "ইভেন্টের রসদ প্রশাসনিক দল দ্বারা সমন্বয় করা হচ্ছে।" },
+                { english: "We are operating within the allocated budget.", bangla: "আমরা বরাদ্দকৃত বাজেটের মধ্যে কাজ করছি।" },
+                { english: "The new initiative is aligned with our corporate social responsibility goals.", bangla: "নতুন উদ্যোগটি আমাদের কর্পোরেট সামাজিক দায়বদ্ধতার লক্ষ্যগুলোর সাথে সামঞ্জস্যপূর্ণ।" },
+                { english: "I will be out of office from Monday to Wednesday.", bangla: "আমি সোমবার থেকে বুধবার পর্যন্ত অফিসের বাইরে থাকব।" },
+                { english: "Let's keep this conversation between us for the time being.", bangla: "আপাতত এই কথোপকথনটি আমাদের মধ্যেই সীমাবদ্ধ রাখি।" },
+                { english: "The feedback from the focus group was overwhelmingly positive.", bangla: "ফোকাস গ্রুপের প্রতিক্রিয়া অত্যন্ত ইতিবাচক ছিল।" },
+                { english: "We have to be proactive rather than reactive to market changes.", bangla: "বাজারের পরিবর্তনে আমাদের প্রতিক্রিয়াশীল না হয়ে সক্রিয় হতে হবে।" }
+            ];
+
+            // --- STATE MANAGEMENT ---
+            let appState = {
+                allCards: [],
+                viewingCards: [],
+                currentIndex: 0,
+                filter: 'all'
+            };
+
+            function saveState() {
+                // Use a unique key for this specific deck
+                localStorage.setItem('flashcardStateOfficial', JSON.stringify({ allCards: appState.allCards }));
+            }
+
+            function loadState() {
+                let savedState = null;
+                try {
+                    // Use the unique key for this deck
+                    savedState = JSON.parse(localStorage.getItem('flashcardStateOfficial'));
+                } catch (e) {
+                    console.error("Error parsing saved state for official deck:", e);
+                }
+
+                if (savedState && Array.isArray(savedState.allCards)) {
+                    appState.allCards = savedState.allCards;
+                    appState.allCards.forEach(card => {
+                        if (card.bookmarked === undefined) {
+                            card.bookmarked = false;
+                        }
+                    });
+                } else {
+                    appState.allCards = initialFlashcardsData.map((card, index) => ({
+                        ...card, id: index, completed: false, bookmarked: false 
+                    }));
+                }
+                applyFilter();
+            }
+
+            // --- Filter Logic ---
+            function applyFilter() {
+                const { filter, allCards } = appState;
+                switch (filter) {
+                    case 'bookmarked':
+                        appState.viewingCards = allCards.filter(card => card.bookmarked);
+                        break;
+                    case 'completed':
+                        appState.viewingCards = allCards.filter(card => card.completed);
+                        break;
+                    case 'incomplete':
+                        appState.viewingCards = allCards.filter(card => !card.completed);
+                        break;
+                    default: // 'all'
+                        appState.viewingCards = [...allCards];
+                        break;
+                }
+                appState.currentIndex = 0;
+            }
+
+            // --- UI RENDERING ---
+            function renderFlashcard() {
+                $('#flashcard').removeClass('flipped');
+
+                if (appState.viewingCards.length === 0) {
+                    $('#englishSentence').text(`No ${appState.filter} cards found.`);
+                    $('#banglaTranslation').text('Please try another filter.');
+                    $('#flashcard, .primary-actions, .navigation').hide();
+                    updateNavigationAndProgress();
+                    return;
+                }
+                
+                $('#flashcard, .primary-actions, .navigation').show();
+                
+                const card = appState.viewingCards[appState.currentIndex];
+                if (!card) return;
+
+                $('.flashcard-face').fadeOut(150, function() {
+                    $('#englishSentence').text(card.english);
+                    $('#banglaTranslation').text(card.bangla);
+                    $(this).fadeIn(150);
+                });
+
+                if (card.completed) {
+                    $('#flashcard').addClass('completed');
+                    $('#completeBtn').addClass('completed').html('<i class="fas fa-times"></i> Mark as Incomplete');
+                } else {
+                    $('#flashcard').removeClass('completed');
+                    $('#completeBtn').removeClass('completed').html('<i class="fas fa-check"></i> Mark as Completed');
+                }
+
+                if (card.bookmarked) {
+                    $('#flashcard').addClass('bookmarked');
+                    $('#bookmarkBtn').addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Remove Bookmark');
+                } else {
+                    $('#flashcard').removeClass('bookmarked');
+                    $('#bookmarkBtn').removeClass('bookmarked').html('<i class="far fa-bookmark"></i> Bookmark');
+                }
+                updateNavigationAndProgress();
+            }
+            
+            function updateNavigationAndProgress() {
+                const totalInView = appState.viewingCards.length;
+                const score = appState.allCards.filter(c => c.completed).length;
+                const totalCards = appState.allCards.length;
+
+                $('#cardCounter').text(totalInView > 0 ? `${appState.currentIndex + 1} / ${totalInView}`: '0 / 0');
+                $('#progressText').text(`Progress: ${score} of ${totalCards}`);
+                $('#scoreText').text(`Score: ${score}`);
+                const progressPercentage = totalCards > 0 ? (score / totalCards) * 100 : 0;
+                $('#progressBar').css('width', `${progressPercentage}%`);
+
+                $('#prevBtn').prop('disabled', appState.currentIndex === 0);
+                $('#nextBtn').prop('disabled', appState.currentIndex >= totalInView - 1);
+            }
+
+            // --- EVENT HANDLERS ---
+            $('#flashcard').on('click', function() { $(this).toggleClass('flipped'); });
+
+            $('#nextBtn').on('click', () => {
+                if (appState.currentIndex < appState.viewingCards.length - 1) {
+                    appState.currentIndex++;
+                    renderFlashcard();
+                }
+            });
+
+            $('#prevBtn').on('click', () => {
+                if (appState.currentIndex > 0) {
+                    appState.currentIndex--;
+                    renderFlashcard();
+                }
+            });
+
+            $('#completeBtn, #bookmarkBtn').on('click', function() {
+                if (appState.viewingCards.length === 0) return;
+                const card = appState.viewingCards[appState.currentIndex];
+                
+                if ($(this).attr('id') === 'completeBtn') card.completed = !card.completed;
+                else card.bookmarked = !card.bookmarked;
+                
+                saveState();
+                
+                const cardStillMatchesFilter = (
+                    (appState.filter === 'incomplete' && !card.completed) ||
+                    (appState.filter === 'completed' && card.completed) ||
+                    (appState.filter === 'bookmarked' && card.bookmarked) ||
+                    appState.filter === 'all'
+                );
+
+                if (!cardStillMatchesFilter) {
+                    applyFilter();
+                }
+                renderFlashcard();
+            });
+            
+            $('.filter-btn').on('click', function() {
+                appState.filter = $(this).data('filter');
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                applyFilter();
+                renderFlashcard();
+            });
+
+            $('#shuffleBtn').on('click', () => {
+                for (let i = appState.viewingCards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [appState.viewingCards[i], appState.viewingCards[j]] = [appState.viewingCards[j], appState.viewingCards[i]];
+                }
+                appState.currentIndex = 0;
+                renderFlashcard();
+            });
+            
+            $('#resetBtn').on('click', () => {
+                if (confirm('Are you sure you want to reset all your progress for the official deck? This cannot be undone.')) {
+                    // Use the unique key for this deck
+                    localStorage.removeItem('flashcardStateOfficial');
+                    loadState(); 
+                    renderFlashcard();
+                }
+            });
+
+            $('#listenBtn').on('click', function(e) {
+                e.stopPropagation(); 
+                if (appState.viewingCards.length === 0) return;
+                const text = $('#englishSentence').text();
+                if ('speechSynthesis' in window && text) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    alert('Sorry, your browser does not support text-to-speech.');
+                }
+            });
+
+            // --- INITIALIZATION ---
+            loadState();
+            $('.filter-btn[data-filter="all"]').addClass('active');
+            renderFlashcard();
+        });
+    </script>
+</body>
+</html>

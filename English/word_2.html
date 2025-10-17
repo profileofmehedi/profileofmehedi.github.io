@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Intermediate Words</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #10b981; /* Emerald Green */
+            --secondary-color: #059669; /* Darker Emerald */
+            --accent-color: #0891b2; /* Teal */
+            --completed-color: #22c55e;
+            --bookmark-color: #f59e0b; /* Amber */
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1f2937 0%, #111827 100%); min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+        .main-container { width: 100%; max-width: 600px; }
+        .header { text-align: center; color: white; margin-bottom: 20px; }
+        .header h1 { font-weight: 700; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); }
+        .filter-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .filter-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; font-weight: 500; transition: all 0.2s ease-in-out; }
+        .filter-btn:hover { background: rgba(255,255,255,0.2); border-color: white; }
+        .filter-btn.active { background: white; color: var(--primary-color); border-color: white; font-weight: 600; }
+        .flashcard-container { perspective: 1500px; margin-bottom: 25px; height: 350px; }
+        .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s ease; cursor: pointer; }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; border-radius: 20px; box-shadow: var(--card-shadow); border: 3px solid transparent; transition: border-color 0.3s ease; }
+        .flashcard.completed .flashcard-front { border-color: var(--completed-color); }
+        .flashcard-front { background: #ffffff; }
+        .flashcard-back { background: #f0fdf4; transform: rotateY(180deg); border: 2px solid var(--accent-color); justify-content: space-evenly; }
+        #englishWord { font-size: 2.8rem; font-weight: 700; color: #1f2937; }
+        .back-content { width: 100%; }
+        #banglaMeaning { font-size: 2rem; font-weight: 600; color: #1f2937; margin-bottom: 0; }
+        #exampleSentence { font-size: 1.1rem; font-style: italic; color: #4b5563; margin-top: 10px; padding: 0 15px;}
+        .translation-label { color: var(--accent-color); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .card-icon { position: absolute; font-size: 1.8rem; opacity: 0; transition: opacity 0.3s ease; }
+        .completed-icon { top: 15px; left: 20px; color: var(--completed-color); }
+        .bookmark-icon { top: 15px; right: 65px; color: var(--bookmark-color); font-size: 1.6rem; }
+        .flashcard.completed .completed-icon, .flashcard.bookmarked .bookmark-icon { opacity: 1; }
+        .listen-btn { position: absolute; top: 20px; right: 20px; background: #f3f4f6; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; color: var(--primary-color); transition: all 0.3s ease; z-index: 10; }
+        .listen-btn:hover { background-color: var(--primary-color); color: white; transform: scale(1.1); }
+        .progress-section { background: white; padding: 20px; border-radius: 15px; box-shadow: var(--card-shadow); margin-bottom: 25px; }
+        .status-bar { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
+        .progress { height: 15px; border-radius: 10px; }
+        .progress-bar { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); }
+        .primary-actions { display: flex; gap: 15px; margin-bottom: 25px; }
+        .action-btn { flex: 1; padding: 12px; font-size: 1.1rem; font-weight: bold; transition: all 0.3s ease; }
+        #completeBtn { background-color: var(--completed-color); border-color: var(--completed-color); }
+        #completeBtn.completed { background-color: #eab308; border-color: #eab308; }
+        #bookmarkBtn { background-color: var(--bookmark-color); border-color: var(--bookmark-color); }
+        #bookmarkBtn.bookmarked { background-color: #6b7280; border-color: #6b7280; }
+        .navigation { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .nav-btn { padding: 12px 0; width: 120px; background: var(--primary-color); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 1rem; }
+        .nav-btn:hover:not(:disabled) { background: var(--secondary-color); transform: translateY(-3px); }
+        .nav-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+        .card-counter { font-size: 1.25rem; font-weight: 700; color: white; padding: 10px 20px; }
+        .settings-actions { display: flex; gap: 10px; justify-content: center; }
+        .settings-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; font-weight: 500; }
+        .settings-btn:hover { background: rgba(255,255,255,0.2); border-color: white; }
+        @media (max-width: 576px) { #englishWord { font-size: 2.5rem; } #banglaMeaning { font-size: 1.8rem; } .primary-actions { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-layer-group"></i> 100 Intermediate Words</h1>
+            <p>Bridge the Gap to Fluency</p>
+        </div>
+        <div class="filter-controls">
+            <button class="btn filter-btn" data-filter="all">All Words</button>
+            <button class="btn filter-btn" data-filter="bookmarked">Bookmarked</button>
+            <button class="btn filter-btn" data-filter="completed">Completed</button>
+            <button class="btn filter-btn" data-filter="incomplete">Incomplete</button>
+        </div>
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-face flashcard-front">
+                    <i class="fas fa-check-circle card-icon completed-icon"></i>
+                    <i class="fas fa-bookmark card-icon bookmark-icon"></i>
+                    <button class="listen-btn" id="listenBtn" title="Listen"><i class="fas fa-volume-up"></i></button>
+                    <p id="englishWord">Loading...</p>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <div class="back-content">
+                        <div class="translation-label">Bangla Meaning</div>
+                        <p id="banglaMeaning">লোড হচ্ছে...</p>
+                    </div>
+                    <div class="back-content">
+                        <div class="translation-label">Example Sentence</div>
+                        <p id="exampleSentence">লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="progress-section">
+            <div class="status-bar">
+                <span id="progressText">Progress: 0 of 100</span>
+                <span id="scoreText">Score: 0</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="primary-actions">
+            <button class="btn btn-success action-btn" id="completeBtn"><i class="fas fa-check"></i> Mark as Completed</button>
+            <button class="btn action-btn" id="bookmarkBtn"><i class="far fa-bookmark"></i> Bookmark</button>
+        </div>
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
+            <div class="card-counter" id="cardCounter">1 / 100</div>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="settings-actions">
+            <button class="btn settings-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle Deck</button>
+            <button class="btn settings-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const initialFlashcardsData = [
+                { word: "Consequence", meaning: "পরিণাম", sentence: "Every action has a consequence." },
+                { word: "Elaborate", meaning: "বিস্তারিত বলা", sentence: "Could you elaborate on your plan?" },
+                { word: "Inevitable", meaning: "অনিবার্য", sentence: "Change is an inevitable part of life." },
+                { word: "Sufficient", meaning: "যথেষ্ট", sentence: "We have sufficient food for the week." },
+                { word: "Analyze", meaning: "বিশ্লেষণ করা", sentence: "The scientist will analyze the data." },
+                { word: "Collaborate", meaning: "সহযোগিতা করা", sentence: "The two companies decided to collaborate on the project." },
+                { word: "Ambiguous", meaning: "দ্ব্যর্থক", sentence: "The instructions were ambiguous and confusing." },
+                { word: "Significant", meaning: "গুরুত্বপূর্ণ", sentence: "The discovery was a significant breakthrough in science." },
+                { word: "Negotiate", meaning: "আলোচনা করা", sentence: "They are trying to negotiate a peace treaty." },
+                { word: "Potential", meaning: "সম্ভাবনা", sentence: "This new student has great potential." },
+                { word: "Crucial", meaning: "অত্যন্ত গুরুত্বপূর্ণ", sentence: "It is crucial to submit the report on time." },
+                { word: "Diverse", meaning: "বৈচিত্র্যময়", sentence: "The city has a very diverse population." },
+                { word: "Essential", meaning: "অপরিহার্য", sentence: "Water is essential for all living things." },
+                { word: "Frustrate", meaning: "হতাশ করা", sentence: "The constant delays began to frustrate the customers." },
+                { word: "Generate", meaning: "উৎপন্ন করা", sentence: "The power plant can generate enough electricity for the town." },
+                { word: "Hypothesis", meaning: "অনুমান", sentence: "The scientist is testing a new hypothesis." },
+                { word: "Implement", meaning: "বাস্তবায়ন করা", sentence: "The government will implement a new tax policy." },
+                { word: "Justify", meaning: "ন্যায্যতা প্রতিপাদন করা", sentence: "Can you justify your actions?" },
+                { word: "Legitimate", meaning: "বৈধ", sentence: "He has a legitimate claim to the property." },
+                { word: "Modify", meaning: "পরিবর্তন করা", sentence: "We may need to modify the design slightly." },
+                { word: "Notorious", meaning: "কুখ্যাত", sentence: "The criminal was notorious for his daring robberies." },
+                { word: "Optimize", meaning: "অনুকূল করা", sentence: "We need to optimize our website for mobile devices." },
+                { word: "Perceive", meaning: "উপলব্ধি করা", sentence: "How do you perceive the current situation?" },
+                { word: "Relevant", meaning: "প্রাসঙ্গিক", sentence: "Please only provide information that is relevant to the case." },
+                { word: "Subsequent", meaning: "পরবর্তী", sentence: "The subsequent events proved that he was right." },
+                { word: "Tentative", meaning: "অস্থায়ী", sentence: "We have a tentative agreement, but it's not final." },
+                { word: "Validate", meaning: "বৈধ করা", sentence: "You must validate your parking ticket before you leave." },
+                { word: "Widespread", meaning: "ব্যাপক", sentence: "There was widespread support for the new law." },
+                { word: "Accumulate", meaning: "জমা করা", sentence: "Over the years, he has accumulated a great deal of wealth." },
+                { word: "Adequate", meaning: "পর্যাপ্ত", sentence: "The food supply was not adequate for all the refugees." },
+                { word: "Benefit", meaning: "সুবিধা", sentence: "What is the main benefit of this new system?" },
+                { word: "Component", meaning: "উপাদান", sentence: "The computer has many different components." },
+                { word: "Deduce", meaning: "সিদ্ধান্তে আসা", sentence: "From the evidence, the detective was able to deduce the killer's identity." },
+                { word: "Emerge", meaning: "আবির্ভূত হওয়া", sentence: "The sun will emerge from behind the clouds soon." },
+                { word: "Facilitate", meaning: "সহজতর করা", sentence: "A good teacher can facilitate learning." },
+                { word: "Inevitable", meaning: "অনিবার্য", sentence: "Death is an inevitable part of life." },
+                { word: "Initial", meaning: "প্রাথমিক", sentence: "My initial reaction was one of surprise." },
+                { word: "Investigate", meaning: "তদন্ত করা", sentence: "The police will investigate the crime." },
+                { word: "Legislate", meaning: "আইন প্রণয়ন করা", sentence: "The government has the power to legislate." },
+                { word: "Maintain", meaning: "বজায় রাখা", sentence: "It is important to maintain a healthy diet." },
+                { word: "Obvious", meaning: "স্পষ্ট", sentence: "The answer to the question was obvious." },
+                { word: "Persist", meaning: "অটল থাকা", sentence: "If you persist, you will eventually succeed." },
+                { word: "Precede", meaning: "আগে ঘটা", sentence: "The dark clouds precede a storm." },
+                { word: "Refine", meaning: "পরিশোধন করা", sentence: "The company needs to refine its marketing strategy." },
+                { word: "Resolve", meaning: "সমাধান করা", sentence: "We need to resolve this conflict peacefully." },
+                { word: "Simulate", meaning: "অনুকরণ করা", sentence: "The program can simulate real-world conditions." },
+                { word: "Tolerate", meaning: "সহ্য করা", sentence: "I cannot tolerate such rude behavior." },
+                { word: "Ultimate", meaning: "চূড়ান্ত", sentence: "The ultimate goal is to achieve lasting peace." },
+                { word: "Vary", meaning: "পরিবর্তিত হওয়া", sentence: "The prices of vegetables vary depending on the season." },
+                { word: "Adapt", meaning: "অভিযোজন করা", sentence: "Animals must adapt to their environment to survive." },
+                { word: "Bias", meaning: "পক্ষপাত", sentence: "The news report showed a clear bias towards the government." },
+                { word: "Coherent", meaning: "সুসঙ্গত", sentence: "He presented a coherent argument that was easy to follow." },
+                { word: "Depict", meaning: "চিত্রিত করা", sentence: "The painting depicts a beautiful landscape." },
+                { word: "Enhance", meaning: "বৃদ্ধি করা", sentence: "Using spices can enhance the flavor of the food." },
+                { word: "Fundamental", meaning: "মৌলিক", sentence: "Understanding the fundamental principles is very important." },
+                { word: "Gradual", meaning: "ধীর", sentence: "There has been a gradual improvement in his health." },
+                { word: "Inherent", meaning: "সহজাত", sentence: "There are inherent risks in any business venture." },
+                { word: "Intrinsic", meaning: "স্বকীয়", sentence: "The intrinsic value of a diamond is very high." },
+                { word: "Lucid", meaning: "স্বচ্ছ", sentence: "He gave a lucid explanation of the complex theory." },
+                { word: "Mutual", meaning: "পারস্পরিক", sentence: "The agreement was based on mutual trust and respect." },
+                { word: "Nuance", meaning: "সূক্ষ্ম পার্থক্য", sentence: "He was aware of the nuances in her tone of voice." },
+                { word: "Paradigm", meaning: "দৃষ্টান্ত", sentence: "The discovery of DNA created a new paradigm in biology." },
+                { word: "Plausible", meaning: "বিশ্বাসযোগ্য", sentence: "Her story sounded plausible, but I didn't believe it." },
+                { word: "Pragmatic", meaning: "বাস্তববাদী", sentence: "We need a pragmatic approach to solve this problem." },
+                { word: "Profound", meaning: "গভীর", sentence: "His speech had a profound impact on the audience." },
+                { word: "Resilient", meaning: "স্থিতিস্থাপক", sentence: "Children are often more resilient than adults." },
+                { word: "Scrutinize", meaning: "খুঁটিয়ে দেখা", sentence: "The accountant will scrutinize the financial records." },
+                { word: "Spontaneous", meaning: "স্বতঃস্ফূর্ত", sentence: "The crowd broke into spontaneous applause." },
+                { word: "Subtle", meaning: "সূক্ষ্ম", sentence: "There is a subtle difference between the two colors." },
+                { "word": "Synthesis", "meaning": "সংশ্লেষণ", "sentence": "Her new book is a synthesis of several different ideas." },
+                { "word": "Trivial", "meaning": "তুচ্ছ", "sentence": "Let's not argue over trivial matters." },
+                { "word": "Vivid", "meaning": "প্রাণবন্ত", "sentence": "He gave a vivid description of his trip." },
+                { "word": "Vulnerable", "meaning": "অরক্ষিত", "sentence": "Young birds are very vulnerable to predators." },
+                { "word": "Abundant", "meaning": "প্রচুর", "sentence": "The country has abundant natural resources." },
+                { "word": "Assert", "meaning": "দাবি করা", "sentence": "She continued to assert her innocence." },
+                { "word": "Cease", "meaning": "বন্ধ করা", "sentence": "The factory was forced to cease operations." },
+                { "word": "Convey", "meaning": "বহন করা", "sentence": "Please convey my best wishes to your family." },
+                { "word": "Distort", "meaning": "বিকৃত করা", "sentence": "The media can sometimes distort the truth." },
+                { "word": "Exaggerate", "meaning": "অতিরঞ্জিত করা", "sentence": "He tends to exaggerate the difficulty of the problem." },
+                { "word": "Fathom", "meaning": "অনুধাবন করা", "sentence": "I can't fathom why he would do such a thing." },
+                { "word": "Hinder", "meaning": "বাধা দেওয়া", "sentence": "Bad weather could hinder the rescue efforts." },
+                { "word": "Imply", "meaning": "ইঙ্গিত করা", "sentence": "What did you mean to imply by that comment?" },
+                { "word": "Inhibit", "meaning": "বাধাগ্রস্ত করা", "sentence": "Fear can inhibit you from trying new things." },
+                { "word": "Linger", "meaning": "বিলম্ব করা", "sentence": "The smell of coffee lingered in the air." },
+                { "word": "Notion", "meaning": "ধারণা", "sentence": "He rejected the notion that all people are selfish." },
+                { "word": "Omit", "meaning": "বাদ দেওয়া", "sentence": "Please don't omit any details from your report." },
+                { "word": "Prevail", "meaning": "প্রবল হওয়া", "sentence": "In the end, justice will prevail." },
+                { "word": "Rebuke", "meaning": "তিরস্কার করা", "sentence": "The teacher had to rebuke the student for misbehaving." },
+                { "word": "Reluctant", "meaning": "অনিচ্ছুক", "sentence": "She was reluctant to admit her mistake." },
+                { "word": "Robust", "meaning": "শক্তিশালী", "sentence": "The company has a robust financial position." },
+                { "word": "Succinct", "meaning": "সংক্ষিপ্ত", "sentence": "His email was succinct and to the point." },
+                { "word": "Surpass", "meaning": "অতিক্রম করা", "sentence": "Her performance is expected to surpass all expectations." },
+                { "word": "Undermine", "meaning": "দুর্বল করা", "sentence": "His constant criticism began to undermine her confidence." }
+            ];
+            let appState = { allCards: [], viewingCards: [], currentIndex: 0, filter: 'all' };
+            function saveState() { localStorage.setItem('flashcardStateIntermediateWords', JSON.stringify({ allCards: appState.allCards })); }
+            function loadState() {
+                let savedState = null;
+                try { savedState = JSON.parse(localStorage.getItem('flashcardStateIntermediateWords')); } catch (e) { console.error("Error parsing saved state:", e); }
+                if (savedState && Array.isArray(savedState.allCards)) {
+                    appState.allCards = savedState.allCards;
+                    appState.allCards.forEach(card => { if (card.bookmarked === undefined) card.bookmarked = false; });
+                } else { appState.allCards = initialFlashcardsData.map((card, index) => ({ ...card, id: index, completed: false, bookmarked: false })); }
+                applyFilter();
+            }
+            function applyFilter() {
+                const { filter, allCards } = appState;
+                switch (filter) {
+                    case 'bookmarked': appState.viewingCards = allCards.filter(card => card.bookmarked); break;
+                    case 'completed': appState.viewingCards = allCards.filter(card => card.completed); break;
+                    case 'incomplete': appState.viewingCards = allCards.filter(card => !card.completed); break;
+                    default: appState.viewingCards = [...allCards]; break;
+                }
+                appState.currentIndex = 0;
+            }
+            function renderFlashcard() {
+                $('#flashcard').removeClass('flipped');
+                if (appState.viewingCards.length === 0) {
+                    $('#englishWord').text(`No ${appState.filter} words found.`);
+                    $('#banglaMeaning, #exampleSentence').text('');
+                    $('#flashcard, .primary-actions, .navigation').hide();
+                    updateNavigationAndProgress(); return;
+                }
+                $('#flashcard, .primary-actions, .navigation').show();
+                const card = appState.viewingCards[appState.currentIndex];
+                if (!card) return;
+                $('.flashcard-face').fadeOut(150, function() {
+                    $('#englishWord').text(card.word);
+                    $('#banglaMeaning').text(card.meaning);
+                    $('#exampleSentence').text(card.sentence);
+                    $(this).fadeIn(150);
+                });
+                if (card.completed) { $('#flashcard').addClass('completed'); $('#completeBtn').addClass('completed').html('<i class="fas fa-times"></i> Mark as Incomplete'); } 
+                else { $('#flashcard').removeClass('completed'); $('#completeBtn').removeClass('completed').html('<i class="fas fa-check"></i> Mark as Completed'); }
+                if (card.bookmarked) { $('#flashcard').addClass('bookmarked'); $('#bookmarkBtn').addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Remove Bookmark'); } 
+                else { $('#flashcard').removeClass('bookmarked'); $('#bookmarkBtn').removeClass('bookmarked').html('<i class="far fa-bookmark"></i> Bookmark'); }
+                updateNavigationAndProgress();
+            }
+            function updateNavigationAndProgress() {
+                const totalInView = appState.viewingCards.length, score = appState.allCards.filter(c => c.completed).length, totalCards = appState.allCards.length;
+                $('#cardCounter').text(totalInView > 0 ? `${appState.currentIndex + 1} / ${totalInView}`: '0 / 0');
+                $('#progressText').text(`Progress: ${score} of ${totalCards}`);
+                $('#scoreText').text(`Score: ${score}`);
+                const progressPercentage = totalCards > 0 ? (score / totalCards) * 100 : 0;
+                $('#progressBar').css('width', `${progressPercentage}%`);
+                $('#prevBtn').prop('disabled', appState.currentIndex === 0);
+                $('#nextBtn').prop('disabled', appState.currentIndex >= totalInView - 1);
+            }
+            $('#flashcard').on('click', function() { $(this).toggleClass('flipped'); });
+            $('#nextBtn').on('click', () => { if (appState.currentIndex < appState.viewingCards.length - 1) { appState.currentIndex++; renderFlashcard(); } });
+            $('#prevBtn').on('click', () => { if (appState.currentIndex > 0) { appState.currentIndex--; renderFlashcard(); } });
+            $('#completeBtn, #bookmarkBtn').on('click', function() {
+                if (appState.viewingCards.length === 0) return;
+                const card = appState.viewingCards[appState.currentIndex];
+                if ($(this).attr('id') === 'completeBtn') card.completed = !card.completed;
+                else card.bookmarked = !card.bookmarked;
+                saveState();
+                const cardStillMatchesFilter = ((appState.filter === 'incomplete' && !card.completed) || (appState.filter === 'completed' && card.completed) || (appState.filter === 'bookmarked' && card.bookmarked) || appState.filter === 'all');
+                if (!cardStillMatchesFilter) { applyFilter(); }
+                renderFlashcard();
+            });
+            $('.filter-btn').on('click', function() { appState.filter = $(this).data('filter'); $('.filter-btn').removeClass('active'); $(this).addClass('active'); applyFilter(); renderFlashcard(); });
+            $('#shuffleBtn').on('click', () => { for (let i = appState.viewingCards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [appState.viewingCards[i], appState.viewingCards[j]] = [appState.viewingCards[j], appState.viewingCards[i]]; } appState.currentIndex = 0; renderFlashcard(); });
+            $('#resetBtn').on('click', () => { if (confirm('Are you sure? This will reset all progress for intermediate words.')) { localStorage.removeItem('flashcardStateIntermediateWords'); loadState(); renderFlashcard(); } });
+            $('#listenBtn').on('click', function(e) { e.stopPropagation(); if (appState.viewingCards.length === 0) return; const text = $('#englishWord').text(); if ('speechSynthesis' in window && text) { const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; window.speechSynthesis.speak(utterance); } else { alert('Speech synthesis not supported.'); } });
+            loadState();
+            $('.filter-btn[data-filter="all"]').addClass('active');
+            renderFlashcard();
+        });
+    </script>
+</body>
+</html>

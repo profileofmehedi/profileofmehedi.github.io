@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Advanced Words</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e3a8a; /* Dark Blue */
+            --secondary-color: #1e40af;
+            --accent-color: #be185d; /* Pink */
+            --completed-color: #047857; /* Emerald */
+            --bookmark-color: #b45309; /* Golden Brown */
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+        .main-container { width: 100%; max-width: 600px; }
+        .header { text-align: center; color: white; margin-bottom: 20px; }
+        .header h1 { font-weight: 700; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); }
+        .filter-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .filter-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; font-weight: 500; transition: all 0.2s ease-in-out; }
+        .filter-btn:hover { background: rgba(255,255,255,0.2); border-color: white; }
+        .filter-btn.active { background: white; color: var(--primary-color); border-color: white; font-weight: 600; }
+        .flashcard-container { perspective: 1500px; margin-bottom: 25px; height: 350px; }
+        .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s ease; cursor: pointer; }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; border-radius: 20px; box-shadow: var(--card-shadow); border: 3px solid transparent; transition: border-color 0.3s ease; }
+        .flashcard.completed .flashcard-front { border-color: var(--completed-color); }
+        .flashcard-front { background: #ffffff; }
+        .flashcard-back { background: #f1f5f9; transform: rotateY(180deg); border: 2px solid var(--accent-color); justify-content: space-evenly; }
+        #englishWord { font-size: 2.5rem; font-weight: 700; color: #1f2937; }
+        .back-content { width: 100%; }
+        #banglaMeaning { font-size: 1.8rem; font-weight: 600; color: #1f2937; margin-bottom: 0; }
+        #exampleSentence { font-size: 1.1rem; font-style: italic; color: #4b5563; margin-top: 10px; padding: 0 15px;}
+        .translation-label { color: var(--accent-color); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .card-icon { position: absolute; font-size: 1.8rem; opacity: 0; transition: opacity 0.3s ease; }
+        .completed-icon { top: 15px; left: 20px; color: var(--completed-color); }
+        .bookmark-icon { top: 15px; right: 65px; color: var(--bookmark-color); font-size: 1.6rem; }
+        .flashcard.completed .completed-icon, .flashcard.bookmarked .bookmark-icon { opacity: 1; }
+        .listen-btn { position: absolute; top: 20px; right: 20px; background: #f3f4f6; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; color: var(--primary-color); transition: all 0.3s ease; z-index: 10; }
+        .listen-btn:hover { background-color: var(--primary-color); color: white; transform: scale(1.1); }
+        .progress-section { background: white; padding: 20px; border-radius: 15px; box-shadow: var(--card-shadow); margin-bottom: 25px; }
+        .status-bar { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
+        .progress { height: 15px; border-radius: 10px; }
+        .progress-bar { background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); }
+        .primary-actions { display: flex; gap: 15px; margin-bottom: 25px; }
+        .action-btn { flex: 1; padding: 12px; font-size: 1.1rem; font-weight: bold; transition: all 0.3s ease; }
+        #completeBtn { background-color: var(--completed-color); border-color: var(--completed-color); }
+        #completeBtn.completed { background-color: #eab308; border-color: #eab308; }
+        #bookmarkBtn { background-color: var(--bookmark-color); border-color: var(--bookmark-color); }
+        #bookmarkBtn.bookmarked { background-color: #6b7280; border-color: #6b7280; }
+        .navigation { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .nav-btn { padding: 12px 0; width: 120px; background: var(--primary-color); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 1rem; }
+        .nav-btn:hover:not(:disabled) { background: var(--secondary-color); transform: translateY(-3px); }
+        .nav-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+        .card-counter { font-size: 1.25rem; font-weight: 700; color: white; padding: 10px 20px; }
+        .settings-actions { display: flex; gap: 10px; justify-content: center; }
+        .settings-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; font-weight: 500; }
+        .settings-btn:hover { background: rgba(255,255,255,0.2); border-color: white; }
+        @media (max-width: 576px) { #englishWord { font-size: 2.2rem; } #banglaMeaning { font-size: 1.6rem; } .primary-actions { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-book-open"></i> 100 Advanced Words</h1>
+            <p>Expand Your Sophisticated Vocabulary</p>
+        </div>
+        <div class="filter-controls">
+            <button class="btn filter-btn" data-filter="all">All Words</button>
+            <button class="btn filter-btn" data-filter="bookmarked">Bookmarked</button>
+            <button class="btn filter-btn" data-filter="completed">Completed</button>
+            <button class="btn filter-btn" data-filter="incomplete">Incomplete</button>
+        </div>
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-face flashcard-front">
+                    <i class="fas fa-check-circle card-icon completed-icon"></i>
+                    <i class="fas fa-bookmark card-icon bookmark-icon"></i>
+                    <button class="listen-btn" id="listenBtn" title="Listen"><i class="fas fa-volume-up"></i></button>
+                    <p id="englishWord">Loading...</p>
+                </div>
+                <div class="flashcard-face flashcard-back">
+                    <div class="back-content">
+                        <div class="translation-label">Bangla Meaning</div>
+                        <p id="banglaMeaning">লোড হচ্ছে...</p>
+                    </div>
+                    <div class="back-content">
+                        <div class="translation-label">Example Sentence</div>
+                        <p id="exampleSentence">লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="progress-section">
+            <div class="status-bar">
+                <span id="progressText">Progress: 0 of 100</span>
+                <span id="scoreText">Score: 0</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="primary-actions">
+            <button class="btn btn-success action-btn" id="completeBtn"><i class="fas fa-check"></i> Mark as Completed</button>
+            <button class="btn action-btn" id="bookmarkBtn"><i class="far fa-bookmark"></i> Bookmark</button>
+        </div>
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Previous</button>
+            <div class="card-counter" id="cardCounter">1 / 100</div>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="settings-actions">
+            <button class="btn settings-btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle Deck</button>
+            <button class="btn settings-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset Progress</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const initialFlashcardsData = [
+                { word: "Ephemeral", meaning: "ক্ষণস্থায়ী", sentence: "The beauty of a sunset is ephemeral." },
+                { word: "Ubiquitous", meaning: "সর্বব্যাপী", sentence: "Smartphones have become ubiquitous in modern society." },
+                { word: "Meticulous", meaning: "অতি সতর্ক", sentence: "The surgeon completed the operation with meticulous care." },
+                { word: "Plethora", meaning: "আধিক্য", sentence: "The library has a plethora of books on ancient history." },
+                { word: "Alacrity", meaning: "তৎপরতা", sentence: "She accepted the job offer with alacrity." },
+                { word: "Cacophony", meaning: "শ্রুতিকটু শব্দ", sentence: "The city street was filled with a cacophony of car horns." },
+                { word: "Enigma", meaning: "রহસ્ય", sentence: "The disappearance of the ancient civilization remains an enigma." },
+                { word: "Lethargic", meaning: "অলস", sentence: "The hot weather made everyone feel lethargic." },
+                { word: "Mellifluous", meaning: "সুমধুর", sentence: "Her mellifluous voice was perfect for singing lullabies." },
+                { word: "Nefarious", meaning: "অত্যন্ত দুষ্ট", sentence: "The villain's nefarious plan was to take over the world." },
+                { word: "Obfuscate", meaning: "বিভ্রান্ত করা", sentence: "The politician tried to obfuscate the issue with irrelevant facts." },
+                { word: "Paradox", meaning: "আপাতবিরোধী", sentence: "It is a paradox that a wealthy man can be so unhappy." },
+                { word: "Quintessential", meaning: "উৎকৃষ্ট উদাহরণ", sentence: "This painting is the quintessential example of the artist's work." },
+                { word: "Reticent", meaning: "স্বল্পভাষী", sentence: "He was very reticent about his personal life." },
+                { word: "Sycophant", meaning: "চাটুকার", sentence: "The king was surrounded by sycophants who praised his every move." },
+                { word: "Tenuous", meaning: "পাতলা", sentence: "The link between the two events is tenuous at best." },
+                { word: "Vicarious", meaning: "প্রতিনিধিমূলক", sentence: "He gets vicarious pleasure from watching his son play football." },
+                { word: "Zephyr", meaning: "মৃদু বাতাস", sentence: "A gentle zephyr rustled the leaves in the trees." },
+                { word: "Anachronism", meaning: "কালবৈষম্য", sentence: "A knight using a mobile phone would be an anachronism." },
+                { word: "Benevolent", meaning: "দয়ালু", sentence: "The benevolent king was loved by all his subjects." },
+                { word: "Capricious", meaning: "খামখেয়ালী", sentence: "The weather in the mountains is notoriously capricious." },
+                { word: "Deleterious", meaning: "ক্ষতিকর", sentence: "Smoking has a deleterious effect on your health." },
+                { word: "Exacerbate", meaning: "আরও খারাপ করা", sentence: "His angry words only served to exacerbate the situation." },
+                { word: "Fastidious", meaning: "খুঁতখুঁতে", sentence: "She is fastidious about keeping her house clean." },
+                { word: "Gregarious", meaning: "মিশুক", sentence: "He is a gregarious person who loves parties." },
+                { word: "Harangue", meaning: "উত্তেজিত বক্তৃতা", sentence: "The coach delivered a fiery harangue to the team at halftime." },
+                { word: "Iconoclast", meaning: "প্রচলিত রীতিনীতির বিরোধী", sentence: "The artist was an iconoclast who challenged traditional forms." },
+                { word: "Juxtaposition", meaning: "পাশাপাশি স্থাপন", sentence: "The juxtaposition of old and new buildings was striking." },
+                { word: "Kowtow", meaning: "নতজানু হওয়া", sentence: "The employees were expected to kowtow to their boss's every demand." },
+                { word: "Laconic", meaning: "সংক্ষিপ্ত", sentence: "His laconic reply of 'no' ended the conversation." },
+                { word: "Magnanimous", meaning: "মহানুভব", sentence: "He was magnanimous in victory and praised his opponent." },
+                { word: "Novice", meaning: "নবীন", sentence: "As a novice programmer, he still had much to learn." },
+                { word: "Ostracize", meaning: "সমাজচ্যুত করা", sentence: "The community decided to ostracize the family." },
+                { word: "Pernicious", meaning: "মারাত্মক", sentence: "The pernicious influence of fake news is a serious problem." },
+                { word: "Querulous", meaning: "খিটখিটে", sentence: "The querulous old man complained about everything." },
+                { word: "Ruminate", meaning: "গভীরভাবে চিন্তা করা", sentence: "He likes to ruminate on the meaning of life." },
+                { word: "Salient", meaning: "প্রধান", sentence: "The salient point of his argument was that we need more funding." },
+                { word: "Taciturn", meaning: " मितভাষী", sentence: "The taciturn farmer rarely spoke a word." },
+                { word: "Unctuous", meaning: "মিষ্টভাষী কিন্তু আন্তরিকতাহীন", sentence: "The unctuous salesman tried to flatter us into buying the car." },
+                { word: "Vapid", meaning: "নীরস", sentence: "The conversation was so vapid that I nearly fell asleep." },
+                { word: "Abnegation", meaning: "আত্মত্যাগ", sentence: "Her abnegation of worldly pleasures was admired by her followers." },
+                { word: "Brevity", meaning: "সংক্ষিপ্ততা", sentence: "The brevity of the speech was appreciated by the audience." },
+                { word: "Candor", meaning: "সরলতা", sentence: "I appreciate your candor in this difficult matter." },
+                { word: "Dichotomy", meaning: "দ্বিবিভাজন", sentence: "There is often a dichotomy between theory and practice." },
+                { word: "Egregious", meaning: "গুরুতর", sentence: "It was an egregious error for a professional to make." },
+                { word: "Fatuous", meaning: "বোকার মতো", sentence: "His fatuous comments were ignored by everyone." },
+                { word: "Garrulous", meaning: "বাচাল", sentence: "The garrulous taxi driver talked throughout the entire journey." },
+                { word: "Hegemony", meaning: "আধিপত্য", sentence: "The company sought to establish hegemony in the market." },
+                { word: "Impeccable", meaning: "ত্রুটিহীন", sentence: "Her performance was impeccable; she didn't make a single mistake." },
+                { word: "Jubilant", meaning: "উল্লসিত", sentence: "The team was jubilant after winning the championship." },
+                { word: "Languid", meaning: "অবসন্ন", sentence: "They spent a languid afternoon by the pool." },
+                { word: "Maverick", meaning: "স্বাতন্ত্র্যচিহ্নিত ব্যক্তি", sentence: "He was a maverick who refused to follow the established rules." },
+                { word: "Nascent", meaning: "জন্মলাভ করছে এমন", sentence: "The nascent tech industry in the country shows great promise." },
+                { word: "Opulent", meaning: "ঐশ্বর্যশালী", sentence: "The opulent palace was filled with gold and jewels." },
+                { word: "Panacea", meaning: "সর্বরোগহর ঔষধ", sentence: "Unfortunately, there is no panacea for all the world's problems." },
+                { word: "Recalcitrant", meaning: "অবাধ্য", sentence: "The recalcitrant student refused to do his homework." },
+                { word: "Sanctimonious", meaning: "ভণ্ড ধার্মিক", sentence: "His sanctimonious speech about morality was hypocritical." },
+                { word: "Truculent", meaning: "নিষ্ঠুর", sentence: "The truculent bully was feared by all the younger students." },
+                { word: "Veracity", meaning: "সত্যতা", sentence: "The lawyer questioned the veracity of the witness's statement." },
+                { word: "Wary", meaning: "সতর্ক", sentence: "You should be wary of offers that seem too good to be true." },
+                { word: "Acumen", meaning: "তীব্র বুদ্ধি", sentence: "She has great business acumen." },
+                { word: "Bombastic", meaning: "জমকালো", sentence: "The politician's bombastic speech was full of empty promises." },
+                { word: "Circumlocution", meaning: "বাকচাতুরী", sentence: "His use of circumlocution made his point difficult to understand." },
+                { word: "Disparate", meaning: "ভিন্ন", sentence: "The study brought together a group of disparate individuals." },
+                { word: "Ebullient", meaning: "উচ্ছ্বসিত", sentence: "She was in an ebullient mood after receiving the good news." },
+                { word: "Fallacious", meaning: "ভ্রান্ত", sentence: "The idea that money buys happiness is a fallacious one." },
+                { word: "Grandiloquent", meaning: "বাগাড়ম্বরপূর্ণ", sentence: "His grandiloquent style of writing was not to everyone's taste." },
+                { word: "Idiosyncrasy", meaning: "স্বভাব", sentence: "One of his idiosyncrasies is that he always wears a hat." },
+                { word: "Innocuous", meaning: "নিরীহ", sentence: "The comment seemed innocuous, but it was actually quite insulting." },
+                { word: "Largesse", meaning: "দানশীলতা", sentence: "The university was grateful for the philanthropist's largesse." },
+                { word: "Mendacious", meaning: "মিথ্যাবাদী", sentence: "The mendacious politician was caught in another lie." },
+                { word: "Nonplussed", meaning: "হতবাক", sentence: "He was nonplussed by the unexpected question." },
+                { word: "Paucity", meaning: "স্বল্পতা", sentence: "There is a paucity of evidence to support his claim." },
+                { word: "Prosaic", meaning: "গদ্যময়", sentence: "His life was a prosaic one, with little excitement." },
+                { word: "Quixotic", meaning: "ভাববিলাসী", sentence: "His plan to build a castle in the sky was a quixotic one." },
+                { word: "Sagacious", meaning: "বিজ্ঞ", sentence: "The sagacious leader made a wise decision." },
+                { word: "Tirade", meaning: "তিরস্কারপূর্ণ বক্তৃতা", sentence: "He launched into a long tirade against the government." },
+                { word: "Usurp", meaning: "দখল করা", sentence: "The general tried to usurp the king's throne." },
+                { word: "Vituperate", meaning: "গালিগালাজ করা", sentence: "The angry crowd began to vituperate the speaker." },
+                { word: "Aberration", meaning: "বিচ্যুতি", sentence: "The single bad grade was an aberration in her excellent academic record." },
+                { word: "Cognizant", meaning: "অবগত", sentence: "He was cognizant of the risks involved." },
+                { word: "Didactic", meaning: "শিক্ষামূলক", sentence: "The novel was too didactic for my taste." },
+셔{ word: "Empathy", meaning: "সহানুভূতি", sentence: "A good leader must have empathy for their team members." },
+                { word: "Fortuitous", meaning: "আকস্মিক", sentence: "Their meeting was a fortuitous one that changed both their lives." },
+                { word: "Idyllic", meaning: "শান্ত ও মনোরম", sentence: "They lived an idyllic life in a small cottage by the sea." },
+                { word: "Insipid", meaning: "স্বাদহীন", sentence: "The soup was bland and insipid." },
+                { word: "Myriad", meaning: "অগণিত", sentence: "There are a myriad of stars in the night sky." },
+                { word: "Perfunctory", meaning: "দায়সারা", sentence: "He gave a perfunctory nod of acknowledgment." },
+                { word: "Precocious", meaning: "ইঁচড়ে পাকা", sentence: "The precocious child could read at the age of three." },
+                { word: "Pulchritudinous", meaning: "অনিন্দ্য সুন্দর", sentence: "The model was known for her pulchritudinous features." },
+                { word: "Rapacious", meaning: "লোভী", sentence: "The rapacious corporation exploited its workers." },
+                { word: "Sobriquet", meaning: "উপনাম", sentence: "He was given the sobriquet 'The Rocket' because of his speed." },
+                { word: "Turpitude", meaning: "নিন্দনীয় আচরণ", sentence: "He was found guilty of moral turpitude." },
+                { word: "Vociferous", meaning: "সরব", sentence: "The vociferous protests could be heard from blocks away." },
+                { word: "Xenophobia", meaning: "বিদেশীদের প্রতি ঘৃণা", sentence: "The rise of xenophobia in the country is a worrying trend." },
+                { word: "Yoke", meaning: "জোয়াল", sentence: "The people struggled to free themselves from the yoke of tyranny." },
+                { word: "Zeitgeist", meaning: "যুগধর্ম", sentence: "The film perfectly captured the zeitgeist of the 1960s." }
+            ];
+            let appState = { allCards: [], viewingCards: [], currentIndex: 0, filter: 'all' };
+            function saveState() { localStorage.setItem('flashcardStateAdvancedWords', JSON.stringify({ allCards: appState.allCards })); }
+            function loadState() {
+                let savedState = null;
+                try { savedState = JSON.parse(localStorage.getItem('flashcardStateAdvancedWords')); } catch (e) { console.error("Error parsing saved state:", e); }
+                if (savedState && Array.isArray(savedState.allCards)) {
+                    appState.allCards = savedState.allCards;
+                    appState.allCards.forEach(card => { if (card.bookmarked === undefined) card.bookmarked = false; });
+                } else { appState.allCards = initialFlashcardsData.map((card, index) => ({ ...card, id: index, completed: false, bookmarked: false })); }
+                applyFilter();
+            }
+            function applyFilter() {
+                const { filter, allCards } = appState;
+                switch (filter) {
+                    case 'bookmarked': appState.viewingCards = allCards.filter(card => card.bookmarked); break;
+                    case 'completed': appState.viewingCards = allCards.filter(card => card.completed); break;
+                    case 'incomplete': appState.viewingCards = allCards.filter(card => !card.completed); break;
+                    default: appState.viewingCards = [...allCards]; break;
+                }
+                appState.currentIndex = 0;
+            }
+            function renderFlashcard() {
+                $('#flashcard').removeClass('flipped');
+                if (appState.viewingCards.length === 0) {
+                    $('#englishWord').text(`No ${appState.filter} words found.`);
+                    $('#banglaMeaning, #exampleSentence').text('');
+                    $('#flashcard, .primary-actions, .navigation').hide();
+                    updateNavigationAndProgress(); return;
+                }
+                $('#flashcard, .primary-actions, .navigation').show();
+                const card = appState.viewingCards[appState.currentIndex];
+                if (!card) return;
+                $('.flashcard-face').fadeOut(150, function() {
+                    $('#englishWord').text(card.word);
+                    $('#banglaMeaning').text(card.meaning);
+                    $('#exampleSentence').text(card.sentence);
+                    $(this).fadeIn(150);
+                });
+                if (card.completed) { $('#flashcard').addClass('completed'); $('#completeBtn').addClass('completed').html('<i class="fas fa-times"></i> Mark as Incomplete'); } 
+                else { $('#flashcard').removeClass('completed'); $('#completeBtn').removeClass('completed').html('<i class="fas fa-check"></i> Mark as Completed'); }
+                if (card.bookmarked) { $('#flashcard').addClass('bookmarked'); $('#bookmarkBtn').addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Remove Bookmark'); } 
+                else { $('#flashcard').removeClass('bookmarked'); $('#bookmarkBtn').removeClass('bookmarked').html('<i class="far fa-bookmark"></i> Bookmark'); }
+                updateNavigationAndProgress();
+            }
+            function updateNavigationAndProgress() {
+                const totalInView = appState.viewingCards.length, score = appState.allCards.filter(c => c.completed).length, totalCards = appState.allCards.length;
+                $('#cardCounter').text(totalInView > 0 ? `${appState.currentIndex + 1} / ${totalInView}`: '0 / 0');
+                $('#progressText').text(`Progress: ${score} of ${totalCards}`);
+                $('#scoreText').text(`Score: ${score}`);
+                const progressPercentage = totalCards > 0 ? (score / totalCards) * 100 : 0;
+                $('#progressBar').css('width', `${progressPercentage}%`);
+                $('#prevBtn').prop('disabled', appState.currentIndex === 0);
+                $('#nextBtn').prop('disabled', appState.currentIndex >= totalInView - 1);
+            }
+            $('#flashcard').on('click', function() { $(this).toggleClass('flipped'); });
+            $('#nextBtn').on('click', () => { if (appState.currentIndex < appState.viewingCards.length - 1) { appState.currentIndex++; renderFlashcard(); } });
+            $('#prevBtn').on('click', () => { if (appState.currentIndex > 0) { appState.currentIndex--; renderFlashcard(); } });
+            $('#completeBtn, #bookmarkBtn').on('click', function() {
+                if (appState.viewingCards.length === 0) return;
+                const card = appState.viewingCards[appState.currentIndex];
+                if ($(this).attr('id') === 'completeBtn') card.completed = !card.completed;
+                else card.bookmarked = !card.bookmarked;
+                saveState();
+                const cardStillMatchesFilter = ((appState.filter === 'incomplete' && !card.completed) || (appState.filter === 'completed' && card.completed) || (appState.filter === 'bookmarked' && card.bookmarked) || appState.filter === 'all');
+                if (!cardStillMatchesFilter) { applyFilter(); }
+                renderFlashcard();
+            });
+            $('.filter-btn').on('click', function() { appState.filter = $(this).data('filter'); $('.filter-btn').removeClass('active'); $(this).addClass('active'); applyFilter(); renderFlashcard(); });
+            $('#shuffleBtn').on('click', () => { for (let i = appState.viewingCards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [appState.viewingCards[i], appState.viewingCards[j]] = [appState.viewingCards[j], appState.viewingCards[i]]; } appState.currentIndex = 0; renderFlashcard(); });
+            $('#resetBtn').on('click', () => { if (confirm('Are you sure? This will reset all progress for advanced words.')) { localStorage.removeItem('flashcardStateAdvancedWords'); loadState(); renderFlashcard(); } });
+            $('#listenBtn').on('click', function(e) { e.stopPropagation(); if (appState.viewingCards.length === 0) return; const text = $('#englishWord').text(); if ('speechSynthesis' in window && text) { const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; window.speechSynthesis.speak(utterance); } else { alert('Speech synthesis not supported.'); } });
+            loadState();
+            $('.filter-btn[data-filter="all"]').addClass('active');
+            renderFlashcard();
+        });
+    </script>
+</body>
+</html>
