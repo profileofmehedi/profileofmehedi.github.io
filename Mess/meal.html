@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Meal Dashboard | October 2025</title>
+    
+    <!-- Google Fonts for a professional look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js for beautiful charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* General Styling & Dark Theme */
+        :root {
+            --primary-color: #4A90E2;
+            --background-color: #1A1A2E;
+            --card-background: #16213E;
+            --text-color: #E0E0E0;
+            --heading-color: #FFFFFF;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --success-color: #50C878;
+            --danger-color: #E94560;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: fadeInDown 1s ease-out forwards;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .summary-card {
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(25px) scale(1.03);
+            box-shadow: 0 15px 40px var(--shadow-color);
+        }
+
+        .summary-card h3 {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .summary-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--heading-color);
+        }
+        
+        .summary-card .currency::before {
+            content: '৳ ';
+            font-weight: 400;
+        }
+
+        /* Card container for tables and charts */
+        .card-container {
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            overflow-x: auto; /* Add scroll for smaller screens */
+        }
+        
+        .card-container h2 {
+            font-size: 1.8rem;
+            color: var(--heading-color);
+            margin-bottom: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        thead {
+            background-color: rgba(74, 144, 226, 0.1);
+        }
+
+        th {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(74, 144, 226, 0.05);
+        }
+        
+        .final-amount { font-weight: 700; }
+        .positive { color: var(--success-color); }
+        .negative { color: var(--danger-color); }
+
+        /* Chart Section */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        /* === NEW: Styles to make Daily Meal Log compact === */
+        #daily-meal-log {
+            overflow-x: hidden; /* Hide scrollbar on desktop */
+        }
+
+        #daily-meal-log table {
+            table-layout: fixed;
+        }
+        
+        #daily-meal-log th, #daily-meal-log td {
+            padding: 0.8rem 0.2rem; /* Reduced horizontal padding */
+            font-size: 0.85rem;     /* Slightly smaller font */
+            text-align: center;
+        }
+        
+        #daily-meal-log th:first-child, #daily-meal-log td:first-child {
+            width: 10%;           /* Fixed width for Name column */
+            text-align: left;
+        }
+        
+        #daily-meal-log th:last-child, #daily-meal-log td:last-child {
+            width: 6%;            /* Fixed width for Total column */
+            font-weight: 700;
+        }
+        
+        /* Animations */
+        @keyframes fadeInDown { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        /* Staggered animation delays */
+        .summary-card:nth-child(1) { animation-delay: 0.2s; }
+        .summary-card:nth-child(2) { animation-delay: 0.4s; }
+        .summary-card:nth-child(3) { animation-delay: 0.6s; }
+        #charts-section { animation-delay: 0.8s; }
+        #daily-meal-log { animation-delay: 1.0s; }
+        #final-calculation-table { animation-delay: 1.2s; }
+        #bazar-table { animation-delay: 1.4s; }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            #daily-meal-log {
+                overflow-x: auto; /* Re-enable scroll on smaller screens */
+            }
+        }
+        @media (max-width: 992px) {
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-wrapper { margin-bottom: 2rem; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .header h1 { font-size: 2.2rem; }
+            th, td { padding: 0.8rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <h1>Mess Meal Dashboard</h1>
+            <p>October 2025 Summary</p>
+        </header>
+
+        <section class="summary-grid">
+            <div class="summary-card">
+                <h3>Total Bazar</h3>
+                <p class="value currency" data-target="10375">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Meal</h3>
+                <p class="value" data-target="180">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Meal Rate</h3>
+                <p class="value currency" data-target="57.64">0</p>
+            </div>
+        </section>
+
+        <section id="charts-section" class="card-container">
+            <h2>Visual Insights</h2>
+            <div class="chart-grid">
+                <div class="chart-wrapper">
+                    <canvas id="mealsChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="bazarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="daily-meal-log" class="card-container">
+            <h2>Daily Meal Log</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+                        <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th>
+                        <th>21</th><th>22</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th>
+                        <th>31</th><th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mehedi</td>
+                        <td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>2</td>
+                        <td>2</td><td>1</td><td>1</td><td>1</td><td>4</td><td>4</td><td>2</td><td>0</td><td>1</td><td>1</td>
+                        <td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td>26</td>
+                    </tr>
+                    <tr>
+                        <td>Hasim</td>
+                        <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td>
+                        <td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td>
+                        <td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td>40</td>
+                    </tr>
+                    <tr>
+                        <td>Pappu</td>
+                        <td>1</td><td>2</td><td>1</td><td>0</td><td>0</td><td>2</td><td>2</td><td>2</td><td>2</td><td>1</td>
+                        <td>2</td><td>2</td><td>2</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td>
+                        <td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td>31</td>
+                    </tr>
+                     <tr>
+                        <td>Karim</td>
+                        <td>1</td><td>2</td><td>1</td><td>0</td><td>0</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td>
+                        <td>2</td><td>2</td><td>2</td><td>1</td><td>3</td><td>3</td><td>2</td><td>2</td><td>1</td><td>2</td>
+                        <td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td>44</td>
+                    </tr>
+                     <tr>
+                        <td>Sohel</td>
+                        <td>1</td><td>2</td><td>1</td><td>0</td><td>0</td><td>1</td><td>2</td><td>2</td><td>2</td><td>3</td>
+                        <td>2</td><td>1</td><td>2</td><td>2</td><td>2</td><td>1</td><td>0</td><td>1</td><td>2</td><td>2</td>
+                        <td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td>39</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="final-calculation-table" class="card-container">
+            <h2>Final Calculation</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Meal</th>
+                        <th>Meal Cost</th>
+                        <th>Deposit</th>
+                        <th style="text-align: right;">Final Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mehedi</td>
+                        <td>26</td>
+                        <td>1498.61</td>
+                        <td>1890</td>
+                        <td class="final-amount positive" style="text-align: right;">391.39</td>
+                    </tr>
+                    <tr>
+                        <td>Hasim</td>
+                        <td>40</td>
+                        <td>2305.56</td>
+                        <td>2568</td>
+                        <td class="final-amount positive" style="text-align: right;">262.44</td>
+                    </tr>
+                    <tr>
+                        <td>Pappu</td>
+                        <td>31</td>
+                        <td>1786.81</td>
+                        <td>1886</td>
+                        <td class="final-amount positive" style="text-align: right;">99.19</td>
+                    </tr>
+                    <tr>
+                        <td>Karim</td>
+                        <td>44</td>
+                        <td>2536.11</td>
+                        <td>1530</td>
+                        <td class="final-amount negative" style="text-align: right;">-1006.11</td>
+                    </tr>
+                    <tr>
+                        <td>Sohel</td>
+                        <td>39</td>
+                        <td>2247.92</td>
+                        <td>2501</td>
+                        <td class="final-amount positive" style="text-align: right;">253.08</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="bazar-table" class="card-container">
+            <h2>Bazar Log</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Mehedi</th>
+                        <th>Hasim</th>
+                        <th>Pappu</th>
+                        <th>Karim</th>
+                        <th>Sohel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2025-10-02</td><td></td><td></td><td></td><td>108</td><td>435</td></tr>
+                    <tr><td>2025-10-03</td><td>500</td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>2025-10-04</td><td></td><td></td><td>90</td><td></td><td>990</td></tr>
+                    <tr><td>2025-10-05</td><td></td><td></td><td>190</td><td></td><td></td></tr>
+                    <tr><td>2025-10-08</td><td></td><td></td><td>660</td><td></td><td></td></tr>
+                    <tr><td>2025-10-09</td><td></td><td></td><td>538</td><td></td><td></td></tr>
+                    <tr><td>2025-10-10</td><td></td><td></td><td>300</td><td></td><td></td></tr>
+                    <tr><td>2025-10-11</td><td>1250</td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td>2025-10-13</td><td></td><td>290</td><td></td><td></td><td>115</td></tr>
+                    <tr><td>2025-10-14</td><td>140</td><td></td><td></td><td>325</td><td></td></tr>
+                    <tr><td>2025-10-15</td><td></td><td></td><td></td><td></td><td>135</td></tr>
+                    <tr><td>2025-10-17</td><td></td><td>1008</td><td></td><td></td><td></td></tr>
+                    <tr><td>2025-10-19</td><td></td><td>270</td><td></td><td>995</td><td>50</td></tr>
+                    <tr><td>2025-10-20</td><td></td><td>1000</td><td>60</td><td></td><td></td></tr>
+                    <tr><td>2025-10-21</td><td></td><td></td><td>48</td><td></td><td>668</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animated Number Counters
+            const counters = document.querySelectorAll('.value');
+            const speed = 200; 
+
+            const animateCounters = () => {
+                counters.forEach(counter => {
+                    const updateCount = () => {
+                        const target = +counter.getAttribute('data-target');
+                        const count = +counter.innerText;
+                        const inc = target / speed;
+
+                        if (count < target) {
+                            let newCount = (target.toString().includes('.')) 
+                                ? parseFloat(count + inc).toFixed(2) 
+                                : Math.ceil(count + inc);
+                            counter.innerText = newCount;
+                            setTimeout(updateCount, 10);
+                        } else {
+                            counter.innerText = target;
+                        }
+                    };
+                    updateCount();
+                });
+            };
+
+            // Chart.js Configuration
+            const chartFontColor = 'rgba(224, 224, 224, 0.8)';
+            Chart.defaults.color = chartFontColor;
+            Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+            Chart.defaults.font.family = "'Poppins', sans-serif";
+
+            // --- Chart 1: Total Meals per Person ---
+            const mealsCtx = document.getElementById('mealsChart').getContext('2d');
+            const mealsChart = new Chart(mealsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Karim', 'Hasim', 'Sohel', 'Pappu', 'Mehedi'],
+                    datasets: [{
+                        label: 'Total Meals',
+                        data: [44, 40, 39, 31, 26],
+                        backgroundColor: ['rgba(74, 144, 226, 0.7)','rgba(80, 200, 120, 0.7)','rgba(245, 166, 35, 0.7)','rgba(233, 69, 96, 0.7)','rgba(126, 87, 194, 0.7)'],
+                        borderColor: ['rgba(74, 144, 226, 1)','rgba(80, 200, 120, 1)','rgba(245, 166, 35, 1)','rgba(233, 69, 96, 1)','rgba(126, 87, 194, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Total Meals per Person', font: { size: 16 }, padding: { bottom: 20 } },
+                        legend: { display: false }
+                    },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } } }
+                }
+            });
+
+            // --- Chart 2: Bazar Contribution ---
+            const bazarCtx = document.getElementById('bazarChart').getContext('2d');
+            const bazarChart = new Chart(bazarCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hasim', 'Sohel', 'Pappu', 'Mehedi', 'Karim'],
+                    datasets: [{
+                        label: 'Bazar Contribution (Deposit)',
+                        data: [2568, 2501, 1886, 1890, 1530],
+                        backgroundColor: ['rgba(80, 200, 120, 0.8)','rgba(245, 166, 35, 0.8)','rgba(233, 69, 96, 0.8)','rgba(74, 144, 226, 0.8)','rgba(126, 87, 194, 0.8)'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Bazar Contribution (Deposit)', font: { size: 16 }, padding: { bottom: 20 } },
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+
+            // Intersection Observer to trigger animations on scroll
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (entry.target.classList.contains('summary-grid')) {
+                           animateCounters();
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.summary-grid, .card-container').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
