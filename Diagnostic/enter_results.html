@@ -9,26 +9,44 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Kalpurush Font from Mateen CDN -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/@fontsource/kalpurush@4.5.0/index.css"
       rel="stylesheet"
     />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
+    <!-- SweetAlert2 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
 
     <style>
       body {
         background-color: #f8f9fa;
-        font-family: "Noto Sans Bengali", sans-serif;
+        font-family: "Kalpurush", "SolaimanLipi", "Noto Sans Bengali",
+          sans-serif;
+        overflow-x: hidden;
       }
+
       .navbar {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
       }
+
       .navbar-brand {
         font-weight: 700;
+        transition: transform 0.3s ease;
       }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
       .sidebar {
         height: 100vh;
         position: fixed;
@@ -36,64 +54,379 @@
         left: 0;
         width: 250px;
         padding-top: 56px;
-        background-color: #343a40;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
         color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
       }
+
       .sidebar .nav-link {
         color: #adb5bd;
-        padding: 10px 15px;
+        padding: 12px 20px;
         display: flex;
         align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
       }
+
+      .sidebar .nav-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .sidebar .nav-link:hover::before {
+        left: 100%;
+      }
+
       .sidebar .nav-link i {
-        margin-right: 10px;
+        margin-right: 12px;
+        transition: transform 0.3s ease;
       }
+
       .sidebar .nav-link:hover,
       .sidebar .nav-link.active {
         color: #fff;
-        background-color: #495057;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
       }
+
+      .sidebar .nav-link:hover i,
+      .sidebar .nav-link.active i {
+        transform: scale(1.2);
+      }
+
       .main-content {
         margin-left: 250px;
         padding: 20px;
         padding-top: 76px;
+        animation: fadeInUp 0.6s ease;
       }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       .result-form-container {
         background: #fff;
         padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        animation: slideInUp 0.6s ease;
+        border-top: 4px solid #007bff;
       }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       .patient-info {
         border-bottom: 1px solid #dee2e6;
         padding-bottom: 15px;
         margin-bottom: 25px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #28a745;
+      }
+
+      .patient-info .row {
+        margin: 0;
+      }
+
+      .patient-info .col-md-6 {
+        padding: 5px 15px;
+        font-size: 0.95rem;
+      }
+
+      .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      .result-status {
+        font-weight: 600;
+        text-align: center;
+        padding: 8px 12px;
+        border-radius: 8px;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .result-status.text-success {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 2px solid #28a745;
+      }
+
+      .result-status.text-warning {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+        border: 2px solid #ffc107;
+      }
+
+      .result-status.text-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 2px solid #dc3545;
+      }
+
+      .test-parameter-row {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+      }
+
+      .test-parameter-row:hover {
+        background: #e9ecef;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .professional-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .professional-header h3 {
+        margin: 0;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .badge-status {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 20px;
+      }
+
+      .btn-group-professional {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-professional {
+        min-width: 140px;
+        height: 45px;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-professional:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Mobile Hamburger Menu */
+      .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1051;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 18px;
+      }
+
+      .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
       }
 
       @media (max-width: 768px) {
-        .sidebar {
-          width: 100%;
-          height: auto;
-          position: relative;
+        .mobile-menu-toggle {
+          display: block;
         }
+
+        .navbar-toggler {
+          order: 2;
+        }
+
+        .navbar-brand {
+          order: 1;
+          margin-left: 50px;
+          font-size: 1rem;
+        }
+
+        .navbar-nav {
+          order: 3;
+        }
+
+        .sidebar {
+          width: 280px;
+          height: 100vh;
+          position: fixed;
+          top: 0;
+          left: 0;
+          transform: translateX(-100%);
+          z-index: 1050;
+          transition: transform 0.3s ease;
+          overflow-y: auto;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
         .main-content {
           margin-left: 0;
+          padding: 60px 15px 20px 15px;
+        }
+
+        .result-form-container {
+          padding: 20px;
+        }
+
+        .patient-info {
+          padding-bottom: 10px;
+          margin-bottom: 15px;
+        }
+
+        h2 {
+          font-size: 1.3rem;
+          margin-bottom: 20px !important;
+        }
+
+        h5 {
+          font-size: 1.1rem;
+        }
+
+        .form-control,
+        .form-select,
+        .form-check-input {
+          font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        .btn {
+          font-size: 1rem;
+          padding: 12px 24px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .navbar-brand {
+          font-size: 0.9rem;
+          margin-left: 45px;
+        }
+
+        .main-content {
+          padding: 60px 10px 20px 10px;
+        }
+
+        .result-form-container {
+          padding: 15px;
+        }
+
+        h2 {
+          font-size: 1.2rem;
+        }
+
+        .btn {
+          width: 100%;
+          font-size: 0.9rem;
+        }
+
+        .container-fluid {
+          padding: 0 5px;
         }
       }
     </style>
   </head>
   <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand text-primary" href="dashboard.html"
-          >ডায়াগনস্টিক সেন্টার</a
+          >ডায়াগনস্টিক সেন্টার</a
         >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#">প্রোফাইল</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">লগ আউট</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <nav class="nav flex-column">
         <a class="nav-link" href="dashboard.html"
           ><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড</a
@@ -120,117 +453,160 @@
     <main class="main-content">
       <div class="container-fluid">
         <div class="result-form-container">
-          <h3 class="text-center text-primary mb-4">
-            টেস্টের ফলাফল ইনপুট করুন
-          </h3>
+          <div class="professional-header">
+            <h3>
+              <i class="bi bi-clipboard-data"></i>
+              টেস্টের ফলাফল ইনপুট সিস্টেম
+            </h3>
+            <p class="mb-0">প্রফেশনাল ল্যাবরেটরি রেজাল্ট এন্ট্রি সিস্টেম</p>
+          </div>
 
-          <!-- Patient Info -->
-          <div class="patient-info">
-            <div class="row">
-              <div class="col-md-6">
-                <strong>রোগীর নাম:</strong> মোঃ আব্দুর রহিম
-              </div>
-              <div class="col-md-6">
-                <strong>বয়স/লিঙ্গ:</strong> ৪০ বছর / পুরুষ
-              </div>
-              <div class="col-md-6"><strong>টেস্ট আইডি:</strong> T-101</div>
-              <div class="col-md-6"><strong>তারিখ:</strong> ০১/১১/২০২৫</div>
+          <!-- Patient Selection -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="patientSelect" class="form-label"
+                >রোগী নির্বাচন করুন</label
+              >
+              <select class="form-select" id="patientSelect">
+                <option value="">রোগী নির্বাচন করুন...</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="testSelect" class="form-label"
+                >টেস্ট নির্বাচন করুন</label
+              >
+              <select class="form-select" id="testSelect">
+                <option value="">প্রথমে রোগী নির্বাচন করুন</option>
+              </select>
             </div>
           </div>
 
-          <h4>টেস্টের নাম: Complete Blood Count (CBC)</h4>
-          <hr />
+          <!-- Patient Info -->
+          <div class="patient-info" id="patientInfo" style="display: none">
+            <div class="row">
+              <div class="col-md-6">
+                <strong>রোগীর নাম:</strong> <span id="patientName">-</span>
+              </div>
+              <div class="col-md-6">
+                <strong>বয়স/লিঙ্গ:</strong>
+                <span id="patientAgeGender">-</span>
+              </div>
+              <div class="col-md-6">
+                <strong>টেস্ট আইডি:</strong> <span id="testId">-</span>
+              </div>
+              <div class="col-md-6">
+                <strong>তারিখ:</strong> <span id="testDate">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="testNameHeader" style="display: none">
+            <h4 id="testName">টেস্টের নাম:</h4>
+            <hr />
+          </div>
 
           <!-- Result Form -->
-          <form id="resultForm">
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label">হিমোগ্লোবিন (Hemoglobin)</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="যেমন: 14.5"
-                />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">ইউনিট</label>
-                <input type="text" class="form-control" value="g/dL" readonly />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">রেফারেন্স রেঞ্জ</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  value="13.5 - 17.5"
-                  readonly
-                />
-              </div>
-            </div>
+          <div id="resultFormContainer" style="display: none">
+            <form id="resultForm">
+              <!-- Test Parameters will be dynamically loaded here -->
+              <div id="testParameters"></div>
 
-            <div class="row g-3 mt-2">
-              <div class="col-md-4">
-                <label class="form-label">টি.সি (Total WBC Count)</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="যেমন: 7500"
-                />
+              <!-- Additional Comments -->
+              <div class="row g-3 mt-4">
+                <div class="col-12">
+                  <label class="form-label">অতিরিক্ত মন্তব্য (ঐচ্ছিক)</label>
+                  <textarea
+                    class="form-control"
+                    id="additionalComments"
+                    rows="3"
+                    placeholder="কোনো বিশেষ মন্তব্য বা পরামর্শ লিখুন..."
+                  ></textarea>
+                </div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">ইউনিট</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  value="/cumm"
-                  readonly
-                />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">রেফারেন্স রেঞ্জ</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  value="4000 - 11000"
-                  readonly
-                />
-              </div>
-            </div>
 
-            <div class="row g-3 mt-2">
-              <div class="col-md-4">
-                <label class="form-label">প্লাটিলেট (Platelet Count)</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="যেমন: 250000"
-                />
+              <!-- Status Selection -->
+              <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                  <label class="form-label">রিপোর্ট স্ট্যাটাস</label>
+                  <select class="form-select" id="reportStatus" required>
+                    <option value="">স্ট্যাটাস নির্বাচন করুন</option>
+                    <option value="প্রাথমিক">প্রাথমিক ফলাফল</option>
+                    <option value="চূড়ান্ত">চূড়ান্ত ফলাফল</option>
+                    <option value="পর্যালোচনা">পর্যালোচনার জন্য</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">প্রযুক্তিবিদের নাম</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="technicianName"
+                    placeholder="প্রযুক্তিবিদের নাম লিখুন"
+                    required
+                  />
+                </div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">ইউনিট</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  value="/cumm"
-                  readonly
-                />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">রেফারেন্স রেঞ্জ</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  value="150000 - 450000"
-                  readonly
-                />
-              </div>
-            </div>
 
-            <div class="mt-4 text-center">
-              <button type="submit" class="btn btn-success btn-lg">
-                ফলাফল সংরক্ষণ করুন
-              </button>
+              <!-- Action Buttons -->
+              <div class="row mt-5">
+                <div class="col-12">
+                  <div class="btn-group-professional">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary btn-professional"
+                      id="saveDraftBtn"
+                    >
+                      <i class="bi bi-save"></i> ড্রাফট সংরক্ষণ
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-warning btn-professional"
+                      id="previewBtn"
+                    >
+                      <i class="bi bi-eye"></i> প্রিভিউ দেখুন
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-success btn-professional"
+                    >
+                      <i class="bi bi-check-circle"></i> চূড়ান্ত সংরক্ষণ
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-professional"
+                      id="clearFormBtn"
+                    >
+                      <i class="bi bi-arrow-clockwise"></i> ফর্ম রিসেট
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Results History Section -->
+          <div class="mt-5" id="resultsHistorySection" style="display: none">
+            <h5 class="text-primary">
+              <i class="bi bi-clock-history"></i> এই রোগীর পূর্ববর্তী ফলাফল
+            </h5>
+            <div class="table-responsive">
+              <table
+                class="table table-striped table-hover"
+                id="resultsHistoryTable"
+              >
+                <thead class="table-dark">
+                  <tr>
+                    <th>তারিখ</th>
+                    <th>টেস্টের নাম</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>প্রযুক্তিবিদ</th>
+                    <th>অ্যাকশন</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsHistoryBody"></tbody>
+              </table>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </main>
@@ -238,16 +614,1142 @@
     <!-- Bootstrap & jQuery JS CDN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
 
     <script>
+      // Sample test templates for different types of tests
+      const testTemplates = {
+        CBC: {
+          name: "Complete Blood Count (CBC)",
+          parameters: [
+            {
+              name: "হিমোগ্লোবিন (Hemoglobin)",
+              unit: "g/dL",
+              refRange: "13.5 - 17.5",
+              type: "number",
+            },
+            {
+              name: "টি.সি (Total WBC Count)",
+              unit: "/cumm",
+              refRange: "4000 - 11000",
+              type: "number",
+            },
+            {
+              name: "প্লাটিলেট (Platelet Count)",
+              unit: "/cumm",
+              refRange: "150000 - 450000",
+              type: "number",
+            },
+            {
+              name: "হেমাটোক্রিট (Hematocrit)",
+              unit: "%",
+              refRange: "40 - 50",
+              type: "number",
+            },
+            {
+              name: "এমসিভি (MCV)",
+              unit: "fL",
+              refRange: "80 - 100",
+              type: "number",
+            },
+          ],
+        },
+        "Lipid Profile": {
+          name: "Lipid Profile",
+          parameters: [
+            {
+              name: "মোট কোলেস্টেরল (Total Cholesterol)",
+              unit: "mg/dL",
+              refRange: "<200",
+              type: "number",
+            },
+            {
+              name: "এলডিএল (LDL)",
+              unit: "mg/dL",
+              refRange: "<100",
+              type: "number",
+            },
+            {
+              name: "এইচডিএল (HDL)",
+              unit: "mg/dL",
+              refRange: ">40",
+              type: "number",
+            },
+            {
+              name: "ট্রাইগ্লিসারাইড (Triglyceride)",
+              unit: "mg/dL",
+              refRange: "<150",
+              type: "number",
+            },
+          ],
+        },
+        "Liver Function": {
+          name: "Liver Function Test",
+          parameters: [
+            {
+              name: "এসজিপিটি (SGPT/ALT)",
+              unit: "U/L",
+              refRange: "10 - 40",
+              type: "number",
+            },
+            {
+              name: "এসজিওটি (SGOT/AST)",
+              unit: "U/L",
+              refRange: "10 - 40",
+              type: "number",
+            },
+            {
+              name: "বিলিরুবিন (Total Bilirubin)",
+              unit: "mg/dL",
+              refRange: "0.2 - 1.2",
+              type: "number",
+            },
+            {
+              name: "অ্যালকালাইন ফসফেটেজ (ALP)",
+              unit: "U/L",
+              refRange: "44 - 147",
+              type: "number",
+            },
+          ],
+        },
+        "Kidney Function": {
+          name: "Kidney Function Test",
+          parameters: [
+            {
+              name: "ক্রিয়েটিনিন (Creatinine)",
+              unit: "mg/dL",
+              refRange: "0.6 - 1.2",
+              type: "number",
+            },
+            {
+              name: "ইউরিয়া (Urea)",
+              unit: "mg/dL",
+              refRange: "20 - 40",
+              type: "number",
+            },
+            {
+              name: "ইউরিক অ্যাসিড (Uric Acid)",
+              unit: "mg/dL",
+              refRange: "3.5 - 7.2",
+              type: "number",
+            },
+          ],
+        },
+        "Thyroid Function": {
+          name: "Thyroid Function Test",
+          parameters: [
+            {
+              name: "টিএসএইচ (TSH)",
+              unit: "mIU/L",
+              refRange: "0.4 - 4.0",
+              type: "number",
+            },
+            {
+              name: "এফটি৩ (FT3)",
+              unit: "pg/mL",
+              refRange: "2.3 - 4.2",
+              type: "number",
+            },
+            {
+              name: "এফটি৪ (FT4)",
+              unit: "ng/dL",
+              refRange: "0.8 - 1.8",
+              type: "number",
+            },
+          ],
+        },
+        Diabetes: {
+          name: "Diabetes Profile",
+          parameters: [
+            {
+              name: "ফাস্টিং গ্লুকোজ (Fasting Glucose)",
+              unit: "mg/dL",
+              refRange: "70 - 110",
+              type: "number",
+            },
+            {
+              name: "র‍্যান্ডম গ্লুকোজ (Random Glucose)",
+              unit: "mg/dL",
+              refRange: "<140",
+              type: "number",
+            },
+            {
+              name: "এইচবিএ১সি (HbA1c)",
+              unit: "%",
+              refRange: "<5.7",
+              type: "number",
+            },
+          ],
+        },
+        "Urine RE": {
+          name: "Urine Routine Examination",
+          parameters: [
+            {
+              name: "রং (Color)",
+              unit: "",
+              refRange: "Pale Yellow",
+              type: "text",
+            },
+            {
+              name: "স্বচ্ছতা (Appearance)",
+              unit: "",
+              refRange: "Clear",
+              type: "text",
+            },
+            {
+              name: "প্রোটিন (Protein)",
+              unit: "",
+              refRange: "Negative",
+              type: "select",
+              options: ["Negative", "Trace", "+", "++", "+++"],
+            },
+            {
+              name: "গ্লুকোজ (Glucose)",
+              unit: "",
+              refRange: "Negative",
+              type: "select",
+              options: ["Negative", "Trace", "+", "++", "+++"],
+            },
+            {
+              name: "কিটোন (Ketone)",
+              unit: "",
+              refRange: "Negative",
+              type: "select",
+              options: ["Negative", "Trace", "+", "++", "+++"],
+            },
+            {
+              name: "ইউরোবিলিনোজেন (Urobilinogen)",
+              unit: "",
+              refRange: "Normal",
+              type: "text",
+            },
+          ],
+        },
+      };
+
       $(document).ready(function () {
+        loadPatientsWithTests();
+        loadResultsData();
+        initializeDemoResults(); // Initialize demo results data
+
+        // Patient selection handler
+        $("#patientSelect").on("change", function () {
+          const selectedPatient = $(this).val();
+          if (selectedPatient) {
+            loadTestsForPatient(selectedPatient);
+            showPatientInfo(selectedPatient);
+            loadPatientHistory(selectedPatient);
+          } else {
+            $("#testSelect").html(
+              '<option value="">প্রথমে রোগী নির্বাচন করুন</option>'
+            );
+            $("#patientInfo").hide();
+            $("#resultFormContainer").hide();
+            $("#resultsHistorySection").hide();
+          }
+        });
+
+        // Test selection handler
+        $("#testSelect").on("change", function () {
+          const selectedTest = $(this).val();
+          if (selectedTest) {
+            loadTestTemplate(selectedTest);
+            $("#resultFormContainer").show();
+            $("#testNameHeader").show();
+          } else {
+            $("#resultFormContainer").hide();
+            $("#testNameHeader").hide();
+          }
+        });
+
+        // Form submission
         $("#resultForm").on("submit", function (e) {
           e.preventDefault();
-          alert("ফলাফল সফলভাবে সংরক্ষণ করা হয়েছে!");
-          // Redirect back to the manage tests page
-          window.location.href = "manage_tests.html";
+          saveResults();
+        });
+
+        // Save draft button
+        $("#saveDraftBtn").on("click", function () {
+          saveDraft();
+        });
+
+        // Preview button
+        $("#previewBtn").on("click", function () {
+          previewResults();
+        });
+
+        // Clear form button
+        $("#clearFormBtn").on("click", function () {
+          clearForm();
+        });
+
+        // Mobile menu functionality
+        $("#mobileMenuToggle").on("click", function () {
+          $("#sidebar").toggleClass("show");
+          $("#mobileOverlay").toggle();
+        });
+
+        $("#mobileOverlay").on("click", function () {
+          $("#sidebar").removeClass("show");
+          $("#mobileOverlay").hide();
+        });
+
+        $(".sidebar .nav-link").on("click", function () {
+          if (window.innerWidth <= 768) {
+            $("#sidebar").removeClass("show");
+            $("#mobileOverlay").hide();
+          }
+        });
+
+        $(window).on("resize", function () {
+          if (window.innerWidth > 768) {
+            $("#sidebar").removeClass("show");
+            $("#mobileOverlay").hide();
+          }
         });
       });
+
+      function loadPatientsWithTests() {
+        try {
+          let testsData = JSON.parse(localStorage.getItem("testsData")) || [];
+          let patientsData =
+            JSON.parse(localStorage.getItem("patientsData")) || [];
+
+          // Initialize with demo data if empty
+          if (patientsData.length === 0) {
+            patientsData = initializeDemoPatients();
+            localStorage.setItem("patientsData", JSON.stringify(patientsData));
+          }
+
+          if (testsData.length === 0) {
+            testsData = initializeDemoTests();
+            localStorage.setItem("testsData", JSON.stringify(testsData));
+          }
+
+          // Get patients who have pending tests
+          const pendingTests = testsData.filter(
+            (test) =>
+              test.status === "নমুনা সংগ্রহ সম্পন্ন" ||
+              test.status === "প্রক্রিয়াধীন"
+          );
+
+          let options = '<option value="">রোগী নির্বাচন করুন...</option>';
+          const uniquePatients = [
+            ...new Set(pendingTests.map((test) => test.patientId)),
+          ];
+
+          uniquePatients.forEach((patientId) => {
+            const patient = patientsData.find((p) => p.id === patientId);
+            if (patient) {
+              options += `<option value="${patient.id}">${patient.name} - ${patient.phone}</option>`;
+            }
+          });
+
+          $("#patientSelect").html(options);
+        } catch (error) {
+          console.error("Error loading patients:", error);
+          Swal.fire({
+            title: "ত্রুটি!",
+            text: "রোগীর তথ্য লোড করতে সমস্যা হয়েছে।",
+            icon: "error",
+            confirmButtonText: "ঠিক আছে",
+          });
+        }
+      }
+
+      function loadTestsForPatient(patientId) {
+        try {
+          const testsData = JSON.parse(localStorage.getItem("testsData")) || [];
+          const pendingTests = testsData.filter(
+            (test) =>
+              test.patientId === patientId &&
+              (test.status === "নমুনা সংগ্রহ সম্পন্ন" ||
+                test.status === "প্রক্রিয়াধীন")
+          );
+
+          let options = '<option value="">টেস্ট নির্বাচন করুন...</option>';
+          pendingTests.forEach((test) => {
+            options += `<option value="${test.id}">${test.testName} - ${test.id}</option>`;
+          });
+
+          $("#testSelect").html(options);
+        } catch (error) {
+          console.error("Error loading tests:", error);
+        }
+      }
+
+      function showPatientInfo(patientId) {
+        try {
+          const patientsData =
+            JSON.parse(localStorage.getItem("patientsData")) || [];
+          const patient = patientsData.find((p) => p.id === patientId);
+
+          if (patient) {
+            $("#patientName").text(patient.name);
+            $("#patientAgeGender").text(
+              `${patient.age} বছর / ${patient.gender}`
+            );
+            $("#patientInfo").show();
+          }
+        } catch (error) {
+          console.error("Error showing patient info:", error);
+        }
+      }
+
+      function loadTestTemplate(testId) {
+        try {
+          const testsData = JSON.parse(localStorage.getItem("testsData")) || [];
+          const test = testsData.find((t) => t.id === testId);
+
+          if (test) {
+            $("#testId").text(test.id);
+            $("#testDate").text(test.date);
+            $("#testName").text(`টেস্টের নাম: ${test.testName}`);
+
+            // Load test template based on test name
+            const templateKey = getTemplateKey(test.testName);
+            const template = testTemplates[templateKey];
+
+            if (template) {
+              generateTestForm(template);
+            } else {
+              generateGenericForm(test.testName);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading test template:", error);
+        }
+      }
+
+      function getTemplateKey(testName) {
+        const testNameLower = testName.toLowerCase();
+        if (
+          testNameLower.includes("cbc") ||
+          testNameLower.includes("complete blood count")
+        )
+          return "CBC";
+        if (testNameLower.includes("lipid")) return "Lipid Profile";
+        if (testNameLower.includes("liver")) return "Liver Function";
+        if (testNameLower.includes("kidney")) return "Kidney Function";
+        if (testNameLower.includes("thyroid")) return "Thyroid Function";
+        if (
+          testNameLower.includes("diabetes") ||
+          testNameLower.includes("glucose")
+        )
+          return "Diabetes";
+        if (testNameLower.includes("urine")) return "Urine RE";
+        return null;
+      }
+
+      function generateTestForm(template) {
+        let formHtml = "";
+
+        template.parameters.forEach((param, index) => {
+          formHtml += `<div class="test-parameter-row">`;
+          formHtml += `<div class="row g-3">`;
+          formHtml += `<div class="col-md-4">`;
+          formHtml += `<label class="form-label fw-semibold">${param.name}</label>`;
+
+          if (param.type === "select") {
+            formHtml += `<select class="form-control" data-param="${index}" required>`;
+            formHtml += `<option value="">নির্বাচন করুন</option>`;
+            param.options.forEach((option) => {
+              formHtml += `<option value="${option}">${option}</option>`;
+            });
+            formHtml += `</select>`;
+          } else if (param.type === "text") {
+            formHtml += `<input type="text" class="form-control" data-param="${index}" placeholder="${param.refRange}" required />`;
+          } else {
+            formHtml += `<input type="number" step="0.01" class="form-control" data-param="${index}" placeholder="যেমন: ${
+              param.refRange.split(" - ")[0] ||
+              param.refRange.replace("<", "").replace(">", "")
+            }" required />`;
+          }
+
+          formHtml += `</div>`;
+          formHtml += `<div class="col-md-3">`;
+          formHtml += `<label class="form-label fw-semibold">ইউনিট</label>`;
+          formHtml += `<input type="text" class="form-control bg-light" value="${param.unit}" readonly />`;
+          formHtml += `</div>`;
+          formHtml += `<div class="col-md-3">`;
+          formHtml += `<label class="form-label fw-semibold">রেফারেন্স রেঞ্জ</label>`;
+          formHtml += `<input type="text" class="form-control bg-light" value="${param.refRange}" readonly />`;
+          formHtml += `</div>`;
+          formHtml += `<div class="col-md-2">`;
+          formHtml += `<label class="form-label fw-semibold">স্ট্যাটাস</label>`;
+          formHtml += `<div class="result-status bg-light" data-param="${index}">অপেক্ষমান</div>`;
+          formHtml += `</div>`;
+          formHtml += `</div>`;
+          formHtml += `</div>`;
+        });
+
+        $("#testParameters").html(formHtml);
+
+        // Add change event listeners for auto-calculation
+        $("[data-param]").on("input change", function () {
+          const paramIndex = $(this).data("param");
+          const value = $(this).val();
+          const param = template.parameters[paramIndex];
+
+          if (value && param.type === "number") {
+            const status = calculateStatus(value, param.refRange);
+            const statusElement = $(
+              `.result-status[data-param="${paramIndex}"]`
+            );
+
+            statusElement
+              .text(status)
+              .removeClass("text-success text-warning text-danger bg-light");
+
+            if (status === "স্বাভাবিক") {
+              statusElement.addClass("text-success");
+            } else if (status === "সীমান্তরেখা") {
+              statusElement.addClass("text-warning");
+            } else {
+              statusElement.addClass("text-danger");
+            }
+
+            // Add visual feedback animation
+            statusElement.addClass("animate__animated animate__pulse");
+            setTimeout(() => {
+              statusElement.removeClass("animate__animated animate__pulse");
+            }, 1000);
+          } else if (value && param.type === "select") {
+            const statusElement = $(
+              `.result-status[data-param="${paramIndex}"]`
+            );
+            if (value === "Negative" || value === "Normal") {
+              statusElement
+                .text("স্বাভাবিক")
+                .removeClass("text-warning text-danger bg-light")
+                .addClass("text-success");
+            } else {
+              statusElement
+                .text("অস্বাভাবিক")
+                .removeClass("text-success text-warning bg-light")
+                .addClass("text-danger");
+            }
+          }
+        });
+      }
+
+      function generateGenericForm(testName) {
+        const formHtml = `
+          <div class="row g-3 mt-2">
+            <div class="col-12">
+              <label class="form-label">টেস্টের ফলাফল</label>
+              <textarea class="form-control" id="genericResult" rows="4" placeholder="${testName} এর বিস্তারিত ফলাফল লিখুন..." required></textarea>
+            </div>
+          </div>
+        `;
+        $("#testParameters").html(formHtml);
+      }
+
+      function calculateStatus(value, refRange) {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) return "-";
+
+        if (refRange.includes("-")) {
+          const [min, max] = refRange
+            .split(" - ")
+            .map((v) => parseFloat(v.trim()));
+          if (numValue >= min && numValue <= max) return "স্বাভাবিক";
+          if (numValue < min * 0.9 || numValue > max * 1.1) return "অস্বাভাবিক";
+          return "সীমান্তরেখা";
+        } else if (refRange.startsWith("<")) {
+          const maxValue = parseFloat(refRange.replace("<", "").trim());
+          if (numValue < maxValue) return "স্বাভাবিক";
+          if (numValue > maxValue * 1.1) return "অস্বাভাবিক";
+          return "সীমান্তরেখা";
+        } else if (refRange.startsWith(">")) {
+          const minValue = parseFloat(refRange.replace(">", "").trim());
+          if (numValue > minValue) return "স্বাভাবিক";
+          if (numValue < minValue * 0.9) return "অস্বাভাবিক";
+          return "সীমান্তরেখা";
+        }
+
+        return "-";
+      }
+
+      function saveResults() {
+        if (!validateForm()) return;
+
+        Swal.fire({
+          title: "নিশ্চিত করুন",
+          text: "আপনি কি এই ফলাফল চূড়ান্তভাবে সংরক্ষণ করতে চান?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "হ্যাঁ, সংরক্ষণ করুন",
+          cancelButtonText: "বাতিল",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const resultData = collectFormData();
+            resultData.status = "চূড়ান্ত";
+            resultData.savedAt = new Date().toLocaleString("bn-BD");
+
+            saveResultData(resultData);
+            updateTestStatus(resultData.testId, "সম্পন্ন");
+
+            Swal.fire({
+              title: "সফল!",
+              text: "ফলাফল সফলভাবে সংরক্ষণ করা হয়েছে!",
+              icon: "success",
+              confirmButtonText: "ঠিক আছে",
+            }).then(() => {
+              window.location.href = "manage_tests.html";
+            });
+          }
+        });
+      }
+
+      function saveDraft() {
+        const resultData = collectFormData();
+        resultData.status = "ড্রাফট";
+        resultData.savedAt = new Date().toLocaleString("bn-BD");
+
+        saveResultData(resultData);
+
+        Swal.fire({
+          title: "সংরক্ষিত!",
+          text: "ড্রাফট সফলভাবে সংরক্ষণ করা হয়েছে!",
+          icon: "success",
+          confirmButtonText: "ঠিক আছে",
+        });
+      }
+
+      function previewResults() {
+        if (!validateForm()) return;
+
+        const resultData = collectFormData();
+        let previewHtml = `
+          <div class="text-start">
+            <h5>রোগীর তথ্য:</h5>
+            <p><strong>নাম:</strong> ${$("#patientName").text()}<br>
+            <strong>বয়স/লিঙ্গ:</strong> ${$("#patientAgeGender").text()}<br>
+            <strong>টেস্ট আইডি:</strong> ${$("#testId").text()}</p>
+            
+            <h5>টেস্টের ফলাফল:</h5>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>প্যারামিটার</th>
+                    <th>ফলাফল</th>
+                    <th>স্ট্যাটাস</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+
+        resultData.parameters.forEach((param) => {
+          previewHtml += `
+            <tr>
+              <td>${param.name}</td>
+              <td>${param.value} ${param.unit}</td>
+              <td><span class="badge ${
+                param.status === "স্বাভাবিক"
+                  ? "bg-success"
+                  : param.status === "সীমান্তরেখা"
+                  ? "bg-warning"
+                  : "bg-danger"
+              }">${param.status}</span></td>
+            </tr>
+          `;
+        });
+
+        previewHtml += `
+                </tbody>
+              </table>
+            </div>
+        `;
+
+        if (resultData.comments) {
+          previewHtml += `<h5>মন্তব্য:</h5><p>${resultData.comments}</p>`;
+        }
+
+        previewHtml += `</div>`;
+
+        Swal.fire({
+          title: "ফলাফল প্রিভিউ",
+          html: previewHtml,
+          width: "800px",
+          confirmButtonText: "ঠিক আছে",
+        });
+      }
+
+      function clearForm() {
+        Swal.fire({
+          title: "নিশ্চিত করুন",
+          text: "আপনি কি ফর্মটি রিসেট করতে চান? সব তথ্য মুছে যাবে।",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "হ্যাঁ, রিসেট করুন",
+          cancelButtonText: "বাতিল",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById("resultForm").reset();
+            $(".result-status")
+              .text("-")
+              .removeClass("text-success text-warning text-danger");
+          }
+        });
+      }
+
+      function validateForm() {
+        const requiredFields = $("#resultForm [required]");
+        let isValid = true;
+
+        requiredFields.each(function () {
+          if (!$(this).val().trim()) {
+            $(this).addClass("is-invalid");
+            isValid = false;
+          } else {
+            $(this).removeClass("is-invalid");
+          }
+        });
+
+        if (!isValid) {
+          Swal.fire({
+            title: "অসম্পূর্ণ!",
+            text: "দয়া করে সব প্রয়োজনীয় ক্ষেত্র পূরণ করুন।",
+            icon: "warning",
+            confirmButtonText: "ঠিক আছে",
+          });
+        }
+
+        return isValid;
+      }
+
+      function collectFormData() {
+        const testId = $("#testSelect").val();
+        const patientId = $("#patientSelect").val();
+        const parameters = [];
+
+        $("#testParameters [data-param]").each(function () {
+          const paramIndex = $(this).data("param");
+          const value = $(this).val();
+          const status = $(`.result-status[data-param="${paramIndex}"]`).text();
+
+          // Get parameter details from the form
+          const row = $(this).closest(".row");
+          const name = row.find("label").first().text();
+          const unit = row.find("input[readonly]").first().val();
+
+          parameters.push({
+            name: name,
+            value: value,
+            unit: unit,
+            status: status,
+          });
+        });
+
+        // Handle generic result if present
+        if ($("#genericResult").length) {
+          parameters.push({
+            name: "ফলাফল",
+            value: $("#genericResult").val(),
+            unit: "",
+            status: "-",
+          });
+        }
+
+        return {
+          id: "RES-" + Date.now(),
+          testId: testId,
+          patientId: patientId,
+          parameters: parameters,
+          comments: $("#additionalComments").val(),
+          reportStatus: $("#reportStatus").val(),
+          technicianName: $("#technicianName").val(),
+          date: new Date().toLocaleDateString("bn-BD"),
+        };
+      }
+
+      function saveResultData(resultData) {
+        try {
+          let resultsData =
+            JSON.parse(localStorage.getItem("resultsData")) || [];
+
+          // Remove existing draft if any
+          resultsData = resultsData.filter(
+            (result) =>
+              !(
+                result.testId === resultData.testId &&
+                result.status === "ড্রাফট"
+              )
+          );
+
+          resultsData.push(resultData);
+          localStorage.setItem("resultsData", JSON.stringify(resultsData));
+        } catch (error) {
+          console.error("Error saving result data:", error);
+        }
+      }
+
+      function updateTestStatus(testId, newStatus) {
+        try {
+          let testsData = JSON.parse(localStorage.getItem("testsData")) || [];
+          const testIndex = testsData.findIndex((test) => test.id === testId);
+
+          if (testIndex !== -1) {
+            testsData[testIndex].status = newStatus;
+            testsData[testIndex].resultDate = new Date().toLocaleDateString(
+              "bn-BD"
+            );
+            localStorage.setItem("testsData", JSON.stringify(testsData));
+          }
+        } catch (error) {
+          console.error("Error updating test status:", error);
+        }
+      }
+
+      function loadResultsData() {
+        // Initialize results data if not exists
+        if (!localStorage.getItem("resultsData")) {
+          localStorage.setItem("resultsData", JSON.stringify([]));
+        }
+      }
+
+      function loadPatientHistory(patientId) {
+        try {
+          const resultsData =
+            JSON.parse(localStorage.getItem("resultsData")) || [];
+          const testsData = JSON.parse(localStorage.getItem("testsData")) || [];
+
+          const patientResults = resultsData.filter(
+            (result) => result.patientId === patientId
+          );
+
+          if (patientResults.length > 0) {
+            let historyHtml = "";
+            patientResults.forEach((result) => {
+              const test = testsData.find((t) => t.id === result.testId);
+              const testName = test ? test.testName : "অজানা টেস্ট";
+
+              historyHtml += `
+                <tr>
+                  <td>${result.date}</td>
+                  <td>${testName}</td>
+                  <td><span class="badge ${
+                    result.status === "চূড়ান্ত" ? "bg-success" : "bg-warning"
+                  }">${result.status}</span></td>
+                  <td>${result.technicianName || "-"}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewResult('${
+                      result.id
+                    }')">
+                      <i class="bi bi-eye"></i> দেখুন
+                    </button>
+                  </td>
+                </tr>
+              `;
+            });
+
+            $("#resultsHistoryBody").html(historyHtml);
+            $("#resultsHistorySection").show();
+          } else {
+            $("#resultsHistorySection").hide();
+          }
+        } catch (error) {
+          console.error("Error loading patient history:", error);
+        }
+      }
+
+      function viewResult(resultId) {
+        try {
+          const resultsData =
+            JSON.parse(localStorage.getItem("resultsData")) || [];
+          const result = resultsData.find((r) => r.id === resultId);
+
+          if (result) {
+            let resultHtml = `
+              <div class="text-start">
+                <h6>টেস্ট আইডি: ${result.testId}</h6>
+                <p><strong>তারিখ:</strong> ${result.date}<br>
+                <strong>প্রযুক্তিবিদ:</strong> ${result.technicianName}</p>
+                
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>প্যারামিটার</th>
+                        <th>ফলাফল</th>
+                        <th>স্ট্যাটাস</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            result.parameters.forEach((param) => {
+              resultHtml += `
+                <tr>
+                  <td>${param.name}</td>
+                  <td>${param.value} ${param.unit}</td>
+                  <td><span class="badge ${
+                    param.status === "স্বাভাবিক"
+                      ? "bg-success"
+                      : param.status === "সীমান্তরেখা"
+                      ? "bg-warning"
+                      : "bg-danger"
+                  }">${param.status}</span></td>
+                </tr>
+              `;
+            });
+
+            resultHtml += `</tbody></table></div>`;
+
+            if (result.comments) {
+              resultHtml += `<p><strong>মন্তব্য:</strong> ${result.comments}</p>`;
+            }
+
+            resultHtml += `</div>`;
+
+            Swal.fire({
+              title: "পূর্ববর্তী ফলাফল",
+              html: resultHtml,
+              width: "800px",
+              confirmButtonText: "ঠিক আছে",
+            });
+          }
+        } catch (error) {
+          console.error("Error viewing result:", error);
+        }
+      }
+
+      // Demo Data Initialization Functions
+      function initializeDemoPatients() {
+        return [
+          {
+            id: "P-001",
+            name: "মোহাম্মদ আব্দুর রহিম",
+            age: 45,
+            gender: "পুরুষ",
+            phone: "01712345678",
+            address: "ধানমন্ডি, ঢাকা",
+            email: "rahimbd@email.com",
+            referredDoctor: "ডঃ সালমা খাতুন",
+            emergencyContact: "01812345678",
+            registrationDate: "০১/১১/২০২৫",
+          },
+          {
+            id: "P-002",
+            name: "ফাতেমা আক্তার",
+            age: 32,
+            gender: "মহিলা",
+            phone: "01823456789",
+            address: "গুলশান, ঢাকা",
+            email: "fatema.akter@email.com",
+            referredDoctor: "ডঃ মোহাম্মদ কামাল",
+            emergencyContact: "01923456789",
+            registrationDate: "০২/১১/২০২৫",
+          },
+          {
+            id: "P-003",
+            name: "আহমেদ হাসান",
+            age: 28,
+            gender: "পুরুষ",
+            phone: "01734567890",
+            address: "উত্তরা, ঢাকা",
+            email: "ahmed.hasan@email.com",
+            referredDoctor: "ডঃ রুমানা পারভীন",
+            emergencyContact: "01634567890",
+            registrationDate: "০৩/১১/২০২৫",
+          },
+          {
+            id: "P-004",
+            name: "রাশিদা বেগম",
+            age: 55,
+            gender: "মহিলা",
+            phone: "01845678901",
+            address: "বনানী, ঢাকা",
+            email: "rashida.begum@email.com",
+            referredDoctor: "ডঃ আব্দুল করিম",
+            emergencyContact: "01745678901",
+            registrationDate: "০৩/১১/২০২৫",
+          },
+          {
+            id: "P-005",
+            name: "তানভীর আহমেদ",
+            age: 35,
+            gender: "পুরুষ",
+            phone: "01956789012",
+            address: "মিরপুর, ঢাকা",
+            email: "tanvir.ahmed@email.com",
+            referredDoctor: "ডঃ নাসিরউদ্দিন",
+            emergencyContact: "01856789012",
+            registrationDate: "০৩/১১/২০২৫",
+          },
+        ];
+      }
+
+      function initializeDemoTests() {
+        return [
+          {
+            id: "T-001",
+            patientId: "P-001",
+            testName: "Complete Blood Count (CBC)",
+            price: 800,
+            date: "০১/১১/২০২৫",
+            status: "নমুনা সংগ্রহ সম্পন্ন",
+            sampleType: "রক্ত",
+            priority: "স্বাভাবিক",
+            collectedBy: "সিস্টার রহিমা",
+            collectionTime: "সকাল ৯:৩০",
+            estimatedTime: "২৪ ঘন্টা",
+          },
+          {
+            id: "T-002",
+            patientId: "P-002",
+            testName: "Lipid Profile",
+            price: 1200,
+            date: "০২/১১/২০২৫",
+            status: "প্রক্রিয়াধীন",
+            sampleType: "রক্ত",
+            priority: "স্বাভাবিক",
+            collectedBy: "সিস্টার নাসিরা",
+            collectionTime: "সকাল ৮:৪৫",
+            estimatedTime: "৬ ঘন্টা",
+          },
+          {
+            id: "T-003",
+            patientId: "P-003",
+            testName: "Liver Function Test",
+            price: 1500,
+            date: "০৩/১১/২০২৫",
+            status: "নমুনা সংগ্রহ সম্পন্ন",
+            sampleType: "রক্ত",
+            priority: "জরুরি",
+            collectedBy: "সিস্টার রহিমা",
+            collectionTime: "সকাল ১০:১৫",
+            estimatedTime: "১২ ঘন্টা",
+          },
+          {
+            id: "T-004",
+            patientId: "P-004",
+            testName: "Thyroid Function Test",
+            price: 1800,
+            date: "০৩/১১/২০২৫",
+            status: "প্রক্রিয়াধীন",
+            sampleType: "রক্ত",
+            priority: "স্বাভাবিক",
+            collectedBy: "সিস্টার নাসিরা",
+            collectionTime: "সকাল ৯:০০",
+            estimatedTime: "৮ ঘন্টা",
+          },
+          {
+            id: "T-005",
+            patientId: "P-005",
+            testName: "Diabetes Profile",
+            price: 1000,
+            date: "০৩/১১/২০২৫",
+            status: "নমুনা সংগ্রহ সম্পন্ন",
+            sampleType: "রক্ত",
+            priority: "স্বাভাবিক",
+            collectedBy: "সিস্টার রহিমা",
+            collectionTime: "সকাল ১০:৪৫",
+            estimatedTime: "৪ ঘন্টা",
+          },
+          {
+            id: "T-006",
+            patientId: "P-001",
+            testName: "Urine Routine Examination",
+            price: 400,
+            date: "০১/১১/২০২৫",
+            status: "প্রক্রিয়াধীন",
+            sampleType: "প্রস্রাব",
+            priority: "স্বাভাবিক",
+            collectedBy: "সিস্টার নাসিরা",
+            collectionTime: "সকাল ৯:৪৫",
+            estimatedTime: "২ ঘন্টা",
+          },
+          {
+            id: "T-007",
+            patientId: "P-002",
+            testName: "Kidney Function Test",
+            price: 1400,
+            date: "০২/১১/২০২৫",
+            status: "নমুনা সংগ্রহ সম্পন্ন",
+            sampleType: "রক্ত",
+            priority: "জরুরি",
+            collectedBy: "সিস্টার রহিমা",
+            collectionTime: "সকাল ৮:৩০",
+            estimatedTime: "১০ ঘন্টা",
+          },
+        ];
+      }
+
+      // Initialize demo results data
+      function initializeDemoResults() {
+        if (!localStorage.getItem("resultsData")) {
+          const demoResults = [
+            {
+              id: "RES-001",
+              testId: "T-008", // Previous completed test
+              patientId: "P-001",
+              parameters: [
+                {
+                  name: "হিমোগ্লোবিন (Hemoglobin)",
+                  value: "14.2",
+                  unit: "g/dL",
+                  status: "স্বাভাবিক",
+                },
+                {
+                  name: "টি.সি (Total WBC Count)",
+                  value: "7800",
+                  unit: "/cumm",
+                  status: "স্বাভাবিক",
+                },
+                {
+                  name: "প্লাটিলেট (Platelet Count)",
+                  value: "280000",
+                  unit: "/cumm",
+                  status: "স্বাভাবিক",
+                },
+              ],
+              comments: "সব ফলাফল স্বাভাবিক সীমার মধ্যে।",
+              reportStatus: "চূড়ান্ত",
+              technicianName: "মোঃ আব্দুল করিম",
+              date: "৩০/১০/২০২৫",
+              status: "চূড়ান্ত",
+              savedAt: "৩০/১০/২০২৫ ১৫:৩০",
+            },
+            {
+              id: "RES-002",
+              testId: "T-009", // Previous completed test
+              patientId: "P-002",
+              parameters: [
+                {
+                  name: "মোট কোলেস্টেরল (Total Cholesterol)",
+                  value: "220",
+                  unit: "mg/dL",
+                  status: "সীমান্তরেখা",
+                },
+                {
+                  name: "এলডিএল (LDL)",
+                  value: "130",
+                  unit: "mg/dL",
+                  status: "অস্বাভাবিক",
+                },
+                {
+                  name: "এইচডিএল (HDL)",
+                  value: "45",
+                  unit: "mg/dL",
+                  status: "স্বাভাবিক",
+                },
+              ],
+              comments:
+                "কোলেস্টেরলের মাত্রা সামান্য বেশি। খাদ্যাভ্যাস নিয়ন্ত্রণ করুন।",
+              reportStatus: "চূড়ান্ত",
+              technicianName: "ফারিয়া আক্তার",
+              date: "০১/১১/২০২৫",
+              status: "চূড়ান্ত",
+              savedAt: "০১/১১/২০২৫ ১৬:১৫",
+            },
+          ];
+          localStorage.setItem("resultsData", JSON.stringify(demoResults));
+        }
+      }
     </script>
   </body>
 </html>

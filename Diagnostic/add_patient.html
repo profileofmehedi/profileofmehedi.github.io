@@ -9,26 +9,49 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Kalpurush Font from Mateen CDN -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/@fontsource/kalpurush@4.5.0/index.css"
       rel="stylesheet"
     />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
+    <!-- DataTables CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css"
+    />
+    <!-- SweetAlert2 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
 
     <style>
       body {
         background-color: #f8f9fa;
-        font-family: "Noto Sans Bengali", sans-serif;
+        font-family: "Kalpurush", "SolaimanLipi", "Noto Sans Bengali",
+          sans-serif;
+        overflow-x: hidden;
       }
+
       .navbar {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
       }
+
       .navbar-brand {
         font-weight: 700;
+        transition: transform 0.3s ease;
       }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
       .sidebar {
         height: 100vh;
         position: fixed;
@@ -36,62 +59,277 @@
         left: 0;
         width: 250px;
         padding-top: 56px;
-        background-color: #343a40;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
         color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
       }
+
       .sidebar .nav-link {
         color: #adb5bd;
-        padding: 10px 15px;
+        padding: 12px 20px;
         display: flex;
         align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
       }
+
+      .sidebar .nav-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .sidebar .nav-link:hover::before {
+        left: 100%;
+      }
+
       .sidebar .nav-link i {
-        margin-right: 10px;
+        margin-right: 12px;
+        transition: transform 0.3s ease;
       }
+
       .sidebar .nav-link:hover,
       .sidebar .nav-link.active {
         color: #fff;
-        background-color: #495057;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
       }
+
+      .sidebar .nav-link:hover i,
+      .sidebar .nav-link.active i {
+        transform: scale(1.2);
+      }
+
       .main-content {
         margin-left: 250px;
         padding: 20px;
         padding-top: 76px;
+        animation: fadeInUp 0.6s ease;
       }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       .form-section {
         background: #fff;
         padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        animation: slideInUp 0.6s ease;
       }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       .list-group-item button {
         float: right;
       }
 
+      /* Mobile Hamburger Menu */
+      .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1051;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 18px;
+      }
+
+      .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+      }
+
       @media (max-width: 768px) {
-        .sidebar {
-          width: 100%;
-          height: auto;
-          position: relative;
+        .mobile-menu-toggle {
+          display: block;
         }
+
+        .navbar-toggler {
+          order: 2;
+        }
+
+        .navbar-brand {
+          order: 1;
+          margin-left: 50px;
+          font-size: 1rem;
+        }
+
+        .navbar-nav {
+          order: 3;
+        }
+
+        .sidebar {
+          width: 280px;
+          height: 100vh;
+          position: fixed;
+          top: 0;
+          left: 0;
+          transform: translateX(-100%);
+          z-index: 1050;
+          transition: transform 0.3s ease;
+          overflow-y: auto;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
         .main-content {
           margin-left: 0;
+          padding: 60px 15px 20px 15px;
+        }
+
+        .form-section {
+          padding: 20px;
+          margin-bottom: 20px;
+        }
+
+        .row.g-4 {
+          gap: 1rem !important;
+        }
+
+        .col-lg-6 {
+          width: 100%;
+        }
+
+        h2 {
+          font-size: 1.3rem;
+          margin-bottom: 20px !important;
+        }
+
+        h5 {
+          font-size: 1.1rem;
+        }
+
+        .btn-lg {
+          font-size: 1rem;
+          padding: 12px 24px;
+        }
+
+        .list-group-item {
+          padding: 10px;
+          font-size: 0.9rem;
+        }
+
+        .form-control,
+        .form-select {
+          font-size: 16px; /* Prevents zoom on iOS */
+        }
+      }
+
+      @media (max-width: 576px) {
+        .navbar-brand {
+          font-size: 0.9rem;
+          margin-left: 45px;
+        }
+
+        .main-content {
+          padding: 60px 10px 20px 10px;
+        }
+
+        .form-section {
+          padding: 15px;
+        }
+
+        .btn-lg {
+          width: 100%;
+          font-size: 0.9rem;
+        }
+
+        h2 {
+          font-size: 1.2rem;
+        }
+
+        .container-fluid {
+          padding: 0 5px;
         }
       }
     </style>
   </head>
   <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand text-primary" href="dashboard.html"
-          >ডায়াগনস্টিক সেন্টার</a
+          >ডায়াগনস্টিক সেন্টার</a
         >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#">প্রোফাইল</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">লগ আউট</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <nav class="nav flex-column">
         <a class="nav-link" href="dashboard.html"
           ><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড</a
@@ -185,14 +423,73 @@
                     id="testSearch"
                     class="form-control"
                     placeholder="টেস্ট খুঁজুন..."
+                    list="testSuggestions"
                   />
                   <button
                     class="btn btn-outline-secondary"
                     type="button"
                     id="addTestBtn"
                   >
-                    যোগ করুন
+                    <i class="bi bi-plus-circle"></i> যোগ করুন
                   </button>
+                </div>
+
+                <!-- Test suggestions datalist -->
+                <datalist id="testSuggestions">
+                  <option value="রক্ত পরীক্ষা (CBC)"></option>
+                  <option value="প্রস্রাব পরীক্ষা"></option>
+                  <option value="ডায়াবেটিস টেস্ট"></option>
+                  <option value="কোলেস্টেরল টেস্ট"></option>
+                  <option value="থাইরয়েড টেস্ট"></option>
+                  <option value="এক্স-রে"></option>
+                  <option value="ইসিজি"></option>
+                  <option value="আল্ট্রাসাউন্ড"></option>
+                  <option value="এমআরআই"></option>
+                  <option value="সিটি স্ক্যান"></option>
+                  <option value="হেপাটাইটিস টেস্ট"></option>
+                  <option value="এইচআইভি টেস্ট"></option>
+                </datalist>
+
+                <!-- Common tests quick selection -->
+                <div class="mb-3">
+                  <label class="form-label">সাধারণ টেস্ট দ্রুত নির্বাচন:</label>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm quick-test"
+                      data-test="রক্ত পরীক্ষা (CBC)"
+                    >
+                      CBC
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm quick-test"
+                      data-test="প্রস্রাব পরীক্ষা"
+                    >
+                      প্রস্রাব
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm quick-test"
+                      data-test="ডায়াবেটিস টেস্ট"
+                    >
+                      ডায়াবেটিস
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm quick-test"
+                      data-test="এক্স-রে"
+                    >
+                      এক্স-রে
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm quick-test"
+                      data-test="ইসিজি"
+                    >
+                      ইসিজি
+                    </button>
+                  </div>
                 </div>
                 <h6>নির্বাচিত টেস্ট তালিকা:</h6>
                 <ul class="list-group" id="selectedTestsList">
@@ -202,9 +499,32 @@
             </div>
           </div>
           <div class="mt-4 text-center">
-            <button type="submit" class="btn btn-primary btn-lg">
-              তথ্য সংরক্ষণ করুন ও বিল করুন
-            </button>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+              <button
+                type="button"
+                class="btn btn-secondary btn-lg"
+                id="clearForm"
+              >
+                <i class="bi bi-arrow-clockwise"></i> ফর্ম রিসেট করুন
+              </button>
+              <button
+                type="button"
+                class="btn btn-info btn-lg"
+                id="saveAsDraft"
+              >
+                <i class="bi bi-file-earmark"></i> খসড়া সংরক্ষণ
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary btn-lg"
+                id="submitForm"
+              >
+                <i class="bi bi-check-circle"></i> তথ্য সংরক্ষণ করুন ও বিল করুন
+              </button>
+            </div>
+            <div class="mt-3">
+              <small class="text-muted">* সমস্ত আবশ্যক ক্ষেত্র পূরণ করুন</small>
+            </div>
           </div>
         </form>
       </div>
@@ -213,6 +533,11 @@
     <!-- Bootstrap & jQuery JS CDN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
 
     <script>
       $(document).ready(function () {
@@ -249,6 +574,58 @@
           $(this).closest("li").remove();
         });
 
+        // Quick test selection functionality
+        $(".quick-test").on("click", function () {
+          var testName = $(this).data("test");
+          if (testName) {
+            // Check if test is already in the list
+            var alreadyExists = false;
+            $("#selectedTestsList li").each(function () {
+              if ($(this).text().trim().replace("×", "").trim() === testName) {
+                alreadyExists = true;
+                return false;
+              }
+            });
+
+            if (!alreadyExists) {
+              var listItem = `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  ${testName}
+                  <button type="button" class="btn btn-danger btn-sm remove-test">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </li>`;
+              $("#selectedTestsList").append(listItem);
+
+              // Visual feedback
+              $(this)
+                .addClass("btn-success")
+                .removeClass("btn-outline-primary");
+              setTimeout(() => {
+                $(this)
+                  .removeClass("btn-success")
+                  .addClass("btn-outline-primary");
+              }, 1000);
+
+              Swal.fire({
+                title: "টেস্ট যোগ করা হয়েছে!",
+                text: `"${testName}" টেস্ট তালিকায় যোগ করা হয়েছে।`,
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              Swal.fire({
+                title: "ইতিমধ্যে যোগ করা!",
+                text: `"${testName}" টেস্ট ইতিমধ্যে তালিকায় রয়েছে।`,
+                icon: "info",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            }
+          }
+        });
+
         // Handle form submission
         $("#patientForm").on("submit", function (e) {
           e.preventDefault();
@@ -259,19 +636,56 @@
           });
 
           if (!patientName || selectedTests.length === 0) {
-            alert("দয়া করে রোগীর নাম এবং至少 একটি টেস্ট নির্বাচন করুন।");
+            Swal.fire({
+              title: "ত্রুটি!",
+              text: "দয়া করে রোগীর নাম এবং কমপক্ষে একটি টেস্ট নির্বাচন করুন।",
+              icon: "error",
+              confirmButtonText: "ঠিক আছে",
+            });
             return;
           }
 
-          alert(
-            `রোগী: ${patientName}\nটেস্টসমূহ: ${selectedTests.join(
-              ", "
-            )}\n\nতথ্য সফলভাবে সংরক্ষণ করা হয়েছে!`
-          );
+          Swal.fire({
+            title: "সফল!",
+            html: `<strong>রোগী:</strong> ${patientName}<br>
+                   <strong>টেস্টসমূহ:</strong> ${selectedTests.join(
+                     ", "
+                   )}<br><br>
+                   তথ্য সফলভাবে সংরক্ষণ করা হয়েছে!`,
+            icon: "success",
+            confirmButtonText: "ঠিক আছে",
+          });
           // Here you would typically send the data to a server
           // For demonstration, we just clear the form
           $("#patientForm")[0].reset();
           $("#selectedTestsList").empty();
+        });
+
+        // Mobile menu functionality
+        $("#mobileMenuToggle").on("click", function () {
+          $("#sidebar").toggleClass("show");
+          $("#mobileOverlay").toggle();
+        });
+
+        $("#mobileOverlay").on("click", function () {
+          $("#sidebar").removeClass("show");
+          $("#mobileOverlay").hide();
+        });
+
+        // Close mobile menu when clicking on nav links
+        $(".sidebar .nav-link").on("click", function () {
+          if (window.innerWidth <= 768) {
+            $("#sidebar").removeClass("show");
+            $("#mobileOverlay").hide();
+          }
+        });
+
+        // Handle window resize
+        $(window).on("resize", function () {
+          if (window.innerWidth > 768) {
+            $("#sidebar").removeClass("show");
+            $("#mobileOverlay").hide();
+          }
         });
       });
     </script>
