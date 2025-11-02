@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>রিপোর্ট ও বিশ্লেষণ - ডায়াগনস্টিক সেন্টার</title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Noto Sans Bengali", sans-serif;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        padding-top: 56px;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar .nav-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .sidebar .nav-link:hover::before {
+        left: 100%;
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .sidebar .nav-link:hover i,
+      .sidebar .nav-link.active i {
+        transform: scale(1.2);
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        padding-top: 76px;
+        animation: fadeInUp 0.6s ease;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .report-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+        animation: slideInUp 0.6s ease forwards;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      .report-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .report-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .report-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .report-card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes slideInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 20px;
+      }
+
+      .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .metric-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .metric-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      .period-selector {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .btn-period {
+        border-radius: 20px;
+        padding: 8px 20px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        margin-right: 10px;
+      }
+
+      .btn-period.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
+
+      .export-options {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .progress-custom {
+        height: 10px;
+        border-radius: 10px;
+        background-color: #e9ecef;
+      }
+
+      .progress-bar-custom {
+        background: linear-gradient(90deg, #28a745, #20c997);
+        border-radius: 10px;
+        transition: width 0.6s ease;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: relative;
+          transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .chart-container {
+          height: 250px;
+        }
+
+        .metric-number {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand text-primary" href="dashboard.html"
+          >ডায়াগনস্টিক সেন্টার</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">লগ আউট</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <nav class="nav flex-column">
+        <a class="nav-link" href="dashboard.html"
+          ><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড</a
+        >
+        <a class="nav-link" href="add_patient.html"
+          ><i class="bi bi-person-plus-fill"></i> নতুন রোগী যোগ করুন</a
+        >
+        <a class="nav-link" href="manage_tests.html"
+          ><i class="bi bi-card-list"></i> টেস্ট ম্যানেজ করুন</a
+        >
+        <a class="nav-link" href="bill_management.html"
+          ><i class="bi bi-receipt"></i> বিল ম্যানেজমেন্ট</a
+        >
+        <a class="nav-link active" href="reports_analytics.html"
+          ><i class="bi bi-bar-chart"></i> রিপোর্ট ও বিশ্লেষণ</a
+        >
+        <a class="nav-link" href="test_templates.html"
+          ><i class="bi bi-clipboard-data"></i> টেস্ট টেমপ্লেট</a
+        >
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2>রিপোর্ট ও বিশ্লেষণ</h2>
+        </div>
+
+        <!-- Period Selector -->
+        <div class="period-selector">
+          <div class="d-flex align-items-center">
+            <label class="me-3"><strong>সময়কাল নির্বাচন করুন:</strong></label>
+            <button class="btn-period active" data-period="today">আজ</button>
+            <button class="btn-period" data-period="week">এই সপ্তাহ</button>
+            <button class="btn-period" data-period="month">এই মাস</button>
+            <button class="btn-period" data-period="year">এই বছর</button>
+          </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="export-options">
+          <div class="d-flex align-items-center">
+            <label class="me-3"><strong>রিপোর্ট রপ্তানি:</strong></label>
+            <button
+              class="btn btn-outline-primary btn-sm me-2"
+              onclick="exportToPDF()"
+            >
+              <i class="bi bi-file-pdf"></i> PDF
+            </button>
+            <button
+              class="btn btn-outline-success btn-sm me-2"
+              onclick="exportToExcel()"
+            >
+              <i class="bi bi-file-excel"></i> Excel
+            </button>
+            <button class="btn btn-outline-info btn-sm" onclick="printReport()">
+              <i class="bi bi-printer"></i> প্রিন্ট
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="row mb-4">
+          <div class="col-md-3 mb-3">
+            <div class="metric-card">
+              <div class="metric-number" id="totalRevenue">৳২,৪৫,৮০০</div>
+              <div class="metric-label">মোট আয়</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div
+              class="metric-card"
+              style="
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+              "
+            >
+              <div class="metric-number" id="totalTests">৩৮৫</div>
+              <div class="metric-label">মোট টেস্ট</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div
+              class="metric-card"
+              style="
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+              "
+            >
+              <div class="metric-number" id="totalPatients">২১২</div>
+              <div class="metric-label">মোট রোগী</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div
+              class="metric-card"
+              style="
+                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+              "
+            >
+              <div class="metric-number" id="completionRate">৮৮%</div>
+              <div class="metric-label">সম্পূর্ণতার হার</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+          <div class="col-lg-8 mb-4">
+            <div class="report-card">
+              <h5 class="mb-3">মাসিক আয় ও টেস্ট প্রবণতা</h5>
+              <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 mb-4">
+            <div class="report-card">
+              <h5 class="mb-3">টেস্টের ধরন অনুযায়ী বিতরণ</h5>
+              <div class="chart-container">
+                <canvas id="testTypeChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Popular Tests & Performance -->
+        <div class="row">
+          <div class="col-lg-6 mb-4">
+            <div class="report-card">
+              <h5 class="mb-3">জনপ্রিয় টেস্ট সমূহ</h5>
+              <div class="table-container">
+                <table class="table table-borderless">
+                  <thead>
+                    <tr>
+                      <th>টেস্টের নাম</th>
+                      <th>সংখ্যা</th>
+                      <th>অগ্রগতি</th>
+                    </tr>
+                  </thead>
+                  <tbody id="popularTestsTable">
+                    <!-- Populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="report-card">
+              <h5 class="mb-3">দৈনিক কর্মক্ষমতা</h5>
+              <div class="chart-container">
+                <canvas id="dailyPerformanceChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Summary -->
+        <div class="row">
+          <div class="col-12">
+            <div class="report-card">
+              <h5 class="mb-3">আর্থিক সারসংক্ষেপ</h5>
+              <div class="row">
+                <div class="col-md-3 text-center mb-3">
+                  <h4 class="text-success">৳১,৮৫,৬০০</h4>
+                  <small class="text-muted">প্রাপ্ত পেমেন্ট</small>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                  <h4 class="text-warning">৳৪৮,২০০</h4>
+                  <small class="text-muted">পেন্ডিং পেমেন্ট</small>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                  <h4 class="text-danger">৳১২,০০০</h4>
+                  <small class="text-muted">বকেয়া পেমেন্ট</small>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                  <h4 class="text-info">৮৭%</h4>
+                  <small class="text-muted">সংগ্রহের হার</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap & jQuery JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        // Sample data
+        const sampleData = {
+          today: {
+            totalRevenue: 45800,
+            totalTests: 125,
+            totalPatients: 60,
+            completionRate: 92,
+          },
+          week: {
+            totalRevenue: 245800,
+            totalTests: 385,
+            totalPatients: 212,
+            completionRate: 88,
+          },
+          month: {
+            totalRevenue: 890000,
+            totalTests: 1250,
+            totalPatients: 750,
+            completionRate: 85,
+          },
+          year: {
+            totalRevenue: 9850000,
+            totalTests: 12500,
+            totalPatients: 8200,
+            completionRate: 87,
+          },
+        };
+
+        let currentPeriod = "week";
+
+        // Initialize charts
+        initCharts();
+        updateMetrics();
+        populatePopularTests();
+
+        // Period selector
+        $(".btn-period").click(function () {
+          $(".btn-period").removeClass("active");
+          $(this).addClass("active");
+          currentPeriod = $(this).data("period");
+          updateMetrics();
+          updateCharts();
+        });
+
+        function updateMetrics() {
+          const data = sampleData[currentPeriod];
+
+          // Animate numbers
+          animateNumber("#totalRevenue", data.totalRevenue, "৳");
+          animateNumber("#totalTests", data.totalTests);
+          animateNumber("#totalPatients", data.totalPatients);
+          animateNumber("#completionRate", data.completionRate, "", "%");
+        }
+
+        function animateNumber(
+          selector,
+          targetValue,
+          prefix = "",
+          suffix = ""
+        ) {
+          const element = $(selector);
+          const startValue = 0;
+          const duration = 1000;
+          const startTime = Date.now();
+
+          function updateNumber() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const currentValue = Math.floor(
+              startValue + (targetValue - startValue) * progress
+            );
+
+            element.text(
+              prefix + currentValue.toLocaleString("en-US") + suffix
+            );
+
+            if (progress < 1) {
+              requestAnimationFrame(updateNumber);
+            }
+          }
+
+          updateNumber();
+        }
+
+        function initCharts() {
+          // Revenue Chart
+          const revenueCtx = document
+            .getElementById("revenueChart")
+            .getContext("2d");
+          window.revenueChart = new Chart(revenueCtx, {
+            type: "line",
+            data: {
+              labels: [
+                "জানুয়ারি",
+                "ফেব্রুয়ারি",
+                "মার্চ",
+                "এপ্রিল",
+                "মে",
+                "জুন",
+                "জুলাই",
+                "অগাস্ট",
+                "সেপ্টেম্বর",
+                "অক্টোবর",
+                "নভেম্বর",
+              ],
+              datasets: [
+                {
+                  label: "আয় (হাজার টাকা)",
+                  data: [65, 78, 85, 72, 95, 88, 92, 98, 85, 90, 96],
+                  borderColor: "#007bff",
+                  backgroundColor: "rgba(0, 123, 255, 0.1)",
+                  tension: 0.4,
+                  fill: true,
+                },
+                {
+                  label: "টেস্ট সংখ্যা",
+                  data: [120, 140, 135, 128, 150, 145, 148, 155, 142, 148, 152],
+                  borderColor: "#28a745",
+                  backgroundColor: "rgba(40, 167, 69, 0.1)",
+                  tension: 0.4,
+                  yAxisID: "y1",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                mode: "index",
+                intersect: false,
+              },
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+              },
+              scales: {
+                y: {
+                  type: "linear",
+                  display: true,
+                  position: "left",
+                },
+                y1: {
+                  type: "linear",
+                  display: true,
+                  position: "right",
+                  grid: {
+                    drawOnChartArea: false,
+                  },
+                },
+              },
+            },
+          });
+
+          // Test Type Chart
+          const testTypeCtx = document
+            .getElementById("testTypeChart")
+            .getContext("2d");
+          window.testTypeChart = new Chart(testTypeCtx, {
+            type: "doughnut",
+            data: {
+              labels: [
+                "CBC",
+                "Urine R/E",
+                "Blood Sugar",
+                "Lipid Profile",
+                "Thyroid",
+                "অন্যান্য",
+              ],
+              datasets: [
+                {
+                  data: [25, 20, 15, 12, 10, 18],
+                  backgroundColor: [
+                    "#FF6384",
+                    "#36A2EB",
+                    "#FFCE56",
+                    "#4BC0C0",
+                    "#9966FF",
+                    "#FF9F40",
+                  ],
+                  borderWidth: 2,
+                  borderColor: "#fff",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                },
+              },
+            },
+          });
+
+          // Daily Performance Chart
+          const dailyCtx = document
+            .getElementById("dailyPerformanceChart")
+            .getContext("2d");
+          window.dailyChart = new Chart(dailyCtx, {
+            type: "bar",
+            data: {
+              labels: ["সোম", "মঙ্গল", "বুধ", "বৃহ", "শুক্র", "শনি", "রবি"],
+              datasets: [
+                {
+                  label: "টেস্ট সংখ্যা",
+                  data: [45, 52, 48, 61, 55, 28, 15],
+                  backgroundColor: "rgba(54, 162, 235, 0.8)",
+                  borderColor: "rgba(54, 162, 235, 1)",
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        }
+
+        function updateCharts() {
+          // Update chart data based on period
+          // This would typically fetch new data from server
+          console.log("Updating charts for period:", currentPeriod);
+        }
+
+        function populatePopularTests() {
+          const popularTests = [
+            { name: "CBC", count: 145, percentage: 85 },
+            { name: "Urine R/E", count: 128, percentage: 75 },
+            { name: "Blood Sugar", count: 112, percentage: 65 },
+            { name: "Lipid Profile", count: 98, percentage: 58 },
+            { name: "Thyroid Function", count: 76, percentage: 45 },
+          ];
+
+          const tbody = $("#popularTestsTable");
+          tbody.empty();
+
+          popularTests.forEach((test) => {
+            tbody.append(`
+              <tr>
+                <td>${test.name}</td>
+                <td><strong>${test.count}</strong></td>
+                <td>
+                  <div class="progress-custom">
+                    <div class="progress-bar-custom" style="width: ${test.percentage}%"></div>
+                  </div>
+                </td>
+              </tr>
+            `);
+          });
+        }
+
+        // Export functions
+        window.exportToPDF = function () {
+          alert("PDF রপ্তানি ফিচার শীঘ্রই আসছে!");
+        };
+
+        window.exportToExcel = function () {
+          alert("Excel রপ্তানি ফিচার শীঘ্রই আসছে!");
+        };
+
+        window.printReport = function () {
+          window.print();
+        };
+      });
+    </script>
+  </body>
+</html>

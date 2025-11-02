@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>টেস্ট টেমপ্লেট - ডায়াগনস্টিক সেন্টার</title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Noto Sans Bengali", sans-serif;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        padding-top: 56px;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar .nav-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .sidebar .nav-link:hover::before {
+        left: 100%;
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .sidebar .nav-link:hover i,
+      .sidebar .nav-link.active i {
+        transform: scale(1.2);
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        padding-top: 76px;
+        animation: fadeInUp 0.6s ease;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .template-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        animation: slideInUp 0.6s ease forwards;
+        opacity: 0;
+        transform: translateY(30px);
+        border-left: 4px solid #007bff;
+      }
+
+      .template-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .template-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .template-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .template-card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes slideInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .template-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .template-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #007bff;
+        margin: 0;
+      }
+
+      .template-category {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .parameter-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .parameter-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+      }
+
+      .parameter-name {
+        font-weight: 500;
+        color: #495057;
+      }
+
+      .parameter-range {
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .parameter-unit {
+        color: #007bff;
+        font-weight: 500;
+      }
+
+      .action-btn {
+        border-radius: 25px;
+        padding: 8px 16px;
+        border: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        margin: 2px;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .search-container {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+
+      .category-filter {
+        background: none;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        padding: 6px 15px;
+        margin: 0 5px 10px 0;
+        color: #6c757d;
+        transition: all 0.3s ease;
+      }
+
+      .category-filter.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
+
+      .price-tag {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .parameter-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: relative;
+          transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .parameter-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .template-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .template-category {
+          margin-top: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand text-primary" href="dashboard.html"
+          >ডায়াগনস্টিক সেন্টার</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">লগ আউট</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <nav class="nav flex-column">
+        <a class="nav-link" href="dashboard.html"
+          ><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড</a
+        >
+        <a class="nav-link" href="add_patient.html"
+          ><i class="bi bi-person-plus-fill"></i> নতুন রোগী যোগ করুন</a
+        >
+        <a class="nav-link" href="manage_tests.html"
+          ><i class="bi bi-card-list"></i> টেস্ট ম্যানেজ করুন</a
+        >
+        <a class="nav-link" href="bill_management.html"
+          ><i class="bi bi-receipt"></i> বিল ম্যানেজমেন্ট</a
+        >
+        <a class="nav-link" href="reports_analytics.html"
+          ><i class="bi bi-bar-chart"></i> রিপোর্ট ও বিশ্লেষণ</a
+        >
+        <a class="nav-link active" href="test_templates.html"
+          ><i class="bi bi-clipboard-data"></i> টেস্ট টেমপ্লেট</a
+        >
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2>টেস্ট টেমপ্লেট ম্যানেজমেন্ট</h2>
+          <button
+            class="btn btn-primary action-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#createTemplateModal"
+          >
+            <i class="bi bi-plus-circle"></i> নতুন টেমপ্লেট তৈরি করুন
+          </button>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-container">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="templateSearch"
+                  class="form-control"
+                  placeholder="টেস্টের নাম দিয়ে খুঁজুন..."
+                />
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="category-filters">
+                <button class="category-filter active" data-category="all">
+                  সকল টেস্ট
+                </button>
+                <button class="category-filter" data-category="হেমাটোলজি">
+                  হেমাটোলজি
+                </button>
+                <button class="category-filter" data-category="বায়োকেমিস্ট্রি">
+                  বায়োকেমিস্ট্রি
+                </button>
+                <button class="category-filter" data-category="ইউরোলজি">
+                  ইউরোলজি
+                </button>
+                <button class="category-filter" data-category="হরমোন">
+                  হরমোন
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Templates List -->
+        <div id="templatesList">
+          <!-- Templates will be populated here -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Create Template Modal -->
+    <div class="modal fade" id="createTemplateModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">নতুন টেস্ট টেমপ্লেট তৈরি করুন</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="createTemplateForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">টেস্টের নাম</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="templateName"
+                    required
+                  />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">ক্যাটেগরি</label>
+                  <select class="form-select" id="templateCategory" required>
+                    <option value="">নির্বাচন করুন</option>
+                    <option value="হেমাটোলজি">হেমাটোলজি</option>
+                    <option value="বায়োকেমিস্ট্রি">বায়োকেমিস্ট্রি</option>
+                    <option value="ইউরোলজি">ইউরোলজি</option>
+                    <option value="হরমোন">হরমোন</option>
+                    <option value="মাইক্রোবায়োলজি">মাইক্রোবায়োলজি</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">মূল্য (টাকা)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="templatePrice"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">বিবরণ</label>
+                <textarea
+                  class="form-control"
+                  id="templateDescription"
+                  rows="2"
+                ></textarea>
+              </div>
+
+              <h6>টেস্ট প্যারামিটার</h6>
+              <div id="parametersSection">
+                <div class="parameter-input-group mb-3 p-3 border rounded">
+                  <div class="row">
+                    <div class="col-md-4 mb-2">
+                      <label class="form-label">প্যারামিটারের নাম</label>
+                      <input
+                        type="text"
+                        class="form-control parameter-name-input"
+                        placeholder="যেমন: হিমোগ্লোবিন"
+                      />
+                    </div>
+                    <div class="col-md-2 mb-2">
+                      <label class="form-label">ইউনিট</label>
+                      <input
+                        type="text"
+                        class="form-control parameter-unit-input"
+                        placeholder="যেমন: g/dL"
+                      />
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label class="form-label">রেফারেন্স রেঞ্জ</label>
+                      <input
+                        type="text"
+                        class="form-control parameter-range-input"
+                        placeholder="যেমন: 13.5 - 17.5"
+                      />
+                    </div>
+                    <div class="col-md-2 mb-2">
+                      <label class="form-label">পুরুষ/মহিলা</label>
+                      <select class="form-select parameter-gender-input">
+                        <option value="both">উভয়</option>
+                        <option value="male">পুরুষ</option>
+                        <option value="female">মহিলা</option>
+                      </select>
+                    </div>
+                    <div class="col-md-1 mb-2 d-flex align-items-end">
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm remove-parameter-btn"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                id="addParameterBtn"
+              >
+                <i class="bi bi-plus"></i> প্যারামিটার যোগ করুন
+              </button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বাতিল
+            </button>
+            <button type="button" class="btn btn-primary" id="saveTemplateBtn">
+              টেমপ্লেট সংরক্ষণ করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template Details Modal -->
+    <div class="modal fade" id="templateDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">টেস্ট টেমপ্লেট বিস্তারিত</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="templateDetailsContent">
+            <!-- Template details will be populated here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বন্ধ করুন
+            </button>
+            <button type="button" class="btn btn-primary" id="useTemplateBtn">
+              <i class="bi bi-check-circle"></i> এই টেমপ্লেট ব্যবহার করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap & jQuery JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        // Demo test templates
+        const demoTemplates = [
+          {
+            id: "T001",
+            name: "Complete Blood Count (CBC)",
+            category: "হেমাটোলজি",
+            price: 800,
+            description:
+              "সম্পূর্ণ রক্ত পরীক্ষা যা রক্তের বিভিন্ন উপাদান পরিমাপ করে",
+            parameters: [
+              {
+                name: "হিমোগ্লোবিন",
+                unit: "g/dL",
+                range: "13.5 - 17.5 (পুরুষ), 12.0 - 15.5 (মহিলা)",
+                gender: "both",
+              },
+              {
+                name: "হেমাটোক্রিট",
+                unit: "%",
+                range: "41 - 53 (পুরুষ), 36 - 46 (মহিলা)",
+                gender: "both",
+              },
+              {
+                name: "WBC Count",
+                unit: "/cumm",
+                range: "4000 - 11000",
+                gender: "both",
+              },
+              {
+                name: "Platelet Count",
+                unit: "/cumm",
+                range: "150000 - 450000",
+                gender: "both",
+              },
+              {
+                name: "RBC Count",
+                unit: "million/cumm",
+                range: "4.5 - 5.9 (পুরুষ), 4.1 - 5.1 (মহিলা)",
+                gender: "both",
+              },
+            ],
+          },
+          {
+            id: "T002",
+            name: "Urine Routine Examination",
+            category: "ইউরোলজি",
+            price: 300,
+            description:
+              "প্রস্রাবের সাধারণ পরীক্ষা যা কিডনি ও মূত্রনালীর স্বাস্থ্য মূল্যায়ন করে",
+            parameters: [
+              {
+                name: "Color",
+                unit: "",
+                range: "Straw/Pale Yellow",
+                gender: "both",
+              },
+              { name: "Appearance", unit: "", range: "Clear", gender: "both" },
+              { name: "Albumin", unit: "", range: "Nil", gender: "both" },
+              { name: "Sugar", unit: "", range: "Nil", gender: "both" },
+              { name: "Pus Cells", unit: "/HPF", range: "0-5", gender: "both" },
+              { name: "RBC", unit: "/HPF", range: "0-2", gender: "both" },
+            ],
+          },
+          {
+            id: "T003",
+            name: "Lipid Profile",
+            category: "বায়োকেমিস্ট্রি",
+            price: 1200,
+            description:
+              "কোলেস্টেরল ও চর্বি সংক্রান্ত পরীক্ষা যা হৃদরোগের ঝুঁকি মূল্যায়ন করে",
+            parameters: [
+              {
+                name: "Total Cholesterol",
+                unit: "mg/dL",
+                range: "< 200",
+                gender: "both",
+              },
+              {
+                name: "HDL Cholesterol",
+                unit: "mg/dL",
+                range: "> 40 (পুরুষ), > 50 (মহিলা)",
+                gender: "both",
+              },
+              {
+                name: "LDL Cholesterol",
+                unit: "mg/dL",
+                range: "< 100",
+                gender: "both",
+              },
+              {
+                name: "Triglycerides",
+                unit: "mg/dL",
+                range: "< 150",
+                gender: "both",
+              },
+              { name: "VLDL", unit: "mg/dL", range: "< 30", gender: "both" },
+            ],
+          },
+          {
+            id: "T004",
+            name: "Thyroid Function Test",
+            category: "হরমোন",
+            price: 1500,
+            description: "থাইরয়েড গ্রন্থির কার্যকারিতা পরীক্ষা",
+            parameters: [
+              {
+                name: "TSH",
+                unit: "mIU/L",
+                range: "0.4 - 4.0",
+                gender: "both",
+              },
+              { name: "T3", unit: "ng/dL", range: "80 - 200", gender: "both" },
+              {
+                name: "T4",
+                unit: "μg/dL",
+                range: "5.1 - 14.1",
+                gender: "both",
+              },
+              {
+                name: "Free T3",
+                unit: "pg/mL",
+                range: "2.6 - 4.4",
+                gender: "both",
+              },
+              {
+                name: "Free T4",
+                unit: "ng/dL",
+                range: "0.93 - 1.7",
+                gender: "both",
+              },
+            ],
+          },
+        ];
+
+        // Store templates in localStorage
+        if (!localStorage.getItem("testTemplates")) {
+          localStorage.setItem("testTemplates", JSON.stringify(demoTemplates));
+        }
+
+        let currentCategory = "all";
+
+        // Load and display templates
+        function loadTemplates() {
+          const templates = JSON.parse(
+            localStorage.getItem("testTemplates") || "[]"
+          );
+          const filteredTemplates = filterTemplates(templates, currentCategory);
+          displayTemplates(filteredTemplates);
+        }
+
+        // Filter templates by category
+        function filterTemplates(templates, category) {
+          if (category === "all") return templates;
+          return templates.filter((template) => template.category === category);
+        }
+
+        // Display templates
+        function displayTemplates(templates) {
+          const templatesList = $("#templatesList");
+          templatesList.empty();
+
+          if (templates.length === 0) {
+            templatesList.html(`
+              <div class="text-center py-5">
+                <i class="bi bi-clipboard-data fs-1 text-muted"></i>
+                <h5 class="mt-3 text-muted">কোনো টেমপ্লেট পাওয়া যায়নি</h5>
+              </div>
+            `);
+            return;
+          }
+
+          templates.forEach((template, index) => {
+            templatesList.append(`
+              <div class="template-card" style="animation-delay: ${
+                index * 0.1
+              }s">
+                <div class="template-header">
+                  <div>
+                    <h5 class="template-title">${template.name}</h5>
+                    <small class="text-muted">${template.description}</small>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="price-tag">৳${template.price}</span>
+                    <span class="template-category">${template.category}</span>
+                  </div>
+                </div>
+                
+                <div class="parameter-grid">
+                  ${template.parameters
+                    .slice(0, 4)
+                    .map(
+                      (param) => `
+                    <div class="parameter-item">
+                      <div class="parameter-name">${param.name}</div>
+                      <div class="parameter-range">${param.range}</div>
+                      <div class="parameter-unit">${param.unit}</div>
+                    </div>
+                  `
+                    )
+                    .join("")}
+                  ${
+                    template.parameters.length > 4
+                      ? `
+                    <div class="parameter-item text-center">
+                      <small class="text-muted">+${
+                        template.parameters.length - 4
+                      } আরো প্যারামিটার</small>
+                    </div>
+                  `
+                      : ""
+                  }
+                </div>
+
+                <div class="mt-3 text-end">
+                  <button class="btn btn-sm btn-outline-primary action-btn" onclick="viewTemplate('${
+                    template.id
+                  }')">
+                    <i class="bi bi-eye"></i> বিস্তারিত
+                  </button>
+                  <button class="btn btn-sm btn-primary action-btn" onclick="useTemplate('${
+                    template.id
+                  }')">
+                    <i class="bi bi-check-circle"></i> ব্যবহার করুন
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteTemplate('${
+                    template.id
+                  }')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            `);
+          });
+        }
+
+        // Category filters
+        $(".category-filter").click(function () {
+          $(".category-filter").removeClass("active");
+          $(this).addClass("active");
+          currentCategory = $(this).data("category");
+          loadTemplates();
+        });
+
+        // Search functionality
+        $("#templateSearch").on("input", function () {
+          const searchTerm = $(this).val().toLowerCase();
+          $(".template-card").each(function () {
+            const text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(searchTerm));
+          });
+        });
+
+        // Add parameter functionality
+        $("#addParameterBtn").click(function () {
+          const parameterHtml = `
+            <div class="parameter-input-group mb-3 p-3 border rounded">
+              <div class="row">
+                <div class="col-md-4 mb-2">
+                  <label class="form-label">প্যারামিটারের নাম</label>
+                  <input type="text" class="form-control parameter-name-input" placeholder="যেমন: হিমোগ্লোবিন" />
+                </div>
+                <div class="col-md-2 mb-2">
+                  <label class="form-label">ইউনিট</label>
+                  <input type="text" class="form-control parameter-unit-input" placeholder="যেমন: g/dL" />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">রেফারেন্স রেঞ্জ</label>
+                  <input type="text" class="form-control parameter-range-input" placeholder="যেমন: 13.5 - 17.5" />
+                </div>
+                <div class="col-md-2 mb-2">
+                  <label class="form-label">পুরুষ/মহিলা</label>
+                  <select class="form-select parameter-gender-input">
+                    <option value="both">উভয়</option>
+                    <option value="male">পুরুষ</option>
+                    <option value="female">মহিলা</option>
+                  </select>
+                </div>
+                <div class="col-md-1 mb-2 d-flex align-items-end">
+                  <button type="button" class="btn btn-danger btn-sm remove-parameter-btn">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+          $("#parametersSection").append(parameterHtml);
+        });
+
+        // Remove parameter
+        $(document).on("click", ".remove-parameter-btn", function () {
+          $(this).closest(".parameter-input-group").remove();
+        });
+
+        // Save template
+        $("#saveTemplateBtn").click(function () {
+          const name = $("#templateName").val();
+          const category = $("#templateCategory").val();
+          const price = $("#templatePrice").val();
+          const description = $("#templateDescription").val();
+
+          if (!name || !category || !price) {
+            alert("দয়া করে সকল প্রয়োজনীয় তথ্য পূরণ করুন");
+            return;
+          }
+
+          const parameters = [];
+          $(".parameter-input-group").each(function () {
+            const paramName = $(this).find(".parameter-name-input").val();
+            const unit = $(this).find(".parameter-unit-input").val();
+            const range = $(this).find(".parameter-range-input").val();
+            const gender = $(this).find(".parameter-gender-input").val();
+
+            if (paramName && range) {
+              parameters.push({ name: paramName, unit, range, gender });
+            }
+          });
+
+          if (parameters.length === 0) {
+            alert("দয়া করে কমপক্ষে একটি প্যারামিটার যোগ করুন");
+            return;
+          }
+
+          const newTemplate = {
+            id: "T" + String(Date.now()).slice(-3),
+            name,
+            category,
+            price: parseInt(price),
+            description,
+            parameters,
+          };
+
+          const templates = JSON.parse(
+            localStorage.getItem("testTemplates") || "[]"
+          );
+          templates.unshift(newTemplate);
+          localStorage.setItem("testTemplates", JSON.stringify(templates));
+
+          alert("টেমপ্লেট সফলভাবে তৈরি হয়েছে!");
+          $("#createTemplateModal").modal("hide");
+          $("#createTemplateForm")[0].reset();
+          $("#parametersSection").empty();
+          // Add one default parameter input
+          $("#addParameterBtn").click();
+          loadTemplates();
+        });
+
+        // Global functions
+        window.viewTemplate = function (templateId) {
+          const templates = JSON.parse(
+            localStorage.getItem("testTemplates") || "[]"
+          );
+          const template = templates.find((t) => t.id === templateId);
+
+          if (template) {
+            $("#templateDetailsContent").html(`
+              <div class="mb-3">
+                <h5>${template.name}</h5>
+                <div class="d-flex gap-2 mb-2">
+                  <span class="badge bg-primary">${template.category}</span>
+                  <span class="badge bg-success">৳${template.price}</span>
+                </div>
+                <p class="text-muted">${template.description}</p>
+              </div>
+              
+              <h6>প্যারামিটার সমূহ:</h6>
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>প্যারামিটার</th>
+                      <th>ইউনিট</th>
+                      <th>রেফারেন্স রেঞ্জ</th>
+                      <th>লিঙ্গ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${template.parameters
+                      .map(
+                        (param) => `
+                      <tr>
+                        <td>${param.name}</td>
+                        <td>${param.unit}</td>
+                        <td>${param.range}</td>
+                        <td>${
+                          param.gender === "both"
+                            ? "উভয়"
+                            : param.gender === "male"
+                            ? "পুরুষ"
+                            : "মহিলা"
+                        }</td>
+                      </tr>
+                    `
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            `);
+
+            $("#templateDetailsModal").modal("show");
+          }
+        };
+
+        window.useTemplate = function (templateId) {
+          if (
+            confirm("এই টেমপ্লেট ব্যবহার করে একটি নতুন টেস্ট তৈরি করতে চান?")
+          ) {
+            // Redirect to test creation page or implement test creation logic
+            window.location.href = "enter_results.html?template=" + templateId;
+          }
+        };
+
+        window.deleteTemplate = function (templateId) {
+          if (confirm("আপনি কি নিশ্চিত যে এই টেমপ্লেটটি মুছে ফেলতে চান?")) {
+            const templates = JSON.parse(
+              localStorage.getItem("testTemplates") || "[]"
+            );
+            const filteredTemplates = templates.filter(
+              (t) => t.id !== templateId
+            );
+            localStorage.setItem(
+              "testTemplates",
+              JSON.stringify(filteredTemplates)
+            );
+            loadTemplates();
+          }
+        };
+
+        // Initial load
+        loadTemplates();
+
+        // Add one default parameter input on modal open
+        $("#createTemplateModal").on("shown.bs.modal", function () {
+          if ($(".parameter-input-group").length === 0) {
+            $("#addParameterBtn").click();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

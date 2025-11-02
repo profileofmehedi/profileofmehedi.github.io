@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>বিল ম্যানেজমেন্ট - ডায়াগনস্টিক সেন্টার</title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Noto Sans Bengali", sans-serif;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        padding-top: 56px;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar .nav-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .sidebar .nav-link:hover::before {
+        left: 100%;
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .sidebar .nav-link:hover i,
+      .sidebar .nav-link.active i {
+        transform: scale(1.2);
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        padding-top: 76px;
+        animation: fadeInUp 0.6s ease;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bill-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        animation: slideInUp 0.6s ease forwards;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      .bill-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .bill-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .bill-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes slideInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bill-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-btn {
+        border-radius: 25px;
+        padding: 8px 20px;
+        border: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .bill-status {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .status-paid {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .status-pending {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: #212529;
+      }
+
+      .status-overdue {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+      }
+
+      .search-container {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+
+      .filter-tabs {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 20px;
+      }
+
+      .filter-tab {
+        background: none;
+        border: none;
+        padding: 10px 20px;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .filter-tab.active {
+        color: #007bff;
+      }
+
+      .filter-tab.active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: #007bff;
+      }
+
+      .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .quick-stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .quick-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      }
+
+      .quick-stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #007bff;
+      }
+
+      .print-section {
+        display: none;
+      }
+
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        .print-section {
+          display: block !important;
+        }
+        .main-content {
+          margin-left: 0;
+          padding: 20px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: relative;
+          transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .quick-stats {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-light fixed-top no-print"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand text-primary" href="dashboard.html"
+          >ডায়াগনস্টিক সেন্টার</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">লগ আউট</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar no-print">
+      <nav class="nav flex-column">
+        <a class="nav-link" href="dashboard.html"
+          ><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড</a
+        >
+        <a class="nav-link" href="add_patient.html"
+          ><i class="bi bi-person-plus-fill"></i> নতুন রোগী যোগ করুন</a
+        >
+        <a class="nav-link" href="manage_tests.html"
+          ><i class="bi bi-card-list"></i> টেস্ট ম্যানেজ করুন</a
+        >
+        <a class="nav-link active" href="bill_management.html"
+          ><i class="bi bi-receipt"></i> বিল ম্যানেজমেন্ট</a
+        >
+        <a class="nav-link" href="reports_analytics.html"
+          ><i class="bi bi-bar-chart"></i> রিপোর্ট ও বিশ্লেষণ</a
+        >
+        <a class="nav-link" href="test_templates.html"
+          ><i class="bi bi-clipboard-data"></i> টেস্ট টেমপ্লেট</a
+        >
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2>বিল ম্যানেজমেন্ট</h2>
+          <button
+            class="btn btn-primary action-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#createBillModal"
+          >
+            <i class="bi bi-plus-circle"></i> নতুন বিল তৈরি করুন
+          </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats no-print">
+          <div class="quick-stat-card">
+            <div class="quick-stat-number" id="totalBills">৪৮</div>
+            <div>মোট বিল</div>
+          </div>
+          <div class="quick-stat-card">
+            <div class="quick-stat-number text-success" id="paidBills">৩২</div>
+            <div>পরিশোধিত</div>
+          </div>
+          <div class="quick-stat-card">
+            <div class="quick-stat-number text-warning" id="pendingBills">
+              ১২
+            </div>
+            <div>পেন্ডিং</div>
+          </div>
+          <div class="quick-stat-card">
+            <div class="quick-stat-number text-danger" id="overdueBills">৪</div>
+            <div>বকেয়া</div>
+          </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-container no-print">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="billSearch"
+                  class="form-control"
+                  placeholder="বিল নম্বর বা রোগীর নাম দিয়ে খুঁজুন..."
+                />
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">
+                  সকল বিল
+                </button>
+                <button class="filter-tab" data-filter="paid">পরিশোধিত</button>
+                <button class="filter-tab" data-filter="pending">
+                  পেন্ডিং
+                </button>
+                <button class="filter-tab" data-filter="overdue">বকেয়া</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bills List -->
+        <div id="billsList">
+          <!-- Bills will be populated here -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Create Bill Modal -->
+    <div class="modal fade" id="createBillModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">নতুন বিল তৈরি করুন</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="createBillForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">রোগীর নাম</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="billPatientName"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">মোবাইল নম্বর</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="billPatientMobile"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">টেস্ট সমূহ</label>
+                <div id="billTestsList">
+                  <div class="input-group mb-2">
+                    <select class="form-select test-select">
+                      <option value="">টেস্ট নির্বাচন করুন</option>
+                      <option value="CBC|800">CBC - ৮০০ টাকা</option>
+                      <option value="Urine R/E|300">
+                        Urine R/E - ৩০০ টাকা
+                      </option>
+                      <option value="Blood Sugar|200">
+                        Blood Sugar - ২০০ টাকা
+                      </option>
+                      <option value="Lipid Profile|1200">
+                        Lipid Profile - ১২০০ টাকা
+                      </option>
+                      <option value="Thyroid Function|1500">
+                        Thyroid Function - ১৫০০ টাকা
+                      </option>
+                    </select>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary add-test-btn"
+                    >
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="selectedTests"></div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">ছাড় (%)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="billDiscount"
+                    value="0"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">মোট টাকা</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="billTotal"
+                    readonly
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বাতিল
+            </button>
+            <button type="button" class="btn btn-primary" id="saveBillBtn">
+              বিল সংরক্ষণ করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bill Details Modal -->
+    <div class="modal fade" id="billDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">বিল বিস্তারিত</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="billDetailsContent">
+            <!-- Bill details will be populated here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বন্ধ করুন
+            </button>
+            <button type="button" class="btn btn-primary" onclick="printBill()">
+              <i class="bi bi-printer"></i> প্রিন্ট করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap & jQuery JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        // Demo bills data
+        const demoBills = [
+          {
+            id: "B-2025-001",
+            patientName: "মোঃ আব্দুর রহিম",
+            mobile: "01712345678",
+            tests: ["CBC", "Urine R/E"],
+            amount: 1100,
+            discount: 0,
+            total: 1100,
+            status: "paid",
+            date: "২০২৫-১১-০১",
+            paymentDate: "২০২৫-১১-০১",
+          },
+          {
+            id: "B-2025-002",
+            patientName: "ফাতেমা খাতুন",
+            mobile: "01787654321",
+            tests: ["Blood Sugar", "Lipid Profile"],
+            amount: 1400,
+            discount: 10,
+            total: 1260,
+            status: "pending",
+            date: "২০২৫-১১-০২",
+          },
+          {
+            id: "B-2025-003",
+            patientName: "কামাল হোসেন",
+            mobile: "01598765432",
+            tests: ["Thyroid Function"],
+            amount: 1500,
+            discount: 5,
+            total: 1425,
+            status: "overdue",
+            date: "২০২৫-১০-২৮",
+          },
+          {
+            id: "B-2025-004",
+            patientName: "সুমাইয়া আক্তার",
+            mobile: "01612345678",
+            tests: ["CBC", "Blood Sugar"],
+            amount: 1000,
+            discount: 0,
+            total: 1000,
+            status: "paid",
+            date: "২০২৫-১১-০২",
+            paymentDate: "২০২৫-১১-০২",
+          },
+        ];
+
+        // Store bills in localStorage
+        if (!localStorage.getItem("diagnosticBills")) {
+          localStorage.setItem("diagnosticBills", JSON.stringify(demoBills));
+        }
+
+        let currentFilter = "all";
+
+        // Load and display bills
+        function loadBills() {
+          const bills = JSON.parse(
+            localStorage.getItem("diagnosticBills") || "[]"
+          );
+          const filteredBills = filterBills(bills, currentFilter);
+          displayBills(filteredBills);
+          updateStats(bills);
+        }
+
+        // Filter bills
+        function filterBills(bills, filter) {
+          if (filter === "all") return bills;
+          return bills.filter((bill) => bill.status === filter);
+        }
+
+        // Display bills
+        function displayBills(bills) {
+          const billsList = $("#billsList");
+          billsList.empty();
+
+          if (bills.length === 0) {
+            billsList.html(`
+              <div class="text-center py-5">
+                <i class="bi bi-receipt fs-1 text-muted"></i>
+                <h5 class="mt-3 text-muted">কোনো বিল পাওয়া যায়নি</h5>
+              </div>
+            `);
+            return;
+          }
+
+          bills.forEach((bill, index) => {
+            const statusClass =
+              bill.status === "paid"
+                ? "status-paid"
+                : bill.status === "pending"
+                ? "status-pending"
+                : "status-overdue";
+            const statusText =
+              bill.status === "paid"
+                ? "পরিশোধিত"
+                : bill.status === "pending"
+                ? "পেন্ডিং"
+                : "বকেয়া";
+
+            billsList.append(`
+              <div class="bill-card" style="animation-delay: ${index * 0.1}s">
+                <div class="row align-items-center">
+                  <div class="col-md-3">
+                    <h6 class="mb-1">${bill.id}</h6>
+                    <small class="text-muted">${bill.date}</small>
+                  </div>
+                  <div class="col-md-3">
+                    <strong>${bill.patientName}</strong>
+                    <div class="small text-muted">${bill.mobile}</div>
+                  </div>
+                  <div class="col-md-2">
+                    <div class="small text-muted">টেস্ট সমূহ:</div>
+                    <div class="small">${bill.tests.join(", ")}</div>
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <div class="h5 mb-1">৳${bill.total}</div>
+                    <span class="bill-status ${statusClass}">${statusText}</span>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <button class="btn btn-sm btn-outline-primary action-btn me-1" onclick="viewBill('${
+                      bill.id
+                    }')">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    ${
+                      bill.status !== "paid"
+                        ? `
+                      <button class="btn btn-sm btn-success action-btn" onclick="markAsPaid('${bill.id}')">
+                        <i class="bi bi-check"></i>
+                      </button>
+                    `
+                        : ""
+                    }
+                  </div>
+                </div>
+              </div>
+            `);
+          });
+        }
+
+        // Update statistics
+        function updateStats(bills) {
+          const total = bills.length;
+          const paid = bills.filter((b) => b.status === "paid").length;
+          const pending = bills.filter((b) => b.status === "pending").length;
+          const overdue = bills.filter((b) => b.status === "overdue").length;
+
+          $("#totalBills").text(total);
+          $("#paidBills").text(paid);
+          $("#pendingBills").text(pending);
+          $("#overdueBills").text(overdue);
+        }
+
+        // Filter tabs
+        $(".filter-tab").click(function () {
+          $(".filter-tab").removeClass("active");
+          $(this).addClass("active");
+          currentFilter = $(this).data("filter");
+          loadBills();
+        });
+
+        // Search functionality
+        $("#billSearch").on("input", function () {
+          const searchTerm = $(this).val().toLowerCase();
+          $(".bill-card").each(function () {
+            const text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(searchTerm));
+          });
+        });
+
+        // Add test to bill
+        $(document).on("click", ".add-test-btn", function () {
+          const select = $(this).siblings(".test-select");
+          const value = select.val();
+          if (value) {
+            const [testName, price] = value.split("|");
+            const testId = Date.now() + Math.random();
+
+            $("#selectedTests").append(`
+              <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded" data-test-id="${testId}">
+                <span>${testName} - ৳${price}</span>
+                <button type="button" class="btn btn-sm btn-danger remove-test-btn">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            `);
+
+            select.val("");
+            calculateTotal();
+          }
+        });
+
+        // Remove test from bill
+        $(document).on("click", ".remove-test-btn", function () {
+          $(this).closest("[data-test-id]").remove();
+          calculateTotal();
+        });
+
+        // Calculate total
+        function calculateTotal() {
+          let total = 0;
+          $("#selectedTests [data-test-id]").each(function () {
+            const text = $(this).find("span").text();
+            const price = parseInt(text.match(/৳(\d+)/)[1]);
+            total += price;
+          });
+
+          const discount = parseInt($("#billDiscount").val() || 0);
+          const discountAmount = (total * discount) / 100;
+          const finalTotal = total - discountAmount;
+
+          $("#billTotal").val("৳" + finalTotal);
+        }
+
+        $("#billDiscount").on("input", calculateTotal);
+
+        // Save bill
+        $("#saveBillBtn").click(function () {
+          const patientName = $("#billPatientName").val();
+          const mobile = $("#billPatientMobile").val();
+          const discount = parseInt($("#billDiscount").val() || 0);
+
+          if (!patientName || !mobile) {
+            alert("দয়া করে সকল তথ্য পূরণ করুন");
+            return;
+          }
+
+          const tests = [];
+          let amount = 0;
+          $("#selectedTests [data-test-id]").each(function () {
+            const text = $(this).find("span").text();
+            const testName = text.split(" - ৳")[0];
+            const price = parseInt(text.match(/৳(\d+)/)[1]);
+            tests.push(testName);
+            amount += price;
+          });
+
+          if (tests.length === 0) {
+            alert("দয়া করে কমপক্ষে একটি টেস্ট নির্বাচন করুন");
+            return;
+          }
+
+          const total = amount - (amount * discount) / 100;
+          const billId =
+            "B-" +
+            new Date().getFullYear() +
+            "-" +
+            String(Date.now()).slice(-3);
+
+          const newBill = {
+            id: billId,
+            patientName,
+            mobile,
+            tests,
+            amount,
+            discount,
+            total,
+            status: "pending",
+            date: new Date().toLocaleDateString("bn-BD"),
+          };
+
+          const bills = JSON.parse(
+            localStorage.getItem("diagnosticBills") || "[]"
+          );
+          bills.unshift(newBill);
+          localStorage.setItem("diagnosticBills", JSON.stringify(bills));
+
+          alert("বিল সফলভাবে তৈরি হয়েছে!");
+          $("#createBillModal").modal("hide");
+          $("#createBillForm")[0].reset();
+          $("#selectedTests").empty();
+          loadBills();
+        });
+
+        // Global functions
+        window.viewBill = function (billId) {
+          const bills = JSON.parse(
+            localStorage.getItem("diagnosticBills") || "[]"
+          );
+          const bill = bills.find((b) => b.id === billId);
+
+          if (bill) {
+            const statusText =
+              bill.status === "paid"
+                ? "পরিশোধিত"
+                : bill.status === "pending"
+                ? "পেন্ডিং"
+                : "বকেয়া";
+
+            $("#billDetailsContent").html(`
+              <div class="row">
+                <div class="col-6"><strong>বিল নম্বর:</strong> ${bill.id}</div>
+                <div class="col-6"><strong>তারিখ:</strong> ${bill.date}</div>
+                <div class="col-6"><strong>রোগীর নাম:</strong> ${
+                  bill.patientName
+                }</div>
+                <div class="col-6"><strong>মোবাইল:</strong> ${bill.mobile}</div>
+                <div class="col-12 mt-3"><strong>টেস্ট সমূহ:</strong></div>
+                <div class="col-12">${bill.tests.join(", ")}</div>
+                <div class="col-6 mt-3"><strong>মূল পরিমাণ:</strong> ৳${
+                  bill.amount
+                }</div>
+                <div class="col-6 mt-3"><strong>ছাড়:</strong> ${
+                  bill.discount
+                }%</div>
+                <div class="col-6"><strong>মোট পরিমাণ:</strong> ৳${
+                  bill.total
+                }</div>
+                <div class="col-6"><strong>স্ট্যাটাস:</strong> ${statusText}</div>
+                ${
+                  bill.paymentDate
+                    ? `<div class="col-12 mt-2"><strong>পরিশোধের তারিখ:</strong> ${bill.paymentDate}</div>`
+                    : ""
+                }
+              </div>
+            `);
+
+            $("#billDetailsModal").modal("show");
+          }
+        };
+
+        window.markAsPaid = function (billId) {
+          if (confirm("এই বিলটি পরিশোধিত হিসেবে চিহ্নিত করতে চান?")) {
+            const bills = JSON.parse(
+              localStorage.getItem("diagnosticBills") || "[]"
+            );
+            const billIndex = bills.findIndex((b) => b.id === billId);
+
+            if (billIndex !== -1) {
+              bills[billIndex].status = "paid";
+              bills[billIndex].paymentDate = new Date().toLocaleDateString(
+                "bn-BD"
+              );
+              localStorage.setItem("diagnosticBills", JSON.stringify(bills));
+              loadBills();
+            }
+          }
+        };
+
+        window.printBill = function () {
+          window.print();
+        };
+
+        // Initial load
+        loadBills();
+      });
+    </script>
+  </body>
+</html>
