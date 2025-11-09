@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>টেস্ট মাস্টার - ডায়াগনস্টিক সেন্টার</title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@fontsource/kalpurush@4.5.0/index.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Kalpurush", "SolaimanLipi", "Noto Sans Bengali",
+          sans-serif;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        padding-top: 56px;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        padding-top: 76px;
+        animation: fadeInUp 0.6s ease;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .test-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        animation: slideInUp 0.6s ease;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .test-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .form-section {
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .test-list {
+        max-height: 600px;
+        overflow-y: auto;
+      }
+
+      .test-item {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .test-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+      }
+
+      .badge-category {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+      }
+
+      /* Mobile Responsiveness */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 280px;
+          transform: translateX(-100%);
+          z-index: 1050;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+          padding: 60px 15px 20px 15px;
+        }
+
+        .form-section {
+          padding: 20px;
+        }
+      }
+
+      .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1051;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 18px;
+      }
+
+      .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-menu-toggle {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand text-primary" href="dashboard.html"
+          >ডায়াগনস্টিক সেন্টার</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#">প্রোফাইল</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">লগ আউট</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <nav class="nav flex-column">
+        <a class="nav-link" href="dashboard.html">
+          <i class="bi bi-speedometer2"></i> ড্যাশবোর্ড
+        </a>
+        <a class="nav-link" href="add_patient.html">
+          <i class="bi bi-person-plus-fill"></i> নতুন রোগী যোগ করুন
+        </a>
+        <a class="nav-link" href="manage_doctors.html">
+          <i class="bi bi-person-badge"></i> ডাক্তার ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link active" href="manage_test_master.html">
+          <i class="bi bi-clipboard-plus"></i> টেস্ট মাস্টার
+        </a>
+        <a class="nav-link" href="manage_tests.html">
+          <i class="bi bi-card-list"></i> টেস্ট ম্যানেজ করুন
+        </a>
+        <a class="nav-link" href="bill_management.html">
+          <i class="bi bi-receipt"></i> বিল ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="reports_analytics.html">
+          <i class="bi bi-bar-chart"></i> রিপোর্ট ও বিশ্লেষণ
+        </a>
+        <a class="nav-link" href="test_templates.html">
+          <i class="bi bi-clipboard-data"></i> টেস্ট টেমপ্লেট
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <h2 class="mb-4">টেস্ট মাস্টার ম্যানেজমেন্ট</h2>
+
+        <!-- Add New Test Form -->
+        <div class="form-section">
+          <h5><i class="bi bi-plus-circle"></i> নতুন টেস্ট যোগ করুন</h5>
+          <hr />
+          <form id="testForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="testName" class="form-label">টেস্টের নাম *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="testName"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="testCategory" class="form-label">ক্যাটেগরি *</label>
+                <select class="form-select" id="testCategory" required>
+                  <option value="">নির্বাচন করুন</option>
+                  <option value="রক্ত পরীক্ষা">রক্ত পরীক্ষা</option>
+                  <option value="প্রস্রাব পরীক্ষা">প্রস্রাব পরীক্ষা</option>
+                  <option value="ইমেজিং">ইমেজিং</option>
+                  <option value="হরমোন টেস্ট">হরমোন টেস্ট</option>
+                  <option value="কার্ডিয়াক টেস্ট">কার্ডিয়াক টেস্ট</option>
+                  <option value="মাইক্রোবায়োলজি">মাইক্রোবায়োলজি</option>
+                  <option value="বায়োকেমিস্ট্রি">বায়োকেমিস্ট্রি</option>
+                  <option value="হিস্টোপ্যাথলজি">হিস্টোপ্যাথলজি</option>
+                  <option value="অন্যান্য">অন্যান্য</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="testPrice" class="form-label">মূল্য (টাকা) *</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="testPrice"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="testDuration" class="form-label"
+                  >সময়কাল (ঘন্টা)</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="testDuration"
+                  min="1"
+                  placeholder="যেমন: 24"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="testCode" class="form-label">টেস্ট কোড</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="testCode"
+                  placeholder="যেমন: CBC001"
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="testDescription" class="form-label">বিবরণ</label>
+              <textarea
+                class="form-control"
+                id="testDescription"
+                rows="3"
+                placeholder="টেস্ট সম্পর্কে বিস্তারিত তথ্য"
+              ></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="sampleType" class="form-label">নমুনার ধরণ</label>
+                <select class="form-select" id="sampleType">
+                  <option value="">নির্বাচন করুন</option>
+                  <option value="রক্ত">রক্ত</option>
+                  <option value="প্রস্রাব">প্রস্রাব</option>
+                  <option value="মল">মল</option>
+                  <option value="থুতু">থুতু</option>
+                  <option value="টিস্যু">টিস্যু</option>
+                  <option value="অন্যান্য">অন্যান্য</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="testMethod" class="form-label"
+                  >পরীক্ষা পদ্ধতি</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="testMethod"
+                  placeholder="যেমন: Automated, Manual"
+                />
+              </div>
+            </div>
+            <div class="mb-3 form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="isActive"
+                checked
+              />
+              <label class="form-check-label" for="isActive">
+                সক্রিয় টেস্ট (চেক করলে রোগী যোগ করার সময় দেখাবে)
+              </label>
+            </div>
+            <div class="text-end">
+              <button
+                type="button"
+                class="btn btn-secondary me-2"
+                id="clearForm"
+              >
+                <i class="bi bi-arrow-clockwise"></i> রিসেট
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> টেস্ট যোগ করুন
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tests List -->
+        <div class="form-section">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5><i class="bi bi-list"></i> টেস্টের তালিকা</h5>
+            <div>
+              <select
+                class="form-select form-select-sm"
+                id="categoryFilter"
+                style="width: auto; display: inline-block"
+              >
+                <option value="">সব ক্যাটেগরি</option>
+                <option value="রক্ত পরীক্ষা">রক্ত পরীক্ষা</option>
+                <option value="প্রস্রাব পরীক্ষা">প্রস্রাব পরীক্ষা</option>
+                <option value="ইমেজিং">ইমেজিং</option>
+                <option value="হরমোন টেস্ট">হরমোন টেস্ট</option>
+                <option value="কার্ডিয়াক টেস্ট">কার্ডিয়াক টেস্ট</option>
+                <option value="মাইক্রোবায়োলজি">মাইক্রোবায়োলজি</option>
+                <option value="বায়োকেমিস্ট্রি">বায়োকেমিস্ট্রি</option>
+                <option value="হিস্টোপ্যাথলজি">হিস্টোপ্যাথলজি</option>
+                <option value="অন্যান্য">অন্যান্য</option>
+              </select>
+            </div>
+          </div>
+          <hr />
+          <div class="test-list" id="testsList">
+            <!-- Tests will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        // Load existing tests on page load
+        loadTests();
+
+        // Handle form submission
+        $("#testForm").on("submit", function (e) {
+          e.preventDefault();
+          addTest();
+        });
+
+        // Clear form
+        $("#clearForm").on("click", function () {
+          $("#testForm")[0].reset();
+          $("#isActive").prop("checked", true);
+        });
+
+        // Category filter
+        $("#categoryFilter").on("change", function () {
+          loadTests($(this).val());
+        });
+
+        // Mobile menu functionality
+        $("#mobileMenuToggle").on("click", function () {
+          $("#sidebar").toggleClass("show");
+          $("#mobileOverlay").toggle();
+        });
+
+        $("#mobileOverlay").on("click", function () {
+          $("#sidebar").removeClass("show");
+          $("#mobileOverlay").hide();
+        });
+
+        // Initialize with demo tests if none exist
+        initializeDemoTests();
+      });
+
+      function addTest() {
+        const testData = {
+          id: "TEST-" + Date.now(),
+          name: $("#testName").val().trim(),
+          category: $("#testCategory").val(),
+          price: parseFloat($("#testPrice").val()) || 0,
+          duration: parseInt($("#testDuration").val()) || 24,
+          code: $("#testCode").val().trim(),
+          description: $("#testDescription").val().trim(),
+          sampleType: $("#sampleType").val(),
+          method: $("#testMethod").val().trim(),
+          isActive: $("#isActive").is(":checked"),
+          createdAt: new Date().toLocaleDateString("bn-BD"),
+        };
+
+        if (!testData.name || !testData.category || testData.price <= 0) {
+          Swal.fire({
+            title: "ত্রুটি!",
+            text: "টেস্টের নাম, ক্যাটেগরি এবং মূল্য আবশ্যক।",
+            icon: "error",
+            confirmButtonText: "ঠিক আছে",
+          });
+          return;
+        }
+
+        // Get existing tests
+        let tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+
+        // Add new test
+        tests.push(testData);
+
+        // Save to localStorage
+        localStorage.setItem("testMaster", JSON.stringify(tests));
+
+        Swal.fire({
+          title: "সফল!",
+          text: "টেস্ট সফলভাবে যোগ করা হয়েছে।",
+          icon: "success",
+          confirmButtonText: "ঠিক আছে",
+        });
+
+        // Clear form and reload list
+        $("#testForm")[0].reset();
+        $("#isActive").prop("checked", true);
+        loadTests();
+      }
+
+      function loadTests(categoryFilter = "") {
+        const tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+        const testsList = $("#testsList");
+
+        // Filter by category if specified
+        const filteredTests = categoryFilter
+          ? tests.filter((test) => test.category === categoryFilter)
+          : tests;
+
+        if (filteredTests.length === 0) {
+          testsList.html(`
+            <div class="text-center text-muted">
+              <i class="bi bi-clipboard-x fs-1"></i>
+              <p>${
+                categoryFilter
+                  ? "এই ক্যাটেগরিতে কোনো টেস্ট নেই।"
+                  : "কোনো টেস্ট যোগ করা হয়নি।"
+              }</p>
+            </div>
+          `);
+          return;
+        }
+
+        let html = "";
+        filteredTests.forEach((test) => {
+          const statusBadge = test.isActive
+            ? '<span class="badge bg-success">সক্রিয়</span>'
+            : '<span class="badge bg-secondary">নিষ্ক্রিয়</span>';
+
+          const categoryBadge = getCategoryBadge(test.category);
+
+          html += `
+            <div class="test-item">
+              <div class="row">
+                <div class="col-md-8">
+                  <h6 class="mb-1">
+                    <i class="bi bi-clipboard-pulse text-primary"></i> 
+                    ${test.name}
+                    ${test.code ? `(${test.code})` : ""}
+                  </h6>
+                  <p class="mb-1">
+                    ${categoryBadge}
+                    ${statusBadge}
+                    <span class="badge bg-info">৳${test.price}</span>
+                    ${
+                      test.duration
+                        ? `<span class="badge bg-warning text-dark">${test.duration} ঘন্টা</span>`
+                        : ""
+                    }
+                  </p>
+                  ${
+                    test.sampleType
+                      ? `<p class="mb-1"><i class="bi bi-droplet"></i> নমুনা: ${test.sampleType}</p>`
+                      : ""
+                  }
+                  ${
+                    test.description
+                      ? `<p class="mb-1 text-muted small">${test.description}</p>`
+                      : ""
+                  }
+                  ${
+                    test.method
+                      ? `<p class="mb-0 small"><i class="bi bi-gear"></i> পদ্ধতি: ${test.method}</p>`
+                      : ""
+                  }
+                </div>
+                <div class="col-md-4 text-end">
+                  <small class="text-muted">যোগ করা হয়েছে: ${
+                    test.createdAt
+                  }</small><br>
+                  <button class="btn btn-sm btn-outline-primary me-1 mt-2" onclick="editTest('${
+                    test.id
+                  }')">
+                    <i class="bi bi-pencil"></i> এডিট
+                  </button>
+                  <button class="btn btn-sm btn-outline-${
+                    test.isActive ? "warning" : "success"
+                  } me-1 mt-2" onclick="toggleTestStatus('${test.id}')">
+                    <i class="bi bi-toggle-${
+                      test.isActive ? "on" : "off"
+                    }"></i> ${test.isActive ? "নিষ্ক্রিয়" : "সক্রিয়"}
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger mt-2" onclick="deleteTest('${
+                    test.id
+                  }')">
+                    <i class="bi bi-trash"></i> ডিলিট
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        testsList.html(html);
+      }
+
+      function getCategoryBadge(category) {
+        const categoryColors = {
+          "রক্ত পরীক্ষা": "danger",
+          "প্রস্রাব পরীক্ষা": "warning",
+          ইমেজিং: "primary",
+          "হরমোন টেস্ট": "purple",
+          "কার্ডিয়াক টেস্ট": "danger",
+          মাইক্রোবায়োলজি: "success",
+          বায়োকেমিস্ট্রি: "info",
+          হিস্টোপ্যাথলজি: "dark",
+          অন্যান্য: "secondary",
+        };
+
+        const color = categoryColors[category] || "secondary";
+        return `<span class="badge bg-${color} badge-category">${category}</span>`;
+      }
+
+      function editTest(testId) {
+        const tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+        const test = tests.find((t) => t.id === testId);
+
+        if (test) {
+          $("#testName").val(test.name);
+          $("#testCategory").val(test.category);
+          $("#testPrice").val(test.price);
+          $("#testDuration").val(test.duration);
+          $("#testCode").val(test.code);
+          $("#testDescription").val(test.description);
+          $("#sampleType").val(test.sampleType);
+          $("#testMethod").val(test.method);
+          $("#isActive").prop("checked", test.isActive);
+
+          // Remove the test temporarily for editing
+          const updatedTests = tests.filter((t) => t.id !== testId);
+          localStorage.setItem("testMaster", JSON.stringify(updatedTests));
+          loadTests();
+
+          Swal.fire({
+            title: "এডিট মোড",
+            text: "টেস্টের তথ্য ফর্মে লোড করা হয়েছে। পরিবর্তন করে সেভ করুন।",
+            icon: "info",
+            confirmButtonText: "ঠিক আছে",
+          });
+        }
+      }
+
+      function toggleTestStatus(testId) {
+        let tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+        const testIndex = tests.findIndex((t) => t.id === testId);
+
+        if (testIndex !== -1) {
+          tests[testIndex].isActive = !tests[testIndex].isActive;
+          localStorage.setItem("testMaster", JSON.stringify(tests));
+          loadTests();
+
+          Swal.fire({
+            title: "আপডেট হয়েছে!",
+            text: `টেস্ট ${
+              tests[testIndex].isActive ? "সক্রিয়" : "নিষ্ক্রিয়"
+            } করা হয়েছে।`,
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        }
+      }
+
+      function deleteTest(testId) {
+        Swal.fire({
+          title: "নিশ্চিত করুন",
+          text: "আপনি কি এই টেস্টটি ডিলিট করতে চান?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "হ্যাঁ, ডিলিট করুন",
+          cancelButtonText: "বাতিল",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            let tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+            tests = tests.filter((t) => t.id !== testId);
+            localStorage.setItem("testMaster", JSON.stringify(tests));
+            loadTests();
+
+            Swal.fire({
+              title: "ডিলিট হয়েছে!",
+              text: "টেস্ট সফলভাবে ডিলিট করা হয়েছে।",
+              icon: "success",
+              confirmButtonText: "ঠিক আছে",
+            });
+          }
+        });
+      }
+
+      function initializeDemoTests() {
+        const existingTests =
+          JSON.parse(localStorage.getItem("testMaster")) || [];
+
+        if (existingTests.length === 0) {
+          const demoTests = [
+            {
+              id: "TEST-001",
+              name: "রক্ত পরীক্ষা (CBC)",
+              category: "রক্ত পরীক্ষা",
+              price: 500,
+              duration: 2,
+              code: "CBC001",
+              description:
+                "সম্পূর্ণ রক্ত গণনা - হিমোগ্লোবিন, WBC, RBC, প্লেটলেট কাউন্ট",
+              sampleType: "রক্ত",
+              method: "Automated Analyzer",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-002",
+              name: "প্রস্রাব পরীক্ষা (RME)",
+              category: "প্রস্রাব পরীক্ষা",
+              price: 200,
+              duration: 1,
+              code: "RME001",
+              description:
+                "প্রস্রাবের নিয়মিত পরীক্ষা - প্রোটিন, সুগার, WBC, RBC",
+              sampleType: "প্রস্রাব",
+              method: "Manual Microscopy",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-003",
+              name: "ডায়াবেটিস টেস্ট (FBS)",
+              category: "বায়োকেমিস্ট্রি",
+              price: 150,
+              duration: 2,
+              code: "FBS001",
+              description: "খালি পেটে রক্তের সুগার পরীক্ষা",
+              sampleType: "রক্ত",
+              method: "Glucose Oxidase Method",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-004",
+              name: "কোলেস্টেরল টেস্ট",
+              category: "বায়োকেমিস্ট্রি",
+              price: 300,
+              duration: 4,
+              code: "CHOL001",
+              description: "টোটাল কোলেস্টেরল, HDL, LDL, ট্রাইগ্লিসারাইড",
+              sampleType: "রক্ত",
+              method: "Enzymatic Method",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-005",
+              name: "থাইরয়েড টেস্ট (TSH)",
+              category: "হরমোন টেস্ট",
+              price: 400,
+              duration: 6,
+              code: "TSH001",
+              description: "থাইরয়েড স্টিমুলেটিং হরমোন পরীক্ষা",
+              sampleType: "রক্ত",
+              method: "ELISA",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-006",
+              name: "বুকের এক্স-রে",
+              category: "ইমেজিং",
+              price: 800,
+              duration: 1,
+              code: "CXR001",
+              description:
+                "বুকের এক্স-রে - ফুসফুস ও হৃদপিণ্ডের অবস্থা দেখার জন্য",
+              sampleType: "অন্যান্য",
+              method: "Digital X-Ray",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-007",
+              name: "ইসিজি (ECG)",
+              category: "কার্ডিয়াক টেস্ট",
+              price: 350,
+              duration: 1,
+              code: "ECG001",
+              description:
+                "ইলেক্ট্রোকার্ডিওগ্রাম - হৃদপিণ্ডের বৈদ্যুতিক কার্যকলাপ পরীক্ষা",
+              sampleType: "অন্যান্য",
+              method: "12-Lead ECG",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-008",
+              name: "আল্ট্রাসাউন্ড (পেট)",
+              category: "ইমেজিং",
+              price: 1200,
+              duration: 2,
+              code: "USG001",
+              description:
+                "পেটের আল্ট্রাসাউন্ড - লিভার, কিডনি, গলব্লাডার পরীক্ষা",
+              sampleType: "অন্যান্য",
+              method: "Ultrasound Imaging",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-009",
+              name: "হেপাটাইটিস বি টেস্ট",
+              category: "মাইক্রোবায়োলজি",
+              price: 600,
+              duration: 8,
+              code: "HBV001",
+              description: "হেপাটাইটিস বি ভাইরাস অ্যান্টিজেন পরীক্ষা",
+              sampleType: "রক্ত",
+              method: "Rapid Test",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-010",
+              name: "এইচআইভি টেস্ট",
+              category: "মাইক্রোবায়োলজি",
+              price: 700,
+              duration: 6,
+              code: "HIV001",
+              description: "এইচআইভি অ্যান্টিবডি পরীক্ষা",
+              sampleType: "রক্ত",
+              method: "ELISA",
+              isActive: true,
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+          ];
+
+          localStorage.setItem("testMaster", JSON.stringify(demoTests));
+          loadTests();
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -337,6 +337,12 @@
         <a class="nav-link active" href="add_patient.html"
           ><i class="bi bi-person-plus-fill"></i> নতুন রোগী যোগ করুন</a
         >
+        <a class="nav-link" href="manage_doctors.html"
+          ><i class="bi bi-person-badge"></i> ডাক্তার ম্যানেজমেন্ট</a
+        >
+        <a class="nav-link" href="manage_test_master.html"
+          ><i class="bi bi-clipboard-plus"></i> টেস্ট মাস্টার</a
+        >
         <a class="nav-link" href="manage_tests.html"
           ><i class="bi bi-card-list"></i> টেস্ট ম্যানেজ করুন</a
         >
@@ -372,19 +378,28 @@
                     required
                   />
                 </div>
+                <div class="mb-3">
+                  <label for="patientId" class="form-label">রোগী আইডি</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="patientId"
+                    readonly
+                  />
+                </div>
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <label for="patientAge" class="form-label">বয়স</label>
+                    <label for="age" class="form-label">বয়স</label>
                     <input
                       type="number"
                       class="form-control"
-                      id="patientAge"
+                      id="age"
                       required
                     />
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="patientGender" class="form-label">লিঙ্গ</label>
-                    <select class="form-select" id="patientGender" required>
+                    <label for="gender" class="form-label">লিঙ্গ</label>
+                    <select class="form-select" id="gender" required>
                       <option value="">নির্বাচন করুন</option>
                       <option value="পুরুষ">পুরুষ</option>
                       <option value="মহিলা">মহিলা</option>
@@ -393,21 +408,34 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="patientMobile" class="form-label"
-                    >মোবাইল নম্বর</label
-                  >
-                  <input
-                    type="tel"
-                    class="form-control"
-                    id="patientMobile"
-                    required
-                  />
+                  <label for="phone" class="form-label">মোবাইল নম্বর</label>
+                  <input type="tel" class="form-control" id="phone" required />
                 </div>
                 <div class="mb-3">
-                  <label for="referredBy" class="form-label"
+                  <label for="address" class="form-label">ঠিকানা</label>
+                  <textarea
+                    class="form-control"
+                    id="address"
+                    rows="2"
+                  ></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="referredDoctor" class="form-label"
                     >রেফার্ড ডাক্তার (ঐচ্ছিক)</label
                   >
-                  <input type="text" class="form-control" id="referredBy" />
+                  <select class="form-select" id="referredDoctor">
+                    <option value="">ডাক্তার নির্বাচন করুন (ঐচ্ছিক)</option>
+                    <!-- Doctors will be loaded here -->
+                  </select>
+                  <small class="text-muted">
+                    <a
+                      href="manage_doctors.html"
+                      target="_blank"
+                      class="text-decoration-none"
+                    >
+                      <i class="bi bi-plus-circle"></i> নতুন ডাক্তার যোগ করুন
+                    </a>
+                  </small>
                 </div>
               </div>
             </div>
@@ -417,84 +445,75 @@
               <div class="form-section">
                 <h5>টেস্ট নির্বাচন</h5>
                 <hr />
-                <div class="input-group mb-3">
-                  <input
-                    type="text"
-                    id="testSearch"
-                    class="form-control"
-                    placeholder="টেস্ট খুঁজুন..."
-                    list="testSuggestions"
-                  />
-                  <button
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    id="addTestBtn"
-                  >
-                    <i class="bi bi-plus-circle"></i> যোগ করুন
-                  </button>
-                </div>
-
-                <!-- Test suggestions datalist -->
-                <datalist id="testSuggestions">
-                  <option value="রক্ত পরীক্ষা (CBC)"></option>
-                  <option value="প্রস্রাব পরীক্ষা"></option>
-                  <option value="ডায়াবেটিস টেস্ট"></option>
-                  <option value="কোলেস্টেরল টেস্ট"></option>
-                  <option value="থাইরয়েড টেস্ট"></option>
-                  <option value="এক্স-রে"></option>
-                  <option value="ইসিজি"></option>
-                  <option value="আল্ট্রাসাউন্ড"></option>
-                  <option value="এমআরআই"></option>
-                  <option value="সিটি স্ক্যান"></option>
-                  <option value="হেপাটাইটিস টেস্ট"></option>
-                  <option value="এইচআইভি টেস্ট"></option>
-                </datalist>
-
-                <!-- Common tests quick selection -->
-                <div class="mb-3">
-                  <label class="form-label">সাধারণ টেস্ট দ্রুত নির্বাচন:</label>
-                  <div class="d-flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      class="btn btn-outline-primary btn-sm quick-test"
-                      data-test="রক্ত পরীক্ষা (CBC)"
+                <div class="row mb-3">
+                  <div class="col-md-8">
+                    <label for="testSelect" class="form-label"
+                      >টেস্ট নির্বাচন করুন</label
                     >
-                      CBC
-                    </button>
+                    <select class="form-select" id="testSelect">
+                      <option value="">টেস্ট নির্বাচন করুন...</option>
+                      <!-- Tests will be loaded here -->
+                    </select>
+                  </div>
+                  <div class="col-md-4 d-flex align-items-end">
                     <button
+                      class="btn btn-primary w-100"
                       type="button"
-                      class="btn btn-outline-primary btn-sm quick-test"
-                      data-test="প্রস্রাব পরীক্ষা"
+                      id="addSelectedTest"
                     >
-                      প্রস্রাব
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-primary btn-sm quick-test"
-                      data-test="ডায়াবেটিস টেস্ট"
-                    >
-                      ডায়াবেটিস
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-primary btn-sm quick-test"
-                      data-test="এক্স-রে"
-                    >
-                      এক্স-রে
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-primary btn-sm quick-test"
-                      data-test="ইসিজি"
-                    >
-                      ইসিজি
+                      <i class="bi bi-plus-circle"></i> যোগ করুন
                     </button>
                   </div>
                 </div>
+
+                <div class="mb-3">
+                  <small class="text-muted">
+                    <a
+                      href="manage_test_master.html"
+                      target="_blank"
+                      class="text-decoration-none"
+                    >
+                      <i class="bi bi-plus-circle"></i> নতুন টেস্ট যোগ করুন
+                    </a>
+                    |
+                    <a
+                      href="#"
+                      onclick="clearAndReloadDemo()"
+                      class="text-decoration-none"
+                    >
+                      <i class="bi bi-arrow-clockwise"></i> ডেমো ডেটা রিলোড করুন
+                    </a>
+                  </small>
+                </div>
+
+                <!-- Common tests quick selection -->
+                <div class="mb-3">
+                  <label class="form-label"
+                    >দ্রুত নির্বাচন (জনপ্রিয় টেস্ট):</label
+                  >
+                  <div class="d-flex flex-wrap gap-2" id="quickTestsContainer">
+                    <!-- Quick tests will be loaded here -->
+                  </div>
+                </div>
+
                 <h6>নির্বাচিত টেস্ট তালিকা:</h6>
                 <ul class="list-group" id="selectedTestsList">
                   <!-- Selected tests will be added here -->
                 </ul>
+
+                <!-- Total Cost Display -->
+                <div class="mt-3 p-3 bg-light rounded">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <strong
+                        >মোট টেস্ট: <span id="totalTests">0</span>টি</strong
+                      >
+                    </div>
+                    <div class="col-md-6 text-end">
+                      <strong>মোট খরচ: ৳<span id="totalCost">0</span></strong>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -540,154 +559,536 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
 
     <script>
-      $(document).ready(function () {
-        // Function to add a test to the list
-        function addTest() {
-          var testName = $("#testSearch").val().trim();
-          if (testName) {
-            var listItem = `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            ${testName}
-                            <button type="button" class="btn btn-danger btn-sm remove-test"><i class="bi bi-x-circle"></i></button>
-                        </li>`;
-            $("#selectedTestsList").append(listItem);
-            $("#testSearch").val(""); // Clear input field
+      // Initialize the page
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDemoData();
+        loadDoctors();
+        loadTests();
+        loadQuickTests();
+        updateTotals();
+        generatePatientId();
+      });
+
+      // Initialize demo data if not exists
+      function initializeDemoData() {
+        initializeDemoDoctors();
+        initializeDemoTests();
+
+        // Force show some demo data in dropdown for immediate visibility
+        if (
+          !localStorage.getItem("doctors") ||
+          !localStorage.getItem("testMaster")
+        ) {
+          console.log("Demo data initialized!");
+        }
+      }
+
+      // Initialize demo doctors
+      function initializeDemoDoctors() {
+        const existingDoctors =
+          JSON.parse(localStorage.getItem("doctors")) || [];
+        if (existingDoctors.length === 0) {
+          const demoDoctors = [
+            {
+              id: "DOC-001",
+              name: "ডাঃ মোহাম্মদ আলী",
+              specialty: "কার্ডিওলজি",
+              phone: "01712345678",
+              email: "dr.ali@example.com",
+              address: "ধানমন্ডি, ঢাকা",
+              degree: "MBBS, MD (Cardiology)",
+              chamber: "স্কয়ার হাসপাতাল",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "DOC-002",
+              name: "ডাঃ ফাতেমা খাতুন",
+              specialty: "গাইনোকোলজি",
+              phone: "01823456789",
+              email: "dr.fatema@example.com",
+              address: "গুলশান, ঢাকা",
+              degree: "MBBS, FCPS (Gynecology)",
+              chamber: "ইবনে সিনা হাসপাতাল",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "DOC-003",
+              name: "ডাঃ রফিকুল ইসলাম",
+              specialty: "কার্ডিওলজি",
+              phone: "01934567890",
+              email: "dr.rafiq@example.com",
+              address: "বনানী, ঢাকা",
+              degree: "MBBS, MD (Cardiology)",
+              chamber: "ইউনাইটেড হাসপাতাল",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "DOC-004",
+              name: "ডাঃ সালমা আক্তার",
+              specialty: "শিশু বিশেষজ্ঞ",
+              phone: "01645678901",
+              email: "salma.akter@example.com",
+              address: "উত্তরা, ঢাকা",
+              degree: "MBBS, DCH",
+              chamber: "আল-রাজী হাসপাতাল",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "DOC-005",
+              name: "ডাঃ করিম উদ্দিন",
+              specialty: "অর্থোপেডিক সার্জন",
+              phone: "01756789012",
+              email: "karim.uddin@example.com",
+              address: "মিরপুর, ঢাকা",
+              degree: "MBBS, MS (Ortho)",
+              chamber: "ন্যাশনাল হার্ট ফাউন্ডেশন",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+          ];
+          localStorage.setItem("doctors", JSON.stringify(demoDoctors));
+        }
+      }
+
+      // Initialize demo tests
+      function initializeDemoTests() {
+        const existingTests =
+          JSON.parse(localStorage.getItem("testMaster")) || [];
+        if (existingTests.length === 0) {
+          const demoTests = [
+            {
+              id: "TEST-001",
+              name: "রক্ত পরীক্ষা (CBC)",
+              category: "রক্ত পরীক্ষা",
+              price: "500",
+              duration: "২৪ ঘন্টা",
+              description: "সম্পূর্ণ রক্ত গণনা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-002",
+              name: "প্রস্রাব পরীক্ষা (Routine)",
+              category: "প্রস্রাব পরীক্ষা",
+              price: "300",
+              duration: "১২ ঘন্টা",
+              description: "সাধারণ প্রস্রাব পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-003",
+              name: "ডায়াবেটিস টেস্ট (HbA1c)",
+              category: "ডায়াবেটিস টেস্ট",
+              price: "800",
+              duration: "৪৮ ঘন্টা",
+              description: "গত ৩ মাসের গড় সুগার লেভেল",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-004",
+              name: "কোলেস্টেরল টেস্ট",
+              category: "লিপিড প্রোফাইল",
+              price: "600",
+              duration: "২৪ ঘন্টা",
+              description: "মোট কোলেস্টেরল, HDL, LDL",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-005",
+              name: "থাইরয়েড ফাংশন টেস্ট",
+              category: "হরমোন টেস্ট",
+              price: "1200",
+              duration: "৭২ ঘন্টা",
+              description: "TSH, T3, T4 পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-006",
+              name: "এক্স-রে (বুক)",
+              category: "রেডিওলজি",
+              price: "400",
+              duration: "৩০ মিনিট",
+              description: "বুকের এক্স-রে",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-007",
+              name: "ইসিজি",
+              category: "কার্ডিয়াক টেস্ট",
+              price: "350",
+              duration: "১৫ মিনিট",
+              description: "হৃদযন্ত্রের বৈদ্যুতিক কার্যকলাপ",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-008",
+              name: "আল্ট্রাসাউন্ড (পেট)",
+              category: "আল্ট্রাসাউন্ড",
+              price: "1000",
+              duration: "১ ঘন্টা",
+              description: "পেটের অভ্যন্তরীণ অঙ্গের পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-009",
+              name: "লিভার ফাংশন টেস্ট",
+              category: "রক্ত পরীক্ষা",
+              price: "700",
+              duration: "২৪ ঘন্টা",
+              description: "যকৃতের কার্যকারিতা পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-010",
+              name: "কিডনি ফাংশন টেস্ট",
+              category: "রক্ত পরীক্ষা",
+              price: "650",
+              duration: "২৪ ঘন্টা",
+              description: "বৃক্কের কার্যকারিতা পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-011",
+              name: "ভিটামিন ডি টেস্ট",
+              category: "ভিটামিন টেস্ট",
+              price: "900",
+              duration: "৪৮ ঘন্টা",
+              description: "ভিটামিন ডি এর মাত্রা পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-012",
+              name: "ভিটামিন বি১২ টেস্ট",
+              category: "ভিটামিন টেস্ট",
+              price: "800",
+              duration: "৪৮ ঘন্টা",
+              description: "ভিটামিন বি১২ এর মাত্রা পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-013",
+              name: "এএসটি/এএলটি",
+              category: "লিভার ফাংশন",
+              price: "550",
+              duration: "২ৄ ঘন্টা",
+              description: "লিভার এনজাইম পরীক্ষা",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-014",
+              name: "সিটি স্ক্যান (মাথা)",
+              category: "সিটি স্ক্যান",
+              price: "3500",
+              duration: "২ ঘন্টা",
+              description: "মাথার সিটি স্ক্যান",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+            {
+              id: "TEST-015",
+              name: "এমআরআই (মেরুদণ্ড)",
+              category: "এমআরআই",
+              price: "8000",
+              duration: "৪ ঘন্টা",
+              description: "মেরুদণ্ডের এমআরআই",
+              status: "active",
+              createdAt: new Date().toLocaleDateString("bn-BD"),
+            },
+          ];
+          localStorage.setItem("testMaster", JSON.stringify(demoTests));
+        }
+      }
+
+      // Track selected tests
+      let selectedTests = [];
+      let totalCost = 0;
+
+      // Load doctors from localStorage into dropdown
+      function loadDoctors() {
+        const doctors = JSON.parse(localStorage.getItem("doctors")) || [];
+        const doctorSelect = document.getElementById("referredDoctor");
+
+        // Clear existing options except the first one
+        doctorSelect.innerHTML =
+          '<option value="">ডাক্তার নির্বাচন করুন (ঐচ্ছিক)</option>';
+
+        doctors.forEach((doctor) => {
+          const option = document.createElement("option");
+          option.value = doctor.name;
+          option.textContent = `${doctor.name} - ${doctor.specialty}`;
+          doctorSelect.appendChild(option);
+        });
+      }
+
+      // Load tests from localStorage into dropdown
+      function loadTests() {
+        const tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+        const testSelect = document.getElementById("testSelect");
+
+        // Clear existing options except the first one
+        testSelect.innerHTML =
+          '<option value="">টেস্ট নির্বাচন করুন...</option>';
+
+        console.log("Loading tests:", tests.length); // Debug line
+
+        tests.forEach((test) => {
+          if (test.status === "active") {
+            const option = document.createElement("option");
+            option.value = test.id;
+            option.textContent = `${test.name} - ৳${test.price} (${test.category})`;
+            option.dataset.price = test.price;
+            option.dataset.name = test.name;
+            option.dataset.category = test.category;
+            option.dataset.duration = test.duration;
+            testSelect.appendChild(option);
           }
+        });
+
+        // Add a fallback option if no tests loaded
+        if (tests.length === 0) {
+          const fallbackOption = document.createElement("option");
+          fallbackOption.value = "";
+          fallbackOption.textContent =
+            "কোন টেস্ট পাওয়া যায়নি - ডেমো ডেটা লোড করা হচ্ছে...";
+          fallbackOption.disabled = true;
+          testSelect.appendChild(fallbackOption);
+        }
+      }
+
+      // Load quick test buttons
+      function loadQuickTests() {
+        const tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+        const quickTestsContainer = document.getElementById(
+          "quickTestsContainer"
+        );
+
+        // Filter popular tests
+        const popularTests = tests
+          .filter(
+            (test) =>
+              test.status === "active" &&
+              [
+                "রক্ত পরীক্ষা",
+                "প্রস্রাব পরীক্ষা",
+                "ডায়াবেটিস",
+                "এক্স-রে",
+                "ইসিজি",
+              ].some((keyword) => test.name.includes(keyword))
+          )
+          .slice(0, 5);
+
+        quickTestsContainer.innerHTML = "";
+
+        popularTests.forEach((test) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "btn btn-outline-primary btn-sm";
+          button.textContent =
+            test.name.substring(0, 15) + (test.name.length > 15 ? "..." : "");
+          button.title = test.name;
+          button.onclick = () => addTestById(test.id);
+          quickTestsContainer.appendChild(button);
+        });
+      }
+
+      // Add selected test to the list
+      document
+        .getElementById("addSelectedTest")
+        .addEventListener("click", function () {
+          const testSelect = document.getElementById("testSelect");
+          const selectedOption = testSelect.options[testSelect.selectedIndex];
+
+          if (selectedOption.value) {
+            addTestById(selectedOption.value);
+            testSelect.selectedIndex = 0; // Reset dropdown
+          } else {
+            Swal.fire({
+              title: "সতর্কতা!",
+              text: "দয়া করে একটি টেস্ট নির্বাচন করুন।",
+              icon: "warning",
+              confirmButtonText: "ঠিক আছে",
+            });
+          }
+        });
+
+      // Add test by ID
+      function addTestById(testId) {
+        const tests = JSON.parse(localStorage.getItem("testMaster")) || [];
+        const test = tests.find((t) => t.id === testId);
+
+        if (!test) return;
+
+        // Check if test already selected
+        if (selectedTests.some((t) => t.id === testId)) {
+          Swal.fire({
+            title: "সতর্কতা!",
+            text: "এই টেস্টটি ইতিমধ্যে নির্বাচিত হয়েছে।",
+            icon: "warning",
+            confirmButtonText: "ঠিক আছে",
+          });
+          return;
         }
 
-        // Add test on button click
-        $("#addTestBtn").on("click", function () {
-          addTest();
+        selectedTests.push(test);
+        updateSelectedTestsList();
+        updateTotals();
+
+        // Show success message
+        Swal.fire({
+          title: "সফল!",
+          text: `${test.name} যোগ করা হয়েছে।`,
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
         });
+      }
 
-        // Add test on pressing Enter
-        $("#testSearch").on("keypress", function (e) {
-          if (e.which == 13) {
-            // Enter key
-            e.preventDefault();
-            addTest();
-          }
+      // Update selected tests list display
+      function updateSelectedTestsList() {
+        const testsList = document.getElementById("selectedTestsList");
+        testsList.innerHTML = "";
+
+        selectedTests.forEach((test, index) => {
+          const listItem = document.createElement("li");
+          listItem.className =
+            "list-group-item d-flex justify-content-between align-items-center";
+
+          listItem.innerHTML = `
+            <div>
+              <strong>${test.name}</strong><br>
+              <small class="text-muted">
+                <i class="bi bi-tag"></i> ${test.category} | 
+                <i class="bi bi-clock"></i> ${test.duration} | 
+                <i class="bi bi-currency-exchange"></i> ৳${test.price}
+              </small>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" onclick="removeTest(${index})">
+              <i class="bi bi-trash"></i>
+            </button>
+          `;
+
+          testsList.appendChild(listItem);
         });
+      }
 
-        // Remove test from list
-        $("#selectedTestsList").on("click", ".remove-test", function () {
-          $(this).closest("li").remove();
-        });
+      // Remove test from selected list
+      function removeTest(index) {
+        selectedTests.splice(index, 1);
+        updateSelectedTestsList();
+        updateTotals();
+      }
 
-        // Quick test selection functionality
-        $(".quick-test").on("click", function () {
-          var testName = $(this).data("test");
-          if (testName) {
-            // Check if test is already in the list
-            var alreadyExists = false;
-            $("#selectedTestsList li").each(function () {
-              if ($(this).text().trim().replace("×", "").trim() === testName) {
-                alreadyExists = true;
-                return false;
-              }
-            });
+      // Update totals
+      function updateTotals() {
+        const totalTestsElement = document.getElementById("totalTests");
+        const totalCostElement = document.getElementById("totalCost");
 
-            if (!alreadyExists) {
-              var listItem = `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  ${testName}
-                  <button type="button" class="btn btn-danger btn-sm remove-test">
-                    <i class="bi bi-x-circle"></i>
-                  </button>
-                </li>`;
-              $("#selectedTestsList").append(listItem);
+        totalCost = selectedTests.reduce(
+          (sum, test) => sum + parseFloat(test.price),
+          0
+        );
 
-              // Visual feedback
-              $(this)
-                .addClass("btn-success")
-                .removeClass("btn-outline-primary");
-              setTimeout(() => {
-                $(this)
-                  .removeClass("btn-success")
-                  .addClass("btn-outline-primary");
-              }, 1000);
+        totalTestsElement.textContent = selectedTests.length;
+        totalCostElement.textContent = totalCost.toFixed(0);
+      }
 
-              Swal.fire({
-                title: "টেস্ট যোগ করা হয়েছে!",
-                text: `"${testName}" টেস্ট তালিকায় যোগ করা হয়েছে।`,
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-              });
-            } else {
-              Swal.fire({
-                title: "ইতিমধ্যে যোগ করা!",
-                text: `"${testName}" টেস্ট ইতিমধ্যে তালিকায় রয়েছে।`,
-                icon: "info",
-                timer: 1500,
-                showConfirmButton: false,
-              });
-            }
-          }
-        });
+      // Auto-generate patient ID
+      function generatePatientId() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hour = String(now.getHours()).padStart(2, "0");
+        const minute = String(now.getMinutes()).padStart(2, "0");
 
-        // Handle form submission
-        $("#patientForm").on("submit", function (e) {
+        const patientId = `P${year}${month}${day}${hour}${minute}`;
+        document.getElementById("patientId").value = patientId;
+      }
+
+      // Form submission
+      document
+        .getElementById("patientForm")
+        .addEventListener("submit", function (e) {
           e.preventDefault();
-          var patientName = $("#patientName").val();
-          var selectedTests = [];
-          $("#selectedTestsList li").each(function () {
-            selectedTests.push($(this).text().trim());
-          });
 
-          if (!patientName || selectedTests.length === 0) {
+          if (selectedTests.length === 0) {
             Swal.fire({
-              title: "ত্রুটি!",
-              text: "দয়া করে রোগীর নাম এবং কমপক্ষে একটি টেস্ট নির্বাচন করুন।",
-              icon: "error",
+              title: "সতর্কতা!",
+              text: "দয়া করে কমপক্ষে একটি টেস্ট নির্বাচন করুন।",
+              icon: "warning",
               confirmButtonText: "ঠিক আছে",
             });
             return;
           }
 
+          // Collect form data
+          const formData = {
+            patientId: document.getElementById("patientId").value,
+            name: document.getElementById("patientName").value,
+            age: document.getElementById("age").value,
+            gender: document.getElementById("gender").value,
+            phone: document.getElementById("phone").value,
+            address: document.getElementById("address").value,
+            referredDoctor: document.getElementById("referredDoctor").value,
+            tests: selectedTests,
+            totalCost: totalCost,
+            date: new Date().toISOString(),
+            status: "pending",
+          };
+
+          // Save to localStorage
+          const patients = JSON.parse(localStorage.getItem("patients")) || [];
+          patients.push(formData);
+          localStorage.setItem("patients", JSON.stringify(patients));
+
+          // Show success message
           Swal.fire({
             title: "সফল!",
-            html: `<strong>রোগী:</strong> ${patientName}<br>
-                   <strong>টেস্টসমূহ:</strong> ${selectedTests.join(
-                     ", "
-                   )}<br><br>
-                   তথ্য সফলভাবে সংরক্ষণ করা হয়েছে!`,
+            text: "রোগীর তথ্য সফলভাবে সংরক্ষিত হয়েছে।",
             icon: "success",
             confirmButtonText: "ঠিক আছে",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // Reset form
+              document.getElementById("patientForm").reset();
+              selectedTests = [];
+              updateSelectedTestsList();
+              updateTotals();
+              generatePatientId();
+            }
           });
-          // Here you would typically send the data to a server
-          // For demonstration, we just clear the form
-          $("#patientForm")[0].reset();
-          $("#selectedTestsList").empty();
         });
 
-        // Mobile menu functionality
-        $("#mobileMenuToggle").on("click", function () {
-          $("#sidebar").toggleClass("show");
-          $("#mobileOverlay").toggle();
-        });
+      // Clear localStorage and reload demo data
+      function clearAndReloadDemo() {
+        localStorage.removeItem("doctors");
+        localStorage.removeItem("testMaster");
+        localStorage.removeItem("patients");
 
-        $("#mobileOverlay").on("click", function () {
-          $("#sidebar").removeClass("show");
-          $("#mobileOverlay").hide();
-        });
+        initializeDemoData();
+        loadDoctors();
+        loadTests();
+        loadQuickTests();
 
-        // Close mobile menu when clicking on nav links
-        $(".sidebar .nav-link").on("click", function () {
-          if (window.innerWidth <= 768) {
-            $("#sidebar").removeClass("show");
-            $("#mobileOverlay").hide();
-          }
+        Swal.fire({
+          title: "সফল!",
+          text: "ডেমো ডেটা রিলোড করা হয়েছে।",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
         });
-
-        // Handle window resize
-        $(window).on("resize", function () {
-          if (window.innerWidth > 768) {
-            $("#sidebar").removeClass("show");
-            $("#mobileOverlay").hide();
-          }
-        });
-      });
+      }
     </script>
   </body>
 </html>

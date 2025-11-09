@@ -530,6 +530,100 @@
       </div>
     </div>
 
+    <!-- Edit Template Modal -->
+    <div class="modal fade" id="editTemplateModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">টেস্ট টেমপ্লেট সম্পাদনা করুন</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editTemplateForm">
+              <input type="hidden" id="editTemplateId" />
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">টেস্টের নাম</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="editTemplateName"
+                    required
+                  />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">ক্যাটেগরি</label>
+                  <select
+                    class="form-select"
+                    id="editTemplateCategory"
+                    required
+                  >
+                    <option value="">নির্বাচন করুন</option>
+                    <option value="হেমাটোলজি">হেমাটোলজি</option>
+                    <option value="বায়োকেমিস্ট্রি">বায়োকেমিস্ট্রি</option>
+                    <option value="ইউরোলজি">ইউরোলজি</option>
+                    <option value="হরমোন">হরমোন</option>
+                    <option value="মাইক্রোবায়োলজি">মাইক্রোবায়োলজি</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">মূল্য (টাকা)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="editTemplatePrice"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">বিবরণ</label>
+                <textarea
+                  class="form-control"
+                  id="editTemplateDescription"
+                  rows="2"
+                ></textarea>
+              </div>
+
+              <h6>টেস্ট প্যারামিটার</h6>
+              <div id="editParametersSection">
+                <!-- Parameters will be loaded here -->
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                id="addEditParameterBtn"
+              >
+                <i class="bi bi-plus"></i> প্যারামিটার যোগ করুন
+              </button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বাতিল
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="updateTemplateBtn"
+            >
+              টেমপ্লেট আপডেট করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Template Details Modal -->
     <div class="modal fade" id="templateDetailsModal" tabindex="-1">
       <div class="modal-dialog modal-lg">
@@ -786,6 +880,11 @@
                   }')">
                     <i class="bi bi-eye"></i> বিস্তারিত
                   </button>
+                  <button class="btn btn-sm btn-warning action-btn" onclick="editTemplate('${
+                    template.id
+                  }')">
+                    <i class="bi bi-pencil-square"></i> সম্পাদনা
+                  </button>
                   <button class="btn btn-sm btn-primary action-btn" onclick="useTemplate('${
                     template.id
                   }')">
@@ -819,8 +918,8 @@
           });
         });
 
-        // Add parameter functionality
-        $("#addParameterBtn").click(function () {
+        // Add parameter functionality for edit modal
+        $("#addEditParameterBtn").click(function () {
           const parameterHtml = `
             <div class="parameter-input-group mb-3 p-3 border rounded">
               <div class="row">
@@ -852,7 +951,7 @@
               </div>
             </div>
           `;
-          $("#parametersSection").append(parameterHtml);
+          $("#editParametersSection").append(parameterHtml);
         });
 
         // Remove parameter
@@ -913,6 +1012,60 @@
           loadTemplates();
         });
 
+        // Update template
+        $("#updateTemplateBtn").click(function () {
+          const templateId = $("#editTemplateId").val();
+          const name = $("#editTemplateName").val();
+          const category = $("#editTemplateCategory").val();
+          const price = $("#editTemplatePrice").val();
+          const description = $("#editTemplateDescription").val();
+
+          if (!name || !category || !price) {
+            alert("দয়া করে সকল প্রয়োজনীয় তথ্য পূরণ করুন");
+            return;
+          }
+
+          const parameters = [];
+          $("#editParametersSection .parameter-input-group").each(function () {
+            const paramName = $(this).find(".parameter-name-input").val();
+            const unit = $(this).find(".parameter-unit-input").val();
+            const range = $(this).find(".parameter-range-input").val();
+            const gender = $(this).find(".parameter-gender-input").val();
+
+            if (paramName && range) {
+              parameters.push({ name: paramName, unit, range, gender });
+            }
+          });
+
+          if (parameters.length === 0) {
+            alert("দয়া করে কমপক্ষে একটি প্যারামিটার যোগ করুন");
+            return;
+          }
+
+          const templates = JSON.parse(
+            localStorage.getItem("testTemplates") || "[]"
+          );
+
+          const templateIndex = templates.findIndex((t) => t.id === templateId);
+          if (templateIndex !== -1) {
+            templates[templateIndex] = {
+              ...templates[templateIndex],
+              name,
+              category,
+              price: parseInt(price),
+              description,
+              parameters,
+            };
+
+            localStorage.setItem("testTemplates", JSON.stringify(templates));
+            alert("টেমপ্লেট সফলভাবে আপডেট হয়েছে!");
+            $("#editTemplateModal").modal("hide");
+            loadTemplates();
+          } else {
+            alert("টেমপ্লেট খুঁজে পাওয়া যায়নি");
+          }
+        });
+
         // Global functions
         window.viewTemplate = function (templateId) {
           const templates = JSON.parse(
@@ -967,6 +1120,73 @@
             `);
 
             $("#templateDetailsModal").modal("show");
+          }
+        };
+
+        window.editTemplate = function (templateId) {
+          const templates = JSON.parse(
+            localStorage.getItem("testTemplates") || "[]"
+          );
+          const template = templates.find((t) => t.id === templateId);
+
+          if (template) {
+            // Populate the edit form
+            $("#editTemplateId").val(template.id);
+            $("#editTemplateName").val(template.name);
+            $("#editTemplateCategory").val(template.category);
+            $("#editTemplatePrice").val(template.price);
+            $("#editTemplateDescription").val(template.description);
+
+            // Clear and populate parameters
+            $("#editParametersSection").empty();
+            template.parameters.forEach((param) => {
+              const parameterHtml = `
+                <div class="parameter-input-group mb-3 p-3 border rounded">
+                  <div class="row">
+                    <div class="col-md-4 mb-2">
+                      <label class="form-label">প্যারামিটারের নাম</label>
+                      <input type="text" class="form-control parameter-name-input" value="${
+                        param.name
+                      }" />
+                    </div>
+                    <div class="col-md-2 mb-2">
+                      <label class="form-label">ইউনিট</label>
+                      <input type="text" class="form-control parameter-unit-input" value="${
+                        param.unit
+                      }" />
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <label class="form-label">রেফারেন্স রেঞ্জ</label>
+                      <input type="text" class="form-control parameter-range-input" value="${
+                        param.range
+                      }" />
+                    </div>
+                    <div class="col-md-2 mb-2">
+                      <label class="form-label">পুরুষ/মহিলা</label>
+                      <select class="form-select parameter-gender-input">
+                        <option value="both" ${
+                          param.gender === "both" ? "selected" : ""
+                        }>উভয়</option>
+                        <option value="male" ${
+                          param.gender === "male" ? "selected" : ""
+                        }>পুরুষ</option>
+                        <option value="female" ${
+                          param.gender === "female" ? "selected" : ""
+                        }>মহিলা</option>
+                      </select>
+                    </div>
+                    <div class="col-md-1 mb-2 d-flex align-items-end">
+                      <button type="button" class="btn btn-danger btn-sm remove-parameter-btn">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+              $("#editParametersSection").append(parameterHtml);
+            });
+
+            $("#editTemplateModal").modal("show");
           }
         };
 
