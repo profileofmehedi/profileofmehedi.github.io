@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      ডিজিটাল ডায়াগনস্টিক - সম্পূর্ণ ডায়াগনস্টিক সেন্টার ম্যানেজমেন্ট
+      সফটওয়্যার
+    </title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #06b6d4;
+        --accent-color: #10b981;
+        --dark-color: #1e293b;
+        --light-color: #f8fafc;
+        --gradient-primary: linear-gradient(135deg, #2563eb, #06b6d4);
+        --gradient-success: linear-gradient(135deg, #10b981, #059669);
+        --gradient-dark: linear-gradient(135deg, #1e293b, #334155);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans Bengali", sans-serif;
+        line-height: 1.6;
+        color: var(--dark-color);
+        overflow-x: hidden;
+      }
+
+      /* Header */
+      .navbar {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .navbar-brand {
+        font-weight: 800;
+        font-size: 1.5rem;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .nav-link {
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-color) !important;
+        transform: translateY(-2px);
+      }
+
+      .btn-primary {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+      }
+
+      /* Hero Section */
+      .hero {
+        background: var(--gradient-primary);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+        background-size: cover;
+        background-position: bottom;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+      }
+
+      .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+      }
+
+      .hero p {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+
+      .hero-image {
+        position: relative;
+        z-index: 2;
+      }
+
+      .floating-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 1rem;
+        transition: all 0.3s ease;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .floating-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      /* Features Section */
+      .features {
+        padding: 100px 0;
+        background: var(--light-color);
+      }
+
+      .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-primary);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+      }
+
+      .feature-card h4 {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--dark-color);
+      }
+
+      /* Pricing Section */
+      .pricing {
+        padding: 100px 0;
+        background: white;
+      }
+
+      .pricing-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .pricing-card.featured {
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+        box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+      }
+
+      .pricing-card.featured::before {
+        content: "জনপ্রিয়";
+        position: absolute;
+        top: 20px;
+        right: -30px;
+        background: var(--gradient-success);
+        color: white;
+        padding: 5px 40px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transform: rotate(45deg);
+      }
+
+      .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      }
+
+      .pricing-card.featured:hover {
+        transform: scale(1.05) translateY(-5px);
+      }
+
+      .price {
+        font-size: 3rem;
+        font-weight: 800;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .price-period {
+        color: #64748b;
+        font-size: 1rem;
+      }
+
+      .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+      }
+
+      .pricing-features li {
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pricing-features i {
+        color: var(--accent-color);
+        margin-right: 0.5rem;
+      }
+
+      /* CTA Section */
+      .cta {
+        background: var(--gradient-dark);
+        padding: 100px 0;
+        color: white;
+        text-align: center;
+      }
+
+      .cta h2 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+      }
+
+      .cta p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+
+      .btn-success {
+        background: var(--gradient-success);
+        border: none;
+        border-radius: 50px;
+        padding: 15px 40px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      }
+
+      .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      }
+
+      /* Footer */
+      .footer {
+        background: var(--dark-color);
+        color: white;
+        padding: 50px 0 30px;
+      }
+
+      .footer h5 {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+      }
+
+      .footer a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .footer a:hover {
+        color: white;
+        transform: translateX(5px);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero p {
+          font-size: 1.1rem;
+        }
+
+        .pricing-card.featured {
+          transform: none;
+        }
+
+        .floating-card {
+          margin: 0.5rem;
+          padding: 1.5rem;
+        }
+      }
+
+      /* Animations */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Demo Form */
+      .demo-form {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-control {
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <i class="bi bi-hospital"></i> ডিজিটাল ডায়াগনস্টিক
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#features">ফিচারসমূহ</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#pricing">মূল্য তালিকা</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#demo">ডেমো রিকুয়েস্ট</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">যোগাযোগ</a>
+            </li>
+            <li class="nav-item ms-2">
+              <a class="btn btn-primary" href="dashboard.html">লগইন</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6">
+            <div class="hero-content">
+              <h1 class="fade-in">আপনার ডায়াগনস্টিক সেন্টারকে করুন ডিজিটাল</h1>
+              <p class="fade-in">
+                সম্পূর্ণ ক্লাউড-বেসড ডায়াগনস্টিক সেন্টার ম্যানেজমেন্ট সিস্টেম।
+                রোগী ব্যবস্থাপনা থেকে শুরু করে রিপোর্ট জেনারেশন পর্যন্ত সবকিছুই
+                এক জায়গায়।
+              </p>
+              <div class="fade-in">
+                <a href="#demo" class="btn btn-success me-3">
+                  <i class="bi bi-play-circle"></i> ফ্রি ডেমো দেখুন
+                </a>
+                <a href="#features" class="btn btn-outline-light">
+                  <i class="bi bi-info-circle"></i> আরও জানুন
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="hero-image">
+              <div class="floating-card" style="animation-delay: 0s">
+                <div class="d-flex align-items-center">
+                  <div
+                    class="feature-icon me-3"
+                    style="width: 60px; height: 60px"
+                  >
+                    <i class="bi bi-people"></i>
+                  </div>
+                  <div>
+                    <h5 class="mb-1">রোগী ব্যবস্থাপনা</h5>
+                    <p class="mb-0 opacity-75">সহজ ও দ্রুত রোগী রেজিস্ট্রেশন</p>
+                  </div>
+                </div>
+              </div>
+              <div class="floating-card" style="animation-delay: 1s">
+                <div class="d-flex align-items-center">
+                  <div
+                    class="feature-icon me-3"
+                    style="width: 60px; height: 60px"
+                  >
+                    <i class="bi bi-clipboard-data"></i>
+                  </div>
+                  <div>
+                    <h5 class="mb-1">রিপোর্ট জেনারেশন</h5>
+                    <p class="mb-0 opacity-75">প্রফেশনাল মেডিকেল রিপোর্ট</p>
+                  </div>
+                </div>
+              </div>
+              <div class="floating-card" style="animation-delay: 2s">
+                <div class="d-flex align-items-center">
+                  <div
+                    class="feature-icon me-3"
+                    style="width: 60px; height: 60px"
+                  >
+                    <i class="bi bi-graph-up"></i>
+                  </div>
+                  <div>
+                    <h5 class="mb-1">বিজনেস অ্যানালিটিক্স</h5>
+                    <p class="mb-0 opacity-75">রিয়েল-টাইম ডেটা ও রিপোর্ট</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="display-4 fw-bold mb-4 fade-in">
+              আমাদের বিশেষ ফিচারসমূহ
+            </h2>
+            <p class="lead text-muted fade-in">
+              আধুনিক প্রযুক্তির সাথে ডায়াগনস্টিক সেন্টার পরিচালনার জন্য
+              প্রয়োজনীয় সকল সুবিধা
+            </p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4 col-md-6">
+            <div class="feature-card fade-in">
+              <div class="feature-icon">
+                <i class="bi bi-person-plus"></i>
+              </div>
+              <h4>রোগী ব্যবস্থাপনা</h4>
+              <p class="text-muted">
+                দ্রুত রোগী রেজিস্ট্রেশন, পূর্ণাঙ্গ প্রোফাইল ম্যানেজমেন্ট এবং
+                ইতিহাস সংরক্ষণের সুবিধা।
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="feature-card fade-in">
+              <div class="feature-icon">
+                <i class="bi bi-clipboard-check"></i>
+              </div>
+              <h4>টেস্ট ম্যানেজমেন্ট</h4>
+              <p class="text-muted">
+                সকল ধরণের ল্যাব টেস্ট ম্যানেজমেন্ট, নমুনা সংগ্রহ থেকে ফলাফল
+                প্রকাশ পর্যন্ত।
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="feature-card fade-in">
+              <div class="feature-icon">
+                <i class="bi bi-file-earmark-medical"></i>
+              </div>
+              <h4>ডিজিটাল রিপোর্ট</h4>
+              <p class="text-muted">
+                প্রফেশনাল মেডিকেল রিপোর্ট জেনারেশন, প্রিন্ট ও ডাউনলোডের সুবিধা।
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="feature-card fade-in">
+              <div class="feature-icon">
+                <i class="bi bi-receipt"></i>
+              </div>
+              <h4>বিল ও পেমেন্ট</h4>
+              <p class="text-muted">
+                স্বয়ংক্রিয় বিল জেনারেশন, পেমেন্ট ট্র্যাকিং এবং ইনভয়েস
+                ম্যানেজমেন্ট।
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="feature-card fade-in">
+              <div class="feature-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <h4>বিজনেস অ্যানালিটিক্স</h4>
+              <p class="text-muted">
+                রিয়েল-টাইম ড্যাশবোর্ড, বিক্রয় রিপোর্ট এবং পারফরমেন্স
+                ট্র্যাকিং।
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="feature-card fade-in">
+              <div class="feature-icon">
+                <i class="bi bi-cloud-check"></i>
+              </div>
+              <h4>ক্লাউড স্টোরেজ</h4>
+              <p class="text-muted">
+                নিরাপদ ক্লাউড ডেটা স্টোরেজ, যেকোনো জায়গা থেকে অ্যাক্সেসের
+                সুবিধা।
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="display-4 fw-bold mb-4 fade-in">
+              সাশ্রয়ী মূল্যে শুরু করুন
+            </h2>
+            <p class="lead text-muted fade-in">
+              আপনার ডায়াগনস্টিক সেন্টারের আকার অনুযায়ী উপযুক্ত প্ল্যান বেছে
+              নিন
+            </p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="pricing-card fade-in">
+              <h3 class="fw-bold mb-3">স্টার্টার</h3>
+              <div class="price">৳২,৯৯৯</div>
+              <div class="price-period">প্রতি মাসে</div>
+              <ul class="pricing-features">
+                <li><i class="bi bi-check-circle"></i> ৫০০ রোগী</li>
+                <li><i class="bi bi-check-circle"></i> ২০টি টেস্ট ক্যাটাগরি</li>
+                <li><i class="bi bi-check-circle"></i> বেসিক রিপোর্টিং</li>
+                <li><i class="bi bi-check-circle"></i> ইমেইল সাপোর্ট</li>
+                <li><i class="bi bi-check-circle"></i> ১ ইউজার একাউন্ট</li>
+              </ul>
+              <button class="btn btn-outline-primary w-100">শুরু করুন</button>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="pricing-card featured fade-in">
+              <h3 class="fw-bold mb-3">প্রফেশনাল</h3>
+              <div class="price">৳৪,৯৯৯</div>
+              <div class="price-period">প্রতি মাসে</div>
+              <ul class="pricing-features">
+                <li><i class="bi bi-check-circle"></i> ২,০০০ রোগী</li>
+                <li><i class="bi bi-check-circle"></i> আনলিমিটেড টেস্ট</li>
+                <li><i class="bi bi-check-circle"></i> এডভান্স রিপোর্টিং</li>
+                <li><i class="bi bi-check-circle"></i> ২৪/৭ ফোন সাপোর্ট</li>
+                <li><i class="bi bi-check-circle"></i> ৫ ইউজার একাউন্ট</li>
+                <li><i class="bi bi-check-circle"></i> ডেটা ব্যাকআপ</li>
+              </ul>
+              <button class="btn btn-primary w-100">সবচেয়ে জনপ্রিয়</button>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="pricing-card fade-in">
+              <h3 class="fw-bold mb-3">এন্টারপ্রাইজ</h3>
+              <div class="price">৳৯,৯৯৯</div>
+              <div class="price-period">প্রতি মাসে</div>
+              <ul class="pricing-features">
+                <li><i class="bi bi-check-circle"></i> আনলিমিটেড রোগী</li>
+                <li><i class="bi bi-check-circle"></i> কাস্টম রিপোর্ট</li>
+                <li><i class="bi bi-check-circle"></i> API ইন্টিগ্রেশন</li>
+                <li><i class="bi bi-check-circle"></i> ডেডিকেটেড সাপোর্ট</li>
+                <li><i class="bi bi-check-circle"></i> আনলিমিটেড ইউজার</li>
+                <li><i class="bi bi-check-circle"></i> কাস্টমাইজেশন</li>
+              </ul>
+              <button class="btn btn-outline-primary w-100">
+                যোগাযোগ করুন
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo Request Section -->
+    <section id="demo" class="cta">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6">
+            <h2 class="fade-in">ফ্রি ডেমো দেখুন</h2>
+            <p class="fade-in">
+              আমাদের সফটওয়্যারের সকল ফিচার ঘরে বসেই পরীক্ষা করুন। বিনামূল্যে ৭
+              দিনের ট্রায়াল পিরিয়ড।
+            </p>
+          </div>
+          <div class="col-lg-6">
+            <div class="demo-form fade-in">
+              <form id="demoForm">
+                <div class="mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="আপনার নাম"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <input
+                    type="email"
+                    class="form-control"
+                    placeholder="ইমেইল ঠিকানা"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <input
+                    type="tel"
+                    class="form-control"
+                    placeholder="মোবাইল নম্বর"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="ডায়াগনস্টিক সেন্টারের নাম"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                  <i class="bi bi-play-circle"></i> ফ্রি ডেমো রিকুয়েস্ট করুন
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <h5>ডিজিটাল ডায়াগনস্টিক</h5>
+            <p class="text-muted">
+              বাংলাদেশের সেরা ডায়াগনস্টিক সেন্টার ম্যানেজমেন্ট সফটওয়্যার।
+              আধুনিক প্রযুক্তির সাথে আপনার ব্যবসা এগিয়ে নিয়ে যান।
+            </p>
+          </div>
+          <div class="col-lg-2 mb-4">
+            <h5>দ্রুত লিংক</h5>
+            <ul class="list-unstyled">
+              <li><a href="#features">ফিচারসমূহ</a></li>
+              <li><a href="#pricing">মূল্য তালিকা</a></li>
+              <li><a href="#demo">ডেমো</a></li>
+              <li><a href="dashboard.html">লগইন</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-3 mb-4">
+            <h5>সেবাসমূহ</h5>
+            <ul class="list-unstyled">
+              <li><a href="#">সফটওয়্যার ডেভেলপমেন্ট</a></li>
+              <li><a href="#">কাস্টমাইজেশন</a></li>
+              <li><a href="#">ট্রেনিং ও সাপোর্ট</a></li>
+              <li><a href="#">ডেটা মাইগ্রেশন</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-3 mb-4">
+            <h5>যোগাযোগ</h5>
+            <ul class="list-unstyled">
+              <li><i class="bi bi-telephone"></i> +৮৮০ ১৭০০ ০০০০০০</li>
+              <li><i class="bi bi-envelope"></i> info@digitaldiagnostic.com</li>
+              <li><i class="bi bi-geo-alt"></i> ঢাকা, বাংলাদেশ</li>
+            </ul>
+          </div>
+        </div>
+        <hr class="my-4" />
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <p class="mb-0 text-muted">
+              © ২০২৫ ডিজিটাল ডায়াগনস্টিক। সকল অধিকার সংরক্ষিত।
+            </p>
+          </div>
+          <div class="col-md-6 text-end">
+            <a href="#" class="text-muted me-3">প্রাইভেসি পলিসি</a>
+            <a href="#" class="text-muted">শর্তাবলী</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+      });
+
+      // Fade in animation on scroll
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".fade-in").forEach((el) => {
+        observer.observe(el);
+      });
+
+      // Demo form submission
+      $("#demoForm").submit(function (e) {
+        e.preventDefault();
+
+        // Get form data
+        const formData = {
+          name: $(this).find('input[placeholder="আপনার নাম"]').val(),
+          email: $(this).find('input[placeholder="ইমেইল ঠিকানা"]').val(),
+          phone: $(this).find('input[placeholder="মোবাইল নম্বর"]').val(),
+          centerName: $(this)
+            .find('input[placeholder="ডায়াগনস্টিক সেন্টারের নাম"]')
+            .val(),
+          requestDate: new Date().toISOString(),
+        };
+
+        // Save to localStorage (in real app, this would go to server)
+        let demoRequests = JSON.parse(
+          localStorage.getItem("demoRequests") || "[]"
+        );
+        demoRequests.push(formData);
+        localStorage.setItem("demoRequests", JSON.stringify(demoRequests));
+
+        // Show success message
+        alert(
+          "ধন্যবাদ! আপনার ডেমো রিকুয়েস্ট সফলভাবে জমা হয়েছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।"
+        );
+
+        // Reset form
+        $(this)[0].reset();
+      });
+
+      // Add navbar background on scroll
+      window.addEventListener("scroll", function () {
+        const navbar = document.querySelector(".navbar");
+        if (window.scrollY > 50) {
+          navbar.style.background = "rgba(255, 255, 255, 0.98)";
+        } else {
+          navbar.style.background = "rgba(255, 255, 255, 0.95)";
+        }
+      });
+    </script>
+  </body>
+</html>

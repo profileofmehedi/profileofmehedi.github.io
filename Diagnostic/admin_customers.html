@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>অ্যাডমিন ড্যাশবোর্ড - কাস্টমার ম্যানেজমেন্ট</title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Noto Sans Bengali", sans-serif;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        padding-top: 56px;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      }
+
+      .content-header {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(23, 162, 184, 0.3);
+      }
+
+      .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid;
+        transition: all 0.3s ease;
+        height: 100%;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .stats-card.success {
+        border-left-color: #28a745;
+      }
+
+      .stats-card.warning {
+        border-left-color: #ffc107;
+      }
+
+      .stats-card.danger {
+        border-left-color: #dc3545;
+      }
+
+      .stats-card.info {
+        border-left-color: #17a2b8;
+      }
+
+      .customer-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid #17a2b8;
+      }
+
+      .customer-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .customer-card.active {
+        border-left-color: #28a745;
+      }
+
+      .customer-card.trial {
+        border-left-color: #ffc107;
+      }
+
+      .customer-card.inactive {
+        border-left-color: #dc3545;
+        opacity: 0.8;
+      }
+
+      .subscription-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .subscription-starter {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .subscription-professional {
+        background: linear-gradient(45deg, #007bff, #6610f2);
+        color: white;
+      }
+
+      .subscription-enterprise {
+        background: linear-gradient(45deg, #dc3545, #fd7e14);
+        color: white;
+      }
+
+      .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status-active {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .status-trial {
+        background: linear-gradient(45deg, #ffc107, #e0a800);
+        color: white;
+      }
+
+      .status-inactive {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        color: white;
+      }
+
+      .action-btn {
+        margin: 0 0.25rem;
+        border-radius: 5px;
+        padding: 0.375rem 0.75rem;
+        border: none;
+        transition: all 0.3s ease;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .search-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-tab {
+        background: white;
+        border: 2px solid #17a2b8;
+        color: #17a2b8;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .filter-tab.active,
+      .filter-tab:hover {
+        background: #17a2b8;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+      }
+
+      .usage-chart {
+        height: 200px;
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <i class="bi bi-shield-check"></i> ডিজিটাল ডায়াগনস্টিক - অ্যাডমিন
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="index.html">
+            <i class="bi bi-house"></i> হোম পেজ
+          </a>
+          <a class="nav-link" href="#">
+            <i class="bi bi-person-circle"></i> অ্যাডমিন
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="p-3">
+        <a class="nav-link" href="admin_users.html">
+          <i class="bi bi-people"></i> ইউজার ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="admin_payments.html">
+          <i class="bi bi-credit-card"></i> পেমেন্ট ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link active" href="admin_customers.html">
+          <i class="bi bi-building"></i> কাস্টমার ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="#">
+          <i class="bi bi-graph-up"></i> রিপোর্ট ও অ্যানালিটিক্স
+        </a>
+        <a class="nav-link" href="#">
+          <i class="bi bi-gear"></i> সিস্টেম সেটিংস
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="content-header">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2 class="mb-1">
+                <i class="bi bi-building-fill"></i> কাস্টমার ম্যানেজমেন্ট
+              </h2>
+              <p class="mb-0 opacity-75">
+                ডায়াগনস্টিক সেন্টারসমূহের তথ্য ও কার্যক্রম পরিচালনা
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <button class="btn btn-light" onclick="exportCustomerData()">
+                <i class="bi bi-download"></i> ডাটা এক্সপোর্ট
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="stats-card info">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">মোট কাস্টমার</h6>
+                  <h3 id="totalCustomers" class="mb-0">0</h3>
+                </div>
+                <div class="text-info">
+                  <i class="bi bi-building fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card success">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">সক্রিয় কাস্টমার</h6>
+                  <h3 id="activeCustomers" class="mb-0">0</h3>
+                </div>
+                <div class="text-success">
+                  <i class="bi bi-check-circle fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card warning">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">ট্রায়াল কাস্টমার</h6>
+                  <h3 id="trialCustomers" class="mb-0">0</h3>
+                </div>
+                <div class="text-warning">
+                  <i class="bi bi-clock fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card danger">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">নিষ্ক্রিয় কাস্টমার</h6>
+                  <h3 id="inactiveCustomers" class="mb-0">0</h3>
+                </div>
+                <div class="text-danger">
+                  <i class="bi bi-x-circle fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-section">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control"
+                  placeholder="সেন্টারের নাম বা মালিকের নাম দিয়ে খুঁজুন..."
+                />
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select class="form-select" id="subscriptionFilter">
+                <option value="">সব সাবস্ক্রিপশন</option>
+                <option value="starter">স্টার্টার</option>
+                <option value="professional">প্রফেশনাল</option>
+                <option value="enterprise">এন্টারপ্রাইজ</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">
+                  সব কাস্টমার
+                </button>
+                <button class="filter-tab" data-filter="active">সক্রিয়</button>
+                <button class="filter-tab" data-filter="trial">ট্রায়াল</button>
+                <button class="filter-tab" data-filter="inactive">
+                  নিষ্ক্রিয়
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customers List -->
+        <div id="customersList">
+          <!-- Customers will be populated here -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Customer Details Modal -->
+    <div class="modal fade" id="customerDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">কাস্টমার বিস্তারিত তথ্য</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="customerDetailsContent">
+            <!-- Customer details will be populated here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বন্ধ করুন
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="generateCustomerReport()"
+            >
+              <i class="bi bi-file-earmark-text"></i> রিপোর্ট জেনারেট
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Customer Modal -->
+    <div class="modal fade" id="updateCustomerModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">কাস্টমার তথ্য আপডেট</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="updateCustomerForm">
+              <input type="hidden" id="updateCustomerId" />
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">সেন্টারের নাম</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="updateCenterName"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">মালিকের নাম</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="updateOwnerName"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">ইমেইল</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="updateEmail"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">ফোন নম্বর</label>
+                    <input
+                      type="tel"
+                      class="form-control"
+                      id="updatePhone"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">সাবস্ক্রিপশন প্ল্যান</label>
+                    <select
+                      class="form-select"
+                      id="updateSubscriptionPlan"
+                      required
+                    >
+                      <option value="starter">স্টার্টার (৳২,৯৯৯/মাস)</option>
+                      <option value="professional">
+                        প্রফেশনাল (৳৪,৯৯৯/মাস)
+                      </option>
+                      <option value="enterprise">
+                        এন্টারপ্রাইজ (৳৯,৯৯৯/মাস)
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">স্ট্যাটাস</label>
+                    <select class="form-select" id="updateStatus" required>
+                      <option value="active">সক্রিয়</option>
+                      <option value="trial">ট্রায়াল</option>
+                      <option value="inactive">নিষ্ক্রিয়</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="mb-3">
+                    <label class="form-label">ঠিকানা</label>
+                    <textarea
+                      class="form-control"
+                      id="updateAddress"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বাতিল
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="saveCustomerUpdateBtn"
+            >
+              <i class="bi bi-check-circle"></i> আপডেট করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap & jQuery JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        let currentFilter = "all";
+        let customers = [];
+
+        // Load customers from localStorage
+        function loadCustomers() {
+          customers = JSON.parse(
+            localStorage.getItem("diagnosticUsers") || "[]"
+          );
+          displayCustomers();
+          updateStatistics();
+        }
+
+        // Display customers
+        function displayCustomers() {
+          const customersList = $("#customersList");
+          customersList.empty();
+
+          let filteredCustomers = customers;
+          if (currentFilter !== "all") {
+            filteredCustomers = customers.filter(
+              (customer) => customer.status === currentFilter
+            );
+          }
+
+          // Apply subscription filter
+          const subscriptionFilter = $("#subscriptionFilter").val();
+          if (subscriptionFilter) {
+            filteredCustomers = filteredCustomers.filter(
+              (customer) => customer.subscriptionPlan === subscriptionFilter
+            );
+          }
+
+          if (filteredCustomers.length === 0) {
+            customersList.html(`
+              <div class="text-center py-5">
+                <i class="bi bi-building fs-1 text-muted"></i>
+                <h5 class="mt-3 text-muted">কোনো কাস্টমার পাওয়া যায়নি</h5>
+              </div>
+            `);
+            return;
+          }
+
+          filteredCustomers.forEach((customer) => {
+            const statusInfo = getStatusInfo(customer.status);
+            const subscriptionInfo = getSubscriptionInfo(
+              customer.subscriptionPlan
+            );
+            const joinDate = new Date(
+              customer.joinDate || Date.now()
+            ).toLocaleDateString("bn-BD");
+            const lastLogin = customer.lastLogin
+              ? new Date(customer.lastLogin).toLocaleDateString("bn-BD")
+              : "কখনো লগইন করেনি";
+
+            customersList.append(`
+              <div class="customer-card ${customer.status}">
+                <div class="row align-items-center">
+                  <div class="col-md-3">
+                    <h6 class="mb-1">${customer.centerName}</h6>
+                    <p class="text-muted mb-1">মালিক: ${customer.ownerName}</p>
+                    <small class="text-muted">
+                      <i class="bi bi-calendar"></i> যোগদান: ${joinDate}
+                    </small>
+                  </div>
+                  <div class="col-md-3">
+                    <p class="mb-1"><i class="bi bi-envelope"></i> ${
+                      customer.email
+                    }</p>
+                    <p class="mb-1"><i class="bi bi-telephone"></i> ${
+                      customer.phone
+                    }</p>
+                    <small class="text-muted">
+                      <i class="bi bi-clock"></i> শেষ লগইন: ${lastLogin}
+                    </small>
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <span class="subscription-badge ${subscriptionInfo.class}">
+                      ${subscriptionInfo.name}
+                    </span>
+                    <div class="mt-2">
+                      <span class="status-badge ${statusInfo.class}">
+                        ${statusInfo.name}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <div class="usage-stats">
+                      <small class="text-muted d-block">ব্যবহার</small>
+                      <div class="progress mt-1" style="height: 8px;">
+                        <div class="progress-bar bg-info" style="width: ${
+                          Math.random() * 100
+                        }%"></div>
+                      </div>
+                      <small class="text-muted">${Math.floor(
+                        Math.random() * 500
+                      )} টেস্ট</small>
+                    </div>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <button class="btn btn-sm btn-outline-primary action-btn" onclick="viewCustomer('${
+                      customer.id
+                    }')">
+                      <i class="bi bi-eye"></i> বিস্তারিত
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning action-btn" onclick="updateCustomer('${
+                      customer.id
+                    }')">
+                      <i class="bi bi-pencil"></i> সম্পাদনা
+                    </button>
+                    <div class="mt-1">
+                      <button class="btn btn-sm btn-outline-success action-btn" onclick="sendMessage('${
+                        customer.id
+                      }')">
+                        <i class="bi bi-chat"></i> মেসেজ
+                      </button>
+                      ${
+                        customer.status !== "inactive"
+                          ? `<button class="btn btn-sm btn-outline-danger action-btn" onclick="suspendCustomer('${customer.id}')">
+                           <i class="bi bi-pause"></i> স্থগিত
+                         </button>`
+                          : `<button class="btn btn-sm btn-outline-success action-btn" onclick="activateCustomer('${customer.id}')">
+                           <i class="bi bi-play"></i> সক্রিয়
+                         </button>`
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `);
+          });
+        }
+
+        // Get subscription info
+        function getSubscriptionInfo(plan) {
+          const subscriptions = {
+            starter: { name: "স্টার্টার", class: "subscription-starter" },
+            professional: {
+              name: "প্রফেশনাল",
+              class: "subscription-professional",
+            },
+            enterprise: {
+              name: "এন্টারপ্রাইজ",
+              class: "subscription-enterprise",
+            },
+          };
+          return subscriptions[plan] || { name: "অজানা", class: "" };
+        }
+
+        // Get status info
+        function getStatusInfo(status) {
+          const statuses = {
+            active: { name: "সক্রিয়", class: "status-active" },
+            trial: { name: "ট্রায়াল", class: "status-trial" },
+            inactive: { name: "নিষ্ক্রিয়", class: "status-inactive" },
+          };
+          return statuses[status] || { name: "অজানা", class: "" };
+        }
+
+        // Update statistics
+        function updateStatistics() {
+          const total = customers.length;
+          const active = customers.filter((c) => c.status === "active").length;
+          const trial = customers.filter((c) => c.status === "trial").length;
+          const inactive = customers.filter(
+            (c) => c.status === "inactive"
+          ).length;
+
+          $("#totalCustomers").text(total);
+          $("#activeCustomers").text(active);
+          $("#trialCustomers").text(trial);
+          $("#inactiveCustomers").text(inactive);
+        }
+
+        // Filter functionality
+        $(".filter-tab").click(function () {
+          $(".filter-tab").removeClass("active");
+          $(this).addClass("active");
+          currentFilter = $(this).data("filter");
+          displayCustomers();
+        });
+
+        // Subscription filter
+        $("#subscriptionFilter").change(function () {
+          displayCustomers();
+        });
+
+        // Search functionality
+        $("#searchInput").on("input", function () {
+          const searchTerm = $(this).val().toLowerCase();
+          $(".customer-card").each(function () {
+            const text = $(this).text().toLowerCase();
+            if (text.includes(searchTerm)) {
+              $(this).show();
+            } else {
+              $(this).hide();
+            }
+          });
+        });
+
+        // Global functions
+        window.viewCustomer = function (customerId) {
+          const customer = customers.find((c) => c.id === customerId);
+          if (customer) {
+            const statusInfo = getStatusInfo(customer.status);
+            const subscriptionInfo = getSubscriptionInfo(
+              customer.subscriptionPlan
+            );
+            const joinDate = new Date(
+              customer.joinDate || Date.now()
+            ).toLocaleDateString("bn-BD");
+            const lastLogin = customer.lastLogin
+              ? new Date(customer.lastLogin).toLocaleDateString("bn-BD")
+              : "কখনো লগইন করেনি";
+
+            $("#customerDetailsContent").html(`
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="row">
+                    <div class="col-6 mb-3"><strong>সেন্টারের নাম:</strong> ${
+                      customer.centerName
+                    }</div>
+                    <div class="col-6 mb-3"><strong>মালিকের নাম:</strong> ${
+                      customer.ownerName
+                    }</div>
+                    <div class="col-6 mb-3"><strong>ইমেইল:</strong> ${
+                      customer.email
+                    }</div>
+                    <div class="col-6 mb-3"><strong>ফোন:</strong> ${
+                      customer.phone
+                    }</div>
+                    <div class="col-6 mb-3"><strong>ঠিকানা:</strong> ${
+                      customer.address || "প্রদান করা হয়নি"
+                    }</div>
+                    <div class="col-6 mb-3"><strong>যোগদানের তারিখ:</strong> ${joinDate}</div>
+                    <div class="col-6 mb-3"><strong>শেষ লগইন:</strong> ${lastLogin}</div>
+                    <div class="col-6 mb-3">
+                      <strong>সাবস্ক্রিপশন:</strong> 
+                      <span class="subscription-badge ${
+                        subscriptionInfo.class
+                      }">${subscriptionInfo.name}</span>
+                    </div>
+                    <div class="col-6 mb-3">
+                      <strong>স্ট্যাটাস:</strong> 
+                      <span class="status-badge ${statusInfo.class}">${
+              statusInfo.name
+            }</span>
+                    </div>
+                  </div>
+                  
+                  <h6 class="mt-4 mb-3">ব্যবহারের পরিসংখ্যান</h6>
+                  <div class="row">
+                    <div class="col-3">
+                      <div class="text-center">
+                        <h4 class="text-primary">${Math.floor(
+                          Math.random() * 500
+                        )}</h4>
+                        <small class="text-muted">মোট টেস্ট</small>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="text-center">
+                        <h4 class="text-success">${Math.floor(
+                          Math.random() * 50
+                        )}</h4>
+                        <small class="text-muted">এই মাসে</small>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="text-center">
+                        <h4 class="text-warning">${Math.floor(
+                          Math.random() * 1000
+                        )}</h4>
+                        <small class="text-muted">মোট রিপোর্ট</small>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="text-center">
+                        <h4 class="text-info">${Math.floor(
+                          Math.random() * 10
+                        )}</h4>
+                        <small class="text-muted">ডাক্তার</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="mb-3">সাম্প্রতিক কার্যক্রম</h6>
+                  <div class="usage-chart">
+                    <canvas id="usageChart" width="300" height="150"></canvas>
+                  </div>
+                  
+                  <h6 class="mt-4 mb-3">পেমেন্ট ইতিহাস</h6>
+                  <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>নভেম্বর ২০২৫</span>
+                      <span class="badge bg-success">পেইড</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>অক্টোবর ২০২৫</span>
+                      <span class="badge bg-success">পেইড</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between">
+                      <span>সেপ্টেম্বর ২০২৫</span>
+                      <span class="badge bg-warning">পেন্ডিং</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `);
+
+            // Create usage chart
+            setTimeout(() => {
+              const ctx = document.getElementById("usageChart");
+              if (ctx) {
+                new Chart(ctx.getContext("2d"), {
+                  type: "line",
+                  data: {
+                    labels: [
+                      "সোম",
+                      "মঙ্গল",
+                      "বুধ",
+                      "বৃহ",
+                      "শুক্র",
+                      "শনি",
+                      "রবি",
+                    ],
+                    datasets: [
+                      {
+                        label: "দৈনিক ব্যবহার",
+                        data: Array.from({ length: 7 }, () =>
+                          Math.floor(Math.random() * 20)
+                        ),
+                        borderColor: "#17a2b8",
+                        backgroundColor: "rgba(23, 162, 184, 0.1)",
+                        fill: true,
+                        tension: 0.4,
+                      },
+                    ],
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: { beginAtZero: true },
+                    },
+                    plugins: {
+                      legend: { display: false },
+                    },
+                  },
+                });
+              }
+            }, 100);
+
+            $("#customerDetailsModal").modal("show");
+          }
+        };
+
+        window.updateCustomer = function (customerId) {
+          const customer = customers.find((c) => c.id === customerId);
+          if (customer) {
+            $("#updateCustomerId").val(customer.id);
+            $("#updateCenterName").val(customer.centerName);
+            $("#updateOwnerName").val(customer.ownerName);
+            $("#updateEmail").val(customer.email);
+            $("#updatePhone").val(customer.phone);
+            $("#updateSubscriptionPlan").val(customer.subscriptionPlan);
+            $("#updateStatus").val(customer.status);
+            $("#updateAddress").val(customer.address || "");
+            $("#updateCustomerModal").modal("show");
+          }
+        };
+
+        window.suspendCustomer = function (customerId) {
+          if (confirm("এই কাস্টমারকে স্থগিত করতে চান?")) {
+            const customerIndex = customers.findIndex(
+              (c) => c.id === customerId
+            );
+            if (customerIndex !== -1) {
+              customers[customerIndex].status = "inactive";
+              localStorage.setItem(
+                "diagnosticUsers",
+                JSON.stringify(customers)
+              );
+              loadCustomers();
+              alert("কাস্টমার স্থগিত করা হয়েছে!");
+            }
+          }
+        };
+
+        window.activateCustomer = function (customerId) {
+          if (confirm("এই কাস্টমারকে সক্রিয় করতে চান?")) {
+            const customerIndex = customers.findIndex(
+              (c) => c.id === customerId
+            );
+            if (customerIndex !== -1) {
+              customers[customerIndex].status = "active";
+              localStorage.setItem(
+                "diagnosticUsers",
+                JSON.stringify(customers)
+              );
+              loadCustomers();
+              alert("কাস্টমার সক্রিয় করা হয়েছে!");
+            }
+          }
+        };
+
+        window.sendMessage = function (customerId) {
+          const customer = customers.find((c) => c.id === customerId);
+          if (customer) {
+            alert(
+              `${customer.centerName} এর কাছে মেসেজ পাঠানোর ফিচার শীঘ্রই আসছে!\nইমেইল: ${customer.email}`
+            );
+          }
+        };
+
+        window.exportCustomerData = function () {
+          alert("কাস্টমার ডাটা এক্সপোর্ট ফিচার শীঘ্রই আসছে!");
+        };
+
+        window.generateCustomerReport = function () {
+          alert("কাস্টমার রিপোর্ট জেনারেটর শীঘ্রই আসছে!");
+        };
+
+        // Save customer update
+        $("#saveCustomerUpdateBtn").click(function () {
+          const customerId = $("#updateCustomerId").val();
+          const customerIndex = customers.findIndex((c) => c.id === customerId);
+
+          if (customerIndex !== -1) {
+            customers[customerIndex].centerName = $("#updateCenterName").val();
+            customers[customerIndex].ownerName = $("#updateOwnerName").val();
+            customers[customerIndex].email = $("#updateEmail").val();
+            customers[customerIndex].phone = $("#updatePhone").val();
+            customers[customerIndex].subscriptionPlan = $(
+              "#updateSubscriptionPlan"
+            ).val();
+            customers[customerIndex].status = $("#updateStatus").val();
+            customers[customerIndex].address = $("#updateAddress").val();
+
+            localStorage.setItem("diagnosticUsers", JSON.stringify(customers));
+            $("#updateCustomerModal").modal("hide");
+            loadCustomers();
+            alert("কাস্টমার তথ্য সফলভাবে আপডেট করা হয়েছে!");
+          }
+        });
+
+        // Initial load
+        loadCustomers();
+      });
+    </script>
+  </body>
+</html>

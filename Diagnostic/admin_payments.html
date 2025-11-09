@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>অ্যাডমিন ড্যাশবোর্ড - পেমেন্ট ম্যানেজমেন্ট</title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Noto Sans Bengali", sans-serif;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        padding-top: 56px;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      }
+
+      .content-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+      }
+
+      .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid;
+        transition: all 0.3s ease;
+        height: 100%;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .stats-card.success {
+        border-left-color: #28a745;
+      }
+
+      .stats-card.warning {
+        border-left-color: #ffc107;
+      }
+
+      .stats-card.danger {
+        border-left-color: #dc3545;
+      }
+
+      .stats-card.info {
+        border-left-color: #17a2b8;
+      }
+
+      .payment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+      }
+
+      .payment-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .payment-card.paid {
+        border-left-color: #28a745;
+      }
+
+      .payment-card.pending {
+        border-left-color: #ffc107;
+      }
+
+      .payment-card.overdue {
+        border-left-color: #dc3545;
+      }
+
+      .payment-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status-paid {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .status-pending {
+        background: linear-gradient(45deg, #ffc107, #e0a800);
+        color: white;
+      }
+
+      .status-overdue {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        color: white;
+      }
+
+      .action-btn {
+        margin: 0 0.25rem;
+        border-radius: 5px;
+        padding: 0.375rem 0.75rem;
+        border: none;
+        transition: all 0.3s ease;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .search-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-tab {
+        background: white;
+        border: 2px solid #28a745;
+        color: #28a745;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .filter-tab.active,
+      .filter-tab:hover {
+        background: #28a745;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+      }
+
+      .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <i class="bi bi-shield-check"></i> ডিজিটাল ডায়াগনস্টিক - অ্যাডমিন
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="index.html">
+            <i class="bi bi-house"></i> হোম পেজ
+          </a>
+          <a class="nav-link" href="#">
+            <i class="bi bi-person-circle"></i> অ্যাডমিন
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="p-3">
+        <a class="nav-link" href="admin_users.html">
+          <i class="bi bi-people"></i> ইউজার ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link active" href="admin_payments.html">
+          <i class="bi bi-credit-card"></i> পেমেন্ট ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="admin_customers.html">
+          <i class="bi bi-building"></i> কাস্টমার ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="#">
+          <i class="bi bi-graph-up"></i> রিপোর্ট ও অ্যানালিটিক্স
+        </a>
+        <a class="nav-link" href="#">
+          <i class="bi bi-gear"></i> সিস্টেম সেটিংস
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="content-header">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2 class="mb-1">
+                <i class="bi bi-credit-card-fill"></i> পেমেন্ট ম্যানেজমেন্ট
+              </h2>
+              <p class="mb-0 opacity-75">
+                কাস্টমারদের সাবস্ক্রিপশন পেমেন্ট ট্র্যাকিং এবং ম্যানেজমেন্ট
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <button class="btn btn-light" onclick="generateInvoice()">
+                <i class="bi bi-file-earmark-pdf"></i> ইনভয়েস জেনারেট
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="stats-card success">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">মাসিক আয়</h6>
+                  <h3 id="monthlyRevenue" class="mb-0">৳০</h3>
+                </div>
+                <div class="text-success">
+                  <i class="bi bi-currency-dollar fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card info">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">পেইড পেমেন্ট</h6>
+                  <h3 id="paidPayments" class="mb-0">0</h3>
+                </div>
+                <div class="text-info">
+                  <i class="bi bi-check-circle fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card warning">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">পেন্ডিং পেমেন্ট</h6>
+                  <h3 id="pendingPayments" class="mb-0">0</h3>
+                </div>
+                <div class="text-warning">
+                  <i class="bi bi-clock fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card danger">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="text-muted mb-1">ওভারডিউ পেমেন্ট</h6>
+                  <h3 id="overduePayments" class="mb-0">0</h3>
+                </div>
+                <div class="text-danger">
+                  <i class="bi bi-exclamation-triangle fs-1"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="chart-container">
+          <h5 class="mb-3">
+            <i class="bi bi-graph-up"></i> মাসিক রেভিনিউ চার্ট
+          </h5>
+          <canvas id="revenueChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-section">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control"
+                  placeholder="সেন্টারের নাম বা ইনভয়েস নং দিয়ে খুঁজুন..."
+                />
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select class="form-select" id="monthFilter">
+                <option value="">সব মাস</option>
+                <option value="2025-11">নভেম্বর ২০২৫</option>
+                <option value="2025-10">অক্টোবর ২০২৫</option>
+                <option value="2025-09">সেপ্টেম্বর ২০২৫</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">
+                  সব পেমেন্ট
+                </button>
+                <button class="filter-tab" data-filter="paid">পেইড</button>
+                <button class="filter-tab" data-filter="pending">
+                  পেন্ডিং
+                </button>
+                <button class="filter-tab" data-filter="overdue">
+                  ওভারডিউ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payments List -->
+        <div id="paymentsList">
+          <!-- Payments will be populated here -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Payment Details Modal -->
+    <div class="modal fade" id="paymentDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">পেমেন্ট বিস্তারিত</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="paymentDetailsContent">
+            <!-- Payment details will be populated here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বন্ধ করুন
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="printInvoice()"
+            >
+              <i class="bi bi-printer"></i> ইনভয়েস প্রিন্ট
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Payment Modal -->
+    <div class="modal fade" id="updatePaymentModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">পেমেন্ট স্ট্যাটাস আপডেট</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="updatePaymentForm">
+              <input type="hidden" id="updatePaymentId" />
+              <div class="mb-3">
+                <label class="form-label">ইনভয়েস নম্বর</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="updateInvoiceNumber"
+                  readonly
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">পেমেন্ট স্ট্যাটাস</label>
+                <select class="form-select" id="updatePaymentStatus" required>
+                  <option value="pending">পেন্ডিং</option>
+                  <option value="paid">পেইড</option>
+                  <option value="overdue">ওভারডিউ</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">পেমেন্ট তারিখ</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="updatePaymentDate"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">পেমেন্ট মেথড</label>
+                <select class="form-select" id="updatePaymentMethod">
+                  <option value="">নির্বাচন করুন</option>
+                  <option value="bank_transfer">ব্যাংক ট্রান্সফার</option>
+                  <option value="mobile_banking">মোবাইল ব্যাংকিং</option>
+                  <option value="cash">ক্যাশ</option>
+                  <option value="cheque">চেক</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">নোট</label>
+                <textarea
+                  class="form-control"
+                  id="updatePaymentNote"
+                  rows="3"
+                  placeholder="অতিরিক্ত তথ্য বা মন্তব্য"
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বাতিল
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="savePaymentUpdateBtn"
+            >
+              <i class="bi bi-check-circle"></i> আপডেট করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap & jQuery JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        let currentFilter = "all";
+        let payments = [];
+        let revenueChart;
+
+        // Load payments from localStorage
+        function loadPayments() {
+          payments = JSON.parse(localStorage.getItem("adminPayments") || "[]");
+
+          // Generate demo payments if empty
+          if (payments.length === 0) {
+            generateDemoPayments();
+          }
+
+          displayPayments();
+          updateStatistics();
+          updateRevenueChart();
+        }
+
+        // Generate demo payments
+        function generateDemoPayments() {
+          const users = JSON.parse(
+            localStorage.getItem("diagnosticUsers") || "[]"
+          );
+          const currentDate = new Date();
+
+          users.forEach((user, index) => {
+            // Generate 3 months of payment data
+            for (let i = 0; i < 3; i++) {
+              const paymentDate = new Date(currentDate);
+              paymentDate.setMonth(paymentDate.getMonth() - i);
+
+              const prices = {
+                starter: 2999,
+                professional: 4999,
+                enterprise: 9999,
+              };
+              const amount = prices[user.subscriptionPlan] || 2999;
+
+              let status = "paid";
+              if (i === 0) {
+                status =
+                  index % 3 === 0
+                    ? "pending"
+                    : index % 3 === 1
+                    ? "overdue"
+                    : "paid";
+              }
+
+              const payment = {
+                id: `PAY-${user.id}-${paymentDate.getFullYear()}-${String(
+                  paymentDate.getMonth() + 1
+                ).padStart(2, "0")}`,
+                invoiceNumber: `INV-${Date.now() + index + i}`,
+                userId: user.id,
+                centerName: user.centerName,
+                ownerName: user.ownerName,
+                email: user.email,
+                phone: user.phone,
+                subscriptionPlan: user.subscriptionPlan,
+                amount: amount,
+                status: status,
+                dueDate: paymentDate.toISOString().split("T")[0],
+                paymentDate:
+                  status === "paid"
+                    ? paymentDate.toISOString().split("T")[0]
+                    : null,
+                paymentMethod: status === "paid" ? "bank_transfer" : null,
+                note: status === "paid" ? "মাসিক সাবস্ক্রিপশন পেমেন্ট" : "",
+              };
+
+              payments.push(payment);
+            }
+          });
+
+          localStorage.setItem("adminPayments", JSON.stringify(payments));
+        }
+
+        // Display payments
+        function displayPayments() {
+          const paymentsList = $("#paymentsList");
+          paymentsList.empty();
+
+          let filteredPayments = payments;
+          if (currentFilter !== "all") {
+            filteredPayments = payments.filter(
+              (payment) => payment.status === currentFilter
+            );
+          }
+
+          // Apply month filter
+          const monthFilter = $("#monthFilter").val();
+          if (monthFilter) {
+            filteredPayments = filteredPayments.filter((payment) =>
+              payment.dueDate.startsWith(monthFilter)
+            );
+          }
+
+          if (filteredPayments.length === 0) {
+            paymentsList.html(`
+              <div class="text-center py-5">
+                <i class="bi bi-credit-card fs-1 text-muted"></i>
+                <h5 class="mt-3 text-muted">কোনো পেমেন্ট পাওয়া যায়নি</h5>
+              </div>
+            `);
+            return;
+          }
+
+          filteredPayments.forEach((payment) => {
+            const statusInfo = getStatusInfo(payment.status);
+            const subscriptionInfo = getSubscriptionInfo(
+              payment.subscriptionPlan
+            );
+
+            paymentsList.append(`
+              <div class="payment-card ${payment.status}">
+                <div class="row align-items-center">
+                  <div class="col-md-3">
+                    <h6 class="mb-1">${payment.centerName}</h6>
+                    <p class="text-muted mb-1">ইনভয়েস: ${
+                      payment.invoiceNumber
+                    }</p>
+                    <small class="text-muted">মালিক: ${
+                      payment.ownerName
+                    }</small>
+                  </div>
+                  <div class="col-md-3">
+                    <p class="mb-1"><i class="bi bi-envelope"></i> ${
+                      payment.email
+                    }</p>
+                    <p class="mb-1"><i class="bi bi-telephone"></i> ${
+                      payment.phone
+                    }</p>
+                    <small class="subscription-badge ${subscriptionInfo.class}">
+                      ${subscriptionInfo.name}
+                    </small>
+                  </div>
+                  <div class="col-md-2 text-center">
+                    <h5 class="mb-1">৳${payment.amount.toLocaleString()}</h5>
+                    <span class="payment-status ${statusInfo.class}">
+                      ${statusInfo.name}
+                    </span>
+                    <div class="mt-1">
+                      <small class="text-muted">
+                        ${
+                          payment.status === "paid"
+                            ? "পেইড: " + payment.paymentDate
+                            : "ডিউ: " + payment.dueDate
+                        }
+                      </small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 text-end">
+                    <button class="btn btn-sm btn-outline-primary action-btn" onclick="viewPayment('${
+                      payment.id
+                    }')">
+                      <i class="bi bi-eye"></i> বিস্তারিত
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning action-btn" onclick="updatePayment('${
+                      payment.id
+                    }')">
+                      <i class="bi bi-pencil"></i> আপডেট
+                    </button>
+                    ${
+                      payment.status === "pending" ||
+                      payment.status === "overdue"
+                        ? `<button class="btn btn-sm btn-outline-success action-btn" onclick="markAsPaid('${payment.id}')">
+                         <i class="bi bi-check"></i> পেইড
+                       </button>`
+                        : ""
+                    }
+                    <button class="btn btn-sm btn-outline-info action-btn" onclick="sendReminder('${
+                      payment.id
+                    }')">
+                      <i class="bi bi-bell"></i> রিমাইন্ডার
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `);
+          });
+        }
+
+        // Get subscription info
+        function getSubscriptionInfo(plan) {
+          const subscriptions = {
+            starter: { name: "স্টার্টার", class: "subscription-starter" },
+            professional: {
+              name: "প্রফেশনাল",
+              class: "subscription-professional",
+            },
+            enterprise: {
+              name: "এন্টারপ্রাইজ",
+              class: "subscription-enterprise",
+            },
+          };
+          return subscriptions[plan] || { name: "অজানা", class: "" };
+        }
+
+        // Get status info
+        function getStatusInfo(status) {
+          const statuses = {
+            paid: { name: "পেইড", class: "status-paid" },
+            pending: { name: "পেন্ডিং", class: "status-pending" },
+            overdue: { name: "ওভারডিউ", class: "status-overdue" },
+          };
+          return statuses[status] || { name: "অজানা", class: "" };
+        }
+
+        // Update statistics
+        function updateStatistics() {
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          const monthlyPayments = payments.filter((p) =>
+            p.dueDate.startsWith(currentMonth)
+          );
+
+          const monthlyRevenue = monthlyPayments
+            .filter((p) => p.status === "paid")
+            .reduce((sum, p) => sum + p.amount, 0);
+
+          const paidCount = monthlyPayments.filter(
+            (p) => p.status === "paid"
+          ).length;
+          const pendingCount = monthlyPayments.filter(
+            (p) => p.status === "pending"
+          ).length;
+          const overdueCount = monthlyPayments.filter(
+            (p) => p.status === "overdue"
+          ).length;
+
+          $("#monthlyRevenue").text(`৳${monthlyRevenue.toLocaleString()}`);
+          $("#paidPayments").text(paidCount);
+          $("#pendingPayments").text(pendingCount);
+          $("#overduePayments").text(overdueCount);
+        }
+
+        // Update revenue chart
+        function updateRevenueChart() {
+          const ctx = document.getElementById("revenueChart").getContext("2d");
+
+          // Get last 6 months data
+          const months = [];
+          const revenues = [];
+
+          for (let i = 5; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const monthKey = date.toISOString().slice(0, 7);
+            months.push(
+              date.toLocaleDateString("bn-BD", {
+                month: "long",
+                year: "numeric",
+              })
+            );
+
+            const monthRevenue = payments
+              .filter(
+                (p) => p.dueDate.startsWith(monthKey) && p.status === "paid"
+              )
+              .reduce((sum, p) => sum + p.amount, 0);
+            revenues.push(monthRevenue);
+          }
+
+          if (revenueChart) {
+            revenueChart.destroy();
+          }
+
+          revenueChart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: months,
+              datasets: [
+                {
+                  label: "মাসিক আয় (৳)",
+                  data: revenues,
+                  borderColor: "#28a745",
+                  backgroundColor: "rgba(40, 167, 69, 0.1)",
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: function (value) {
+                      return "৳" + value.toLocaleString();
+                    },
+                  },
+                },
+              },
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      return "আয়: ৳" + context.parsed.y.toLocaleString();
+                    },
+                  },
+                },
+              },
+            },
+          });
+        }
+
+        // Filter functionality
+        $(".filter-tab").click(function () {
+          $(".filter-tab").removeClass("active");
+          $(this).addClass("active");
+          currentFilter = $(this).data("filter");
+          displayPayments();
+        });
+
+        // Month filter
+        $("#monthFilter").change(function () {
+          displayPayments();
+        });
+
+        // Search functionality
+        $("#searchInput").on("input", function () {
+          const searchTerm = $(this).val().toLowerCase();
+          $(".payment-card").each(function () {
+            const text = $(this).text().toLowerCase();
+            if (text.includes(searchTerm)) {
+              $(this).show();
+            } else {
+              $(this).hide();
+            }
+          });
+        });
+
+        // Global functions
+        window.viewPayment = function (paymentId) {
+          const payment = payments.find((p) => p.id === paymentId);
+          if (payment) {
+            const statusInfo = getStatusInfo(payment.status);
+            const subscriptionInfo = getSubscriptionInfo(
+              payment.subscriptionPlan
+            );
+
+            $("#paymentDetailsContent").html(`
+              <div class="row">
+                <div class="col-6"><strong>ইনভয়েস নম্বর:</strong> ${
+                  payment.invoiceNumber
+                }</div>
+                <div class="col-6"><strong>সেন্টার:</strong> ${
+                  payment.centerName
+                }</div>
+                <div class="col-6"><strong>মালিক:</strong> ${
+                  payment.ownerName
+                }</div>
+                <div class="col-6"><strong>ইমেইল:</strong> ${
+                  payment.email
+                }</div>
+                <div class="col-6"><strong>ফোন:</strong> ${payment.phone}</div>
+                <div class="col-6"><strong>সাবস্ক্রিপশন:</strong> ${
+                  subscriptionInfo.name
+                }</div>
+                <div class="col-6 mt-3"><strong>পরিমাণ:</strong> ৳${payment.amount.toLocaleString()}</div>
+                <div class="col-6 mt-3"><strong>স্ট্যাটাস:</strong> <span class="payment-status ${
+                  statusInfo.class
+                }">${statusInfo.name}</span></div>
+                <div class="col-6"><strong>ডিউ ডেট:</strong> ${
+                  payment.dueDate
+                }</div>
+                <div class="col-6"><strong>পেমেন্ট ডেট:</strong> ${
+                  payment.paymentDate || "N/A"
+                }</div>
+                <div class="col-6"><strong>পেমেন্ট মেথড:</strong> ${
+                  payment.paymentMethod || "N/A"
+                }</div>
+                <div class="col-6"><strong>নোট:</strong> ${
+                  payment.note || "N/A"
+                }</div>
+              </div>
+            `);
+            $("#paymentDetailsModal").modal("show");
+          }
+        };
+
+        window.updatePayment = function (paymentId) {
+          const payment = payments.find((p) => p.id === paymentId);
+          if (payment) {
+            $("#updatePaymentId").val(payment.id);
+            $("#updateInvoiceNumber").val(payment.invoiceNumber);
+            $("#updatePaymentStatus").val(payment.status);
+            $("#updatePaymentDate").val(payment.paymentDate || "");
+            $("#updatePaymentMethod").val(payment.paymentMethod || "");
+            $("#updatePaymentNote").val(payment.note || "");
+            $("#updatePaymentModal").modal("show");
+          }
+        };
+
+        window.markAsPaid = function (paymentId) {
+          if (confirm("এই পেমেন্টটি পেইড হিসেবে মার্ক করতে চান?")) {
+            const paymentIndex = payments.findIndex((p) => p.id === paymentId);
+            if (paymentIndex !== -1) {
+              payments[paymentIndex].status = "paid";
+              payments[paymentIndex].paymentDate = new Date()
+                .toISOString()
+                .split("T")[0];
+              payments[paymentIndex].paymentMethod = "bank_transfer";
+
+              localStorage.setItem("adminPayments", JSON.stringify(payments));
+              loadPayments();
+              alert("পেমেন্ট সফলভাবে পেইড হিসেবে মার্ক করা হয়েছে!");
+            }
+          }
+        };
+
+        window.sendReminder = function (paymentId) {
+          const payment = payments.find((p) => p.id === paymentId);
+          if (payment) {
+            alert(
+              `${
+                payment.centerName
+              } এর কাছে পেমেন্ট রিমাইন্ডার পাঠানো হয়েছে।\nইমেইল: ${
+                payment.email
+              }\nপরিমাণ: ৳${payment.amount.toLocaleString()}`
+            );
+          }
+        };
+
+        window.generateInvoice = function () {
+          alert("ইনভয়েস জেনারেটর ফিচার শীঘ্রই আসছে!");
+        };
+
+        window.printInvoice = function () {
+          window.print();
+        };
+
+        // Save payment update
+        $("#savePaymentUpdateBtn").click(function () {
+          const paymentId = $("#updatePaymentId").val();
+          const paymentIndex = payments.findIndex((p) => p.id === paymentId);
+
+          if (paymentIndex !== -1) {
+            payments[paymentIndex].status = $("#updatePaymentStatus").val();
+            payments[paymentIndex].paymentDate =
+              $("#updatePaymentDate").val() || null;
+            payments[paymentIndex].paymentMethod =
+              $("#updatePaymentMethod").val() || null;
+            payments[paymentIndex].note = $("#updatePaymentNote").val() || "";
+
+            localStorage.setItem("adminPayments", JSON.stringify(payments));
+            $("#updatePaymentModal").modal("hide");
+            loadPayments();
+            alert("পেমেন্ট তথ্য সফলভাবে আপডেট করা হয়েছে!");
+          }
+        });
+
+        // Initial load
+        loadPayments();
+      });
+    </script>
+  </body>
+</html>
