@@ -410,11 +410,20 @@
                 <button class="filter-tab active" data-filter="all">
                   সকল বিল
                 </button>
-                <button class="filter-tab" data-filter="paid">পরিশোধিত</button>
                 <button class="filter-tab" data-filter="pending">
                   পেন্ডিং
                 </button>
                 <button class="filter-tab" data-filter="overdue">বকেয়া</button>
+                <button class="filter-tab" data-filter="today-paid">
+                  আজকের পেমেন্ট
+                </button>
+                <a
+                  href="old_payments.html"
+                  class="filter-tab"
+                  style="text-decoration: none"
+                >
+                  পুরানো পেমেন্ট
+                </a>
               </div>
             </div>
           </div>
@@ -562,6 +571,110 @@
       </div>
     </div>
 
+    <!-- Payment Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">বিল পরিশোধ করুন</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="paymentForm">
+              <div class="mb-3">
+                <label class="form-label">বিল নম্বর</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="paymentBillId"
+                  readonly
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">রোগীর নাম</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="paymentPatientName"
+                  readonly
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">মূল পরিমাণ (৳)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="paymentOriginalAmount"
+                  readonly
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">পরিবর্তিত পরিমাণ (৳)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="paymentNewAmount"
+                  min="0"
+                  step="0.01"
+                />
+                <small class="text-muted">প্রয়োজনে পরিমাণ পরিবর্তন করুন</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">অতিরিক্ত ছাড় (%)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="paymentAdditionalDiscount"
+                  value="0"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">চূড়ান্ত পরিমাণ (৳)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="paymentFinalAmount"
+                  readonly
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">পেমেন্ট মেথড</label>
+                <select class="form-select" id="paymentMethod" required>
+                  <option value="">নির্বাচন করুন</option>
+                  <option value="cash">নগদ</option>
+                  <option value="card">কার্ড</option>
+                  <option value="mobile-banking">মোবাইল ব্যাংকিং</option>
+                  <option value="bank-transfer">ব্যাংক ট্রান্সফার</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              বাতিল
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="confirmPaymentBtn"
+            >
+              <i class="bi bi-check-circle"></i> পেমেন্ট নিশ্চিত করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap & jQuery JS CDN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -637,7 +750,14 @@
 
         // Filter bills
         function filterBills(bills, filter) {
+          const today = new Date().toLocaleDateString("bn-BD");
+
           if (filter === "all") return bills;
+          if (filter === "today-paid") {
+            return bills.filter(
+              (bill) => bill.status === "paid" && bill.paymentDate === today
+            );
+          }
           return bills.filter((bill) => bill.status === filter);
         }
 
@@ -698,8 +818,8 @@
                     ${
                       bill.status !== "paid"
                         ? `
-                      <button class="btn btn-sm btn-success action-btn" onclick="markAsPaid('${bill.id}')">
-                        <i class="bi bi-check"></i>
+                      <button class="btn btn-sm btn-success action-btn" onclick="openPaymentModal('${bill.id}')">
+                        <i class="bi bi-currency-dollar"></i>
                       </button>
                     `
                         : ""
@@ -909,6 +1029,77 @@
             }
           }
         };
+
+        // Open payment modal
+        window.openPaymentModal = function (billId) {
+          const bills = JSON.parse(
+            localStorage.getItem("diagnosticBills") || "[]"
+          );
+          const bill = bills.find((b) => b.id === billId);
+
+          if (bill) {
+            $("#paymentBillId").val(bill.id);
+            $("#paymentPatientName").val(bill.patientName);
+            $("#paymentOriginalAmount").val(bill.total);
+            $("#paymentNewAmount").val(bill.total);
+            $("#paymentAdditionalDiscount").val(0);
+            $("#paymentFinalAmount").val(bill.total);
+            $("#paymentMethod").val("");
+            $("#paymentModal").modal("show");
+          }
+        };
+
+        // Calculate final payment amount
+        function calculateFinalAmount() {
+          const newAmount = parseFloat($("#paymentNewAmount").val()) || 0;
+          const additionalDiscount =
+            parseFloat($("#paymentAdditionalDiscount").val()) || 0;
+          const finalAmount =
+            newAmount - (newAmount * additionalDiscount) / 100;
+          $("#paymentFinalAmount").val(finalAmount.toFixed(2));
+        }
+
+        // Payment amount change handlers
+        $("#paymentNewAmount, #paymentAdditionalDiscount").on(
+          "input",
+          calculateFinalAmount
+        );
+
+        // Confirm payment
+        $("#confirmPaymentBtn").click(function () {
+          const billId = $("#paymentBillId").val();
+          const newAmount = parseFloat($("#paymentNewAmount").val());
+          const additionalDiscount = parseFloat(
+            $("#paymentAdditionalDiscount").val()
+          );
+          const finalAmount = parseFloat($("#paymentFinalAmount").val());
+          const paymentMethod = $("#paymentMethod").val();
+
+          if (!paymentMethod) {
+            alert("দয়া করে পেমেন্ট মেথড নির্বাচন করুন");
+            return;
+          }
+
+          const bills = JSON.parse(
+            localStorage.getItem("diagnosticBills") || "[]"
+          );
+          const billIndex = bills.findIndex((b) => b.id === billId);
+
+          if (billIndex !== -1) {
+            bills[billIndex].status = "paid";
+            bills[billIndex].paidAmount = finalAmount;
+            bills[billIndex].paymentMethod = paymentMethod;
+            bills[billIndex].paymentDate = new Date().toLocaleDateString(
+              "bn-BD"
+            );
+            bills[billIndex].additionalDiscount = additionalDiscount;
+
+            localStorage.setItem("diagnosticBills", JSON.stringify(bills));
+            $("#paymentModal").modal("hide");
+            loadBills();
+            alert("পেমেন্ট সফলভাবে সম্পন্ন হয়েছে!");
+          }
+        });
 
         window.printBill = function () {
           window.print();

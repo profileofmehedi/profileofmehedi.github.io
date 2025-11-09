@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ডায়াগনস্টিক সেন্টার তথ্য আপডেট - ডায়াগনস্টিক সেন্টার</title>
+    <!-- Dependencies -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Noto Sans Bengali", sans-serif;
+        overflow-x: hidden;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(248, 249, 250, 0.95) !important;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        padding-top: 56px;
+        background: linear-gradient(180deg, #343a40 0%, #495057 100%);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link {
+        color: #adb5bd;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 0 25px 25px 0;
+        margin: 2px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar .nav-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .sidebar .nav-link:hover::before {
+        left: 100%;
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      }
+
+      .content-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+      }
+
+      .settings-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .settings-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .settings-section {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .settings-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .section-title {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo-preview {
+        width: 120px;
+        height: 120px;
+        border: 2px dashed #ced4da;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+      }
+
+      .logo-preview:hover {
+        border-color: #007bff;
+        background: #e7f3ff;
+      }
+
+      .logo-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      .btn-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+      }
+
+      .btn-secondary {
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+      }
+
+      .preview-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid #dee2e6;
+      }
+
+      .preview-header {
+        text-align: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .contact-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+      }
+
+      .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .file-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .upload-btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .upload-btn:hover {
+        background: #0056b3;
+      }
+
+      .password-strength {
+        margin-top: 0.5rem;
+      }
+
+      .password-strength .progress {
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .strength-weak {
+        background-color: #dc3545 !important;
+      }
+
+      .strength-medium {
+        background-color: #ffc107 !important;
+      }
+
+      .strength-strong {
+        background-color: #28a745 !important;
+      }
+
+      .input-group .btn {
+        border-left: none;
+      }
+
+      .alert-info {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border: 1px solid #2196f3;
+        border-radius: 10px;
+      }
+
+      .alert-info ul {
+        padding-left: 1.2rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="dashboard.html">
+          <i class="bi bi-hospital"></i>
+          <span id="navbarCenterName">ডায়াগনস্টিক সেন্টার</span>
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="dashboard.html">
+            <i class="bi bi-person-circle"></i> প্রোফাইল
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="p-3">
+        <a class="nav-link" href="dashboard.html">
+          <i class="bi bi-speedometer2"></i> ড্যাশবোর্ড
+        </a>
+        <a class="nav-link" href="add_patient.html">
+          <i class="bi bi-person-plus-fill"></i> রোগী যোগ করুন
+        </a>
+        <a class="nav-link" href="manage_doctors.html">
+          <i class="bi bi-person-badge"></i> ডাক্তার ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="manage_test_master.html">
+          <i class="bi bi-clipboard-plus"></i> টেস্ট মাস্টার
+        </a>
+        <a class="nav-link" href="manage_tests.html">
+          <i class="bi bi-clipboard-check"></i> টেস্ট ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="bill_management.html">
+          <i class="bi bi-receipt"></i> বিল ম্যানেজমেন্ট
+        </a>
+        <a class="nav-link" href="reports_analytics.html">
+          <i class="bi bi-graph-up"></i> রিপোর্ট ও অ্যানালিটিক্স
+        </a>
+        <a class="nav-link active" href="center_settings.html">
+          <i class="bi bi-gear"></i> সেন্টার সেটিংস
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="content-header">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2 class="mb-1">
+                <i class="bi bi-gear-fill"></i> ডায়াগনস্টিক সেন্টার সেটিংস
+              </h2>
+              <p class="mb-0 opacity-75">
+                আপনার ডায়াগনস্টিক সেন্টারের তথ্য আপডেট করুন
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <button class="btn btn-light" onclick="resetToDefault()">
+                <i class="bi bi-arrow-clockwise"></i> ডিফল্ট রিসেট
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Settings Form -->
+          <div class="col-lg-8">
+            <div class="settings-card">
+              <form id="centerSettingsForm">
+                <!-- Basic Information -->
+                <div class="settings-section">
+                  <h5 class="section-title">
+                    <i class="bi bi-info-circle"></i> মূল তথ্য
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="centerName" class="form-label">
+                        সেন্টারের নাম *
+                      </label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="centerName"
+                        required
+                        placeholder="ডায়াগনস্টিক সেন্টারের নাম লিখুন"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="centerType" class="form-label">
+                        সেন্টারের ধরন
+                      </label>
+                      <select class="form-select" id="centerType">
+                        <option value="diagnostic">ডায়াগনস্টিক সেন্টার</option>
+                        <option value="pathology">প্যাথলজি ল্যাব</option>
+                        <option value="medical">মেডিকেল সেন্টার</option>
+                        <option value="clinic">ক্লিনিক</option>
+                        <option value="hospital">হাসপাতাল</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="centerDescription" class="form-label">
+                      সংক্ষিপ্ত বিবরণ
+                    </label>
+                    <textarea
+                      class="form-control"
+                      id="centerDescription"
+                      rows="3"
+                      placeholder="আপনার সেন্টার সম্পর্কে সংক্ষিপ্ত বিবরণ লিখুন"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Logo Settings -->
+                <div class="settings-section">
+                  <h5 class="section-title">
+                    <i class="bi bi-image"></i> লোগো সেটিংস
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <label class="form-label">বর্তমান লোগো</label>
+                      <div class="logo-preview" id="logoPreview">
+                        <i class="bi bi-image fs-1 text-muted"></i>
+                      </div>
+                      <div class="file-input-wrapper mt-2">
+                        <input
+                          type="file"
+                          class="file-input"
+                          id="logoFile"
+                          accept="image/*"
+                        />
+                        <span class="upload-btn">
+                          <i class="bi bi-upload"></i> নতুন লোগো আপলোড
+                        </span>
+                      </div>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="mb-3">
+                        <label for="logoUrl" class="form-label">
+                          লোগো URL (অপশনাল)
+                        </label>
+                        <input
+                          type="url"
+                          class="form-control"
+                          id="logoUrl"
+                          placeholder="https://example.com/logo.png"
+                        />
+                        <small class="text-muted">
+                          অথবা সরাসরি লোগোর URL লিংক দিন
+                        </small>
+                      </div>
+                      <div class="mb-3">
+                        <label for="logoSize" class="form-label">
+                          লোগোর আকার
+                        </label>
+                        <select class="form-select" id="logoSize">
+                          <option value="small">ছোট (50px)</option>
+                          <option value="medium" selected>মাঝারি (80px)</option>
+                          <option value="large">বড় (120px)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="settings-section">
+                  <h5 class="section-title">
+                    <i class="bi bi-telephone"></i> যোগাযোগের তথ্য
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="phone1" class="form-label">
+                        ফোন নম্বর (প্রধান) *
+                      </label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="phone1"
+                        required
+                        placeholder="01XXXXXXXXX"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="phone2" class="form-label">
+                        ফোন নম্বর (বিকল্প)
+                      </label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="phone2"
+                        placeholder="01XXXXXXXXX"
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="email" class="form-label">ইমেইল</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        placeholder="info@diagnosticcenter.com"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="website" class="form-label">ওয়েবসাইট</label>
+                      <input
+                        type="url"
+                        class="form-control"
+                        id="website"
+                        placeholder="https://www.diagnosticcenter.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Address Information -->
+                <div class="settings-section">
+                  <h5 class="section-title">
+                    <i class="bi bi-geo-alt"></i> ঠিকানা
+                  </h5>
+                  <div class="mb-3">
+                    <label for="address" class="form-label">
+                      সম্পূর্ণ ঠিকানা *
+                    </label>
+                    <textarea
+                      class="form-control"
+                      id="address"
+                      rows="3"
+                      required
+                      placeholder="বাড়ি/হোল্ডিং, রোড, এলাকা, থানা, জেলা"
+                    ></textarea>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label for="district" class="form-label">জেলা</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="district"
+                        placeholder="ঢাকা"
+                      />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label for="division" class="form-label">বিভাগ</label>
+                      <select class="form-select" id="division">
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="dhaka">ঢাকা</option>
+                        <option value="chittagong">চট্টগ্রাম</option>
+                        <option value="sylhet">সিলেট</option>
+                        <option value="khulna">খুলনা</option>
+                        <option value="rajshahi">রাজশাহী</option>
+                        <option value="rangpur">রংপুর</option>
+                        <option value="barisal">বরিশাল</option>
+                        <option value="mymensingh">ময়মনসিংহ</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label for="postalCode" class="form-label">
+                        পোস্টাল কোড
+                      </label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="postalCode"
+                        placeholder="1000"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Operating Hours -->
+                <div class="settings-section">
+                  <h5 class="section-title">
+                    <i class="bi bi-clock"></i> খোলার সময়
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="openTime" class="form-label"
+                        >খোলার সময়</label
+                      >
+                      <input
+                        type="time"
+                        class="form-control"
+                        id="openTime"
+                        value="08:00"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="closeTime" class="form-label"
+                        >বন্ধের সময়</label
+                      >
+                      <input
+                        type="time"
+                        class="form-control"
+                        id="closeTime"
+                        value="22:00"
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">সাপ্তাহিক ছুটির দিন</label>
+                    <div class="form-check-group">
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="fridayOff"
+                          value="friday"
+                        />
+                        <label class="form-check-label" for="fridayOff">
+                          শুক্রবার
+                        </label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="saturdayOff"
+                          value="saturday"
+                        />
+                        <label class="form-check-label" for="saturdayOff">
+                          শনিবার
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Emergency Contact -->
+                <div class="settings-section">
+                  <h5 class="section-title">
+                    <i class="bi bi-shield-check"></i> জরুরি যোগাযোগ
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="emergencyPhone" class="form-label">
+                        জরুরি ফোন নম্বর
+                      </label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="emergencyPhone"
+                        placeholder="01XXXXXXXXX"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="emergencyEmail" class="form-label">
+                        জরুরি ইমেইল
+                      </label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="emergencyEmail"
+                        placeholder="emergency@diagnosticcenter.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Password Management -->
+                <div class="settings-section">
+                  <h5 class="section-title">
+                    <i class="bi bi-key"></i> পাসওয়ার্ড ম্যানেজমেন্ট
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="currentPassword" class="form-label">
+                        বর্তমান পাসওয়ার্ড *
+                      </label>
+                      <div class="input-group">
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="currentPassword"
+                          placeholder="বর্তমান পাসওয়ার্ড লিখুন"
+                        />
+                        <button
+                          class="btn btn-outline-secondary"
+                          type="button"
+                          onclick="togglePassword('currentPassword')"
+                        >
+                          <i class="bi bi-eye" id="currentPasswordIcon"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="newPassword" class="form-label">
+                        নতুন পাসওয়ার্ড *
+                      </label>
+                      <div class="input-group">
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="newPassword"
+                          placeholder="নতুন পাসওয়ার্ড লিখুন"
+                        />
+                        <button
+                          class="btn btn-outline-secondary"
+                          type="button"
+                          onclick="togglePassword('newPassword')"
+                        >
+                          <i class="bi bi-eye" id="newPasswordIcon"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="confirmPassword" class="form-label">
+                        নতুন পাসওয়ার্ড নিশ্চিত করুন *
+                      </label>
+                      <div class="input-group">
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="confirmPassword"
+                          placeholder="নতুন পাসওয়ার্ড আবার লিখুন"
+                        />
+                        <button
+                          class="btn btn-outline-secondary"
+                          type="button"
+                          onclick="togglePassword('confirmPassword')"
+                        >
+                          <i class="bi bi-eye" id="confirmPasswordIcon"></i>
+                        </button>
+                      </div>
+                      <div id="passwordMatch" class="small mt-1"></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">পাসওয়ার্ড শক্তি</label>
+                      <div class="password-strength">
+                        <div class="progress" style="height: 8px">
+                          <div
+                            class="progress-bar"
+                            id="passwordStrengthBar"
+                            role="progressbar"
+                            style="width: 0%"
+                          ></div>
+                        </div>
+                        <small id="passwordStrengthText" class="text-muted">
+                          পাসওয়ার্ড লিখুন
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="alert alert-info" role="alert">
+                      <i class="bi bi-info-circle"></i>
+                      <strong>পাসওয়ার্ড নির্দেশনা:</strong>
+                      <ul class="mb-0 mt-2">
+                        <li>কমপক্ষে ৮ অক্ষর হতে হবে</li>
+                        <li>কমপক্ষে একটি বড় হাতের অক্ষর (A-Z)</li>
+                        <li>কমপক্ষে একটি ছোট হাতের অক্ষর (a-z)</li>
+                        <li>কমপক্ষে একটি সংখ্যা (0-9)</li>
+                        <li>কমপক্ষে একটি বিশেষ চিহ্ন (@#$%!&*)</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <button
+                      type="button"
+                      class="btn btn-warning"
+                      onclick="changePassword()"
+                    >
+                      <i class="bi bi-key"></i> পাসওয়ার্ড পরিবর্তন করুন
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-secondary me-2"
+                    onclick="loadSettings()"
+                  >
+                    <i class="bi bi-arrow-clockwise"></i> রিলোড
+                  </button>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> সেটিংস সংরক্ষণ করুন
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Preview Section -->
+          <div class="col-lg-4">
+            <div class="settings-card">
+              <h5 class="section-title"><i class="bi bi-eye"></i> প্রিভিউ</h5>
+              <div class="preview-card">
+                <div class="preview-header">
+                  <div
+                    class="d-flex align-items-center justify-content-center mb-2"
+                  >
+                    <img
+                      id="previewLogo"
+                      src=""
+                      alt="Logo"
+                      style="max-height: 60px; display: none"
+                    />
+                    <i
+                      id="previewLogoIcon"
+                      class="bi bi-hospital fs-2 text-primary"
+                    ></i>
+                  </div>
+                  <h4 id="previewName" class="mb-1">ডায়াগনস্টিক সেন্টার</h4>
+                  <p id="previewType" class="text-muted mb-2">
+                    ডায়াগনস্টিক সেন্টার
+                  </p>
+                  <small id="previewDescription" class="text-muted"></small>
+                </div>
+
+                <div class="contact-info">
+                  <div class="contact-item" id="previewPhoneItem">
+                    <i class="bi bi-telephone text-primary"></i>
+                    <span id="previewPhone">01XXXXXXXXX</span>
+                  </div>
+                  <div
+                    class="contact-item"
+                    id="previewEmailItem"
+                    style="display: none"
+                  >
+                    <i class="bi bi-envelope text-primary"></i>
+                    <span id="previewEmail"></span>
+                  </div>
+                  <div class="contact-item" id="previewAddressItem">
+                    <i class="bi bi-geo-alt text-primary"></i>
+                    <span id="previewAddress">ঠিকানা</span>
+                  </div>
+                </div>
+
+                <div class="mt-3 text-center">
+                  <small class="text-muted">
+                    <i class="bi bi-clock"></i>
+                    <span id="previewHours">সকাল ৮:০০ - রাত ১০:০০</span>
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="settings-card">
+              <h6 class="mb-3">
+                <i class="bi bi-info-circle"></i> সেটিংস তথ্য
+              </h6>
+              <div class="small">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>সর্বশেষ আপডেট:</span>
+                  <span id="lastUpdated" class="text-muted">-</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>সেটিংস ভার্সন:</span>
+                  <span class="text-muted">1.0</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>স্ট্যাটাস:</span>
+                  <span class="text-success">সক্রিয়</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap & jQuery JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        // Load existing settings on page load
+        loadSettings();
+
+        // Form submission
+        $("#centerSettingsForm").submit(function (e) {
+          e.preventDefault();
+          saveSettings();
+        });
+
+        // Logo file upload handler
+        $("#logoFile").change(function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const logoUrl = e.target.result;
+              $("#logoPreview").html(`<img src="${logoUrl}" alt="Logo">`);
+              $("#previewLogo").attr("src", logoUrl).show();
+              $("#previewLogoIcon").hide();
+              updatePreview();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+        // Logo URL input handler
+        $("#logoUrl").on("input", function () {
+          const logoUrl = $(this).val();
+          if (logoUrl) {
+            $("#logoPreview").html(`<img src="${logoUrl}" alt="Logo">`);
+            $("#previewLogo").attr("src", logoUrl).show();
+            $("#previewLogoIcon").hide();
+          } else {
+            $("#logoPreview").html(
+              '<i class="bi bi-image fs-1 text-muted"></i>'
+            );
+            $("#previewLogo").hide();
+            $("#previewLogoIcon").show();
+          }
+          updatePreview();
+        });
+
+        // Real-time preview updates
+        $(
+          "#centerName, #centerType, #centerDescription, #phone1, #email, #address, #openTime, #closeTime"
+        ).on("input change", updatePreview);
+
+        // Password strength checker
+        $("#newPassword").on("input", function () {
+          checkPasswordStrength();
+          checkPasswordMatch();
+        });
+
+        // Password confirmation checker
+        $("#confirmPassword").on("input", checkPasswordMatch);
+
+        // Password strength checker function
+        function checkPasswordStrength() {
+          const password = $("#newPassword").val();
+          const strengthBar = $("#passwordStrengthBar");
+          const strengthText = $("#passwordStrengthText");
+
+          if (password.length === 0) {
+            strengthBar
+              .css("width", "0%")
+              .removeClass()
+              .addClass("progress-bar");
+            strengthText.text("পাসওয়ার্ড লিখুন").removeClass();
+            return;
+          }
+
+          let strength = 0;
+          let feedback = [];
+
+          // Length check
+          if (password.length >= 8) {
+            strength += 20;
+          } else {
+            feedback.push("কমপক্ষে ৮ অক্ষর");
+          }
+
+          // Uppercase check
+          if (/[A-Z]/.test(password)) {
+            strength += 20;
+          } else {
+            feedback.push("বড় হাতের অক্ষর");
+          }
+
+          // Lowercase check
+          if (/[a-z]/.test(password)) {
+            strength += 20;
+          } else {
+            feedback.push("ছোট হাতের অক্ষর");
+          }
+
+          // Number check
+          if (/\d/.test(password)) {
+            strength += 20;
+          } else {
+            feedback.push("সংখ্যা");
+          }
+
+          // Special character check
+          if (/[@#$%!&*]/.test(password)) {
+            strength += 20;
+          } else {
+            feedback.push("বিশেষ চিহ্ন");
+          }
+
+          // Update progress bar
+          strengthBar.css("width", strength + "%");
+
+          if (strength < 40) {
+            strengthBar.removeClass().addClass("progress-bar strength-weak");
+            strengthText
+              .text("দুর্বল পাসওয়ার্ড")
+              .removeClass()
+              .addClass("text-danger");
+          } else if (strength < 80) {
+            strengthBar.removeClass().addClass("progress-bar strength-medium");
+            strengthText
+              .text("মাঝারি পাসওয়ার্ড")
+              .removeClass()
+              .addClass("text-warning");
+          } else {
+            strengthBar.removeClass().addClass("progress-bar strength-strong");
+            strengthText
+              .text("শক্তিশালী পাসওয়ার্ড")
+              .removeClass()
+              .addClass("text-success");
+          }
+
+          if (feedback.length > 0) {
+            strengthText.append(" - প্রয়োজন: " + feedback.join(", "));
+          }
+        }
+
+        // Password match checker
+        function checkPasswordMatch() {
+          const newPassword = $("#newPassword").val();
+          const confirmPassword = $("#confirmPassword").val();
+          const matchDiv = $("#passwordMatch");
+
+          if (confirmPassword.length === 0) {
+            matchDiv.text("").removeClass();
+            return;
+          }
+
+          if (newPassword === confirmPassword) {
+            matchDiv
+              .text("✓ পাসওয়ার্ড মিলেছে")
+              .removeClass()
+              .addClass("text-success");
+          } else {
+            matchDiv
+              .text("✗ পাসওয়ার্ড মিলেনি")
+              .removeClass()
+              .addClass("text-danger");
+          }
+        }
+
+        // Update preview function
+        function updatePreview() {
+          const name = $("#centerName").val() || "ডায়াগনস্টিক সেন্টার";
+          const type = $("#centerType option:selected").text();
+          const description = $("#centerDescription").val();
+          const phone = $("#phone1").val() || "01XXXXXXXXX";
+          const email = $("#email").val();
+          const address = $("#address").val() || "ঠিকানা";
+          const openTime = $("#openTime").val() || "08:00";
+          const closeTime = $("#closeTime").val() || "22:00";
+
+          $("#previewName").text(name);
+          $("#previewType").text(type);
+          $("#previewDescription").text(description);
+          $("#previewPhone").text(phone);
+          $("#previewAddress").text(address);
+
+          // Convert 24h to 12h format for display
+          const openTimeFormatted = formatTime(openTime);
+          const closeTimeFormatted = formatTime(closeTime);
+          $("#previewHours").text(
+            `${openTimeFormatted} - ${closeTimeFormatted}`
+          );
+
+          // Show/hide email if provided
+          if (email) {
+            $("#previewEmail").text(email);
+            $("#previewEmailItem").show();
+          } else {
+            $("#previewEmailItem").hide();
+          }
+
+          // Update navbar name
+          $("#navbarCenterName").text(name);
+        }
+
+        // Format time from 24h to 12h
+        function formatTime(time24) {
+          const [hours, minutes] = time24.split(":");
+          const hour12 = parseInt(hours) % 12 || 12;
+          const ampm = parseInt(hours) >= 12 ? "PM" : "AM";
+          return `${hour12}:${minutes} ${ampm}`;
+        }
+
+        // Load settings from localStorage
+        function loadSettings() {
+          const settings = JSON.parse(
+            localStorage.getItem("diagnosticCenterSettings") || "{}"
+          );
+
+          // Populate form fields
+          $("#centerName").val(settings.centerName || "ডায়াগনস্টিক সেন্টার");
+          $("#centerType").val(settings.centerType || "diagnostic");
+          $("#centerDescription").val(settings.centerDescription || "");
+          $("#logoUrl").val(settings.logoUrl || "");
+          $("#logoSize").val(settings.logoSize || "medium");
+          $("#phone1").val(settings.phone1 || "");
+          $("#phone2").val(settings.phone2 || "");
+          $("#email").val(settings.email || "");
+          $("#website").val(settings.website || "");
+          $("#address").val(settings.address || "");
+          $("#district").val(settings.district || "");
+          $("#division").val(settings.division || "");
+          $("#postalCode").val(settings.postalCode || "");
+          $("#openTime").val(settings.openTime || "08:00");
+          $("#closeTime").val(settings.closeTime || "22:00");
+          $("#emergencyPhone").val(settings.emergencyPhone || "");
+          $("#emergencyEmail").val(settings.emergencyEmail || "");
+
+          // Set checkboxes
+          if (settings.weeklyOffs) {
+            settings.weeklyOffs.forEach((day) => {
+              $(`#${day}Off`).prop("checked", true);
+            });
+          }
+
+          // Update logo preview
+          if (settings.logoUrl) {
+            $("#logoPreview").html(
+              `<img src="${settings.logoUrl}" alt="Logo">`
+            );
+            $("#previewLogo").attr("src", settings.logoUrl).show();
+            $("#previewLogoIcon").hide();
+          }
+
+          // Update last updated time
+          if (settings.lastUpdated) {
+            $("#lastUpdated").text(
+              new Date(settings.lastUpdated).toLocaleDateString("bn-BD")
+            );
+          }
+
+          updatePreview();
+        }
+
+        // Save settings to localStorage
+        function saveSettings() {
+          const weeklyOffs = [];
+          $("input[type='checkbox']:checked").each(function () {
+            weeklyOffs.push($(this).val());
+          });
+
+          const settings = {
+            centerName: $("#centerName").val(),
+            centerType: $("#centerType").val(),
+            centerDescription: $("#centerDescription").val(),
+            logoUrl: $("#logoUrl").val(),
+            logoSize: $("#logoSize").val(),
+            phone1: $("#phone1").val(),
+            phone2: $("#phone2").val(),
+            email: $("#email").val(),
+            website: $("#website").val(),
+            address: $("#address").val(),
+            district: $("#district").val(),
+            division: $("#division").val(),
+            postalCode: $("#postalCode").val(),
+            openTime: $("#openTime").val(),
+            closeTime: $("#closeTime").val(),
+            emergencyPhone: $("#emergencyPhone").val(),
+            emergencyEmail: $("#emergencyEmail").val(),
+            weeklyOffs: weeklyOffs,
+            lastUpdated: new Date().toISOString(),
+          };
+
+          localStorage.setItem(
+            "diagnosticCenterSettings",
+            JSON.stringify(settings)
+          );
+          $("#lastUpdated").text(new Date().toLocaleDateString("bn-BD"));
+
+          // Show success message
+          alert("সেটিংস সফলভাবে সংরক্ষণ করা হয়েছে!");
+
+          // Update preview
+          updatePreview();
+        }
+
+        // Reset to default
+        window.resetToDefault = function () {
+          if (
+            confirm(
+              "সব সেটিংস ডিফল্টে রিসেট করতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
+            )
+          ) {
+            localStorage.removeItem("diagnosticCenterSettings");
+            $("#centerSettingsForm")[0].reset();
+            $("#logoPreview").html(
+              '<i class="bi bi-image fs-1 text-muted"></i>'
+            );
+            $("#previewLogo").hide();
+            $("#previewLogoIcon").show();
+            $("#lastUpdated").text("-");
+            loadSettings();
+            alert("সেটিংস ডিফল্টে রিসেট করা হয়েছে!");
+          }
+        };
+
+        // Make loadSettings globally accessible
+        window.loadSettings = loadSettings;
+
+        // Toggle password visibility
+        window.togglePassword = function (fieldId) {
+          const field = $("#" + fieldId);
+          const icon = $("#" + fieldId + "Icon");
+
+          if (field.attr("type") === "password") {
+            field.attr("type", "text");
+            icon.removeClass("bi-eye").addClass("bi-eye-slash");
+          } else {
+            field.attr("type", "password");
+            icon.removeClass("bi-eye-slash").addClass("bi-eye");
+          }
+        };
+
+        // Change password function
+        window.changePassword = function () {
+          const currentPassword = $("#currentPassword").val();
+          const newPassword = $("#newPassword").val();
+          const confirmPassword = $("#confirmPassword").val();
+
+          // Validation
+          if (!currentPassword) {
+            alert("দয়া করে বর্তমান পাসওয়ার্ড লিখুন");
+            return;
+          }
+
+          if (!newPassword) {
+            alert("দয়া করে নতুন পাসওয়ার্ড লিখুন");
+            return;
+          }
+
+          if (!confirmPassword) {
+            alert("দয়া করে নতুন পাসওয়ার্ড নিশ্চিত করুন");
+            return;
+          }
+
+          if (newPassword !== confirmPassword) {
+            alert("নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মিলেনি");
+            return;
+          }
+
+          // Check password strength
+          if (!isPasswordStrong(newPassword)) {
+            alert("দয়া করে আরো শক্তিশালী পাসওয়ার্ড ব্যবহার করুন");
+            return;
+          }
+
+          // Check current password (in real app, this would be verified against server)
+          const storedPassword =
+            localStorage.getItem("diagnosticCenterPassword") || "admin123";
+          if (currentPassword !== storedPassword) {
+            alert("বর্তমান পাসওয়ার্ড ভুল");
+            return;
+          }
+
+          // Save new password
+          localStorage.setItem("diagnosticCenterPassword", newPassword);
+          localStorage.setItem("passwordLastChanged", new Date().toISOString());
+
+          // Clear fields
+          $("#currentPassword, #newPassword, #confirmPassword").val("");
+          $("#passwordMatch").text("").removeClass();
+          $("#passwordStrengthBar")
+            .css("width", "0%")
+            .removeClass()
+            .addClass("progress-bar");
+          $("#passwordStrengthText").text("পাসওয়ার্ড লিখুন").removeClass();
+
+          alert("পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!");
+        };
+
+        // Check if password is strong enough
+        function isPasswordStrong(password) {
+          const hasLength = password.length >= 8;
+          const hasUpper = /[A-Z]/.test(password);
+          const hasLower = /[a-z]/.test(password);
+          const hasNumber = /\d/.test(password);
+          const hasSpecial = /[@#$%!&*]/.test(password);
+
+          return hasLength && hasUpper && hasLower && hasNumber && hasSpecial;
+        }
+      });
+    </script>
+  </body>
+</html>
