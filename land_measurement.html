@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>জমির পরিমাপ ক্যালকুলেটর ও তথ্য</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;700&display=swap');
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: #4a148c;
+    }
+
+    .main-container {
+        background-color: #ffffff;
+        padding: 30px 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 900px;
+    }
+    
+    h1 {
+        color: #4a148c;
+        margin-bottom: 25px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    /* Tab styles */
+    .tab-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        border-bottom: 2px solid #ce93d8;
+        margin-bottom: 20px;
+    }
+
+    .tab-button {
+        padding: 12px 20px;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+        font-size: 16px;
+        font-weight: 500;
+        color: #6a1b9a;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .tab-button.active {
+        background-color: #ab47bc;
+        color: white;
+    }
+
+    .tab-pane {
+        display: none;
+        animation: fadeIn 0.6s;
+        min-height: 450px;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+    
+    .calculator-content, .visualizer-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: flex-start;
+    }
+
+    .form-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        margin-top: 15px;
+        font-weight: 500;
+        color: #6a1b9a;
+    }
+
+    input, select {
+        padding: 12px;
+        width: calc(100% - 26px);
+        border: 1px solid #ce93d8;
+        border-radius: 8px;
+        margin-top: 5px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        font-size: 16px;
+    }
+
+    input:focus, select:focus {
+        border-color: #8e24aa;
+        box-shadow: 0 0 8px rgba(142, 36, 170, 0.2);
+        outline: none;
+    }
+
+    button.calculate-btn {
+        margin-top: 25px;
+        padding: 15px;
+        background: linear-gradient(135deg, #ab47bc 0%, #6a1b9a 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 500;
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button.calculate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    #result {
+        grid-column: span 2;
+        margin-top: 20px;
+        font-weight: 500;
+        color: #4a148c;
+        background-color: #f3e5f5;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: left;
+        line-height: 1.8;
+    }
+
+    #result h3 {
+        text-align: center;
+        margin-top: 0;
+        border-bottom: 2px solid #ab47bc;
+        padding-bottom: 10px;
+    }
+
+    .canvas-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #f9f5fb;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #e1bee7;
+        height: auto;
+    }
+    
+    #visualizerInfo {
+        margin-top: 15px;
+        font-weight: 500;
+        color: #6a1b9a;
+    }
+
+    canvas {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+    
+    /* Guide Tab & Converter Tab Styles */
+    .guide-content, .converter-content {
+        line-height: 1.8;
+        padding: 10px 20px;
+    }
+    .guide-content h3, .converter-content h3 {
+        color: #6a1b9a;
+        border-left: 4px solid #ab47bc;
+        padding-left: 10px;
+    }
+    .guide-content p { text-align: justify; }
+    .guide-content ul { list-style-type: disc; padding-left: 20px; }
+    .guide-content code { background-color: #f3e5f5; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    
+    .converter-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 15px;
+        align-items: center;
+        max-width: 500px;
+        margin: 20px auto;
+    }
+    .converter-grid label { margin-top: 0; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .calculator-content, .visualizer-content { grid-template-columns: 1fr; }
+        #result { grid-column: span 1; }
+        .main-container { padding: 20px; }
+        .tab-button { padding: 10px 12px; font-size: 14px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="main-container">
+    <h1>জমির পরিমাপ ক্যালকুলেটর ও তথ্য</h1>
+
+    <div class="tab-buttons">
+        <button class="tab-button active" onclick="openTab(event, 'calculatorTab')" id="defaultOpen">ক্যালকুলেটর</button>
+        <button class="tab-button" onclick="openTab(event, 'guideTab')">নিয়মাবলী</button>
+        <button class="tab-button" onclick="openTab(event, 'visualizerTab')">এককের ধারণা</button>
+        <button class="tab-button" onclick="openTab(event, 'converterTab')">একক রূপান্তরকারী</button>
+    </div>
+
+    <!-- Calculator Tab -->
+    <div id="calculatorTab" class="tab-pane">
+        <div class="calculator-content">
+            <div class="form-column">
+                <label for="side1">জমির প্রথম বাহু (ফুট):</label>
+                <input type="number" id="side1" step="0.01" oninput="drawArea()">
+                <label for="side2">জমির দ্বিতীয় বাহু (ফুট):</label>
+                <input type="number" id="side2" step="0.01" oninput="drawArea()">
+                <label for="side3">জমির তৃতীয় বাহু (ফুট):</label>
+                <input type="number" id="side3" step="0.01" oninput="drawArea()">
+                <label for="side4">জমির চতুর্থ বাহু (ফুট):</label>
+                <input type="number" id="side4" step="0.01" oninput="drawArea()">
+                <button class="calculate-btn" onclick="calculateArea()">হিসাব করুন</button>
+            </div>
+            <div class="canvas-container">
+                <canvas id="landCanvas" width="300" height="300"></canvas>
+            </div>
+            <div id="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Guide Tab -->
+    <div id="guideTab" class="tab-pane">
+        <div class="guide-content">
+            <h3>ভূমিকা</h3>
+            <p>জমির পরিমাপ সঠিকভাবে করা অত্যন্ত গুরুত্বপূর্ণ। নকশা বা জমি ক্রয়-বিক্রয়ের সময় এর ক্ষেত্রফল নির্ভুলভাবে জানা প্রয়োজন। এখানে জমি পরিমাপের কিছু সাধারণ নিয়মাবলী ও সূত্র আলোচনা করা হলো।</p>
+            <h3>ভূমি পরিমাপের বিভিন্ন একক</h3>
+            <ul>
+                <li><strong>১ শতাংশ (Decimal)</strong> = ৪৩৫.৬ বর্গফুট</li>
+                <li><strong>১ একর</strong> = ১০০ শতাংশ = ৪৩৫৬০ বর্গফুট</li>
+                <li><strong>১ বিঘা</strong> = ২০ কাঠা = ১৪৪০০ বর্গফুট (সরকারি হিসাব)</li>
+                <li><strong>১ কাঠা</strong> = ১৬ ছটাক = ৭২০ বর্গফুট</li>
+            </ul>
+            <h3>ক্ষেত্রফল নির্ণয়ের পদ্ধতি</h3>
+            <h4>১. আয়তক্ষেত্র বা বর্গক্ষেত্রাকার জমির হিসাব</h4>
+            <p><strong>সূত্র:</strong> ক্ষেত্রফল = <code>দৈর্ঘ্য (ফুট) × প্রস্থ (ফুট)</code></p>
+            <h4>২. বিষমবাহু চতুর্ভুজাকার জমির হিসাব</h4>
+            <p>সবচেয়ে নির্ভুল পদ্ধতি হলো জমিকে দুটি ত্রিভুজে ভাগ করে কর্ণ মেপে হিসাব করা। প্রতিটি ত্রিভুজের ক্ষেত্রফল হেরনের সূত্র দিয়ে বের করে যোগ করতে হয়।</p>
+            <h4>৩. ত্রিভুজাকার জমির হিসাব (হেরনের সূত্র)</h4>
+            <ol>
+                <li>অর্ধ-পরিসীমা (s) বের করুন: <code>s = (a + b + c) / 2</code></li>
+                <li>ক্ষেত্রফল = <code>√[s(s-a)(s-b)(s-c)]</code></li>
+            </ol>
+        </div>
+    </div>
+    
+    <!-- Visualizer Tab -->
+    <div id="visualizerTab" class="tab-pane">
+        <div class="visualizer-content">
+            <div class="form-column">
+                 <h3>জমির পরিমাণ সম্পর্কে ধারণা নিন</h3>
+                 <label for="unitValue">পরিমাণ:</label>
+                 <input type="number" id="unitValue" value="1" oninput="drawUnitVisualization()">
+                 
+                 <label for="unitSelect">একক নির্বাচন করুন:</label>
+                 <select id="unitSelect" onchange="drawUnitVisualization()">
+                     <option value="bigha">বিঘা</option>
+                     <option value="acre">একর</option>
+                     <option value="katha">কাঠা</option>
+                 </select>
+            </div>
+            <div class="canvas-container">
+                 <canvas id="visualizerCanvas" width="350" height="350"></canvas>
+                 <div id="visualizerInfo"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Converter Tab -->
+    <div id="converterTab" class="tab-pane">
+        <div class="converter-content">
+            <h3>জমির একক রূপান্তরকারী</h3>
+            <p>যেকোনো একটি ঘরে মান লিখুন, বাকি ঘরগুলো স্বয়ংক্রিয়ভাবে পূরণ হয়ে যাবে।</p>
+            <div class="converter-grid">
+                <label for="inputBigha">বিঘা:</label>
+                <input type="number" id="inputBigha" oninput="convertUnits('bigha')">
+                
+                <label for="inputKatha">কাঠা:</label>
+                <input type="number" id="inputKatha" oninput="convertUnits('katha')">
+
+                <label for="inputAcre">একর:</label>
+                <input type="number" id="inputAcre" oninput="convertUnits('acre')">
+                
+                <label for="inputShotangsho">শতাংশ:</label>
+                <input type="number" id="inputShotangsho" oninput="convertUnits('shotangsho')">
+                
+                <label for="inputSqft">বর্গফুট:</label>
+                <input type="number" id="inputSqft" oninput="convertUnits('sqft')">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Constants for Conversion ---
+    const CONVERSIONS = {
+        SQFT_PER_SHOTANGSHO: 435.6,
+        SQFT_PER_KATHA: 720,
+        SQFT_PER_BIGHA: 14400,
+        SQFT_PER_ACRE: 43560,
+    };
+
+    // --- Tab Logic ---
+    function openTab(evt, tabName) {
+        let i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-pane");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    document.getElementById("defaultOpen").click();
+
+    // --- Tab 1: Calculator Logic ---
+    function calculateArea() {
+        const a = parseFloat(document.getElementById('side1').value);
+        const b = parseFloat(document.getElementById('side2').value);
+        const c = parseFloat(document.getElementById('side3').value);
+        const d = parseFloat(document.getElementById('side4').value);
+
+        if (!a || !b || !c || !d) {
+            alert("অনুগ্রহ করে চারটি বাহুর দৈর্ঘ্য প্রদান করুন!");
+            return;
+        }
+
+        const s = (a + b + c + d) / 2;
+        const areaSqFt = Math.sqrt((s - a) * (s - b) * (s - c) * (s - d));
+        
+        if (isNaN(areaSqFt) || areaSqFt <= 0) {
+            alert("প্রদত্ত বাহু দিয়ে চতুর্ভুজ গঠন করা সম্ভব নয়।");
+            return;
+        }
+        
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = `<h3>জমির মোট পরিমাণ</h3>` +
+            `<strong>বর্গফুট:</strong> ${areaSqFt.toFixed(2)} বর্গফুট <br>` +
+            `<strong>শতাংশ:</strong> ${(areaSqFt / CONVERSIONS.SQFT_PER_SHOTANGSHO).toFixed(3)} শতাংশ <br>` +
+            `<strong>একর:</strong> ${(areaSqFt / CONVERSIONS.SQFT_PER_ACRE).toFixed(4)} একর <br>` +
+            `<strong>বিঘা:</strong> ${(areaSqFt / CONVERSIONS.SQFT_PER_BIGHA).toFixed(4)} বিঘা`;
+        resultDiv.style.display = 'block';
+    }
+
+    function drawArea() {
+        // This function is for the first tab's canvas
+        const canvas = document.getElementById('landCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width, height = canvas.height;
+        const a = parseFloat(document.getElementById('side1').value) || 0, b = parseFloat(document.getElementById('side2').value) || 0, c = parseFloat(document.getElementById('side3').value) || 0, d = parseFloat(document.getElementById('side4').value) || 0;
+
+        ctx.clearRect(0, 0, width, height);
+        if (!a && !b && !c && !d) {
+            ctx.font = '16px Hind Siliguri'; ctx.fillStyle = '#aaa'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('বাহুর মাপ দিন', width / 2, height / 2);
+            return;
+        }
+
+        const maxSide = Math.max(a, b, c, d, 1);
+        const scale = 250 / maxSide;
+        const scaledA = a * scale, scaledB = b * scale, scaledC = c * scale, scaledD = d * scale;
+        const p1 = { x: (width - scaledA) / 2, y: (height - Math.max(scaledB, scaledD)) / 2 }, p2 = { x: p1.x + scaledA, y: p1.y }, p3 = { x: p1.x + scaledA - (scaledA - scaledC) / 1.5, y: p1.y + scaledB }, p4 = { x: p1.x + (scaledA - scaledC) / 2.5, y: p1.y + scaledD };
+        
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.closePath();
+        ctx.fillStyle = 'rgba(171, 71, 188, 0.1)'; ctx.fill(); ctx.strokeStyle = '#ab47bc'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    
+    // --- Tab 3: Visualizer Logic ---
+    function drawUnitVisualization() {
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
+        const infoDiv = document.getElementById('visualizerInfo');
+        const quantity = parseFloat(document.getElementById('unitValue').value) || 0;
+        const unit = document.getElementById('unitSelect').value;
+        const width = canvas.width, height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (quantity <= 0) {
+            infoDiv.innerText = "একটি ধনাত্মক পরিমাণ লিখুন।";
+            return;
+        }
+        
+        let subdivisions, rows, cols, infoText, subUnitText;
+
+        if (unit === 'bigha') {
+            subdivisions = 20; // 20 Katha in 1 Bigha
+            cols = 5; rows = 4;
+            subUnitText = "কাঠা";
+            infoText = `${quantity} বিঘা = ${quantity * subdivisions} ${subUnitText}`;
+        } else if (unit === 'acre') {
+            subdivisions = 100; // 100 Shotangsho in 1 Acre
+            cols = 10; rows = 10;
+            subUnitText = "শতাংশ";
+            infoText = `${quantity} একর = ${quantity * subdivisions} ${subUnitText}`;
+        } else { // katha
+            subdivisions = 1;
+            cols = 1; rows = 1;
+            infoText = `${quantity} কাঠা`;
+        }
+
+        infoDiv.innerText = infoText;
+        
+        const padding = 20;
+        const cellWidth = (width - 2 * padding) / cols;
+        const cellHeight = (height - 2 * padding) / rows;
+        
+        ctx.strokeStyle = "#ce93d8";
+        ctx.fillStyle = 'rgba(171, 71, 188, 0.1)';
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                const x = padding + j * cellWidth;
+                const y = padding + i * cellHeight;
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+                ctx.strokeRect(x, y, cellWidth, cellHeight);
+            }
+        }
+        
+        ctx.strokeStyle = "#8e24aa";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(padding, padding, width - 2 * padding, height - 2 * padding);
+    }
+    
+    // --- Tab 4: Converter Logic ---
+    function convertUnits(sourceUnit) {
+        const sourceValue = parseFloat(document.getElementById(`input${sourceUnit.charAt(0).toUpperCase() + sourceUnit.slice(1)}`).value);
+
+        if (isNaN(sourceValue)) {
+            // Clear all fields if input is invalid
+            const inputs = document.querySelectorAll('.converter-grid input');
+            inputs.forEach(input => {
+                if(input.id !== `input${sourceUnit.charAt(0).toUpperCase() + sourceUnit.slice(1)}`) {
+                    input.value = "";
+                }
+            });
+            return;
+        }
+
+        let valueInSqft = 0;
+        switch(sourceUnit) {
+            case 'bigha': valueInSqft = sourceValue * CONVERSIONS.SQFT_PER_BIGHA; break;
+            case 'katha': valueInSqft = sourceValue * CONVERSIONS.SQFT_PER_KATHA; break;
+            case 'acre': valueInSqft = sourceValue * CONVERSIONS.SQFT_PER_ACRE; break;
+            case 'shotangsho': valueInSqft = sourceValue * CONVERSIONS.SQFT_PER_SHOTANGSHO; break;
+            case 'sqft': valueInSqft = sourceValue; break;
+        }
+        
+        const units = {
+            bigha: valueInSqft / CONVERSIONS.SQFT_PER_BIGHA,
+            katha: valueInSqft / CONVERSIONS.SQFT_PER_KATHA,
+            acre: valueInSqft / CONVERSIONS.SQFT_PER_ACRE,
+            shotangsho: valueInSqft / CONVERSIONS.SQFT_PER_SHOTANGSHO,
+            sqft: valueInSqft
+        };
+
+        for (const unit in units) {
+            if (unit !== sourceUnit) {
+                 document.getElementById(`input${unit.charAt(0).toUpperCase() + unit.slice(1)}`).value = parseFloat(units[unit].toFixed(6));
+            }
+        }
+    }
+
+    // --- Initial Drawings on Load ---
+    window.onload = function() {
+        drawArea();
+        drawUnitVisualization();
+    };
+</script>
+</body>
+</html>
