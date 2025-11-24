@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Entry - CRS</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --sidebar-bg: #212529;
+            --sidebar-link-color: #adb5bd;
+            --sidebar-link-hover: #ffffff;
+            --sidebar-link-active: #0d6efd;
+            --topbar-bg: #ffffff;
+            --content-bg: #f4f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            background-color: var(--content-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        #sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 999;
+            background: var(--sidebar-bg);
+            color: #fff;
+            transition: all 0.3s;
+        }
+
+        #sidebar.active {
+            margin-left: -250px;
+        }
+
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: #343a40;
+            text-align: center;
+        }
+
+        #sidebar .sidebar-header h3 {
+            color: #fff;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+        }
+
+        #sidebar ul li a {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            display: block;
+            color: var(--sidebar-link-color);
+            transition: all 0.3s;
+        }
+
+        #sidebar ul li a:hover {
+            color: var(--sidebar-link-hover);
+            background: #343a40;
+        }
+
+        #sidebar ul li.active>a {
+            color: #fff;
+            background: var(--sidebar-link-active);
+        }
+
+        #content {
+            width: calc(100% - 250px);
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.3s;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        #content.active {
+            width: 100%;
+        }
+
+        .topbar {
+            padding: 15px 20px;
+            background: var(--topbar-bg);
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .user-profile .dropdown-toggle::after {
+            display: none;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .form-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            background: var(--card-bg);
+        }
+
+        .comparison-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .comparison-item:last-child {
+            border-bottom: none;
+        }
+
+        .variance-positive {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .variance-negative {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+
+            #sidebar.active {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+            }
+
+            #content.active {
+                width: calc(100% - 250px);
+            }
+
+            #sidebarCollapse span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-coins"></i> CRS</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                <li class="active"><a href="budget-entry.html"><i class="fas fa-money-bill-wave me-2"></i>Budget
+                        Entry</a></li>
+                <li><a href="budget-review.html"><i class="fas fa-clipboard-check me-2"></i>Budget Review</a></li>
+                <li><a href="budget-dashboard.html"><i class="fas fa-chart-line me-2"></i>Budget Dashboard</a></li>
+                <li><a href="expense-entry.html"><i class="fas fa-edit me-2"></i>Expense Entry</a></li>
+                <li><a href="expense-review.html"><i class="fas fa-check-double me-2"></i>Finance Review</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-pie me-2"></i>Reports</a></li>
+                <li><a href="journal-adjustments.html"><i class="fas fa-book me-2"></i>Journal Adjustments</a></li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="topbar">
+                <button type="button" id="sidebarCollapse" class="btn btn-light"><i
+                        class="fas fa-align-left"></i></button>
+                <div class="dropdown user-profile">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                        data-bs-toggle="dropdown">
+                        <img src="https://via.placeholder.com/150/007bff/FFFFFF?Text=D" alt="Department" class="me-2">
+                        <div>
+                            <h6 class="mb-0">Department User</h6>
+                            <small class="text-muted">Education Dept</small>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="login.html"><i
+                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="main-content">
+                <div class="container-fluid">
+                    <h1 class="h3 mb-4 text-gray-800">Department & Govt. Code-Wise Budget Entry</h1>
+
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="form-card">
+                                <h5 class="mb-4"><i class="fas fa-file-invoice-dollar me-2"></i>Budget Proposal Form
+                                </h5>
+                                <form id="budgetEntryForm">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Department <span
+                                                    class="text-danger">*</span></label>
+                                            <select class="form-select" id="department" required>
+                                                <option value="">Select Department</option>
+                                                <option value="Education" selected>Education</option>
+                                                <option value="Health">Health</option>
+                                                <option value="Infrastructure">Infrastructure</option>
+                                                <option value="Agriculture">Agriculture</option>
+                                                <option value="Social Welfare">Social Welfare</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Financial Year <span
+                                                    class="text-danger">*</span></label>
+                                            <select class="form-select" id="fiscalYear" required>
+                                                <option value="">Select Year</option>
+                                                <option value="2024-2025" selected>2024-2025</option>
+                                                <option value="2025-2026">2025-2026</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Govt. Code (Chart of Accounts) <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" id="govtCode" required>
+                                            <option value="">Select Govt. Code</option>
+                                            <option value="1101">1101 - Salary & Wages</option>
+                                            <option value="1201">1201 - Office Supplies</option>
+                                            <option value="1301">1301 - Training & Development</option>
+                                            <option value="1401">1401 - Infrastructure Maintenance</option>
+                                            <option value="2101">2101 - Equipment Purchase</option>
+                                            <option value="2201">2201 - Building Construction</option>
+                                            <option value="3101">3101 - Research & Development</option>
+                                            <option value="3201">3201 - Community Programs</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Budget Category <span
+                                                class="text-danger">*</span></label>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="budgetCategory"
+                                                        id="operational" value="Operational" checked>
+                                                    <label class="form-check-label" for="operational">
+                                                        Operational
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="budgetCategory"
+                                                        id="development" value="Development">
+                                                    <label class="form-check-label" for="development">
+                                                        Development
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="budgetCategory"
+                                                        id="revenue" value="Revenue">
+                                                    <label class="form-check-label" for="revenue">
+                                                        Revenue
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="budgetCategory"
+                                                        id="capital" value="Capital">
+                                                    <label class="form-check-label" for="capital">
+                                                        Capital
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Proposed Budget Amount <span
+                                                class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">৳</span>
+                                            <input type="number" class="form-control" id="proposedAmount"
+                                                placeholder="Enter amount" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Justification <span
+                                                class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="justification" rows="4"
+                                            placeholder="Provide detailed justification for this budget request..."
+                                            required></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Upload Supporting Documents</label>
+                                        <input class="form-control" type="file" id="supportingDocs" multiple>
+                                        <small class="text-muted">Upload estimates, demand notes, procurement plan,
+                                            etc.</small>
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="button" class="btn btn-secondary" id="saveDraftBtn"><i
+                                                class="fas fa-save me-2"></i>Save as Draft</button>
+                                        <button type="submit" class="btn btn-primary"><i
+                                                class="fas fa-paper-plane me-2"></i>Submit for Approval</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-card">
+                                <h6 class="mb-3"><i class="fas fa-history me-2"></i>Previous Year Data</h6>
+                                <div class="comparison-box" id="previousYearData">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                        <p class="mb-0">Select a Govt. Code to view previous year data</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-card mt-3">
+                                <h6 class="mb-3"><i class="fas fa-calculator me-2"></i>Variance Analysis</h6>
+                                <div id="varianceAnalysis">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                                        <p class="mb-0">Enter proposed amount to calculate variance</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Submissions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <h5 class="mb-3"><i class="fas fa-list me-2"></i>Recent Budget Submissions</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Submission ID</th>
+                                                <th>Govt. Code</th>
+                                                <th>Description</th>
+                                                <th>Category</th>
+                                                <th>Proposed Amount</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="submissionTableBody">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        // Demo Data
+        const previousYearData = {
+            '1101': { approved: 5000000, utilized: 4850000, description: 'Salary & Wages' },
+            '1201': { approved: 500000, utilized: 475000, description: 'Office Supplies' },
+            '1301': { approved: 800000, utilized: 720000, description: 'Training & Development' },
+            '1401': { approved: 1200000, utilized: 1150000, description: 'Infrastructure Maintenance' },
+            '2101': { approved: 2000000, utilized: 1850000, description: 'Equipment Purchase' },
+            '2201': { approved: 5000000, utilized: 4500000, description: 'Building Construction' },
+            '3101': { approved: 1500000, utilized: 1320000, description: 'Research & Development' },
+            '3201': { approved: 900000, utilized: 845000, description: 'Community Programs' }
+        };
+
+        const recentSubmissions = [
+            { id: 'BUD-2024-001', code: '1101', desc: 'Salary & Wages', category: 'Operational', amount: 5500000, status: 'Approved' },
+            { id: 'BUD-2024-002', code: '1201', desc: 'Office Supplies', category: 'Operational', amount: 550000, status: 'Pending' },
+            { id: 'BUD-2024-003', code: '2101', desc: 'Equipment Purchase', category: 'Capital', amount: 2200000, status: 'Under Review' },
+            { id: 'BUD-2024-004', code: '3101', desc: 'Research & Development', category: 'Development', amount: 1650000, status: 'Returned' }
+        ];
+
+        // Sidebar Toggle
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar, #content').toggleClass('active');
+        });
+
+        // Govt Code Change Handler
+        $('#govtCode').on('change', function () {
+            const code = $(this).val();
+            if (code && previousYearData[code]) {
+                const data = previousYearData[code];
+                const utilizationPercent = ((data.utilized / data.approved) * 100).toFixed(2);
+
+                $('#previousYearData').html(`
+                    <div class="comparison-item">
+                        <span class="fw-bold">Description:</span>
+                        <span>${data.description}</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="fw-bold">Last Year Approved:</span>
+                        <span class="text-primary">৳ ${data.approved.toLocaleString()}</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="fw-bold">Last Year Utilized:</span>
+                        <span class="text-success">৳ ${data.utilized.toLocaleString()}</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="fw-bold">Utilization Rate:</span>
+                        <span class="badge bg-info">${utilizationPercent}%</span>
+                    </div>
+                `);
+            } else {
+                $('#previousYearData').html(`
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-info-circle fa-2x mb-2"></i>
+                        <p class="mb-0">No previous year data available</p>
+                    </div>
+                `);
+            }
+            calculateVariance();
+        });
+
+        // Proposed Amount Change Handler
+        $('#proposedAmount').on('input', calculateVariance);
+
+        function calculateVariance() {
+            const code = $('#govtCode').val();
+            const proposedAmount = parseFloat($('#proposedAmount').val()) || 0;
+
+            if (code && previousYearData[code] && proposedAmount > 0) {
+                const lastYearApproved = previousYearData[code].approved;
+                const variance = proposedAmount - lastYearApproved;
+                const variancePercent = ((variance / lastYearApproved) * 100).toFixed(2);
+                const varianceClass = variance >= 0 ? 'variance-positive' : 'variance-negative';
+                const varianceIcon = variance >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+
+                $('#varianceAnalysis').html(`
+                    <div class="comparison-item">
+                        <span class="fw-bold">Last Year:</span>
+                        <span>৳ ${lastYearApproved.toLocaleString()}</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="fw-bold">This Year:</span>
+                        <span>৳ ${proposedAmount.toLocaleString()}</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="fw-bold">Variance:</span>
+                        <span class="${varianceClass}">
+                            <i class="fas ${varianceIcon}"></i>
+                            ৳ ${Math.abs(variance).toLocaleString()} (${variancePercent}%)
+                        </span>
+                    </div>
+                `);
+            } else {
+                $('#varianceAnalysis').html(`
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                        <p class="mb-0">Enter proposed amount to calculate variance</p>
+                    </div>
+                `);
+            }
+        }
+
+        // Populate Recent Submissions
+        function populateSubmissions() {
+            let html = '';
+            recentSubmissions.forEach(sub => {
+                let statusClass = 'secondary';
+                if (sub.status === 'Approved') statusClass = 'success';
+                else if (sub.status === 'Pending') statusClass = 'warning';
+                else if (sub.status === 'Under Review') statusClass = 'info';
+                else if (sub.status === 'Returned') statusClass = 'danger';
+
+                html += `
+                    <tr>
+                        <td>${sub.id}</td>
+                        <td>${sub.code}</td>
+                        <td>${sub.desc}</td>
+                        <td>${sub.category}</td>
+                        <td>৳ ${sub.amount.toLocaleString()}</td>
+                        <td><span class="badge bg-${statusClass}">${sub.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${sub.status === 'Returned' || sub.status === 'Pending' ?
+                        `<button class="btn btn-sm btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+            $('#submissionTableBody').html(html);
+        }
+
+        // Form Submit Handler
+        $('#budgetEntryForm').on('submit', function (e) {
+            e.preventDefault();
+            alert('Budget proposal submitted successfully for Finance review!');
+            this.reset();
+            $('#previousYearData').html(`
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-info-circle fa-2x mb-2"></i>
+                    <p class="mb-0">Select a Govt. Code to view previous year data</p>
+                </div>
+            `);
+            $('#varianceAnalysis').html(`
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                    <p class="mb-0">Enter proposed amount to calculate variance</p>
+                </div>
+            `);
+        });
+
+        // Save Draft Handler
+        $('#saveDraftBtn').on('click', function () {
+            alert('Budget proposal saved as draft!');
+        });
+
+        // Initialize
+        populateSubmissions();
+    </script>
+</body>
+
+</html>
