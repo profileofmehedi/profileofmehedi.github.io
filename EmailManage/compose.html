@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compose - ProMailHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: white;
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .user-info {
+            padding: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .user-info .avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .user-info .name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .user-info .role {
+            font-size: 12px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .topbar {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .topbar h1 {
+            font-size: 24px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-header h3 {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 250px;
+            line-height: 1.6;
+        }
+
+        /* Toolbar */
+        .editor-toolbar {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+
+        .toolbar-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .toolbar-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            background: #ddd;
+            margin: 5px 5px;
+        }
+
+        .toolbar-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .toolbar-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .editor-container {
+            position: relative;
+        }
+
+        .editor-container textarea {
+            border-radius: 0 0 8px 8px;
+            border-top: none;
+        }
+
+        /* Attachment Area */
+        .attachment-area {
+            margin-top: 15px;
+            padding: 15px;
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .attachment-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .attachment-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .attachment-list {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .attachment-icon {
+            font-size: 24px;
+        }
+
+        .attachment-info {
+            flex: 1;
+        }
+
+        .attachment-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .attachment-size {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .remove-attachment {
+            background: #ff7675;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .remove-attachment:hover {
+            background: #d63031;
+        }
+
+        /* Priority Selector */
+        .priority-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .priority-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .priority-option:hover {
+            border-color: #667eea;
+        }
+
+        .priority-option.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .priority-option.high {
+            border-color: #ff7675;
+            background: rgba(255, 118, 117, 0.1);
+            color: #d63031;
+        }
+
+        /* CC/BCC Fields */
+        .additional-fields {
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .additional-fields.show {
+            display: block;
+        }
+
+        .toggle-fields {
+            color: #667eea;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-fields:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        /* Character Counter */
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Template Selector */
+        .template-selector {
+            margin-bottom: 20px;
+        }
+
+        .template-btn {
+            padding: 10px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .template-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Schedule Send */
+        .schedule-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .schedule-section label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .schedule-section input[type="datetime-local"] {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        /* Button Group */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-draft {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-draft:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topbar h1 {
+                font-size: 18px;
+            }
+
+            .content-area {
+                padding: 20px 15px;
+            }
+
+            .card {
+                padding: 20px 15px;
+            }
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <span class="logo">✉</span>
+                    <span>ProMailHub</span>
+                </h2>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="inbox.html" class="menu-item">
+                    <i>📥</i>
+                    <span>Inbox</span>
+                </a>
+                <a href="compose.html" class="menu-item active">
+                    <i>✏️</i>
+                    <span>Compose</span>
+                </a>
+                <a href="sent.html" class="menu-item">
+                    <i>📤</i>
+                    <span>Sent Mail</span>
+                </a>
+                <a href="users.html" class="menu-item d-none" id="adminLink">
+                    <i>👥</i>
+                    <span>Manage Users</span>
+                </a>
+            </nav>
+
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">👤</div>
+                <div class="name" id="userName">User</div>
+                <div class="role" id="userRole">Role</div>
+                <button class="logout-btn" onclick="logout()">
+                    🚪 Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="topbar">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1>Compose Email</h1>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>✉️ New Message</h3>
+                    </div>
+                    <div id="msgAlert" class="alert alert-success d-none">✓ Email sent successfully!</div>
+
+                    <!-- Email Templates -->
+                    <div class="template-selector">
+                        <label class="form-label">📋 Quick Templates:</label>
+                        <div>
+                            <button type="button" class="template-btn" onclick="loadTemplate('business')">💼
+                                Business</button>
+                            <button type="button" class="template-btn" onclick="loadTemplate('meeting')">📅 Meeting
+                                Request</button>
+                            <button type="button" class="template-btn" onclick="loadTemplate('followup')">🔄
+                                Follow-up</button>
+                            <button type="button" class="template-btn" onclick="loadTemplate('thankyou')">🙏 Thank
+                                You</button>
+                        </div>
+                    </div>
+
+                    <form id="composeForm">
+                        <!-- Priority Selection -->
+                        <div class="form-group">
+                            <label class="form-label">🎯 Priority:</label>
+                            <div class="priority-selector">
+                                <div class="priority-option" data-priority="low" onclick="selectPriority('low')">🟢 Low
+                                </div>
+                                <div class="priority-option active" data-priority="normal"
+                                    onclick="selectPriority('normal')">🔵 Normal</div>
+                                <div class="priority-option" data-priority="high" onclick="selectPriority('high')">🔴
+                                    High</div>
+                            </div>
+                            <input type="hidden" id="priority" value="normal">
+                        </div>
+
+                        <!-- To Field -->
+                        <div class="form-group">
+                            <label class="form-label">📧 To:</label>
+                            <input type="email" class="form-control" id="toEmail" required
+                                placeholder="recipient@example.com" multiple>
+                            <span class="toggle-fields" onclick="toggleAdditionalFields()">+ Add Cc/Bcc</span>
+                        </div>
+
+                        <!-- CC/BCC Fields -->
+                        <div class="additional-fields" id="additionalFields">
+                            <div class="form-group">
+                                <label class="form-label">Cc:</label>
+                                <input type="email" class="form-control" id="ccEmail" placeholder="cc@example.com"
+                                    multiple>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bcc:</label>
+                                <input type="email" class="form-control" id="bccEmail" placeholder="bcc@example.com"
+                                    multiple>
+                            </div>
+                        </div>
+
+                        <!-- Subject Field -->
+                        <div class="form-group">
+                            <label class="form-label">📝 Subject:</label>
+                            <input type="text" class="form-control" id="subject" required
+                                placeholder="Enter email subject" maxlength="200">
+                            <div class="char-counter"><span id="subjectCount">0</span>/200 characters</div>
+                        </div>
+
+                        <!-- Message Field with Toolbar -->
+                        <div class="form-group">
+                            <label class="form-label">✍️ Message:</label>
+                            <div class="editor-container">
+                                <div class="editor-toolbar">
+                                    <div class="toolbar-group">
+                                        <select class="toolbar-select" id="fontSize"
+                                            onchange="formatText('fontSize', this.value)">
+                                            <option value="12px">Small</option>
+                                            <option value="14px" selected>Normal</option>
+                                            <option value="18px">Large</option>
+                                            <option value="24px">Huge</option>
+                                        </select>
+                                    </div>
+                                    <div class="toolbar-separator"></div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="formatText('bold')"
+                                            title="Bold">
+                                            <strong>B</strong>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('italic')"
+                                            title="Italic">
+                                            <em>I</em>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="formatText('underline')"
+                                            title="Underline">
+                                            <u>U</u>
+                                        </button>
+                                    </div>
+                                    <div class="toolbar-separator"></div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="insertText('bullet')"
+                                            title="Bullet List">
+                                            •
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertText('number')"
+                                            title="Numbered List">
+                                            1.
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertText('line')"
+                                            title="Horizontal Line">
+                                            ―
+                                        </button>
+                                    </div>
+                                    <div class="toolbar-separator"></div>
+                                    <div class="toolbar-group">
+                                        <button type="button" class="toolbar-btn" onclick="insertText('emoji')"
+                                            title="Insert Emoji">
+                                            😊
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="insertText('signature')"
+                                            title="Add Signature">
+                                            ✍️
+                                        </button>
+                                    </div>
+                                </div>
+                                <textarea class="form-control" id="body" required
+                                    placeholder="Type your message here...&#10;&#10;You can use the toolbar above to format your text."></textarea>
+                            </div>
+                            <div class="char-counter"><span id="bodyCount">0</span> characters</div>
+                        </div>
+
+                        <!-- Attachment Area -->
+                        <div class="form-group">
+                            <label class="form-label">📎 Attachments:</label>
+                            <div class="attachment-area" id="attachmentArea"
+                                onclick="document.getElementById('fileInput').click()">
+                                <p style="margin: 10px 0; color: #666;">
+                                    📁 Click to select files or drag and drop here
+                                </p>
+                                <p style="margin: 0; font-size: 12px; color: #999;">
+                                    Supported: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10MB per file)
+                                </p>
+                            </div>
+                            <input type="file" id="fileInput" multiple style="display: none;"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                            <div class="attachment-list" id="attachmentList"></div>
+                        </div>
+
+                        <!-- Schedule Send -->
+                        <div class="schedule-section">
+                            <label>
+                                <input type="checkbox" id="scheduleCheckbox" onchange="toggleSchedule()">
+                                ⏰ Schedule Send
+                            </label>
+                            <input type="datetime-local" class="form-control" id="scheduleTime" style="display: none;">
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">📤 Send Now</button>
+                            <button type="button" class="btn btn-draft" onclick="saveDraft()">💾 Save Draft</button>
+                            <button type="button" class="btn btn-secondary" onclick="discardEmail()">🗑️
+                                Discard</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Database and Session Keys
+        const DB_KEY = 'mailApp_data';
+        const SESS_KEY = 'mailApp_session';
+
+        // Check Authentication
+        function checkAuth() {
+            if (!sessionStorage.getItem(SESS_KEY)) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        function getCurrentUser() {
+            return JSON.parse(sessionStorage.getItem(SESS_KEY));
+        }
+
+        function logout() {
+            sessionStorage.removeItem(SESS_KEY);
+            window.location.href = 'login.html';
+        }
+
+        // Database Functions
+        function loadDB() {
+            return JSON.parse(localStorage.getItem(DB_KEY));
+        }
+
+        function saveDB(data) {
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        }
+
+        // Global variables
+        let attachments = [];
+        let currentPriority = 'normal';
+
+        // Email Templates
+        const templates = {
+            business: {
+                subject: 'Business Inquiry',
+                body: 'Dear [Name],\n\nI hope this email finds you well. I am writing to discuss...\n\nBest regards,\n[Your Name]'
+            },
+            meeting: {
+                subject: 'Meeting Request',
+                body: 'Dear [Name],\n\nI would like to schedule a meeting to discuss...\n\nProposed Time: [Date/Time]\nDuration: [Duration]\n\nPlease let me know your availability.\n\nBest regards,\n[Your Name]'
+            },
+            followup: {
+                subject: 'Follow-up on Previous Discussion',
+                body: 'Dear [Name],\n\nI wanted to follow up on our previous discussion regarding...\n\nLooking forward to hearing from you.\n\nBest regards,\n[Your Name]'
+            },
+            thankyou: {
+                subject: 'Thank You',
+                body: 'Dear [Name],\n\nThank you for your time and consideration. I appreciate...\n\nBest regards,\n[Your Name]'
+            }
+        };
+
+        // Load Template
+        function loadTemplate(type) {
+            const template = templates[type];
+            if (template) {
+                document.getElementById('subject').value = template.subject;
+                document.getElementById('body').value = template.body;
+                updateCharCount();
+            }
+        }
+
+        // Priority Selection
+        function selectPriority(priority) {
+            currentPriority = priority;
+            document.getElementById('priority').value = priority;
+            document.querySelectorAll('.priority-option').forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.dataset.priority === priority && priority !== 'high') {
+                    opt.classList.add('active');
+                }
+            });
+            if (priority === 'high') {
+                document.querySelector(`[data-priority="high"]`).classList.add('active', 'high');
+            }
+        }
+
+        // Toggle Additional Fields
+        function toggleAdditionalFields() {
+            const fields = document.getElementById('additionalFields');
+            fields.classList.toggle('show');
+        }
+
+        // Toggle Schedule
+        function toggleSchedule() {
+            const checkbox = document.getElementById('scheduleCheckbox');
+            const timeInput = document.getElementById('scheduleTime');
+            timeInput.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        // Text Formatting
+        function formatText(command, value) {
+            const textarea = document.getElementById('body');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+
+            if (!selectedText) {
+                alert('Please select text to format');
+                return;
+            }
+
+            let formattedText = selectedText;
+            switch (command) {
+                case 'bold':
+                    formattedText = `**${selectedText}**`;
+                    break;
+                case 'italic':
+                    formattedText = `*${selectedText}*`;
+                    break;
+                case 'underline':
+                    formattedText = `_${selectedText}_`;
+                    break;
+            }
+
+            textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start, start + formattedText.length);
+        }
+
+        // Insert Text
+        function insertText(type) {
+            const textarea = document.getElementById('body');
+            const pos = textarea.selectionStart;
+            let insertText = '';
+
+            switch (type) {
+                case 'bullet':
+                    insertText = '\n• ';
+                    break;
+                case 'number':
+                    insertText = '\n1. ';
+                    break;
+                case 'line':
+                    insertText = '\n─────────────────\n';
+                    break;
+                case 'emoji':
+                    insertText = '😊 ';
+                    break;
+                case 'signature':
+                    const user = getCurrentUser();
+                    insertText = `\n\nBest regards,\n${user.name}\n${user.email}`;
+                    break;
+            }
+
+            textarea.value = textarea.value.substring(0, pos) + insertText + textarea.value.substring(pos);
+            textarea.focus();
+            textarea.setSelectionRange(pos + insertText.length, pos + insertText.length);
+            updateCharCount();
+        }
+
+        // Character Counter
+        function updateCharCount() {
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            document.getElementById('subjectCount').textContent = subject.length;
+            document.getElementById('bodyCount').textContent = body.length;
+        }
+
+        // File Handling
+        document.getElementById('fileInput').addEventListener('change', function (e) {
+            handleFiles(e.target.files);
+        });
+
+        // Drag and Drop
+        const attachmentArea = document.getElementById('attachmentArea');
+        attachmentArea.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        attachmentArea.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        attachmentArea.addEventListener('drop', function (e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`${file.name} is too large. Max 10MB per file.`);
+                    continue;
+                }
+                attachments.push(file);
+                displayAttachment(file);
+            }
+        }
+
+        function displayAttachment(file) {
+            const attachmentList = document.getElementById('attachmentList');
+            const item = document.createElement('div');
+            item.className = 'attachment-item';
+            item.innerHTML = `
+                <span class="attachment-icon">📎</span>
+                <div class="attachment-info">
+                    <div class="attachment-name">${file.name}</div>
+                    <div class="attachment-size">${formatFileSize(file.size)}</div>
+                </div>
+                <button type="button" class="remove-attachment" onclick="removeAttachment('${file.name}')">Remove</button>
+            `;
+            attachmentList.appendChild(item);
+        }
+
+        function removeAttachment(fileName) {
+            attachments = attachments.filter(f => f.name !== fileName);
+            const attachmentList = document.getElementById('attachmentList');
+            attachmentList.innerHTML = '';
+            attachments.forEach(displayAttachment);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Save Draft
+        function saveDraft() {
+            alert('💾 Draft saved successfully!');
+        }
+
+        // Discard Email
+        function discardEmail() {
+            if (confirm('Are you sure you want to discard this email?')) {
+                document.getElementById('composeForm').reset();
+                attachments = [];
+                document.getElementById('attachmentList').innerHTML = '';
+                window.location.href = 'inbox.html';
+            }
+        }
+
+        // Send Email Function
+        function sendEmail(recipient, subject, body, priority, cc, bcc, scheduled) {
+            const user = getCurrentUser();
+            const db = loadDB();
+
+            const attachmentData = attachments.map(f => ({
+                name: f.name,
+                size: formatFileSize(f.size)
+            }));
+
+            const newEmail = {
+                id: Date.now(),
+                senderId: user.id,
+                senderName: user.name,
+                recipient: recipient,
+                cc: cc || '',
+                bcc: bcc || '',
+                subject: subject,
+                body: body,
+                priority: priority || 'normal',
+                attachments: attachmentData,
+                date: new Date().toLocaleString('en-US', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                }),
+                scheduled: scheduled || null,
+                folder: 'sent',
+                targetUserId: null
+            };
+
+            db.emails.push(newEmail);
+            saveDB(db);
+            return true;
+        }
+
+        // Initialize Page
+        checkAuth();
+        const currentUser = getCurrentUser();
+
+        // Set user info in sidebar
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userRole').textContent = currentUser.role;
+        document.getElementById('userAvatar').textContent = currentUser.role === 'admin' ? '👑' : '👤';
+
+        // Show admin menu if admin
+        if (currentUser.role === 'admin') {
+            document.getElementById('adminLink').classList.remove('d-none');
+        }
+
+        // Character count listeners
+        document.getElementById('subject').addEventListener('input', updateCharCount);
+        document.getElementById('body').addEventListener('input', updateCharCount);
+
+        // Handle form submission
+        document.getElementById('composeForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const to = document.getElementById('toEmail').value;
+            const cc = document.getElementById('ccEmail')?.value || '';
+            const bcc = document.getElementById('bccEmail')?.value || '';
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            const priority = document.getElementById('priority').value;
+            const scheduled = document.getElementById('scheduleCheckbox').checked ?
+                document.getElementById('scheduleTime').value : null;
+
+            if (scheduled && new Date(scheduled) < new Date()) {
+                alert('⚠️ Scheduled time must be in the future!');
+                return;
+            }
+
+            sendEmail(to, subject, body, priority, cc, bcc, scheduled);
+            document.getElementById('msgAlert').classList.remove('d-none');
+            e.target.reset();
+            attachments = [];
+            document.getElementById('attachmentList').innerHTML = '';
+
+            setTimeout(() => {
+                window.location.href = 'sent.html';
+            }, 1500);
+        });
+
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        });
+
+        document.getElementById('overlay').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+    </script>
+</body>
+
+</html>
