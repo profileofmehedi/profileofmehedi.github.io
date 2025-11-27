@@ -9,44 +9,91 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f0f2f5;
+            background-color: #f4f6f9;
             font-family: 'Segoe UI', sans-serif;
-            padding-top: 50px;
         }
 
-        .payment-container {
-            max-width: 900px;
-            margin: 0 auto;
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+
+        .sidebar a {
+            color: #adb5bd;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: white;
+            border-left-color: #28a745;
         }
 
         .summary-card {
-            background: #005c2a;
+            background: linear-gradient(135deg, #005c2a 0%, #00421e 100%);
             color: white;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 30px;
-            height: 100%;
+            box-shadow: 0 5px 20px rgba(0, 92, 42, 0.3);
+            margin-bottom: 20px;
         }
 
         .payment-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
         }
 
         .nav-tabs .nav-link {
             color: #495057;
+            border: none;
+            padding: 12px 24px;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #005c2a;
         }
 
         .nav-tabs .nav-link.active {
             font-weight: bold;
             color: #005c2a;
-            border-top: 3px solid #005c2a;
+            background: transparent;
+            border-bottom: 3px solid #005c2a;
         }
 
-        .method-logo {
-            height: 40px;
-            margin-right: 10px;
+        .payment-method-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .form-control:focus {
+            border-color: #005c2a;
+            box-shadow: 0 0 0 0.2rem rgba(0, 92, 42, 0.25);
+        }
+
+        .btn-pay {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
 
         .loader {
@@ -56,122 +103,429 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             z-index: 9999;
-            text-align: center;
-            padding-top: 20%;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .security-badge {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .divider-line {
+            border-top: 1px dashed rgba(255, 255, 255, 0.3);
+            margin: 20px 0;
+        }
+
+        .amount-breakdown {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .mobile-provider-btn {
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .mobile-provider-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .breadcrumb-nav {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                z-index: 1000;
+                transition: left 0.3s;
+                width: 250px !important;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .mobile-overlay.show {
+                display: block;
+            }
+
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+                background: white;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+
+            .mobile-menu-btn {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #343a40;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+            }
+
+            .summary-card {
+                margin-bottom: 20px;
+            }
+
+            .payment-card {
+                padding: 20px;
+            }
+
+            .nav-tabs .nav-link {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Desktop hide mobile elements */
+        @media (min-width: 769px) {
+            .mobile-header {
+                display: none;
+            }
+
+            .mobile-overlay {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="loader" id="loader">
-        <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
-        <h4 class="mt-3">Processing Secure Payment...</h4>
-        <p>Please do not close this window.</p>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="d-flex align-items-center">
+            <i class="fas fa-industry me-2" style="color: #005c2a; font-size: 20px;"></i>
+            <strong style="color: #343a40;">BEPZA</strong>
+        </div>
+        <a href="index.html" style="color: #343a40; font-size: 20px;">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
     </div>
 
-    <div class="payment-container">
-        <div class="row g-0">
-            <!-- Order Summary -->
-            <div class="col-md-4">
-                <div class="summary-card">
-                    <h4 class="mb-4"><i class="fas fa-shopping-cart me-2"></i>Summary</h4>
-                    <p class="text-white-50">Paying for:</p>
-                    <h5 id="billType">Service</h5>
-                    <p class="mb-4">Bill ID: <span id="billId">#000</span></p>
-                    <hr style="border-color: rgba(255,255,255,0.3);">
-                    <div class="d-flex justify-content-between mt-4">
-                        <span>Subtotal</span>
-                        <span id="subTotal">0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between mt-2">
-                        <span>VAT (5%)</span>
-                        <span id="vatAmt">0.00</span>
-                    </div>
-                    <hr style="border-color: rgba(255,255,255,0.3);">
-                    <div class="d-flex justify-content-between mt-3">
-                        <span class="fs-5">Total Payable</span>
-                        <span class="fs-4 fw-bold" id="grandTotal">BDT 0.00</span>
-                    </div>
+    <!-- Loading Overlay -->
+    <div class="loader" id="loader">
+        <div class="spinner-border text-success" role="status" style="width: 4rem; height: 4rem;"></div>
+        <h4 class="mt-4">Processing Secure Payment...</h4>
+        <p class="text-muted">Please do not close this window.</p>
+    </div>
 
-                    <button class="btn btn-outline-light w-100 mt-5" onclick="history.back()">Cancel Payment</button>
-                </div>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar d-flex flex-column flex-shrink-0 p-3" id="sidebar" style="width: 250px;">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <span class="fs-4 fw-bold"><i class="fas fa-industry me-2"></i>BEPZA</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                <li><a href="bills.html"><i class="fas fa-file-invoice-dollar me-2"></i> My Bills</a></li>
+                <li><a href="history.html"><i class="fas fa-history me-2"></i> Payment History</a></li>
+            </ul>
+            <hr>
+            <div class="dropdown">
+                <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
+                    <i class="fas fa-sign-out-alt me-2"></i> <strong>Sign out</strong>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container-fluid p-4">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb-nav">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="bills.html">My Bills</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Payment</li>
+                    </ol>
+                </nav>
             </div>
 
-            <!-- Payment Methods -->
-            <div class="col-md-8">
-                <div class="payment-card">
-                    <h4 class="mb-4">Select Payment Method</h4>
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1">Secure Payment Gateway</h3>
+                    <p class="text-muted mb-0">Complete your payment securely</p>
+                </div>
+                <button class="btn btn-outline-secondary" onclick="history.back()">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Bills
+                </button>
+            </div>
 
-                    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="card-tab" data-bs-toggle="tab" data-bs-target="#card"
-                                type="button">Credit/Debit Card</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="mobile-tab" data-bs-toggle="tab" data-bs-target="#mobile"
-                                type="button">Mobile Banking</button>
-                        </li>
-                    </ul>
+            <div class="row">
+                <!-- Payment Summary -->
+                <div class="col-lg-4 mb-4">
+                    <div class="summary-card">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-receipt" style="font-size: 2.5rem; opacity: 0.8;"></i>
+                        </div>
+                        <h5 class="mb-3"><i class="fas fa-file-invoice me-2"></i>Payment Summary</h5>
 
-                    <div class="tab-content" id="myTabContent">
-                        <!-- Card Form -->
-                        <div class="tab-pane fade show active" id="card" role="tabpanel">
-                            <form id="cardForm">
-                                <div class="mb-3">
-                                    <label class="form-label">Card Holder Name</label>
-                                    <input type="text" class="form-control" placeholder="John Doe" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Card Number</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
-                                        <input type="text" class="form-control" placeholder="0000 0000 0000 0000"
-                                            maxlength="16" required>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-6 mb-3">
-                                        <label class="form-label">Expiry Date</label>
-                                        <input type="text" class="form-control" placeholder="MM/YY" required>
-                                    </div>
-                                    <div class="col-6 mb-3">
-                                        <label class="form-label">CVV</label>
-                                        <input type="password" class="form-control" placeholder="123" maxlength="3"
-                                            required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-success w-100 py-2 fs-5">Pay Now</button>
-                            </form>
+                        <div class="mb-3">
+                            <small class="text-white-50">Service Type</small>
+                            <h6 class="mb-0" id="billType">Service</h6>
                         </div>
 
-                        <!-- Mobile Banking -->
-                        <div class="tab-pane fade" id="mobile" role="tabpanel">
-                            <div class="text-center p-4">
-                                <p class="mb-3">Select your provider:</p>
-                                <div class="btn-group w-100 mb-3" role="group">
-                                    <input type="radio" class="btn-check" name="mfs" id="bkash" autocomplete="off"
-                                        checked>
-                                    <label class="btn btn-outline-danger" for="bkash">bKash</label>
+                        <div class="mb-3">
+                            <small class="text-white-50">Bill Reference</small>
+                            <h6 class="mb-0" id="billId">#000</h6>
+                        </div>
 
-                                    <input type="radio" class="btn-check" name="mfs" id="nagad" autocomplete="off">
-                                    <label class="btn btn-outline-warning" for="nagad">Nagad</label>
-                                </div>
-                                <div class="mb-3 text-start">
-                                    <label class="form-label">Mobile Number</label>
-                                    <input type="text" class="form-control" placeholder="01XXXXXXXXX">
-                                </div>
-                                <button class="btn btn-success w-100 py-2" onclick="$('#cardForm').submit()">Proceed to
-                                    Pay</button>
+                        <div class="divider-line"></div>
+
+                        <div class="amount-breakdown">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal</span>
+                                <span class="fw-bold" id="subTotal">BDT 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>VAT (5%)</span>
+                                <span id="vatAmt">BDT 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Service Charge</span>
+                                <span>BDT 0.00</span>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mt-4 text-center">
-                        <i class="fas fa-lock text-muted me-1"></i> <small class="text-muted">128-bit SSL Encrypted
-                            Transaction</small>
+                        <div class="divider-line"></div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <h5 class="mb-0">Total Payable</h5>
+                            <h4 class="mb-0 fw-bold" id="grandTotal">BDT 0.00</h4>
+                        </div>
+
+                        <div class="security-badge text-center mt-4" style="background: rgba(255,255,255,0.15);">
+                            <i class="fas fa-shield-alt text-white me-2"></i>
+                            <small class="text-white">Secured by SSL Encryption</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="col-lg-8">
+                    <div class="payment-card">
+                        <h5 class="mb-4">Choose Payment Method</h5>
+
+                        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="card-tab" data-bs-toggle="tab"
+                                    data-bs-target="#card" type="button">
+                                    <i class="fas fa-credit-card me-2"></i>Credit/Debit Card
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="mobile-tab" data-bs-toggle="tab" data-bs-target="#mobile"
+                                    type="button">
+                                    <i class="fas fa-mobile-alt me-2"></i>Mobile Banking
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank"
+                                    type="button">
+                                    <i class="fas fa-university me-2"></i>Bank Transfer
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="myTabContent">
+                            <!-- Card Payment -->
+                            <div class="tab-pane fade show active" id="card" role="tabpanel">
+                                <div class="text-center payment-method-icon text-primary mb-3">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <form id="cardForm">
+                                    <div class="row">
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label fw-semibold">Card Holder Name</label>
+                                            <input type="text" class="form-control"
+                                                placeholder="Enter name as shown on card" required>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label fw-semibold">Card Number</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                                <input type="text" class="form-control"
+                                                    placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                            </div>
+                                            <small class="text-muted">We accept Visa, Mastercard, and American
+                                                Express</small>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-semibold">Expiry Date</label>
+                                            <input type="text" class="form-control" placeholder="MM/YY" maxlength="5"
+                                                required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-semibold">CVV</label>
+                                            <input type="password" class="form-control" placeholder="123" maxlength="3"
+                                                required>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="saveCard">
+                                                <label class="form-check-label" for="saveCard">
+                                                    Save this card for future payments
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-pay w-100">
+                                        <i class="fas fa-lock me-2"></i>Pay Securely Now
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Mobile Banking -->
+                            <div class="tab-pane fade" id="mobile" role="tabpanel">
+                                <div class="text-center payment-method-icon text-danger mb-4">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <p class="text-center text-muted mb-4">Select your mobile banking provider</p>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <input type="radio" class="btn-check" name="mfs" id="bkash" autocomplete="off"
+                                            checked>
+                                        <label class="btn btn-outline-danger w-100 mobile-provider-btn" for="bkash">
+                                            <i class="fas fa-mobile-alt fa-2x mb-2"></i>
+                                            <h6 class="mb-0">bKash</h6>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" class="btn-check" name="mfs" id="nagad" autocomplete="off">
+                                        <label class="btn btn-outline-warning w-100 mobile-provider-btn" for="nagad">
+                                            <i class="fas fa-wallet fa-2x mb-2"></i>
+                                            <h6 class="mb-0">Nagad</h6>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" class="btn-check" name="mfs" id="rocket" autocomplete="off">
+                                        <label class="btn btn-outline-info w-100 mobile-provider-btn" for="rocket">
+                                            <i class="fas fa-rocket fa-2x mb-2"></i>
+                                            <h6 class="mb-0">Rocket</h6>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" class="btn-check" name="mfs" id="upay" autocomplete="off">
+                                        <label class="btn btn-outline-success w-100 mobile-provider-btn" for="upay">
+                                            <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                                            <h6 class="mb-0">Upay</h6>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <form id="mobileForm">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Mobile Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">+880</span>
+                                            <input type="text" class="form-control" placeholder="1XXXXXXXXX"
+                                                maxlength="10" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-pay w-100">
+                                        <i class="fas fa-arrow-right me-2"></i>Proceed to Payment
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Bank Transfer -->
+                            <div class="tab-pane fade" id="bank" role="tabpanel">
+                                <div class="text-center payment-method-icon text-info mb-4">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Internet Banking</strong> - You will be redirected to your bank's secure
+                                    portal
+                                </div>
+                                <form id="bankForm">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Select Your Bank</label>
+                                        <select class="form-select" required>
+                                            <option value="">Choose your bank...</option>
+                                            <option value="city">City Bank</option>
+                                            <option value="dutch">Dutch-Bangla Bank</option>
+                                            <option value="brac">BRAC Bank</option>
+                                            <option value="eastern">Eastern Bank</option>
+                                            <option value="standard">Standard Chartered</option>
+                                            <option value="hsbc">HSBC</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-pay w-100">
+                                        <i class="fas fa-external-link-alt me-2"></i>Continue to Bank
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Security Footer -->
+                        <div class="security-badge mt-4">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <i class="fas fa-lock text-success fa-2x mb-2"></i>
+                                    <p class="small mb-0"><strong>SSL Encrypted</strong></p>
+                                    <small class="text-muted">256-bit encryption</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-shield-alt text-primary fa-2x mb-2"></i>
+                                    <p class="small mb-0"><strong>PCI Compliant</strong></p>
+                                    <small class="text-muted">Certified secure</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-check-circle text-info fa-2x mb-2"></i>
+                                    <p class="small mb-0"><strong>Verified</strong></p>
+                                    <small class="text-muted">Trusted gateway</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -188,44 +542,148 @@
             const amount = parseFloat(sessionStorage.getItem('pay_amount'));
             const billId = parseInt(sessionStorage.getItem('pay_bill_id'));
             const type = sessionStorage.getItem('pay_type');
+            const bulkPayIds = sessionStorage.getItem('bulk_pay_ids');
 
             if (!amount) {
                 alert('No bill selected');
                 window.location.href = 'bills.html';
+                return;
             }
 
             // Calculate Totals
             const vat = amount * 0.05;
-            const total = amount + vat;
+            const serviceCharge = 0; // Fixed service charge
+            const total = amount + vat + serviceCharge;
 
             // Display
-            $('#billType').text(type + ' Bill');
-            $('#billId').text('#' + billId);
-            $('#subTotal').text(amount.toLocaleString());
-            $('#vatAmt').text(vat.toLocaleString());
+            if (bulkPayIds) {
+                $('#billType').text('Multiple Bills');
+                $('#billId').text('Bulk Payment');
+            } else {
+                $('#billType').text(type || 'Service');
+                $('#billId').text('#' + (billId || '000'));
+            }
+
+            $('#subTotal').text('BDT ' + amount.toLocaleString());
+            $('#vatAmt').text('BDT ' + vat.toLocaleString());
             $('#grandTotal').text('BDT ' + total.toLocaleString());
 
-            // Process Payment
+            // Auto-format card number
+            $('input[placeholder*="1234 5678"]').on('input', function () {
+                let value = $(this).val().replace(/\s/g, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                $(this).val(formattedValue);
+            });
+
+            // Auto-format expiry date
+            $('input[placeholder="MM/YY"]').on('input', function () {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                $(this).val(value);
+            });
+
+            // Process Payment - Card Form
             $('#cardForm').on('submit', function (e) {
                 e.preventDefault();
-                $('#loader').fadeIn();
+                processPayment();
+            });
+
+            // Process Payment - Mobile Banking
+            $('#mobileForm').on('submit', function (e) {
+                e.preventDefault();
+                processPayment();
+            });
+
+            // Process Payment - Bank Transfer
+            $('#bankForm').on('submit', function (e) {
+                e.preventDefault();
+                processPayment();
+            });
+
+            // Payment Processing Function
+            function processPayment() {
+                $('#loader').css('display', 'flex');
 
                 setTimeout(function () {
                     // Update LocalStorage Data (Mock Database Update)
                     let bills = JSON.parse(localStorage.getItem('bepza_bills'));
-                    const billIndex = bills.findIndex(b => b.id === billId);
 
-                    if (billIndex > -1) {
-                        bills[billIndex].status = 'Paid';
-                        bills[billIndex].date = new Date().toISOString().split('T')[0];
-                        localStorage.setItem('bepza_bills', JSON.stringify(bills));
+                    if (bulkPayIds) {
+                        // Bulk payment
+                        const ids = JSON.parse(bulkPayIds);
+                        ids.forEach(id => {
+                            const billIndex = bills.findIndex(b => b.id === id);
+                            if (billIndex > -1) {
+                                bills[billIndex].status = 'Paid';
+                                bills[billIndex].date = new Date().toISOString().split('T')[0];
+                            }
+                        });
+                        sessionStorage.removeItem('bulk_pay_ids');
+                    } else {
+                        // Single payment
+                        const billIndex = bills.findIndex(b => b.id === billId);
+                        if (billIndex > -1) {
+                            bills[billIndex].status = 'Paid';
+                            bills[billIndex].date = new Date().toISOString().split('T')[0];
+                        }
                     }
 
-                    $('#loader').fadeOut();
-                    alert('Payment Successful! Transaction ID: TXN' + Math.floor(Math.random() * 1000000));
+                    localStorage.setItem('bepza_bills', JSON.stringify(bills));
+
+                    $('#loader').hide();
+
+                    // Success notification
+                    const transactionId = 'TXN' + Date.now().toString().substring(5);
+                    sessionStorage.setItem('last_transaction_id', transactionId);
+
                     window.location.href = 'payment-success.html';
                 }, 2000);
+            }
+
+            // Mobile Menu Toggle
+            $('#mobileMenuBtn').on('click', function () {
+                $('#sidebar').toggleClass('show');
+                $('#mobileOverlay').toggleClass('show');
             });
+
+            $('#mobileOverlay').on('click', function () {
+                $('#sidebar').removeClass('show');
+                $('#mobileOverlay').removeClass('show');
+            });
+
+            // Close mobile menu when clicking a link
+            $('#sidebar a').on('click', function () {
+                if ($(window).width() <= 768) {
+                    $('#sidebar').removeClass('show');
+                    $('#mobileOverlay').removeClass('show');
+                }
+            });
+
+            // Handle window resize
+            $(window).on('resize', function () {
+                if ($(window).width() > 768) {
+                    $('#sidebar').removeClass('show');
+                    $('#mobileOverlay').removeClass('show');
+                }
+            });
+
+            // Prevent body scroll when mobile menu is open
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.target.classList.contains('show')) {
+                        $('body').css('overflow', 'hidden');
+                    } else {
+                        $('body').css('overflow', 'auto');
+                    }
+                });
+            });
+
+            const sidebarElement = document.getElementById('sidebar');
+            if (sidebarElement) {
+                observer.observe(sidebarElement, { attributes: true, attributeFilter: ['class'] });
+            }
         });
     </script>
 </body>
