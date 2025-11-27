@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bills - BEPZA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+
+        .sidebar a {
+            color: #adb5bd;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: white;
+            border-left-color: #28a745;
+        }
+
+        .bill-card {
+            background: white;
+            border-left: 5px solid #007bff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .bill-card.paid {
+            border-left-color: #28a745;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar d-flex flex-column flex-shrink-0 p-3" style="width: 250px;">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <span class="fs-4 fw-bold"><i class="fas fa-industry me-2"></i>BEPZA</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                <li><a href="bills.html" class="active"><i class="fas fa-file-invoice-dollar me-2"></i> My Bills</a>
+                </li>
+                <li><a href="history.html"><i class="fas fa-history me-2"></i> Payment History</a></li>
+            </ul>
+            <hr>
+            <div class="dropdown">
+                <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
+                    <i class="fas fa-sign-out-alt me-2"></i> <strong>Sign out</strong>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container-fluid p-4">
+            <h3 class="mb-4">Monthly Bill Statements</h3>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card p-4">
+                        <div class="d-flex justify-content-between mb-3">
+                            <input type="text" class="form-control w-25" placeholder="Search bill type...">
+                            <select class="form-select w-25">
+                                <option>All Status</option>
+                                <option>Unpaid</option>
+                                <option>Paid</option>
+                            </select>
+                        </div>
+
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Bill #</th>
+                                    <th>Service Type</th>
+                                    <th>Billing Month</th>
+                                    <th>Due Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billsContainer">
+                                <!-- JS Generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            if (!localStorage.getItem('bepza_user')) window.location.href = 'index.html';
+
+            const bills = JSON.parse(localStorage.getItem('bepza_bills')) || [];
+            let html = '';
+
+            bills.forEach(bill => {
+                let statusBadge = bill.status === 'Paid'
+                    ? '<span class="badge bg-success">Paid</span>'
+                    : '<span class="badge bg-danger">Unpaid</span>';
+
+                let actionBtn = bill.status === 'Paid'
+                    ? `<a href="invoice.html" class="btn btn-sm btn-secondary">Receipt</a>`
+                    : `<button class="btn btn-sm btn-primary pay-btn" data-id="${bill.id}" data-amount="${bill.amount}" data-type="${bill.type}">Pay Now</button>`;
+
+                let icon = 'fa-bolt'; // default electricity
+                if (bill.type === 'Gas') icon = 'fa-burn';
+                if (bill.type === 'Water') icon = 'fa-tint';
+
+                html += `
+                <tr>
+                    <td><strong>#${bill.id}</strong></td>
+                    <td><i class="fas ${icon} me-2 text-muted"></i>${bill.type}</td>
+                    <td>${bill.month}</td>
+                    <td>25th of Month</td>
+                    <td class="fw-bold">BDT ${bill.amount.toLocaleString()}</td>
+                    <td>${statusBadge}</td>
+                    <td>${actionBtn}</td>
+                </tr>
+            `;
+            });
+
+            $('#billsContainer').html(html);
+
+            // Handle Pay Button
+            $('.pay-btn').click(function () {
+                const billId = $(this).data('id');
+                const amount = $(this).data('amount');
+                const type = $(this).data('type');
+
+                // Store payment intent in Session Storage
+                sessionStorage.setItem('pay_bill_id', billId);
+                sessionStorage.setItem('pay_amount', amount);
+                sessionStorage.setItem('pay_type', type);
+
+                window.location.href = 'payment.html';
+            });
+        });
+    </script>
+</body>
+
+</html>

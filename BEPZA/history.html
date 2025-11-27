@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History - BEPZA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+
+        .sidebar a {
+            color: #adb5bd;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: white;
+            border-left-color: #28a745;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar d-flex flex-column flex-shrink-0 p-3" style="width: 250px;">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <span class="fs-4 fw-bold"><i class="fas fa-industry me-2"></i>BEPZA</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                <li><a href="bills.html"><i class="fas fa-file-invoice-dollar me-2"></i> My Bills</a></li>
+                <li><a href="history.html" class="active"><i class="fas fa-history me-2"></i> Payment History</a></li>
+            </ul>
+            <hr>
+            <div class="dropdown">
+                <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
+                    <i class="fas fa-sign-out-alt me-2"></i> <strong>Sign out</strong>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container-fluid p-4">
+            <h3 class="mb-4">Transaction History</h3>
+
+            <div class="card p-4 shadow-sm">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Trx ID</th>
+                            <th>Date</th>
+                            <th>Service</th>
+                            <th>Month</th>
+                            <th>Amount Paid</th>
+                            <th>Method</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <!-- JS Generated -->
+                    </tbody>
+                </table>
+                <div id="noData" class="text-center p-5 text-muted d-none">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <p>No payment history found.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            if (!localStorage.getItem('bepza_user')) window.location.href = 'index.html';
+
+            const bills = JSON.parse(localStorage.getItem('bepza_bills')) || [];
+            const paidBills = bills.filter(b => b.status === 'Paid');
+
+            if (paidBills.length === 0) {
+                $('#noData').removeClass('d-none');
+            } else {
+                let html = '';
+                paidBills.forEach(bill => {
+                    // Generate a fake transaction ID based on ID
+                    const trxId = 'TRX-' + (900000 + bill.id);
+
+                    html += `
+                    <tr>
+                        <td class="font-monospace">${trxId}</td>
+                        <td>${bill.date}</td>
+                        <td>${bill.type}</td>
+                        <td>${bill.month}</td>
+                        <td class="fw-bold">BDT ${(bill.amount * 1.05).toLocaleString()} <small class="text-muted">(inc VAT)</small></td>
+                        <td>Online</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-dark" onclick="window.location.href='invoice.html'">
+                                <i class="fas fa-download"></i> Receipt
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                });
+                $('#historyBody').html(html);
+            }
+        });
+    </script>
+</body>
+
+</html>

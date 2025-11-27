@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - BEPZA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+            padding-top: 50px;
+        }
+
+        .payment-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .summary-card {
+            background: #005c2a;
+            color: white;
+            border-radius: 10px;
+            padding: 30px;
+            height: 100%;
+        }
+
+        .payment-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tabs .nav-link {
+            color: #495057;
+        }
+
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            color: #005c2a;
+            border-top: 3px solid #005c2a;
+        }
+
+        .method-logo {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            text-align: center;
+            padding-top: 20%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loader" id="loader">
+        <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
+        <h4 class="mt-3">Processing Secure Payment...</h4>
+        <p>Please do not close this window.</p>
+    </div>
+
+    <div class="payment-container">
+        <div class="row g-0">
+            <!-- Order Summary -->
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h4 class="mb-4"><i class="fas fa-shopping-cart me-2"></i>Summary</h4>
+                    <p class="text-white-50">Paying for:</p>
+                    <h5 id="billType">Service</h5>
+                    <p class="mb-4">Bill ID: <span id="billId">#000</span></p>
+                    <hr style="border-color: rgba(255,255,255,0.3);">
+                    <div class="d-flex justify-content-between mt-4">
+                        <span>Subtotal</span>
+                        <span id="subTotal">0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <span>VAT (5%)</span>
+                        <span id="vatAmt">0.00</span>
+                    </div>
+                    <hr style="border-color: rgba(255,255,255,0.3);">
+                    <div class="d-flex justify-content-between mt-3">
+                        <span class="fs-5">Total Payable</span>
+                        <span class="fs-4 fw-bold" id="grandTotal">BDT 0.00</span>
+                    </div>
+
+                    <button class="btn btn-outline-light w-100 mt-5" onclick="history.back()">Cancel Payment</button>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="col-md-8">
+                <div class="payment-card">
+                    <h4 class="mb-4">Select Payment Method</h4>
+
+                    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="card-tab" data-bs-toggle="tab" data-bs-target="#card"
+                                type="button">Credit/Debit Card</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="mobile-tab" data-bs-toggle="tab" data-bs-target="#mobile"
+                                type="button">Mobile Banking</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="myTabContent">
+                        <!-- Card Form -->
+                        <div class="tab-pane fade show active" id="card" role="tabpanel">
+                            <form id="cardForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Card Holder Name</label>
+                                    <input type="text" class="form-control" placeholder="John Doe" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Card Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                        <input type="text" class="form-control" placeholder="0000 0000 0000 0000"
+                                            maxlength="16" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label">Expiry Date</label>
+                                        <input type="text" class="form-control" placeholder="MM/YY" required>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label">CVV</label>
+                                        <input type="password" class="form-control" placeholder="123" maxlength="3"
+                                            required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100 py-2 fs-5">Pay Now</button>
+                            </form>
+                        </div>
+
+                        <!-- Mobile Banking -->
+                        <div class="tab-pane fade" id="mobile" role="tabpanel">
+                            <div class="text-center p-4">
+                                <p class="mb-3">Select your provider:</p>
+                                <div class="btn-group w-100 mb-3" role="group">
+                                    <input type="radio" class="btn-check" name="mfs" id="bkash" autocomplete="off"
+                                        checked>
+                                    <label class="btn btn-outline-danger" for="bkash">bKash</label>
+
+                                    <input type="radio" class="btn-check" name="mfs" id="nagad" autocomplete="off">
+                                    <label class="btn btn-outline-warning" for="nagad">Nagad</label>
+                                </div>
+                                <div class="mb-3 text-start">
+                                    <label class="form-label">Mobile Number</label>
+                                    <input type="text" class="form-control" placeholder="01XXXXXXXXX">
+                                </div>
+                                <button class="btn btn-success w-100 py-2" onclick="$('#cardForm').submit()">Proceed to
+                                    Pay</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <i class="fas fa-lock text-muted me-1"></i> <small class="text-muted">128-bit SSL Encrypted
+                            Transaction</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            if (!localStorage.getItem('bepza_user')) window.location.href = 'index.html';
+
+            // Retrieve Data
+            const amount = parseFloat(sessionStorage.getItem('pay_amount'));
+            const billId = parseInt(sessionStorage.getItem('pay_bill_id'));
+            const type = sessionStorage.getItem('pay_type');
+
+            if (!amount) {
+                alert('No bill selected');
+                window.location.href = 'bills.html';
+            }
+
+            // Calculate Totals
+            const vat = amount * 0.05;
+            const total = amount + vat;
+
+            // Display
+            $('#billType').text(type + ' Bill');
+            $('#billId').text('#' + billId);
+            $('#subTotal').text(amount.toLocaleString());
+            $('#vatAmt').text(vat.toLocaleString());
+            $('#grandTotal').text('BDT ' + total.toLocaleString());
+
+            // Process Payment
+            $('#cardForm').on('submit', function (e) {
+                e.preventDefault();
+                $('#loader').fadeIn();
+
+                setTimeout(function () {
+                    // Update LocalStorage Data (Mock Database Update)
+                    let bills = JSON.parse(localStorage.getItem('bepza_bills'));
+                    const billIndex = bills.findIndex(b => b.id === billId);
+
+                    if (billIndex > -1) {
+                        bills[billIndex].status = 'Paid';
+                        bills[billIndex].date = new Date().toISOString().split('T')[0];
+                        localStorage.setItem('bepza_bills', JSON.stringify(bills));
+                    }
+
+                    $('#loader').fadeOut();
+                    alert('Payment Successful! Transaction ID: TXN' + Math.floor(Math.random() * 1000000));
+                    window.location.href = 'payment-success.html';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+
+</html>

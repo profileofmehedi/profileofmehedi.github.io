@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice View - BEPZA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #555;
+            padding: 30px 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .invoice-container {
+            background: white;
+            width: 210mm;
+            /* A4 width */
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 50px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .header-logo {
+            color: #005c2a;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .invoice-details {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .status-stamp {
+            position: absolute;
+            top: 150px;
+            right: 50px;
+            font-size: 40px;
+            font-weight: bold;
+            color: rgba(40, 167, 69, 0.2);
+            border: 5px solid rgba(40, 167, 69, 0.2);
+            padding: 10px 20px;
+            transform: rotate(-15deg);
+            text-transform: uppercase;
+        }
+
+        .status-stamp.unpaid {
+            color: rgba(220, 53, 69, 0.2);
+            border-color: rgba(220, 53, 69, 0.2);
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .invoice-container {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container text-center mb-3 no-print">
+        <button class="btn btn-light" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print Invoice</button>
+    </div>
+
+    <div class="invoice-container">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-4">
+            <div class="header-logo"><i class="fas fa-industry"></i> BEPZA</div>
+            <div class="text-end">
+                <h5>Bangladesh Export Processing Zones Authority</h5>
+                <small>House #19, Road #6, Dhanmondi, Dhaka-1205</small><br>
+                <small>Phone: +880 2 9613467 | Email: info@bepza.gov.bd</small>
+            </div>
+        </div>
+
+        <div class="row invoice-details">
+            <div class="col-6">
+                <h6 class="text-muted">BILLED TO:</h6>
+                <h5>Dhaka Textiles Ltd.</h5>
+                <p>Plot #45, Adamjee EPZ, Narayanganj<br>Client ID: <strong>8842</strong></p>
+            </div>
+            <div class="col-6 text-end">
+                <h6 class="text-muted">INVOICE NO:</h6>
+                <h4 id="invId">INV-1001</h4>
+                <br>
+                <p><strong>Date:</strong> <span id="invDate">Oct 01, 2023</span></p>
+            </div>
+        </div>
+
+        <div id="stamp" class="status-stamp">PAID</div>
+
+        <table class="table table-bordered mt-4">
+            <thead class="table-light">
+                <tr>
+                    <th>Description</th>
+                    <th>Usage / Period</th>
+                    <th class="text-end">Amount (BDT)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="svcName">Electricity Bill</td>
+                    <td id="svcMonth">October 2023</td>
+                    <td class="text-end" id="svcAmount">45,000.00</td>
+                </tr>
+                <tr>
+                    <td>VAT (5%)</td>
+                    <td>Govt. Tax</td>
+                    <td class="text-end" id="svcVat">2,250.00</td>
+                </tr>
+                <tr>
+                    <td>Service Charge</td>
+                    <td>Fixed</td>
+                    <td class="text-end">500.00</td>
+                </tr>
+            </tbody>
+            <tfoot class="table-group-divider">
+                <tr>
+                    <th colspan="2" class="text-end">Grand Total</th>
+                    <th class="text-end fs-5" id="svcTotal">47,750.00</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-5 pt-5">
+            <p><strong>Terms & Conditions:</strong></p>
+            <small class="text-muted">
+                1. All payments must be made before the 25th of the billing month.<br>
+                2. Late fees of 2% will apply after the due date.<br>
+                3. This is a computer-generated invoice and requires no signature.
+            </small>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // In a real app, you would pass ID via URL parameter like invoice.html?id=101
+            // For demo, we default to the first bill or use session data if available
+
+            // Mock data loading
+            const bills = JSON.parse(localStorage.getItem('bepza_bills')) || [];
+            // Let's grab the first one for demo purposes if no specific one selected
+            // Or strictly use what was just paid
+            let bill = bills[0];
+
+            // If we came from history, we might want to show that specific one.
+            // For this prototype, we'll randomize or show the first one to keep it simple,
+            // OR you can use sessionStorage to pass the ID like we did for payment.
+
+            if (bill) {
+                $('#invId').text('INV-' + (202300 + bill.id));
+                $('#invDate').text(bill.date === '-' ? 'Issued: ' + bill.month : 'Paid: ' + bill.date);
+                $('#svcName').text(bill.type + ' Bill');
+                $('#svcMonth').text(bill.month);
+
+                const amt = bill.amount;
+                const vat = amt * 0.05;
+                const total = amt + vat + 500; // +500 service charge mock
+
+                $('#svcAmount').text(amt.toLocaleString());
+                $('#svcVat').text(vat.toLocaleString());
+                $('#svcTotal').text(total.toLocaleString());
+
+                $('#stamp').text(bill.status);
+                if (bill.status === 'Unpaid') {
+                    $('#stamp').addClass('unpaid');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
