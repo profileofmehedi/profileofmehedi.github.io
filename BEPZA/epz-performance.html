@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EPZ Performance Comparison - BEPZA Chairman</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: "Segoe UI", sans-serif;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar a {
+        color: #bdc3c7;
+        text-decoration: none;
+        padding: 15px 20px;
+        display: block;
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar a:hover,
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-left-color: #3498db;
+        transform: translateX(5px);
+      }
+
+      .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .performance-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .performance-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .epz-ranking {
+        border-left: 5px solid;
+        transition: all 0.3s ease;
+      }
+
+      .epz-ranking.rank-1 {
+        border-left-color: #f39c12;
+      }
+      .epz-ranking.rank-2 {
+        border-left-color: #95a5a6;
+      }
+      .epz-ranking.rank-3 {
+        border-left-color: #cd7f32;
+      }
+      .epz-ranking.rank-other {
+        border-left-color: #3498db;
+      }
+
+      .metric-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 2px;
+      }
+
+      .metric-excellent {
+        background: #d1f2eb;
+        color: #27ae60;
+      }
+      .metric-good {
+        background: #d5f4e6;
+        color: #229954;
+      }
+      .metric-average {
+        background: #fef3c7;
+        color: #f39c12;
+      }
+      .metric-poor {
+        background: #fadbd8;
+        color: #e74c3c;
+      }
+
+      .comparison-chart {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+        height: 500px;
+      }
+
+      .progress-enhanced {
+        height: 12px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #ecf0f1;
+        position: relative;
+      }
+
+      .progress-bar-animated {
+        animation: progressFill 2s ease-out;
+      }
+
+      @keyframes progressFill {
+        from {
+          width: 0%;
+        }
+        to {
+          width: var(--target-width);
+        }
+      }
+
+      .kpi-highlight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 15px;
+      }
+
+      .action-needed {
+        border: 2px dashed #e74c3c;
+        background: #fdedec;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+      }
+
+      .mobile-header {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          left: -250px;
+          top: 0;
+          z-index: 1000;
+          transition: left 0.3s;
+          width: 250px !important;
+        }
+
+        .sidebar.show {
+          left: 0;
+        }
+
+        .mobile-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+
+        .mobile-overlay.show {
+          display: block;
+        }
+
+        .mobile-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px;
+          background: white;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+        }
+
+        .mobile-menu-btn {
+          background: none;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          color: #2c3e50;
+        }
+
+        .comparison-chart {
+          height: 400px;
+          padding: 15px;
+        }
+
+        .page-header {
+          padding: 20px;
+        }
+      }
+
+      .alert-chairman {
+        background: linear-gradient(135deg, #ff7b7b 0%, #ff6b6b 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .export-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+
+      .export-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="d-flex align-items-center">
+        <i
+          class="fas fa-chart-line me-2"
+          style="color: #667eea; font-size: 20px"
+        ></i>
+        <strong style="color: #2c3e50">EPZ Performance</strong>
+      </div>
+      <a href="chairman-dashboard.html" style="color: #2c3e50; font-size: 20px">
+        <i class="fas fa-home"></i>
+      </a>
+    </div>
+
+    <div class="d-flex">
+      <!-- Executive Sidebar -->
+      <div
+        class="sidebar d-flex flex-column flex-shrink-0 p-3"
+        id="sidebar"
+        style="width: 280px"
+      >
+        <div
+          class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary"
+        >
+          <i
+            class="fas fa-crown me-3"
+            style="color: #f39c12; font-size: 28px"
+          ></i>
+          <div>
+            <h5 class="mb-0 text-white">BEPZA</h5>
+            <small class="text-muted">Chairman Portal</small>
+          </div>
+        </div>
+
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li>
+            <a href="chairman-dashboard.html">
+              <i class="fas fa-tachometer-alt me-2"></i> Executive Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="epz-performance.html" class="active">
+              <i class="fas fa-chart-line me-2"></i> EPZ Performance
+            </a>
+          </li>
+          <li>
+            <a href="export-trends.html">
+              <i class="fas fa-trending-up me-2"></i> Export Trends
+            </a>
+          </li>
+          <li>
+            <a href="investment-pipeline.html">
+              <i class="fas fa-briefcase me-2"></i> Investment Pipeline
+            </a>
+          </li>
+          <li>
+            <a href="employment-welfare.html">
+              <i class="fas fa-users me-2"></i> Employment & Welfare
+            </a>
+          </li>
+          <li>
+            <a href="safety-compliance.html">
+              <i class="fas fa-shield-alt me-2"></i> Safety & Compliance
+            </a>
+          </li>
+          <li>
+            <a href="utility-efficiency.html">
+              <i class="fas fa-bolt me-2"></i> Utility Efficiency
+            </a>
+          </li>
+          <li>
+            <a href="financial-health.html">
+              <i class="fas fa-chart-pie me-2"></i> Financial Health
+            </a>
+          </li>
+          <li>
+            <a href="factory-ranking.html">
+              <i class="fas fa-award me-2"></i> Factory Rankings
+            </a>
+          </li>
+          <li>
+            <a href="incident-risk.html">
+              <i class="fas fa-exclamation-triangle me-2"></i> Risk Management
+            </a>
+          </li>
+          <li>
+            <a href="expansion-progress.html">
+              <i class="fas fa-building me-2"></i> Expansion Progress
+            </a>
+          </li>
+          <li>
+            <a href="environmental-impact.html">
+              <i class="fas fa-leaf me-2"></i> Environmental Impact
+            </a>
+          </li>
+          <li>
+            <a href="executive-summary.html">
+              <i class="fas fa-file-alt me-2"></i> PMO Summary
+            </a>
+          </li>
+        </ul>
+
+        <hr class="border-secondary" />
+        <div class="d-flex align-items-center">
+          <img
+            src="https://via.placeholder.com/40x40/3498db/ffffff?text=CM"
+            class="rounded-circle me-3"
+            alt="Chairman"
+          />
+          <div class="flex-grow-1">
+            <h6 class="mb-0 text-white">Chairman</h6>
+            <small class="text-muted">BEPZA</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex-grow-1 p-4">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-chart-line me-3" style="font-size: 2rem"></i>
+                <div>
+                  <h2 class="mb-1">EPZ Performance Comparison</h2>
+                  <p class="mb-0 opacity-75">
+                    Comprehensive analysis across all Export Processing Zones
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 text-end">
+              <button class="export-btn me-2" onclick="exportToExcel()">
+                <i class="fas fa-download me-2"></i>Export Excel
+              </button>
+              <button class="export-btn" onclick="generatePDF()">
+                <i class="fas fa-file-pdf me-2"></i>Generate PDF
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Critical Alert for Chairman -->
+        <div class="alert-chairman">
+          <div class="row align-items-center">
+            <div class="col-lg-1 text-center">
+              <i
+                class="fas fa-exclamation-triangle"
+                style="font-size: 2rem"
+              ></i>
+            </div>
+            <div class="col-lg-9">
+              <h6 class="mb-1">Chairman's Attention Required</h6>
+              <p class="mb-0">
+                Cumilla EPZ showing declining performance (-12% export growth).
+                Chittagong EPZ needs urgent investment support.
+              </p>
+            </div>
+            <div class="col-lg-2 text-end">
+              <button class="btn btn-light btn-sm" onclick="scheduleReview()">
+                <i class="fas fa-calendar-plus me-1"></i>Schedule Review
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Summary KPIs -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-3 col-md-6">
+            <div class="kpi-highlight">
+              <h4 class="mb-1">8</h4>
+              <p class="mb-0">Active EPZs</p>
+              <small class="opacity-75">100% operational</small>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="kpi-highlight">
+              <h4 class="mb-1">$34.2B</h4>
+              <p class="mb-0">Total Investment</p>
+              <small class="opacity-75">+18.5% YoY growth</small>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="kpi-highlight">
+              <h4 class="mb-1">542</h4>
+              <p class="mb-0">Operating Factories</p>
+              <small class="opacity-75">94.2% occupancy</small>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="kpi-highlight">
+              <h4 class="mb-1">485,000</h4>
+              <p class="mb-0">Total Employment</p>
+              <small class="opacity-75">+8.2% job growth</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparative Performance Chart -->
+        <div class="comparison-chart">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">
+              <i class="fas fa-chart-bar me-2"></i>Multi-Metric Performance
+              Comparison
+            </h6>
+            <div class="btn-group btn-group-sm">
+              <button
+                class="btn btn-outline-primary active"
+                data-metric="investment"
+              >
+                Investment
+              </button>
+              <button class="btn btn-outline-primary" data-metric="exports">
+                Exports
+              </button>
+              <button class="btn btn-outline-primary" data-metric="employment">
+                Employment
+              </button>
+              <button class="btn btn-outline-primary" data-metric="occupancy">
+                Occupancy
+              </button>
+            </div>
+          </div>
+          <canvas id="performanceChart" height="300"></canvas>
+        </div>
+
+        <!-- Individual EPZ Performance Cards -->
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="performance-card epz-ranking rank-1">
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
+                <div>
+                  <h5 class="mb-1">Dhaka EPZ</h5>
+                  <p class="text-muted mb-0">Savar, Dhaka</p>
+                </div>
+                <div class="text-end">
+                  <span class="badge" style="background: #f39c12; color: white">
+                    <i class="fas fa-trophy me-1"></i>Rank #1
+                  </span>
+                  <div class="mt-1">
+                    <small class="text-muted">Overall Score: 94.8%</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Investment</span>
+                    <strong>$8.2B</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 95%; width: 95%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Export Growth</span>
+                    <strong>+24.5%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 92%; width: 92%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Employment</span>
+                    <strong>142,500</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 96%; width: 96%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Occupancy</span>
+                    <strong>97.8%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 98%; width: 98%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <span class="metric-badge metric-excellent">
+                  <i class="fas fa-fire me-1"></i>Export Champion
+                </span>
+                <span class="metric-badge metric-excellent">
+                  <i class="fas fa-users me-1"></i>High Employment
+                </span>
+                <span class="metric-badge metric-good">
+                  <i class="fas fa-shield-check me-1"></i>Compliant
+                </span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-success">
+                    <i class="fas fa-arrow-up me-1"></i>+2.1% improvement from
+                    last quarter
+                  </small>
+                </div>
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="viewEPZDetails('dhaka')"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="performance-card epz-ranking rank-2">
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
+                <div>
+                  <h5 class="mb-1">Chittagong EPZ</h5>
+                  <p class="text-muted mb-0">Chittagong</p>
+                </div>
+                <div class="text-end">
+                  <span class="badge" style="background: #95a5a6; color: white">
+                    <i class="fas fa-medal me-1"></i>Rank #2
+                  </span>
+                  <div class="mt-1">
+                    <small class="text-muted">Overall Score: 89.2%</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Investment</span>
+                    <strong>$7.8B</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 89%; width: 89%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Export Growth</span>
+                    <strong>+19.8%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-warning progress-bar-animated"
+                      style="--target-width: 78%; width: 78%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Employment</span>
+                    <strong>118,200</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 85%; width: 85%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Occupancy</span>
+                    <strong>92.5%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 93%; width: 93%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <span class="metric-badge metric-good">
+                  <i class="fas fa-chart-line me-1"></i>Strong Growth
+                </span>
+                <span class="metric-badge metric-good">
+                  <i class="fas fa-building me-1"></i>High Occupancy
+                </span>
+                <span class="metric-badge metric-average">
+                  <i class="fas fa-wrench me-1"></i>Needs Support
+                </span>
+              </div>
+
+              <div class="action-needed">
+                <small class="text-danger">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  <strong>Chairman Action:</strong> Consider additional
+                  infrastructure investment to boost export capacity
+                </small>
+              </div>
+
+              <div
+                class="d-flex justify-content-between align-items-center mt-3"
+              >
+                <div>
+                  <small class="text-warning">
+                    <i class="fas fa-minus me-1"></i>-0.8% decline from peak
+                    performance
+                  </small>
+                </div>
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="viewEPZDetails('chittagong')"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="performance-card epz-ranking rank-3">
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
+                <div>
+                  <h5 class="mb-1">Comilla EPZ</h5>
+                  <p class="text-muted mb-0">Comilla</p>
+                </div>
+                <div class="text-end">
+                  <span class="badge" style="background: #cd7f32; color: white">
+                    <i class="fas fa-award me-1"></i>Rank #3
+                  </span>
+                  <div class="mt-1">
+                    <small class="text-muted">Overall Score: 82.5%</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Investment</span>
+                    <strong>$4.2B</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-warning progress-bar-animated"
+                      style="--target-width: 72%; width: 72%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Export Growth</span>
+                    <strong>+8.2%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-danger progress-bar-animated"
+                      style="--target-width: 45%; width: 45%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Employment</span>
+                    <strong>78,500</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-warning progress-bar-animated"
+                      style="--target-width: 68%; width: 68%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Occupancy</span>
+                    <strong>85.2%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-warning progress-bar-animated"
+                      style="--target-width: 85%; width: 85%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <span class="metric-badge metric-average">
+                  <i class="fas fa-chart-line me-1"></i>Moderate Growth
+                </span>
+                <span class="metric-badge metric-poor">
+                  <i class="fas fa-exclamation me-1"></i>Below Target
+                </span>
+                <span class="metric-badge metric-average">
+                  <i class="fas fa-tools me-1"></i>Improving
+                </span>
+              </div>
+
+              <div class="action-needed">
+                <small class="text-danger">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  <strong>Urgent Action:</strong> Export growth significantly
+                  below national average. Immediate intervention required.
+                </small>
+              </div>
+
+              <div
+                class="d-flex justify-content-between align-items-center mt-3"
+              >
+                <div>
+                  <small class="text-danger">
+                    <i class="fas fa-arrow-down me-1"></i>-12% below expected
+                    performance
+                  </small>
+                </div>
+                <button
+                  class="btn btn-danger btn-sm"
+                  onclick="urgentReview('comilla')"
+                >
+                  Urgent Review
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="performance-card epz-ranking rank-other">
+              <div
+                class="d-flex justify-content-between align-items-start mb-3"
+              >
+                <div>
+                  <h5 class="mb-1">Karnaphuli EPZ</h5>
+                  <p class="text-muted mb-0">Chittagong</p>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-primary">
+                    <i class="fas fa-star me-1"></i>Rank #4
+                  </span>
+                  <div class="mt-1">
+                    <small class="text-muted">Overall Score: 79.8%</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Investment</span>
+                    <strong>$3.8B</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-info progress-bar-animated"
+                      style="--target-width: 65%; width: 65%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Export Growth</span>
+                    <strong>+15.2%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-success progress-bar-animated"
+                      style="--target-width: 76%; width: 76%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Employment</span>
+                    <strong>62,800</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-info progress-bar-animated"
+                      style="--target-width: 72%; width: 72%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Occupancy</span>
+                    <strong>88.5%</strong>
+                  </div>
+                  <div class="progress-enhanced mt-1">
+                    <div
+                      class="progress-bar bg-info progress-bar-animated"
+                      style="--target-width: 89%; width: 89%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <span class="metric-badge metric-good">
+                  <i class="fas fa-trending-up me-1"></i>Rising Star
+                </span>
+                <span class="metric-badge metric-good">
+                  <i class="fas fa-seedling me-1"></i>Good Potential
+                </span>
+                <span class="metric-badge metric-average">
+                  <i class="fas fa-balance-scale me-1"></i>Balanced
+                </span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-success">
+                    <i class="fas fa-arrow-up me-1"></i>+5.2% improvement
+                    trajectory
+                  </small>
+                </div>
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="viewEPZDetails('karnaphuli')"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary and Recommendations -->
+        <div class="row g-4 mt-3">
+          <div class="col-12">
+            <div class="performance-card">
+              <h6 class="mb-3">
+                <i class="fas fa-lightbulb me-2 text-warning"></i>
+                Chairman's Strategic Recommendations
+              </h6>
+              <div class="row g-4">
+                <div class="col-lg-4">
+                  <div class="text-center p-3 bg-light rounded">
+                    <i
+                      class="fas fa-trophy text-warning mb-3"
+                      style="font-size: 2rem"
+                    ></i>
+                    <h6>Recognize Top Performers</h6>
+                    <p class="small text-muted mb-3">
+                      Award Dhaka EPZ for outstanding performance and use as a
+                      model for other zones.
+                    </p>
+                    <button
+                      class="btn btn-warning btn-sm"
+                      onclick="recognizeTopPerformer()"
+                    >
+                      Schedule Award Ceremony
+                    </button>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="text-center p-3 bg-light rounded">
+                    <i
+                      class="fas fa-hands-helping text-info mb-3"
+                      style="font-size: 2rem"
+                    ></i>
+                    <h6>Support Underperformers</h6>
+                    <p class="small text-muted mb-3">
+                      Direct additional resources and technical assistance to
+                      Cumilla EPZ to boost performance.
+                    </p>
+                    <button
+                      class="btn btn-info btn-sm"
+                      onclick="allocateSupport()"
+                    >
+                      Allocate Support Package
+                    </button>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="text-center p-3 bg-light rounded">
+                    <i
+                      class="fas fa-chart-line text-success mb-3"
+                      style="font-size: 2rem"
+                    ></i>
+                    <h6>Accelerate Growth</h6>
+                    <p class="small text-muted mb-3">
+                      Approve infrastructure investments for Chittagong and
+                      Karnaphuli EPZ expansion.
+                    </p>
+                    <button
+                      class="btn btn-success btn-sm"
+                      onclick="approveInvestment()"
+                    >
+                      Approve Investments
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Check authentication
+        if (
+          !localStorage.getItem("bepza_user") ||
+          localStorage.getItem("bepza_role") !== "admin"
+        ) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        // Initialize Performance Chart
+        const ctx = document
+          .getElementById("performanceChart")
+          .getContext("2d");
+        let performanceChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: [
+              "Dhaka EPZ",
+              "Chittagong EPZ",
+              "Cumilla EPZ",
+              "Karnaphuli EPZ",
+              "Ishwardi EPZ",
+              "Mongla EPZ",
+              "Mirsarai EPZ",
+              "Sabrang EPZ",
+            ],
+            datasets: [
+              {
+                label: "Investment (Billion USD)",
+                data: [8.2, 7.8, 4.2, 3.8, 2.5, 1.8, 3.2, 2.1],
+                backgroundColor: "rgba(52, 152, 219, 0.8)",
+                borderColor: "rgba(52, 152, 219, 1)",
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "top",
+                labels: {
+                  usePointStyle: true,
+                  padding: 20,
+                },
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "rgba(0,0,0,0.1)",
+                },
+                ticks: {
+                  callback: function (value) {
+                    return "$" + value + "B";
+                  },
+                },
+              },
+              x: {
+                grid: {
+                  display: false,
+                },
+              },
+            },
+            interaction: {
+              mode: "index",
+              intersect: false,
+            },
+            hover: {
+              animationDuration: 300,
+            },
+            animation: {
+              duration: 2000,
+              easing: "easeOutQuart",
+            },
+          },
+        });
+
+        // Chart metric switching
+        $(".btn-group button[data-metric]").on("click", function () {
+          const metric = $(this).data("metric");
+          $(".btn-group button").removeClass("active");
+          $(this).addClass("active");
+
+          let newData, label, yAxisCallback;
+
+          switch (metric) {
+            case "investment":
+              newData = [8.2, 7.8, 4.2, 3.8, 2.5, 1.8, 3.2, 2.1];
+              label = "Investment (Billion USD)";
+              yAxisCallback = (value) => "$" + value + "B";
+              break;
+            case "exports":
+              newData = [24.5, 19.8, 8.2, 15.2, 12.5, 9.8, 18.2, 11.1];
+              label = "Export Growth (%)";
+              yAxisCallback = (value) => value + "%";
+              break;
+            case "employment":
+              newData = [142.5, 118.2, 78.5, 62.8, 45.2, 32.1, 58.9, 38.7];
+              label = "Employment (Thousands)";
+              yAxisCallback = (value) => value + "K";
+              break;
+            case "occupancy":
+              newData = [97.8, 92.5, 85.2, 88.5, 78.9, 72.4, 89.8, 81.2];
+              label = "Occupancy Rate (%)";
+              yAxisCallback = (value) => value + "%";
+              break;
+          }
+
+          performanceChart.data.datasets[0].data = newData;
+          performanceChart.data.datasets[0].label = label;
+          performanceChart.options.scales.y.ticks.callback = yAxisCallback;
+          performanceChart.update("active");
+        });
+
+        // Action Functions
+        window.scheduleReview = function () {
+          if (
+            confirm(
+              "Schedule urgent review meeting for underperforming EPZs?\n\nThis will notify all relevant General Managers and department heads."
+            )
+          ) {
+            alert(
+              "✅ Urgent review meeting scheduled for tomorrow 10:00 AM\n\n📧 Notifications sent to:\n• Cumilla EPZ General Manager\n• Investment Promotion Director\n• Chairman's Office\n• Finance Director"
+            );
+          }
+        };
+
+        window.exportToExcel = function () {
+          alert(
+            "📊 Generating Excel report...\n\n✅ EPZ Performance Comparison Report\n📅 Generated on: " +
+              new Date().toLocaleDateString() +
+              "\n📁 File will be downloaded shortly"
+          );
+        };
+
+        window.generatePDF = function () {
+          alert(
+            "📄 Generating comprehensive PDF report...\n\n✅ Executive Summary for Chairman\n📊 Detailed performance metrics\n📈 Trend analysis and recommendations\n\n🔄 Processing..."
+          );
+        };
+
+        window.viewEPZDetails = function (epzName) {
+          alert(
+            "🏭 Opening detailed dashboard for " +
+              epzName.toUpperCase() +
+              " EPZ...\n\n📊 Detailed metrics\n👥 Factory-wise breakdown\n📈 Monthly trends\n⚠️ Action items"
+          );
+        };
+
+        window.urgentReview = function (epzName) {
+          if (
+            confirm(
+              "🚨 Schedule URGENT intervention for " +
+                epzName.toUpperCase() +
+                " EPZ?\n\n⚡ This will trigger immediate action plan\n📞 Emergency meeting with stakeholders\n💰 Budget reallocation consideration"
+            )
+          ) {
+            alert(
+              "✅ URGENT INTERVENTION ACTIVATED\n\n🎯 Action Plan Initiated:\n• Emergency meeting scheduled\n• Technical team dispatched\n• Budget review fast-tracked\n• Weekly monitoring enabled"
+            );
+          }
+        };
+
+        window.recognizeTopPerformer = function () {
+          alert(
+            "🏆 CHAIRMAN'S EXCELLENCE AWARD\n\n✅ Dhaka EPZ selected for recognition\n📅 Award ceremony scheduled\n🎉 Performance bonus approved\n📰 Press release prepared"
+          );
+        };
+
+        window.allocateSupport = function () {
+          if (
+            confirm(
+              "💰 Allocate emergency support package to underperforming EPZs?\n\nAmount: $50M infrastructure fund\nDuration: 18 months\nFocus: Export enhancement"
+            )
+          ) {
+            alert(
+              "✅ SUPPORT PACKAGE APPROVED\n\n💰 $50M allocated\n🏗️ Infrastructure upgrades\n👥 Technical assistance team\n📊 Monthly progress reviews"
+            );
+          }
+        };
+
+        window.approveInvestment = function () {
+          if (
+            confirm(
+              "📈 Approve strategic investment plan?\n\n💰 Total: $200M\n🏭 Infrastructure expansion\n⚡ Utility upgrades\n🛣️ Transport connectivity"
+            )
+          ) {
+            alert(
+              "✅ STRATEGIC INVESTMENT APPROVED\n\n💰 $200M budget sanctioned\n🎯 Target: 25% growth in 2 years\n📊 Expected: 50K new jobs\n🚀 Implementation starts next quarter"
+            );
+          }
+        };
+
+        // Mobile menu functionality
+        $("#mobileMenuBtn").on("click", function () {
+          $("#sidebar").toggleClass("show");
+          $("#mobileOverlay").toggleClass("show");
+        });
+
+        $("#mobileOverlay").on("click", function () {
+          $("#sidebar").removeClass("show");
+          $("#mobileOverlay").removeClass("show");
+        });
+
+        // Progress bar animations
+        setTimeout(() => {
+          $(".progress-bar-animated").each(function () {
+            $(this).css("width", $(this).css("--target-width"));
+          });
+        }, 500);
+      });
+    </script>
+  </body>
+</html>

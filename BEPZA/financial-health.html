@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial Health Report - BEPZA Chairman</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: "Segoe UI", sans-serif;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar a {
+        color: #bdc3c7;
+        text-decoration: none;
+        padding: 15px 20px;
+        display: block;
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar a:hover,
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-left-color: #3498db;
+        transform: translateX(5px);
+      }
+
+      .page-header {
+        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(39, 174, 96, 0.3);
+      }
+
+      .financial-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .financial-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .revenue-highlight {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+      }
+
+      .metric-box {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+      }
+
+      .financial-indicator {
+        border-left: 5px solid;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 0 10px 10px 0;
+      }
+
+      .indicator-excellent {
+        border-left-color: #27ae60;
+        background: linear-gradient(135deg, #d5f4e6 0%, #a8e6cf 50%);
+      }
+      .indicator-good {
+        border-left-color: #3498db;
+        background: linear-gradient(135deg, #d6eaf8 0%, #aed6f1 50%);
+      }
+      .indicator-warning {
+        border-left-color: #f39c12;
+        background: linear-gradient(135deg, #fef5e7 0%, #fcf3cf 50%);
+      }
+      .indicator-critical {
+        border-left-color: #e74c3c;
+        background: linear-gradient(135deg, #fadbd8 0%, #f1948a 50%);
+      }
+
+      .profit-margin {
+        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 5px 20px rgba(39, 174, 96, 0.3);
+      }
+
+      .mobile-header {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          left: -250px;
+          top: 0;
+          z-index: 1000;
+          transition: left 0.3s;
+          width: 250px !important;
+        }
+        .sidebar.show {
+          left: 0;
+        }
+        .mobile-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+        .mobile-overlay.show {
+          display: block;
+        }
+        .mobile-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px;
+          background: white;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+        }
+        .mobile-menu-btn {
+          background: none;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          color: #2c3e50;
+        }
+      }
+
+      .action-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+      }
+
+      .kpi-card {
+        text-align: center;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+      }
+
+      .kpi-revenue {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+      }
+      .kpi-profit {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+      }
+      .kpi-efficiency {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+      }
+      .kpi-growth {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+      }
+
+      .trend-indicator {
+        font-size: 1.2rem;
+        margin-left: 10px;
+      }
+
+      .financial-health-score {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0 auto;
+        background: conic-gradient(#27ae60 0% 92%, #ecf0f1 92% 100%);
+        color: #27ae60;
+        position: relative;
+      }
+
+      .financial-health-score::before {
+        content: "";
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 50%;
+        z-index: 1;
+      }
+
+      .financial-health-score span {
+        position: relative;
+        z-index: 2;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="d-flex align-items-center">
+        <i
+          class="fas fa-chart-pie me-2"
+          style="color: #27ae60; font-size: 20px"
+        ></i>
+        <strong style="color: #2c3e50">Financial Health</strong>
+      </div>
+      <a href="chairman-dashboard.html" style="color: #2c3e50; font-size: 20px">
+        <i class="fas fa-home"></i>
+      </a>
+    </div>
+
+    <div class="d-flex">
+      <!-- Executive Sidebar -->
+      <div
+        class="sidebar d-flex flex-column flex-shrink-0 p-3"
+        id="sidebar"
+        style="width: 280px"
+      >
+        <div
+          class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary"
+        >
+          <i
+            class="fas fa-crown me-3"
+            style="color: #f39c12; font-size: 28px"
+          ></i>
+          <div>
+            <h5 class="mb-0 text-white">BEPZA</h5>
+            <small class="text-muted">Chairman Portal</small>
+          </div>
+        </div>
+
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li>
+            <a href="chairman-dashboard.html">
+              <i class="fas fa-tachometer-alt me-2"></i> Executive Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="epz-performance.html">
+              <i class="fas fa-chart-line me-2"></i> EPZ Performance
+            </a>
+          </li>
+          <li>
+            <a href="export-trends.html">
+              <i class="fas fa-trending-up me-2"></i> Export Trends
+            </a>
+          </li>
+          <li>
+            <a href="investment-pipeline.html">
+              <i class="fas fa-briefcase me-2"></i> Investment Pipeline
+            </a>
+          </li>
+          <li>
+            <a href="employment-welfare.html">
+              <i class="fas fa-users me-2"></i> Employment & Welfare
+            </a>
+          </li>
+          <li>
+            <a href="safety-compliance.html">
+              <i class="fas fa-shield-alt me-2"></i> Safety & Compliance
+            </a>
+          </li>
+          <li>
+            <a href="utility-efficiency.html">
+              <i class="fas fa-bolt me-2"></i> Utility Efficiency
+            </a>
+          </li>
+          <li>
+            <a href="financial-health.html" class="active">
+              <i class="fas fa-chart-pie me-2"></i> Financial Health
+            </a>
+          </li>
+          <li>
+            <a href="factory-ranking.html">
+              <i class="fas fa-award me-2"></i> Factory Rankings
+            </a>
+          </li>
+          <li>
+            <a href="incident-risk.html">
+              <i class="fas fa-exclamation-triangle me-2"></i> Risk Management
+            </a>
+          </li>
+          <li>
+            <a href="expansion-progress.html">
+              <i class="fas fa-building me-2"></i> Expansion Progress
+            </a>
+          </li>
+          <li>
+            <a href="environmental-impact.html">
+              <i class="fas fa-leaf me-2"></i> Environmental Impact
+            </a>
+          </li>
+          <li>
+            <a href="executive-summary.html">
+              <i class="fas fa-file-alt me-2"></i> PMO Summary
+            </a>
+          </li>
+        </ul>
+
+        <hr class="border-secondary" />
+        <div class="d-flex align-items-center">
+          <img
+            src="https://via.placeholder.com/40x40/3498db/ffffff?text=CM"
+            class="rounded-circle me-3"
+            alt="Chairman"
+          />
+          <div class="flex-grow-1">
+            <h6 class="mb-0 text-white">Chairman</h6>
+            <small class="text-muted">BEPZA</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex-grow-1 p-4">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-chart-pie me-3" style="font-size: 2rem"></i>
+                <div>
+                  <h2 class="mb-1">Financial Health Report</h2>
+                  <p class="mb-0 opacity-75">
+                    BEPZA revenue analysis, billing efficiency, and financial
+                    stability metrics
+                  </p>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-md-4 metric-box">
+                  <h5 class="mb-1">$145.8M</h5>
+                  <p class="mb-0">Total Revenue (FY24)</p>
+                </div>
+                <div class="col-md-4 metric-box">
+                  <h5 class="mb-1">38.5%</h5>
+                  <p class="mb-0">Profit Margin</p>
+                </div>
+                <div class="col-md-4 metric-box">
+                  <h5 class="mb-1">AAA</h5>
+                  <p class="mb-0">Financial Rating</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 text-end">
+              <button
+                class="action-btn me-2"
+                onclick="generateFinancialReport()"
+              >
+                <i class="fas fa-file-invoice-dollar me-2"></i>Financial Report
+              </button>
+              <button class="action-btn" onclick="optimizeBilling()">
+                <i class="fas fa-calculator me-2"></i>Optimize Billing
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Overview -->
+        <div class="revenue-highlight">
+          <h5 class="mb-3">💰 Revenue Performance Overview</h5>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="mb-1">$145.8M</h4>
+                <small>Total Revenue (FY24)</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="mb-1">+24.2%</h4>
+                <small>YoY Growth</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="mb-1">$56.2M</h4>
+                <small>Net Profit</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="mb-1">98.5%</h4>
+                <small>Collection Efficiency</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial KPIs -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-3">
+            <div class="kpi-card kpi-revenue">
+              <i class="fas fa-chart-line mb-3" style="font-size: 2.5rem"></i>
+              <h3>$145.8M</h3>
+              <h6>Total Revenue</h6>
+              <span class="trend-indicator text-success">↗ +24.2%</span>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="kpi-card kpi-profit">
+              <i class="fas fa-coins mb-3" style="font-size: 2.5rem"></i>
+              <h3>$56.2M</h3>
+              <h6>Net Profit</h6>
+              <span class="trend-indicator text-success">↗ +28.8%</span>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="kpi-card kpi-efficiency">
+              <i class="fas fa-percentage mb-3" style="font-size: 2.5rem"></i>
+              <h3>98.5%</h3>
+              <h6>Collection Rate</h6>
+              <span class="trend-indicator text-success">↗ +2.8%</span>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="kpi-card kpi-growth">
+              <i class="fas fa-rocket mb-3" style="font-size: 2.5rem"></i>
+              <h3>24.2%</h3>
+              <h6>Growth Rate</h6>
+              <span class="trend-indicator text-success">↗ Best Ever</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Performance Indicators -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-8">
+            <div class="financial-card">
+              <h6 class="mb-3">
+                <i class="fas fa-chart-area text-success me-2"></i>
+                Revenue & Profit Trends
+              </h6>
+              <canvas id="revenueChart" height="300"></canvas>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="financial-card text-center">
+              <h6 class="mb-3">
+                <i class="fas fa-heartbeat text-primary me-2"></i>
+                Financial Health Score
+              </h6>
+              <div class="financial-health-score">
+                <span>92/100</span>
+              </div>
+              <p class="mt-3 text-muted">
+                Excellent financial stability and growth trajectory
+              </p>
+              <button class="action-btn" onclick="analyzeHealthScore()">
+                <i class="fas fa-analytics me-2"></i>Detailed Analysis
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Sources & Billing Efficiency -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-6">
+            <div class="financial-card">
+              <h6 class="mb-3">
+                <i class="fas fa-pie-chart text-warning me-2"></i>
+                Revenue Sources Breakdown
+              </h6>
+              <canvas id="revenueSourceChart" height="300"></canvas>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="financial-card">
+              <h6 class="mb-3">
+                <i class="fas fa-file-invoice text-info me-2"></i>
+                Billing Efficiency Analysis
+              </h6>
+
+              <div class="financial-indicator indicator-excellent">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6>⚡ Utility Bills Collection</h6>
+                    <p class="small mb-0">Electricity, water, gas billing</p>
+                  </div>
+                  <h4 class="text-success mb-0">99.2%</h4>
+                </div>
+              </div>
+
+              <div class="financial-indicator indicator-excellent">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6>🏭 Service Charges</h6>
+                    <p class="small mb-0">Land lease & administrative fees</p>
+                  </div>
+                  <h4 class="text-success mb-0">98.8%</h4>
+                </div>
+              </div>
+
+              <div class="financial-indicator indicator-good">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6>🚛 Logistics & Transportation</h6>
+                    <p class="small mb-0">Port & transportation services</p>
+                  </div>
+                  <h4 class="text-primary mb-0">96.5%</h4>
+                </div>
+              </div>
+
+              <div class="financial-indicator indicator-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6>📋 Regulatory Services</h6>
+                    <p class="small mb-0">Permits & compliance fees</p>
+                  </div>
+                  <h4 class="text-warning mb-0">94.2%</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Management & Operational Efficiency -->
+        <div class="financial-card">
+          <h6 class="mb-3">
+            <i class="fas fa-cogs text-primary me-2"></i>
+            Cost Management & Operational Efficiency
+          </h6>
+
+          <div class="row g-4">
+            <div class="col-lg-8">
+              <canvas id="costChart" height="250"></canvas>
+            </div>
+
+            <div class="col-lg-4">
+              <h6 class="mb-3">Cost Optimization</h6>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Operational Costs</span>
+                  <strong class="text-success">-8.5%</strong>
+                </div>
+                <div class="progress mb-2" style="height: 10px">
+                  <div class="progress-bar bg-success" style="width: 85%"></div>
+                </div>
+                <small class="text-muted">Target: -12% by year-end</small>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Administrative Costs</span>
+                  <strong class="text-primary">-5.2%</strong>
+                </div>
+                <div class="progress mb-2" style="height: 10px">
+                  <div class="progress-bar bg-primary" style="width: 75%"></div>
+                </div>
+                <small class="text-muted">Digital transformation impact</small>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Maintenance Costs</span>
+                  <strong class="text-warning">-3.8%</strong>
+                </div>
+                <div class="progress mb-2" style="height: 10px">
+                  <div class="progress-bar bg-warning" style="width: 65%"></div>
+                </div>
+                <small class="text-muted"
+                  >Predictive maintenance benefits</small
+                >
+              </div>
+
+              <button class="action-btn w-100" onclick="optimizeCosts()">
+                <i class="fas fa-cut me-2"></i>Further Cost Optimization
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Projections & Investment Planning -->
+        <div class="row g-4 mt-4">
+          <div class="col-lg-6">
+            <div class="financial-card">
+              <h6 class="mb-3">
+                <i class="fas fa-crystal-ball text-purple me-2"></i>
+                Financial Projections (Next 3 Years)
+              </h6>
+
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Financial Year</th>
+                      <th>Projected Revenue</th>
+                      <th>Expected Profit</th>
+                      <th>Growth Rate</th>
+                      <th>ROI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>FY 2024-25</strong></td>
+                      <td>$185.2M</td>
+                      <td>$72.8M</td>
+                      <td class="text-success">+27%</td>
+                      <td class="text-success">42.5%</td>
+                    </tr>
+                    <tr>
+                      <td><strong>FY 2025-26</strong></td>
+                      <td>$228.5M</td>
+                      <td>$89.2M</td>
+                      <td class="text-success">+23%</td>
+                      <td class="text-success">45.8%</td>
+                    </tr>
+                    <tr>
+                      <td><strong>FY 2026-27</strong></td>
+                      <td>$275.8M</td>
+                      <td>$108.5M</td>
+                      <td class="text-success">+21%</td>
+                      <td class="text-success">48.2%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="financial-card">
+              <h6 class="mb-3">
+                <i class="fas fa-seedling text-success me-2"></i>
+                Investment Portfolio & Returns
+              </h6>
+
+              <div class="row g-3 mb-4">
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <i
+                      class="fas fa-building text-primary mb-2"
+                      style="font-size: 1.5rem"
+                    ></i>
+                    <h6>Infrastructure</h6>
+                    <h4 class="text-primary">$85M</h4>
+                    <small class="text-muted">ROI: 35% annually</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <i
+                      class="fas fa-leaf text-success mb-2"
+                      style="font-size: 1.5rem"
+                    ></i>
+                    <h6>Green Energy</h6>
+                    <h4 class="text-success">$42M</h4>
+                    <small class="text-muted">ROI: 28% annually</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <i
+                      class="fas fa-robot text-warning mb-2"
+                      style="font-size: 1.5rem"
+                    ></i>
+                    <h6>Technology</h6>
+                    <h4 class="text-warning">$28M</h4>
+                    <small class="text-muted">ROI: 45% annually</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <i
+                      class="fas fa-graduation-cap text-info mb-2"
+                      style="font-size: 1.5rem"
+                    ></i>
+                    <h6>Training</h6>
+                    <h4 class="text-info">$15M</h4>
+                    <small class="text-muted">ROI: 38% annually</small>
+                  </div>
+                </div>
+              </div>
+
+              <button class="action-btn w-100" onclick="reviewInvestments()">
+                <i class="fas fa-chart-line me-2"></i>Review Investment Strategy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profit Margin Celebration -->
+        <div class="profit-margin">
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <h5 class="mb-2">
+                🎉 Record-Breaking Profit Margin Achievement!
+              </h5>
+              <p class="mb-2">
+                BEPZA achieved its highest ever profit margin of 38.5% in FY
+                2024, exceeding industry standards and government targets.
+              </p>
+              <div class="row">
+                <div class="col-md-4">
+                  <strong>Industry Average: 22%</strong>
+                </div>
+                <div class="col-md-4">
+                  <strong>Government Target: 30%</strong>
+                </div>
+                <div class="col-md-4">
+                  <strong>BEPZA Achievement: 38.5%</strong>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 text-end">
+              <h3 class="mb-0">38.5%</h3>
+              <p class="mb-0">Profit Margin</p>
+              <small>Best in regional EPZs</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Check authentication
+        if (
+          !localStorage.getItem("bepza_user") ||
+          localStorage.getItem("bepza_role") !== "admin"
+        ) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        initializeCharts();
+
+        // Mobile menu functionality
+        $("#mobileMenuBtn").on("click", function () {
+          $("#sidebar").toggleClass("show");
+          $("#mobileOverlay").toggleClass("show");
+        });
+
+        $("#mobileOverlay").on("click", function () {
+          $("#sidebar").removeClass("show");
+          $("#mobileOverlay").removeClass("show");
+        });
+      });
+
+      function initializeCharts() {
+        // Revenue & Profit Trends Chart
+        const revCtx = document.getElementById("revenueChart").getContext("2d");
+        new Chart(revCtx, {
+          type: "line",
+          data: {
+            labels: [
+              "FY 2020",
+              "FY 2021",
+              "FY 2022",
+              "FY 2023",
+              "FY 2024",
+              "FY 2025 (Proj)",
+              "FY 2026 (Proj)",
+            ],
+            datasets: [
+              {
+                label: "Revenue (Million $)",
+                data: [85, 95, 108, 118, 146, 185, 229],
+                borderColor: "#27ae60",
+                backgroundColor: "rgba(39, 174, 96, 0.1)",
+                tension: 0.4,
+                fill: true,
+              },
+              {
+                label: "Profit (Million $)",
+                data: [22, 28, 35, 42, 56, 73, 89],
+                borderColor: "#3498db",
+                backgroundColor: "rgba(52, 152, 219, 0.1)",
+                tension: 0.4,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true },
+            },
+          },
+        });
+
+        // Revenue Sources Chart
+        const sourceCtx = document
+          .getElementById("revenueSourceChart")
+          .getContext("2d");
+        new Chart(sourceCtx, {
+          type: "doughnut",
+          data: {
+            labels: [
+              "Utility Services",
+              "Land Lease",
+              "Service Charges",
+              "Logistics",
+              "Investment Income",
+              "Others",
+            ],
+            datasets: [
+              {
+                data: [35, 25, 18, 12, 6, 4],
+                backgroundColor: [
+                  "#f39c12",
+                  "#27ae60",
+                  "#3498db",
+                  "#e74c3c",
+                  "#9b59b6",
+                  "#1abc9c",
+                ],
+                borderWidth: 3,
+                borderColor: "#fff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" },
+            },
+          },
+        });
+
+        // Cost Management Chart
+        const costCtx = document.getElementById("costChart").getContext("2d");
+        new Chart(costCtx, {
+          type: "bar",
+          data: {
+            labels: [
+              "Personnel",
+              "Operations",
+              "Maintenance",
+              "Admin",
+              "Utilities",
+              "Development",
+            ],
+            datasets: [
+              {
+                label: "Current Year (Million $)",
+                data: [32, 28, 18, 15, 12, 8],
+                backgroundColor: "#3498db",
+              },
+              {
+                label: "Previous Year (Million $)",
+                data: [35, 31, 19, 16, 13, 9],
+                backgroundColor: "#95a5a6",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true },
+            },
+          },
+        });
+      }
+
+      // Action Functions
+      window.generateFinancialReport = function () {
+        if (
+          confirm(
+            "📊 Generate Comprehensive Financial Report?\n\n📋 Report Contents:\n• Revenue & profit analysis\n• Cost optimization metrics\n• Financial health assessment\n• ROI & investment analysis\n• Future projections\n\n📧 Recipients: Ministry of Finance + Board\n✅ Generate report?"
+          )
+        ) {
+          const loadingAlert = $(
+            '<div class="alert alert-info">📊 Generating comprehensive financial report... Please wait</div>'
+          );
+          $(".page-header").after(loadingAlert);
+
+          setTimeout(() => {
+            loadingAlert
+              .removeClass("alert-info")
+              .addClass("alert-success")
+              .html(
+                "✅ <strong>FINANCIAL REPORT GENERATED!</strong><br><small>📧 Sent to: Ministry of Finance + BEPZA Board<br>📊 File: BEPZA_Financial_Health_Report_FY2024.pdf</small>"
+              );
+
+            setTimeout(() => loadingAlert.fadeOut(), 5000);
+          }, 3000);
+        }
+      };
+
+      window.optimizeBilling = function () {
+        if (
+          confirm(
+            "⚡ Launch Billing Optimization Program?\n\n🎯 Optimization Plan:\n• Automated billing systems\n• Real-time payment tracking\n• Penalty management automation\n• Digital payment integration\n\n📊 Expected Results:\n• 99.5% collection efficiency\n• 30% faster processing\n• Reduced administrative costs\n\n✅ Launch optimization?"
+          )
+        ) {
+          alert(
+            "⚡ BILLING OPTIMIZATION LAUNCHED!\n\n✅ Advanced billing system activated\n💳 Digital payment gateway integrated\n🤖 Automated penalty calculations enabled\n📊 Real-time collection tracking deployed\n\n🎯 Target collection efficiency: 99.5%\n📧 All EPZs notified of new system"
+          );
+        }
+      };
+
+      window.analyzeHealthScore = function () {
+        alert(
+          "📊 DETAILED FINANCIAL HEALTH ANALYSIS\n\n🏆 Overall Score: 92/100 (Excellent)\n\n📈 Strengths:\n• Revenue growth: 95/100\n• Profit margins: 98/100\n• Liquidity: 88/100\n• Efficiency: 90/100\n\n⚠️ Areas for improvement:\n• Long-term debt management\n• International investment diversification\n\n🎯 Recommendation: Maintain current trajectory"
+        );
+      };
+
+      window.optimizeCosts = function () {
+        if (
+          confirm(
+            "💰 Launch Advanced Cost Optimization?\n\n📋 Optimization Strategy:\n• AI-powered cost analysis\n• Process automation\n• Vendor renegotiation\n• Energy efficiency programs\n\n💵 Expected Savings: $8.5M annually\n📊 Target cost reduction: 15%\n✅ Launch program?"
+          )
+        ) {
+          alert(
+            "💰 COST OPTIMIZATION PROGRAM LAUNCHED!\n\n🤖 AI cost analysis system deployed\n⚡ Automated processes activated\n📋 Vendor contracts under review\n🌱 Energy efficiency initiatives started\n\n🎯 Target: Save $8.5M annually\n📊 ROI: 275% within 18 months"
+          );
+        }
+      };
+
+      window.reviewInvestments = function () {
+        if (
+          confirm(
+            "📈 Comprehensive Investment Strategy Review?\n\n🔍 Review Scope:\n• Current portfolio performance\n• Risk-return optimization\n• New investment opportunities\n• Strategic realignment\n\n👥 Participants: Investment Committee + Financial Advisors\n📅 Duration: 2 weeks\n✅ Initiate review?"
+          )
+        ) {
+          alert(
+            "📈 INVESTMENT REVIEW INITIATED!\n\n✅ Investment committee activated\n📊 Portfolio analysis in progress\n🎯 New opportunities identified\n📋 Strategic recommendations pending\n\n📧 Progress reports will be sent weekly\n🗓️ Final presentation: December 20, 2024"
+          );
+        }
+      };
+    </script>
+  </body>
+</html>
