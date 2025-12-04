@@ -566,27 +566,8 @@
                 </h2>
             </div>
 
-            <nav class="sidebar-menu">
-                <a href="dashboard.html" class="menu-item">
-                    <i>📊</i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="inbox.html" class="menu-item">
-                    <i>📥</i>
-                    <span>Inbox</span>
-                </a>
-                <a href="compose.html" class="menu-item">
-                    <i>✏️</i>
-                    <span>Compose</span>
-                </a>
-                <a href="sent.html" class="menu-item">
-                    <i>📤</i>
-                    <span>Sent Mail</span>
-                </a>
-                <a href="users.html" class="menu-item active">
-                    <i>👥</i>
-                    <span>Manage Users</span>
-                </a>
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <!-- Menu loaded dynamically -->
             </nav>
 
             <div class="user-info">
@@ -620,10 +601,40 @@
         const SESS_KEY = 'mailApp_session';
 
         // Check Authentication
+        function renderSidebar() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) return;
+            const user = JSON.parse(session);
+            const currentPage = window.location.pathname.split('/').pop();
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            if (user.role === 'admin') {
+                sidebarMenu.innerHTML = `
+                    <a href="admin-dashboard.html" class="menu-item ${currentPage === 'admin-dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Admin Dashboard</span></a>
+                    <a href="admin-mailboxes.html" class="menu-item ${currentPage === 'admin-mailboxes.html' ? 'active' : ''}"><i>⚙️</i> <span>Manage Mailboxes</span></a>
+                    <a href="admin-view-mailboxes.html" class="menu-item ${currentPage === 'admin-view-mailboxes.html' ? 'active' : ''}"><i>📬</i> <span>View Mailboxes</span></a>
+                    <a href="admin-tracking.html" class="menu-item ${currentPage === 'admin-tracking.html' ? 'active' : ''}"><i>📈</i> <span>Activity Tracking</span></a>
+                    <a href="users.html" class="menu-item ${currentPage === 'users.html' ? 'active' : ''}"><i>👥</i> <span>Manage Users</span></a>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📋</i> <span>My Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                `;
+            } else {
+                sidebarMenu.innerHTML = `
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                `;
+            }
+        }
+
         function checkAuth() {
             if (!sessionStorage.getItem(SESS_KEY)) {
                 window.location.href = 'login.html';
             }
+            renderSidebar();
         }
 
         function getCurrentUser() {
@@ -650,12 +661,22 @@
         let searchQuery = '';
         let allUsers = [];
 
+        // Populate Mailbox Selector
+        function populateMailboxSelector() {
+            const db = loadDB();
+            const selector = document.getElementById('newMailbox');
+            const mailboxOptions = db.sharedMailboxes.map(mb =>
+                `<option value="${mb.email}">${mb.name} (${mb.email})</option>`
+            ).join('');
+            selector.innerHTML = '<option value="">None - Personal Email</option>' + mailboxOptions;
+        }
+
         // User Management Functions
         function getUsers() {
             return loadDB().users;
         }
 
-        function createUser(name, username, password, email) {
+        function createUser(name, username, password, email, assignedEmail) {
             const db = loadDB();
             if (db.users.find(u => u.username === username)) return false;
 
@@ -665,15 +686,35 @@
                 username: username,
                 password: password,
                 role: 'user',
-                email: email || username + '@promailhub.com'
+                email: email || username + '@promailhub.com',
+                assignedEmail: assignedEmail || null
             };
             db.users.push(newUser);
+
+            // Update mailbox assigned users if mailbox selected
+            if (assignedEmail) {
+                const mailbox = db.sharedMailboxes.find(mb => mb.email === assignedEmail);
+                if (mailbox && !mailbox.assignedUsers.includes(newUser.id)) {
+                    mailbox.assignedUsers.push(newUser.id);
+                }
+            }
+
             saveDB(db);
             return true;
         }
 
         function deleteUser(id) {
             const db = loadDB();
+            const user = db.users.find(u => u.id === id);
+
+            // Remove from mailbox assignments
+            if (user && user.assignedEmail) {
+                const mailbox = db.sharedMailboxes.find(mb => mb.email === user.assignedEmail);
+                if (mailbox) {
+                    mailbox.assignedUsers = mailbox.assignedUsers.filter(uid => uid !== id);
+                }
+            }
+
             db.users = db.users.filter(u => u.id !== id);
             saveDB(db);
         }
@@ -738,6 +779,12 @@
                                 <label class="form-label">Password</label>
                                 <input type="password" id="newPass" class="form-control" placeholder="******" required>
                             </div>
+                            <div class="form-group">
+                                <label class="form-label">Assigned Mailbox (Optional)</label>
+                                <select id="newMailbox" class="form-control">
+                                    <option value="">None - Personal Email</option>
+                                </select>
+                            </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%;">➕ Create User</button>
                         </form>
                     </div>
@@ -757,6 +804,7 @@
                                     <th>Name</th>
                                     <th>Username</th>
                                     <th>Email</th>
+                                    <th>Assigned Mailbox</th>
                                     <th>Role</th>
                                     <th>Action</th>
                                 </tr>
@@ -767,7 +815,7 @@
             if (users.length === 0) {
                 html += `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
                             <div style="font-size: 48px; margin-bottom: 10px;">👥</div>
                             <div style="font-weight: 600; color: #666;">No Users Found</div>
                             <div style="font-size: 13px;">Try adjusting your search</div>
@@ -776,11 +824,15 @@
                 `;
             } else {
                 users.forEach(u => {
+                    const mailboxDisplay = u.assignedEmail ?
+                        `<span style="color: #667eea; font-weight: 500;">${u.assignedEmail}</span>` :
+                        '<span style="color: #999;">Personal</span>';
                     html += `
                         <tr>
                             <td>${u.name}</td>
                             <td>${u.username}</td>
                             <td>${u.email}</td>
+                            <td>${mailboxDisplay}</td>
                             <td><span class="badge badge-${u.role}">${u.role.toUpperCase()}</span></td>
                             <td>
                                 ${u.role !== 'admin' ?
@@ -831,8 +883,9 @@
                 const username = document.getElementById('newUser').value;
                 const email = document.getElementById('newEmail').value;
                 const password = document.getElementById('newPass').value;
+                const assignedEmail = document.getElementById('newMailbox').value;
 
-                const success = createUser(name, username, password, email);
+                const success = createUser(name, username, password, email, assignedEmail);
                 if (success) {
                     currentPage = 1;
                     searchQuery = '';
@@ -896,6 +949,9 @@
         document.getElementById('userName').textContent = currentUser.name;
         document.getElementById('userRole').textContent = currentUser.role;
         document.getElementById('userAvatar').textContent = '👑';
+
+        // Populate mailbox selector
+        populateMailboxSelector();
 
         // Render users
         renderUsers();

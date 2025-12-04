@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Tracking - ProMailHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+        }
+
+        .topbar {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            font-size: 24px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-header h3 {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-send {
+            background: #74b9ff;
+            color: #0984e3;
+        }
+
+        .badge-receive {
+            background: #55efc4;
+            color: #00b894;
+        }
+
+        .badge-read {
+            background: #fdcb6e;
+            color: #e17055;
+        }
+
+        .badge-delete {
+            background: #ff7675;
+            color: #d63031;
+        }
+
+        .badge-reply {
+            background: #a29bfe;
+            color: #6c5ce7;
+        }
+
+        .user-info {
+            padding: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info .avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .export-btn {
+            background: #55efc4;
+            color: #00b894;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><span class="logo">✉</span><span>ProMailHub Admin</span></h2>
+            </div>
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <!-- Menu loaded dynamically -->
+            </nav>
+            <div class="user-info">
+                <div class="avatar">👑</div>
+                <div class="name" id="userName">Admin</div>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <h1>User Activity Tracking</h1>
+                <button class="btn export-btn" onclick="exportData()">📊 Export CSV</button>
+            </div>
+            <div class="content-area">
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalActions">0</div>
+                        <div class="stat-label">Total Actions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayActions">0</div>
+                        <div class="stat-label">Today's Actions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeUsers">0</div>
+                        <div class="stat-label">Active Users (24h)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgPerUser">0</div>
+                        <div class="stat-label">Avg Actions/User</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Activity Filters</h3>
+                    </div>
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">User</label>
+                            <select class="filter-input" id="filterUser">
+                                <option value="">All Users</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Mailbox</label>
+                            <select class="filter-input" id="filterMailbox">
+                                <option value="">All Mailboxes</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Action Type</label>
+                            <select class="filter-input" id="filterAction">
+                                <option value="">All Actions</option>
+                                <option value="send">Send</option>
+                                <option value="receive">Receive</option>
+                                <option value="read">Read</option>
+                                <option value="delete">Delete</option>
+                                <option value="reply">Reply</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Date Range</label>
+                            <select class="filter-input" id="filterDate">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="applyFilters()">🔍 Apply Filters</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Activity Log</h3>
+                        <span id="resultCount">0 results</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th onclick="sortBy('timestamp')">Timestamp ⇅</th>
+                                <th onclick="sortBy('user')">User ⇅</th>
+                                <th onclick="sortBy('action')">Action ⇅</th>
+                                <th onclick="sortBy('mailbox')">Mailbox ⇅</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTable"></tbody>
+                    </table>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        const DB_KEY = 'mailApp_data';
+        const SESS_KEY = 'mailApp_session';
+        let allActivities = [];
+        let filteredActivities = [];
+        let currentPage = 1;
+        const perPage = 15;
+        let sortField = 'timestamp';
+        let sortAsc = false;
+
+        function renderSidebar() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) return;
+            const user = JSON.parse(session);
+            const currentPage = window.location.pathname.split('/').pop();
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            if (user.role === 'admin') {
+                sidebarMenu.innerHTML = `
+                    <a href="admin-dashboard.html" class="menu-item ${currentPage === 'admin-dashboard.html' ? 'active' : ''}">📊 Admin Dashboard</a>
+                    <a href="admin-mailboxes.html" class="menu-item ${currentPage === 'admin-mailboxes.html' ? 'active' : ''}">⚙️ Manage Mailboxes</a>
+                    <a href="admin-view-mailboxes.html" class="menu-item ${currentPage === 'admin-view-mailboxes.html' ? 'active' : ''}">📬 View Mailboxes</a>
+                    <a href="admin-tracking.html" class="menu-item ${currentPage === 'admin-tracking.html' ? 'active' : ''}">📈 Activity Tracking</a>
+                    <a href="users.html" class="menu-item ${currentPage === 'users.html' ? 'active' : ''}">👥 Manage Users</a>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}">📋 My Dashboard</a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}">📥 Inbox</a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}">📤 Sent</a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}">✉️ Compose</a>
+                `;
+            }
+        }
+
+        function checkAuth() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) { window.location.href = 'login.html'; return; }
+            const user = JSON.parse(session);
+            if (user.role !== 'admin') { window.location.href = 'dashboard.html'; }
+            renderSidebar();
+        }
+
+        function logout() { sessionStorage.removeItem(SESS_KEY); window.location.href = 'login.html'; }
+        function loadDB() { return JSON.parse(localStorage.getItem(DB_KEY)); }
+
+        function loadActivities() {
+            const db = loadDB();
+            allActivities = db.emailActions || [];
+            filteredActivities = [...allActivities];
+            populateFilters();
+            updateStats();
+            applyFilters();
+        }
+
+        function populateFilters() {
+            const db = loadDB();
+            const userSelect = document.getElementById('filterUser');
+            const mailboxSelect = document.getElementById('filterMailbox');
+
+            userSelect.innerHTML = '<option value="">All Users</option>' +
+                db.users.filter(u => u.role === 'user').map(u =>
+                    `<option value="${u.id}">${u.name}</option>`
+                ).join('');
+
+            mailboxSelect.innerHTML = '<option value="">All Mailboxes</option>' +
+                db.sharedMailboxes.map(mb =>
+                    `<option value="${mb.email}">${mb.name} (${mb.email})</option>`
+                ).join('');
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            const last24h = Date.now() - 86400000;
+
+            document.getElementById('totalActions').textContent = allActivities.length;
+            document.getElementById('todayActions').textContent =
+                allActivities.filter(a => new Date(a.timestamp).toDateString() === today).length;
+
+            const activeUserIds = new Set(
+                allActivities.filter(a => a.timestamp > last24h).map(a => a.userId)
+            );
+            document.getElementById('activeUsers').textContent = activeUserIds.size;
+
+            const avgActions = activeUserIds.size > 0 ?
+                Math.round(allActivities.length / activeUserIds.size) : 0;
+            document.getElementById('avgPerUser').textContent = avgActions;
+        }
+
+        function applyFilters() {
+            const db = loadDB();
+            const userId = document.getElementById('filterUser').value;
+            const mailbox = document.getElementById('filterMailbox').value;
+            const action = document.getElementById('filterAction').value;
+            const dateRange = document.getElementById('filterDate').value;
+
+            filteredActivities = allActivities.filter(activity => {
+                if (userId && activity.userId !== parseInt(userId)) return false;
+                if (mailbox && activity.mailbox !== mailbox) return false;
+                if (action && activity.action !== action) return false;
+
+                if (dateRange !== 'all') {
+                    const actDate = new Date(activity.timestamp);
+                    const now = new Date();
+                    if (dateRange === 'today' && actDate.toDateString() !== now.toDateString()) return false;
+                    if (dateRange === 'week' && (now - actDate) > 7 * 86400000) return false;
+                    if (dateRange === 'month' && (now - actDate) > 30 * 86400000) return false;
+                }
+
+                return true;
+            });
+
+            sortActivities();
+            currentPage = 1;
+            renderActivities();
+        }
+
+        function sortBy(field) {
+            if (sortField === field) {
+                sortAsc = !sortAsc;
+            } else {
+                sortField = field;
+                sortAsc = false;
+            }
+            sortActivities();
+            renderActivities();
+        }
+
+        function sortActivities() {
+            const db = loadDB();
+            filteredActivities.sort((a, b) => {
+                let valA, valB;
+                if (sortField === 'timestamp') {
+                    valA = a.timestamp;
+                    valB = b.timestamp;
+                } else if (sortField === 'user') {
+                    const userA = db.users.find(u => u.id === a.userId);
+                    const userB = db.users.find(u => u.id === b.userId);
+                    valA = userA ? userA.name : '';
+                    valB = userB ? userB.name : '';
+                } else if (sortField === 'action') {
+                    valA = a.action;
+                    valB = b.action;
+                } else if (sortField === 'mailbox') {
+                    valA = a.mailbox;
+                    valB = b.mailbox;
+                }
+
+                if (valA < valB) return sortAsc ? -1 : 1;
+                if (valA > valB) return sortAsc ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function renderActivities() {
+            const db = loadDB();
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+            const pageData = filteredActivities.slice(start, end);
+
+            const tbody = document.getElementById('activityTable');
+            tbody.innerHTML = pageData.map(act => {
+                const user = db.users.find(u => u.id === act.userId);
+                const date = new Date(act.timestamp);
+                const actionBadge = {
+                    'send': 'badge-send',
+                    'receive': 'badge-receive',
+                    'read': 'badge-read',
+                    'delete': 'badge-delete',
+                    'reply': 'badge-reply'
+                }[act.action] || 'badge-send';
+
+                return `
+                    <tr>
+                        <td>${date.toLocaleString()}</td>
+                        <td>${user ? user.name : 'Unknown'}</td>
+                        <td><span class="badge ${actionBadge}">${act.action.toUpperCase()}</span></td>
+                        <td>${act.mailbox}</td>
+                        <td>${act.details || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('resultCount').textContent = `${filteredActivities.length} results`;
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredActivities.length / perPage);
+            const pagination = document.getElementById('pagination');
+
+            let html = '';
+            if (currentPage > 1) {
+                html += `<button class="page-btn" onclick="changePage(${currentPage - 1})">← Prev</button>`;
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += `<span>...</span>`;
+                }
+            }
+
+            if (currentPage < totalPages) {
+                html += `<button class="page-btn" onclick="changePage(${currentPage + 1})">Next →</button>`;
+            }
+
+            pagination.innerHTML = html;
+        }
+
+        window.changePage = function (page) {
+            currentPage = page;
+            renderActivities();
+        };
+
+        window.exportData = function () {
+            const db = loadDB();
+            let csv = 'Timestamp,User,Action,Mailbox,Details\n';
+            filteredActivities.forEach(act => {
+                const user = db.users.find(u => u.id === act.userId);
+                const date = new Date(act.timestamp).toLocaleString();
+                csv += `"${date}","${user ? user.name : 'Unknown'}","${act.action}","${act.mailbox}","${act.details || ''}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `activity-log-${Date.now()}.csv`;
+            a.click();
+        };
+
+        checkAuth();
+        loadActivities();
+    </script>
+</body>
+
+</html>

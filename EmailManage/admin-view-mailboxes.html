@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Mailboxes - ProMailHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+        }
+
+        .topbar {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            font-size: 24px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .mailbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .mailbox-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .mailbox-card:hover {
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .mailbox-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .mailbox-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .mailbox-info {
+            flex: 1;
+        }
+
+        .mailbox-email {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .mailbox-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .mailbox-desc {
+            font-size: 13px;
+            color: #999;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .mailbox-stats {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .users-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            flex: 1;
+        }
+
+        .users-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .user-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .user-tag {
+            padding: 6px 12px;
+            background: #e8eaff;
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .no-users {
+            color: #999;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .action-buttons {
+            margin-top: auto;
+            padding-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f7fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #667eea;
+            transform: rotate(90deg);
+        }
+
+        .detail-row {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #333;
+            word-break: break-all;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mailbox-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <div class="logo">📧</div>
+                    ProMailHub
+                </h2>
+            </div>
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <!-- Dynamic menu will be loaded here -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="topbar">
+                <h1>📬 View All Mailboxes</h1>
+                <div style="color: #667eea; font-weight: 600;" id="userInfo"></div>
+            </div>
+
+            <div class="content-area">
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="Search by email, name, or description...">
+                    </div>
+                    <select class="filter-select" id="sortSelect">
+                        <option value="name">Sort by Name</option>
+                        <option value="email">Sort by Email</option>
+                        <option value="users">Sort by Users Count</option>
+                        <option value="emails">Sort by Emails Count</option>
+                    </select>
+                    <select class="filter-select" id="filterSelect">
+                        <option value="all">All Mailboxes</option>
+                        <option value="active">With Users</option>
+                        <option value="inactive">No Users</option>
+                    </select>
+                </div>
+
+                <!-- Mailbox Grid -->
+                <div class="mailbox-grid" id="mailboxGrid"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📬 Mailbox Details</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const DB_KEY = 'mailApp_data';
+        const SESS_KEY = 'mailApp_session';
+
+        function loadDB() {
+            const data = localStorage.getItem(DB_KEY);
+            if (!data) return { users: [], emails: [], sharedMailboxes: [], emailActions: [] };
+            return JSON.parse(data);
+        }
+
+        function saveDB(db) {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+
+        function loadSession() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(session);
+        }
+
+        function logout() {
+            sessionStorage.removeItem(SESS_KEY);
+            window.location.href = 'login.html';
+        }
+
+        function closeModal() {
+            console.log('Closing modal');
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        function renderSidebar() {
+            const session = loadSession();
+            if (!session) return;
+
+            const currentPage = window.location.pathname.split('/').pop();
+            const sidebarMenu = document.getElementById('sidebarMenu');
+
+            if (session.role === 'admin') {
+                sidebarMenu.innerHTML = `
+                    <a href="admin-dashboard.html" class="menu-item ${currentPage === 'admin-dashboard.html' ? 'active' : ''}">
+                        <span>📊</span> Admin Dashboard
+                    </a>
+                    <a href="admin-mailboxes.html" class="menu-item ${currentPage === 'admin-mailboxes.html' ? 'active' : ''}">
+                        <span>⚙️</span> Manage Mailboxes
+                    </a>
+                    <a href="admin-view-mailboxes.html" class="menu-item ${currentPage === 'admin-view-mailboxes.html' ? 'active' : ''}">
+                        <span>📬</span> View Mailboxes
+                    </a>
+                    <a href="admin-tracking.html" class="menu-item ${currentPage === 'admin-tracking.html' ? 'active' : ''}">
+                        <span>📈</span> Activity Tracking
+                    </a>
+                    <a href="users.html" class="menu-item ${currentPage === 'users.html' ? 'active' : ''}">
+                        <span>👥</span> Manage Users
+                    </a>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}">
+                        <span>📋</span> My Dashboard
+                    </a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}">
+                        <span>📥</span> Inbox
+                    </a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}">
+                        <span>📤</span> Sent
+                    </a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}">
+                        <span>✉️</span> Compose
+                    </a>
+                    <a href="#" onclick="logout()" class="menu-item" style="margin-top: 20px;">
+                        <span>🚪</span> Logout
+                    </a>
+                `;
+            } else {
+                sidebarMenu.innerHTML = `
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}">
+                        <i>📊</i> <span>Dashboard</span>
+                    </a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}">
+                        <i>📥</i> <span>Inbox</span>
+                    </a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}">
+                        <i>✏️</i> <span>Compose</span>
+                    </a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}">
+                        <i>📤</i> <span>Sent Mail</span>
+                    </a>
+                `;
+            }
+        }
+
+        function checkAuth() {
+            const session = loadSession();
+            if (!session) return;
+
+            // Check admin role
+            if (session.role !== 'admin') {
+                alert('⛔ Access Denied. Admin privileges required.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            document.getElementById('userInfo').textContent = `${session.username} (${session.role})`;
+            renderSidebar();
+        }
+
+        function getEmailCount(mailboxEmail) {
+            const db = loadDB();
+            if (!db.emails) return 0;
+
+            // Count emails sent from this mailbox
+            const sentCount = db.emails.filter(email =>
+                email.from === mailboxEmail ||
+                email.assignedEmail === mailboxEmail
+            ).length;
+
+            return sentCount;
+        }
+
+        function renderMailboxes() {
+            const db = loadDB();
+
+            // Initialize sharedMailboxes if it doesn't exist
+            if (!db.sharedMailboxes) {
+                db.sharedMailboxes = [];
+            }
+
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const sortBy = document.getElementById('sortSelect').value;
+            const filterBy = document.getElementById('filterSelect').value;
+
+            let mailboxes = [...db.sharedMailboxes];
+
+            // Apply search filter
+            if (searchTerm) {
+                mailboxes = mailboxes.filter(mb =>
+                    mb.email.toLowerCase().includes(searchTerm) ||
+                    mb.name.toLowerCase().includes(searchTerm) ||
+                    (mb.description && mb.description.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // Apply user filter
+            if (filterBy === 'active') {
+                mailboxes = mailboxes.filter(mb => mb.assignedUsers && mb.assignedUsers.length > 0);
+            } else if (filterBy === 'inactive') {
+                mailboxes = mailboxes.filter(mb => !mb.assignedUsers || mb.assignedUsers.length === 0);
+            }
+
+            // Apply sorting
+            mailboxes.sort((a, b) => {
+                switch (sortBy) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'email':
+                        return a.email.localeCompare(b.email);
+                    case 'users':
+                        return (b.assignedUsers?.length || 0) - (a.assignedUsers?.length || 0);
+                    case 'emails':
+                        return getEmailCount(b.email) - getEmailCount(a.email);
+                    default:
+                        return 0;
+                }
+            });
+
+            const grid = document.getElementById('mailboxGrid');
+
+            if (mailboxes.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">📭</div>
+                        <h3>${searchTerm || filterBy !== 'all' ? 'No mailboxes found' : 'No shared mailboxes yet'}</h3>
+                        <p>${searchTerm || filterBy !== 'all' ? 'Try adjusting your search or filter criteria.' : 'Create your first shared mailbox to get started.'}</p>
+                        ${!searchTerm && filterBy === 'all' ? '<a href="admin-mailboxes.html" class="btn btn-primary">➕ Create Mailbox</a>' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = mailboxes.map(mailbox => {
+                const userCount = mailbox.assignedUsers?.length || 0;
+                const emailCount = getEmailCount(mailbox.email);
+                const users = db.users.filter(u => mailbox.assignedUsers?.includes(u.id)) || [];
+
+                let statusBadge = '';
+                if (userCount > 5) {
+                    statusBadge = '<span class="badge badge-success">Active</span>';
+                } else if (userCount > 0) {
+                    statusBadge = '<span class="badge badge-info">Normal</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-warning">No Users</span>';
+                }
+
+                return `
+                    <div class="mailbox-card">
+                        <div class="mailbox-header">
+                            <div class="mailbox-icon">📬</div>
+                            <div class="mailbox-info">
+                                <div class="mailbox-email">
+                                    ${mailbox.email}
+                                    ${statusBadge}
+                                </div>
+                                <div class="mailbox-name">${mailbox.name}</div>
+                            </div>
+                        </div>
+                        
+                        ${mailbox.description ? `<div class="mailbox-desc">${mailbox.description}</div>` : ''}
+                        
+                        <div class="mailbox-stats">
+                            <div class="stat">
+                                <div class="stat-value">${userCount}</div>
+                                <div class="stat-label">Users</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${emailCount}</div>
+                                <div class="stat-label">Emails</div>
+                            </div>
+                        </div>
+                        
+                        <div class="users-section">
+                            <div class="users-label">👥 Assigned Users:</div>
+                            ${users.length > 0 ? `
+                                <div class="user-tags">
+                                    ${users.slice(0, 5).map(u => `
+                                        <span class="user-tag">${u.username}</span>
+                                    `).join('')}
+                                    ${users.length > 5 ? `
+                                        <span class="user-tag">+${users.length - 5} more</span>
+                                    ` : ''}
+                                </div>
+                            ` : '<div class="no-users">No users assigned</div>'}
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" data-mailbox-id="${mailbox.id}" data-action="view">
+                                👁️ View Details
+                            </button>
+                            <button class="btn btn-secondary" data-mailbox-id="${mailbox.id}" data-action="edit">
+                                ✏️ Edit
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners to all buttons
+            document.querySelectorAll('[data-action="view"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('View button clicked, mailbox ID:', btn.dataset.mailboxId);
+                    viewDetails(btn.dataset.mailboxId);
+                });
+            });
+
+            document.querySelectorAll('[data-action="edit"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Edit button clicked, mailbox ID:', btn.dataset.mailboxId);
+                    editMailbox(btn.dataset.mailboxId);
+                });
+            });
+        }
+
+        function viewDetails(mailboxId) {
+            console.log('viewDetails called with ID:', mailboxId);
+            const db = loadDB();
+            console.log('All mailboxes:', db.sharedMailboxes);
+
+            // Try to find mailbox with string comparison (IDs might be strings)
+            const mailbox = db.sharedMailboxes?.find(mb => mb.id == mailboxId || mb.id === mailboxId);
+
+            if (!mailbox) {
+                console.error('Mailbox not found with ID:', mailboxId);
+                alert('Mailbox not found!');
+                return;
+            }
+
+            console.log('Found mailbox:', mailbox);
+            const users = db.users.filter(u => mailbox.assignedUsers?.includes(u.id)) || [];
+            const emailCount = getEmailCount(mailbox.email);
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-label">📧 Email Address</div>
+                    <div class="detail-value">${mailbox.email}</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">📛 Display Name</div>
+                    <div class="detail-value">${mailbox.name}</div>
+                </div>
+                
+                ${mailbox.description ? `
+                    <div class="detail-row">
+                        <div class="detail-label">📝 Description</div>
+                        <div class="detail-value">${mailbox.description}</div>
+                    </div>
+                ` : ''}
+                
+                <div class="detail-row">
+                    <div class="detail-label">📊 Statistics</div>
+                    <div class="detail-value">
+                        • ${users.length} assigned user(s)<br>
+                        • ${emailCount} email(s) sent<br>
+                        • Created: ${new Date(mailbox.id).toLocaleDateString()}
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">👥 Assigned Users (${users.length})</div>
+                    <div class="detail-value">
+                        ${users.length > 0 ? `
+                            <div class="user-tags" style="margin-top: 10px;">
+                                ${users.map(u => `
+                                    <span class="user-tag">
+                                        ${u.username} ${u.role === 'admin' ? '👑' : ''}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        ` : '<em style="color: #999;">No users assigned to this mailbox</em>'}
+                    </div>
+                </div>
+                
+                <div style="margin-top: 25px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="modalManageBtn">
+                        ⚙️ Manage Mailboxes
+                    </button>
+                    <button class="btn btn-secondary" id="modalCloseBtn">
+                        ✖️ Close
+                    </button>
+                </div>
+            `;
+
+            // Add event listeners for modal buttons
+            document.getElementById('modalManageBtn').addEventListener('click', () => {
+                window.location.href = 'admin-mailboxes.html';
+            });
+
+            document.getElementById('modalCloseBtn').addEventListener('click', () => {
+                closeModal();
+            });
+
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function editMailbox(mailboxId) {
+            if (!mailboxId) {
+                console.error('No mailbox ID provided');
+                return;
+            }
+            console.log('Redirecting to edit mailbox:', mailboxId);
+            // Redirect to admin-mailboxes.html with the mailbox ID
+            window.location.href = `admin-mailboxes.html?edit=${mailboxId}`;
+        }
+
+        // Close modal on outside click
+        document.getElementById('detailsModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Search and filter handlers
+        document.getElementById('searchInput').addEventListener('input', renderMailboxes);
+        document.getElementById('sortSelect').addEventListener('change', renderMailboxes);
+        document.getElementById('filterSelect').addEventListener('change', renderMailboxes);
+
+        // Initialize
+        checkAuth();
+        renderMailboxes();
+    </script>
+</body>
+
+</html>

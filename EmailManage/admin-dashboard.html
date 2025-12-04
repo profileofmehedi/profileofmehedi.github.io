@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ProMailHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            color: #555;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-info h4 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-header h3 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .user-info {
+            padding: 25px;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+            background: #f8f9fa;
+        }
+
+        .user-info .avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><span class="logo">✉</span><span>ProMailHub Admin</span></h2>
+            </div>
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <!-- Menu loaded dynamically -->
+            </nav>
+            <div class="user-info">
+                <div class="avatar">👑</div>
+                <div class="name" id="userName">Admin</div>
+                <div class="role" style="font-size: 12px; color: #999;">ADMINISTRATOR</div>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <h1>Admin Dashboard</h1>
+            </div>
+            <div class="content-area">
+                <div class="stats-grid">
+                    <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='users.html'">
+                        <div class="stat-info">
+                            <h4 id="totalUsers">0</h4>
+                            <p>Total Users</p>
+                            <small style="color: #667eea; font-weight: 600;">→ Manage Users</small>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer;"
+                        onclick="window.location.href='admin-mailboxes.html'">
+                        <div class="stat-info">
+                            <h4 id="totalMailboxes">0</h4>
+                            <p>Shared Mailboxes</p>
+                            <small style="color: #667eea; font-weight: 600;">→ Manage Mailboxes</small>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='inbox.html'">
+                        <div class="stat-info">
+                            <h4 id="totalEmails">0</h4>
+                            <p>Total Emails</p>
+                            <small style="color: #667eea; font-weight: 600;">→ View All</small>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer;"
+                        onclick="window.location.href='admin-tracking.html'">
+                        <div class="stat-info">
+                            <h4 id="activityToday">0</h4>
+                            <p>Activities Today</p>
+                            <small style="color: #667eea; font-weight: 600;">→ View Activity</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📬 Shared Mailboxes Overview</h3>
+                    </div>
+                    <table id="mailboxTable">
+                        <thead>
+                            <tr>
+                                <th>Mailbox</th>
+                                <th>Description</th>
+                                <th>Assigned Users</th>
+                                <th>Emails</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📊 Recent User Activity</h3>
+                    </div>
+                    <table id="activityTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Mailbox</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        const DB_KEY = 'mailApp_data';
+        const SESS_KEY = 'mailApp_session';
+
+        function renderSidebar() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) return;
+            const user = JSON.parse(session);
+
+            const currentPage = window.location.pathname.split('/').pop();
+            const sidebarMenu = document.getElementById('sidebarMenu');
+
+            if (user.role === 'admin') {
+                sidebarMenu.innerHTML = `
+                    <a href="admin-dashboard.html" class="menu-item ${currentPage === 'admin-dashboard.html' ? 'active' : ''}">📊 Admin Dashboard</a>
+                    <a href="admin-mailboxes.html" class="menu-item ${currentPage === 'admin-mailboxes.html' ? 'active' : ''}">⚙️ Manage Mailboxes</a>
+                    <a href="admin-view-mailboxes.html" class="menu-item ${currentPage === 'admin-view-mailboxes.html' ? 'active' : ''}">📬 View Mailboxes</a>
+                    <a href="admin-tracking.html" class="menu-item ${currentPage === 'admin-tracking.html' ? 'active' : ''}">📈 Activity Tracking</a>
+                    <a href="users.html" class="menu-item ${currentPage === 'users.html' ? 'active' : ''}">👥 Manage Users</a>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}">📋 My Dashboard</a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}">📥 Inbox</a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}">📤 Sent</a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}">✉️ Compose</a>
+                `;
+            } else {
+                sidebarMenu.innerHTML = `
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                `;
+            }
+        }
+
+        function checkAuth() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const user = JSON.parse(session);
+            if (user.role !== 'admin') {
+                window.location.href = 'dashboard.html';
+            }
+            renderSidebar();
+        }
+
+        function logout() {
+            sessionStorage.removeItem(SESS_KEY);
+            window.location.href = 'login.html';
+        }
+
+        function loadDB() {
+            return JSON.parse(localStorage.getItem(DB_KEY));
+        }
+
+        function renderDashboard() {
+            const db = loadDB();
+            document.getElementById('totalUsers').textContent = db.users.length;
+            document.getElementById('totalMailboxes').textContent = db.sharedMailboxes.length;
+            document.getElementById('totalEmails').textContent = db.emails.length;
+            document.getElementById('activityToday').textContent = db.emailActions.filter(a =>
+                a.date.startsWith(new Date().toISOString().split('T')[0])
+            ).length;
+
+            // Render mailboxes
+            const mailboxTbody = document.querySelector('#mailboxTable tbody');
+            mailboxTbody.innerHTML = db.sharedMailboxes.map(mb => {
+                const emailCount = db.emails.filter(e => e.sharedMailbox === mb.email).length;
+                return `
+                    <tr>
+                        <td><strong>${mb.email}</strong><br><small>${mb.name}</small></td>
+                        <td>${mb.description}</td>
+                        <td><span class="badge badge-info">${mb.assignedUsers.length} users</span></td>
+                        <td>${emailCount} emails</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Render recent activity
+            const activityTbody = document.querySelector('#activityTable tbody');
+            const recentActions = db.emailActions.slice(-10).reverse();
+            activityTbody.innerHTML = recentActions.map(action => {
+                const user = db.users.find(u => u.id === action.userId);
+                return `
+                    <tr>
+                        <td>${user ? user.name : 'Unknown'}</td>
+                        <td><span class="badge badge-${action.action === 'sent' ? 'success' : 'warning'}">${action.action}</span></td>
+                        <td>${action.mailbox || 'N/A'}</td>
+                        <td>${new Date(action.date).toLocaleString()}</td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="4" style="text-align: center; color: #999;">No recent activity</td></tr>';
+        }
+
+        checkAuth();
+        renderDashboard();
+    </script>
+</body>
+
+</html>

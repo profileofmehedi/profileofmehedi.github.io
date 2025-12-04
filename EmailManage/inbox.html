@@ -621,27 +621,8 @@
                 </h2>
             </div>
 
-            <nav class="sidebar-menu">
-                <a href="dashboard.html" class="menu-item">
-                    <i>📊</i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="inbox.html" class="menu-item active">
-                    <i>📥</i>
-                    <span>Inbox</span>
-                </a>
-                <a href="compose.html" class="menu-item">
-                    <i>✏️</i>
-                    <span>Compose</span>
-                </a>
-                <a href="sent.html" class="menu-item">
-                    <i>📤</i>
-                    <span>Sent Mail</span>
-                </a>
-                <a href="users.html" class="menu-item d-none" id="adminLink">
-                    <i>👥</i>
-                    <span>Manage Users</span>
-                </a>
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <!-- Menu loaded dynamically -->
             </nav>
 
             <div class="user-info">
@@ -675,10 +656,40 @@
         const SESS_KEY = 'mailApp_session';
 
         // Check Authentication
+        function renderSidebar() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) return;
+            const user = JSON.parse(session);
+            const currentPage = window.location.pathname.split('/').pop();
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            if (user.role === 'admin') {
+                sidebarMenu.innerHTML = `
+                    <a href="admin-dashboard.html" class="menu-item ${currentPage === 'admin-dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Admin Dashboard</span></a>
+                    <a href="admin-mailboxes.html" class="menu-item ${currentPage === 'admin-mailboxes.html' ? 'active' : ''}"><i>⚙️</i> <span>Manage Mailboxes</span></a>
+                    <a href="admin-view-mailboxes.html" class="menu-item ${currentPage === 'admin-view-mailboxes.html' ? 'active' : ''}"><i>📬</i> <span>View Mailboxes</span></a>
+                    <a href="admin-tracking.html" class="menu-item ${currentPage === 'admin-tracking.html' ? 'active' : ''}"><i>📈</i> <span>Activity Tracking</span></a>
+                    <a href="users.html" class="menu-item ${currentPage === 'users.html' ? 'active' : ''}"><i>👥</i> <span>Manage Users</span></a>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📋</i> <span>My Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                `;
+            } else {
+                sidebarMenu.innerHTML = `
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                `;
+            }
+        }
+
         function checkAuth() {
             if (!sessionStorage.getItem(SESS_KEY)) {
                 window.location.href = 'login.html';
             }
+            renderSidebar();
         }
 
         function getCurrentUser() {
@@ -693,6 +704,25 @@
         // Database Functions
         function loadDB() {
             return JSON.parse(localStorage.getItem(DB_KEY));
+        }
+
+        function saveDB(data) {
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        }
+
+        function logActivity(action, mailbox, details) {
+            const db = loadDB();
+            const user = getCurrentUser();
+            const activity = {
+                id: Date.now(),
+                userId: user.id,
+                action: action,
+                mailbox: mailbox,
+                details: details,
+                timestamp: Date.now()
+            };
+            db.emailActions.push(activity);
+            saveDB(db);
         }
 
         // Pagination and Search State
@@ -710,13 +740,14 @@
                 return db.emails.filter(e => e.folder === folder).reverse();
             }
 
+            // For regular users, filter by their assigned email
             if (folder === 'inbox') {
                 return db.emails.filter(e =>
-                    e.folder === 'inbox' && (e.targetUserId === user.id || e.targetUserId === null)
+                    e.folder === 'inbox' && e.to === user.assignedEmail
                 ).reverse();
             } else {
                 return db.emails.filter(e =>
-                    e.folder === 'sent' && e.senderId === user.id
+                    e.folder === 'sent' && e.sender === user.assignedEmail
                 ).reverse();
             }
         }
@@ -743,6 +774,29 @@
         // Open Email Modal
         function openEmailModal(email) {
             const modalBody = document.getElementById('modalBody');
+            const user = getCurrentUser();
+
+            // Log read activity
+            logActivity('read', email.to, `Read email: ${email.subject}`);
+
+            // Show "Assign to me" button for shared mailbox emails
+            let assignButton = '';
+            if (email.sharedMailbox && (!email.handledBy || email.handledBy === user.id)) {
+                assignButton = `
+                    <button onclick="assignToMe(${email.id}, '${email.to}')" style="padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 20px; width: 100%;">
+                        👤 Assign to Me
+                    </button>
+                `;
+            } else if (email.handledBy && email.handledBy !== user.id) {
+                const db = loadDB();
+                const handler = db.users.find(u => u.id === email.handledBy);
+                assignButton = `
+                    <div style="background: #fdcb6e; color: #e17055; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: 600;">
+                        ⚠️ This email is being handled by ${handler ? handler.name : 'another user'}
+                    </div>
+                `;
+            }
+
             let attachmentsHtml = '';
             if (email.attachments && email.attachments.length > 0) {
                 attachmentsHtml = `
@@ -764,6 +818,7 @@
                 `;
             }
             modalBody.innerHTML = `
+                ${assignButton}
                 <div class="email-detail">
                     <div class="email-detail-label">From</div>
                     <div class="email-detail-value">${email.senderName}</div>
@@ -786,6 +841,20 @@
             `;
             document.getElementById('emailModal').classList.add('active');
         }
+
+        window.assignToMe = function (emailId, mailbox) {
+            const db = loadDB();
+            const user = getCurrentUser();
+            const email = db.emails.find(e => e.id === emailId);
+            if (email) {
+                email.handledBy = user.id;
+                saveDB(db);
+                logActivity('assign', mailbox, `Assigned email "${email.subject}" to self`);
+                alert('✅ Email assigned to you!');
+                closeEmailModal();
+                renderInbox();
+            }
+        };
 
         // Close Email Modal
         function closeEmailModal() {

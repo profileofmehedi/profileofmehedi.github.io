@@ -656,27 +656,8 @@
                 </h2>
             </div>
 
-            <nav class="sidebar-menu">
-                <a href="dashboard.html" class="menu-item">
-                    <i>📊</i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="inbox.html" class="menu-item">
-                    <i>📥</i>
-                    <span>Inbox</span>
-                </a>
-                <a href="compose.html" class="menu-item active">
-                    <i>✏️</i>
-                    <span>Compose</span>
-                </a>
-                <a href="sent.html" class="menu-item">
-                    <i>📤</i>
-                    <span>Sent Mail</span>
-                </a>
-                <a href="users.html" class="menu-item d-none" id="adminLink">
-                    <i>👥</i>
-                    <span>Manage Users</span>
-                </a>
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <!-- Menu loaded dynamically -->
             </nav>
 
             <div class="user-info">
@@ -872,10 +853,40 @@
         const SESS_KEY = 'mailApp_session';
 
         // Check Authentication
+        function renderSidebar() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) return;
+            const user = JSON.parse(session);
+            const currentPage = window.location.pathname.split('/').pop();
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            if (user.role === 'admin') {
+                sidebarMenu.innerHTML = `
+                    <a href="admin-dashboard.html" class="menu-item ${currentPage === 'admin-dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Admin Dashboard</span></a>
+                    <a href="admin-mailboxes.html" class="menu-item ${currentPage === 'admin-mailboxes.html' ? 'active' : ''}"><i>⚙️</i> <span>Manage Mailboxes</span></a>
+                    <a href="admin-view-mailboxes.html" class="menu-item ${currentPage === 'admin-view-mailboxes.html' ? 'active' : ''}"><i>📬</i> <span>View Mailboxes</span></a>
+                    <a href="admin-tracking.html" class="menu-item ${currentPage === 'admin-tracking.html' ? 'active' : ''}"><i>📈</i> <span>Activity Tracking</span></a>
+                    <a href="users.html" class="menu-item ${currentPage === 'users.html' ? 'active' : ''}"><i>👥</i> <span>Manage Users</span></a>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📋</i> <span>My Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                `;
+            } else {
+                sidebarMenu.innerHTML = `
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                `;
+            }
+        }
+
         function checkAuth() {
             if (!sessionStorage.getItem(SESS_KEY)) {
                 window.location.href = 'login.html';
             }
+            renderSidebar();
         }
 
         function getCurrentUser() {
@@ -1091,7 +1102,52 @@
 
         // Save Draft
         function saveDraft() {
+            const user = getCurrentUser();
+            const db = loadDB();
+
+            const to = document.getElementById('toEmail').value;
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+
+            if (!to && !subject && !body) {
+                alert('⚠️ Nothing to save! Compose some content first.');
+                return;
+            }
+
+            const senderEmail = user.assignedEmail || user.email;
+            const attachmentData = attachments.map(f => ({
+                name: f.name,
+                size: formatFileSize(f.size)
+            }));
+
+            const draft = {
+                id: Date.now(),
+                senderId: user.id,
+                senderName: user.name,
+                sender: senderEmail,
+                recipient: to || '(No recipient)',
+                to: to || '',
+                subject: subject || '(No subject)',
+                body: body,
+                attachments: attachmentData,
+                date: new Date().toLocaleString('en-US', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                }),
+                folder: 'draft',
+                sharedMailbox: user.assignedEmail ? true : false,
+                handledBy: user.assignedEmail ? user.id : null
+            };
+
+            db.emails.push(draft);
+            saveDB(db);
+            logActivity('draft', senderEmail, `Saved draft: ${subject || '(No subject)'}`);
+
             alert('💾 Draft saved successfully!');
+            document.getElementById('composeForm').reset();
+            attachments = [];
+            document.getElementById('attachmentList').innerHTML = '';
+            window.location.href = 'inbox.html';
         }
 
         // Discard Email
@@ -1104,6 +1160,22 @@
             }
         }
 
+        // Log Activity Function
+        function logActivity(action, mailbox, details) {
+            const db = loadDB();
+            const user = getCurrentUser();
+            const activity = {
+                id: Date.now(),
+                userId: user.id,
+                action: action,
+                mailbox: mailbox,
+                details: details,
+                timestamp: Date.now()
+            };
+            db.emailActions.push(activity);
+            saveDB(db);
+        }
+
         // Send Email Function
         function sendEmail(recipient, subject, body, priority, cc, bcc, scheduled) {
             const user = getCurrentUser();
@@ -1114,11 +1186,17 @@
                 size: formatFileSize(f.size)
             }));
 
+            // Send from user's assigned email address
+            const senderEmail = user.assignedEmail || user.email;
+            const isSharedMailbox = user.assignedEmail ? true : false;
+
             const newEmail = {
                 id: Date.now(),
                 senderId: user.id,
                 senderName: user.name,
+                sender: senderEmail,
                 recipient: recipient,
+                to: recipient,
                 cc: cc || '',
                 bcc: bcc || '',
                 subject: subject,
@@ -1131,11 +1209,17 @@
                 }),
                 scheduled: scheduled || null,
                 folder: 'sent',
-                targetUserId: null
+                targetUserId: null,
+                sharedMailbox: isSharedMailbox,
+                handledBy: isSharedMailbox ? user.id : null
             };
 
             db.emails.push(newEmail);
             saveDB(db);
+
+            // Log sending activity
+            logActivity('send', senderEmail, `Sent email to ${recipient}: ${subject}`);
+
             return true;
         }
 

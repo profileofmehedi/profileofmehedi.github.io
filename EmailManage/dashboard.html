@@ -709,27 +709,8 @@
                 </h2>
             </div>
 
-            <nav class="sidebar-menu">
-                <a href="dashboard.html" class="menu-item active">
-                    <i>📊</i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="inbox.html" class="menu-item">
-                    <i>📥</i>
-                    <span>Inbox</span>
-                </a>
-                <a href="compose.html" class="menu-item">
-                    <i>✏️</i>
-                    <span>Compose</span>
-                </a>
-                <a href="sent.html" class="menu-item">
-                    <i>📤</i>
-                    <span>Sent Mail</span>
-                </a>
-                <a href="users.html" class="menu-item d-none" id="adminLink">
-                    <i>👥</i>
-                    <span>Manage Users</span>
-                </a>
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <!-- Menu loaded dynamically -->
             </nav>
 
             <div class="user-info">
@@ -763,36 +744,37 @@
 
                 <!-- Stats Grid -->
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='inbox.html'">
                         <div class="stat-icon inbox">📥</div>
                         <div class="stat-info">
                             <h4 id="inboxCount">0</h4>
                             <p>Inbox Messages</p>
-                            <div class="stat-trend">↑ 12% from last week</div>
+                            <div class="stat-trend">→ Click to view</div>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='sent.html'">
                         <div class="stat-icon sent">📤</div>
                         <div class="stat-info">
                             <h4 id="sentCount">0</h4>
                             <p>Sent Messages</p>
-                            <div class="stat-trend">↑ 8% from last week</div>
+                            <div class="stat-trend">→ Click to view</div>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='compose.html'">
                         <div class="stat-icon draft">📝</div>
                         <div class="stat-info">
                             <h4>0</h4>
                             <p>Draft Messages</p>
-                            <div class="stat-trend down">↓ 3% from last week</div>
+                            <div class="stat-trend">→ Click to compose</div>
                         </div>
                     </div>
-                    <div class="stat-card d-none" id="userStatCard">
+                    <div class="stat-card d-none" id="userStatCard" style="cursor: pointer;"
+                        onclick="window.location.href='users.html'">
                         <div class="stat-icon users">👥</div>
                         <div class="stat-info">
                             <h4 id="userCount">0</h4>
                             <p>Total Users</p>
-                            <div class="stat-trend">↑ 5% from last month</div>
+                            <div class="stat-trend">→ Click to manage</div>
                         </div>
                     </div>
                 </div>
@@ -908,10 +890,40 @@
         const SESS_KEY = 'mailApp_session';
 
         // Check Authentication
+        function renderSidebar() {
+            const session = sessionStorage.getItem(SESS_KEY);
+            if (!session) return;
+            const user = JSON.parse(session);
+            const currentPage = window.location.pathname.split('/').pop();
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            if (user.role === 'admin') {
+                sidebarMenu.innerHTML = `
+                    <a href="admin-dashboard.html" class="menu-item ${currentPage === 'admin-dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Admin Dashboard</span></a>
+                    <a href="admin-mailboxes.html" class="menu-item ${currentPage === 'admin-mailboxes.html' ? 'active' : ''}"><i>⚙️</i> <span>Manage Mailboxes</span></a>
+                    <a href="admin-view-mailboxes.html" class="menu-item ${currentPage === 'admin-view-mailboxes.html' ? 'active' : ''}"><i>📬</i> <span>View Mailboxes</span></a>
+                    <a href="admin-tracking.html" class="menu-item ${currentPage === 'admin-tracking.html' ? 'active' : ''}"><i>📈</i> <span>Activity Tracking</span></a>
+                    <a href="users.html" class="menu-item ${currentPage === 'users.html' ? 'active' : ''}"><i>👥</i> <span>Manage Users</span></a>
+                    <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📋</i> <span>My Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                `;
+            } else {
+                sidebarMenu.innerHTML = `
+                    <a href="dashboard.html" class="menu-item ${currentPage === 'dashboard.html' ? 'active' : ''}"><i>📊</i> <span>Dashboard</span></a>
+                    <a href="inbox.html" class="menu-item ${currentPage === 'inbox.html' ? 'active' : ''}"><i>📥</i> <span>Inbox</span></a>
+                    <a href="compose.html" class="menu-item ${currentPage === 'compose.html' ? 'active' : ''}"><i>✏️</i> <span>Compose</span></a>
+                    <a href="sent.html" class="menu-item ${currentPage === 'sent.html' ? 'active' : ''}"><i>📤</i> <span>Sent Mail</span></a>
+                `;
+            }
+        }
+
         function checkAuth() {
             if (!sessionStorage.getItem(SESS_KEY)) {
                 window.location.href = 'login.html';
             }
+            renderSidebar();
         }
 
         function getCurrentUser() {
@@ -934,16 +946,22 @@
             const db = loadDB();
 
             if (user.role === 'admin') {
+                // Admin redirected to admin-dashboard, but keep this for fallback
                 return db.emails.filter(e => e.folder === folder).reverse();
             }
 
+            // For regular users, filter by their assigned email
             if (folder === 'inbox') {
                 return db.emails.filter(e =>
-                    e.folder === 'inbox' && (e.targetUserId === user.id || e.targetUserId === null)
+                    e.folder === 'inbox' && e.to === user.assignedEmail
+                ).reverse();
+            } else if (folder === 'draft') {
+                return db.emails.filter(e =>
+                    e.folder === 'draft' && e.senderId === user.id
                 ).reverse();
             } else {
                 return db.emails.filter(e =>
-                    e.folder === 'sent' && e.senderId === user.id
+                    e.folder === 'sent' && e.sender === user.assignedEmail
                 ).reverse();
             }
         }
@@ -953,16 +971,25 @@
             const user = getCurrentUser();
             const db = loadDB();
 
+            // Find user's shared mailbox info
+            const mailbox = db.sharedMailboxes.find(mb => mb.email === user.assignedEmail);
+            const mailboxName = mailbox ? mailbox.name : 'Your Mailbox';
+
             // Update welcome message
             document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.name}! 👋`;
-            document.getElementById('welcomeSubtext').textContent = `Here's what's happening with your emails today`;
+            document.getElementById('welcomeSubtext').textContent = `Managing ${mailboxName} (${user.assignedEmail})`;
 
             // Get email counts
             const inboxEmails = getEmails('inbox');
             const sentEmails = getEmails('sent');
+            const draftEmails = getEmails('draft');
 
             document.getElementById('inboxCount').textContent = inboxEmails.length;
             document.getElementById('sentCount').textContent = sentEmails.length;
+
+            // Update drafts count
+            const draftCard = document.querySelector('.stat-card:nth-child(3) h4');
+            if (draftCard) draftCard.textContent = draftEmails.length;
 
             // Show admin stats
             if (user.role === 'admin') {
