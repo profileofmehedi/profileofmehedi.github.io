@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Manager Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        /* CARD COLORS */
+        .card-cc { border-left: 5px solid #dc3545; } /* Red for Debt */
+        .card-asset { border-left: 5px solid #198754; } /* Green for Assets */
+        
+        .text-due { color: #dc3545; font-weight: bold; }
+        .text-bal { color: #198754; font-weight: bold; }
+
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader" class="loading-overlay">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="mt-2 fw-bold text-muted">Syncing data...</div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-primary mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">💸 Wallet Manager</span>
+        <button class="btn btn-sm btn-light text-primary fw-bold" onclick="fetchData()">🔄 Sync Data</button>
+    </div>
+</nav>
+
+<div class="container pb-5">
+
+    <!-- 1. DASHBOARD TOTALS -->
+    <div class="row g-3 mb-4">
+        <!-- CARD 1: NET WORTH (Calculated as Assets - Credit Card) -->
+        <div class="col-md-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="opacity-75">Net Balance (Cash - Debt)</h6>
+                    <h2 class="fw-bold" id="cardNetBalance">...</h2>
+                    <small style="font-size: 12px; opacity: 0.8">Total Assets - Credit Card Due</small>
+                </div>
+            </div>
+        </div>
+        <!-- CARD 2: INCOME -->
+        <div class="col-md-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h6 class="opacity-75">Income (This Month)</h6>
+                    <h2 class="fw-bold" id="cardMonthIncome">0</h2>
+                </div>
+            </div>
+        </div>
+        <!-- CARD 3: EXPENSE -->
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <h6 class="opacity-75">Expense (This Month)</h6>
+                    <h2 class="fw-bold" id="cardMonthExpense">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ACCOUNTS LIST -->
+    <h5 class="text-muted small fw-bold text-uppercase">💳 Accounts & Cards</h5>
+    <div class="row g-3 mb-4" id="accountCards">
+        <div class="col-12 text-muted">Loading accounts...</div>
+    </div>
+
+    <!-- 3. INPUT FORMS -->
+    <div class="card mb-4">
+        <div class="card-header bg-white pt-3 border-0">
+            <ul class="nav nav-pills" id="pills-tab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active fw-bold" id="tab-trans" data-bs-toggle="pill" data-bs-target="#content-trans" type="button">➕ Add Income / Expense</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-bold" id="tab-transfer" data-bs-toggle="pill" data-bs-target="#content-transfer" type="button">🔄 Transfer / Pay Bill</button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="card-body">
+            <div class="tab-content">
+                
+                <!-- A: INCOME / EXPENSE -->
+                <div class="tab-pane fade show active" id="content-trans">
+                    <form id="transForm">
+                        <div class="row g-2">
+                            <div class="col-md-2">
+                                <label class="small text-muted">Type</label>
+                                <select class="form-select" id="tType">
+                                    <option value="Expense">Expense 🔴</option>
+                                    <option value="Income">Income 🟢</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small text-muted">Account</label>
+                                <select class="form-select account-dropdown" id="tAccount" required></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small text-muted">Category</label>
+                                <input type="text" class="form-control" id="tCategory" list="catList" placeholder="e.g. Food, Salary" required>
+                                <datalist id="catList">
+                                    <option value="Food"><option value="Transport"><option value="Salary"><option value="Shopping"><option value="Bills">
+                                </datalist>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="small text-muted">Amount</label>
+                                <input type="number" class="form-control" id="tAmount" placeholder="0.00" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- B: TRANSFER -->
+                <div class="tab-pane fade" id="content-transfer">
+                    <form id="transferForm">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="small text-muted">From (Source)</label>
+                                <select class="form-select account-dropdown" id="trFrom" required></select>
+                            </div>
+                            <div class="col-md-1 text-center d-none d-md-block fs-4">➡️</div>
+                            <div class="col-md-3">
+                                <label class="small text-muted">To (Destination)</label>
+                                <select class="form-select account-dropdown" id="trTo" required></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small text-muted">Amount</label>
+                                <input type="number" class="form-control" id="trAmount" placeholder="0.00" required>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-dark w-100">Transfer</button>
+                            </div>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            To reduce Credit Card Due, select <b>From: Cash</b> ➡️ <b>To: Credit Card</b>.
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. CHARTS -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card p-3 h-100">
+                <h6 class="text-center">Spending by Category</h6>
+                <div style="height:250px; display:flex; justify-content:center;">
+                    <canvas id="catChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card p-3 h-100">
+                <h6 class="text-center">Account Balances</h6>
+                <canvas id="balChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. TABLE -->
+    <div class="card">
+        <div class="card-header bg-white fw-bold">📜 Recent Transactions</div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Account</th>
+                        <th>Details</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- JAVASCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ==========================================
+    // 🔴 CONFIRM YOUR URL IS CORRECT HERE
+    // ==========================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyPbTv4uysFKsxf95ZWz7xS-9IxvwV8pdAYHj-xfpZnB8z3mlF_rH6CLZgF6WhuzJjzMg/exec'; 
+
+    let chartCat = null;
+    let chartBal = null;
+
+    document.addEventListener('DOMContentLoaded', fetchData);
+
+    function fetchData() {
+        document.getElementById('loader').style.display = 'flex';
+        fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'error') {
+                alert("Script Error: " + data.message);
+                document.getElementById('loader').style.display = 'none';
+            } else {
+                processData(data);
+                document.getElementById('loader').style.display = 'none';
+            }
+        })
+        .catch(err => {
+            console.error("Fetch Error:", err);
+            // Only show alert if it's a real network error, not just a parsing glitch
+            if(err.message && err.message.includes("Failed to fetch")) {
+                alert("Connection Failed. Check URL and Internet.");
+            }
+            document.getElementById('loader').style.display = 'none';
+        });
+    }
+
+    function processData(data) {
+        const transactions = data.transactions;
+        const accountsList = data.accounts;
+        
+        let balances = {};
+        
+        // Stats
+        let totalAssets = 0; 
+        let totalDebt = 0;   
+        let monthlyIncome = 0;
+        let monthlyExpense = 0;
+        let catTotals = {};
+
+        // 1. Initialize Accounts
+        const dropdowns = document.querySelectorAll('.account-dropdown');
+        dropdowns.forEach(dd => dd.innerHTML = '');
+
+        accountsList.forEach(acc => {
+            // FIX: Skip empty rows in Accounts tab
+            if(!acc.Account) return;
+
+            let name = acc.Account;
+            let init = parseFloat(acc.InitialBalance) || 0;
+            balances[name] = init;
+
+            dropdowns.forEach(dd => {
+                let opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+                dd.appendChild(opt);
+            });
+        });
+
+        // 2. Process Transactions
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        transactions.forEach(t => {
+            // FIX: Skip empty rows in Transactions tab (CRASH PREVENTION)
+            if(!t.Account || !t.Type) return;
+
+            let amt = parseFloat(t.Amount) || 0;
+            let acc = t.Account;
+            let tDate = new Date(t.Date);
+
+            // Update Balance
+            if(balances.hasOwnProperty(acc)) {
+                balances[acc] += amt;
+            }
+
+            // Dashboard Stats
+            let isThisMonth = (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear);
+
+            if(t.Type === 'Income' && isThisMonth) {
+                monthlyIncome += Math.abs(amt);
+            }
+            if(t.Type === 'Expense') {
+                if(isThisMonth) monthlyExpense += Math.abs(amt);
+                catTotals[t.Category] = (catTotals[t.Category] || 0) + Math.abs(amt);
+            }
+        });
+
+        // 3. Render Cards
+        const accCardContainer = document.getElementById('accountCards');
+        accCardContainer.innerHTML = '';
+        
+        let chartLabels = [];
+        let chartData = [];
+        let chartColors = [];
+
+        for (const [name, bal] of Object.entries(balances)) {
+            let isCredit = name.toLowerCase().includes("credit"); 
+            let isDebit = name.toLowerCase().includes("debit");
+            let isDebtAccount = isCredit && !isDebit;
+
+            let displayBal = bal;
+            let displayTitle = "Available Balance";
+            let colorClass = "text-bal"; 
+            let borderClass = "card-asset"; 
+
+            if (isDebtAccount) {
+                totalDebt += bal; 
+                displayTitle = "DUE AMOUNT";
+                colorClass = "text-due"; 
+                borderClass = "card-cc"; 
+            } else {
+                totalAssets += bal;
+            }
+
+            accCardContainer.innerHTML += `
+                <div class="col-6 col-md-3">
+                    <div class="card h-100 p-3 ${borderClass}">
+                        <div class="small text-muted fw-bold text-uppercase text-truncate">${name}</div>
+                        <div style="font-size:0.75rem" class="text-muted mb-1">${displayTitle}</div>
+                        <h4 class="${colorClass}">${displayBal.toLocaleString()}</h4>
+                    </div>
+                </div>
+            `;
+
+            chartLabels.push(name);
+            chartData.push(bal); 
+            chartColors.push(isDebtAccount ? '#dc3545' : '#198754');
+        }
+
+        let netWorth = totalAssets - totalDebt;
+
+        document.getElementById('cardNetBalance').innerText = netWorth.toLocaleString();
+        document.getElementById('cardMonthIncome').innerText = monthlyIncome.toLocaleString();
+        document.getElementById('cardMonthExpense').innerText = monthlyExpense.toLocaleString();
+
+        renderTable(transactions);
+        renderCharts(catTotals, chartLabels, chartData, chartColors);
+    }
+
+    // 4. Send Data Logic
+    function sendData(payload) {
+        document.getElementById('loader').style.display = 'flex';
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(() => {
+            alert("Success!");
+            document.getElementById('transForm').reset();
+            document.getElementById('transferForm').reset();
+            fetchData();
+        })
+        .catch(err => {
+            alert("Saved! Refreshing...");
+            fetchData();
+        });
+    }
+
+    document.getElementById('transForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendData({
+            action: "transaction",
+            type: document.getElementById('tType').value,
+            account: document.getElementById('tAccount').value,
+            category: document.getElementById('tCategory').value,
+            amount: document.getElementById('tAmount').value,
+            note: "Web Entry"
+        });
+    });
+
+    document.getElementById('transferForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        let fromAcc = document.getElementById('trFrom').value;
+        let toAcc = document.getElementById('trTo').value;
+        if(fromAcc === toAcc) { alert("Source and Destination cannot be the same!"); return; }
+
+        sendData({
+            action: "transfer",
+            fromAccount: fromAcc,
+            toAccount: toAcc,
+            amount: document.getElementById('trAmount').value,
+            note: "Transfer"
+        });
+    });
+
+    // 5. Render Table (FIXED: Filtered Valid Rows)
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        
+        // Filter out empty rows first
+        const validRows = data.filter(row => row.Date && row.Type);
+
+        validRows.slice(-10).reverse().forEach(row => {
+            let date = new Date(row.Date).toLocaleDateString();
+            let isExp = row.Amount < 0; 
+            let color = isExp ? 'text-danger' : 'text-success';
+            let displayAmt = Math.abs(row.Amount);
+            
+            // Safe String Check
+            let typeStr = (row.Type || "").toString();
+            let typeBadge = typeStr;
+
+            if(typeStr.includes("Transfer Out")) typeBadge = "➡️ Out";
+            else if(typeStr.includes("Transfer In")) typeBadge = "⬅️ In";
+            else if(typeStr === 'Expense') typeBadge = '🔴 Exp';
+            else if(typeStr === 'Income') typeBadge = '🟢 Inc';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${date}</td>
+                    <td><span class="badge bg-light text-dark border">${typeBadge}</span></td>
+                    <td>${row.Account}</td>
+                    <td class="small text-muted">${row.Category || row.Note}</td>
+                    <td class="${color} fw-bold text-end">${displayAmt}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // 6. Render Charts
+    function renderCharts(catData, accLabels, accData, accColors) {
+        if(chartCat) chartCat.destroy();
+        if(chartBal) chartBal.destroy();
+
+        chartCat = new Chart(document.getElementById('catChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(catData),
+                datasets: [{ data: Object.values(catData), borderWidth:0 }]
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { position:'bottom' } } }
+        });
+
+        chartBal = new Chart(document.getElementById('balChart'), {
+            type: 'bar',
+            data: {
+                labels: accLabels,
+                datasets: [{ 
+                    label: 'Balance', 
+                    data: accData, 
+                    backgroundColor: accColors 
+                }]
+            },
+            options: { plugins: { legend: { display:false } } }
+        });
+    }
+</script>
+
+</body>
+</html>
