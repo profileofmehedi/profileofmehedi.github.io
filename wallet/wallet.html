@@ -3,97 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet Manager Pro</title>
+    <title>Wallet Dashboard</title>
     
-    <!-- PWA Manifest & Icons -->
+    <!-- PWA & Icons -->
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#4e73df">
 
-    <!-- CSS Frameworks -->
+    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* --- 1. GENERAL STYLING --- */
-        body { 
-            background-color: #f8f9fc; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Gradient Navbar */
-        .navbar {
-            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
-        }
-
-        /* --- 2. CARD ANIMATIONS --- */
-        .card { 
-            border: none; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            background: white;
-            overflow: hidden;
-        }
-        
-        .card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1); 
-        }
-
-        /* Specific Card Accents */
-        .card-cc { border-left: 6px solid #e74a3b; } /* Red */
-        .card-asset { border-left: 6px solid #1cc88a; } /* Green */
-        
-        /* Dashboard Card Gradients */
+        body { background-color: #f8f9fc; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4); }
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); background: white; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); }
+        .card-cc { border-left: 6px solid #e74a3b; }
+        .card-asset { border-left: 6px solid #1cc88a; }
         .bg-gradient-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
         .bg-gradient-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
         .bg-gradient-warning { background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%); }
-
         .text-due { color: #e74a3b; font-weight: 800; }
         .text-bal { color: #1cc88a; font-weight: 800; }
-
-        /* --- 3. LOADER ANIMATION --- */
-        .loading-overlay { 
-            display: flex; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(255,255,255,0.95); 
-            z-index: 9999; 
-            justify-content: center; align-items: center; flex-direction: column; 
-            transition: opacity 0.5s ease;
-        }
-        .loading-overlay.fade-out { opacity: 0; pointer-events: none; }
         
-        /* --- 4. ENTRY ANIMATIONS (Keyframes) --- */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .loading-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.5s ease; }
+        .loading-overlay.fade-out { opacity: 0; pointer-events: none; }
 
-        .animate-entry {
-            animation: fadeInUp 0.6s ease-out forwards;
-            opacity: 0; /* Start hidden */
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-entry { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
     </style>
 </head>
 <body>
 
 <!-- Loader -->
 <div id="loader" class="loading-overlay">
-    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
-    <div class="mt-3 fw-bold text-secondary">Syncing your Wallet...</div>
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+    <div class="mt-3 fw-bold text-secondary">Syncing Dashboard...</div>
 </div>
 
 <!-- Navbar -->
 <nav class="navbar navbar-dark mb-4 pt-3 pb-3">
     <div class="container">
-        <span class="navbar-brand mb-0 h1 fw-bold"><span style="font-size: 1.2em;">💸</span> Wallet Manager</span>
-        <button class="btn btn-sm btn-light text-primary fw-bold shadow-sm" onclick="fetchData()">
-            🔄 Sync
-        </button>
+        <span class="navbar-brand mb-0 h1 fw-bold">💸 Wallet Manager</span>
+        <button class="btn btn-sm btn-light text-primary fw-bold shadow-sm" onclick="fetchData()">🔄 Sync</button>
     </div>
 </nav>
 
@@ -104,104 +58,101 @@
         <div class="col-md-4 animate-entry" style="animation-delay: 0.1s;">
             <div class="card bg-gradient-primary text-white h-100">
                 <div class="card-body">
-                    <h6 class="opacity-75 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Net Balance</h6>
-                    <h2 class="fw-bold display-6 counter-anim" id="cardNetBalance">...</h2>
-                    <small style="font-size: 12px; opacity: 0.8">Cash + Assets - Debt</small>
+                    <h6 class="opacity-75 text-uppercase small">Net Balance</h6>
+                    <h2 class="fw-bold" id="cardNetBalance">...</h2>
+                    <small style="opacity: 0.8; font-size: 12px;">Assets - Credit Debt</small>
                 </div>
             </div>
         </div>
         <div class="col-md-4 animate-entry" style="animation-delay: 0.2s;">
             <div class="card bg-gradient-success text-white h-100">
                 <div class="card-body">
-                    <h6 class="opacity-75 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Income (Month)</h6>
-                    <h2 class="fw-bold display-6 counter-anim" id="cardMonthIncome">0</h2>
+                    <h6 class="opacity-75 text-uppercase small">Income (Month)</h6>
+                    <h2 class="fw-bold" id="cardMonthIncome">0</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-4 animate-entry" style="animation-delay: 0.3s;">
             <div class="card bg-gradient-warning text-white h-100">
                 <div class="card-body">
-                    <h6 class="opacity-75 text-uppercase text-dark" style="font-size: 0.8rem; letter-spacing: 1px;">Expense (Month)</h6>
-                    <h2 class="fw-bold display-6 text-dark counter-anim" id="cardMonthExpense">0</h2>
+                    <h6 class="opacity-75 text-uppercase small text-dark">Expense (Month)</h6>
+                    <h2 class="fw-bold text-dark" id="cardMonthExpense">0</h2>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 2. ACCOUNTS LIST -->
-    <h5 class="text-secondary small fw-bold text-uppercase mb-3 ps-1 animate-entry" style="animation-delay: 0.35s;">💳 Accounts & Cards</h5>
+    <h5 class="text-secondary small fw-bold text-uppercase mb-3 ps-1 animate-entry">💳 Accounts & Cards</h5>
     <div class="row g-3 mb-4" id="accountCards">
-        <div class="col-12 text-muted text-center py-4">Loading accounts...</div>
+        <div class="col-12 text-center py-4 text-muted">Loading...</div>
     </div>
 
-    <!-- 3. ACTIONS & INPUTS -->
-    <div class="card mb-4 animate-entry" style="animation-delay: 0.5s;">
+    <!-- 3. INPUT FORMS -->
+    <div class="card mb-4 animate-entry" style="animation-delay: 0.4s;">
         <div class="card-header bg-white pt-3 border-0">
-            <ul class="nav nav-pills" id="pills-tab" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active fw-bold px-4" id="tab-trans" data-bs-toggle="pill" data-bs-target="#content-trans" type="button">➕ New Entry</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link fw-bold px-4" id="tab-transfer" data-bs-toggle="pill" data-bs-target="#content-transfer" type="button">🔄 Transfer</button>
-                </li>
+            <ul class="nav nav-pills" id="pills-tab">
+                <li class="nav-item"><button class="nav-link active fw-bold px-4" data-bs-toggle="pill" data-bs-target="#content-trans">➕ New Entry</button></li>
+                <li class="nav-item"><button class="nav-link fw-bold px-4" data-bs-toggle="pill" data-bs-target="#content-transfer">🔄 Transfer</button></li>
             </ul>
         </div>
-        
         <div class="card-body">
             <div class="tab-content">
-                <!-- A: INCOME / EXPENSE -->
+                <!-- Income/Expense Form -->
                 <div class="tab-pane fade show active" id="content-trans">
                     <form id="transForm">
                         <div class="row g-2">
-                            <div class="col-md-2">
-                                <label class="small text-muted fw-bold">Type</label>
-                                <select class="form-select border-0 bg-light" id="tType">
+                            <div class="col-md-2 col-6">
+                                <label class="small fw-bold text-muted">Type</label>
+                                <select class="form-select bg-light border-0" id="tType">
                                     <option value="Expense">Expense 🔴</option>
                                     <option value="Income">Income 🟢</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label class="small text-muted fw-bold">Account</label>
-                                <select class="form-select account-dropdown border-0 bg-light" id="tAccount" required></select>
+                            <div class="col-md-4 col-6">
+                                <label class="small fw-bold text-muted">Account</label>
+                                <select class="form-select account-dropdown bg-light border-0" id="tAccount" required></select>
                             </div>
                             <div class="col-md-3">
-                                <label class="small text-muted fw-bold">Category</label>
-                                <input type="text" class="form-control border-0 bg-light" id="tCategory" list="catList" placeholder="e.g. Food" required>
+                                <label class="small fw-bold text-muted">Category</label>
+                                <input type="text" class="form-control bg-light border-0" id="tCategory" list="catList" placeholder="Select..." required>
                                 <datalist id="catList">
-                                    <option value="Food"><option value="Transport"><option value="Salary"><option value="Shopping"><option value="Bills">
+                                    <option value="Bills">
+                                    <option value="Daily Needs">
+                                    <option value="Donate">
+                                    <option value="Due Collect">
+                                    <option value="Food">
+                                    <option value="Other">
+                                    <option value="Pay Bill">
+                                    <option value="Recharge">
+                                    <option value="Salary">
+                                    <option value="Shopping">
+                                    <option value="Transport">
                                 </datalist>
                             </div>
-                            <div class="col-md-2">
-                                <label class="small text-muted fw-bold">Amount</label>
-                                <input type="number" class="form-control border-0 bg-light" id="tAmount" placeholder="0.00" required>
+                            <div class="col-md-3">
+                                <label class="small fw-bold text-muted">Amount</label>
+                                <input type="number" class="form-control bg-light border-0" id="tAmount" placeholder="0.00" required>
                             </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">Save</button>
+                            <div class="col-md-9">
+                                <label class="small fw-bold text-muted">Remarks</label>
+                                <input type="text" class="form-control bg-light border-0" id="tNote" placeholder="e.g. Lunch, Uber">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm mt-3 mt-md-0">Save</button>
                             </div>
                         </div>
                     </form>
                 </div>
-
-                <!-- B: TRANSFER -->
+                <!-- Transfer Form -->
                 <div class="tab-pane fade" id="content-transfer">
                     <form id="transferForm">
                         <div class="row g-2 align-items-end">
-                            <div class="col-md-3">
-                                <label class="small text-muted fw-bold">From</label>
-                                <select class="form-select account-dropdown border-0 bg-light" id="trFrom" required></select>
-                            </div>
+                            <div class="col-md-3"><label class="small fw-bold text-muted">From</label><select class="form-select account-dropdown bg-light border-0" id="trFrom" required></select></div>
                             <div class="col-md-1 text-center d-none d-md-block fs-4 text-muted">➔</div>
-                            <div class="col-md-3">
-                                <label class="small text-muted fw-bold">To</label>
-                                <select class="form-select account-dropdown border-0 bg-light" id="trTo" required></select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="small text-muted fw-bold">Amount</label>
-                                <input type="number" class="form-control border-0 bg-light" id="trAmount" placeholder="0.00" required>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-dark w-100 fw-bold shadow-sm">Transfer</button>
-                            </div>
+                            <div class="col-md-3"><label class="small fw-bold text-muted">To</label><select class="form-select account-dropdown bg-light border-0" id="trTo" required></select></div>
+                            <div class="col-md-3"><label class="small fw-bold text-muted">Amount</label><input type="number" class="form-control bg-light border-0" id="trAmount" required></div>
+                            <div class="col-md-2"><button type="submit" class="btn btn-dark w-100 fw-bold shadow-sm">Transfer</button></div>
                         </div>
                     </form>
                 </div>
@@ -211,36 +162,37 @@
 
     <!-- 4. CHARTS -->
     <div class="row mb-4">
-        <div class="col-md-6 mb-3 animate-entry" style="animation-delay: 0.6s;">
+        <div class="col-md-4 mb-3 animate-entry" style="animation-delay: 0.5s;">
             <div class="card p-3 h-100">
-                <h6 class="text-center fw-bold text-secondary">Spending Structure</h6>
-                <div style="height:250px; display:flex; justify-content:center;">
-                    <canvas id="catChart"></canvas>
-                </div>
+                <h6 class="text-center fw-bold text-secondary">Structure</h6>
+                <div style="height:220px; display:flex; justify-content:center;"><canvas id="catChart"></canvas></div>
             </div>
         </div>
-        <div class="col-md-6 mb-3 animate-entry" style="animation-delay: 0.7s;">
+        <div class="col-md-4 mb-3 animate-entry" style="animation-delay: 0.6s;">
             <div class="card p-3 h-100">
-                <h6 class="text-center fw-bold text-secondary">Asset Distribution</h6>
-                <canvas id="balChart"></canvas>
+                <h6 class="text-center fw-bold text-secondary">Assets</h6>
+                <div style="height:220px;"><canvas id="balChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3 animate-entry" style="animation-delay: 0.7s;">
+            <div class="card p-3 h-100">
+                <h6 class="text-center fw-bold text-secondary">Daily Trend</h6>
+                <div style="height:220px;"><canvas id="trendChart"></canvas></div>
             </div>
         </div>
     </div>
 
-    <!-- 5. TABLE -->
+    <!-- 5. RECENT TRANSACTIONS (Limit 5) -->
     <div class="card animate-entry" style="animation-delay: 0.8s;">
-        <div class="card-header bg-white fw-bold py-3">📜 Recent Transactions</div>
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <span class="fw-bold">📜 Recent (Last 5)</span>
+            <a href="transactions.html" class="btn btn-sm btn-outline-primary">
+                View All & Filter <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-3">Date</th>
-                        <th>Type</th>
-                        <th>Account</th>
-                        <th>Details</th>
-                        <th class="text-end pe-3">Amount</th>
-                    </tr>
-                </thead>
+                <thead class="table-light"><tr><th class="ps-3">Date</th><th>Type</th><th>Account</th><th>Details</th><th class="text-end pe-3">Amount</th></tr></thead>
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
@@ -251,330 +203,163 @@
 <!-- JAVASCRIPT -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ==========================================
-    // 🔴 CONFIRM YOUR URL IS CORRECT HERE
-    // ==========================================
+    // 🔴 PASTE URL HERE
     const API_URL = 'https://script.google.com/macros/s/AKfycbyPbTv4uysFKsxf95ZWz7xS-9IxvwV8pdAYHj-xfpZnB8z3mlF_rH6CLZgF6WhuzJjzMg/exec'; 
 
-    let chartCat = null;
-    let chartBal = null;
+    let chartCat, chartBal, chartTrend;
 
     document.addEventListener('DOMContentLoaded', fetchData);
 
     function fetchData() {
-        // Reset Loader for Sync
-        const loader = document.getElementById('loader');
-        loader.classList.remove('fade-out');
-        loader.style.display = 'flex';
-
-        fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === 'error') {
-                alert("Script Error: " + data.message);
-                hideLoader();
-            } else {
-                processData(data);
-                hideLoader();
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            if(err.message && err.message.includes("Failed to fetch")) {
-                alert("Connection Failed. Check URL.");
-            }
-            hideLoader();
+        document.getElementById('loader').style.display = 'flex';
+        fetch(API_URL).then(res => res.json()).then(data => {
+            if(data.status === 'error') alert("Error: " + data.message);
+            else processData(data);
+            document.getElementById('loader').classList.add('fade-out');
+            setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 500);
         });
     }
 
-    function hideLoader() {
-        const loader = document.getElementById('loader');
-        loader.classList.add('fade-out');
-        setTimeout(() => { loader.style.display = 'none'; }, 500);
-    }
-
-    // --- NUMBER COUNTER ANIMATION FUNCTION ---
-    function animateValue(obj, start, end, duration) {
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            
-            // Calculate current value
-            let currentVal = Math.floor(progress * (end - start) + start);
-            
-            // Format with commas
-            obj.innerText = currentVal.toLocaleString();
-            
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            } else {
-                obj.innerText = end.toLocaleString(); // Ensure exact final value
-            }
-        };
-        window.requestAnimationFrame(step);
-    }
-
     function processData(data) {
-        const transactions = data.transactions;
-        const accountsList = data.accounts;
-        
         let balances = {};
-        
-        // Stats
-        let totalAssets = 0; 
-        let totalDebt = 0;   
-        let monthlyIncome = 0;
-        let monthlyExpense = 0;
-        let catTotals = {};
+        let totalAssets = 0, totalDebt = 0, monthlyIncome = 0, monthlyExpense = 0;
+        let catTotals = {}, dailySpending = {};
 
-        // 1. Initialize Accounts
+        // Init Accounts
         const dropdowns = document.querySelectorAll('.account-dropdown');
         dropdowns.forEach(dd => dd.innerHTML = '');
-
-        accountsList.forEach(acc => {
+        
+        data.accounts.forEach(acc => {
             if(!acc.Account) return;
-
-            let name = acc.Account;
-            let init = parseFloat(acc.InitialBalance) || 0;
-            balances[name] = init;
-
+            balances[acc.Account] = parseFloat(acc.InitialBalance) || 0;
             dropdowns.forEach(dd => {
                 let opt = document.createElement('option');
-                opt.value = name;
-                opt.innerText = name;
+                opt.value = acc.Account; opt.innerText = acc.Account;
                 dd.appendChild(opt);
             });
         });
 
-        // 2. Process Transactions
         const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
 
-        transactions.forEach(t => {
+        data.transactions.forEach(t => {
             if(!t.Account || !t.Type) return;
-
-            let rawAmt = parseFloat(t.Amount) || 0;
-            let acc = t.Account;
-            let tDate = new Date(t.Date);
-
-            // --- 🔴 LOGIC FIX IS HERE 🔴 ---
-            // Force the math direction based on the 'Type' string.
-            // This ensures expenses ALWAYS subtract, even if the sheet has positive numbers.
-            
+            let rawAmt = Math.abs(parseFloat(t.Amount)||0);
             let finalAmt = 0;
             let typeStr = t.Type.toString();
+            let isCC = t.Account.toLowerCase().includes('credit');
 
-            if (typeStr === 'Expense') {
-                finalAmt = -Math.abs(rawAmt); // Force Negative
-            } else if (typeStr === 'Income') {
-                finalAmt = Math.abs(rawAmt);  // Force Positive
-            } else if (typeStr.includes("Transfer Out")) {
-                finalAmt = -Math.abs(rawAmt); // Force Negative
-            } else if (typeStr.includes("Transfer In")) {
-                finalAmt = Math.abs(rawAmt);  // Force Positive
+            if(isCC) {
+                if(typeStr === 'Expense' || typeStr.includes('Out')) finalAmt = rawAmt;
+                else finalAmt = -rawAmt;
             } else {
-                finalAmt = rawAmt; // Fallback
+                if(typeStr === 'Expense' || typeStr.includes('Out')) finalAmt = -rawAmt;
+                else finalAmt = rawAmt;
             }
 
-            // Update Balance
-            if(balances.hasOwnProperty(acc)) {
-                balances[acc] += finalAmt;
-            }
+            if(balances.hasOwnProperty(t.Account)) balances[t.Account] += finalAmt;
 
-            // Dashboard Stats
-            let isThisMonth = (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear);
+            // Stats
+            let tDate = new Date(t.Date);
+            let isThisMonth = (tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear());
 
-            if(typeStr === 'Income' && isThisMonth) {
-                monthlyIncome += Math.abs(rawAmt);
-            }
-            if(typeStr === 'Expense') {
-                if(isThisMonth) monthlyExpense += Math.abs(rawAmt);
-                catTotals[t.Category] = (catTotals[t.Category] || 0) + Math.abs(rawAmt);
+            if(typeStr === 'Income' && isThisMonth) monthlyIncome += rawAmt;
+            if(typeStr === 'Expense' && isThisMonth) {
+                monthlyExpense += rawAmt;
+                catTotals[t.Category] = (catTotals[t.Category] || 0) + rawAmt;
+                let d = tDate.getDate();
+                dailySpending[d] = (dailySpending[d] || 0) + rawAmt;
             }
         });
 
-        // 3. Render Cards with Staggered Animation
-        const accCardContainer = document.getElementById('accountCards');
-        accCardContainer.innerHTML = '';
-        
-        let chartLabels = [];
-        let chartData = [];
-        let chartColors = [];
-        let delayCounter = 0; // For animation delay
+        // Render Cards
+        const accContainer = document.getElementById('accountCards');
+        accContainer.innerHTML = '';
+        let accLabels = [], accData = [], accColors = [];
+        let i = 0;
 
         for (const [name, bal] of Object.entries(balances)) {
-            let isCredit = name.toLowerCase().includes("credit"); 
-            let isDebit = name.toLowerCase().includes("debit");
-            let isDebtAccount = isCredit && !isDebit;
-
-            let displayBal = bal;
-            let displayTitle = "Available Balance";
-            let colorClass = "text-bal"; 
-            let borderClass = "card-asset"; 
-
-            if (isDebtAccount) {
-                totalDebt += bal; 
-                displayTitle = "DUE AMOUNT";
-                colorClass = "text-due"; 
-                borderClass = "card-cc"; 
+            let isCC = name.toLowerCase().includes('credit') && !name.toLowerCase().includes('debit');
+            let displayBal = bal, displayTitle = "Available", color = "text-bal", border = "card-asset";
+            
+            if(isCC) {
+                totalDebt += bal; displayTitle = "DUE"; color = "text-due"; border = "card-cc";
             } else {
                 totalAssets += bal;
             }
 
-            // Add Animation Class and Delay
-            accCardContainer.innerHTML += `
-                <div class="col-6 col-md-3 animate-entry" style="animation-delay: ${0.4 + (delayCounter * 0.1)}s">
-                    <div class="card h-100 p-3 ${borderClass}">
-                        <div class="small text-muted fw-bold text-uppercase text-truncate">${name}</div>
-                        <div style="font-size:0.75rem" class="text-muted mb-1">${displayTitle}</div>
-                        <h4 class="${colorClass}">${displayBal.toLocaleString()}</h4>
-                    </div>
+            accContainer.innerHTML += `
+            <div class="col-6 col-md-3 animate-entry" style="animation-delay: ${0.4+(i*0.1)}s">
+                <div class="card h-100 p-3 ${border}">
+                    <small class="text-muted fw-bold text-uppercase text-truncate">${name}</small>
+                    <div style="font-size:0.7rem" class="text-muted">${displayTitle}</div>
+                    <h5 class="${color}">${displayBal.toLocaleString()}</h5>
                 </div>
-            `;
-            delayCounter++;
-
-            chartLabels.push(name);
-            chartData.push(bal); 
-            chartColors.push(isDebtAccount ? '#dc3545' : '#198754');
+            </div>`;
+            
+            accLabels.push(name); accData.push(bal); accColors.push(isCC ? '#e74a3b' : '#1cc88a');
+            i++;
         }
 
-        // UPDATE TOP 3 CARDS WITH COUNT-UP ANIMATION
-        let netWorth = totalAssets - totalDebt;
+        // Update Totals
+        document.getElementById('cardNetBalance').innerText = (totalAssets - totalDebt).toLocaleString();
+        document.getElementById('cardMonthIncome').innerText = monthlyIncome.toLocaleString();
+        document.getElementById('cardMonthExpense').innerText = monthlyExpense.toLocaleString();
 
-        // Animate the values instead of just setting them
-        animateValue(document.getElementById('cardNetBalance'), 0, netWorth, 1500);
-        animateValue(document.getElementById('cardMonthIncome'), 0, monthlyIncome, 1000);
-        animateValue(document.getElementById('cardMonthExpense'), 0, monthlyExpense, 1000);
-
-        renderTable(transactions);
-        renderCharts(catTotals, chartLabels, chartData, chartColors);
+        renderTable(data.transactions);
+        renderCharts(catTotals, accLabels, accData, accColors, dailySpending);
     }
 
-    function sendData(payload) {
-        const loader = document.getElementById('loader');
-        loader.style.display = 'flex';
-        loader.classList.remove('fade-out');
-
-        fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(() => {
-            alert("Success!");
-            document.getElementById('transForm').reset();
-            document.getElementById('transferForm').reset();
-            fetchData();
-        })
-        .catch(err => {
-            alert("Saved! Refreshing...");
-            fetchData();
-        });
+    // Forms
+    const sendData = (payload) => {
+        document.getElementById('loader').style.display = 'flex';
+        fetch(API_URL, { method: "POST", body: JSON.stringify(payload) })
+        .then(res => res.json()).then(() => { alert("Saved!"); fetchData(); document.getElementById('transForm').reset(); })
+        .catch(() => { alert("Saved! Refreshing..."); fetchData(); });
     }
-
     document.getElementById('transForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        sendData({
-            action: "transaction",
-            type: document.getElementById('tType').value,
-            account: document.getElementById('tAccount').value,
-            category: document.getElementById('tCategory').value,
-            amount: document.getElementById('tAmount').value,
-            note: "Web Entry"
-        });
+        let note = document.getElementById('tNote').value || "Web Entry";
+        sendData({ action: "transaction", type: document.getElementById('tType').value, account: document.getElementById('tAccount').value, category: document.getElementById('tCategory').value, amount: document.getElementById('tAmount').value, note: note });
     });
-
     document.getElementById('transferForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        let fromAcc = document.getElementById('trFrom').value;
-        let toAcc = document.getElementById('trTo').value;
-        if(fromAcc === toAcc) { alert("Source and Destination cannot be the same!"); return; }
-
-        sendData({
-            action: "transfer",
-            fromAccount: fromAcc,
-            toAccount: toAcc,
-            amount: document.getElementById('trAmount').value,
-            note: "Transfer"
-        });
+        if(document.getElementById('trFrom').value === document.getElementById('trTo').value) return alert("Same Account!");
+        sendData({ action: "transfer", fromAccount: document.getElementById('trFrom').value, toAccount: document.getElementById('trTo').value, amount: document.getElementById('trAmount').value, note: "Transfer" });
     });
 
     function renderTable(data) {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        
-        const validRows = data.filter(row => row.Date && row.Type);
-        
-        // Loop with animation delay index
-        validRows.slice(-10).reverse().forEach((row, index) => {
-            let date = new Date(row.Date).toLocaleDateString();
-            let isExp = row.Amount < 0; 
-            let color = isExp ? 'text-danger' : 'text-success';
-            let displayAmt = Math.abs(row.Amount);
+        const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
+        const valid = data.filter(r => r.Date && r.Type).slice(-5).reverse();
+        valid.forEach((row, idx) => {
+            let badge = "bg-light text-dark", tBadge = row.Type;
+            if(row.Type === 'Expense') { badge = "bg-danger text-white"; tBadge="Exp"; }
+            if(row.Type === 'Income') { badge = "bg-success text-white"; tBadge="Inc"; }
+            if(row.Type.includes("Transfer")) { badge = "bg-info text-white"; tBadge="Trf"; }
             
-            let typeStr = (row.Type || "").toString();
-            let typeBadge = typeStr;
-            let badgeClass = "bg-light text-dark";
+            let det = `<div class="fw-bold">${row.Category||"Transfer"}</div>`;
+            if(row.Note && row.Note!="Web Entry") det += `<div class="small text-muted fst-italic">${row.Note}</div>`;
 
-            if(typeStr.includes("Transfer")) { badgeClass = "bg-info text-white"; }
-            if(typeStr === 'Expense') { typeBadge = 'Expense'; badgeClass = "bg-danger text-white"; }
-            if(typeStr === 'Income') { typeBadge = 'Income'; badgeClass = "bg-success text-white"; }
-
-            // Added animate-entry class and cascading delay
             tbody.innerHTML += `
-                <tr class="animate-entry" style="animation-delay: ${0.8 + (index * 0.05)}s">
-                    <td class="ps-3 text-muted small">${date}</td>
-                    <td><span class="badge ${badgeClass} rounded-pill border-0">${typeBadge}</span></td>
-                    <td class="small fw-bold">${row.Account}</td>
-                    <td class="small text-muted">${row.Category || row.Note}</td>
-                    <td class="${color} fw-bold text-end pe-3">${displayAmt.toLocaleString()}</td>
-                </tr>
-            `;
+            <tr class="animate-entry" style="animation-delay: ${0.8+(idx*0.05)}s">
+                <td class="ps-3 small">${new Date(row.Date).toLocaleDateString()}</td>
+                <td><span class="badge ${badge} rounded-pill">${tBadge}</span></td>
+                <td class="small fw-bold">${row.Account}</td>
+                <td>${det}</td>
+                <td class="fw-bold text-end pe-3 ${row.Amount<0?'text-danger':'text-success'}">${Math.abs(row.Amount).toLocaleString()}</td>
+            </tr>`;
         });
     }
 
-    function renderCharts(catData, accLabels, accData, accColors) {
-        if(chartCat) chartCat.destroy();
-        if(chartBal) chartBal.destroy();
+    function renderCharts(cat, aL, aD, aC, daily) {
+        if(chartCat) chartCat.destroy(); if(chartBal) chartBal.destroy(); if(chartTrend) chartTrend.destroy();
+        
+        chartCat = new Chart(document.getElementById('catChart'), { type: 'doughnut', data: { labels: Object.keys(cat), datasets: [{ data: Object.values(cat), borderWidth:0 }] }, options: { maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8}}} } });
+        
+        chartBal = new Chart(document.getElementById('balChart'), { type: 'bar', data: { labels: aL, datasets: [{ data: aD, backgroundColor: aC, borderRadius:4 }] }, options: { maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{display:false},x:{grid:{display:false}}} } });
 
-        chartCat = new Chart(document.getElementById('catChart'), {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(catData),
-                datasets: [{ 
-                    data: Object.values(catData), 
-                    borderWidth: 2,
-                    hoverOffset: 10
-                }]
-            },
-            options: { 
-                maintainAspectRatio: false, 
-                animation: { duration: 1500, easing: 'easeOutQuart' },
-                plugins: { legend: { position:'bottom', labels: { usePointStyle: true } } } 
-            }
-        });
-
-        chartBal = new Chart(document.getElementById('balChart'), {
-            type: 'bar',
-            data: {
-                labels: accLabels,
-                datasets: [{ 
-                    label: 'Balance', 
-                    data: accData, 
-                    backgroundColor: accColors,
-                    borderRadius: 8
-                }]
-            },
-            options: { 
-                animation: { duration: 1500, easing: 'easeOutQuart' },
-                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } },
-                plugins: { legend: { display:false } } 
-            }
-        });
+        let days = Object.keys(daily).sort((a,b)=>a-b);
+        chartTrend = new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: days, datasets: [{ data: days.map(d=>daily[d]), borderColor:'#4e73df', backgroundColor:'rgba(78,115,223,0.1)', fill:true, tension:0.4 }] }, options: { maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{display:false},x:{grid:{display:false}}} } });
     }
 </script>
-
 </body>
 </html>
