@@ -355,24 +355,43 @@
         transactions.forEach(t => {
             if(!t.Account || !t.Type) return;
 
-            let amt = parseFloat(t.Amount) || 0;
+            let rawAmt = parseFloat(t.Amount) || 0;
             let acc = t.Account;
             let tDate = new Date(t.Date);
 
+            // --- 🔴 LOGIC FIX IS HERE 🔴 ---
+            // Force the math direction based on the 'Type' string.
+            // This ensures expenses ALWAYS subtract, even if the sheet has positive numbers.
+            
+            let finalAmt = 0;
+            let typeStr = t.Type.toString();
+
+            if (typeStr === 'Expense') {
+                finalAmt = -Math.abs(rawAmt); // Force Negative
+            } else if (typeStr === 'Income') {
+                finalAmt = Math.abs(rawAmt);  // Force Positive
+            } else if (typeStr.includes("Transfer Out")) {
+                finalAmt = -Math.abs(rawAmt); // Force Negative
+            } else if (typeStr.includes("Transfer In")) {
+                finalAmt = Math.abs(rawAmt);  // Force Positive
+            } else {
+                finalAmt = rawAmt; // Fallback
+            }
+
             // Update Balance
             if(balances.hasOwnProperty(acc)) {
-                balances[acc] += amt;
+                balances[acc] += finalAmt;
             }
 
             // Dashboard Stats
             let isThisMonth = (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear);
 
-            if(t.Type === 'Income' && isThisMonth) {
-                monthlyIncome += Math.abs(amt);
+            if(typeStr === 'Income' && isThisMonth) {
+                monthlyIncome += Math.abs(rawAmt);
             }
-            if(t.Type === 'Expense') {
-                if(isThisMonth) monthlyExpense += Math.abs(amt);
-                catTotals[t.Category] = (catTotals[t.Category] || 0) + Math.abs(amt);
+            if(typeStr === 'Expense') {
+                if(isThisMonth) monthlyExpense += Math.abs(rawAmt);
+                catTotals[t.Category] = (catTotals[t.Category] || 0) + Math.abs(rawAmt);
             }
         });
 
