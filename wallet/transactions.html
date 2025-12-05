@@ -1,181 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Transaction History</title>
-    
-    <meta name="theme-color" content="#4e73df">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <meta name="theme-color" content="#4e73df" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
 
     <style>
-        body { background-color: #f8f9fc; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4); }
-        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); background: white; }
-        .loading-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.5s ease; }
-        .loading-overlay.fade-out { opacity: 0; pointer-events: none; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-entry { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+      body {
+        background-color: #f8f9fc;
+        font-family: "Segoe UI", sans-serif;
+      }
+      .navbar {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+      }
+      .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        background: white;
+      }
+      .loading-overlay {
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        transition: opacity 0.5s ease;
+      }
+      .loading-overlay.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-entry {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div id="loader" class="loading-overlay">
+      <div
+        class="spinner-border text-primary"
+        style="width: 3rem; height: 3rem"
+      ></div>
+      <div class="mt-3 fw-bold text-secondary">Loading History...</div>
+    </div>
 
-<div id="loader" class="loading-overlay">
-    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-    <div class="mt-3 fw-bold text-secondary">Loading History...</div>
-</div>
-
-<!-- Navbar with Back Button -->
-<nav class="navbar navbar-dark mb-4 pt-3 pb-3">
-    <div class="container">
+    <!-- Navbar with Back Button -->
+    <nav class="navbar navbar-dark mb-4 pt-3 pb-3">
+      <div class="container">
         <div class="d-flex align-items-center">
-            <a href="wallet.html" class="btn btn-outline-light btn-sm me-3 border-0">
-                <i class="bi bi-arrow-left fs-5"></i>
-            </a>
-            <span class="navbar-brand mb-0 h1 fw-bold">All Transactions</span>
+          <a
+            href="wallet.html"
+            class="btn btn-outline-light btn-sm me-3 border-0"
+          >
+            <i class="bi bi-arrow-left fs-5"></i>
+          </a>
+          <span class="navbar-brand mb-0 h1 fw-bold">All Transactions</span>
         </div>
-        <button class="btn btn-sm btn-light text-primary fw-bold shadow-sm" onclick="fetchData()">🔄 Refresh</button>
-    </div>
-</nav>
+        <button
+          class="btn btn-sm btn-light text-primary fw-bold shadow-sm"
+          onclick="fetchData()"
+        >
+          🔄 Refresh
+        </button>
+      </div>
+    </nav>
 
-<div class="container pb-5">
-
-    <!-- Filters -->
-    <div class="card p-3 mb-4 animate-entry" style="animation-delay: 0.1s;">
-        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-funnel"></i> Filters</h6>
+    <div class="container pb-5">
+      <!-- Filters -->
+      <div class="card p-3 mb-4 animate-entry" style="animation-delay: 0.1s">
+        <h6 class="fw-bold text-secondary mb-3">
+          <i class="bi bi-funnel"></i> Filters
+        </h6>
         <div class="row g-2">
-            <div class="col-6 col-md-3">
-                <label class="small text-muted fw-bold">Start Date</label>
-                <input type="date" id="fStart" class="form-control bg-light border-0">
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="small text-muted fw-bold">End Date</label>
-                <input type="date" id="fEnd" class="form-control bg-light border-0">
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="small text-muted fw-bold">Type</label>
-                <select id="fType" class="form-select bg-light border-0">
-                    <option value="All">All Types</option>
-                    <option value="Income">Income</option>
-                    <option value="Expense">Expense</option>
-                    <option value="Transfer">Transfer</option>
-                </select>
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="small text-muted fw-bold">Account</label>
-                <select id="fAccount" class="form-select bg-light border-0">
-                    <option value="All">All Accounts</option>
-                </select>
-            </div>
-            <div class="col-12 mt-3 text-end">
-                <button class="btn btn-primary w-100 fw-bold" onclick="applyFilters()">Apply Filters</button>
-            </div>
+          <div class="col-6 col-md-3">
+            <label class="small text-muted fw-bold">Start Date</label>
+            <input
+              type="date"
+              id="fStart"
+              class="form-control bg-light border-0"
+            />
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="small text-muted fw-bold">End Date</label>
+            <input
+              type="date"
+              id="fEnd"
+              class="form-control bg-light border-0"
+            />
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="small text-muted fw-bold">Type</label>
+            <select id="fType" class="form-select bg-light border-0">
+              <option value="All">All Types</option>
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+              <option value="Transfer">Transfer</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="small text-muted fw-bold">Account</label>
+            <select id="fAccount" class="form-select bg-light border-0">
+              <option value="All">All Accounts</option>
+            </select>
+          </div>
+          <div class="col-12 mt-3 text-end">
+            <button
+              class="btn btn-outline-secondary me-2"
+              onclick="clearFilters()"
+            >
+              Clear Filters
+            </button>
+            <button class="btn btn-outline-info me-2" onclick="debugDates()">
+              Debug Dates
+            </button>
+            <button class="btn btn-primary fw-bold" onclick="applyFilters()">
+              Apply Filters
+            </button>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <!-- Full History Table -->
-    <div class="card animate-entry" style="animation-delay: 0.2s;">
+      <!-- Full History Table -->
+      <div class="card animate-entry" style="animation-delay: 0.2s">
         <div class="card-header bg-white py-3 fw-bold">History Data</div>
         <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-3">Date</th>
-                        <th>Type</th>
-                        <th>Account</th>
-                        <th>Details</th>
-                        <th class="text-end pe-3">Amount</th>
-                    </tr>
-                </thead>
-                <tbody id="fullHistoryBody"></tbody>
-            </table>
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3">Date</th>
+                <th>Type</th>
+                <th>Account</th>
+                <th>Details</th>
+                <th class="text-end pe-3">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="fullHistoryBody"></tbody>
+          </table>
         </div>
+      </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // 🔴 PASTE URL HERE
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyPbTv4uysFKsxf95ZWz7xS-9IxvwV8pdAYHj-xfpZnB8z3mlF_rH6CLZgF6WhuzJjzMg/exec'; 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // 🔴 PASTE URL HERE
+      const API_URL =
+        "https://script.google.com/macros/s/AKfycbyPbTv4uysFKsxf95ZWz7xS-9IxvwV8pdAYHj-xfpZnB8z3mlF_rH6CLZgF6WhuzJjzMg/exec";
 
-    let allData = [];
+      let allData = [];
 
-    document.addEventListener('DOMContentLoaded', fetchData);
+      // Convert any date to YYYY-MM-DD format for consistent comparison
+      function formatDateForComparison(dateInput) {
+        if (!dateInput) return null;
 
-    function fetchData() {
-        document.getElementById('loader').style.display = 'flex';
-        fetch(API_URL).then(res => res.json()).then(data => {
-            if(data.status === 'error') alert(data.message);
-            else {
-                allData = data.transactions.filter(t => t.Date && t.Type);
-                populateAccountFilter(data.accounts);
-                renderTable(allData);
-            }
-            document.getElementById('loader').classList.add('fade-out');
-            setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 500);
-        });
-    }
+        let date;
 
-    function populateAccountFilter(accounts) {
-        const sel = document.getElementById('fAccount');
-        sel.innerHTML = '<option value="All">All Accounts</option>';
-        accounts.forEach(acc => {
-            if(acc.Account) {
-                let opt = document.createElement('option');
-                opt.value = acc.Account; opt.innerText = acc.Account;
-                sel.appendChild(opt);
-            }
-        });
-    }
-
-    function renderTable(data) {
-        const tbody = document.getElementById('fullHistoryBody');
-        tbody.innerHTML = '';
-        if(data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No records found.</td></tr>';
-            return;
+        // If it's already a Date object
+        if (dateInput instanceof Date) {
+          date = dateInput;
+        } else {
+          // Parse the date from various formats
+          date = parseDate(dateInput);
         }
 
-        [...data].reverse().forEach(row => {
-            let date = new Date(row.Date).toLocaleDateString();
-            let displayAmt = Math.abs(row.Amount);
-            let color = row.Amount < 0 ? 'text-danger' : 'text-success';
-            
-            let det = `<div class="fw-bold">${row.Category||"Transfer"}</div>`;
-            if(row.Note && row.Note!="Web Entry") det += `<div class="small text-muted fst-italic">${row.Note}</div>`;
+        if (!date || isNaN(date.getTime())) {
+          console.warn("Invalid date for comparison:", dateInput);
+          return null;
+        }
+
+        // Return in YYYY-MM-DD format
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+      }
+
+      // Robust date parsing function to handle various formats
+      function parseDate(dateString) {
+        if (!dateString) return null;
+
+        // Handle various date formats that might come from Google Sheets
+        let date;
+
+        // Try parsing as-is first
+        date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+
+        // Try common formats
+        const formats = [
+          // MM/DD/YYYY
+          /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/,
+          // DD/MM/YYYY
+          /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/,
+          // YYYY-MM-DD
+          /^(\d{4})-(\d{1,2})-(\d{1,2})$/,
+          // DD-MM-YYYY
+          /^(\d{1,2})-(\d{1,2})-(\d{4})$/,
+        ];
+
+        for (let format of formats) {
+          let match = dateString.toString().match(format);
+          if (match) {
+            if (format.source.startsWith("^(\\d{4})")) {
+              // YYYY-MM-DD format
+              date = new Date(match[1], match[2] - 1, match[3]);
+            } else {
+              // Try both MM/DD/YYYY and DD/MM/YYYY
+              date = new Date(match[3], match[1] - 1, match[2]); // MM/DD/YYYY
+              if (isNaN(date.getTime())) {
+                date = new Date(match[3], match[2] - 1, match[1]); // DD/MM/YYYY
+              }
+            }
+
+            if (!isNaN(date.getTime())) {
+              return date;
+            }
+          }
+        }
+
+        console.warn("Could not parse date:", dateString);
+        return null;
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchData();
+
+        // Add event listeners for real-time filtering
+        document
+          .getElementById("fStart")
+          .addEventListener("change", applyFilters);
+        document
+          .getElementById("fEnd")
+          .addEventListener("change", applyFilters);
+        document
+          .getElementById("fType")
+          .addEventListener("change", applyFilters);
+        document
+          .getElementById("fAccount")
+          .addEventListener("change", applyFilters);
+
+        // Add clear filters functionality
+        document.addEventListener("keydown", function (e) {
+          if (e.ctrlKey && e.key === "r") {
+            e.preventDefault();
+            clearFilters();
+          }
+        });
+      });
+
+      function clearFilters() {
+        document.getElementById("fStart").value = "";
+        document.getElementById("fEnd").value = "";
+        document.getElementById("fType").value = "All";
+        document.getElementById("fAccount").value = "All";
+        renderTable(allData);
+      }
+
+      function debugDates() {
+        console.log("=== DATE DEBUG INFO ===");
+        console.log("Total records:", allData.length);
+
+        // Show first 10 dates and their formatting
+        allData.slice(0, 10).forEach((t, i) => {
+          console.log(`Record ${i + 1}:`, {
+            original: t.Date,
+            type: typeof t.Date,
+            parsed: parseDate(t.Date),
+            formatted: formatDateForComparison(t.Date),
+            account: t.Account,
+            type_field: t.Type,
+          });
+        });
+
+        // Show current filter values
+        console.log("Current filter values:", {
+          start: document.getElementById("fStart").value,
+          end: document.getElementById("fEnd").value,
+          type: document.getElementById("fType").value,
+          account: document.getElementById("fAccount").value,
+        });
+
+        alert("Check console for date debugging information");
+      }
+
+      function fetchData() {
+        document.getElementById("loader").style.display = "flex";
+        document.getElementById("loader").classList.remove("fade-out");
+
+        fetch(API_URL)
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return res.json();
+          })
+          .then((data) => {
+            if (data.status === "error") {
+              alert("Error: " + data.message);
+            } else {
+              allData = data.transactions.filter((t) => t.Date && t.Type);
+              console.log("Data loaded:", {
+                totalTransactions: allData.length,
+                accounts: data.accounts.length,
+                sampleDates: allData.slice(0, 5).map((t) => ({
+                  original: t.Date,
+                  formatted: formatDateForComparison(t.Date),
+                })),
+              });
+              populateAccountFilter(data.accounts);
+              renderTable(allData);
+
+              // Reset filters after refresh
+              document.getElementById("fStart").value = "";
+              document.getElementById("fEnd").value = "";
+              document.getElementById("fType").value = "All";
+              document.getElementById("fAccount").value = "All";
+            }
+
+            document.getElementById("loader").classList.add("fade-out");
+            setTimeout(() => {
+              document.getElementById("loader").style.display = "none";
+            }, 500);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert(
+              "Failed to load data. Please check your connection and try again."
+            );
+            document.getElementById("loader").classList.add("fade-out");
+            setTimeout(() => {
+              document.getElementById("loader").style.display = "none";
+            }, 500);
+          });
+      }
+
+      function populateAccountFilter(accounts) {
+        const sel = document.getElementById("fAccount");
+        sel.innerHTML = '<option value="All">All Accounts</option>';
+        accounts.forEach((acc) => {
+          if (acc.Account) {
+            let opt = document.createElement("option");
+            opt.value = acc.Account;
+            opt.innerText = acc.Account;
+            sel.appendChild(opt);
+          }
+        });
+      }
+
+      function renderTable(data) {
+        const tbody = document.getElementById("fullHistoryBody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+          let message = "No records found.";
+          let fStart = document.getElementById("fStart").value;
+          let fEnd = document.getElementById("fEnd").value;
+
+          if (fStart || fEnd) {
+            message = `No records found for the selected date range. Try clearing filters or selecting a different date range.`;
+          } else {
+            message =
+              "No transaction records available. Add some transactions first.";
+          }
+
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">${message}<br><small>Total records in database: ${allData.length}</small></td></tr>`;
+          return;
+        }
+
+        // Sort by date descending (newest first)
+        const sortedData = [...data].sort((a, b) => {
+          let dateA = parseDate(a.Date);
+          let dateB = parseDate(b.Date);
+          if (!dateA || !dateB) return 0;
+          return dateB.getTime() - dateA.getTime();
+        });
+
+        sortedData.forEach((row, index) => {
+          try {
+            let parsedDate = parseDate(row.Date);
+            let date = parsedDate
+              ? parsedDate.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })
+              : "Invalid Date";
+
+            let displayAmt = Math.abs(parseFloat(row.Amount) || 0);
+            let color = row.Amount < 0 ? "text-danger" : "text-success";
+
+            // Handle badge colors for transaction types
+            let badge = "bg-light text-dark";
+            let typeText = row.Type;
+            if (row.Type === "Expense") {
+              badge = "bg-danger text-white";
+              typeText = "Exp";
+            } else if (row.Type === "Income") {
+              badge = "bg-success text-white";
+              typeText = "Inc";
+            } else if (row.Type.toString().includes("Transfer")) {
+              badge = "bg-info text-white";
+              typeText = "Trf";
+            }
+
+            let det = `<div class="fw-bold">${
+              row.Category || "Transfer"
+            }</div>`;
+            if (row.Note && row.Note !== "Web Entry") {
+              det += `<div class="small text-muted fst-italic">${row.Note}</div>`;
+            }
 
             tbody.innerHTML += `
-            <tr>
-                <td class="ps-3 text-muted small">${date}</td>
-                <td>${row.Type}</td>
-                <td class="small fw-bold">${row.Account}</td>
-                <td>${det}</td>
-                <td class="${color} fw-bold text-end pe-3">${displayAmt.toLocaleString()}</td>
-            </tr>`;
+                <tr style="animation-delay: ${
+                  index * 0.05
+                }s" class="animate-entry">
+                    <td class="ps-3 text-muted small">${date}</td>
+                    <td><span class="badge ${badge} rounded-pill">${typeText}</span></td>
+                    <td class="small fw-bold">${row.Account}</td>
+                    <td>${det}</td>
+                    <td class="${color} fw-bold text-end pe-3">${displayAmt.toLocaleString()}</td>
+                </tr>`;
+          } catch (error) {
+            console.warn("Error rendering row:", row, error);
+          }
         });
-    }
+      }
 
-    function applyFilters() {
-        let fStart = document.getElementById('fStart').value;
-        let fEnd = document.getElementById('fEnd').value;
-        let fType = document.getElementById('fType').value;
-        let fAcc = document.getElementById('fAccount').value;
+      function applyFilters() {
+        debugger;
+        let fStart = document.getElementById("fStart").value; // Already in YYYY-MM-DD
+        let fEnd = document.getElementById("fEnd").value; // Already in YYYY-MM-DD
+        let fType = document.getElementById("fType").value;
+        let fAcc = document.getElementById("fAccount").value;
 
-        let filtered = allData.filter(t => {
-            let tDate = new Date(t.Date);
-            let valid = true;
-            if(fStart && tDate < new Date(fStart)) valid = false;
-            if(fEnd && tDate > new Date(fEnd)) valid = false;
-            if(fType !== 'All') {
-                if(fType === 'Transfer' && !t.Type.includes('Transfer')) valid = false;
-                else if(fType !== 'Transfer' && t.Type !== fType) valid = false;
-            }
-            if(fAcc !== 'All' && t.Account !== fAcc) valid = false;
-            return valid;
+        console.log("Applying filters:", { fStart, fEnd, fType, fAcc });
+
+        let filtered = allData.filter((t) => {
+          // Convert transaction date to YYYY-MM-DD format
+          let tDateFormatted = formatDateForComparison(t.Date);
+
+          if (!tDateFormatted) {
+            console.warn("Could not format date for transaction:", t);
+            return false;
+          }
+
+          let valid = true;
+
+          // Simple string comparison since both are in YYYY-MM-DD format
+          if (fStart && tDateFormatted < fStart) {
+            valid = false;
+          }
+          if (fEnd && tDateFormatted > fEnd) {
+            valid = false;
+          }
+
+          console.log("Date comparison:", {
+            transaction: tDateFormatted,
+            filterStart: fStart,
+            filterEnd: fEnd,
+            passes: valid,
+          });
+
+          if (fType !== "All") {
+            if (fType === "Transfer" && !t.Type.toString().includes("Transfer"))
+              valid = false;
+            else if (fType !== "Transfer" && t.Type !== fType) valid = false;
+          }
+          if (fAcc !== "All" && t.Account !== fAcc) valid = false;
+          return valid;
+        });
+
+        console.log("Filter results:", {
+          totalRecords: allData.length,
+          filteredRecords: filtered.length,
         });
         renderTable(filtered);
-    }
-</script>
-</body>
+      }
+    </script>
+  </body>
 </html>
