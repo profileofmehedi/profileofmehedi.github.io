@@ -692,7 +692,7 @@
     <script>
       // 🔴 PASTE URL HERE
       const API_URL =
-        "https://script.google.com/macros/s/AKfycbyPbTv4uysFKsxf95ZWz7xS-9IxvwV8pdAYHj-xfpZnB8z3mlF_rH6CLZgF6WhuzJjzMg/exec";
+        "https://script.google.com/macros/s/AKfycbzc_6CDjEQmQTLdKTACnPyUPlOlrMes_l84gOuKANj7834StQPf7VVagEr8mAyRxrLb2w/exec";
 
       let chartCat, chartBal, chartTrend;
 
@@ -798,14 +798,38 @@
           let typeStr = t.Type.toString();
           let isCC = t.Account.toLowerCase().includes("credit");
 
-          if (isCC) {
-            if (typeStr === "Expense" || typeStr.includes("Out"))
-              finalAmt = rawAmt;
-            else finalAmt = -rawAmt;
+          // Handle Transfer transactions with specific logic
+          if (typeStr === "Transfer Out" || typeStr === "Transfer In") {
+            if (isCC) {
+              // Credit Card Logic:
+              // Transfer Out FROM CC = Cash Advance/Withdrawal = INCREASES due (spending on credit)
+              // Transfer In TO CC = Payment = DECREASES due (paying off credit)
+              if (typeStr === "Transfer Out") {
+                finalAmt = rawAmt; // Cash advance increases CC due
+              } else {
+                finalAmt = -rawAmt; // Payment to CC reduces due
+              }
+            } else {
+              // Regular Account Logic:
+              // Transfer Out = Money leaving = negative
+              // Transfer In = Money coming = positive
+              if (typeStr === "Transfer Out") {
+                finalAmt = -rawAmt; // Money leaving account
+              } else {
+                finalAmt = rawAmt; // Money coming to account
+              }
+            }
           } else {
-            if (typeStr === "Expense" || typeStr.includes("Out"))
-              finalAmt = -rawAmt;
-            else finalAmt = rawAmt;
+            // Handle regular Income/Expense transactions
+            if (isCC) {
+              if (typeStr === "Expense")
+                finalAmt = rawAmt; // CC expense increases due
+              else finalAmt = -rawAmt; // CC payment/income reduces due
+            } else {
+              if (typeStr === "Expense")
+                finalAmt = -rawAmt; // Regular account expense reduces balance
+              else finalAmt = rawAmt; // Regular account income increases balance
+            }
           }
 
           if (balances.hasOwnProperty(t.Account))
