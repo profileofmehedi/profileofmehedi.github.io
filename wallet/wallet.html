@@ -796,22 +796,58 @@
           let rawAmt = Math.abs(parseFloat(t.Amount) || 0);
           let finalAmt = 0;
           let typeStr = t.Type.toString();
-          let isCC = t.Account.toLowerCase().includes("credit");
+          let isCC =
+            t.Account.toLowerCase().includes("credit") &&
+            !t.Account.toLowerCase().includes("debit");
 
-          if (isCC) {
-            if (typeStr === "Expense" || typeStr.includes("Out"))
-              finalAmt = rawAmt;
-            else finalAmt = -rawAmt;
+          // Handle different transaction types
+          if (typeStr.includes("Transfer")) {
+            // For transfers, we need to handle the logic differently
+            // Transfer In = money coming into this account
+            // Transfer Out = money going out of this account
+
+            if (isCC) {
+              // Credit Card logic for transfers
+              if (typeStr.includes("In")) {
+                // Money transferred TO credit card = reduces due amount
+                finalAmt = -rawAmt;
+              } else {
+                // Money transferred FROM credit card = increases due amount
+                finalAmt = rawAmt;
+              }
+            } else {
+              // Regular account logic for transfers
+              if (typeStr.includes("In")) {
+                // Money transferred TO this account = increases balance
+                finalAmt = rawAmt;
+              } else {
+                // Money transferred FROM this account = decreases balance
+                finalAmt = -rawAmt;
+              }
+            }
           } else {
-            if (typeStr === "Expense" || typeStr.includes("Out"))
-              finalAmt = -rawAmt;
-            else finalAmt = rawAmt;
+            // Handle regular Income/Expense transactions
+            if (isCC) {
+              // Credit Card: Expense increases due, Payment/Income reduces due
+              if (typeStr === "Expense") {
+                finalAmt = rawAmt; // Increases due
+              } else {
+                finalAmt = -rawAmt; // Reduces due (payments, income)
+              }
+            } else {
+              // Regular accounts: Income increases balance, Expense decreases balance
+              if (typeStr === "Expense") {
+                finalAmt = -rawAmt; // Decreases balance
+              } else {
+                finalAmt = rawAmt; // Increases balance
+              }
+            }
           }
 
           if (balances.hasOwnProperty(t.Account))
             balances[t.Account] += finalAmt;
 
-          // Stats
+          // Stats - only count non-transfer transactions for monthly stats
           let tDate = new Date(t.Date);
           let isThisMonth =
             tDate.getMonth() === now.getMonth() &&
