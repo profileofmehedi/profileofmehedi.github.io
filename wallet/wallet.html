@@ -3,9 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wallet Manager Pro</title>
+    <title>Wallet Dashboard</title>
+
+    <!-- PWA & Icons -->
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#4e73df" />
+
+    <!-- Bootstrap & Icons -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -14,11 +18,14 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
     />
+    <!-- Toastr CSS -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
     />
+    <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jQuery and Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
@@ -26,46 +33,141 @@
       body {
         background-color: #f8f9fc;
         font-family: "Segoe UI", sans-serif;
+        overflow-x: hidden;
       }
+
       .navbar {
         background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
         box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4);
+        transition: all 0.3s ease;
       }
+
+      .navbar:hover {
+        box-shadow: 0 8px 25px rgba(78, 115, 223, 0.6);
+      }
+
       .card {
         border: none;
         border-radius: 16px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
         background: white;
-        transition: transform 0.3s;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
       }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
       .card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
       }
+
+      .card:hover::before {
+        left: 100%;
+      }
+
       .card-cc {
         border-left: 6px solid #e74a3b;
-        background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
       }
+
       .card-asset {
         border-left: 6px solid #1cc88a;
-        background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
       }
+
       .bg-gradient-primary {
         background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        position: relative;
+        overflow: hidden;
       }
+
+      .bg-gradient-primary::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
       .bg-gradient-success {
         background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+        position: relative;
+        overflow: hidden;
       }
+
+      .bg-gradient-success::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        animation: shimmer 3s ease-in-out infinite 1s;
+      }
+
       .bg-gradient-warning {
         background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+        position: relative;
+        overflow: hidden;
       }
+
+      .bg-gradient-warning::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        animation: shimmer 3s ease-in-out infinite 2s;
+      }
+
       .text-due {
         color: #e74a3b;
         font-weight: 800;
+        text-shadow: 0 1px 2px rgba(231, 74, 59, 0.2);
+        transition: all 0.3s ease;
       }
+
       .text-bal {
         color: #1cc88a;
         font-weight: 800;
+        text-shadow: 0 1px 2px rgba(28, 200, 138, 0.2);
+        transition: all 0.3s ease;
       }
+
       .loading-overlay {
         display: flex;
         position: fixed;
@@ -74,58 +176,248 @@
         width: 100%;
         height: 100%;
         background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         z-index: 9999;
         justify-content: center;
         align-items: center;
         flex-direction: column;
-        transition: opacity 0.5s ease;
+        transition: all 0.5s ease;
       }
+
       .loading-overlay.fade-out {
         opacity: 0;
         pointer-events: none;
+        transform: scale(0.9);
       }
+
+      .wallet-gif {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(78, 115, 223, 0.3);
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
       @keyframes fadeInUp {
         from {
           opacity: 0;
-          transform: translateY(20px);
+          transform: translateY(30px) scale(0.95);
         }
         to {
           opacity: 1;
-          transform: translateY(0);
+          transform: translateY(0) scale(1);
         }
       }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: rotate(0deg);
+        }
+        50% {
+          transform: rotate(180deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes countUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
       .animate-entry {
-        animation: fadeInUp 0.6s ease-out forwards;
+        animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         opacity: 0;
       }
+
+      .animate-left {
+        animation: fadeInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        opacity: 0;
+      }
+
+      .animate-right {
+        animation: fadeInRight 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)
+          forwards;
+        opacity: 0;
+      }
+
       .form-control,
       .form-select {
+        transition: all 0.3s ease;
         border-radius: 12px;
-        border: 1px solid #e3e6f0;
-        background-color: #f8f9fc;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(78, 115, 223, 0.2);
+      }
+
+      .btn {
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+      }
+
+      .btn:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:active {
+        transform: translateY(0) scale(0.95);
+      }
+
+      .table-hover tbody tr {
+        transition: all 0.3s ease;
+      }
+
+      .table-hover tbody tr:hover {
+        background-color: rgba(78, 115, 223, 0.05) !important;
+        transform: translateX(10px);
+      }
+
+      .badge {
+        transition: all 0.3s ease;
+      }
+
+      .badge:hover {
+        transform: scale(1.1);
+      }
+
+      .nav-link {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+      }
+
+      .nav-link:hover {
+        transform: translateY(-2px);
+      }
+
+      .number-animate {
+        animation: countUp 0.8s ease-out;
+      }
+
+      canvas {
+        transition: all 0.3s ease;
+      }
+
+      canvas:hover {
+        transform: scale(1.02);
       }
     </style>
   </head>
   <body>
     <!-- Loader -->
     <div id="loader" class="loading-overlay">
-      <div
-        class="spinner-border text-primary"
-        style="width: 3rem; height: 3rem"
-      ></div>
-      <div class="mt-3 fw-bold text-secondary">Syncing Data...</div>
+      <img src="wallet.gif" alt="Loading" class="wallet-gif" />
+      <div class="mt-3 fw-bold text-secondary">Syncing Dashboard...</div>
     </div>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-dark mb-4 pt-3 pb-3 animate-entry">
+    <nav
+      class="navbar navbar-dark mb-4 pt-3 pb-3 animate-entry"
+      style="animation-delay: 0.1s"
+    >
       <div class="container">
-        <span class="navbar-brand mb-0 h1 fw-bold">💸 Wallet Manager</span>
-        <button
-          class="btn btn-sm btn-light text-primary fw-bold shadow-sm"
-          onclick="fetchData()"
+        <span
+          class="navbar-brand mb-0 h1 fw-bold animate-left"
+          style="animation-delay: 0.2s"
+          >💸 Wallet Manager</span
         >
-          🔄 Sync
-        </button>
+        <div class="d-flex gap-2">
+          <button
+            class="btn btn-sm btn-light text-primary fw-bold shadow-sm animate-right"
+            style="animation-delay: 0.3s"
+            onclick="fetchData()"
+          >
+            🔄 Sync
+          </button>
+          <button
+            class="btn btn-sm btn-outline-light fw-bold shadow-sm animate-right"
+            style="animation-delay: 0.4s"
+            onclick="logout()"
+          >
+            🚪 Logout
+          </button>
+        </div>
       </div>
     </nav>
 
@@ -135,7 +427,7 @@
         <div class="col-md-4 animate-entry" style="animation-delay: 0.1s">
           <div class="card bg-gradient-primary text-white h-100">
             <div class="card-body">
-              <h6 class="opacity-75 text-uppercase small">Net Worth</h6>
+              <h6 class="opacity-75 text-uppercase small">Net Balance</h6>
               <h2 class="fw-bold" id="cardNetBalance">...</h2>
               <small style="opacity: 0.8; font-size: 12px"
                 >Assets - Credit Debt</small
@@ -165,29 +457,29 @@
 
       <!-- 2. ACCOUNTS LIST -->
       <h5
-        class="text-secondary small fw-bold text-uppercase mb-3 ps-1 animate-entry"
-        style="animation-delay: 0.4s"
+        class="text-secondary small fw-bold text-uppercase mb-3 ps-1 animate-left"
+        style="animation-delay: 0.5s"
       >
-        💳 Accounts
+        💳 Accounts & Cards
       </h5>
       <div class="row g-3 mb-4" id="accountCards">
         <div class="col-12 text-center py-4 text-muted">Loading...</div>
       </div>
 
       <!-- 3. INPUT FORMS -->
-      <div class="card mb-4 animate-entry" style="animation-delay: 0.5s">
+      <div class="card mb-4 animate-entry" style="animation-delay: 0.8s">
         <div class="card-header bg-white pt-3 border-0">
           <ul class="nav nav-pills" id="pills-tab">
-            <li class="nav-item">
+            <li class="nav-item animate-left" style="animation-delay: 0.9s">
               <button
                 class="nav-link active fw-bold px-4"
                 data-bs-toggle="pill"
                 data-bs-target="#content-trans"
               >
-                ➕ Income / Expense
+                ➕ New Entry
               </button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item animate-right" style="animation-delay: 1s">
               <button
                 class="nav-link fw-bold px-4"
                 data-bs-toggle="pill"
@@ -206,7 +498,7 @@
                 <div class="row g-2">
                   <div class="col-md-2 col-6">
                     <label class="small fw-bold text-muted">Type</label>
-                    <select class="form-select border-0" id="tType">
+                    <select class="form-select bg-light border-0" id="tType">
                       <option value="Expense">Expense 🔴</option>
                       <option value="Income">Income 🟢</option>
                     </select>
@@ -214,7 +506,7 @@
                   <div class="col-md-4 col-6">
                     <label class="small fw-bold text-muted">Account</label>
                     <select
-                      class="form-select account-dropdown border-0"
+                      class="form-select account-dropdown bg-light border-0"
                       id="tAccount"
                       required
                     ></select>
@@ -223,7 +515,7 @@
                     <label class="small fw-bold text-muted">Category</label>
                     <input
                       type="text"
-                      class="form-control border-0"
+                      class="form-control bg-light border-0"
                       id="tCategory"
                       list="catList"
                       placeholder="Select..."
@@ -234,6 +526,7 @@
                       <option value="Daily Needs"></option>
                       <option value="Donate"></option>
                       <option value="Due Collect"></option>
+                      <option value="Family"></option>
                       <option value="Food"></option>
                       <option value="Other"></option>
                       <option value="Pay Bill"></option>
@@ -247,7 +540,7 @@
                     <label class="small fw-bold text-muted">Amount</label>
                     <input
                       type="number"
-                      class="form-control border-0"
+                      class="form-control bg-light border-0"
                       id="tAmount"
                       placeholder="0.00"
                       required
@@ -257,7 +550,7 @@
                     <label class="small fw-bold text-muted">Remarks</label>
                     <input
                       type="text"
-                      class="form-control border-0"
+                      class="form-control bg-light border-0"
                       id="tNote"
                       placeholder="e.g. Lunch, Uber"
                     />
@@ -280,7 +573,7 @@
                   <div class="col-md-3">
                     <label class="small fw-bold text-muted">From</label
                     ><select
-                      class="form-select account-dropdown border-0"
+                      class="form-select account-dropdown bg-light border-0"
                       id="trFrom"
                       required
                     ></select>
@@ -293,7 +586,7 @@
                   <div class="col-md-3">
                     <label class="small fw-bold text-muted">To</label
                     ><select
-                      class="form-select account-dropdown border-0"
+                      class="form-select account-dropdown bg-light border-0"
                       id="trTo"
                       required
                     ></select>
@@ -302,7 +595,7 @@
                     <label class="small fw-bold text-muted">Amount</label
                     ><input
                       type="number"
-                      class="form-control border-0"
+                      class="form-control bg-light border-0"
                       id="trAmount"
                       required
                     />
@@ -324,37 +617,58 @@
 
       <!-- 4. CHARTS -->
       <div class="row mb-4">
-        <div class="col-md-4 mb-3 animate-entry" style="animation-delay: 0.6s">
+        <div class="col-md-4 mb-3 animate-left" style="animation-delay: 1.1s">
           <div class="card p-3 h-100">
-            <h6 class="text-center fw-bold text-secondary">Structure</h6>
+            <h6
+              class="text-center fw-bold text-secondary animate-entry"
+              style="animation-delay: 1.2s"
+            >
+              Structure
+            </h6>
             <div style="height: 220px; display: flex; justify-content: center">
               <canvas id="catChart"></canvas>
             </div>
           </div>
         </div>
-        <div class="col-md-4 mb-3 animate-entry" style="animation-delay: 0.7s">
+        <div class="col-md-4 mb-3 animate-entry" style="animation-delay: 1.3s">
           <div class="card p-3 h-100">
-            <h6 class="text-center fw-bold text-secondary">Assets</h6>
+            <h6
+              class="text-center fw-bold text-secondary animate-entry"
+              style="animation-delay: 1.4s"
+            >
+              Assets
+            </h6>
             <div style="height: 220px"><canvas id="balChart"></canvas></div>
           </div>
         </div>
-        <div class="col-md-4 mb-3 animate-entry" style="animation-delay: 0.8s">
+        <div class="col-md-4 mb-3 animate-right" style="animation-delay: 1.5s">
           <div class="card p-3 h-100">
-            <h6 class="text-center fw-bold text-secondary">Daily Trend</h6>
+            <h6
+              class="text-center fw-bold text-secondary animate-entry"
+              style="animation-delay: 1.6s"
+            >
+              Daily Trend
+            </h6>
             <div style="height: 220px"><canvas id="trendChart"></canvas></div>
           </div>
         </div>
       </div>
 
-      <!-- 5. RECENT TRANSACTIONS -->
-      <div class="card animate-entry" style="animation-delay: 0.9s">
+      <!-- 5. RECENT TRANSACTIONS (Limit 5) -->
+      <div class="card animate-entry" style="animation-delay: 1.7s">
         <div
           class="card-header bg-white d-flex justify-content-between align-items-center py-3"
         >
-          <span class="fw-bold">📜 Recent (Last 10)</span>
-          <a href="transactions.html" class="btn btn-sm btn-outline-primary"
-            >View All</a
+          <span class="fw-bold animate-left" style="animation-delay: 1.8s"
+            >📜 Recent (Last 5)</span
           >
+          <a
+            href="transactions.html"
+            class="btn btn-sm btn-outline-primary animate-right"
+            style="animation-delay: 1.9s"
+          >
+            View All & Filter <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
         <div class="table-responsive">
           <table class="table table-hover mb-0 align-middle">
@@ -376,39 +690,78 @@
     <!-- JAVASCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      // 🔴 PASTE YOUR NEW SCRIPT URL HERE
+      // 🔴 PASTE URL HERE
       const API_URL =
-        "https://script.google.com/macros/s/AKfycbzhvw8FBTPYZ6Fe1Oir2niuWFVctOEIoVjyI-FamayiGn0wjxzQPqcGKVZks_JxUjRQRQ/exec";
+        "https://script.google.com/macros/s/AKfycbyPbTv4uysFKsxf95ZWz7xS-9IxvwV8pdAYHj-xfpZnB8z3mlF_rH6CLZgF6WhuzJjzMg/exec";
 
       let chartCat, chartBal, chartTrend;
+
+      // Configure Toastr
       toastr.options = {
         closeButton: true,
+        debug: false,
+        newestOnTop: true,
         progressBar: true,
         positionClass: "toast-top-right",
+        preventDuplicates: false,
+        onclick: null,
+        showDuration: "300",
+        hideDuration: "1000",
         timeOut: "3000",
+        extendedTimeOut: "1000",
+        showEasing: "swing",
+        hideEasing: "linear",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut",
       };
 
-      document.addEventListener("DOMContentLoaded", fetchData);
+      // Check authentication
+      function checkAuth() {
+        const pin = localStorage.getItem("walletPin");
+        if (!pin || pin !== "1") {
+          window.location.href = "login.html";
+        }
+      }
+
+      // Logout function
+      function logout() {
+        localStorage.removeItem("walletPin");
+        toastr.info("👋 Logged out successfully!");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1000);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        checkAuth();
+        initializeAnimations();
+        setTimeout(() => {
+          fetchData();
+        }, 500);
+      });
 
       function fetchData() {
         document.getElementById("loader").style.display = "flex";
-        document.getElementById("loader").classList.remove("fade-out");
-
         fetch(API_URL)
           .then((res) => res.json())
           .then((data) => {
-            if (data.status === "error") toastr.error("Error: " + data.message);
-            else processData(data);
-
+            if (data.status === "error") {
+              toastr.error("❌ Error: " + data.message);
+            } else {
+              processData(data);
+              toastr.success("🔄 Data synced successfully!");
+            }
             document.getElementById("loader").classList.add("fade-out");
             setTimeout(() => {
               document.getElementById("loader").style.display = "none";
             }, 500);
           })
-          .catch((err) => {
-            console.error(err);
-            toastr.error("Sync Failed");
-            document.getElementById("loader").style.display = "none";
+          .catch((error) => {
+            toastr.error("❌ Failed to sync data. Please try again.");
+            document.getElementById("loader").classList.add("fade-out");
+            setTimeout(() => {
+              document.getElementById("loader").style.display = "none";
+            }, 500);
           });
       }
 
@@ -421,9 +774,10 @@
         let catTotals = {},
           dailySpending = {};
 
-        // 1. Initial Balances from 'Accounts' Sheet
+        // Init Accounts
         const dropdowns = document.querySelectorAll(".account-dropdown");
         dropdowns.forEach((dd) => (dd.innerHTML = ""));
+
         data.accounts.forEach((acc) => {
           if (!acc.Account) return;
           balances[acc.Account] = parseFloat(acc.InitialBalance) || 0;
@@ -437,61 +791,40 @@
 
         const now = new Date();
 
-        // 2. Process Transactions (Income/Expense)
         data.transactions.forEach((t) => {
           if (!t.Account || !t.Type) return;
-          let amt = parseFloat(t.Amount) || 0;
-          let acc = t.Account;
+          let rawAmt = Math.abs(parseFloat(t.Amount) || 0);
+          let finalAmt = 0;
           let typeStr = t.Type.toString();
-
-          let isCC = isCreditCard(acc);
+          let isCC = t.Account.toLowerCase().includes("credit");
 
           if (isCC) {
-            // CC Logic: Expense increases debt (balance), Income reduces debt
-            if (typeStr === "Expense") balances[acc] += amt; // Adds positive number (More Debt)
-            if (typeStr === "Income") balances[acc] -= amt; // Subtracts (Less Debt)
+            if (typeStr === "Expense" || typeStr.includes("Out"))
+              finalAmt = rawAmt;
+            else finalAmt = -rawAmt;
           } else {
-            // Asset Logic: Expense reduces asset, Income increases asset
-            if (typeStr === "Expense") balances[acc] -= amt;
-            if (typeStr === "Income") balances[acc] += amt;
+            if (typeStr === "Expense" || typeStr.includes("Out"))
+              finalAmt = -rawAmt;
+            else finalAmt = rawAmt;
           }
+
+          if (balances.hasOwnProperty(t.Account))
+            balances[t.Account] += finalAmt;
 
           // Stats
           let tDate = new Date(t.Date);
           let isThisMonth =
             tDate.getMonth() === now.getMonth() &&
             tDate.getFullYear() === now.getFullYear();
-          if (typeStr === "Income" && isThisMonth) monthlyIncome += amt;
+
+          if (typeStr === "Income" && isThisMonth) monthlyIncome += rawAmt;
           if (typeStr === "Expense" && isThisMonth) {
-            monthlyExpense += amt;
-            catTotals[t.Category] = (catTotals[t.Category] || 0) + amt;
+            monthlyExpense += rawAmt;
+            catTotals[t.Category] = (catTotals[t.Category] || 0) + rawAmt;
             let d = tDate.getDate();
-            dailySpending[d] = (dailySpending[d] || 0) + amt;
+            dailySpending[d] = (dailySpending[d] || 0) + rawAmt;
           }
         });
-
-        // 3. Process Transfers (New Logic from 'Transfers' Sheet)
-        if (data.transfers) {
-          data.transfers.forEach((tr) => {
-            let from = tr.FromAccount;
-            let to = tr.ToAccount;
-            let amt = parseFloat(tr.Amount) || 0;
-
-            // FROM Logic
-            if (isCreditCard(from)) {
-              balances[from] += amt; // Taking loan from CC -> Debt Increases
-            } else {
-              balances[from] -= amt; // Taking money from Cash -> Cash Decreases
-            }
-
-            // TO Logic
-            if (isCreditCard(to)) {
-              balances[to] -= amt; // Paying CC Bill -> Debt Decreases
-            } else {
-              balances[to] += amt; // Adding to Cash -> Cash Increases
-            }
-          });
-        }
 
         // Render Cards
         const accContainer = document.getElementById("accountCards");
@@ -502,7 +835,9 @@
         let i = 0;
 
         for (const [name, bal] of Object.entries(balances)) {
-          let isCC = isCreditCard(name);
+          let isCC =
+            name.toLowerCase().includes("credit") &&
+            !name.toLowerCase().includes("debit");
           let displayBal = bal,
             displayTitle = "Available",
             color = "text-bal",
@@ -527,49 +862,23 @@
                     <h5 class="${color}">${displayBal.toLocaleString()}</h5>
                 </div>
             </div>`;
+
           accLabels.push(name);
           accData.push(bal);
           accColors.push(isCC ? "#e74a3b" : "#1cc88a");
           i++;
         }
 
+        // Update Totals with animation
         animateNumber("cardNetBalance", totalAssets - totalDebt);
         animateNumber("cardMonthIncome", monthlyIncome);
         animateNumber("cardMonthExpense", monthlyExpense);
 
-        // Combine Transactions and Transfers for the Table
-        let combinedHistory = [...data.transactions];
-        if (data.transfers) {
-          data.transfers.forEach((tr) => {
-            combinedHistory.push({
-              Date: tr.Date,
-              Type: "Transfer",
-              Account: tr.FromAccount + " ➔ " + tr.ToAccount,
-              Category: "Transfer",
-              Amount: tr.Amount,
-              Note: tr.Note,
-            });
-          });
-        }
-        // Sort by Date
-        combinedHistory.sort((a, b) => new Date(a.Date) - new Date(b.Date));
-
-        renderTable(combinedHistory);
+        renderTable(data.transactions);
         renderCharts(catTotals, accLabels, accData, accColors, dailySpending);
       }
 
-      function isCreditCard(name) {
-        let n = name.toLowerCase();
-        // Returns true if name contains credit/visa/master AND NOT debit
-        return (
-          (n.includes("credit") ||
-            n.includes("visa") ||
-            n.includes("master") ||
-            n.includes("amex")) &&
-          !n.includes("debit")
-        );
-      }
-
+      // Forms
       const sendData = (payload) => {
         const loader = document.getElementById("loader");
         loader.style.display = "flex";
@@ -578,30 +887,26 @@
         fetch(API_URL, { method: "POST", body: JSON.stringify(payload) })
           .then((res) => res.json())
           .then(() => {
-            toastr.success("✅ Saved!");
+            toastr.success("✅ Transaction saved successfully!");
+            fetchData();
             document.getElementById("transForm").reset();
-            document.getElementById("transferForm").reset();
-            setTimeout(() => {
-              fetchData();
-            }, 2500); // 2.5s Delay for Sheet Update
           })
           .catch(() => {
-            toastr.warning("Offline save. Refreshing...");
-            setTimeout(() => {
-              fetchData();
-            }, 2500);
+            toastr.success("✅ Transaction saved! Refreshing...");
+            fetchData();
           });
       };
 
       document.getElementById("transForm").addEventListener("submit", (e) => {
         e.preventDefault();
+        let note = document.getElementById("tNote").value || "Web Entry";
         sendData({
           action: "transaction",
           type: document.getElementById("tType").value,
           account: document.getElementById("tAccount").value,
           category: document.getElementById("tCategory").value,
           amount: document.getElementById("tAmount").value,
-          note: document.getElementById("tNote").value || "Web Entry",
+          note: note,
         });
       });
       document
@@ -612,7 +917,7 @@
             document.getElementById("trFrom").value ===
             document.getElementById("trTo").value
           ) {
-            toastr.warning("⚠️ Same Account!");
+            toastr.warning("⚠️ Cannot transfer to the same account!");
             return;
           }
           sendData({
@@ -627,51 +932,113 @@
       function renderTable(data) {
         const tbody = document.getElementById("tableBody");
         tbody.innerHTML = "";
-        data
-          .slice(-10)
-          .reverse()
-          .forEach((row, idx) => {
-            let badge = "bg-light text-dark";
-            if (row.Type === "Expense") badge = "bg-danger text-white";
-            if (row.Type === "Income") badge = "bg-success text-white";
-            if (row.Type === "Transfer") badge = "bg-primary text-white";
+        const valid = data
+          .filter((r) => r.Date && r.Type)
+          .slice(-5)
+          .reverse();
+        valid.forEach((row, idx) => {
+          let badge = "bg-light text-dark",
+            tBadge = row.Type;
+          if (row.Type === "Expense") {
+            badge = "bg-danger text-white";
+            tBadge = "Exp";
+          }
+          if (row.Type === "Income") {
+            badge = "bg-success text-white";
+            tBadge = "Inc";
+          }
+          if (row.Type.includes("Transfer")) {
+            badge = "bg-info text-white";
+            tBadge = "Trf";
+          }
 
-            let amount = parseFloat(row.Amount) || 0;
-            let color = row.Type === "Expense" ? "text-danger" : "text-success";
-            if (row.Type === "Transfer") color = "text-primary";
+          let det = `<div class="fw-bold">${row.Category || "Transfer"}</div>`;
+          if (row.Note && row.Note != "Web Entry")
+            det += `<div class="small text-muted fst-italic">${row.Note}</div>`;
 
-            let details = row.Category;
-            if (row.Note && row.Note !== "Web Entry")
-              details += ` <span class="text-muted small">(${row.Note})</span>`;
-
-            tbody.innerHTML += `
+          tbody.innerHTML += `
             <tr class="animate-entry" style="animation-delay: ${
               0.8 + idx * 0.05
             }s">
                 <td class="ps-3 small">${new Date(
                   row.Date
                 ).toLocaleDateString()}</td>
-                <td><span class="badge ${badge} rounded-pill">${
-              row.Type
-            }</span></td>
+                <td><span class="badge ${badge} rounded-pill">${tBadge}</span></td>
                 <td class="small fw-bold">${row.Account}</td>
-                <td class="small">${details}</td>
-                <td class="fw-bold text-end pe-3 ${color}">${Math.abs(
-              amount
-            ).toLocaleString()}</td>
+                <td>${det}</td>
+                <td class="fw-bold text-end pe-3 ${
+                  row.Amount < 0 ? "text-danger" : "text-success"
+                }">${Math.abs(row.Amount).toLocaleString()}</td>
             </tr>`;
-          });
+        });
       }
 
-      function animateNumber(id, val) {
-        const el = document.getElementById(id);
-        el.innerText = Math.round(val).toLocaleString();
+      function animateNumber(elementId, targetValue) {
+        const element = document.getElementById(elementId);
+        element.classList.add("number-animate");
+        const startValue = 0;
+        const duration = 1000;
+        const startTime = performance.now();
+
+        function updateNumber(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const currentValue =
+            startValue + (targetValue - startValue) * easeOutCubic(progress);
+
+          element.innerText = Math.round(currentValue).toLocaleString();
+
+          if (progress < 1) {
+            requestAnimationFrame(updateNumber);
+          }
+        }
+
+        requestAnimationFrame(updateNumber);
+      }
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function addButtonFeedback() {
+        document.querySelectorAll(".btn").forEach((btn) => {
+          btn.addEventListener("click", function (e) {
+            this.style.transform = "scale(0.95)";
+            setTimeout(() => {
+              this.style.transform = "";
+            }, 100);
+          });
+        });
+      }
+
+      function initializeAnimations() {
+        // Add intersection observer for better animation timing
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = "running";
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        document
+          .querySelectorAll(".animate-entry, .animate-left, .animate-right")
+          .forEach((el) => {
+            el.style.animationPlayState = "paused";
+            observer.observe(el);
+          });
+
+        addButtonFeedback();
       }
 
       function renderCharts(cat, aL, aD, aC, daily) {
         if (chartCat) chartCat.destroy();
         if (chartBal) chartBal.destroy();
         if (chartTrend) chartTrend.destroy();
+
         chartCat = new Chart(document.getElementById("catChart"), {
           type: "doughnut",
           data: {
@@ -687,32 +1054,144 @@
                   "#f6c23e",
                   "#e74a3b",
                   "#858796",
+                  "#5a5c69",
+                  "#6f42c1",
+                  "#20c997",
+                  "#fd7e14",
                 ],
+                hoverBackgroundColor: [
+                  "#375a7f",
+                  "#17a673",
+                  "#2c9faf",
+                  "#dda20a",
+                  "#c0392b",
+                  "#6c757d",
+                  "#495057",
+                  "#5a32a3",
+                  "#1a9080",
+                  "#e8590c",
+                ],
+                hoverBorderWidth: 3,
+                hoverBorderColor: "#fff",
               },
             ],
           },
           options: {
             maintainAspectRatio: false,
+            animation: {
+              animateRotate: true,
+              animateScale: true,
+              duration: 2000,
+              easing: "easeInOutQuart",
+              delay: (context) => context.dataIndex * 100,
+            },
+            interaction: {
+              intersect: false,
+            },
             plugins: {
               legend: {
                 position: "bottom",
-                labels: { usePointStyle: true, boxWidth: 8 },
+                labels: {
+                  usePointStyle: true,
+                  boxWidth: 8,
+                  padding: 15,
+                  font: {
+                    size: 11,
+                    weight: "500",
+                  },
+                },
+              },
+              tooltip: {
+                backgroundColor: "rgba(0,0,0,0.8)",
+                titleColor: "#fff",
+                bodyColor: "#fff",
+                cornerRadius: 8,
+                displayColors: true,
+                animation: {
+                  duration: 300,
+                },
+              },
+            },
+            elements: {
+              arc: {
+                borderWidth: 0,
               },
             },
           },
         });
+
         chartBal = new Chart(document.getElementById("balChart"), {
           type: "bar",
           data: {
             labels: aL,
-            datasets: [{ data: aD, backgroundColor: aC, borderRadius: 4 }],
+            datasets: [
+              {
+                data: aD,
+                backgroundColor: aC,
+                borderRadius: {
+                  topLeft: 8,
+                  topRight: 8,
+                  bottomLeft: 0,
+                  bottomRight: 0,
+                },
+                borderSkipped: false,
+                hoverBackgroundColor: aC.map((color) => color + "CC"),
+                hoverBorderWidth: 2,
+                hoverBorderColor: "#fff",
+              },
+            ],
           },
           options: {
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { display: false }, x: { grid: { display: false } } },
+            animation: {
+              duration: 1500,
+              easing: "easeInOutBounce",
+              delay: (context) => context.dataIndex * 150,
+              onComplete: function () {
+                this.options.animation.duration = 500;
+              },
+            },
+            interaction: {
+              intersect: false,
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "rgba(0,0,0,0.8)",
+                titleColor: "#fff",
+                bodyColor: "#fff",
+                cornerRadius: 8,
+                animation: {
+                  duration: 300,
+                },
+                callbacks: {
+                  label: function (context) {
+                    return context.parsed.y.toLocaleString();
+                  },
+                },
+              },
+            },
+            scales: {
+              y: { display: false },
+              x: {
+                grid: { display: false },
+                ticks: {
+                  maxRotation: 45,
+                  font: {
+                    size: 10,
+                    weight: "500",
+                  },
+                },
+              },
+            },
+            elements: {
+              bar: {
+                borderWidth: 0,
+              },
+            },
           },
         });
+
         let days = Object.keys(daily).sort((a, b) => a - b);
         chartTrend = new Chart(document.getElementById("trendChart"), {
           type: "line",
@@ -725,13 +1204,91 @@
                 backgroundColor: "rgba(78,115,223,0.1)",
                 fill: true,
                 tension: 0.4,
+                borderWidth: 3,
+                pointBackgroundColor: "#4e73df",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: "#4e73df",
+                pointHoverBorderColor: "#fff",
+                pointHoverBorderWidth: 3,
               },
             ],
           },
           options: {
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { display: false }, x: { grid: { display: false } } },
+            animation: {
+              duration: 2500,
+              easing: "easeInOutCubic",
+              delay: (context) => context.dataIndex * 50,
+              x: {
+                type: "number",
+                easing: "easeOutElastic",
+                duration: 2000,
+                from: NaN,
+                delay: (ctx) =>
+                  ctx.type === "data" && ctx.mode === "default" && !ctx.dropped
+                    ? ctx.dataIndex * 100
+                    : 0,
+              },
+              y: {
+                type: "number",
+                easing: "easeInOutElastic",
+                duration: 2500,
+                from: (ctx) =>
+                  ctx.index === 0
+                    ? ctx.chart.scales.y.getPixelForValue(100)
+                    : ctx.chart
+                        .getDatasetMeta(ctx.datasetIndex)
+                        .data[ctx.index - 1].getProps(["y"], true).y,
+              },
+            },
+            interaction: {
+              intersect: false,
+              mode: "index",
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "rgba(0,0,0,0.8)",
+                titleColor: "#fff",
+                bodyColor: "#fff",
+                cornerRadius: 8,
+                animation: {
+                  duration: 300,
+                },
+                callbacks: {
+                  title: function (context) {
+                    return `Day ${context[0].label}`;
+                  },
+                  label: function (context) {
+                    return `Spent: ${context.parsed.y.toLocaleString()}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              y: { display: false },
+              x: {
+                grid: { display: false },
+                ticks: {
+                  font: {
+                    size: 10,
+                    weight: "500",
+                  },
+                },
+              },
+            },
+            elements: {
+              point: {
+                radius: 4,
+                hoverRadius: 8,
+              },
+              line: {
+                borderJoinStyle: "round",
+              },
+            },
           },
         });
       }
