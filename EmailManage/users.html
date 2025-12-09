@@ -665,6 +665,13 @@
         function populateMailboxSelector() {
             const db = loadDB();
             const selector = document.getElementById('newMailbox');
+            if (!selector) return; // Guard against null selector
+
+            if (!db.sharedMailboxes || db.sharedMailboxes.length === 0) {
+                selector.innerHTML = '<option value="">None - Personal Email</option>';
+                return;
+            }
+
             const mailboxOptions = db.sharedMailboxes.map(mb =>
                 `<option value="${mb.email}">${mb.name} (${mb.email})</option>`
             ).join('');
