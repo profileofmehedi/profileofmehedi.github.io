@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Values - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+
+<body>
+    <script src="admin-utils.js"></script>
+    <script>
+        checkAdminAuth();
+    </script>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <img src="../assets/img/logo/logo.jpg" alt="Logo">
+                <h3>LET Admin</h3>
+            </div>
+
+            <nav>
+                <ul class="admin-nav">
+                    <li><a href="dashboard.html"><i class="ri-dashboard-line"></i> Dashboard</a></li>
+                    <li><a href="hero.html"><i class="ri-image-2-line"></i> Hero Section</a></li>
+                    <li><a href="about.html"><i class="ri-information-line"></i> About</a></li>
+                    <li><a href="services.html"><i class="ri-settings-2-line"></i> Services</a></li>
+                    <li><a href="core-values.html" class="active"><i class="ri-heart-line"></i> Core Values</a></li>
+                    <li><a href="clients.html"><i class="ri-community-line"></i> Clients</a></li>
+                    <li><a href="contact-info.html"><i class="ri-phone-line"></i> Contact Info</a></li>
+                    <li><a href="settings.html"><i class="ri-settings-line"></i> Settings</a></li>
+                </ul>
+            </nav>
+
+            <div style="padding-top: 20px; border-top: 1px solid var(--border-color); margin-top: 20px;">
+                <button class="logout-btn" style="width: 100%; justify-content: center;" onclick="logout()">
+                    <i class="ri-logout-circle-line"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1><i class="ri-heart-line"></i> Core Values</h1>
+                <div class="admin-user-menu">
+                    <div class="admin-user-info">
+                        <p>Welcome back,</p>
+                        <strong id="adminUsername">Admin</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Manage Company Values</h2>
+                <p style="color: var(--text-light); margin-bottom: 30px;">Edit your company's core values. Update titles
+                    and descriptions for each value.</p>
+
+                <div id="valuesContainer"></div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-primary" id="saveValuesBtn">
+                        <i class="ri-save-line"></i> Save All Values
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('adminUsername').textContent = getAdminUsername();
+
+        const defaultValues = [
+            { id: 1, title: 'Quality Service', description: 'Believe in high quality and best customer service' },
+            { id: 2, title: 'Innovation', description: 'Commitment to innovation and excellence' },
+            { id: 3, title: 'Team Spirit', description: 'Positive team spirit for ensuring success' },
+            { id: 4, title: 'Passion', description: 'Always passionate and determined' },
+            { id: 5, title: 'Reliability', description: 'Work with reliability, loyalty, honesty' },
+            { id: 6, title: 'Efficiency', description: 'Optimistic and efficient points of view' },
+            { id: 7, title: 'Sustainability', description: 'Work with sustainable eco-friendly ways' },
+            { id: 8, title: 'Social Responsibility', description: 'Commitment of doing good for society' }
+        ];
+
+        function loadValues() {
+            const savedValues = JSON.parse(localStorage.getItem('coreValues') || JSON.stringify(defaultValues));
+            const container = document.getElementById('valuesContainer');
+
+            const icons = ['ri-award-line', 'ri-lightbulb-flash-line', 'ri-team-line', 'ri-heart-pulse-line', 'ri-shield-check-line', 'ri-focus-3-line', 'ri-recycle-line', 'ri-hand-heart-line'];
+
+            container.innerHTML = savedValues.map((value, index) => `
+                <div style="background: var(--light-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 15px; align-items: flex-start;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 24px;">
+                            <i class="${icons[index]}"></i>
+                        </div>
+
+                        <div style="flex: 1;">
+                            <div class="form-group">
+                                <label for="valueTitle${index}">Value Title</label>
+                                <input type="text" id="valueTitle${index}" class="value-title" data-index="${index}" placeholder="Value title" value="${value.title}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="valueDesc${index}">Value Description</label>
+                                <textarea id="valueDesc${index}" class="value-desc" data-index="${index}" placeholder="Value description">${value.description}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveValues() {
+            const values = defaultValues.map((value, index) => {
+                const newTitle = document.querySelector(`input.value-title[data-index="${index}"]`).value;
+                const newDesc = document.querySelector(`textarea.value-desc[data-index="${index}"]`).value;
+
+                return {
+                    ...value,
+                    title: newTitle,
+                    description: newDesc
+                };
+            });
+
+            localStorage.setItem('coreValues', JSON.stringify(values));
+
+            // Log change
+            const changes = JSON.parse(localStorage.getItem('adminChanges') || '[]');
+            changes.push({
+                section: 'Core Values',
+                description: 'Updated company core values',
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('adminChanges', JSON.stringify(changes));
+
+            showNotification('Core values updated successfully!', 'success');
+        }
+
+        document.getElementById('saveValuesBtn').addEventListener('click', saveValues);
+
+        loadValues();
+    </script>
+</body>
+
+</html>
