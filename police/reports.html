@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রিপোর্ট - বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা</title>
+    <script src="shared.js"></script>
+</head>
+
+<body>
+    <!-- নেভিগেশন বার -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা
+        </div>
+        <div class="navbar-menu">
+            <a href="dashboard.html">ড্যাশবোর্ড</a>
+            <a href="vehicles.html">যানবাহন তালিকা</a>
+            <a href="upload.html">নতুন যানবাহন</a>
+            <a href="maintenance.html">রক্ষণাবেক্ষণ</a>
+            <a href="admin.html">প্রশাসক প্যানেল</a>
+            <a href="reports.html" class="active">রিপোর্ট</a>
+            <button class="logout-btn" onclick="logout()">লগআউট</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📊 রিপোর্ট এবং বিশ্লেষণ</h1>
+            <div>
+                <button class="btn btn-primary" onclick="exportAsCSV()">📥 CSV হিসাবে রপ্তানি করুন</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ প্রিন্ট করুন</button>
+            </div>
+        </div>
+
+        <!-- পরিসংখ্যান -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div class="card" style="border-left: 4px solid var(--primary);">
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 8px;">মোট যানবাহন</p>
+                <p id="statTotalVehicles" style="font-size: 2rem; font-weight: 700; color: var(--primary);">0</p>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--secondary);">
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 8px;">চলমান রক্ষণাবেক্ষণ</p>
+                <p id="statActiveMaintenance" style="font-size: 2rem; font-weight: 700; color: var(--secondary);">0</p>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--success);">
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 8px;">সম্পন্ন রক্ষণাবেক্ষণ</p>
+                <p id="statCompletedMaintenance" style="font-size: 2rem; font-weight: 700; color: var(--success);">0</p>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--warning);">
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 8px;">ছবি সহ যানবাহন</p>
+                <p id="statVehiclesWithPhotos" style="font-size: 2rem; font-weight: 700; color: var(--warning);">0</p>
+            </div>
+        </div>
+
+        <!-- যানবাহনের ধরন অনুযায়ী বিশ্লেষণ -->
+        <div class="card">
+            <h2 class="card-title">যানবাহনের ধরন অনুযায়ী বিশ্লেষণ</h2>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ধরন</th>
+                        <th>সংখ্যা</th>
+                        <th>রক্ষণাবেক্ষণ</th>
+                        <th>ছবি</th>
+                    </tr>
+                </thead>
+                <tbody id="vehicleTypeAnalysis">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ইউনিট অনুযায়ী বিশ্লেষণ -->
+        <div class="card">
+            <h2 class="card-title">ইউনিট অনুযায়ী বিশ্লেষণ</h2>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ইউনিট</th>
+                        <th>যানবাহন</th>
+                        <th>রক্ষণাবেক্ষণ রেকর্ড</th>
+                        <th>গড় ছবি</th>
+                    </tr>
+                </thead>
+                <tbody id="unitAnalysis">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- রক্ষণাবেক্ষণ সারসংক্ষেপ -->
+        <div class="card">
+            <h2 class="card-title">রক্ষণাবেক্ষণ রিপোর্ট</h2>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>যানবাহন</th>
+                        <th>বর্ণনা</th>
+                        <th>স্থিতি</th>
+                        <th>শুরু</th>
+                        <th>শেষ</th>
+                        <th>দিন</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenanceReport">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- সর্বোচ্চ অপূর্ণ যানবাহন -->
+        <div class="card">
+            <h2 class="card-title">ছবি অপূর্ণ যানবাহন</h2>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>রেজিস্ট্রেশন</th>
+                        <th>ধরন</th>
+                        <th>উপলব্ধ ছবি</th>
+                        <th>প্রয়োজন</th>
+                        <th>বাকি</th>
+                    </tr>
+                </thead>
+                <tbody id="incompleteVehicles">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #9ca3af;">সব যানবাহন সম্পূর্ণ</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // চেক অথেন্টিকেশন
+        checkAuth();
+
+        function generateReport() {
+            const vehicles = DB.getVehicles();
+            const maintenance = DB.getMaintenance();
+
+            // পরিসংখ্যান আপডেট
+            document.getElementById('statTotalVehicles').textContent = vehicles.length;
+
+            const activeMaintenance = maintenance.filter(m => m.status === 'চলমান').length;
+            document.getElementById('statActiveMaintenance').textContent = activeMaintenance;
+
+            const completedMaintenance = maintenance.filter(m => m.status === 'সম্পন্ন').length;
+            document.getElementById('statCompletedMaintenance').textContent = completedMaintenance;
+
+            const vehiclesWithPhotos = vehicles.filter(v => (v.photos?.length || 0) > 0).length;
+            document.getElementById('statVehiclesWithPhotos').textContent = vehiclesWithPhotos;
+
+            // যানবাহনের ধরন বিশ্লেষণ
+            const typeAnalysis = {};
+            vehicles.forEach(v => {
+                if (!typeAnalysis[v.type]) {
+                    typeAnalysis[v.type] = { count: 0, maintenance: 0, photos: 0 };
+                }
+                typeAnalysis[v.type].count++;
+                typeAnalysis[v.type].photos += v.photos?.length || 0;
+            });
+
+            maintenance.forEach(m => {
+                const vehicle = vehicles.find(v => v.id === m.vehicleId);
+                if (vehicle && typeAnalysis[vehicle.type]) {
+                    typeAnalysis[vehicle.type].maintenance++;
+                }
+            });
+
+            const typeTable = document.getElementById('vehicleTypeAnalysis');
+            if (Object.keys(typeAnalysis).length === 0) {
+                typeTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td></tr>';
+            } else {
+                typeTable.innerHTML = Object.entries(typeAnalysis).map(([type, data]) => `
+                    <tr>
+                        <td>${type}</td>
+                        <td><strong>${data.count}</strong></td>
+                        <td>${data.maintenance}</td>
+                        <td>${data.photos}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // ইউনিট বিশ্লেষণ
+            const unitAnalysis = {};
+            vehicles.forEach(v => {
+                if (!unitAnalysis[v.unit]) {
+                    unitAnalysis[v.unit] = { count: 0, maintenance: 0, photos: 0 };
+                }
+                unitAnalysis[v.unit].count++;
+                unitAnalysis[v.unit].photos += v.photos?.length || 0;
+            });
+
+            maintenance.forEach(m => {
+                const vehicle = vehicles.find(v => v.id === m.vehicleId);
+                if (vehicle && unitAnalysis[vehicle.unit]) {
+                    unitAnalysis[vehicle.unit].maintenance++;
+                }
+            });
+
+            const unitTable = document.getElementById('unitAnalysis');
+            if (Object.keys(unitAnalysis).length === 0) {
+                unitTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td></tr>';
+            } else {
+                unitTable.innerHTML = Object.entries(unitAnalysis).map(([unit, data]) => `
+                    <tr>
+                        <td>${unit}</td>
+                        <td>${data.count}</td>
+                        <td>${data.maintenance}</td>
+                        <td>${(data.photos / data.count).toFixed(1)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // রক্ষণাবেক্ষণ রিপোর্ট
+            const maintenanceTable = document.getElementById('maintenanceReport');
+            if (maintenance.length === 0) {
+                maintenanceTable.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td></tr>';
+            } else {
+                maintenanceTable.innerHTML = maintenance.map(m => {
+                    const vehicle = vehicles.find(v => v.id === m.vehicleId);
+                    const startDate = new Date(m.startDate);
+                    const endDate = m.endDate ? new Date(m.endDate) : new Date();
+                    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+                    return `
+                        <tr>
+                            <td>${vehicle?.regNo || 'অজানা'}</td>
+                            <td>${m.description}</td>
+                            <td><span class="badge ${m.status === 'চলমান' ? 'badge-warning' : 'badge-success'}">${m.status}</span></td>
+                            <td>${startDate.toLocaleDateString('bn-BD')}</td>
+                            <td>${m.endDate ? new Date(m.endDate).toLocaleDateString('bn-BD') : '-'}</td>
+                            <td>${days} দিন</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // অপূর্ণ যানবাহন
+            const incompleteTable = document.getElementById('incompleteVehicles');
+            const incomplete = vehicles.filter(v => (v.photos?.length || 0) < 15);
+
+            if (incomplete.length === 0) {
+                incompleteTable.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">সব যানবাহন সম্পূর্ণ</td></tr>';
+            } else {
+                incompleteTable.innerHTML = incomplete.map(v => `
+                    <tr>
+                        <td><strong>${v.regNo}</strong></td>
+                        <td>${v.type}</td>
+                        <td>${v.photos?.length || 0}</td>
+                        <td>15</td>
+                        <td><span class="badge badge-warning">${15 - (v.photos?.length || 0)}</span></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function exportAsCSV() {
+            const vehicles = DB.getVehicles();
+            const maintenance = DB.getMaintenance();
+
+            // যানবাহন CSV
+            let csv = 'আইডি,রেজিস্ট্রেশন,ধরন,ইঞ্জিন,চ্যাসিস,ইউনিট,ছবি,সর্বশেষ আপডেট\n';
+            vehicles.forEach(v => {
+                csv += `${v.id},"${v.regNo}","${v.type}","${v.engineNo}","${v.chassisNo}","${v.unit}",${v.photos?.length || 0},"${new Date(v.lastUpdate).toLocaleDateString('bn-BD')}"\n`;
+            });
+
+            // রক্ষণাবেক্ষণ CSV
+            csv += '\n\nআইডি,যানবাহন,বর্ণনা,স্থিতি,শুরু,শেষ\n';
+            maintenance.forEach(m => {
+                const vehicle = vehicles.find(v => v.id === m.vehicleId);
+                csv += `${m.id},"${vehicle?.regNo || 'অজানা'}","${m.description}","${m.status}","${m.startDate}","${m.endDate || '-'}"\n`;
+            });
+
+            // ডাউনলোড
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `police-vehicles-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // রিপোর্ট জেনারেট করুন
+        generateReport();
+    </script>
+
+    <style>
+        @media print {
+
+            .navbar,
+            .page-header button {
+                display: none;
+            }
+
+            .card {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</body>
+
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রক্ষণাবেক্ষণ - বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা</title>
+    <script src="shared.js"></script>
+</head>
+
+<body>
+    <!-- নেভিগেশন বার -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা
+        </div>
+        <div class="navbar-menu">
+            <a href="dashboard.html">ড্যাশবোর্ড</a>
+            <a href="vehicles.html">যানবাহন তালিকা</a>
+            <a href="upload.html">নতুন যানবাহন</a>
+            <a href="maintenance.html" class="active">রক্ষণাবেক্ষণ</a>
+            <a href="admin.html">প্রশাসক প্যানেল</a>
+            <a href="reports.html">রিপোর্ট</a>
+            <button class="logout-btn" onclick="logout()">লগআউট</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🔧 রক্ষণাবেক্ষণ ট্র্যাকিং</h1>
+            <button class="btn btn-primary" onclick="showAddMaintenanceForm()">+ নতুন রক্ষণাবেক্ষণ</button>
+        </div>
+
+        <!-- নতুন রক্ষণাবেক্ষণ ফর্ম -->
+        <div id="maintenanceForm" class="card" style="display: none; margin-bottom: 30px;">
+            <h2 class="card-title">নতুন রক্ষণাবেক্ষণ রেকর্ড</h2>
+
+            <form onsubmit="handleAddMaintenance(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="vehicleSelect">যানবাহন নির্বাচন*</label>
+                        <select id="vehicleSelect" required>
+                            <option value="">নির্বাচন করুন</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mainStatus">স্ট্যাটাস*</label>
+                        <select id="mainStatus" required>
+                            <option value="চলমান">চলমান</option>
+                            <option value="সম্পন্ন">সম্পন্ন</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startDate">শুরুর তারিখ*</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endDate">শেষের তারিখ</label>
+                        <input type="date" id="endDate">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1/-1;">
+                        <label for="description">বর্ণনা*</label>
+                        <textarea id="description" rows="3" placeholder="রক্ষণাবেক্ষণের বিবরণ..." required
+                            style="padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-family: inherit; width: 100%;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">✓ সংরক্ষণ করুন</button>
+                    <button type="button" class="btn" style="background: #e2e8f0; color: var(--primary);"
+                        onclick="document.getElementById('maintenanceForm').style.display = 'none';">বাতিল করুন</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ট্যাব নেভিগেশন -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0;">
+            <button class="tab-btn active" onclick="filterMaintenance('all')"
+                style="padding: 12px 20px; background: none; border: none; border-bottom: 3px solid var(--primary); cursor: pointer; font-weight: 600; color: var(--primary); font-size: 1rem;">সব
+                (${getAllMaintenanceCount()})</button>
+            <button class="tab-btn" onclick="filterMaintenance('চলমান')"
+                style="padding: 12px 20px; background: none; border: none; cursor: pointer; font-weight: 600; color: #9ca3af; font-size: 1rem;">চলমান
+                (${getActiveMaintenanceCount()})</button>
+            <button class="tab-btn" onclick="filterMaintenance('সম্পন্ন')"
+                style="padding: 12px 20px; background: none; border: none; cursor: pointer; font-weight: 600; color: #9ca3af; font-size: 1rem;">সম্পন্ন
+                (${getCompletedMaintenanceCount()})</button>
+        </div>
+
+        <!-- রক্ষণাবেক্ষণ টেবিল -->
+        <div class="card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>যানবাহন</th>
+                        <th>বর্ণনা</th>
+                        <th>শুরু</th>
+                        <th>শেষ</th>
+                        <th>স্থিতি</th>
+                        <th>কর্ম</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenanceTable">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #9ca3af;">লোড হচ্ছে...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // চেক অথেন্টিকেশন
+        checkAuth();
+
+        let currentFilter = 'all';
+
+        function getAllMaintenanceCount() {
+            return DB.getMaintenance().length;
+        }
+
+        function getActiveMaintenanceCount() {
+            return DB.getMaintenance().filter(m => m.status === 'চলমান').length;
+        }
+
+        function getCompletedMaintenanceCount() {
+            return DB.getMaintenance().filter(m => m.status === 'সম্পন্ন').length;
+        }
+
+        function populateVehicleSelect() {
+            const vehicles = DB.getVehicles();
+            const select = document.getElementById('vehicleSelect');
+            select.innerHTML = '<option value="">নির্বাচন করুন</option>' +
+                vehicles.map(v => `<option value="${v.id}">${v.regNo} - ${v.type}</option>`).join('');
+        }
+
+        function showAddMaintenanceForm() {
+            document.getElementById('maintenanceForm').style.display = 'block';
+            populateVehicleSelect();
+            document.getElementById('maintenanceForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayMaintenance(filter = 'all') {
+            const maintenance = DB.getMaintenance();
+            const vehicles = DB.getVehicles();
+
+            let filtered = maintenance;
+            if (filter !== 'all') {
+                filtered = maintenance.filter(m => m.status === filter);
+            }
+
+            const tbody = document.getElementById('maintenanceTable');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af;">কোন রেকর্ড নেই</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(m => {
+                const vehicle = vehicles.find(v => v.id === m.vehicleId);
+                const statusBadge = m.status === 'চলমান' ? 'badge-warning' : 'badge-success';
+                return `
+                    <tr>
+                        <td><strong>${vehicle?.regNo || 'অজানা'}</strong></td>
+                        <td>${m.description}</td>
+                        <td>${new Date(m.startDate).toLocaleDateString('bn-BD')}</td>
+                        <td>${m.endDate ? new Date(m.endDate).toLocaleDateString('bn-BD') : '-'}</td>
+                        <td><span class="badge ${statusBadge}">${m.status}</span></td>
+                        <td>
+                            ${m.status === 'চলমান' ? `
+                                <button class="btn" style="background: var(--success); color: white; padding: 5px 10px; font-size: 0.8rem;" onclick="completeMaintenance(${m.id})">সম্পন্ন করুন</button>
+                            ` : ''}
+                            <button class="btn" style="background: var(--error); color: white; padding: 5px 10px; font-size: 0.8rem;" onclick="deleteMaintenance(${m.id})">মুছুন</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterMaintenance(filter) {
+            currentFilter = filter;
+
+            // ট্যাব স্টাইল আপডেট করুন
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.style.borderBottom = 'none';
+                btn.style.color = '#9ca3af';
+            });
+            event.target.style.borderBottom = '3px solid var(--primary)';
+            event.target.style.color = 'var(--primary)';
+
+            displayMaintenance(filter);
+        }
+
+        function handleAddMaintenance(event) {
+            event.preventDefault();
+
+            const vehicleId = parseInt(document.getElementById('vehicleSelect').value);
+            const description = document.getElementById('description').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const status = document.getElementById('mainStatus').value;
+
+            if (!vehicleId) {
+                alert('❌ যানবাহন নির্বাচন করুন!');
+                return;
+            }
+
+            const maintenance = DB.getMaintenance();
+            const newRecord = {
+                id: Math.max(...maintenance.map(m => m.id), 0) + 1,
+                vehicleId,
+                description,
+                startDate,
+                endDate: endDate || null,
+                status
+            };
+
+            maintenance.push(newRecord);
+            DB.saveMaintenance(maintenance);
+
+            alert('✓ রক্ষণাবেক্ষণ রেকর্ড যোগ করা হয়েছে!');
+            document.getElementById('maintenanceForm').style.display = 'none';
+            event.target.reset();
+            displayMaintenance(currentFilter);
+        }
+
+        function completeMaintenance(id) {
+            if (confirm('রক্ষণাবেক্ষণ সম্পন্ন হিসাবে চিহ্নিত করতে চান?')) {
+                const maintenance = DB.getMaintenance();
+                const record = maintenance.find(m => m.id === id);
+                if (record) {
+                    record.status = 'সম্পন্ন';
+                    record.endDate = new Date().toISOString().split('T')[0];
+                    DB.saveMaintenance(maintenance);
+                    displayMaintenance(currentFilter);
+                }
+            }
+        }
+
+        function deleteMaintenance(id) {
+            if (confirm('এই রেকর্ড মুছতে চান?')) {
+                let maintenance = DB.getMaintenance();
+                maintenance = maintenance.filter(m => m.id !== id);
+                DB.saveMaintenance(maintenance);
+                displayMaintenance(currentFilter);
+            }
+        }
+
+        // প্রাথমিক প্রদর্শন
+        displayMaintenance();
+    </script>
+</body>
+
+</html>

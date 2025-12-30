@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নতুন যানবাহন - বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা</title>
+    <script src="shared.js"></script>
+</head>
+
+<body>
+    <!-- নেভিগেশন বার -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা
+        </div>
+        <div class="navbar-menu">
+            <a href="dashboard.html">ড্যাশবোর্ড</a>
+            <a href="vehicles.html">যানবাহন তালিকা</a>
+            <a href="upload.html" class="active">নতুন যানবাহন</a>
+            <a href="maintenance.html">রক্ষণাবেক্ষণ</a>
+            <a href="admin.html">প্রশাসক প্যানেল</a>
+            <a href="reports.html">রিপোর্ট</a>
+            <button class="logout-btn" onclick="logout()">লগআউট</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>➕ নতুন যানবাহন নিবন্ধন</h1>
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div id="successMessage" class="alert alert-success" style="display: none;">
+                ✓ যানবাহন সফলভাবে যোগ করা হয়েছে!
+            </div>
+
+            <form onsubmit="handleAddVehicle(event)" class="card">
+                <h2 class="card-title">যানবাহনের তথ্য</h2>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="regNo">রেজিস্ট্রেশন নম্বর*</label>
+                        <input type="text" id="regNo" placeholder="ঢা-0१-আ-0101" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vehicleType">যানবাহনের ধরন*</label>
+                        <select id="vehicleType" required>
+                            <option value="">নির্বাচন করুন</option>
+                            <option value="মোটরসাইকেল">মোটরসাইকেল</option>
+                            <option value="জিপ">জিপ</option>
+                            <option value="মাইক্রোবাস">মাইক্রোবাস</option>
+                            <option value="অ্যাম্বুলেন্স">অ্যাম্বুলেন্স</option>
+                            <option value="গাড়ি">গাড়ি</option>
+                            <option value="বাস">বাস</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="engineNo">ইঞ্জিন নম্বর*</label>
+                        <input type="text" id="engineNo" placeholder="EN-0006" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chassisNo">চ্যাসিস নম্বর*</label>
+                        <input type="text" id="chassisNo" placeholder="CH-0006" required>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1/-1;">
+                        <label for="unit">ইউনিট/বিভাগ*</label>
+                        <select id="unit" required>
+                            <option value="">নির্বাচন করুন</option>
+                            <option value="ঢাকা মেট্রোপলিটন পুলিশ">ঢাকা মেট্রোপলিটন পুলিশ</option>
+                            <option value="ট্র্যাফিক পুলিশ">ট্র্যাফিক পুলিশ</option>
+                            <option value="ক্রাইম ব্রাঞ্চ">ক্রাইম ব্রাঞ্চ</option>
+                            <option value="ট্রেনিং সেন্টার">ট্রেনিং সেন্টার</option>
+                            <option value="বিশেষ বাহিনী">বিশেষ বাহিনী</option>
+                            <option value="সাইবার ক্রাইম">সাইবার ক্রাইম</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h2 class="card-title" style="margin-top: 30px;">ছবি আপলোড</h2>
+                <p style="color: #6b7280; margin-bottom: 20px;">
+                    📸 আবশ্যক ছবি: 10টি (সামনে, পাশ, পিছনে, ছাদ ইত্যাদি)<br>
+                    📸 অতিরিক্ত ছবি: 5টি (ইঞ্জিন, সিরিয়াল নম্বর ইত্যাদি)
+                </p>
+
+                <div id="photoGrid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">✓ যানবাহন যোগ করুন</button>
+                    <button type="reset" class="btn" style="background: #e2e8f0; color: var(--primary);">ফর্ম পরিষ্কার
+                        করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // চেক অথেন্টিকেশন
+        checkAuth();
+
+        // ফটো গ্রিড জেনারেট করুন
+        function generatePhotoGrid() {
+            const photoGrid = document.getElementById('photoGrid');
+            let html = '';
+
+            for (let i = 0; i < 15; i++) {
+                html += `
+                    <div style="text-align: center;">
+                        <label style="display: block; cursor: pointer; margin-bottom: 5px;">
+                            <input type="file" id="photo${i}" accept="image/*" style="display: none;" onchange="updatePhotoPreview(${i})">
+                            <div id="photoPreview${i}" style="
+                                width: 100%;
+                                aspect-ratio: 1;
+                                background: linear-gradient(135deg, var(--primary), var(--secondary));
+                                border-radius: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 2rem;
+                                cursor: pointer;
+                                transition: all 0.3s;
+                                border: 2px solid #e2e8f0;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                ${i < 10 ? '📷' : '📸'}
+                                <span style="position: absolute; background: white; color: var(--primary); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; margin-left: 60px; margin-top: -60px;">
+                                    ${i + 1}
+                                </span>
+                            </div>
+                        </label>
+                        <p style="font-size: 0.8rem; color: #6b7280; margin-top: 5px;">ছবি ${i + 1}</p>
+                    </div>
+                `;
+            }
+
+            photoGrid.innerHTML = html;
+        }
+
+        function updatePhotoPreview(index) {
+            const fileInput = document.getElementById(`photo${index}`);
+            const preview = document.getElementById(`photoPreview${index}`);
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.textContent = '✓';
+                    preview.style.fontSize = '2rem';
+                    preview.style.color = 'white';
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        function handleAddVehicle(event) {
+            event.preventDefault();
+
+            const regNo = document.getElementById('regNo').value;
+            const vehicleType = document.getElementById('vehicleType').value;
+            const engineNo = document.getElementById('engineNo').value;
+            const chassisNo = document.getElementById('chassisNo').value;
+            const unit = document.getElementById('unit').value;
+
+            // ডুপ্লিকেট চেক
+            const vehicles = DB.getVehicles();
+            if (vehicles.some(v => v.regNo === regNo)) {
+                alert('❌ এই রেজিস্ট্রেশন নম্বরটি ইতিমধ্যে বিদ্যমান!');
+                return;
+            }
+
+            // নতুন যানবাহন তৈরি
+            const newVehicle = {
+                id: Math.max(...vehicles.map(v => v.id), 0) + 1,
+                regNo,
+                type: vehicleType,
+                engineNo,
+                chassisNo,
+                unit,
+                photos: [],
+                lastUpdate: new Date().toISOString()
+            };
+
+            // ছবি গণনা
+            for (let i = 0; i < 15; i++) {
+                const fileInput = document.getElementById(`photo${i}`);
+                if (fileInput.files && fileInput.files[0]) {
+                    newVehicle.photos.push(`photo-${newVehicle.id}-${i}`);
+                }
+            }
+
+            // ডেটাবেসে সংরক্ষণ করুন
+            vehicles.push(newVehicle);
+            DB.saveVehicles(vehicles);
+
+            // সফলতার বার্তা
+            document.getElementById('successMessage').style.display = 'block';
+            document.querySelector('form').reset();
+
+            // ৩ সেকেন্ড পরে লুকান এবং যানবাহন পৃষ্ঠায় যান
+            setTimeout(() => {
+                window.location.href = 'vehicles.html';
+            }, 2000);
+        }
+
+        // ডকুমেন্ট লোড হলে ফটো গ্রিড জেনারেট করুন
+        document.addEventListener('DOMContentLoaded', generatePhotoGrid);
+    </script>
+</body>
+
+</html>

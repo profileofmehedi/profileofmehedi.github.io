@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ড্যাশবোর্ড - বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা</title>
+    <script src="shared.js"></script>
+</head>
+
+<body>
+    <!-- নেভিগেশন বার -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা
+        </div>
+        <div class="navbar-menu">
+            <a href="dashboard.html" class="active">ড্যাশবোর্ড</a>
+            <a href="vehicles.html">যানবাহন তালিকা</a>
+            <a href="upload.html">নতুন যানবাহন</a>
+            <a href="maintenance.html">রক্ষণাবেক্ষণ</a>
+            <a href="admin.html">প্রশাসক প্যানেল</a>
+            <a href="reports.html">রিপোর্ট</a>
+            <button class="logout-btn" onclick="logout()">লগআউট</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📊 ড্যাশবোর্ড</h1>
+        </div>
+
+        <!-- স্ট্যাটিস্টিক্স কার্ড -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div class="card" style="border-left: 4px solid var(--primary);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="color: #6b7280; font-size: 0.9rem;">মোট যানবাহন</p>
+                        <p id="totalVehicles" style="font-size: 2.5rem; font-weight: 700; color: var(--primary);">0</p>
+                    </div>
+                    <div style="font-size: 3rem; opacity: 0.3;">🚗</div>
+                </div>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--secondary);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="color: #6b7280; font-size: 0.9rem;">রক্ষণাবেক্ষণে আছে</p>
+                        <p id="maintenanceCount" style="font-size: 2.5rem; font-weight: 700; color: var(--secondary);">0
+                        </p>
+                    </div>
+                    <div style="font-size: 3rem; opacity: 0.3;">🔧</div>
+                </div>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--success);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="color: #6b7280; font-size: 0.9rem;">মোট ছবি</p>
+                        <p id="totalPhotos" style="font-size: 2.5rem; font-weight: 700; color: var(--success);">0</p>
+                    </div>
+                    <div style="font-size: 3rem; opacity: 0.3;">📸</div>
+                </div>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--warning);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="color: #6b7280; font-size: 0.9rem;">সম্পন্ন করা</p>
+                        <p id="completedCount" style="font-size: 2.5rem; font-weight: 700; color: var(--warning);">0</p>
+                    </div>
+                    <div style="font-size: 3rem; opacity: 0.3;">✓</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- সাম্প্রতিক যানবাহন -->
+        <div class="card">
+            <h2 class="card-title">সাম্প্রতিক যানবাহন</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>রেজিস্ট্রেশন নম্বর</th>
+                        <th>ধরন</th>
+                        <th>ইউনিট</th>
+                        <th>ছবি সংখ্যা</th>
+                        <th>সর্বশেষ আপডেট</th>
+                    </tr>
+                </thead>
+                <tbody id="recentVehicles">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- রক্ষণাবেক্ষণ অবস্থা -->
+        <div class="card">
+            <h2 class="card-title">চলমান রক্ষণাবেক্ষণ</h2>
+            <div id="maintenanceStatus" style="display: grid; gap: 15px;">
+                <p style="color: #9ca3af; text-align: center;">কোন চলমান রক্ষণাবেক্ষণ নেই</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // চেক অথেন্টিকেশন
+        checkAuth();
+
+        function updateDashboard() {
+            const vehicles = DB.getVehicles();
+            const maintenance = DB.getMaintenance();
+
+            // মোট যানবাহন
+            document.getElementById('totalVehicles').textContent = vehicles.length;
+
+            // চলমান রক্ষণাবেক্ষণ
+            const activeMaintenance = maintenance.filter(m => m.status === 'চলমান');
+            document.getElementById('maintenanceCount').textContent = activeMaintenance.length;
+
+            // মোট ছবি
+            const totalPhotos = vehicles.reduce((sum, v) => sum + (v.photos?.length || 0), 0);
+            document.getElementById('totalPhotos').textContent = totalPhotos;
+
+            // সম্পন্ন করা
+            const completed = maintenance.filter(m => m.status === 'সম্পন্ন').length;
+            document.getElementById('completedCount').textContent = completed;
+
+            // সাম্প্রতিক যানবাহন (সর্বশেষ 5টি)
+            const recent = vehicles.slice(-5).reverse();
+            const tbody = document.getElementById('recentVehicles');
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td></tr>';
+            } else {
+                tbody.innerHTML = recent.map(v => `
+                    <tr>
+                        <td><strong>${v.regNo}</strong></td>
+                        <td>${v.type}</td>
+                        <td>${v.unit}</td>
+                        <td><span class="badge badge-success">${v.photos?.length || 0} টি</span></td>
+                        <td>${new Date(v.lastUpdate).toLocaleDateString('bn-BD')}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // চলমান রক্ষণাবেক্ষণ
+            const maintenanceDiv = document.getElementById('maintenanceStatus');
+            if (activeMaintenance.length === 0) {
+                maintenanceDiv.innerHTML = '<p style="color: #9ca3af; text-align: center;">কোন চলমান রক্ষণাবেক্ষণ নেই</p>';
+            } else {
+                maintenanceDiv.innerHTML = activeMaintenance.map(m => {
+                    const vehicle = vehicles.find(v => v.id === m.vehicleId);
+                    return `
+                        <div style="padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <p style="font-weight: 600; color: var(--primary);">${vehicle?.regNo}</p>
+                                    <p style="color: #6b7280; margin-top: 5px;">${m.description}</p>
+                                    <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px;">শুরু: ${new Date(m.startDate).toLocaleDateString('bn-BD')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // ড্যাশবোর্ড আপডেট করুন
+        updateDashboard();
+    </script>
+</body>
+
+</html>
