@@ -1,227 +1,1187 @@
 <!DOCTYPE html>
 <html lang="bn">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>যানবাহন তালিকা - বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা</title>
+    <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="shared.js"></script>
-</head>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
 
-<body>
-    <!-- নেভিগেশন বার -->
-    <nav class="navbar">
-        <div class="navbar-brand">
-            🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা
-        </div>
-        <div class="navbar-menu">
-            <a href="dashboard.html">ড্যাশবোর্ড</a>
-            <a href="vehicles.html" class="active">যানবাহন তালিকা</a>
-            <a href="upload.html">নতুন যানবাহন</a>
-            <a href="maintenance.html">রক্ষণাবেক্ষণ</a>
-            <a href="admin.html">প্রশাসক প্যানেল</a>
-            <a href="reports.html">রিপোর্ট</a>
-            <button class="logout-btn" onclick="logout()">লগআউট</button>
-        </div>
-    </nav>
+      body {
+        background: #f3f4f6;
+        min-height: 100vh;
+      }
 
-    <div class="container">
-        <div class="page-header">
-            <h1>🚗 যানবাহন তালিকা</h1>
-            <input type="text" id="searchInput" placeholder="রেজিস্ট্রেশন নম্বর বা ধরন দিয়ে খুঁজুন..."
-                style="padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 6px; width: 300px; max-width: 100%;">
-        </div>
+      /* Top Bar */
+      .top-bar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
 
-        <!-- যানবাহনের তালিকা -->
-        <div id="vehiclesList" style="display: grid; gap: 20px;">
-            <p style="text-align: center; color: #9ca3af;">লোড হচ্ছে...</p>
+      .top-bar-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .top-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+      }
+
+      .user-avatar {
+        width: 35px;
+        height: 35px;
+        background: white;
+        color: #667eea;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .logout-btn {
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 70px;
+        bottom: 0;
+        width: 260px;
+        background: white;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+        padding: 20px 0;
+        overflow-y: auto;
+      }
+
+      .sidebar-menu {
+        list-style: none;
+      }
+
+      .sidebar-menu li {
+        margin: 5px 0;
+      }
+
+      .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 25px;
+        color: #4b5563;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-weight: 500;
+        font-size: 1rem;
+      }
+
+      .sidebar-menu a:hover {
+        background: #f3f4f6;
+        color: #667eea;
+        border-right: 4px solid #667eea;
+      }
+
+      .sidebar-menu a.active {
+        background: linear-gradient(
+          90deg,
+          rgba(102, 126, 234, 0.1),
+          transparent
+        );
+        color: #667eea;
+        border-right: 4px solid #667eea;
+        font-weight: 700;
+      }
+
+      .sidebar-menu a .icon {
+        font-size: 1.3rem;
+        width: 25px;
+        text-align: center;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 260px;
+        margin-top: 70px;
+        padding: 30px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .page-header h1 {
+        font-size: 2rem;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+
+      /* DataTable Styling */
+      .data-table-container {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .dataTables_wrapper {
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
+
+      .dataTables_wrapper .dataTables_length,
+      .dataTables_wrapper .dataTables_filter,
+      .dataTables_wrapper .dataTables_info,
+      .dataTables_wrapper .dataTables_paginate {
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
+
+      #vehiclesTable {
+        width: 100% !important;
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
+
+      #vehiclesTable thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      #vehiclesTable thead th {
+        padding: 15px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+      }
+
+      #vehiclesTable tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      #vehiclesTable tbody tr:hover {
+        background: #f9fafb;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .badge-primary {
+        background: #e0e7ff;
+        color: #3730a3;
+      }
+
+      .action-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        margin: 0 5px;
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
+
+      .btn-view {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-view:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+      }
+
+      .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 8px 15px !important;
+        margin: 0 3px !important;
+        border-radius: 6px !important;
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
+
+      .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #764ba2 100%
+        ) !important;
+        color: white !important;
+        border: none !important;
+      }
+
+      .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #667eea !important;
+        color: white !important;
+        border: none !important;
+      }
+
+      .dataTables_wrapper .dataTables_filter input {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 15px;
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
+
+      .dataTables_wrapper .dataTables_filter input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 900px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+      }
+
+      .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .modal-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 1.8rem;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+      }
+
+      .modal-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+      }
+
+      .modal-body {
+        padding: 30px;
+      }
+
+      .vehicle-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      .detail-item {
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+      }
+
+      .detail-item label {
+        display: block;
+        color: #6b7280;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .detail-item .value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+      }
+
+      .photos-section {
+        margin-top: 25px;
+      }
+
+      .photos-section h3 {
+        color: #1f2937;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .upload-area {
+        background: linear-gradient(135deg, #f0f4ff, #e0e7ff);
+        border: 3px dashed #667eea;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 25px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .upload-area:hover {
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        border-color: #5568d3;
+        transform: scale(1.02);
+      }
+
+      .upload-area input[type="file"] {
+        display: none;
+      }
+
+      .upload-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #667eea;
+      }
+
+      .upload-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 8px;
+      }
+
+      .upload-hint {
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+
+      .photo-grid-modal {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .photo-slot {
+        aspect-ratio: 1;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .photo-slot:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .photo-slot.has-photo {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-color: #10b981;
+        color: white;
+      }
+
+      .photo-slot .slot-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #9ca3af;
+      }
+
+      .photo-slot.has-photo .slot-number {
+        font-size: 3rem;
+        color: white;
+      }
+
+      .photo-slot .slot-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 5px;
+      }
+
+      .photo-slot.has-photo .slot-label {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .photo-slot .delete-photo {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1rem;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+      }
+
+      .photo-slot.has-photo:hover .delete-photo {
+        display: flex;
+      }
+
+      .delete-photo:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      #searchInput:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s;
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .page-header {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        #vehiclesTable {
+          font-size: 0.85rem;
+        }
+
+        #vehiclesTable thead th,
+        #vehiclesTable tbody td {
+          padding: 10px 8px;
+        }
+
+        .modal-content {
+          width: 95%;
+          max-height: 95vh;
+        }
+
+        .vehicle-details {
+          grid-template-columns: 1fr;
+        }
+
+        .photo-grid-modal {
+          grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-title">
+        🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা সিস্টেম
+      </div>
+      <div class="top-bar-right">
+        <div class="user-info">
+          <div class="user-avatar">👤</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem">
+              অ্যাডমিন ইউজার
+            </div>
+            <div style="font-size: 0.8rem; opacity: 0.9">প্রশাসক</div>
+          </div>
         </div>
+        <button class="logout-btn" onclick="logout()">🚪 লগআউট</button>
+      </div>
     </div>
 
-    <style>
-        .vehicle-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s;
-            border-left: 4px solid var(--primary);
-        }
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+      <ul class="sidebar-menu">
+        <li>
+          <a href="dashboard.html"><span class="icon">📊</span> ড্যাশবোর্ড</a>
+        </li>
+        <li>
+          <a href="vehicles.html" class="active"
+            ><span class="icon">🚗</span> যানবাহন তালিকা</a
+          >
+        </li>
+        <li>
+          <a href="upload.html"><span class="icon">➕</span> নতুন যানবাহন</a>
+        </li>
+        <li>
+          <a href="maintenance.html"
+            ><span class="icon">🔧</span> রক্ষণাবেক্ষণ</a
+          >
+        </li>
+        <li>
+          <a href="reports.html"><span class="icon">📈</span> রিপোর্ট</a>
+        </li>
+      </ul>
+    </div>
 
-        .vehicle-card:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-            transform: translateY(-2px);
-        }
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <div>
+            <h1>🚗 যানবাহন তালিকা</h1>
+            <p style="color: #6b7280; margin-top: 8px; font-size: 0.95rem">
+              বাংলাদেশ পুলিশের সকল নিবন্ধিত যানবাহনের তালিকা
+            </p>
+          </div>
+        </div>
 
-        .vehicle-card-header {
-            padding: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-        }
+        <!-- যানবাহনের টেবিল -->
+        <div class="data-table-container">
+          <table id="vehiclesTable" class="display" style="width: 100%">
+            <thead>
+              <tr>
+                <th>রেজিস্ট্রেশন নম্বর</th>
+                <th>ধরন</th>
+                <th>ইঞ্জিন নম্বর</th>
+                <th>চ্যাসিস নম্বর</th>
+                <th>ইউনিট</th>
+                <th>ছবি সংখ্যা</th>
+                <th>স্থিতি</th>
+                <th>সর্বশেষ আপডেট</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="vehiclesTableBody">
+              <!-- Data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        .vehicle-card-body {
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
+    <!-- Modal for Vehicle Details and Photo Upload -->
+    <div id="vehicleModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🚗 যানবাহনের বিস্তারিত তথ্য</h2>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="modalVehicleDetails" class="vehicle-details">
+            <!-- Vehicle details will be loaded here -->
+          </div>
 
-        .vehicle-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-        }
+          <div class="photos-section">
+            <h3>📸 ছবি সংগ্রহ</h3>
 
-        .vehicle-info-label {
-            color: #6b7280;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
+            <div
+              class="upload-area"
+              onclick="document.getElementById('photoUpload').click()"
+            >
+              <div class="upload-icon">📤</div>
+              <div class="upload-text">এখানে ক্লিক করে ছবি আপলোড করুন</div>
+              <div class="upload-hint">অথবা ড্র্যাগ করে ছবি আনুন</div>
+              <input
+                type="file"
+                id="photoUpload"
+                accept="image/*"
+                onchange="handlePhotoUpload(event)"
+              />
+            </div>
 
-        .vehicle-info-value {
-            font-weight: 600;
-            color: var(--primary);
-            margin-top: 5px;
-        }
-
-        .vehicle-photos {
-            padding: 20px;
-            background: #f8fafc;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .photos-label {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-        }
-
-        .photo-item {
-            width: 100%;
-            height: 100px;
-            background: white;
-            border: 2px dashed #e2e8f0;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9ca3af;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .photo-item:hover {
-            border-color: var(--primary);
-            background: #f1f5f9;
-        }
-
-        .photo-item.has-photo {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-        }
-
-        @media (max-width: 768px) {
-            .page-header {
-                flex-direction: column;
-            }
-
-            #searchInput {
-                width: 100% !important;
-            }
-
-            .vehicle-card-header {
-                flex-direction: column;
-            }
-
-            .vehicle-card-body {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+            <div id="photoGrid" class="photo-grid-modal">
+              <!-- Photo slots will be generated here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
-        // চেক অথেন্টিকেশন
-        checkAuth();
+      // চেক অথেন্টিকেশন
+      checkAuth();
 
-        function displayVehicles(filter = '') {
-            const vehicles = DB.getVehicles();
-            const filtered = vehicles.filter(v =>
-                v.regNo.toLowerCase().includes(filter.toLowerCase()) ||
-                v.type.toLowerCase().includes(filter.toLowerCase())
-            );
+      let table;
+      let currentVehicleId = null;
 
-            const container = document.getElementById('vehiclesList');
+      function loadVehiclesTable() {
+        const vehicles = DB.getVehicles();
+        const maintenance = DB.getMaintenance();
 
-            if (filtered.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #9ca3af; grid-column: 1/-1;">কোন যানবাহন পাওয়া যায়নি</p>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(vehicle => `
-                <div class="vehicle-card">
-                    <div class="vehicle-card-header">
-                        <div>
-                            <h3 style="font-size: 1.3rem; margin-bottom: 5px;">${vehicle.regNo}</h3>
-                            <p style="opacity: 0.9; font-size: 0.9rem;">${vehicle.type}</p>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.2); padding: 10px 15px; border-radius: 6px; font-size: 0.85rem;">
-                            ${vehicle.photos?.length || 0} ছবি
-                        </div>
-                    </div>
-                    
-                    <div class="vehicle-card-body">
-                        <div class="vehicle-info">
-                            <span class="vehicle-info-label">ইঞ্জিন নম্বর</span>
-                            <span class="vehicle-info-value">${vehicle.engineNo}</span>
-                        </div>
-                        <div class="vehicle-info">
-                            <span class="vehicle-info-label">চ্যাসিস নম্বর</span>
-                            <span class="vehicle-info-value">${vehicle.chassisNo}</span>
-                        </div>
-                        <div class="vehicle-info">
-                            <span class="vehicle-info-label">ইউনিট</span>
-                            <span class="vehicle-info-value">${vehicle.unit}</span>
-                        </div>
-                        <div class="vehicle-info">
-                            <span class="vehicle-info-label">সর্বশেষ আপডেট</span>
-                            <span class="vehicle-info-value">${new Date(vehicle.lastUpdate).toLocaleDateString('bn-BD')}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vehicle-photos">
-                        <span class="photos-label">📸 ছবিগুলি (${vehicle.photos?.length || 0}/${10 + 5})</span>
-                        <div class="photo-grid">
-                            ${Array(15).fill(0).map((_, i) => `
-                                <div class="photo-item ${vehicle.photos && vehicle.photos[i] ? 'has-photo' : ''}">
-                                    ${vehicle.photos && vehicle.photos[i] ? '✓' : '${i + 1}'}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+        // DataTable initialization
+        if ($.fn.DataTable.isDataTable("#vehiclesTable")) {
+          $("#vehiclesTable").DataTable().destroy();
         }
 
-        // প্রাথমিক প্রদর্শন
-        displayVehicles();
-
-        // খোঁজার ফাংশন
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            displayVehicles(e.target.value);
+        table = $("#vehiclesTable").DataTable({
+          data: vehicles,
+          columns: [
+            {
+              data: "regNo",
+              render: function (data) {
+                return `<strong style="color: #667eea;">${data}</strong>`;
+              },
+            },
+            {
+              data: "type",
+              render: function (data) {
+                return `<span class="badge badge-primary">${data}</span>`;
+              },
+            },
+            { data: "engineNo" },
+            { data: "chassisNo" },
+            { data: "unit" },
+            {
+              data: "photos",
+              render: function (data, type, row) {
+                const photoCount = data ? data.length : 0;
+                const badgeClass =
+                  photoCount >= 10
+                    ? "badge-success"
+                    : photoCount >= 5
+                    ? "badge-warning"
+                    : "badge-info";
+                return `<span class="badge ${badgeClass}">📸 ${photoCount} টি</span>`;
+              },
+            },
+            {
+              data: "id",
+              render: function (data) {
+                const activeMaintenance = maintenance.find(
+                  (m) => m.vehicleId === data && m.status === "চলমান"
+                );
+                if (activeMaintenance) {
+                  return '<span class="badge badge-warning">রক্ষণাবেক্ষণে</span>';
+                }
+                return '<span class="badge badge-success">সক্রিয়</span>';
+              },
+            },
+            {
+              data: "lastUpdate",
+              render: function (data) {
+                return new Date(data).toLocaleDateString("bn-BD");
+              },
+            },
+            {
+              data: null,
+              orderable: false,
+              render: function (data, type, row) {
+                return `<button class="action-btn btn-view" onclick="viewVehicle('${row.id}')">📋 বিস্তারিত</button>`;
+              },
+            },
+          ],
+          language: {
+            decimal: "",
+            emptyTable: "কোন তথ্য উপলব্ধ নেই",
+            info: "মোট _TOTAL_ টি এন্ট্রি থেকে _START_ থেকে _END_ দেখানো হচ্ছে",
+            infoEmpty: "০ টি এন্ট্রি দেখানো হচ্ছে",
+            infoFiltered: "(মোট _MAX_ টি এন্ট্রি থেকে ফিল্টার করা হয়েছে)",
+            infoPostFix: "",
+            thousands: ",",
+            lengthMenu: "প্রতি পেজে _MENU_ টি এন্ট্রি দেখান",
+            loadingRecords: "লোড হচ্ছে...",
+            processing: "প্রসেসিং...",
+            search: "খুঁজুন:",
+            zeroRecords: "কোন মিল পাওয়া যায়নি",
+            paginate: {
+              first: "প্রথম",
+              last: "শেষ",
+              next: "পরবর্তী",
+              previous: "পূর্ববর্তী",
+            },
+            aria: {
+              sortAscending: ": ঊর্ধ্বক্রমে সাজাতে সক্রিয় করুন",
+              sortDescending: ": অবরোহী ক্রমে সাজাতে সক্রিয় করুন",
+            },
+          },
+          pageLength: 10,
+          lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, "সব"],
+          ],
+          order: [[7, "desc"]], // Sort by last update date descending
+          responsive: true,
         });
-    </script>
-</body>
+      }
 
+      function viewVehicle(vehicleId) {
+        console.log("viewVehicle called with ID:", vehicleId);
+        console.log("ID type:", typeof vehicleId);
+
+        currentVehicleId = vehicleId;
+        const vehicles = DB.getVehicles();
+        console.log("All vehicles:", vehicles);
+        console.log(
+          "Vehicle IDs:",
+          vehicles.map((v) => ({ id: v.id, type: typeof v.id }))
+        );
+
+        // Try to find by ID (handle both string and number)
+        let vehicle = vehicles.find((v) => v.id === vehicleId);
+        if (!vehicle) {
+          vehicle = vehicles.find((v) => v.id == vehicleId); // loose equality
+        }
+        if (!vehicle) {
+          vehicle = vehicles.find((v) => String(v.id) === String(vehicleId)); // string comparison
+        }
+
+        const maintenance = DB.getMaintenance();
+
+        if (!vehicle) {
+          console.error("Vehicle not found for ID:", vehicleId);
+          alert("যানবাহনের তথ্য পাওয়া যায়নি");
+          return;
+        }
+
+        console.log("Vehicle found:", vehicle);
+
+        // Load vehicle details
+        const activeMaintenance = maintenance.find(
+          (m) => m.vehicleId === vehicleId && m.status === "চলমান"
+        );
+        const status = activeMaintenance ? "রক্ষণাবেক্ষণে" : "সক্রিয়";
+        const statusClass = activeMaintenance
+          ? "badge-warning"
+          : "badge-success";
+
+        document.getElementById("modalVehicleDetails").innerHTML = `
+          <div class="detail-item">
+            <label>রেজিস্ট্রেশন নম্বর</label>
+            <div class="value">${vehicle.regNo}</div>
+          </div>
+          <div class="detail-item">
+            <label>যানবাহনের ধরন</label>
+            <div class="value">${vehicle.type}</div>
+          </div>
+          <div class="detail-item">
+            <label>ইঞ্জিন নম্বর</label>
+            <div class="value">${vehicle.engineNo}</div>
+          </div>
+          <div class="detail-item">
+            <label>চ্যাসিস নম্বর</label>
+            <div class="value">${vehicle.chassisNo}</div>
+          </div>
+          <div class="detail-item">
+            <label>ইউনিট</label>
+            <div class="value">${vehicle.unit}</div>
+          </div>
+          <div class="detail-item">
+            <label>স্থিতি</label>
+            <div class="value"><span class="badge ${statusClass}">${status}</span></div>
+          </div>
+          <div class="detail-item">
+            <label>ছবি সংখ্যা</label>
+            <div class="value">${vehicle.photos?.length || 0}/১৫ টি</div>
+          </div>
+          <div class="detail-item">
+            <label>সর্বশেষ আপডেট</label>
+            <div class="value">${new Date(
+              vehicle.lastUpdate
+            ).toLocaleDateString("bn-BD")}</div>
+          </div>
+        `;
+
+        // Load photo grid
+        loadPhotoGrid(vehicle);
+
+        // Show modal
+        console.log("Showing modal...");
+        const modal = document.getElementById("vehicleModal");
+        console.log("Modal element:", modal);
+        modal.classList.add("show");
+        console.log("Modal classes:", modal.className);
+      }
+
+      function loadPhotoGrid(vehicle) {
+        console.log("Loading photo grid for vehicle:", vehicle);
+        const photoGrid = document.getElementById("photoGrid");
+        photoGrid.innerHTML = "";
+
+        for (let i = 0; i < 15; i++) {
+          const hasPhoto = vehicle.photos && vehicle.photos[i];
+          const slot = document.createElement("div");
+          slot.className = `photo-slot ${hasPhoto ? "has-photo" : ""}`;
+
+          // Create slot content
+          const slotNumber = document.createElement("div");
+          slotNumber.className = "slot-number";
+          slotNumber.textContent = hasPhoto ? "✓" : i + 1;
+
+          const slotLabel = document.createElement("div");
+          slotLabel.className = "slot-label";
+          slotLabel.textContent = hasPhoto ? "আপলোড সম্পন্ন" : "খালি স্লট";
+
+          slot.appendChild(slotNumber);
+          slot.appendChild(slotLabel);
+
+          // Add click handler for empty slots
+          if (!hasPhoto) {
+            slot.onclick = () => selectPhotoSlot(i);
+          } else {
+            // Add delete button for filled slots
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-photo";
+            deleteBtn.innerHTML = "×";
+            deleteBtn.onclick = (e) => {
+              e.stopPropagation();
+              deletePhoto(i);
+            };
+            slot.appendChild(deleteBtn);
+          }
+
+          photoGrid.appendChild(slot);
+        }
+        console.log(
+          "Photo grid loaded with",
+          vehicle.photos?.length || 0,
+          "photos"
+        );
+      }
+
+      let selectedSlotIndex = null;
+
+      function selectPhotoSlot(index) {
+        console.log("Selecting slot:", index);
+        const vehicles = DB.getVehicles();
+        let vehicle = vehicles.find((v) => v.id == currentVehicleId);
+
+        if (!vehicle) {
+          console.error(
+            "Vehicle not found for currentVehicleId:",
+            currentVehicleId
+          );
+          alert("যানবাহনের তথ্য পাওয়া যায়নি");
+          return;
+        }
+
+        // If slot already has photo, don't allow selection
+        if (vehicle.photos && vehicle.photos[index]) {
+          alert(
+            "এই স্লটে ইতিমধ্যে ছবি আছে। মুছে ফেলতে ডিলিট বাটনে ক্লিক করুন।"
+          );
+          return;
+        }
+
+        selectedSlotIndex = index;
+        console.log("Selected slot index:", selectedSlotIndex);
+        document.getElementById("photoUpload").click();
+      }
+
+      function handlePhotoUpload(event) {
+        console.log("handlePhotoUpload called");
+        const file = event.target.files[0];
+        if (!file) {
+          console.log("No file selected");
+          return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+          alert("অনুগ্রহ করে শুধুমাত্র ছবি ফাইল আপলোড করুন");
+          return;
+        }
+
+        console.log(
+          "File selected:",
+          file.name,
+          "for vehicle ID:",
+          currentVehicleId
+        );
+        const vehicles = DB.getVehicles();
+        const vehicleIndex = vehicles.findIndex(
+          (v) => v.id == currentVehicleId
+        );
+
+        console.log("Vehicle index:", vehicleIndex);
+        if (vehicleIndex === -1) {
+          alert("যানবাহনের তথ্য পাওয়া যায়নি");
+          return;
+        }
+
+        // Initialize photos array if not exists
+        if (!vehicles[vehicleIndex].photos) {
+          vehicles[vehicleIndex].photos = [];
+        }
+
+        // Find next available slot or use selected slot
+        let slotIndex =
+          selectedSlotIndex !== null
+            ? selectedSlotIndex
+            : vehicles[vehicleIndex].photos.length;
+
+        console.log("Upload to slot index:", slotIndex);
+
+        // If trying to upload beyond 15 slots
+        if (slotIndex >= 15) {
+          alert("সর্বোচ্চ ১৫ টি ছবি আপলোড করা যাবে");
+          return;
+        }
+
+        // Simulate photo upload (in real app, this would upload to server)
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          console.log("File read complete, updating vehicle");
+          vehicles[vehicleIndex].photos[slotIndex] = {
+            url: e.target.result,
+            name: file.name,
+            uploadDate: new Date().toISOString(),
+          };
+
+          vehicles[vehicleIndex].lastUpdate = new Date().toISOString();
+
+          // Save to localStorage
+          localStorage.setItem("vehicles", JSON.stringify(vehicles));
+          console.log(
+            "Saved to localStorage, photos count:",
+            vehicles[vehicleIndex].photos.length
+          );
+
+          // Reload photo grid and table
+          loadPhotoGrid(vehicles[vehicleIndex]);
+          loadVehiclesTable();
+
+          selectedSlotIndex = null;
+          event.target.value = ""; // Reset file input
+
+          alert("ছবি সফলভাবে আপলোড হয়েছে!");
+        };
+
+        reader.readAsDataURL(file);
+      }
+
+      function deletePhoto(index) {
+        console.log("Deleting photo at index:", index);
+        if (!confirm("আপনি কি নিশ্চিত এই ছবিটি মুছে ফেলতে চান?")) {
+          return;
+        }
+
+        const vehicles = DB.getVehicles();
+        const vehicleIndex = vehicles.findIndex(
+          (v) => v.id == currentVehicleId
+        );
+
+        console.log("Vehicle index for deletion:", vehicleIndex);
+        if (vehicleIndex === -1 || !vehicles[vehicleIndex].photos) {
+          alert("ছবি মুছতে সমস্যা হয়েছে");
+          return;
+        }
+
+        console.log(
+          "Photos before deletion:",
+          vehicles[vehicleIndex].photos.length
+        );
+        // Remove photo at index
+        vehicles[vehicleIndex].photos.splice(index, 1);
+        console.log(
+          "Photos after deletion:",
+          vehicles[vehicleIndex].photos.length
+        );
+
+        vehicles[vehicleIndex].lastUpdate = new Date().toISOString();
+
+        // Save to localStorage
+        localStorage.setItem("vehicles", JSON.stringify(vehicles));
+
+        // Reload photo grid and table
+        loadPhotoGrid(vehicles[vehicleIndex]);
+        loadVehiclesTable();
+
+        alert("ছবি সফলভাবে মুছে ফেলা হয়েছে!");
+      }
+
+      function closeModal() {
+        document.getElementById("vehicleModal").classList.remove("show");
+        currentVehicleId = null;
+        selectedSlotIndex = null;
+      }
+
+      // Close modal on outside click
+      window.onclick = function (event) {
+        const modal = document.getElementById("vehicleModal");
+        if (event.target === modal) {
+          closeModal();
+        }
+      };
+
+      // Close modal on Escape key
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeModal();
+        }
+      });
+
+      // Load table on page load
+      $(document).ready(function () {
+        loadVehiclesTable();
+
+        // Drag and drop functionality
+        const uploadArea = document.querySelector(".upload-area");
+
+        if (uploadArea) {
+          uploadArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadArea.style.background =
+              "linear-gradient(135deg, #c7d2fe, #a5b4fc)";
+          });
+
+          uploadArea.addEventListener("dragleave", () => {
+            uploadArea.style.background =
+              "linear-gradient(135deg, #f0f4ff, #e0e7ff)";
+          });
+
+          uploadArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadArea.style.background =
+              "linear-gradient(135deg, #f0f4ff, #e0e7ff)";
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+              const fileInput = document.getElementById("photoUpload");
+              fileInput.files = files;
+              handlePhotoUpload({ target: fileInput });
+            }
+          });
+        }
+      });
+    </script>
+  </body>
 </html>

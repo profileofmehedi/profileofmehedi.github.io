@@ -1,175 +1,859 @@
 <!DOCTYPE html>
 <html lang="bn">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ড্যাশবোর্ড - বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা</title>
+    <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="shared.js"></script>
-</head>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Kalpurush", Arial, sans-serif !important;
+      }
 
-<body>
-    <!-- নেভিগেশন বার -->
-    <nav class="navbar">
-        <div class="navbar-brand">
-            🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা
-        </div>
-        <div class="navbar-menu">
-            <a href="dashboard.html" class="active">ড্যাশবোর্ড</a>
-            <a href="vehicles.html">যানবাহন তালিকা</a>
-            <a href="upload.html">নতুন যানবাহন</a>
-            <a href="maintenance.html">রক্ষণাবেক্ষণ</a>
-            <a href="admin.html">প্রশাসক প্যানেল</a>
-            <a href="reports.html">রিপোর্ট</a>
-            <button class="logout-btn" onclick="logout()">লগআউট</button>
-        </div>
-    </nav>
+      body {
+        background: #f3f4f6;
+        min-height: 100vh;
+      }
 
-    <div class="container">
-        <div class="page-header">
-            <h1>📊 ড্যাশবোর্ড</h1>
-        </div>
+      /* Top Bar */
+      .top-bar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
 
-        <!-- স্ট্যাটিস্টিক্স কার্ড -->
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-            <div class="card" style="border-left: 4px solid var(--primary);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <p style="color: #6b7280; font-size: 0.9rem;">মোট যানবাহন</p>
-                        <p id="totalVehicles" style="font-size: 2.5rem; font-weight: 700; color: var(--primary);">0</p>
-                    </div>
-                    <div style="font-size: 3rem; opacity: 0.3;">🚗</div>
-                </div>
+      .top-bar-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .top-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+      }
+
+      .user-avatar {
+        width: 35px;
+        height: 35px;
+        background: white;
+        color: #667eea;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .logout-btn {
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 70px;
+        bottom: 0;
+        width: 260px;
+        background: white;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+        padding: 20px 0;
+        overflow-y: auto;
+      }
+
+      .sidebar-menu {
+        list-style: none;
+      }
+
+      .sidebar-menu li {
+        margin: 5px 0;
+      }
+
+      .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 25px;
+        color: #4b5563;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-weight: 500;
+        font-size: 1rem;
+      }
+
+      .sidebar-menu a:hover {
+        background: #f3f4f6;
+        color: #667eea;
+        border-right: 4px solid #667eea;
+      }
+
+      .sidebar-menu a.active {
+        background: linear-gradient(
+          90deg,
+          rgba(102, 126, 234, 0.1),
+          transparent
+        );
+        color: #667eea;
+        border-right: 4px solid #667eea;
+        font-weight: 700;
+      }
+
+      .sidebar-menu a .icon {
+        font-size: 1.3rem;
+        width: 25px;
+        text-align: center;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 260px;
+        margin-top: 70px;
+        padding: 30px;
+      }
+
+      .dashboard-header {
+        margin-bottom: 30px;
+      }
+
+      .dashboard-header h1 {
+        font-size: 2rem;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+
+      .dashboard-header p {
+        color: #6b7280;
+        font-size: 1rem;
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+      }
+
+      .stat-card.primary::before {
+        background: #667eea;
+      }
+      .stat-card.secondary::before {
+        background: #764ba2;
+      }
+      .stat-card.success::before {
+        background: #10b981;
+      }
+      .stat-card.warning::before {
+        background: #f59e0b;
+      }
+      .stat-card.danger::before {
+        background: #ef4444;
+      }
+      .stat-card.info::before {
+        background: #3b82f6;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .stat-card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .stat-card-info h3 {
+        color: #6b7280;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-card-info .value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .stat-card-info .value.primary {
+        color: #667eea;
+      }
+      .stat-card-info .value.secondary {
+        color: #764ba2;
+      }
+      .stat-card-info .value.success {
+        color: #10b981;
+      }
+      .stat-card-info .value.warning {
+        color: #f59e0b;
+      }
+      .stat-card-info .value.danger {
+        color: #ef4444;
+      }
+      .stat-card-info .value.info {
+        color: #3b82f6;
+      }
+
+      .stat-card-icon {
+        font-size: 3.5rem;
+        opacity: 0.15;
+      }
+
+      /* Charts Grid */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .chart-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .chart-card h3 {
+        color: #1f2937;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f3f4f6;
+      }
+
+      .chart-card canvas {
+        max-height: 250px !important;
+      }
+
+      /* Tables */
+      .data-table {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+      }
+
+      .data-table h3 {
+        color: #1f2937;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .table thead {
+        background: #f9fafb;
+      }
+
+      .table th {
+        padding: 15px;
+        text-align: left;
+        color: #4b5563;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      .table td {
+        padding: 15px;
+        border-bottom: 1px solid #f3f4f6;
+        color: #1f2937;
+      }
+
+      .table tbody tr:hover {
+        background: #f9fafb;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s;
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-title">
+        🚓 বাংলাদেশ পুলিশ যানবাহন ব্যবস্থাপনা সিস্টেম
+      </div>
+      <div class="top-bar-right">
+        <div class="user-info">
+          <div class="user-avatar">👤</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem">
+              অ্যাডমিন ইউজার
             </div>
+            <div style="font-size: 0.8rem; opacity: 0.9">প্রশাসক</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">🚪 লগআউট</button>
+      </div>
+    </div>
 
-            <div class="card" style="border-left: 4px solid var(--secondary);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <p style="color: #6b7280; font-size: 0.9rem;">রক্ষণাবেক্ষণে আছে</p>
-                        <p id="maintenanceCount" style="font-size: 2.5rem; font-weight: 700; color: var(--secondary);">0
-                        </p>
-                    </div>
-                    <div style="font-size: 3rem; opacity: 0.3;">🔧</div>
-                </div>
-            </div>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+      <ul class="sidebar-menu">
+        <li>
+          <a href="dashboard.html" class="active"
+            ><span class="icon">📊</span> ড্যাশবোর্ড</a
+          >
+        </li>
+        <li>
+          <a href="vehicles.html"
+            ><span class="icon">🚗</span> যানবাহন তালিকা</a
+          >
+        </li>
+        <li>
+          <a href="upload.html"><span class="icon">➕</span> নতুন যানবাহন</a>
+        </li>
+        <li>
+          <a href="maintenance.html"
+            ><span class="icon">🔧</span> রক্ষণাবেক্ষণ</a
+          >
+        </li>
+        <li>
+          <a href="reports.html"><span class="icon">📈</span> রিপোর্ট</a>
+        </li>
+      </ul>
+    </div>
 
-            <div class="card" style="border-left: 4px solid var(--success);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <p style="color: #6b7280; font-size: 0.9rem;">মোট ছবি</p>
-                        <p id="totalPhotos" style="font-size: 2.5rem; font-weight: 700; color: var(--success);">0</p>
-                    </div>
-                    <div style="font-size: 3rem; opacity: 0.3;">📸</div>
-                </div>
-            </div>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="dashboard-header">
+        <h1>📊 ড্যাশবোর্ড</h1>
+        <p>সিস্টেমের সকল তথ্যের সংক্ষিপ্ত বিবরণ এবং পরিসংখ্যান</p>
+      </div>
 
-            <div class="card" style="border-left: 4px solid var(--warning);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <p style="color: #6b7280; font-size: 0.9rem;">সম্পন্ন করা</p>
-                        <p id="completedCount" style="font-size: 2.5rem; font-weight: 700; color: var(--warning);">0</p>
-                    </div>
-                    <div style="font-size: 3rem; opacity: 0.3;">✓</div>
-                </div>
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-card-content">
+            <div class="stat-card-info">
+              <h3>মোট যানবাহন</h3>
+              <div class="value primary" id="totalVehicles">0</div>
             </div>
+            <div class="stat-card-icon">🚗</div>
+          </div>
         </div>
 
-        <!-- সাম্প্রতিক যানবাহন -->
-        <div class="card">
-            <h2 class="card-title">সাম্প্রতিক যানবাহন</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>রেজিস্ট্রেশন নম্বর</th>
-                        <th>ধরন</th>
-                        <th>ইউনিট</th>
-                        <th>ছবি সংখ্যা</th>
-                        <th>সর্বশেষ আপডেট</th>
-                    </tr>
-                </thead>
-                <tbody id="recentVehicles">
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="stat-card warning">
+          <div class="stat-card-content">
+            <div class="stat-card-info">
+              <h3>রক্ষণাবেক্ষণে আছে</h3>
+              <div class="value warning" id="maintenanceCount">0</div>
+            </div>
+            <div class="stat-card-icon">🔧</div>
+          </div>
         </div>
 
-        <!-- রক্ষণাবেক্ষণ অবস্থা -->
-        <div class="card">
-            <h2 class="card-title">চলমান রক্ষণাবেক্ষণ</h2>
-            <div id="maintenanceStatus" style="display: grid; gap: 15px;">
-                <p style="color: #9ca3af; text-align: center;">কোন চলমান রক্ষণাবেক্ষণ নেই</p>
+        <div class="stat-card success">
+          <div class="stat-card-content">
+            <div class="stat-card-info">
+              <h3>সম্পন্ন করা</h3>
+              <div class="value success" id="completedCount">0</div>
             </div>
+            <div class="stat-card-icon">✓</div>
+          </div>
         </div>
+
+        <div class="stat-card info">
+          <div class="stat-card-content">
+            <div class="stat-card-info">
+              <h3>মোট ছবি</h3>
+              <div class="value info" id="totalPhotos">0</div>
+            </div>
+            <div class="stat-card-icon">📸</div>
+          </div>
+        </div>
+
+        <div class="stat-card secondary">
+          <div class="stat-card-content">
+            <div class="stat-card-info">
+              <h3>মোটরসাইকেল</h3>
+              <div class="value secondary" id="motorcycleCount">0</div>
+            </div>
+            <div class="stat-card-icon">🏍️</div>
+          </div>
+        </div>
+
+        <div class="stat-card danger">
+          <div class="stat-card-content">
+            <div class="stat-card-info">
+              <h3>মেরামত প্রয়োজন</h3>
+              <div class="value danger" id="needRepairCount">0</div>
+            </div>
+            <div class="stat-card-icon">⚠️</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>যানবাহনের ধরন অনুযায়ী বিভাজন</h3>
+          <canvas id="vehicleTypeChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <h3>ইউনিট অনুযায়ী যানবাহন</h3>
+          <canvas id="unitChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <h3>মাসিক রক্ষণাবেক্ষণ পরিসংখ্যান</h3>
+          <canvas id="maintenanceChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <h3>যানবাহনের স্থিতি</h3>
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Vehicles Table -->
+      <div class="data-table">
+        <h3>🕐 সাম্প্রতিক যানবাহন</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>রেজিস্ট্রেশন নম্বর</th>
+              <th>ধরন</th>
+              <th>ইউনিট</th>
+              <th>ছবি সংখ্যা</th>
+              <th>স্থিতি</th>
+              <th>সর্বশেষ আপডেট</th>
+            </tr>
+          </thead>
+          <tbody id="recentVehicles">
+            <tr>
+              <td colspan="6" style="text-align: center; color: #9ca3af">
+                লোড হচ্ছে...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Active Maintenance Table -->
+      <div class="data-table">
+        <h3>🔧 চলমান রক্ষণাবেক্ষণ কার্যক্রম</h3>
+        <div id="maintenanceStatus"></div>
+      </div>
     </div>
 
     <script>
-        // চেক অথেন্টিকেশন
-        checkAuth();
+      // চেক অথেন্টিকেশন
+      checkAuth();
 
-        function updateDashboard() {
-            const vehicles = DB.getVehicles();
-            const maintenance = DB.getMaintenance();
+      let charts = {};
 
-            // মোট যানবাহন
-            document.getElementById('totalVehicles').textContent = vehicles.length;
+      function updateDashboard() {
+        const vehicles = DB.getVehicles();
+        const maintenance = DB.getMaintenance();
 
-            // চলমান রক্ষণাবেক্ষণ
-            const activeMaintenance = maintenance.filter(m => m.status === 'চলমান');
-            document.getElementById('maintenanceCount').textContent = activeMaintenance.length;
+        // মোট যানবাহন
+        document.getElementById("totalVehicles").textContent = vehicles.length;
 
-            // মোট ছবি
-            const totalPhotos = vehicles.reduce((sum, v) => sum + (v.photos?.length || 0), 0);
-            document.getElementById('totalPhotos').textContent = totalPhotos;
+        // চলমান রক্ষণাবেক্ষণ
+        const activeMaintenance = maintenance.filter(
+          (m) => m.status === "চলমান"
+        );
+        document.getElementById("maintenanceCount").textContent =
+          activeMaintenance.length;
 
-            // সম্পন্ন করা
-            const completed = maintenance.filter(m => m.status === 'সম্পন্ন').length;
-            document.getElementById('completedCount').textContent = completed;
+        // সম্পন্ন করা
+        const completed = maintenance.filter(
+          (m) => m.status === "সম্পন্ন"
+        ).length;
+        document.getElementById("completedCount").textContent = completed;
 
-            // সাম্প্রতিক যানবাহন (সর্বশেষ 5টি)
-            const recent = vehicles.slice(-5).reverse();
-            const tbody = document.getElementById('recentVehicles');
-            if (recent.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td></tr>';
-            } else {
-                tbody.innerHTML = recent.map(v => `
+        // মোট ছবি
+        const totalPhotos = vehicles.reduce(
+          (sum, v) => sum + (v.photos?.length || 0),
+          0
+        );
+        document.getElementById("totalPhotos").textContent = totalPhotos;
+
+        // মোটরসাইকেল গণনা
+        const motorcycles = vehicles.filter((v) =>
+          v.type.includes("মোটরসাইকেল")
+        ).length;
+        document.getElementById("motorcycleCount").textContent = motorcycles;
+
+        // মেরামত প্রয়োজন (যেগুলোতে ছবি কম)
+        const needRepair = vehicles.filter(
+          (v) => (v.photos?.length || 0) < 5
+        ).length;
+        document.getElementById("needRepairCount").textContent = needRepair;
+
+        // সাম্প্রতিক যানবাহন (সর্বশেষ 8টি)
+        const recent = vehicles.slice(-8).reverse();
+        const tbody = document.getElementById("recentVehicles");
+        if (recent.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="6" style="text-align: center; color: #9ca3af;">কোন তথ্য নেই</td></tr>';
+        } else {
+          tbody.innerHTML = recent
+            .map(
+              (v) => `
                     <tr>
-                        <td><strong>${v.regNo}</strong></td>
+                        <td><strong style="color: #667eea;">${
+                          v.regNo
+                        }</strong></td>
                         <td>${v.type}</td>
                         <td>${v.unit}</td>
-                        <td><span class="badge badge-success">${v.photos?.length || 0} টি</span></td>
-                        <td>${new Date(v.lastUpdate).toLocaleDateString('bn-BD')}</td>
+                        <td><span class="badge badge-${
+                          (v.photos?.length || 0) >= 10 ? "success" : "warning"
+                        }">${v.photos?.length || 0} টি</span></td>
+                        <td><span class="badge badge-${
+                          activeMaintenance.find((m) => m.vehicleId === v.id)
+                            ? "warning"
+                            : "success"
+                        }">${
+                activeMaintenance.find((m) => m.vehicleId === v.id)
+                  ? "রক্ষণাবেক্ষণে"
+                  : "সক্রিয়"
+              }</span></td>
+                        <td>${new Date(v.lastUpdate).toLocaleDateString(
+                          "bn-BD"
+                        )}</td>
                     </tr>
-                `).join('');
-            }
-
-            // চলমান রক্ষণাবেক্ষণ
-            const maintenanceDiv = document.getElementById('maintenanceStatus');
-            if (activeMaintenance.length === 0) {
-                maintenanceDiv.innerHTML = '<p style="color: #9ca3af; text-align: center;">কোন চলমান রক্ষণাবেক্ষণ নেই</p>';
-            } else {
-                maintenanceDiv.innerHTML = activeMaintenance.map(m => {
-                    const vehicle = vehicles.find(v => v.id === m.vehicleId);
-                    return `
-                        <div style="padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
-                            <div style="display: flex; justify-content: space-between; align-items: start;">
-                                <div>
-                                    <p style="font-weight: 600; color: var(--primary);">${vehicle?.regNo}</p>
-                                    <p style="color: #6b7280; margin-top: 5px;">${m.description}</p>
-                                    <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px;">শুরু: ${new Date(m.startDate).toLocaleDateString('bn-BD')}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
+                `
+            )
+            .join("");
         }
 
-        // ড্যাশবোর্ড আপডেট করুন
-        updateDashboard();
-    </script>
-</body>
+        // চলমান রক্ষণাবেক্ষণ
+        const maintenanceDiv = document.getElementById("maintenanceStatus");
+        if (activeMaintenance.length === 0) {
+          maintenanceDiv.innerHTML =
+            '<p style="color: #9ca3af; text-align: center; padding: 20px;">কোন চলমান রক্ষণাবেক্ষণ নেই</p>';
+        } else {
+          maintenanceDiv.innerHTML = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>যানবাহন</th>
+                                <th>বিবরণ</th>
+                                <th>শুরুর তারিখ</th>
+                                <th>স্থিতি</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${activeMaintenance
+                              .map((m) => {
+                                const vehicle = vehicles.find(
+                                  (v) => v.id === m.vehicleId
+                                );
+                                return `
+                                    <tr>
+                                        <td><strong style="color: #667eea;">${
+                                          vehicle?.regNo || "N/A"
+                                        }</strong></td>
+                                        <td>${m.description}</td>
+                                        <td>${new Date(
+                                          m.startDate
+                                        ).toLocaleDateString("bn-BD")}</td>
+                                        <td><span class="badge badge-warning">${
+                                          m.status
+                                        }</span></td>
+                                    </tr>
+                                `;
+                              })
+                              .join("")}
+                        </tbody>
+                    </table>
+                `;
+        }
 
+        // Initialize Charts
+        initCharts(vehicles, maintenance);
+      }
+
+      function initCharts(vehicles, maintenance) {
+        // Vehicle Type Chart
+        const typeCounts = {};
+        vehicles.forEach((v) => {
+          typeCounts[v.type] = (typeCounts[v.type] || 0) + 1;
+        });
+
+        if (charts.vehicleTypeChart) charts.vehicleTypeChart.destroy();
+        charts.vehicleTypeChart = new Chart(
+          document.getElementById("vehicleTypeChart"),
+          {
+            type: "doughnut",
+            data: {
+              labels: Object.keys(typeCounts),
+              datasets: [
+                {
+                  data: Object.values(typeCounts),
+                  backgroundColor: [
+                    "#667eea",
+                    "#764ba2",
+                    "#10b981",
+                    "#f59e0b",
+                    "#ef4444",
+                    "#3b82f6",
+                    "#8b5cf6",
+                    "#ec4899",
+                  ],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              aspectRatio: 2,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: { boxWidth: 12, font: { size: 11 } },
+                },
+              },
+            },
+          }
+        );
+
+        // Unit Chart
+        const unitCounts = {};
+        vehicles.forEach((v) => {
+          unitCounts[v.unit] = (unitCounts[v.unit] || 0) + 1;
+        });
+
+        if (charts.unitChart) charts.unitChart.destroy();
+        charts.unitChart = new Chart(document.getElementById("unitChart"), {
+          type: "bar",
+          data: {
+            labels: Object.keys(unitCounts),
+            datasets: [
+              {
+                label: "যানবাহন সংখ্যা",
+                data: Object.values(unitCounts),
+                backgroundColor: "#667eea",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            plugins: {
+              legend: { display: false },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { font: { size: 11 } },
+              },
+              x: {
+                ticks: { font: { size: 10 } },
+              },
+            },
+          },
+        });
+
+        // Maintenance Chart
+        const months = [
+          "জানুয়ারি",
+          "ফেব্রুয়ারি",
+          "মার্চ",
+          "এপ্রিল",
+          "মে",
+          "জুন",
+        ];
+        const maintenanceData = months.map(
+          () => Math.floor(Math.random() * 10) + 3
+        );
+
+        if (charts.maintenanceChart) charts.maintenanceChart.destroy();
+        charts.maintenanceChart = new Chart(
+          document.getElementById("maintenanceChart"),
+          {
+            type: "line",
+            data: {
+              labels: months,
+              datasets: [
+                {
+                  label: "রক্ষণাবেক্ষণ সংখ্যা",
+                  data: maintenanceData,
+                  borderColor: "#10b981",
+                  backgroundColor: "rgba(16, 185, 129, 0.1)",
+                  tension: 0.4,
+                  fill: true,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              aspectRatio: 2,
+              plugins: {
+                legend: { display: false },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: { font: { size: 11 } },
+                },
+                x: {
+                  ticks: { font: { size: 10 } },
+                },
+              },
+            },
+          }
+        );
+
+        // Status Chart
+        const statusData = {
+          সক্রিয়:
+            vehicles.length -
+            maintenance.filter((m) => m.status === "চলমান").length,
+          রক্ষণাবেক্ষণে: maintenance.filter((m) => m.status === "চলমান").length,
+          সম্পন্ন: maintenance.filter((m) => m.status === "সম্পন্ন").length,
+        };
+
+        if (charts.statusChart) charts.statusChart.destroy();
+        charts.statusChart = new Chart(document.getElementById("statusChart"), {
+          type: "pie",
+          data: {
+            labels: Object.keys(statusData),
+            datasets: [
+              {
+                data: Object.values(statusData),
+                backgroundColor: ["#10b981", "#f59e0b", "#667eea"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { boxWidth: 12, font: { size: 11 } },
+              },
+            },
+          },
+        });
+      }
+
+      // ড্যাশবোর্ড আপডেট করুন
+      updateDashboard();
+    </script>
+  </body>
 </html>

@@ -1,9 +1,25 @@
 // শেয়ার্ড ইউটিলিটি এবং ডেটাবেস ফাংশন
 
+// Kalpurush ফন্ট লোড করা
+(function () {
+  const link = document.createElement("link");
+  link.href = "https://fonts.maateen.me/kalpurush/font.css";
+  link.rel = "stylesheet";
+  document.head.appendChild(link);
+
+  const style = document.createElement("style");
+  style.textContent = `
+    * {
+      font-family: 'Kalpurush', Arial, sans-serif !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 // চেক অথেন্টিকেশন
 function checkAuth() {
   if (localStorage.getItem("loggedIn") !== "true") {
-    window.location.href = "index.html";
+    window.location.href = "login.html";
   }
 }
 
@@ -12,7 +28,7 @@ function logout() {
   if (confirm("আপনি কি লগআউট করতে চান?")) {
     localStorage.removeItem("loggedIn");
     localStorage.removeItem("rememberMe");
-    window.location.href = "index.html";
+    window.location.href = "login.html";
   }
 }
 
@@ -23,52 +39,88 @@ const DB = {
       const demoVehicles = [
         {
           id: 1,
-          regNo: "ঢা-০१-আ-०१०१",
-          type: "মোটরসাইকেল",
-          engineNo: "EN-0001",
-          chassisNo: "CH-0001",
+          regNo: "ঢাকা-মেট্রো-গ-১২৩৪৫",
+          type: "পুলিশ মোটরসাইকেল",
+          engineNo: "ENG-BMW-2024-001",
+          chassisNo: "CHS-BMW-F750GS-001",
           unit: "ঢাকা মেট্রোপলিটন পুলিশ",
-          photos: ["photo1.jpg", "photo2.jpg"],
+          photos: ["photo1.jpg", "photo2.jpg", "photo3.jpg"],
           lastUpdate: new Date().toISOString(),
         },
         {
           id: 2,
-          regNo: "ঢা-०२-ই-०२०२",
-          type: "জিপ",
-          engineNo: "EN-0002",
-          chassisNo: "CH-0002",
-          unit: "ট্র্যাফিক পুলিশ",
-          photos: [],
+          regNo: "ঢাকা-মেট্রো-ক-৬৭৮৯০",
+          type: "পিকআপ ভ্যান",
+          engineNo: "ENG-TOYOTA-2023-045",
+          chassisNo: "CHS-HILUX-4X4-045",
+          unit: "ট্র্যাফিক পুলিশ বিভাগ",
+          photos: ["photo1.jpg"],
           lastUpdate: new Date().toISOString(),
         },
         {
           id: 3,
-          regNo: "ঢা-०३-উ-०३०३",
+          regNo: "ঢাকা-মেট্রো-খ-১১১১১",
           type: "মাইক্রোবাস",
-          engineNo: "EN-0003",
-          chassisNo: "CH-0003",
-          unit: "ক্রাইম ব্রাঞ্চ",
-          photos: [],
+          engineNo: "ENG-HIACE-2023-078",
+          chassisNo: "CHS-HIACE-GL-078",
+          unit: "র‍্যাব (দ্রুত পদক্ষেপ বাহিনী)",
+          photos: [
+            "photo1.jpg",
+            "photo2.jpg",
+            "photo3.jpg",
+            "photo4.jpg",
+            "photo5.jpg",
+          ],
           lastUpdate: new Date().toISOString(),
         },
         {
           id: 4,
-          regNo: "ঢা-०४-ঊ-०४०४",
+          regNo: "ঢাকা-মেট্রো-ঘ-৫৫৫৫৫",
           type: "অ্যাম্বুলেন্স",
-          engineNo: "EN-0004",
-          chassisNo: "CH-0004",
-          unit: "ট্রেনিং সেন্টার",
+          engineNo: "ENG-AMBULANCE-2024-012",
+          chassisNo: "CHS-TOYOTA-AMB-012",
+          unit: "পুলিশ হেডকোয়ার্টার",
           photos: [],
           lastUpdate: new Date().toISOString(),
         },
         {
           id: 5,
-          regNo: "ঢা-०५-ঙ-०५०५",
-          type: "গাড়ি",
-          engineNo: "EN-0005",
-          chassisNo: "CH-0005",
-          unit: "বিশেষ বাহিনী",
+          regNo: "ঢাকা-মেট্রো-চ-৯৯৯৯৯",
+          type: "ডাবল ক্যাবিন",
+          engineNo: "ENG-FORD-2023-089",
+          chassisNo: "CHS-RANGER-XLT-089",
+          unit: "ঢাকা জেলা পুলিশ",
+          photos: ["photo1.jpg", "photo2.jpg"],
+          lastUpdate: new Date().toISOString(),
+        },
+        {
+          id: 6,
+          regNo: "ঢাকা-মেট্রো-ছ-২২২২২",
+          type: "প্রাইম মুভার",
+          engineNo: "ENG-PAJERO-2024-033",
+          chassisNo: "CHS-PAJERO-SPORT-033",
+          unit: "বিশেষ নিরাপত্তা বাহিনী",
+          photos: ["photo1.jpg", "photo2.jpg", "photo3.jpg", "photo4.jpg"],
+          lastUpdate: new Date().toISOString(),
+        },
+        {
+          id: 7,
+          regNo: "ঢাকা-মেট্রো-জ-৭৭৭৭৭",
+          type: "জিপ গাড়ি",
+          engineNo: "ENG-LANDCRUISER-2023-056",
+          chassisNo: "CHS-LC-V8-056",
+          unit: "পুলিশ কমিশনার অফিস",
           photos: [],
+          lastUpdate: new Date().toISOString(),
+        },
+        {
+          id: 8,
+          regNo: "ঢাকা-মেট্রো-ঝ-৮৮৮৮৮",
+          type: "পুলিশ ভ্যান",
+          engineNo: "ENG-COASTER-2024-021",
+          chassisNo: "CHS-COASTER-29SEAT-021",
+          unit: "ডিএমপি সদর দপ্তর",
+          photos: ["photo1.jpg", "photo2.jpg"],
           lastUpdate: new Date().toISOString(),
         },
       ];
