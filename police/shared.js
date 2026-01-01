@@ -1,5 +1,12 @@
 // শেয়ার্ড ইউটিলিটি এবং ডেটাবেস ফাংশন
 
+// SweetAlert2 লোড করা
+(function () {
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+  document.head.appendChild(script);
+})();
+
 // Kalpurush ফন্ট লোড করা
 (function () {
   const link = document.createElement("link");
@@ -25,11 +32,21 @@ function checkAuth() {
 
 // লগআউট ফাংশন
 function logout() {
-  if (confirm("আপনি কি লগআউট করতে চান?")) {
-    localStorage.removeItem("loggedIn");
-    localStorage.removeItem("rememberMe");
-    window.location.href = "login.html";
-  }
+  Swal.fire({
+    icon: "question",
+    title: "Confirm Logout",
+    text: "আপনি কি লগআউট করতে চান?",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "হ্যাঁ, লগআউট করুন",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("rememberMe");
+      window.location.href = "login.html";
+    }
+  });
 }
 
 // ডেটাবেস ম্যানেজমেন্ট

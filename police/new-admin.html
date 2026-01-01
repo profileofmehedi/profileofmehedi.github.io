@@ -1,824 +1,731 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Panel - Police Vehicle Management System</title>
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- DataTables CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Police Vehicle Management System</title>
 
-    <style>
-      :root {
-        --primary: #667eea;
-        --secondary: #764ba2;
-        --success: #10b981;
-        --danger: #ef4444;
-        --warning: #f59e0b;
-      }
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
 
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f8fafc;
-        color: #1e293b;
-      }
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-      .navbar-custom {
-        background: linear-gradient(
-          135deg,
+  <style>
+    :root {
+      --primary: #667eea;
+      --secondary: #764ba2;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .navbar-custom {
+      background: linear-gradient(135deg,
           var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        padding: 15px 0;
-      }
+          var(--secondary) 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 15px 0;
+    }
 
-      .navbar-custom .navbar-brand {
-        color: white !important;
-        font-weight: 700;
-        font-size: 20px;
-      }
+    .navbar-custom .navbar-brand {
+      color: white !important;
+      font-weight: 700;
+      font-size: 20px;
+    }
 
-      .navbar-custom .nav-link {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 500;
-        margin: 0 5px;
-        padding: 8px 16px !important;
-        border-radius: 8px;
-        transition: all 0.3s;
-      }
+    .navbar-custom .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      margin: 0 5px;
+      padding: 8px 16px !important;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
 
-      .navbar-custom .nav-link:hover,
-      .navbar-custom .nav-link.active {
-        background: rgba(255, 255, 255, 0.2);
-      }
+    .navbar-custom .nav-link:hover,
+    .navbar-custom .nav-link.active {
+      background: rgba(255, 255, 255, 0.2);
+    }
 
+    .user-info {
+      color: white;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      margin-right: 10px;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .container-main {
+      padding: 30px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+      color: #1e293b;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .admin-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      transition: all 0.3s;
+    }
+
+    .admin-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .admin-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .admin-icon.primary {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+    }
+
+    .admin-icon.success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .admin-icon.danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .admin-icon.warning {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .data-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .nav-tabs {
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .nav-tabs .nav-link {
+      color: #64748b;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+    }
+
+    .nav-tabs .nav-link.active {
+      color: var(--primary);
+      background: none;
+      border-bottom-color: var(--primary);
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .badge-admin {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .badge-officer {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .badge-mechanic {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    table.dataTable thead th {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      color: white;
+      font-weight: 600;
+      padding: 15px;
+    }
+
+    table.dataTable tbody td {
+      padding: 15px;
+      vertical-align: middle;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      color: white;
+    }
+
+    .modal-header .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #4a5568;
+    }
+
+    .form-control,
+    .form-select {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 15px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .settings-section {
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .settings-section h5 {
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
       .user-info {
-        color: white;
-        padding: 8px 16px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        margin-right: 10px;
+        display: none;
       }
+    }
+  </style>
+</head>
 
-      .btn-logout {
-        background: rgba(239, 68, 68, 0.9);
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-      }
-
-      .container-main {
-        padding: 30px 20px;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .page-header {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-      }
-
-      .page-header h1 {
-        color: #1e293b;
-        font-weight: 700;
-        margin: 0;
-      }
-
-      .admin-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-        transition: all 0.3s;
-      }
-
-      .admin-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-
-      .admin-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        color: white;
-        margin-bottom: 15px;
-      }
-
-      .admin-icon.primary {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-      }
-
-      .admin-icon.success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      }
-
-      .admin-icon.danger {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      }
-
-      .admin-icon.warning {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      }
-
-      .data-card {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-      }
-
-      .nav-tabs {
-        border-bottom: 2px solid #e2e8f0;
-      }
-
-      .nav-tabs .nav-link {
-        color: #64748b;
-        border: none;
-        border-bottom: 3px solid transparent;
-        font-weight: 600;
-      }
-
-      .nav-tabs .nav-link.active {
-        color: var(--primary);
-        background: none;
-        border-bottom-color: var(--primary);
-      }
-
-      .btn-primary-custom {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        color: white;
-      }
-
-      .badge-admin {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-
-      .badge-officer {
-        background: #dbeafe;
-        color: #1e40af;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-
-      .badge-mechanic {
-        background: #fef3c7;
-        color: #92400e;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-
-      table.dataTable thead th {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        color: white;
-        font-weight: 600;
-        padding: 15px;
-      }
-
-      table.dataTable tbody td {
-        padding: 15px;
-        vertical-align: middle;
-      }
-
-      .modal-header {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        color: white;
-      }
-
-      .modal-header .btn-close {
-        filter: brightness(0) invert(1);
-      }
-
-      .form-label {
-        font-weight: 600;
-        color: #4a5568;
-      }
-
-      .form-control,
-      .form-select {
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 10px 15px;
-      }
-
-      .form-control:focus,
-      .form-select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      }
-
-      .settings-section {
-        padding: 20px;
-        background: #f8fafc;
-        border-radius: 12px;
-        margin-bottom: 20px;
-      }
-
-      .settings-section h5 {
-        color: var(--primary);
-        font-weight: 700;
-        margin-bottom: 15px;
-      }
-
-      @media (max-width: 768px) {
-        .user-info {
-          display: none;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="new-dashboard.html">
-          <i class="fas fa-shield-alt me-2"></i>Police Vehicle System
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="new-dashboard.html">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-vehicles.html">
-                <i class="fas fa-car me-1"></i>Vehicles
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-maintenance.html">
-                <i class="fas fa-wrench me-1"></i>Maintenance
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-reports.html">
-                <i class="fas fa-chart-bar me-1"></i>Reports
-              </a>
-            </li>
-          </ul>
-          <div class="d-flex align-items-center">
-            <div class="user-info">
-              <i class="fas fa-user-circle me-1"></i>
-              <span id="userName">User</span>
-            </div>
-            <button class="btn btn-logout" onclick="logout()">
-              <i class="fas fa-sign-out-alt me-1"></i>Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container-main">
-      <!-- Page Header -->
-      <div class="page-header">
-        <h1><i class="fas fa-user-shield me-2"></i>Admin Panel</h1>
-        <p class="text-muted mb-0">System administration and settings</p>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 mb-3">
-          <div class="admin-card">
-            <div class="admin-icon primary">
-              <i class="fas fa-users"></i>
-            </div>
-            <h5>User Management</h5>
-            <p class="text-muted">Manage system users</p>
-            <button
-              class="btn btn-sm btn-primary-custom"
-              data-bs-toggle="modal"
-              data-bs-target="#userModal"
-            >
-              Manage
-            </button>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-          <div class="admin-card">
-            <div class="admin-icon success">
-              <i class="fas fa-database"></i>
-            </div>
-            <h5>Backup Data</h5>
-            <p class="text-muted">Backup system data</p>
-            <button
-              class="btn btn-sm btn-primary-custom"
-              onclick="backupData()"
-            >
-              Backup
-            </button>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-          <div class="admin-card">
-            <div class="admin-icon warning">
-              <i class="fas fa-cog"></i>
-            </div>
-            <h5>System Settings</h5>
-            <p class="text-muted">Configure system</p>
-            <button
-              class="btn btn-sm btn-primary-custom"
-              data-bs-toggle="modal"
-              data-bs-target="#settingsModal"
-            >
-              Settings
-            </button>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-          <div class="admin-card">
-            <div class="admin-icon danger">
-              <i class="fas fa-trash-restore"></i>
-            </div>
-            <h5>Reset System</h5>
-            <p class="text-muted">Clear all data</p>
-            <button class="btn btn-sm btn-danger" onclick="resetSystem()">
-              Reset
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tabs -->
-      <div class="data-card">
-        <ul class="nav nav-tabs mb-4" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link active"
-              data-bs-toggle="tab"
-              data-bs-target="#users"
-              type="button"
-            >
-              <i class="fas fa-users me-2"></i>Users
-            </button>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="new-dashboard.html">
+        <i class="fas fa-shield-alt me-2"></i>Police Vehicle System
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="new-dashboard.html">
+              <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            </a>
           </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              data-bs-toggle="tab"
-              data-bs-target="#logs"
-              type="button"
-            >
-              <i class="fas fa-clipboard-list me-2"></i>Activity Logs
-            </button>
+          <li class="nav-item">
+            <a class="nav-link" href="new-vehicles.html">
+              <i class="fas fa-car me-1"></i>Vehicles
+            </a>
           </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              data-bs-toggle="tab"
-              data-bs-target="#stats"
-              type="button"
-            >
-              <i class="fas fa-chart-pie me-2"></i>System Stats
-            </button>
+          <li class="nav-item">
+            <a class="nav-link" href="new-maintenance.html">
+              <i class="fas fa-wrench me-1"></i>Maintenance
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="new-reports.html">
+              <i class="fas fa-chart-bar me-1"></i>Reports
+            </a>
           </li>
         </ul>
-
-        <div class="tab-content">
-          <!-- Users Tab -->
-          <div class="tab-pane fade show active" id="users">
-            <div class="table-responsive">
-              <table
-                id="usersTable"
-                class="table table-hover"
-                style="width: 100%"
-              >
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Badge</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Data will be loaded dynamically -->
-                </tbody>
-              </table>
-            </div>
+        <div class="d-flex align-items-center">
+          <div class="user-info">
+            <i class="fas fa-user-circle me-1"></i>
+            <span id="userName">User</span>
           </div>
+          <button class="btn btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
 
-          <!-- Activity Logs Tab -->
-          <div class="tab-pane fade" id="logs">
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Details</th>
-                  </tr>
-                </thead>
-                <tbody id="logsTable">
-                  <tr>
-                    <td>2025-12-30 10:30 AM</td>
-                    <td>Admin User</td>
-                    <td>Login</td>
-                    <td>Successful login from IP: 192.168.1.1</td>
-                  </tr>
-                  <tr>
-                    <td>2025-12-30 10:25 AM</td>
-                    <td>John Officer</td>
-                    <td>Vehicle Update</td>
-                    <td>Updated status of DMP-003</td>
-                  </tr>
-                  <tr>
-                    <td>2025-12-30 09:45 AM</td>
-                    <td>Mike Mechanic</td>
-                    <td>Maintenance Complete</td>
-                    <td>Completed maintenance for DMP-001</td>
-                  </tr>
-                  <tr>
-                    <td>2025-12-30 09:30 AM</td>
-                    <td>Admin User</td>
-                    <td>User Created</td>
-                    <td>Created new user: Jane Smith</td>
-                  </tr>
-                  <tr>
-                    <td>2025-12-29 04:15 PM</td>
-                    <td>John Officer</td>
-                    <td>Report Generated</td>
-                    <td>Generated fleet report</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+  <div class="container-main">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1><i class="fas fa-user-shield me-2"></i>Admin Panel</h1>
+      <p class="text-muted mb-0">System administration and settings</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-card">
+          <div class="admin-icon primary">
+            <i class="fas fa-users"></i>
           </div>
+          <h5>User Management</h5>
+          <p class="text-muted">Manage system users</p>
+          <button class="btn btn-sm btn-primary-custom" data-bs-toggle="modal" data-bs-target="#userModal">
+            Manage
+          </button>
+        </div>
+      </div>
 
-          <!-- System Stats Tab -->
-          <div class="tab-pane fade" id="stats">
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <div class="settings-section">
-                  <h5><i class="fas fa-database me-2"></i>Storage</h5>
-                  <p><strong>Used:</strong> 2.4 MB / 10 MB</p>
-                  <div class="progress">
-                    <div
-                      class="progress-bar bg-primary"
-                      style="width: 24%"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4 mb-3">
-                <div class="settings-section">
-                  <h5><i class="fas fa-users me-2"></i>Total Users</h5>
-                  <p class="display-6 mb-0">4</p>
-                </div>
-              </div>
-              <div class="col-md-4 mb-3">
-                <div class="settings-section">
-                  <h5><i class="fas fa-clock me-2"></i>Uptime</h5>
-                  <p class="display-6 mb-0">99.9%</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="settings-section">
-              <h5><i class="fas fa-info-circle me-2"></i>System Information</h5>
-              <table class="table">
-                <tr>
-                  <td><strong>Version:</strong></td>
-                  <td>1.0.0</td>
-                </tr>
-                <tr>
-                  <td><strong>Last Update:</strong></td>
-                  <td>December 30, 2025</td>
-                </tr>
-                <tr>
-                  <td><strong>Database:</strong></td>
-                  <td>LocalStorage</td>
-                </tr>
-                <tr>
-                  <td><strong>Browser:</strong></td>
-                  <td id="browserInfo">-</td>
-                </tr>
-              </table>
-            </div>
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-card">
+          <div class="admin-icon success">
+            <i class="fas fa-database"></i>
           </div>
+          <h5>Backup Data</h5>
+          <p class="text-muted">Backup system data</p>
+          <button class="btn btn-sm btn-primary-custom" onclick="backupData()">
+            Backup
+          </button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-card">
+          <div class="admin-icon warning">
+            <i class="fas fa-cog"></i>
+          </div>
+          <h5>System Settings</h5>
+          <p class="text-muted">Configure system</p>
+          <button class="btn btn-sm btn-primary-custom" data-bs-toggle="modal" data-bs-target="#settingsModal">
+            Settings
+          </button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-card">
+          <div class="admin-icon danger">
+            <i class="fas fa-trash-restore"></i>
+          </div>
+          <h5>Reset System</h5>
+          <p class="text-muted">Clear all data</p>
+          <button class="btn btn-sm btn-danger" onclick="resetSystem()">
+            Reset
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- User Modal -->
-    <div class="modal fade" id="userModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-user-plus me-2"></i>Add New User
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
+    <!-- Tabs -->
+    <div class="data-card">
+      <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#users" type="button">
+            <i class="fas fa-users me-2"></i>Users
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#logs" type="button">
+            <i class="fas fa-clipboard-list me-2"></i>Activity Logs
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#stats" type="button">
+            <i class="fas fa-chart-pie me-2"></i>System Stats
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- Users Tab -->
+        <div class="tab-pane fade show active" id="users">
+          <div class="table-responsive">
+            <table id="usersTable" class="table table-hover" style="width: 100%">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Badge</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Data will be loaded dynamically -->
+              </tbody>
+            </table>
           </div>
-          <div class="modal-body">
-            <form id="addUserForm">
-              <div class="mb-3">
-                <label class="form-label">Full Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="userName"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="userUsername"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Badge Number</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="userBadge"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Role</label>
-                <select class="form-select" id="userRole" required>
-                  <option value="admin">Administrator</option>
-                  <option value="officer">Police Officer</option>
-                  <option value="mechanic">Maintenance Staff</option>
-                  <option value="viewer">Viewer</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="userPassword"
-                  required
-                />
-              </div>
-            </form>
+        </div>
+
+        <!-- Activity Logs Tab -->
+        <div class="tab-pane fade" id="logs">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="logsTable">
+                <tr>
+                  <td>2025-12-30 10:30 AM</td>
+                  <td>Admin User</td>
+                  <td>Login</td>
+                  <td>Successful login from IP: 192.168.1.1</td>
+                </tr>
+                <tr>
+                  <td>2025-12-30 10:25 AM</td>
+                  <td>John Officer</td>
+                  <td>Vehicle Update</td>
+                  <td>Updated status of DMP-003</td>
+                </tr>
+                <tr>
+                  <td>2025-12-30 09:45 AM</td>
+                  <td>Mike Mechanic</td>
+                  <td>Maintenance Complete</td>
+                  <td>Completed maintenance for DMP-001</td>
+                </tr>
+                <tr>
+                  <td>2025-12-30 09:30 AM</td>
+                  <td>Admin User</td>
+                  <td>User Created</td>
+                  <td>Created new user: Jane Smith</td>
+                </tr>
+                <tr>
+                  <td>2025-12-29 04:15 PM</td>
+                  <td>John Officer</td>
+                  <td>Report Generated</td>
+                  <td>Generated fleet report</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary-custom"
-              onclick="addUser()"
-            >
-              <i class="fas fa-save me-2"></i>Add User
-            </button>
+        </div>
+
+        <!-- System Stats Tab -->
+        <div class="tab-pane fade" id="stats">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <div class="settings-section">
+                <h5><i class="fas fa-database me-2"></i>Storage</h5>
+                <p><strong>Used:</strong> 2.4 MB / 10 MB</p>
+                <div class="progress">
+                  <div class="progress-bar bg-primary" style="width: 24%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="settings-section">
+                <h5><i class="fas fa-users me-2"></i>Total Users</h5>
+                <p class="display-6 mb-0">4</p>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="settings-section">
+                <h5><i class="fas fa-clock me-2"></i>Uptime</h5>
+                <p class="display-6 mb-0">99.9%</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h5><i class="fas fa-info-circle me-2"></i>System Information</h5>
+            <table class="table">
+              <tr>
+                <td><strong>Version:</strong></td>
+                <td>1.0.0</td>
+              </tr>
+              <tr>
+                <td><strong>Last Update:</strong></td>
+                <td>December 30, 2025</td>
+              </tr>
+              <tr>
+                <td><strong>Database:</strong></td>
+                <td>LocalStorage</td>
+              </tr>
+              <tr>
+                <td><strong>Browser:</strong></td>
+                <td id="browserInfo">-</td>
+              </tr>
+            </table>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Settings Modal -->
-    <div class="modal fade" id="settingsModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-cog me-2"></i>System Settings
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="settings-section">
-              <h5>General Settings</h5>
-              <div class="mb-3">
-                <label class="form-label">System Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  value="Police Vehicle Management System"
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Language</label>
-                <select class="form-select">
-                  <option value="en">English</option>
-                  <option value="bn">Bengali</option>
-                </select>
-              </div>
+  <!-- User Modal -->
+  <div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-user-plus me-2"></i>Add New User
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addUserForm">
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="userName" required />
             </div>
-
-            <div class="settings-section">
-              <h5>Notification Settings</h5>
-              <div class="form-check form-switch mb-2">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="emailNotif"
-                  checked
-                />
-                <label class="form-check-label" for="emailNotif"
-                  >Email Notifications</label
-                >
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="smsNotif" />
-                <label class="form-check-label" for="smsNotif"
-                  >SMS Notifications</label
-                >
-              </div>
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" id="userUsername" required />
             </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary-custom"
-              onclick="saveSettings()"
-            >
-              <i class="fas fa-save me-2"></i>Save Settings
-            </button>
-          </div>
+            <div class="mb-3">
+              <label class="form-label">Badge Number</label>
+              <input type="text" class="form-control" id="userBadge" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Role</label>
+              <select class="form-select" id="userRole" required>
+                <option value="admin">Administrator</option>
+                <option value="officer">Police Officer</option>
+                <option value="mechanic">Maintenance Staff</option>
+                <option value="viewer">Viewer</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" id="userPassword" required />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary-custom" onclick="addUser()">
+            <i class="fas fa-save me-2"></i>Add User
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <!-- Settings Modal -->
+  <div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-cog me-2"></i>System Settings
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="settings-section">
+            <h5>General Settings</h5>
+            <div class="mb-3">
+              <label class="form-label">System Name</label>
+              <input type="text" class="form-control" value="Police Vehicle Management System" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Language</label>
+              <select class="form-select">
+                <option value="en">English</option>
+                <option value="bn">Bengali</option>
+              </select>
+            </div>
+          </div>
 
-    <script>
-      function checkAuth() {
-        if (localStorage.getItem("loggedIn") !== "true") {
-          window.location.href = "login.html";
-        }
+          <div class="settings-section">
+            <h5>Notification Settings</h5>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="emailNotif" checked />
+              <label class="form-check-label" for="emailNotif">Email Notifications</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="smsNotif" />
+              <label class="form-check-label" for="smsNotif">SMS Notifications</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary-custom" onclick="saveSettings()">
+            <i class="fas fa-save me-2"></i>Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // Check if user is admin
-        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-        if (userData.role !== "admin") {
-          alert("Access Denied! Admin privileges required.");
-          window.location.href = "new-dashboard.html";
-        }
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+  <script>
+    function checkAuth() {
+      if (localStorage.getItem("loggedIn") !== "true") {
+        window.location.href = "login.html";
       }
 
-      function logout() {
-        if (confirm("Are you sure you want to logout?")) {
+      // Check if user is admin
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      if (userData.role !== "admin") {
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Admin privileges required.',
+          confirmButtonColor: '#667eea'
+        }).then(() => {
+          window.location.href = "new-dashboard.html";
+        });
+      }
+    }
+
+    function logout() {
+      Swal.fire({
+        icon: 'question',
+        title: 'Confirm Logout',
+        text: 'Are you sure you want to logout?',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Logout'
+      }).then((result) => {
+        if (result.isConfirmed) {
           localStorage.clear();
           window.location.href = "login.html";
         }
+      });
+    }
+
+    function initUsers() {
+      if (!localStorage.getItem("systemUsers")) {
+        const demoUsers = [
+          {
+            id: 1,
+            name: "Admin User",
+            username: "admin",
+            badge: "ADM-001",
+            role: "admin",
+            status: "Active",
+          },
+          {
+            id: 2,
+            name: "John Officer",
+            username: "officer",
+            badge: "OFF-1234",
+            role: "officer",
+            status: "Active",
+          },
+          {
+            id: 3,
+            name: "Mike Mechanic",
+            username: "mechanic",
+            badge: "MEC-567",
+            role: "mechanic",
+            status: "Active",
+          },
+          {
+            id: 4,
+            name: "Guest Viewer",
+            username: "viewer",
+            badge: "VIEW-999",
+            role: "viewer",
+            status: "Active",
+          },
+        ];
+        localStorage.setItem("systemUsers", JSON.stringify(demoUsers));
       }
+    }
 
-      function initUsers() {
-        if (!localStorage.getItem("systemUsers")) {
-          const demoUsers = [
-            {
-              id: 1,
-              name: "Admin User",
-              username: "admin",
-              badge: "ADM-001",
-              role: "admin",
-              status: "Active",
-            },
-            {
-              id: 2,
-              name: "John Officer",
-              username: "officer",
-              badge: "OFF-1234",
-              role: "officer",
-              status: "Active",
-            },
-            {
-              id: 3,
-              name: "Mike Mechanic",
-              username: "mechanic",
-              badge: "MEC-567",
-              role: "mechanic",
-              status: "Active",
-            },
-            {
-              id: 4,
-              name: "Guest Viewer",
-              username: "viewer",
-              badge: "VIEW-999",
-              role: "viewer",
-              status: "Active",
-            },
-          ];
-          localStorage.setItem("systemUsers", JSON.stringify(demoUsers));
-        }
-      }
+    function loadUsers() {
+      const users = JSON.parse(localStorage.getItem("systemUsers") || "[]");
 
-      function loadUsers() {
-        const users = JSON.parse(localStorage.getItem("systemUsers") || "[]");
-
-        $("#usersTable").DataTable({
-          data: users,
-          columns: [
-            { data: "id" },
-            { data: "name" },
-            { data: "username" },
-            {
-              data: "role",
-              render: function (data) {
-                let badgeClass = "";
-                if (data === "admin") badgeClass = "badge-admin";
-                else if (data === "officer") badgeClass = "badge-officer";
-                else badgeClass = "badge-mechanic";
-                return `<span class="${badgeClass}">${data}</span>`;
-              },
+      $("#usersTable").DataTable({
+        data: users,
+        columns: [
+          { data: "id" },
+          { data: "name" },
+          { data: "username" },
+          {
+            data: "role",
+            render: function (data) {
+              let badgeClass = "";
+              if (data === "admin") badgeClass = "badge-admin";
+              else if (data === "officer") badgeClass = "badge-officer";
+              else badgeClass = "badge-mechanic";
+              return `<span class="${badgeClass}">${data}</span>`;
             },
-            { data: "badge" },
-            { data: "status" },
-            {
-              data: null,
-              render: function (data, type, row) {
-                return `
+          },
+          { data: "badge" },
+          { data: "status" },
+          {
+            data: null,
+            render: function (data, type, row) {
+              return `
                                 <button class="btn btn-sm btn-primary" onclick="editUser(${row.id})">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -826,108 +733,175 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             `;
-              },
             },
-          ],
-          responsive: true,
-          pageLength: 10,
+          },
+        ],
+        responsive: true,
+        pageLength: 10,
+      });
+    }
+
+    function addUser() {
+      const users = JSON.parse(localStorage.getItem("systemUsers") || "[]");
+      const newId =
+        users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1;
+
+      const newUser = {
+        id: newId,
+        name: $("#userName").val(),
+        username: $("#userUsername").val(),
+        badge: $("#userBadge").val(),
+        role: $("#userRole").val(),
+        status: "Active",
+      };
+
+      users.push(newUser);
+      localStorage.setItem("systemUsers", JSON.stringify(users));
+
+      bootstrap.Modal.getInstance($("#userModal")[0]).hide();
+      $("#addUserForm")[0].reset();
+
+      $("#usersTable").DataTable().destroy();
+      loadUsers();
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'User added successfully!',
+        confirmButtonColor: '#667eea'
+      });
+    }
+
+    function editUser(id) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Edit User',
+        text: 'Edit user functionality - ID: ' + id,
+        confirmButtonColor: '#667eea'
+      });
+    }
+
+    function deleteUser(id) {
+      if (id === 1) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Cannot Delete',
+          text: 'Cannot delete main admin user!',
+          confirmButtonColor: '#667eea'
         });
+        return;
       }
 
-      function addUser() {
-        const users = JSON.parse(localStorage.getItem("systemUsers") || "[]");
-        const newId =
-          users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1;
-
-        const newUser = {
-          id: newId,
-          name: $("#userName").val(),
-          username: $("#userUsername").val(),
-          badge: $("#userBadge").val(),
-          role: $("#userRole").val(),
-          status: "Active",
-        };
-
-        users.push(newUser);
-        localStorage.setItem("systemUsers", JSON.stringify(users));
-
-        bootstrap.Modal.getInstance($("#userModal")[0]).hide();
-        $("#addUserForm")[0].reset();
-
-        $("#usersTable").DataTable().destroy();
-        loadUsers();
-        alert("User added successfully!");
-      }
-
-      function editUser(id) {
-        alert("Edit user functionality - ID: " + id);
-      }
-
-      function deleteUser(id) {
-        if (id === 1) {
-          alert("Cannot delete main admin user!");
-          return;
-        }
-
-        if (confirm("Are you sure you want to delete this user?")) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Confirm Delete',
+        text: 'Are you sure you want to delete this user?',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Delete'
+      }).then((result) => {
+        if (result.isConfirmed) {
           let users = JSON.parse(localStorage.getItem("systemUsers") || "[]");
           users = users.filter((u) => u.id !== id);
           localStorage.setItem("systemUsers", JSON.stringify(users));
 
           $("#usersTable").DataTable().destroy();
           loadUsers();
-          alert("User deleted successfully!");
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted',
+            text: 'User deleted successfully!',
+            confirmButtonColor: '#667eea'
+          });
         }
-      }
-
-      function backupData() {
-        const data = {
-          vehicles: localStorage.getItem("vehicles"),
-          maintenance: localStorage.getItem("maintenance"),
-          users: localStorage.getItem("systemUsers"),
-          backupDate: new Date().toISOString(),
-        };
-
-        const dataStr = JSON.stringify(data, null, 2);
-        const dataBlob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(dataBlob);
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.download =
-          "police_system_backup_" + new Date().getTime() + ".json";
-        link.click();
-
-        alert("Backup downloaded successfully!");
-      }
-
-      function resetSystem() {
-        if (confirm("WARNING: This will delete all data! Are you sure?")) {
-          if (confirm("This action cannot be undone. Continue?")) {
-            localStorage.clear();
-            alert("System reset complete. Redirecting to login...");
-            window.location.href = "login.html";
-          }
-        }
-      }
-
-      function saveSettings() {
-        alert("Settings saved successfully!");
-        bootstrap.Modal.getInstance($("#settingsModal")[0]).hide();
-      }
-
-      $(document).ready(function () {
-        checkAuth();
-
-        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-        $("#userName").text(userData.name || "User");
-
-        initUsers();
-        loadUsers();
-
-        // Browser info
-        $("#browserInfo").text(navigator.userAgent.split(")")[0].split("(")[1]);
       });
-    </script>
-  </body>
+    }
+
+    function backupData() {
+      const data = {
+        vehicles: localStorage.getItem("vehicles"),
+        maintenance: localStorage.getItem("maintenance"),
+        users: localStorage.getItem("systemUsers"),
+        backupDate: new Date().toISOString(),
+      };
+
+      const dataStr = JSON.stringify(data, null, 2);
+      const dataBlob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(dataBlob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download =
+        "police_system_backup_" + new Date().getTime() + ".json";
+      link.click();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Backup downloaded successfully!',
+        confirmButtonColor: '#667eea'
+      });
+    }
+
+    function resetSystem() {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Warning',
+        text: 'This will delete all data! Are you sure?',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Continue'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Final Confirmation',
+            text: 'This action cannot be undone. Continue?',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Delete Everything'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              localStorage.clear();
+              Swal.fire({
+                icon: 'success',
+                title: 'Reset Complete',
+                text: 'System reset complete. Redirecting to login...',
+                confirmButtonColor: '#667eea'
+              }).then(() => {
+                window.location.href = "login.html";
+              });
+            }
+          });
+        }
+      });
+    }
+
+    function saveSettings() {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Settings saved successfully!',
+        confirmButtonColor: '#667eea'
+      });
+      bootstrap.Modal.getInstance($("#settingsModal")[0]).hide();
+    }
+
+    $(document).ready(function () {
+      checkAuth();
+
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      $("#userName").text(userData.name || "User");
+
+      initUsers();
+      loadUsers();
+
+      // Browser info
+      $("#browserInfo").text(navigator.userAgent.split(")")[0].split("(")[1]);
+    });
+  </script>
+</body>
+
 </html>

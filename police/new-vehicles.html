@@ -1,676 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vehicles - Police Vehicle Management System</title>
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- DataTables CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
-    />
-    <!-- Select2 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicles - Police Vehicle Management System</title>
 
-    <style>
-      :root {
-        --primary: #667eea;
-        --secondary: #764ba2;
-        --success: #10b981;
-        --danger: #ef4444;
-        --warning: #f59e0b;
-      }
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+  <!-- Select2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+    rel="stylesheet" />
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f8fafc;
-        color: #1e293b;
-      }
+  <style>
+    :root {
+      --primary: #667eea;
+      --secondary: #764ba2;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
 
-      .navbar-custom {
-        background: linear-gradient(
-          135deg,
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .navbar-custom {
+      background: linear-gradient(135deg,
           var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        padding: 15px 0;
-      }
+          var(--secondary) 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 15px 0;
+    }
 
-      .navbar-custom .navbar-brand {
-        color: white !important;
-        font-weight: 700;
-        font-size: 20px;
-      }
+    .navbar-custom .navbar-brand {
+      color: white !important;
+      font-weight: 700;
+      font-size: 20px;
+    }
 
-      .navbar-custom .nav-link {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 500;
-        margin: 0 5px;
-        padding: 8px 16px !important;
-        border-radius: 8px;
-        transition: all 0.3s;
-      }
+    .navbar-custom .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      margin: 0 5px;
+      padding: 8px 16px !important;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
 
-      .navbar-custom .nav-link:hover,
-      .navbar-custom .nav-link.active {
-        background: rgba(255, 255, 255, 0.2);
-      }
+    .navbar-custom .nav-link:hover,
+    .navbar-custom .nav-link.active {
+      background: rgba(255, 255, 255, 0.2);
+    }
 
+    .user-info {
+      color: white;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      margin-right: 10px;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .container-main {
+      padding: 30px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+      color: #1e293b;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .data-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    .badge-active {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .badge-maintenance {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .badge-inactive {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    table.dataTable thead th {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      color: white;
+      font-weight: 600;
+      padding: 15px;
+      border: none;
+    }
+
+    table.dataTable tbody td {
+      padding: 15px;
+      vertical-align: middle;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      color: white;
+    }
+
+    .modal-header .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #4a5568;
+    }
+
+    .form-control,
+    .form-select {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 15px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    @media (max-width: 768px) {
       .user-info {
-        color: white;
-        padding: 8px 16px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        margin-right: 10px;
+        display: none;
       }
+    }
+  </style>
+</head>
 
-      .btn-logout {
-        background: rgba(239, 68, 68, 0.9);
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-      }
-
-      .container-main {
-        padding: 30px 20px;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .page-header {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-      }
-
-      .page-header h1 {
-        color: #1e293b;
-        font-weight: 700;
-        margin: 0;
-      }
-
-      .data-card {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-
-      .btn-primary-custom {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        color: white;
-      }
-
-      .btn-primary-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
-      }
-
-      .badge-active {
-        background: #d1fae5;
-        color: #065f46;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-
-      .badge-maintenance {
-        background: #fef3c7;
-        color: #92400e;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-
-      .badge-inactive {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-
-      table.dataTable thead th {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        color: white;
-        font-weight: 600;
-        padding: 15px;
-        border: none;
-      }
-
-      table.dataTable tbody td {
-        padding: 15px;
-        vertical-align: middle;
-      }
-
-      .btn-sm {
-        padding: 6px 12px;
-        font-size: 13px;
-        border-radius: 6px;
-      }
-
-      .modal-header {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        color: white;
-      }
-
-      .modal-header .btn-close {
-        filter: brightness(0) invert(1);
-      }
-
-      .form-label {
-        font-weight: 600;
-        color: #4a5568;
-      }
-
-      .form-control,
-      .form-select {
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 10px 15px;
-      }
-
-      .form-control:focus,
-      .form-select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      }
-
-      @media (max-width: 768px) {
-        .user-info {
-          display: none;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="new-dashboard.html">
-          <i class="fas fa-shield-alt me-2"></i>Police Vehicle System
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="new-dashboard.html">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="new-vehicles.html">
-                <i class="fas fa-car me-1"></i>Vehicles
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-maintenance.html">
-                <i class="fas fa-wrench me-1"></i>Maintenance
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-reports.html">
-                <i class="fas fa-chart-bar me-1"></i>Reports
-              </a>
-            </li>
-          </ul>
-          <div class="d-flex align-items-center">
-            <div class="user-info">
-              <i class="fas fa-user-circle me-1"></i>
-              <span id="userName">User</span>
-            </div>
-            <button class="btn btn-logout" onclick="logout()">
-              <i class="fas fa-sign-out-alt me-1"></i>Logout
-            </button>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="new-dashboard.html">
+        <i class="fas fa-shield-alt me-2"></i>Police Vehicle System
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="new-dashboard.html">
+              <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="new-vehicles.html">
+              <i class="fas fa-car me-1"></i>Vehicles
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="new-maintenance.html">
+              <i class="fas fa-wrench me-1"></i>Maintenance
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="new-reports.html">
+              <i class="fas fa-chart-bar me-1"></i>Reports
+            </a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <div class="user-info">
+            <i class="fas fa-user-circle me-1"></i>
+            <span id="userName">User</span>
           </div>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container-main">
-      <!-- Page Header -->
-      <div class="page-header">
-        <div
-          class="d-flex justify-content-between align-items-center flex-wrap"
-        >
-          <div>
-            <h1><i class="fas fa-car me-2"></i>Vehicle Management</h1>
-            <p class="text-muted mb-0">Manage and track all police vehicles</p>
-          </div>
-          <button
-            class="btn btn-primary-custom mt-3 mt-md-0"
-            data-bs-toggle="modal"
-            data-bs-target="#addVehicleModal"
-          >
-            <i class="fas fa-plus me-2"></i>Add New Vehicle
+          <button class="btn btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
           </button>
         </div>
       </div>
+    </div>
+  </nav>
 
-      <!-- Vehicles Table -->
-      <div class="data-card">
-        <div class="table-responsive">
-          <table
-            id="vehiclesTable"
-            class="table table-hover"
-            style="width: 100%"
-          >
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Registration No</th>
-                <th>Type</th>
-                <th>Unit</th>
-                <th>Status</th>
-                <th>Last Maintenance</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be loaded dynamically -->
-            </tbody>
-          </table>
+  <div class="container-main">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+          <h1><i class="fas fa-car me-2"></i>Vehicle Management</h1>
+          <p class="text-muted mb-0">Manage and track all police vehicles</p>
         </div>
+        <button class="btn btn-primary-custom mt-3 mt-md-0" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
+          <i class="fas fa-plus me-2"></i>Add New Vehicle
+        </button>
       </div>
     </div>
 
-    <!-- Add Vehicle Modal -->
-    <div class="modal fade" id="addVehicleModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-plus-circle me-2"></i>Add New Vehicle
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form id="addVehicleForm">
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="regNo" class="form-label"
-                    >Registration Number</label
-                  >
-                  <input type="text" class="form-control" id="regNo" required />
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="vehicleType" class="form-label"
-                    >Vehicle Type</label
-                  >
-                  <select class="form-select select2" id="vehicleType" required>
-                    <option value="">Select Type</option>
-                    <option value="Patrol Car">Patrol Car</option>
-                    <option value="Motorcycle">Motorcycle</option>
-                    <option value="Van">Van</option>
-                    <option value="SUV">SUV</option>
-                    <option value="Truck">Truck</option>
-                    <option value="Ambulance">Ambulance</option>
-                  </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="unit" class="form-label">Unit/Department</label>
-                  <select class="form-select select2" id="unit" required>
-                    <option value="">Select Unit</option>
-                    <option value="Traffic Division">Traffic Division</option>
-                    <option value="Highway Patrol">Highway Patrol</option>
-                    <option value="Crime Investigation">
-                      Crime Investigation
-                    </option>
-                    <option value="SWAT Team">SWAT Team</option>
-                    <option value="District Police">District Police</option>
-                    <option value="Riot Control">Riot Control</option>
-                    <option value="Medical Emergency">Medical Emergency</option>
-                  </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="status" class="form-label">Status</label>
-                  <select class="form-select" id="status" required>
-                    <option value="Active">Active</option>
-                    <option value="Maintenance">Maintenance</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="lastMaintenance" class="form-label"
-                    >Last Maintenance Date</label
-                  >
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="lastMaintenance"
-                    required
-                  />
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="engineNo" class="form-label">Engine Number</label>
-                  <input type="text" class="form-control" id="engineNo" />
-                </div>
-                <div class="col-12 mb-3">
-                  <label for="notes" class="form-label">Notes</label>
-                  <textarea class="form-control" id="notes" rows="3"></textarea>
-                </div>
+    <!-- Vehicles Table -->
+    <div class="data-card">
+      <div class="table-responsive">
+        <table id="vehiclesTable" class="table table-hover" style="width: 100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Registration No</th>
+              <th>Type</th>
+              <th>Unit</th>
+              <th>Status</th>
+              <th>Last Maintenance</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will be loaded dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Vehicle Modal -->
+  <div class="modal fade" id="addVehicleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-plus-circle me-2"></i>Add New Vehicle
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addVehicleForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="regNo" class="form-label">Registration Number</label>
+                <input type="text" class="form-control" id="regNo" required />
               </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary-custom"
-              onclick="saveVehicle()"
-            >
-              <i class="fas fa-save me-2"></i>Save Vehicle
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Edit Vehicle Modal -->
-    <div class="modal fade" id="editVehicleModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-edit me-2"></i>Edit Vehicle
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form id="editVehicleForm">
-              <input type="hidden" id="editVehicleId" />
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="editRegNo" class="form-label"
-                    >Registration Number</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="editRegNo"
-                    required
-                  />
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="editVehicleType" class="form-label"
-                    >Vehicle Type</label
-                  >
-                  <select class="form-select" id="editVehicleType" required>
-                    <option value="Patrol Car">Patrol Car</option>
-                    <option value="Motorcycle">Motorcycle</option>
-                    <option value="Van">Van</option>
-                    <option value="SUV">SUV</option>
-                    <option value="Truck">Truck</option>
-                    <option value="Ambulance">Ambulance</option>
-                  </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="editUnit" class="form-label"
-                    >Unit/Department</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="editUnit"
-                    required
-                  />
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="editStatus" class="form-label">Status</label>
-                  <select class="form-select" id="editStatus" required>
-                    <option value="Active">Active</option>
-                    <option value="Maintenance">Maintenance</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-                <div class="col-md-12 mb-3">
-                  <label for="editLastMaintenance" class="form-label"
-                    >Last Maintenance Date</label
-                  >
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="editLastMaintenance"
-                    required
-                  />
-                </div>
+              <div class="col-md-6 mb-3">
+                <label for="vehicleType" class="form-label">Vehicle Type</label>
+                <select class="form-select select2" id="vehicleType" required>
+                  <option value="">Select Type</option>
+                  <option value="Patrol Car">Patrol Car</option>
+                  <option value="Motorcycle">Motorcycle</option>
+                  <option value="Van">Van</option>
+                  <option value="SUV">SUV</option>
+                  <option value="Truck">Truck</option>
+                  <option value="Ambulance">Ambulance</option>
+                </select>
               </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary-custom"
-              onclick="updateVehicle()"
-            >
-              <i class="fas fa-save me-2"></i>Update Vehicle
-            </button>
-          </div>
+              <div class="col-md-6 mb-3">
+                <label for="unit" class="form-label">Unit/Department</label>
+                <select class="form-select select2" id="unit" required>
+                  <option value="">Select Unit</option>
+                  <option value="Traffic Division">Traffic Division</option>
+                  <option value="Highway Patrol">Highway Patrol</option>
+                  <option value="Crime Investigation">
+                    Crime Investigation
+                  </option>
+                  <option value="SWAT Team">SWAT Team</option>
+                  <option value="District Police">District Police</option>
+                  <option value="Riot Control">Riot Control</option>
+                  <option value="Medical Emergency">Medical Emergency</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" required>
+                  <option value="Active">Active</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="lastMaintenance" class="form-label">Last Maintenance Date</label>
+                <input type="date" class="form-control" id="lastMaintenance" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="engineNo" class="form-label">Engine Number</label>
+                <input type="text" class="form-control" id="engineNo" />
+              </div>
+              <div class="col-12 mb-3">
+                <label for="notes" class="form-label">Notes</label>
+                <textarea class="form-control" id="notes" rows="3"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary-custom" onclick="saveVehicle()">
+            <i class="fas fa-save me-2"></i>Save Vehicle
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <!-- Select2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <!-- Edit Vehicle Modal -->
+  <div class="modal fade" id="editVehicleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-edit me-2"></i>Edit Vehicle
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editVehicleForm">
+            <input type="hidden" id="editVehicleId" />
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="editRegNo" class="form-label">Registration Number</label>
+                <input type="text" class="form-control" id="editRegNo" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="editVehicleType" class="form-label">Vehicle Type</label>
+                <select class="form-select" id="editVehicleType" required>
+                  <option value="Patrol Car">Patrol Car</option>
+                  <option value="Motorcycle">Motorcycle</option>
+                  <option value="Van">Van</option>
+                  <option value="SUV">SUV</option>
+                  <option value="Truck">Truck</option>
+                  <option value="Ambulance">Ambulance</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="editUnit" class="form-label">Unit/Department</label>
+                <input type="text" class="form-control" id="editUnit" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="editStatus" class="form-label">Status</label>
+                <select class="form-select" id="editStatus" required>
+                  <option value="Active">Active</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-md-12 mb-3">
+                <label for="editLastMaintenance" class="form-label">Last Maintenance Date</label>
+                <input type="date" class="form-control" id="editLastMaintenance" required />
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary-custom" onclick="updateVehicle()">
+            <i class="fas fa-save me-2"></i>Update Vehicle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-      let vehiclesTable;
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <!-- Select2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-      function checkAuth() {
-        if (localStorage.getItem("loggedIn") !== "true") {
-          window.location.href = "login.html";
-        }
+  <script>
+    let vehiclesTable;
+
+    function checkAuth() {
+      if (localStorage.getItem("loggedIn") !== "true") {
+        window.location.href = "login.html";
       }
+    }
 
-      function logout() {
-        if (confirm("Are you sure you want to logout?")) {
+    function logout() {
+      Swal.fire({
+        icon: 'question',
+        title: 'Confirm Logout',
+        text: 'Are you sure you want to logout?',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Logout'
+      }).then((result) => {
+        if (result.isConfirmed) {
           localStorage.clear();
           window.location.href = "login.html";
         }
+      });
+    }
+
+    function initDemoData() {
+      if (!localStorage.getItem("vehicles")) {
+        const demoVehicles = [
+          {
+            id: 1,
+            regNo: "DMP-001",
+            type: "Patrol Car",
+            status: "Active",
+            unit: "Traffic Division",
+            lastMaintenance: "2025-12-15",
+            engineNo: "ENG-001",
+          },
+          {
+            id: 2,
+            regNo: "DMP-002",
+            type: "Motorcycle",
+            status: "Active",
+            unit: "Highway Patrol",
+            lastMaintenance: "2025-12-10",
+            engineNo: "ENG-002",
+          },
+          {
+            id: 3,
+            regNo: "DMP-003",
+            type: "Van",
+            status: "Maintenance",
+            unit: "Crime Investigation",
+            lastMaintenance: "2025-12-28",
+            engineNo: "ENG-003",
+          },
+          {
+            id: 4,
+            regNo: "DMP-004",
+            type: "SUV",
+            status: "Active",
+            unit: "SWAT Team",
+            lastMaintenance: "2025-12-20",
+            engineNo: "ENG-004",
+          },
+          {
+            id: 5,
+            regNo: "DMP-005",
+            type: "Patrol Car",
+            status: "Active",
+            unit: "District Police",
+            lastMaintenance: "2025-12-18",
+            engineNo: "ENG-005",
+          },
+          {
+            id: 6,
+            regNo: "DMP-006",
+            type: "Motorcycle",
+            status: "Inactive",
+            unit: "Traffic Division",
+            lastMaintenance: "2025-11-30",
+            engineNo: "ENG-006",
+          },
+          {
+            id: 7,
+            regNo: "DMP-007",
+            type: "Truck",
+            status: "Active",
+            unit: "Equipment Transport",
+            lastMaintenance: "2025-12-22",
+            engineNo: "ENG-007",
+          },
+          {
+            id: 8,
+            regNo: "DMP-008",
+            type: "Ambulance",
+            status: "Active",
+            unit: "Medical Emergency",
+            lastMaintenance: "2025-12-25",
+            engineNo: "ENG-008",
+          },
+          {
+            id: 9,
+            regNo: "DMP-009",
+            type: "Van",
+            status: "Maintenance",
+            unit: "Riot Control",
+            lastMaintenance: "2025-12-29",
+            engineNo: "ENG-009",
+          },
+          {
+            id: 10,
+            regNo: "DMP-010",
+            type: "Patrol Car",
+            status: "Active",
+            unit: "City Patrol",
+            lastMaintenance: "2025-12-12",
+            engineNo: "ENG-010",
+          },
+        ];
+        localStorage.setItem("vehicles", JSON.stringify(demoVehicles));
+      }
+    }
+
+    function loadVehicles() {
+      const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+
+      if (vehiclesTable) {
+        vehiclesTable.clear().destroy();
       }
 
-      function initDemoData() {
-        if (!localStorage.getItem("vehicles")) {
-          const demoVehicles = [
-            {
-              id: 1,
-              regNo: "DMP-001",
-              type: "Patrol Car",
-              status: "Active",
-              unit: "Traffic Division",
-              lastMaintenance: "2025-12-15",
-              engineNo: "ENG-001",
+      vehiclesTable = $("#vehiclesTable").DataTable({
+        data: vehicles,
+        columns: [
+          { data: "id" },
+          { data: "regNo" },
+          { data: "type" },
+          { data: "unit" },
+          {
+            data: "status",
+            render: function (data) {
+              let badgeClass = "";
+              if (data === "Active") badgeClass = "badge-active";
+              else if (data === "Maintenance")
+                badgeClass = "badge-maintenance";
+              else badgeClass = "badge-inactive";
+              return `<span class="${badgeClass}">${data}</span>`;
             },
-            {
-              id: 2,
-              regNo: "DMP-002",
-              type: "Motorcycle",
-              status: "Active",
-              unit: "Highway Patrol",
-              lastMaintenance: "2025-12-10",
-              engineNo: "ENG-002",
-            },
-            {
-              id: 3,
-              regNo: "DMP-003",
-              type: "Van",
-              status: "Maintenance",
-              unit: "Crime Investigation",
-              lastMaintenance: "2025-12-28",
-              engineNo: "ENG-003",
-            },
-            {
-              id: 4,
-              regNo: "DMP-004",
-              type: "SUV",
-              status: "Active",
-              unit: "SWAT Team",
-              lastMaintenance: "2025-12-20",
-              engineNo: "ENG-004",
-            },
-            {
-              id: 5,
-              regNo: "DMP-005",
-              type: "Patrol Car",
-              status: "Active",
-              unit: "District Police",
-              lastMaintenance: "2025-12-18",
-              engineNo: "ENG-005",
-            },
-            {
-              id: 6,
-              regNo: "DMP-006",
-              type: "Motorcycle",
-              status: "Inactive",
-              unit: "Traffic Division",
-              lastMaintenance: "2025-11-30",
-              engineNo: "ENG-006",
-            },
-            {
-              id: 7,
-              regNo: "DMP-007",
-              type: "Truck",
-              status: "Active",
-              unit: "Equipment Transport",
-              lastMaintenance: "2025-12-22",
-              engineNo: "ENG-007",
-            },
-            {
-              id: 8,
-              regNo: "DMP-008",
-              type: "Ambulance",
-              status: "Active",
-              unit: "Medical Emergency",
-              lastMaintenance: "2025-12-25",
-              engineNo: "ENG-008",
-            },
-            {
-              id: 9,
-              regNo: "DMP-009",
-              type: "Van",
-              status: "Maintenance",
-              unit: "Riot Control",
-              lastMaintenance: "2025-12-29",
-              engineNo: "ENG-009",
-            },
-            {
-              id: 10,
-              regNo: "DMP-010",
-              type: "Patrol Car",
-              status: "Active",
-              unit: "City Patrol",
-              lastMaintenance: "2025-12-12",
-              engineNo: "ENG-010",
-            },
-          ];
-          localStorage.setItem("vehicles", JSON.stringify(demoVehicles));
-        }
-      }
-
-      function loadVehicles() {
-        const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
-
-        if (vehiclesTable) {
-          vehiclesTable.clear().destroy();
-        }
-
-        vehiclesTable = $("#vehiclesTable").DataTable({
-          data: vehicles,
-          columns: [
-            { data: "id" },
-            { data: "regNo" },
-            { data: "type" },
-            { data: "unit" },
-            {
-              data: "status",
-              render: function (data) {
-                let badgeClass = "";
-                if (data === "Active") badgeClass = "badge-active";
-                else if (data === "Maintenance")
-                  badgeClass = "badge-maintenance";
-                else badgeClass = "badge-inactive";
-                return `<span class="${badgeClass}">${data}</span>`;
-              },
-            },
-            { data: "lastMaintenance" },
-            {
-              data: null,
-              render: function (data, type, row) {
-                return `
+          },
+          { data: "lastMaintenance" },
+          {
+            data: null,
+            render: function (data, type, row) {
+              return `
                                 <button class="btn btn-sm btn-primary" onclick="editVehicle(${row.id})">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -681,90 +600,109 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             `;
-              },
             },
-          ],
-          responsive: true,
-          pageLength: 10,
-          order: [[0, "asc"]],
-        });
+          },
+        ],
+        responsive: true,
+        pageLength: 10,
+        order: [[0, "asc"]],
+      });
+    }
+
+    function saveVehicle() {
+      const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+      const newId =
+        vehicles.length > 0 ? Math.max(...vehicles.map((v) => v.id)) + 1 : 1;
+
+      const newVehicle = {
+        id: newId,
+        regNo: $("#regNo").val(),
+        type: $("#vehicleType").val(),
+        unit: $("#unit").val(),
+        status: $("#status").val(),
+        lastMaintenance: $("#lastMaintenance").val(),
+        engineNo: $("#engineNo").val() || "N/A",
+        notes: $("#notes").val() || "",
+      };
+
+      vehicles.push(newVehicle);
+      localStorage.setItem("vehicles", JSON.stringify(vehicles));
+
+      bootstrap.Modal.getInstance($("#addVehicleModal")[0]).hide();
+      $("#addVehicleForm")[0].reset();
+
+      loadVehicles();
+      showToast("success", "Vehicle added successfully!");
+    }
+
+    function editVehicle(id) {
+      const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+      const vehicle = vehicles.find((v) => v.id === id);
+
+      if (vehicle) {
+        $("#editVehicleId").val(vehicle.id);
+        $("#editRegNo").val(vehicle.regNo);
+        $("#editVehicleType").val(vehicle.type);
+        $("#editUnit").val(vehicle.unit);
+        $("#editStatus").val(vehicle.status);
+        $("#editLastMaintenance").val(vehicle.lastMaintenance);
+
+        new bootstrap.Modal($("#editVehicleModal")[0]).show();
       }
+    }
 
-      function saveVehicle() {
-        const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
-        const newId =
-          vehicles.length > 0 ? Math.max(...vehicles.map((v) => v.id)) + 1 : 1;
+    function updateVehicle() {
+      const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+      const id = parseInt($("#editVehicleId").val());
+      const index = vehicles.findIndex((v) => v.id === id);
 
-        const newVehicle = {
-          id: newId,
-          regNo: $("#regNo").val(),
-          type: $("#vehicleType").val(),
-          unit: $("#unit").val(),
-          status: $("#status").val(),
-          lastMaintenance: $("#lastMaintenance").val(),
-          engineNo: $("#engineNo").val() || "N/A",
-          notes: $("#notes").val() || "",
-        };
+      if (index !== -1) {
+        vehicles[index].regNo = $("#editRegNo").val();
+        vehicles[index].type = $("#editVehicleType").val();
+        vehicles[index].unit = $("#editUnit").val();
+        vehicles[index].status = $("#editStatus").val();
+        vehicles[index].lastMaintenance = $("#editLastMaintenance").val();
 
-        vehicles.push(newVehicle);
         localStorage.setItem("vehicles", JSON.stringify(vehicles));
 
-        bootstrap.Modal.getInstance($("#addVehicleModal")[0]).hide();
-        $("#addVehicleForm")[0].reset();
-
+        bootstrap.Modal.getInstance($("#editVehicleModal")[0]).hide();
         loadVehicles();
-        showToast("success", "Vehicle added successfully!");
+        showToast("success", "Vehicle updated successfully!");
       }
+    }
 
-      function editVehicle(id) {
-        const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
-        const vehicle = vehicles.find((v) => v.id === id);
+    function viewVehicle(id) {
+      const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+      const vehicle = vehicles.find((v) => v.id === id);
 
-        if (vehicle) {
-          $("#editVehicleId").val(vehicle.id);
-          $("#editRegNo").val(vehicle.regNo);
-          $("#editVehicleType").val(vehicle.type);
-          $("#editUnit").val(vehicle.unit);
-          $("#editStatus").val(vehicle.status);
-          $("#editLastMaintenance").val(vehicle.lastMaintenance);
-
-          new bootstrap.Modal($("#editVehicleModal")[0]).show();
-        }
+      if (vehicle) {
+        Swal.fire({
+          title: 'Vehicle Details',
+          html: `<div style="text-align: left;">
+              <p><strong>ID:</strong> ${vehicle.id}</p>
+              <p><strong>Reg No:</strong> ${vehicle.regNo}</p>
+              <p><strong>Type:</strong> ${vehicle.type}</p>
+              <p><strong>Unit:</strong> ${vehicle.unit}</p>
+              <p><strong>Status:</strong> ${vehicle.status}</p>
+              <p><strong>Last Maintenance:</strong> ${vehicle.lastMaintenance}</p>
+            </div>`,
+          icon: 'info',
+          confirmButtonColor: '#667eea'
+        });
       }
+    }
 
-      function updateVehicle() {
-        const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
-        const id = parseInt($("#editVehicleId").val());
-        const index = vehicles.findIndex((v) => v.id === id);
-
-        if (index !== -1) {
-          vehicles[index].regNo = $("#editRegNo").val();
-          vehicles[index].type = $("#editVehicleType").val();
-          vehicles[index].unit = $("#editUnit").val();
-          vehicles[index].status = $("#editStatus").val();
-          vehicles[index].lastMaintenance = $("#editLastMaintenance").val();
-
-          localStorage.setItem("vehicles", JSON.stringify(vehicles));
-
-          bootstrap.Modal.getInstance($("#editVehicleModal")[0]).hide();
-          loadVehicles();
-          showToast("success", "Vehicle updated successfully!");
-        }
-      }
-
-      function viewVehicle(id) {
-        const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
-        const vehicle = vehicles.find((v) => v.id === id);
-
-        if (vehicle) {
-          alert(
-            `Vehicle Details:\n\nID: ${vehicle.id}\nReg No: ${vehicle.regNo}\nType: ${vehicle.type}\nUnit: ${vehicle.unit}\nStatus: ${vehicle.status}\nLast Maintenance: ${vehicle.lastMaintenance}`
-          );
-        }
-      }
-
-      function deleteVehicle(id) {
-        if (confirm("Are you sure you want to delete this vehicle?")) {
+    function deleteVehicle(id) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Confirm Delete',
+        text: 'Are you sure you want to delete this vehicle?',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Delete'
+      }).then((result) => {
+        if (result.isConfirmed) {
           let vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
           vehicles = vehicles.filter((v) => v.id !== id);
           localStorage.setItem("vehicles", JSON.stringify(vehicles));
@@ -772,32 +710,39 @@
           loadVehicles();
           showToast("success", "Vehicle deleted successfully!");
         }
-      }
-
-      function showToast(type, message) {
-        // Simple alert for now
-        alert(message);
-      }
-
-      $(document).ready(function () {
-        checkAuth();
-
-        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-        $("#userName").text(userData.name || "User");
-
-        initDemoData();
-        loadVehicles();
-
-        // Initialize Select2
-        $(".select2").select2({
-          theme: "bootstrap-5",
-          dropdownParent: $("#addVehicleModal"),
-        });
-
-        // Set default date to today
-        const today = new Date().toISOString().split("T")[0];
-        $("#lastMaintenance").val(today);
       });
-    </script>
-  </body>
+    }
+
+    function showToast(type, message) {
+      Swal.fire({
+        icon: type === 'success' ? 'success' : 'info',
+        title: type === 'success' ? 'Success' : 'Info',
+        text: message,
+        confirmButtonColor: '#667eea',
+        timer: 3000
+      });
+    }
+
+    $(document).ready(function () {
+      checkAuth();
+
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      $("#userName").text(userData.name || "User");
+
+      initDemoData();
+      loadVehicles();
+
+      // Initialize Select2
+      $(".select2").select2({
+        theme: "bootstrap-5",
+        dropdownParent: $("#addVehicleModal"),
+      });
+
+      // Set default date to today
+      const today = new Date().toISOString().split("T")[0];
+      $("#lastMaintenance").val(today);
+    });
+  </script>
+</body>
+
 </html>

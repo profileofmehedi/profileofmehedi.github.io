@@ -1,602 +1,592 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reports - Police Vehicle Management System</title>
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Bootstrap Datepicker CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports - Police Vehicle Management System</title>
 
-    <style>
-      :root {
-        --primary: #667eea;
-        --secondary: #764ba2;
-        --success: #10b981;
-        --danger: #ef4444;
-        --warning: #f59e0b;
-      }
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Bootstrap Datepicker CSS -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" />
 
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f8fafc;
-        color: #1e293b;
-      }
+  <style>
+    :root {
+      --primary: #667eea;
+      --secondary: #764ba2;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
 
-      .navbar-custom {
-        background: linear-gradient(
-          135deg,
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .navbar-custom {
+      background: linear-gradient(135deg,
           var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        padding: 15px 0;
-      }
+          var(--secondary) 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 15px 0;
+    }
 
-      .navbar-custom .navbar-brand {
-        color: white !important;
-        font-weight: 700;
-        font-size: 20px;
-      }
+    .navbar-custom .navbar-brand {
+      color: white !important;
+      font-weight: 700;
+      font-size: 20px;
+    }
 
-      .navbar-custom .nav-link {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 500;
-        margin: 0 5px;
-        padding: 8px 16px !important;
-        border-radius: 8px;
-        transition: all 0.3s;
-      }
+    .navbar-custom .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      margin: 0 5px;
+      padding: 8px 16px !important;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
 
-      .navbar-custom .nav-link:hover,
-      .navbar-custom .nav-link.active {
-        background: rgba(255, 255, 255, 0.2);
-      }
+    .navbar-custom .nav-link:hover,
+    .navbar-custom .nav-link.active {
+      background: rgba(255, 255, 255, 0.2);
+    }
 
+    .user-info {
+      color: white;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      margin-right: 10px;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .container-main {
+      padding: 30px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+      color: #1e293b;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .report-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      transition: all 0.3s;
+    }
+
+    .report-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .report-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .report-icon.primary {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+    }
+
+    .report-icon.success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .report-icon.warning {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .report-icon.danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .chart-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .chart-header {
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .chart-header h3 {
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .filter-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #4a5568;
+    }
+
+    .form-control,
+    .form-select {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 15px;
+    }
+
+    @media (max-width: 768px) {
       .user-info {
-        color: white;
-        padding: 8px 16px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        margin-right: 10px;
+        display: none;
       }
+    }
+  </style>
+</head>
 
-      .btn-logout {
-        background: rgba(239, 68, 68, 0.9);
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-      }
-
-      .container-main {
-        padding: 30px 20px;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .page-header {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-      }
-
-      .page-header h1 {
-        color: #1e293b;
-        font-weight: 700;
-        margin: 0;
-      }
-
-      .report-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-        transition: all 0.3s;
-      }
-
-      .report-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-
-      .report-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        color: white;
-        margin-bottom: 15px;
-      }
-
-      .report-icon.primary {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-      }
-
-      .report-icon.success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      }
-
-      .report-icon.warning {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      }
-
-      .report-icon.danger {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      }
-
-      .chart-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-      }
-
-      .chart-header {
-        border-bottom: 2px solid #e2e8f0;
-        padding-bottom: 15px;
-        margin-bottom: 20px;
-      }
-
-      .chart-header h3 {
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
-      }
-
-      .btn-primary-custom {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        color: white;
-      }
-
-      .filter-card {
-        background: #f8fafc;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 30px;
-      }
-
-      .form-label {
-        font-weight: 600;
-        color: #4a5568;
-      }
-
-      .form-control,
-      .form-select {
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 10px 15px;
-      }
-
-      @media (max-width: 768px) {
-        .user-info {
-          display: none;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="new-dashboard.html">
-          <i class="fas fa-shield-alt me-2"></i>Police Vehicle System
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="new-dashboard.html">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-vehicles.html">
-                <i class="fas fa-car me-1"></i>Vehicles
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="new-maintenance.html">
-                <i class="fas fa-wrench me-1"></i>Maintenance
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="new-reports.html">
-                <i class="fas fa-chart-bar me-1"></i>Reports
-              </a>
-            </li>
-          </ul>
-          <div class="d-flex align-items-center">
-            <div class="user-info">
-              <i class="fas fa-user-circle me-1"></i>
-              <span id="userName">User</span>
-            </div>
-            <button class="btn btn-logout" onclick="logout()">
-              <i class="fas fa-sign-out-alt me-1"></i>Logout
-            </button>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="new-dashboard.html">
+        <i class="fas fa-shield-alt me-2"></i>Police Vehicle System
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="new-dashboard.html">
+              <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="new-vehicles.html">
+              <i class="fas fa-car me-1"></i>Vehicles
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="new-maintenance.html">
+              <i class="fas fa-wrench me-1"></i>Maintenance
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="new-reports.html">
+              <i class="fas fa-chart-bar me-1"></i>Reports
+            </a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <div class="user-info">
+            <i class="fas fa-user-circle me-1"></i>
+            <span id="userName">User</span>
           </div>
+          <button class="btn btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
+          </button>
         </div>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <div class="container-main">
-      <!-- Page Header -->
-      <div class="page-header">
-        <h1><i class="fas fa-chart-bar me-2"></i>Reports & Analytics</h1>
-        <p class="text-muted mb-0">Comprehensive insights and statistics</p>
-      </div>
+  <div class="container-main">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1><i class="fas fa-chart-bar me-2"></i>Reports & Analytics</h1>
+      <p class="text-muted mb-0">Comprehensive insights and statistics</p>
+    </div>
 
-      <!-- Report Filter -->
-      <div class="filter-card">
-        <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Report Filters</h5>
-        <div class="row">
-          <div class="col-md-3 mb-3">
-            <label for="reportType" class="form-label">Report Type</label>
-            <select class="form-select" id="reportType">
-              <option value="all">All Reports</option>
-              <option value="vehicles">Vehicles</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="costs">Cost Analysis</option>
-            </select>
-          </div>
-          <div class="col-md-3 mb-3">
-            <label for="dateFrom" class="form-label">Date From</label>
-            <input type="text" class="form-control datepicker" id="dateFrom" />
-          </div>
-          <div class="col-md-3 mb-3">
-            <label for="dateTo" class="form-label">Date To</label>
-            <input type="text" class="form-control datepicker" id="dateTo" />
-          </div>
-          <div class="col-md-3 mb-3">
-            <label class="form-label">&nbsp;</label>
-            <button
-              class="btn btn-primary-custom w-100"
-              onclick="generateReport()"
-            >
-              <i class="fas fa-sync me-2"></i>Generate Report
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Report Cards -->
+    <!-- Report Filter -->
+    <div class="filter-card">
+      <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Report Filters</h5>
       <div class="row">
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="report-card">
-            <div class="report-icon primary">
-              <i class="fas fa-file-alt"></i>
-            </div>
-            <h5>Fleet Report</h5>
-            <p class="text-muted">Complete vehicle fleet overview</p>
-            <button
-              class="btn btn-sm btn-primary-custom"
-              onclick="downloadReport('fleet')"
-            >
-              <i class="fas fa-download me-1"></i>Download
-            </button>
-          </div>
+        <div class="col-md-3 mb-3">
+          <label for="reportType" class="form-label">Report Type</label>
+          <select class="form-select" id="reportType">
+            <option value="all">All Reports</option>
+            <option value="vehicles">Vehicles</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="costs">Cost Analysis</option>
+          </select>
         </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="report-card">
-            <div class="report-icon success">
-              <i class="fas fa-wrench"></i>
-            </div>
-            <h5>Maintenance Report</h5>
-            <p class="text-muted">All maintenance activities</p>
-            <button
-              class="btn btn-sm btn-primary-custom"
-              onclick="downloadReport('maintenance')"
-            >
-              <i class="fas fa-download me-1"></i>Download
-            </button>
-          </div>
+        <div class="col-md-3 mb-3">
+          <label for="dateFrom" class="form-label">Date From</label>
+          <input type="text" class="form-control datepicker" id="dateFrom" />
         </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="report-card">
-            <div class="report-icon warning">
-              <i class="fas fa-dollar-sign"></i>
-            </div>
-            <h5>Cost Analysis</h5>
-            <p class="text-muted">Expense breakdown & trends</p>
-            <button
-              class="btn btn-sm btn-primary-custom"
-              onclick="downloadReport('costs')"
-            >
-              <i class="fas fa-download me-1"></i>Download
-            </button>
-          </div>
+        <div class="col-md-3 mb-3">
+          <label for="dateTo" class="form-label">Date To</label>
+          <input type="text" class="form-control datepicker" id="dateTo" />
         </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="report-card">
-            <div class="report-icon danger">
-              <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h5>Issues Report</h5>
-            <p class="text-muted">Problems and alerts</p>
-            <button
-              class="btn btn-sm btn-primary-custom"
-              onclick="downloadReport('issues')"
-            >
-              <i class="fas fa-download me-1"></i>Download
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Charts -->
-      <div class="row">
-        <div class="col-lg-6 mb-4">
-          <div class="chart-card">
-            <div class="chart-header">
-              <h3>
-                <i class="fas fa-chart-bar me-2"></i>Maintenance Costs by Month
-              </h3>
-            </div>
-            <canvas id="costChart" height="250"></canvas>
-          </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-          <div class="chart-card">
-            <div class="chart-header">
-              <h3>
-                <i class="fas fa-chart-pie me-2"></i>Maintenance Types
-                Distribution
-              </h3>
-            </div>
-            <canvas id="typeChart" height="250"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-12">
-          <div class="chart-card">
-            <div class="chart-header">
-              <h3>
-                <i class="fas fa-chart-line me-2"></i>Vehicle Status Over Time
-              </h3>
-            </div>
-            <canvas id="statusChart" height="100"></canvas>
-          </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">&nbsp;</label>
+          <button class="btn btn-primary-custom w-100" onclick="generateReport()">
+            <i class="fas fa-sync me-2"></i>Generate Report
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Bootstrap Datepicker JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+    <!-- Quick Report Cards -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="report-card">
+          <div class="report-icon primary">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <h5>Fleet Report</h5>
+          <p class="text-muted">Complete vehicle fleet overview</p>
+          <button class="btn btn-sm btn-primary-custom" onclick="downloadReport('fleet')">
+            <i class="fas fa-download me-1"></i>Download
+          </button>
+        </div>
+      </div>
 
-    <script>
-      function checkAuth() {
-        if (localStorage.getItem("loggedIn") !== "true") {
-          window.location.href = "login.html";
-        }
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="report-card">
+          <div class="report-icon success">
+            <i class="fas fa-wrench"></i>
+          </div>
+          <h5>Maintenance Report</h5>
+          <p class="text-muted">All maintenance activities</p>
+          <button class="btn btn-sm btn-primary-custom" onclick="downloadReport('maintenance')">
+            <i class="fas fa-download me-1"></i>Download
+          </button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="report-card">
+          <div class="report-icon warning">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <h5>Cost Analysis</h5>
+          <p class="text-muted">Expense breakdown & trends</p>
+          <button class="btn btn-sm btn-primary-custom" onclick="downloadReport('costs')">
+            <i class="fas fa-download me-1"></i>Download
+          </button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="report-card">
+          <div class="report-icon danger">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h5>Issues Report</h5>
+          <p class="text-muted">Problems and alerts</p>
+          <button class="btn btn-sm btn-primary-custom" onclick="downloadReport('issues')">
+            <i class="fas fa-download me-1"></i>Download
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>
+              <i class="fas fa-chart-bar me-2"></i>Maintenance Costs by Month
+            </h3>
+          </div>
+          <canvas id="costChart" height="250"></canvas>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>
+              <i class="fas fa-chart-pie me-2"></i>Maintenance Types
+              Distribution
+            </h3>
+          </div>
+          <canvas id="typeChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>
+              <i class="fas fa-chart-line me-2"></i>Vehicle Status Over Time
+            </h3>
+          </div>
+          <canvas id="statusChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap Datepicker JS -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+
+  <script>
+    function checkAuth() {
+      if (localStorage.getItem("loggedIn") !== "true") {
+        window.location.href = "login.html";
       }
+    }
 
-      function logout() {
-        if (confirm("Are you sure you want to logout?")) {
+    function logout() {
+      Swal.fire({
+        icon: 'question',
+        title: 'Confirm Logout',
+        text: 'Are you sure you want to logout?',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Logout'
+      }).then((result) => {
+        if (result.isConfirmed) {
           localStorage.clear();
           window.location.href = "login.html";
         }
-      }
-
-      function generateReport() {
-        alert("Generating report with selected filters...");
-        loadCharts();
-      }
-
-      function downloadReport(type) {
-        alert(
-          `Downloading ${type} report...\nReport will be generated in PDF format.`
-        );
-      }
-
-      function loadCharts() {
-        // Cost Chart
-        const costCtx = document.getElementById("costChart").getContext("2d");
-        new Chart(costCtx, {
-          type: "bar",
-          data: {
-            labels: [
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
-            ],
-            datasets: [
-              {
-                label: "Maintenance Costs ($)",
-                data: [
-                  1200, 1500, 1100, 1800, 1400, 1600, 1900, 1700, 1550, 1650,
-                  1800, 2000,
-                ],
-                backgroundColor: "rgba(102, 126, 234, 0.8)",
-                borderColor: "rgb(102, 126, 234)",
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-              },
-            },
-          },
-        });
-
-        // Type Chart
-        const typeCtx = document.getElementById("typeChart").getContext("2d");
-        new Chart(typeCtx, {
-          type: "doughnut",
-          data: {
-            labels: [
-              "Oil Change",
-              "Tire Rotation",
-              "Brake Inspection",
-              "Engine Tune-up",
-              "General Inspection",
-            ],
-            datasets: [
-              {
-                data: [25, 20, 15, 30, 10],
-                backgroundColor: [
-                  "rgb(102, 126, 234)",
-                  "rgb(16, 185, 129)",
-                  "rgb(245, 158, 11)",
-                  "rgb(239, 68, 68)",
-                  "rgb(59, 130, 246)",
-                ],
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-              legend: {
-                position: "right",
-              },
-            },
-          },
-        });
-
-        // Status Chart
-        const statusCtx = document
-          .getElementById("statusChart")
-          .getContext("2d");
-        new Chart(statusCtx, {
-          type: "line",
-          data: {
-            labels: [
-              "Week 1",
-              "Week 2",
-              "Week 3",
-              "Week 4",
-              "Week 5",
-              "Week 6",
-            ],
-            datasets: [
-              {
-                label: "Active",
-                data: [85, 87, 86, 88, 89, 90],
-                borderColor: "rgb(16, 185, 129)",
-                backgroundColor: "rgba(16, 185, 129, 0.1)",
-                tension: 0.4,
-                fill: true,
-              },
-              {
-                label: "Maintenance",
-                data: [8, 7, 9, 8, 7, 9],
-                borderColor: "rgb(245, 158, 11)",
-                backgroundColor: "rgba(245, 158, 11, 0.1)",
-                tension: 0.4,
-                fill: true,
-              },
-              {
-                label: "Inactive",
-                data: [7, 6, 5, 4, 4, 1],
-                borderColor: "rgb(239, 68, 68)",
-                backgroundColor: "rgba(239, 68, 68, 0.1)",
-                tension: 0.4,
-                fill: true,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-              },
-            },
-          },
-        });
-      }
-
-      $(document).ready(function () {
-        checkAuth();
-
-        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-        $("#userName").text(userData.name || "User");
-
-        loadCharts();
-
-        // Initialize datepicker
-        $(".datepicker").datepicker({
-          format: "mm/dd/yyyy",
-          autoclose: true,
-          todayHighlight: true,
-        });
-
-        // Set default date range (last 30 days)
-        const today = new Date();
-        const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-        $("#dateTo").datepicker("setDate", today);
-        $("#dateFrom").datepicker("setDate", lastMonth);
       });
-    </script>
-  </body>
+    }
+
+    function generateReport() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Generating Report',
+        text: 'Generating report with selected filters...',
+        confirmButtonColor: '#667eea'
+      });
+      loadCharts();
+    }
+
+    function downloadReport(type) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Downloading Report',
+        html: `<p>Downloading ${type} report...</p><p>Report will be generated in PDF format.</p>`,
+        confirmButtonColor: '#667eea'
+      });
+    }
+
+    function loadCharts() {
+      // Cost Chart
+      const costCtx = document.getElementById("costChart").getContext("2d");
+      new Chart(costCtx, {
+        type: "bar",
+        data: {
+          labels: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+          datasets: [
+            {
+              label: "Maintenance Costs ($)",
+              data: [
+                1200, 1500, 1100, 1800, 1400, 1600, 1900, 1700, 1550, 1650,
+                1800, 2000,
+              ],
+              backgroundColor: "rgba(102, 126, 234, 0.8)",
+              borderColor: "rgb(102, 126, 234)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+
+      // Type Chart
+      const typeCtx = document.getElementById("typeChart").getContext("2d");
+      new Chart(typeCtx, {
+        type: "doughnut",
+        data: {
+          labels: [
+            "Oil Change",
+            "Tire Rotation",
+            "Brake Inspection",
+            "Engine Tune-up",
+            "General Inspection",
+          ],
+          datasets: [
+            {
+              data: [25, 20, 15, 30, 10],
+              backgroundColor: [
+                "rgb(102, 126, 234)",
+                "rgb(16, 185, 129)",
+                "rgb(245, 158, 11)",
+                "rgb(239, 68, 68)",
+                "rgb(59, 130, 246)",
+              ],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: "right",
+            },
+          },
+        },
+      });
+
+      // Status Chart
+      const statusCtx = document
+        .getElementById("statusChart")
+        .getContext("2d");
+      new Chart(statusCtx, {
+        type: "line",
+        data: {
+          labels: [
+            "Week 1",
+            "Week 2",
+            "Week 3",
+            "Week 4",
+            "Week 5",
+            "Week 6",
+          ],
+          datasets: [
+            {
+              label: "Active",
+              data: [85, 87, 86, 88, 89, 90],
+              borderColor: "rgb(16, 185, 129)",
+              backgroundColor: "rgba(16, 185, 129, 0.1)",
+              tension: 0.4,
+              fill: true,
+            },
+            {
+              label: "Maintenance",
+              data: [8, 7, 9, 8, 7, 9],
+              borderColor: "rgb(245, 158, 11)",
+              backgroundColor: "rgba(245, 158, 11, 0.1)",
+              tension: 0.4,
+              fill: true,
+            },
+            {
+              label: "Inactive",
+              data: [7, 6, 5, 4, 4, 1],
+              borderColor: "rgb(239, 68, 68)",
+              backgroundColor: "rgba(239, 68, 68, 0.1)",
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+
+    $(document).ready(function () {
+      checkAuth();
+
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      $("#userName").text(userData.name || "User");
+
+      loadCharts();
+
+      // Initialize datepicker
+      $(".datepicker").datepicker({
+        format: "mm/dd/yyyy",
+        autoclose: true,
+        todayHighlight: true,
+      });
+
+      // Set default date range (last 30 days)
+      const today = new Date();
+      const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      $("#dateTo").datepicker("setDate", today);
+      $("#dateFrom").datepicker("setDate", lastMonth);
+    });
+  </script>
+</body>
+
 </html>
