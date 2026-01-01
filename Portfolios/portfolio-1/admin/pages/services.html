@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services Manager - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .service-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ec4899;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-10">
+                <h2><i class="fas fa-briefcase"></i> Services Manager</h2>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="m-0">Add New Service</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="serviceForm">
+                            <div class="mb-3">
+                                <label class="form-label">Service Title</label>
+                                <input type="text" class="form-control" id="serviceTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" id="serviceDesc" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Icon (Font Awesome)</label>
+                                <input type="text" class="form-control" id="serviceIcon" placeholder="fa-layer-group"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Add
+                                Service</button>
+                        </form>
+                    </div>
+                </div>
+
+                <h4 class="mt-5">Services List</h4>
+                <div id="serviceList"></div>
+
+                <a href="index.html" class="btn btn-secondary mt-4"><i class="fas fa-arrow-left"></i> Back to
+                    Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/shared.js"></script>
+    <script>
+        function renderServiceList() {
+            const list = document.getElementById('serviceList');
+            list.innerHTML = '';
+            portfolioData.services.forEach((item, index) => {
+                list.innerHTML += `
+                <div class="service-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1"><i class="fas ${item.icon}"></i> ${item.title}</h6>
+                            <p class="text-muted mb-0">${item.desc}</p>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="deleteService(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            });
+        }
+
+        function deleteService(index) {
+            if (confirm('Are you sure?')) {
+                portfolioData.services.splice(index, 1);
+                saveData(portfolioData);
+                renderServiceList();
+                showAlert('Service deleted!', 'info');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            renderServiceList();
+
+            document.getElementById('serviceForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                portfolioData.services.push({
+                    title: document.getElementById('serviceTitle').value,
+                    desc: document.getElementById('serviceDesc').value,
+                    icon: document.getElementById('serviceIcon').value
+                });
+                saveData(portfolioData);
+                this.reset();
+                renderServiceList();
+                showAlert('Service added successfully!', 'success');
+            });
+        });
+    </script>
+</body>
+
+</html>
