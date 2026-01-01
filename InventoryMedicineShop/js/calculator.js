@@ -6,6 +6,11 @@ let calcCurrentValue = "0";
 let calcPreviousValue = "";
 let calcOperator = null;
 
+// Dragging variables
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
 function calcKey(key) {
   if (key === "+" || key === "-" || key === "*" || key === "/") {
     if (calcCurrentValue !== "0") {
@@ -85,6 +90,58 @@ function initializeCalculator() {
         const modal = $("#calcModal");
         modal.toggleClass("show");
       });
+
+    // Close button handler
+    if ($("#calcCloseBtn").length > 0) {
+      $("#calcCloseBtn")
+        .off("click")
+        .on("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          $("#calcModal").removeClass("show");
+        });
+    }
+
+    // Drag functionality
+    const modal = $("#calcModal");
+    const header = $("#calcHeader");
+
+    if (header.length > 0) {
+      header.off("mousedown").on("mousedown", function (e) {
+        if ($(e.target).closest(".calc-close-btn").length > 0) {
+          return; // Don't drag if close button is clicked
+        }
+
+        isDragging = true;
+        const rect = modal[0].getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        header.css("cursor", "grabbing");
+        e.preventDefault();
+      });
+
+      $(document)
+        .off("mousemove.calculator")
+        .on("mousemove.calculator", function (e) {
+          if (isDragging && modal.hasClass("show")) {
+            const newX = e.clientX - dragOffsetX - window.innerWidth / 2;
+            const newY = e.clientY - dragOffsetY - window.innerHeight / 2;
+
+            modal.css({
+              transform: `translate(calc(-50% + ${newX}px), calc(-50% + ${newY}px))`,
+            });
+          }
+        });
+
+      $(document)
+        .off("mouseup.calculator")
+        .on("mouseup.calculator", function () {
+          if (isDragging) {
+            isDragging = false;
+            header.css("cursor", "move");
+          }
+        });
+    }
 
     // Add keyboard shortcuts for calculator
     $(document)
