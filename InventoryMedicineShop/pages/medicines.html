@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicines - MediShop Inventory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --primary-dark: #27ae60;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #1abc9c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --gray-color: #95a5a6;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .topbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .topbar-left,
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 2px solid var(--light-color);
+            border-radius: 25px;
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-button:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            display: none;
+            z-index: 1050;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .profile-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--light-color);
+            padding-left: 25px;
+        }
+
+        .profile-menu {
+            position: relative;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
+            color: white;
+            width: 250px;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            overflow-y: auto;
+            animation: slideInLeft 0.5s ease-out;
+            z-index: 999;
+        }
+
+        .sidebar-section-title {
+            padding: 10px 25px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .sidebar-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sidebar-item:hover {
+            background: rgba(46, 204, 113, 0.1);
+            color: white;
+            padding-left: 30px;
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-left: 4px solid white;
+            padding-left: 21px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 70px;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-out 0.2s both;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-add {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+            color: white;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        .table thead th {
+            background: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+            border: none;
+            padding: 15px;
+        }
+
+        .table tbody td {
+            padding: 12px 15px;
+            color: var(--dark-color);
+            border-color: var(--light-color);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(46, 204, 113, 0.05);
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-in-stock {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .badge-low-stock {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .badge-out-of-stock {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .btn-delete {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            animation: scaleIn 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .modal-header h5 {
+            color: var(--dark-color);
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray-color);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: var(--light-color);
+            color: var(--dark-color);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 20px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-add {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .data-table {
+                padding: 15px;
+            }
+
+            .table {
+                font-size: 12px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="dashboard.html" class="topbar-brand">
+                <span>💊</span>
+                <span>MediShop</span>
+            </a>
+        </div>
+        <div class="topbar-right">
+            <div class="profile-menu">
+                <button class="profile-button" id="profileBtn">
+                    <div class="profile-avatar" id="profileAvatar">A</div>
+                    <span id="userName">User</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-dropdown-item" id="logoutBtn" style="color: var(--danger-color);">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div style="padding: 15px 0;">
+            <div class="sidebar-section-title">Inventory</div>
+            <div class="sidebar-item active" onclick="navigateTo('medicines.html')">
+                <i class="fas fa-pills"></i>
+                <span>Medicines</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('categories.html')">
+                <i class="fas fa-list"></i>
+                <span>Categories</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('suppliers.html')">
+                <i class="fas fa-truck"></i>
+                <span>Suppliers</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-pills"></i>
+                Medicines Inventory
+            </h1>
+            <button class="btn-add" onclick="openAddMedicineModal()">
+                <i class="fas fa-plus"></i> Add Medicine
+            </button>
+        </div>
+
+        <div class="data-table">
+            <table class="table table-hover" id="medicinesTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Code</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="medicinesTableBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT MEDICINE MODAL -->
+    <div class="modal" id="medicineModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalTitle">Add New Medicine</h5>
+                <button class="modal-close" onclick="closeMedicineModal()">&times;</button>
+            </div>
+
+            <form id="medicineForm">
+                <div class="form-group">
+                    <label for="medicineName">Medicine Name *</label>
+                    <input type="text" class="form-control" id="medicineName" placeholder="Enter medicine name"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicineCode">Medicine Code *</label>
+                    <input type="text" class="form-control" id="medicineCode" placeholder="Enter medicine code"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicineCategory">Category *</label>
+                    <select class="form-select" id="medicineCategory" required>
+                        <option value="">Select category</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicineSupplier">Supplier</label>
+                    <select class="form-select" id="medicineSupplier">
+                        <option value="">Select supplier</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicinePrice">Price ($) *</label>
+                    <input type="number" class="form-control" id="medicinePrice" placeholder="Enter price" step="0.01"
+                        min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicineQuantity">Quantity *</label>
+                    <input type="number" class="form-control" id="medicineQuantity" placeholder="Enter quantity" min="0"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicineExpiryDate">Expiry Date</label>
+                    <input type="date" class="form-control" id="medicineExpiryDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="medicineDescription">Description</label>
+                    <textarea class="form-control" id="medicineDescription" placeholder="Enter description"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeMedicineModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Medicine
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        // Initialize demo data first
+        function initializeAllDemoData() {
+            console.log('🔧 initializeAllDemoData() called');
+
+            // Always reinitialize medicines (force fresh data)
+            const medicines = [
+                { id: 1, name: 'Aspirin 500mg', code: 'ASP001', categoryId: 1, supplierId: 1, price: 5.99, quantity: 150, expiryDate: '2025-12-31', description: 'Pain relief and fever reducer', reorderPoint: 20 },
+                { id: 2, name: 'Paracetamol 650mg', code: 'PAR001', categoryId: 1, supplierId: 1, price: 4.99, quantity: 200, expiryDate: '2025-10-15', description: 'Acetaminophen for pain and fever', reorderPoint: 25 },
+                { id: 3, name: 'Ibuprofen 400mg', code: 'IBU001', categoryId: 1, supplierId: 2, price: 7.99, quantity: 120, expiryDate: '2025-08-20', description: 'NSAID for inflammation', reorderPoint: 15 },
+                { id: 4, name: 'Cough Syrup', code: 'COUGH001', categoryId: 2, supplierId: 1, price: 8.99, quantity: 95, expiryDate: '2025-09-10', description: 'Effective cough suppressant', reorderPoint: 10 },
+                { id: 5, name: 'Vitamin C 1000mg', code: 'VIT001', categoryId: 3, supplierId: 2, price: 12.99, quantity: 300, expiryDate: '2026-06-30', description: 'Immune system booster', reorderPoint: 50 },
+                { id: 6, name: 'Multivitamin Tablet', code: 'MULTI001', categoryId: 3, supplierId: 1, price: 15.99, quantity: 180, expiryDate: '2025-11-20', description: 'Daily multivitamin supplement', reorderPoint: 30 },
+                { id: 7, name: 'Antibiotic Cream', code: 'ANTI001', categoryId: 4, supplierId: 2, price: 6.49, quantity: 75, expiryDate: '2025-07-15', description: 'Topical antibiotic ointment', reorderPoint: 12 },
+                { id: 8, name: 'Cold Relief Tablet', code: 'COLD001', categoryId: 2, supplierId: 1, price: 5.49, quantity: 140, expiryDate: '2025-09-30', description: 'Nasal and sinus relief', reorderPoint: 20 }
+            ];
+            localStorage.setItem('medicines', JSON.stringify(medicines));
+            console.log('📦 Medicines saved:', medicines.length, 'items');
+
+            const categories = [
+                { id: 1, name: 'Pain Relief', description: 'Pain relieving medicines and analgesics' },
+                { id: 2, name: 'Cold & Flu', description: 'Cold, cough and flu treatments' },
+                { id: 3, name: 'Vitamins', description: 'Vitamin and mineral supplements' },
+                { id: 4, name: 'Topical', description: 'Creams, ointments and external applications' }
+            ];
+            localStorage.setItem('categories', JSON.stringify(categories));
+            console.log('📂 Categories saved:', categories.length, 'items');
+
+            const suppliers = [
+                { id: 1, name: 'Med Pharma Inc', contact: '+1-555-0101', email: 'contact@medpharma.com', address: '123 Pharmacy Street' },
+                { id: 2, name: 'Health Solutions Ltd', contact: '+1-555-0102', email: 'info@healthsol.com', address: '456 Health Avenue' }
+            ];
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+            console.log('🚚 Suppliers saved:', suppliers.length, 'items');
+            // Set default user if not exists
+            const existingUsers = localStorage.getItem('users');
+            if (!existingUsers) {
+                localStorage.setItem('users', JSON.stringify([
+                    { id: 1, name: 'Admin User', username: 'admin', password: 'admin123', email: 'admin@medishop.com', role: 'admin', active: true },
+                    { id: 2, name: 'Manager User', username: 'manager', password: 'manager123', email: 'manager@medishop.com', role: 'manager', active: true },
+                    { id: 3, name: 'Seller User', username: 'seller', password: 'seller123', email: 'seller@medishop.com', role: 'seller', active: true }
+                ]));
+            }
+            const existingSettings = localStorage.getItem('appSettings');
+            if (!existingSettings) {
+                localStorage.setItem('appSettings', JSON.stringify({
+                    shopName: 'MediShop',
+                    shopLogo: '💊',
+                    shopAddress: '789 Medical District, Healthcare City',
+                    shopPhone: '+1-555-1234',
+                    shopEmail: 'info@medishop.com',
+                    primaryColor: '#2ecc71',
+                    secondaryColor: '#3498db'
+                }));
+            }
+            // Auto-set demo user if not logged in
+            if (!localStorage.getItem('currentUser')) {
+                const demoUser = { id: 1, name: 'Admin User', username: 'admin', email: 'admin@medishop.com', role: 'admin', active: true };
+                localStorage.setItem('currentUser', JSON.stringify(demoUser));
+                console.log('✅ Demo user auto-set');
+            } else {
+                console.log('✅ Current user already exists');
+            }
+        }
+
+        // Initialize demo data immediately
+        initializeAllDemoData();
+        console.log('✅ Demo data initialization complete');
+
+        // Check authentication
+        function checkAuth() {
+            const currentUser = localStorage.getItem('currentUser');
+            console.log('🔐 Checking auth, currentUser:', currentUser ? 'FOUND' : 'NOT FOUND');
+            if (!currentUser) {
+                console.log('❌ No currentUser, redirecting to login');
+                window.location.href = '../index.html';
+                return;
+            }
+            return JSON.parse(currentUser);
+        }
+
+        const user = checkAuth();
+        console.log('✅ User authenticated:', user.name);
+        const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+        let currentEditMedicineId = null;
+        let medicinesTable = null;
+
+        // Apply theme
+        function applyTheme() {
+            const primaryColor = settings.primaryColor || '#2ecc71';
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+        }
+
+        // Initialize
+        function initializeUI() {
+            console.log('🎨 initializeUI() called');
+            $('#profileAvatar').text(user.name.charAt(0).toUpperCase());
+            $('#userName').text(user.name.split(' ')[0]);
+            applyTheme();
+            loadCategories();
+            loadSuppliers();
+            loadMedicines();
+            console.log('✅ UI initialization complete');
+        }
+
+        // Load categories
+        function loadCategories() {
+            const categories = JSON.parse(localStorage.getItem('categories') || '[]');
+            let html = '<option value="">Select category</option>';
+            categories.forEach(c => {
+                html += `<option value="${c.id}">${c.name}</option>`;
+            });
+            $('#medicineCategory').html(html);
+        }
+
+        // Load suppliers
+        function loadSuppliers() {
+            const suppliers = JSON.parse(localStorage.getItem('suppliers') || '[]');
+            let html = '<option value="">Select supplier</option>';
+            suppliers.forEach(s => {
+                html += `<option value="${s.id}">${s.name}</option>`;
+            });
+            $('#medicineSupplier').html(html);
+        }
+
+        // Load medicines
+        function loadMedicines() {
+            const rawData = localStorage.getItem('medicines');
+            console.log('📋 Raw medicines data from localStorage:', rawData ? rawData.substring(0, 100) + '...' : 'NULL');
+
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+            const categories = JSON.parse(localStorage.getItem('categories') || '[]');
+            console.log('📋 loadMedicines() called');
+            console.log('   Medicines count:', medicines.length);
+            console.log('   Categories count:', categories.length);
+            if (medicines.length > 0) {
+                console.log('   First medicine:', medicines[0].name);
+            }
+            const tbody = $('#medicinesTableBody');
+            tbody.empty();
+
+            medicines.forEach((m, index) => {
+                const category = categories.find(c => c.id === m.categoryId);
+                const statusClass = m.quantity === 0 ? 'badge-out-of-stock' : m.quantity < 20 ? 'badge-low-stock' : 'badge-in-stock';
+                const statusText = m.quantity === 0 ? 'Out of Stock' : m.quantity < 20 ? 'Low Stock' : 'In Stock';
+
+                const row = $(`
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${m.name}</td>
+                        <td>${category ? category.name : 'N/A'}</td>
+                        <td><code>${m.code}</code></td>
+                        <td>$${m.price.toFixed(2)}</td>
+                        <td>${m.quantity}</td>
+                        <td><span class="badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon btn-edit" onclick="editMedicine(${m.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="deleteMedicine(${m.id})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                tbody.append(row);
+            });
+
+            if (medicinesTable) {
+                medicinesTable.destroy();
+            }
+            medicinesTable = $('#medicinesTable').DataTable({
+                pageLength: 10,
+                ordering: true,
+                searching: true
+            });
+        }
+
+        // Open add medicine modal
+        function openAddMedicineModal() {
+            currentEditMedicineId = null;
+            $('#modalTitle').text('Add New Medicine');
+            $('#medicineForm')[0].reset();
+            $('#medicineModal').addClass('show');
+        }
+
+        // Close medicine modal
+        function closeMedicineModal() {
+            $('#medicineModal').removeClass('show');
+            $('#medicineForm')[0].reset();
+            currentEditMedicineId = null;
+        }
+
+        // Edit medicine
+        function editMedicine(medicineId) {
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+            const m = medicines.find(x => x.id === medicineId);
+
+            if (m) {
+                currentEditMedicineId = medicineId;
+                $('#modalTitle').text('Edit Medicine');
+                $('#medicineName').val(m.name);
+                $('#medicineCode').val(m.code);
+                $('#medicineCategory').val(m.categoryId);
+                $('#medicineSupplier').val(m.supplierId || '');
+                $('#medicinePrice').val(m.price);
+                $('#medicineQuantity').val(m.quantity);
+                $('#medicineExpiryDate').val(m.expiryDate || '');
+                $('#medicineDescription').val(m.description || '');
+                $('#medicineModal').addClass('show');
+            }
+        }
+
+        // Save medicine
+        $('#medicineForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+            const name = $('#medicineName').val().trim();
+            const code = $('#medicineCode').val().trim();
+            const categoryId = parseInt($('#medicineCategory').val());
+            const supplierId = $('#medicineSupplier').val() ? parseInt($('#medicineSupplier').val()) : null;
+            const price = parseFloat($('#medicinePrice').val());
+            const quantity = parseInt($('#medicineQuantity').val());
+            const expiryDate = $('#medicineExpiryDate').val();
+            const description = $('#medicineDescription').val();
+
+            if (!name || !code || !categoryId || !price || quantity < 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Error',
+                    text: 'Please fill in all required fields'
+                });
+                return;
+            }
+
+            if (currentEditMedicineId) {
+                const medicine = medicines.find(m => m.id === currentEditMedicineId);
+                if (medicine) {
+                    medicine.name = name;
+                    medicine.code = code;
+                    medicine.categoryId = categoryId;
+                    medicine.supplierId = supplierId;
+                    medicine.price = price;
+                    medicine.quantity = quantity;
+                    medicine.expiryDate = expiryDate;
+                    medicine.description = description;
+                    medicine.updatedAt = new Date().toISOString();
+                }
+            } else {
+                const newMedicine = {
+                    id: Math.max(...medicines.map(m => m.id || 0), 0) + 1,
+                    name,
+                    code,
+                    categoryId,
+                    supplierId,
+                    price,
+                    quantity,
+                    expiryDate,
+                    description,
+                    createdAt: new Date().toISOString()
+                };
+                medicines.push(newMedicine);
+            }
+
+            localStorage.setItem('medicines', JSON.stringify(medicines));
+            closeMedicineModal();
+            loadMedicines();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: currentEditMedicineId ? 'Medicine updated' : 'Medicine added',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        });
+
+        // Delete medicine
+        function deleteMedicine(medicineId) {
+            Swal.fire({
+                title: 'Delete Medicine',
+                text: 'Are you sure?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                confirmButtonText: 'Yes, delete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+                    medicines = medicines.filter(m => m.id !== medicineId);
+                    localStorage.setItem('medicines', JSON.stringify(medicines));
+                    loadMedicines();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted',
+                        text: 'Medicine deleted',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        }
+
+        // Profile menu
+        $('#profileBtn').click(function (e) {
+            e.stopPropagation();
+            $('#profileDropdown').toggleClass('show');
+        });
+
+        $(document).click(function () {
+            $('#profileDropdown').removeClass('show');
+        });
+
+        // Logout
+        $('#logoutBtn').click(function () {
+            Swal.fire({
+                title: 'Logout',
+                text: 'Sure?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = '../index.html';
+                }
+            });
+        });
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        $(document).keydown(function (e) {
+            if (e.key === 'Escape') closeMedicineModal();
+        });
+
+        $(document).ready(function () {
+            console.log('✅ Document ready - calling initializeUI()');
+            initializeUI();
+        });
+    </script>
+</body>
+
+</html>

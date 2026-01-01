@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MediShop Inventory System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: auto;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><path d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/></g></g></svg>');
+            z-index: 1;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleInUp {
+            from {
+                transform: scale(0.9) translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 30px;
+            padding: 20px;
+            align-items: center;
+            animation: slideInUp 0.8s ease-out;
+            min-height: auto;
+        }
+
+        .login-branding {
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .login-branding h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-icon {
+            font-size: 56px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .login-branding p {
+            font-size: 18px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 20px;
+            line-height: 1.5;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .feature-item i {
+            font-size: 20px;
+            color: #f093fb;
+            background: rgba(255, 255, 255, 0.1);
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .feature-item:hover i {
+            background: rgba(240, 147, 251, 0.3);
+            transform: scale(1.1);
+        }
+
+        .feature-item strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .feature-item p {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .login-form-container {
+            animation: scaleInUp 0.8s ease-out 0.2s both;
+        }
+
+        .login-form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #f093fb;
+        }
+
+        .form-header h2 {
+            color: white;
+            font-weight: 700;
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+
+        .form-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .form-content {
+            padding: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 0.3rem rgba(102, 126, 234, 0.15);
+            outline: none;
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"%3e%3cpolyline points="6 9 12 15 18 9"%3e%3c/polyline%3e%3c/svg%3e');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 18px;
+            padding-right: 45px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .badge-admin {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .badge-manager {
+            background: rgba(240, 147, 251, 0.2);
+            color: #f093fb;
+        }
+
+        .badge-seller {
+            background: rgba(118, 75, 162, 0.2);
+            color: #764ba2;
+        }
+
+        .role-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.1));
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 12px;
+            color: #555;
+            display: none;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .role-info.show {
+            display: block;
+        }
+
+        .role-info strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .credentials-display {
+            background: linear-gradient(135deg, #f093fb15, #667eea15);
+            border: 2px dashed #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            display: none;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .credentials-display.show {
+            display: block;
+        }
+
+        .credentials-display h6 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .credentials-display h6 i {
+            color: #667eea;
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            font-size: 12px;
+        }
+
+        .credential-item:last-child {
+            border-bottom: none;
+        }
+
+        .credential-label {
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .credential-value {
+            color: #667eea;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 11px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: none;
+            animation: slideInUp 0.3s ease-out;
+            margin-bottom: 16px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .error-message i {
+            margin-right: 8px;
+        }
+
+        .demo-accounts {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .demo-accounts h6 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 10px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 1px;
+        }
+
+        .demo-accounts h6 i {
+            color: #667eea;
+            font-size: 12px;
+        }
+
+        .demo-user-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #f5f6f8 100%);
+            padding: 11px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(102, 126, 234, 0.05);
+            transition: width 0.3s ease;
+        }
+
+        .demo-user-card:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f1f5 0%, #e8eaef 100%);
+            transform: translateX(2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .demo-user-card:hover::before {
+            width: 100%;
+        }
+
+        .demo-user-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .user-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-icon.admin {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .user-icon.manager {
+            background: linear-gradient(135deg, #f093fb, #764ba2);
+        }
+
+        .user-icon.seller {
+            background: linear-gradient(135deg, #667eea, #f093fb);
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 10px;
+            color: #95a5a6;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 992px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                max-width: 500px;
+            }
+
+            .login-branding {
+                display: none;
+            }
+
+            .form-content {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-wrapper {
+                padding: 15px;
+                max-width: 100%;
+            }
+
+            .form-header {
+                padding: 25px;
+            }
+
+            .form-header h2 {
+                font-size: 24px;
+            }
+
+            .form-content {
+                padding: 20px;
+            }
+
+            .logo-icon {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <!-- Left Section - Branding (Desktop Only) -->
+        <div class="login-branding d-none d-lg-flex">
+            <div>
+                <h1>
+                    <span class="logo-icon">💊</span>
+                    <span>MediShop</span>
+                </h1>
+                <p>Professional Medicine Shop Inventory Management System</p>
+
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-pills"></i>
+                        <div>
+                            <strong>Medicine Inventory</strong>
+                            <p style="margin: 0; font-size: 13px; opacity: 0.8;">Manage stock and expiry dates</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <strong>Sales Analytics</strong>
+                            <p style="margin: 0; font-size: 13px; opacity: 0.8;">Real-time reports & insights</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <strong>User Management</strong>
+                            <p style="margin: 0; font-size: 13px; opacity: 0.8;">Role-based access control</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-lock"></i>
+                        <div>
+                            <strong>Secure System</strong>
+                            <p style="margin: 0; font-size: 13px; opacity: 0.8;">Protected with encryption</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section - Login Form -->
+        <div class="login-form-container">
+            <div class="login-form-card">
+                <!-- Form Header -->
+                <div class="form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Select your role to get started</p>
+                </div>
+
+                <!-- Form Content -->
+                <div class="form-content">
+                    <form id="loginForm">
+                        <!-- Error Message -->
+                        <div class="error-message" id="errorMessage">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="errorText"></span>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="form-group">
+                            <label for="roleSelect">
+                                <i class="fas fa-user-circle" style="color: #667eea; margin-right: 8px;"></i>
+                                Select Your Role
+                            </label>
+                            <select class="form-select" id="roleSelect" required>
+                                <option value="">-- Choose a Role --</option>
+                                <option value="admin">Admin - Full System Access</option>
+                                <option value="manager">Manager - Limited Admin Features</option>
+                                <option value="seller">Seller - Sales Only</option>
+                            </select>
+                        </div>
+
+                        <!-- Role Info -->
+                        <div class="role-info" id="roleInfo"></div>
+
+                        <!-- Credentials Display -->
+                        <div class="credentials-display" id="credentialsDisplay"></div>
+
+                        <!-- Username -->
+                        <div class="form-group">
+                            <label for="username">
+                                <i class="fas fa-user" style="color: #667eea; margin-right: 8px;"></i>
+                                Username
+                            </label>
+                            <input type="text" class="form-control" id="username"
+                                placeholder="Auto-filled based on role" required readonly>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label for="password">
+                                <i class="fas fa-lock" style="color: #667eea; margin-right: 8px;"></i>
+                                Password
+                            </label>
+                            <input type="password" class="form-control" id="password"
+                                placeholder="Auto-filled based on role" required readonly>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div style="margin-bottom: 16px;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe"
+                                    style="border: 2px solid #ecf0f1; cursor: pointer;">
+                                <label class="form-check-label" for="rememberMe"
+                                    style="margin: 0; color: #7f8c8d; cursor: pointer; font-size: 12px;">
+                                    Remember me on this device
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button type="submit" class="login-btn" id="loginBtn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Sign In</span>
+                        </button>
+
+                        <!-- System Stats -->
+                        <div
+                            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; background: linear-gradient(135deg, #f0f1f5, #e8eaef); padding: 12px; border-radius: 10px;">
+                            <div style="text-align: center;">
+                                <div style="font-weight: 700; color: #667eea; font-size: 16px;" id="statsProducts">3
+                                </div>
+                                <div
+                                    style="font-size: 10px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">
+                                    Products</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: 700; color: #764ba2; font-size: 16px;" id="statsUsers">3</div>
+                                <div
+                                    style="font-size: 10px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">
+                                    Users</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: 700; color: #f093fb; font-size: 16px;" id="statsInventory">470
+                                </div>
+                                <div
+                                    style="font-size: 10px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">
+                                    Units</div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Demo Accounts Section -->
+                    <div class="demo-accounts">
+                        <h6>
+                            <i class="fas fa-info-circle"></i>
+                            Quick Demo Access
+                        </h6>
+
+                        <div class="demo-user-card" onclick="selectRole('admin')">
+                            <div class="user-info">
+                                <div class="user-icon admin">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div>
+                                    <div class="user-name">👨‍💼 Admin</div>
+                                    <div class="user-role">Full system access</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-user-card" onclick="selectRole('manager')">
+                            <div class="user-info">
+                                <div class="user-icon manager">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div>
+                                    <div class="user-name">👔 Manager</div>
+                                    <div class="user-role">Inventory & sales</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-user-card" onclick="selectRole('seller')">
+                            <div class="user-info">
+                                <div class="user-icon seller">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <div class="user-name">👤 Seller</div>
+                                    <div class="user-role">Sales & checkout</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        // Demo user credentials
+        const demoUsers = {
+            admin: {
+                name: 'Admin User',
+                username: 'admin',
+                password: 'admin123',
+                email: 'admin@medishop.com',
+                role: 'admin',
+                description: 'Full access to all modules and system management'
+            },
+            manager: {
+                name: 'Manager User',
+                username: 'manager',
+                password: 'manager123',
+                email: 'manager@medishop.com',
+                role: 'manager',
+                description: 'Access to inventory, sales, and analytics'
+            },
+            seller: {
+                name: 'Seller User',
+                username: 'seller',
+                password: 'seller123',
+                email: 'seller@medishop.com',
+                role: 'seller',
+                description: 'Point of sale and transaction management'
+            }
+        };
+
+        // Initialize demo data
+        function initializeDemoData() {
+            const existingUsers = localStorage.getItem('users');
+            if (!existingUsers) {
+                const users = Object.values(demoUsers);
+                localStorage.setItem('users', JSON.stringify(users));
+
+                localStorage.setItem('medicines', JSON.stringify([
+                    { id: 1, name: 'Aspirin 500mg', code: 'ASP001', categoryId: 1, supplierId: 1, price: 5.99, quantity: 150, expiryDate: '2025-12-31', reorderPoint: 20 },
+                    { id: 2, name: 'Paracetamol 650mg', code: 'PAR001', categoryId: 1, supplierId: 1, price: 4.99, quantity: 200, expiryDate: '2025-10-15', reorderPoint: 25 },
+                    { id: 3, name: 'Ibuprofen 400mg', code: 'IBU001', categoryId: 1, supplierId: 2, price: 7.99, quantity: 120, expiryDate: '2025-08-20', reorderPoint: 15 }
+                ]));
+
+                localStorage.setItem('categories', JSON.stringify([
+                    { id: 1, name: 'Pain Relief', description: 'Pain relieving medicines' },
+                    { id: 2, name: 'Cold & Flu', description: 'Cold and flu treatment' },
+                    { id: 3, name: 'Vitamins', description: 'Vitamin supplements' }
+                ]));
+
+                localStorage.setItem('suppliers', JSON.stringify([
+                    { id: 1, name: 'Med Pharma Inc', contact: '+1-555-0101', email: 'contact@medpharma.com', address: '123 Pharmacy St' },
+                    { id: 2, name: 'Health Solutions', contact: '+1-555-0102', email: 'info@healthsol.com', address: '456 Health Ave' }
+                ]));
+
+                localStorage.setItem('transactions', JSON.stringify([]));
+
+                localStorage.setItem('appSettings', JSON.stringify({
+                    shopName: 'MediShop',
+                    shopLogo: '💊',
+                    shopAddress: '789 Medical District',
+                    shopPhone: '+1-555-1234',
+                    shopEmail: 'info@medishop.com',
+                    primaryColor: '#667eea',
+                    secondaryColor: '#764ba2'
+                }));
+
+                localStorage.setItem('roleMenus', JSON.stringify({
+                    admin: ['dashboard', 'medicines', 'categories', 'suppliers', 'inventory', 'sales', 'reports', 'users', 'menus', 'settings', 'profile'],
+                    manager: ['dashboard', 'medicines', 'categories', 'suppliers', 'inventory', 'sales', 'reports', 'profile'],
+                    seller: ['dashboard', 'sales', 'profile']
+                }));
+            }
+        }
+
+        // Select role function
+        function selectRole(role) {
+            $('#roleSelect').val(role).change();
+        }
+
+        // Update credentials display
+        function updateCredentials() {
+            const selectedRole = $('#roleSelect').val();
+
+            if (!selectedRole) {
+                $('#roleInfo, #credentialsDisplay').removeClass('show');
+                $('#username, #password').val('');
+                return;
+            }
+
+            const user = demoUsers[selectedRole];
+
+            // Update role info
+            const roleInfoHtml = `
+                <strong><i class="fas fa-shield-alt"></i> Role Information</strong>
+                ${user.description}
+            `;
+            $('#roleInfo').html(roleInfoHtml).addClass('show');
+
+            // Update credentials display
+            const credHtml = `
+                <h6><i class="fas fa-key"></i> Auto-filled Credentials</h6>
+                <div class="credential-item">
+                    <span class="credential-label">Username:</span>
+                    <span class="credential-value">${user.username}</span>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Password:</span>
+                    <span class="credential-value">${user.password}</span>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Email:</span>
+                    <span class="credential-value">${user.email}</span>
+                </div>
+            `;
+            $('#credentialsDisplay').html(credHtml).addClass('show');
+
+            // Auto-fill form
+            $('#username').val(user.username);
+            $('#password').val(user.password);
+        }
+
+        // Show error message
+        function showError(message) {
+            $('#errorText').text(message);
+            $('#errorMessage').addClass('show');
+            setTimeout(() => {
+                $('#errorMessage').removeClass('show');
+            }, 4000);
+        }
+
+        // Handle form submission
+        $('#loginForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const username = $('#username').val().trim();
+            const password = $('#password').val().trim();
+
+            if (!username || !password) {
+                showError('Please select a role first');
+                return;
+            }
+
+            // Show loading
+            const $btn = $('#loginBtn');
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Signing in...');
+
+            // Verify credentials
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.username === username && u.password === password);
+
+                $btn.prop('disabled', false).html('<i class="fas fa-sign-in-alt"></i> <span>Sign In</span>');
+
+                if (!user) {
+                    showError('Invalid credentials. Please try again.');
+                    return;
+                }
+
+                // Save session
+                localStorage.setItem('currentUser', JSON.stringify(user));
+
+                // Success animation
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Successful!',
+                    html: `Welcome, <strong>${user.name}</strong>`,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    didOpen: () => {
+                        Swal.getTimerProgressBar().style.background = 'linear-gradient(90deg, #f093fb, #667eea)';
+                    }
+                }).then(() => {
+                    // Navigate to dashboard
+                    window.location.href = 'pages/dashboard.html';
+                });
+            }, 800);
+        });
+
+        // Handle role change
+        $('#roleSelect').on('change', function () {
+            updateCredentials();
+        });
+
+        // Initialize
+        $(document).ready(function () {
+            initializeDemoData();
+
+            // Update statistics
+            updateDemoStatistics();
+
+            // Check if already logged in
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'pages/dashboard.html';
+            }
+        });
+
+        // Update demo data statistics
+        function updateDemoStatistics() {
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            let totalInventory = 0;
+            medicines.forEach(medicine => {
+                totalInventory += medicine.quantity;
+            });
+
+            $('#statsProducts').text(medicines.length);
+            $('#statsUsers').text(users.length);
+            $('#statsInventory').text(totalInventory);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - MediShop Inventory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --primary-dark: #27ae60;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #1abc9c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --gray-color: #95a5a6;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .topbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex: 1;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 2px solid var(--light-color);
+            border-radius: 25px;
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-button:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            display: none;
+            z-index: 1050;
+            overflow: hidden;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .profile-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--light-color);
+            padding-left: 25px;
+        }
+
+        .profile-menu {
+            position: relative;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
+            color: white;
+            width: 250px;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            overflow-y: auto;
+            animation: slideInLeft 0.5s ease-out;
+            z-index: 999;
+        }
+
+        .sidebar-section-title {
+            padding: 10px 25px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .sidebar-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sidebar-item:hover {
+            background: rgba(46, 204, 113, 0.1);
+            color: white;
+            padding-left: 30px;
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-left: 4px solid white;
+            padding-left: 21px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 70px;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-out 0.2s both;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title i {
+            color: var(--primary-color);
+        }
+
+        .settings-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        .settings-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .settings-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .settings-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .settings-card h5 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .settings-card h5 i {
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input {
+            width: 60px;
+            height: 40px;
+            border: 2px solid var(--light-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--light-color);
+        }
+
+        .color-text {
+            flex: 1;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+            color: white;
+        }
+
+        .keyboard-shortcut-list {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid white;
+            font-size: 13px;
+        }
+
+        .shortcut-item:last-child {
+            border-bottom: none;
+        }
+
+        .shortcut-key {
+            background: var(--dark-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            margin-top: 25px;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .nav-link {
+            color: var(--gray-color);
+            border: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 20px;
+            }
+
+            .settings-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="dashboard.html" class="topbar-brand">
+                <span>💊</span>
+                <span>MediShop</span>
+            </a>
+            <div class="calculator-widget">
+                <button class="calc-button" id="calcToggle"
+                    style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-color); background: white; color: var(--primary-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s ease;"
+                    title="Calculator">
+                    <i class="fas fa-calculator"></i>
+                </button>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="profile-menu">
+                <button class="profile-button" id="profileBtn">
+                    <div class="profile-avatar" id="profileAvatar">A</div>
+                    <span id="userName">User</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="profile.html" class="profile-dropdown-item">
+                        <i class="fas fa-user"></i> My Profile
+                    </a>
+                    <div class="profile-dropdown-item" id="logoutBtn" style="color: var(--danger-color);">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div style="padding: 15px 0;">
+            <div class="sidebar-section-title">Main Menu</div>
+            <div class="sidebar-item" onclick="navigateTo('dashboard.html')">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+        </div>
+        <div style="padding: 15px 0;" id="adminSection">
+            <div class="sidebar-section-title">Administration</div>
+            <div class="sidebar-item" onclick="navigateTo('users.html')">
+                <i class="fas fa-users"></i>
+                <span>User Management</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('menus.html')">
+                <i class="fas fa-sitemap"></i>
+                <span>Menu Management</span>
+            </div>
+            <div class="sidebar-item active" onclick="navigateTo('settings.html')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <h1 class="page-title">
+            <i class="fas fa-cog"></i>
+            Settings & Configuration
+        </h1>
+
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="shop-tab" data-bs-toggle="tab" data-bs-target="#shopSettings"
+                    type="button" role="tab">
+                    <i class="fas fa-store"></i> Shop Settings
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="theme-tab" data-bs-toggle="tab" data-bs-target="#themeSettings"
+                    type="button" role="tab">
+                    <i class="fas fa-palette"></i> Theme
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="shortcuts-tab" data-bs-toggle="tab" data-bs-target="#shortcutSettings"
+                    type="button" role="tab">
+                    <i class="fas fa-keyboard"></i> Shortcuts
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Shop Settings Tab -->
+            <div class="tab-pane fade show active" id="shopSettings" role="tabpanel">
+                <div class="settings-container">
+                    <div class="settings-card">
+                        <h5>
+                            <i class="fas fa-info-circle"></i>
+                            Shop Information
+                        </h5>
+                        <form id="shopForm">
+                            <div class="form-group">
+                                <label for="shopName">Shop Name</label>
+                                <input type="text" class="form-control" id="shopName" placeholder="Enter shop name"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="shopLogo">Shop Logo</label>
+                                <input type="text" class="form-control" id="shopLogo" placeholder="e.g., 💊"
+                                    maxlength="5">
+                                <small class="text-muted">Use emoji or a single character</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="shopAddress">Address</label>
+                                <textarea class="form-control" id="shopAddress" placeholder="Enter shop address"
+                                    rows="3"></textarea>
+                            </div>
+                            <button type="button" class="btn-save" onclick="saveShopSettings()">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <h5>
+                            <i class="fas fa-phone"></i>
+                            Contact Information
+                        </h5>
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="shopPhone">Phone</label>
+                                <input type="tel" class="form-control" id="shopPhone" placeholder="Enter phone number">
+                            </div>
+                            <div class="form-group">
+                                <label for="shopEmail">Email</label>
+                                <input type="email" class="form-control" id="shopEmail"
+                                    placeholder="Enter email address">
+                            </div>
+                            <div class="form-group">
+                                <label for="shopWebsite">Website</label>
+                                <input type="url" class="form-control" id="shopWebsite" placeholder="Enter website URL">
+                            </div>
+                            <button type="button" class="btn-save" onclick="saveContactSettings()">
+                                <i class="fas fa-save"></i> Save Contact
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Settings Tab -->
+            <div class="tab-pane fade" id="themeSettings" role="tabpanel">
+                <div class="settings-container">
+                    <div class="settings-card">
+                        <h5>
+                            <i class="fas fa-palette"></i>
+                            Color Scheme
+                        </h5>
+                        <form id="themeForm">
+                            <div class="form-group">
+                                <label>Primary Color</label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" class="color-input" id="primaryColor">
+                                    <div class="color-preview" id="primaryColorPreview"></div>
+                                    <input type="text" class="form-control color-text" id="primaryColorText"
+                                        placeholder="#2ecc71" maxlength="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Color</label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" class="color-input" id="secondaryColor">
+                                    <div class="color-preview" id="secondaryColorPreview"></div>
+                                    <input type="text" class="form-control color-text" id="secondaryColorText"
+                                        placeholder="#3498db" maxlength="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Danger Color</label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" class="color-input" id="dangerColor">
+                                    <div class="color-preview" id="dangerColorPreview"></div>
+                                    <input type="text" class="form-control color-text" id="dangerColorText"
+                                        placeholder="#e74c3c" maxlength="7">
+                                </div>
+                            </div>
+                            <button type="button" class="btn-save" onclick="saveThemeSettings()">
+                                <i class="fas fa-save"></i> Apply Theme
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <h5>
+                            <i class="fas fa-eye"></i>
+                            Preview
+                        </h5>
+                        <div style="display: grid; gap: 10px;">
+                            <div
+                                style="padding: 15px; border-radius: 8px; background: var(--primary-color); color: white; font-weight: 600;">
+                                Primary Color Sample
+                            </div>
+                            <div
+                                style="padding: 15px; border-radius: 8px; background: var(--secondary-color); color: white; font-weight: 600;">
+                                Secondary Color Sample
+                            </div>
+                            <div
+                                style="padding: 15px; border-radius: 8px; background: var(--danger-color); color: white; font-weight: 600;">
+                                Danger Color Sample
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keyboard Shortcuts Tab -->
+            <div class="tab-pane fade" id="shortcutSettings" role="tabpanel">
+                <div class="settings-container">
+                    <div class="settings-card" style="grid-column: 1 / -1;">
+                        <h5>
+                            <i class="fas fa-keyboard"></i>
+                            Keyboard Shortcuts
+                        </h5>
+                        <div class="keyboard-shortcut-list" id="shortcutList"></div>
+                        <button type="button" class="btn-save" onclick="resetShortcuts()">
+                            <i class="fas fa-redo"></i> Reset to Defaults
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        // Check authentication and role
+        function checkAuth() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = '../index.html';
+                return;
+            }
+            const user = JSON.parse(currentUser);
+            if (user.role !== 'admin') {
+                window.location.href = 'dashboard.html';
+            }
+            return user;
+        }
+
+        const user = checkAuth();
+        const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+
+        // Initialize UI
+        function initializeUI() {
+            $('#profileAvatar').text(user.name.charAt(0).toUpperCase());
+            $('#userName').text(user.name.split(' ')[0]);
+
+            // Load shop settings
+            $('#shopName').val(settings.shopName || '');
+            $('#shopLogo').val(settings.shopLogo || '💊');
+            $('#shopAddress').val(settings.shopAddress || '');
+            $('#shopPhone').val(settings.shopPhone || '');
+            $('#shopEmail').val(settings.shopEmail || '');
+            $('#shopWebsite').val(settings.shopWebsite || '');
+
+            // Load theme settings
+            const primaryColor = settings.primaryColor || '#2ecc71';
+            const secondaryColor = settings.secondaryColor || '#3498db';
+            const dangerColor = settings.dangerColor || '#e74c3c';
+
+            $('#primaryColor').val(primaryColor);
+            $('#primaryColorText').val(primaryColor);
+            $('#primaryColorPreview').css('background', primaryColor);
+
+            $('#secondaryColor').val(secondaryColor);
+            $('#secondaryColorText').val(secondaryColor);
+            $('#secondaryColorPreview').css('background', secondaryColor);
+
+            $('#dangerColor').val(dangerColor);
+            $('#dangerColorText').val(dangerColor);
+            $('#dangerColorPreview').css('background', dangerColor);
+
+            // Load shortcuts
+            loadShortcuts();
+
+            // Apply theme
+            applyTheme();
+        }
+
+        // Apply theme colors
+        function applyTheme() {
+            const primaryColor = settings.primaryColor || '#2ecc71';
+            const secondaryColor = settings.secondaryColor || '#3498db';
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+            document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+        }
+
+        // Save shop settings
+        function saveShopSettings() {
+            const shopData = {
+                shopName: $('#shopName').val(),
+                shopLogo: $('#shopLogo').val(),
+                shopAddress: $('#shopAddress').val()
+            };
+
+            Object.assign(settings, shopData);
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Saved',
+                text: 'Shop settings have been saved successfully',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+
+        // Save contact settings
+        function saveContactSettings() {
+            const contactData = {
+                shopPhone: $('#shopPhone').val(),
+                shopEmail: $('#shopEmail').val(),
+                shopWebsite: $('#shopWebsite').val()
+            };
+
+            Object.assign(settings, contactData);
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Saved',
+                text: 'Contact information has been saved',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+
+        // Save theme settings
+        function saveThemeSettings() {
+            const primaryColor = $('#primaryColor').val();
+            const secondaryColor = $('#secondaryColor').val();
+            const dangerColor = $('#dangerColor').val();
+
+            // Validate hex color
+            if (!/^#[0-9A-F]{6}$/i.test(primaryColor) ||
+                !/^#[0-9A-F]{6}$/i.test(secondaryColor) ||
+                !/^#[0-9A-F]{6}$/i.test(dangerColor)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Color',
+                    text: 'Please enter valid hex colors'
+                });
+                return;
+            }
+
+            settings.primaryColor = primaryColor;
+            settings.secondaryColor = secondaryColor;
+            settings.dangerColor = dangerColor;
+
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+            applyTheme();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Theme Applied',
+                text: 'Theme colors have been updated',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+
+        // Load shortcuts
+        function loadShortcuts() {
+            const shortcuts = JSON.parse(localStorage.getItem('shortcuts') || '{}');
+            let html = '';
+
+            Object.keys(shortcuts).forEach(key => {
+                const shortcut = shortcuts[key];
+                html += `<div class="shortcut-item">
+                    <span>${shortcut.name}</span>
+                    <span class="shortcut-key">${key.toUpperCase()}</span>
+                </div>`;
+            });
+
+            $('#shortcutList').html(html || '<p class="text-muted">No shortcuts configured</p>');
+        }
+
+        // Reset shortcuts to default
+        function resetShortcuts() {
+            Swal.fire({
+                title: 'Reset Shortcuts',
+                text: 'Are you sure you want to reset all shortcuts to default?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2ecc71',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Yes, reset'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const defaultShortcuts = {
+                        'ctrl+shift+a': { name: 'Add Medicine', action: 'addMedicine' },
+                        'ctrl+shift+s': { name: 'Sales', action: 'goToSales' },
+                        'ctrl+shift+i': { name: 'Inventory', action: 'goToInventory' },
+                        'ctrl+shift+r': { name: 'Reports', action: 'goToReports' },
+                        'ctrl+shift+u': { name: 'Users', action: 'goToUsers' },
+                        'ctrl+shift+e': { name: 'Settings', action: 'goToSettings' },
+                        'escape': { name: 'Close Modal', action: 'closeModal' }
+                    };
+
+                    localStorage.setItem('shortcuts', JSON.stringify(defaultShortcuts));
+                    loadShortcuts();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Reset',
+                        text: 'Shortcuts have been reset to defaults',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        }
+
+        // Color picker sync
+        $('#primaryColor').on('change', function () {
+            $('#primaryColorText').val($(this).val());
+            $('#primaryColorPreview').css('background', $(this).val());
+        });
+
+        $('#primaryColorText').on('change', function () {
+            if (/^#[0-9A-F]{6}$/i.test($(this).val())) {
+                $('#primaryColor').val($(this).val());
+                $('#primaryColorPreview').css('background', $(this).val());
+            }
+        });
+
+        $('#secondaryColor').on('change', function () {
+            $('#secondaryColorText').val($(this).val());
+            $('#secondaryColorPreview').css('background', $(this).val());
+        });
+
+        $('#secondaryColorText').on('change', function () {
+            if (/^#[0-9A-F]{6}$/i.test($(this).val())) {
+                $('#secondaryColor').val($(this).val());
+                $('#secondaryColorPreview').css('background', $(this).val());
+            }
+        });
+
+        $('#dangerColor').on('change', function () {
+            $('#dangerColorText').val($(this).val());
+            $('#dangerColorPreview').css('background', $(this).val());
+        });
+
+        $('#dangerColorText').on('change', function () {
+            if (/^#[0-9A-F]{6}$/i.test($(this).val())) {
+                $('#dangerColor').val($(this).val());
+                $('#dangerColorPreview').css('background', $(this).val());
+            }
+        });
+
+        // Profile menu
+        $('#profileBtn').click(function (e) {
+            e.stopPropagation();
+            $('#profileDropdown').toggleClass('show');
+        });
+
+        $(document).click(function () {
+            $('#profileDropdown').removeClass('show');
+        });
+
+        // Logout
+        $('#logoutBtn').click(function () {
+            Swal.fire({
+                title: 'Logout',
+                text: 'Are you sure you want to logout?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                confirmButtonText: 'Yes, logout'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = '../index.html';
+                }
+            });
+        });
+
+        // Navigation
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        // Initialize demo settings immediately
+        function initializeAllDemoData() {
+            const existingSettings = localStorage.getItem('appSettings');
+            if (!existingSettings) {
+                localStorage.setItem('appSettings', JSON.stringify({
+                    shopName: 'MediShop',
+                    shopLogo: '💊',
+                    shopAddress: '789 Medical District, Healthcare City',
+                    shopPhone: '+1-555-1234',
+                    shopEmail: 'info@medishop.com',
+                    primaryColor: '#2ecc71',
+                    secondaryColor: '#3498db'
+                }));
+            }
+        }
+        initializeAllDemoData();
+
+        // Initialize
+        $(document).ready(function () {
+            initializeUI();
+        });
+    </script>
+</body>
+
+</html>

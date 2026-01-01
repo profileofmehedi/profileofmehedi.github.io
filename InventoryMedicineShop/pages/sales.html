@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales - MediShop Inventory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --primary-dark: #27ae60;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #1abc9c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --gray-color: #95a5a6;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .topbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .topbar-left,
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 2px solid var(--light-color);
+            border-radius: 25px;
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-button:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            display: none;
+            z-index: 1050;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .profile-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--light-color);
+            padding-left: 25px;
+        }
+
+        .profile-menu {
+            position: relative;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
+            color: white;
+            width: 250px;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            overflow-y: auto;
+            animation: slideInLeft 0.5s ease-out;
+            z-index: 999;
+        }
+
+        .sidebar-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sidebar-item:hover {
+            background: rgba(46, 204, 113, 0.1);
+            color: white;
+            padding-left: 30px;
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-left: 4px solid white;
+            padding-left: 21px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 70px;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-out 0.2s both;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pos-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+
+        .pos-items {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        .medicine-card {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .medicine-card:hover {
+            background: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .medicine-card-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+
+        .medicine-card-price {
+            font-size: 18px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .cart-sidebar {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            animation: scaleIn 0.4s ease-out 0.1s both;
+        }
+
+        .cart-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--light-color);
+            font-size: 14px;
+        }
+
+        .cart-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .cart-item-remove {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .cart-item-remove:hover {
+            transform: scale(1.1);
+            background: #c0392b;
+        }
+
+        .cart-total {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .cart-total-label {
+            font-size: 12px;
+            color: var(--gray-color);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .cart-total-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .btn-checkout {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-checkout:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-clear-cart {
+            width: 100%;
+            padding: 12px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-clear-cart:hover {
+            background: #c0392b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .modal-header h5 {
+            color: var(--dark-color);
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray-color);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .form-control {
+            border: 2px solid var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: var(--light-color);
+            color: var(--dark-color);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .pos-container {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-sidebar {
+                position: relative;
+                top: auto;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="dashboard.html" class="topbar-brand">
+                <span>💊</span>
+                <span>MediShop</span>
+            </a>
+        </div>
+        <div class="topbar-right">
+            <div class="profile-menu">
+                <button class="profile-button" id="profileBtn">
+                    <div class="profile-avatar" id="profileAvatar">A</div>
+                    <span id="userName">User</span>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-dropdown-item" id="logoutBtn" style="color: var(--danger-color);">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div style="padding: 15px 0;">
+            <div
+                style="padding: 10px 25px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);">
+                Sales</div>
+            <div class="sidebar-item active" onclick="navigateTo('sales.html')">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Sales</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('inventory.html')">
+                <i class="fas fa-warehouse"></i>
+                <span>Stock Management</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <h1 class="page-title">
+            <i class="fas fa-shopping-cart"></i>
+            Point of Sale
+        </h1>
+
+        <div class="pos-container">
+            <div class="pos-items">
+                <div class="mb-4">
+                    <input type="text" class="form-control" id="searchMedicine" placeholder="🔍 Search medicines...">
+                </div>
+                <div id="medicinesList"></div>
+            </div>
+
+            <div class="cart-sidebar">
+                <div class="cart-header">
+                    <i class="fas fa-shopping-bag"></i> Cart
+                </div>
+                <div id="cartItems"></div>
+                <div class="cart-total">
+                    <div class="cart-total-label">Total</div>
+                    <div class="cart-total-value">$<span id="cartTotal">0.00</span></div>
+                </div>
+                <button class="btn-checkout" onclick="checkout()">
+                    <i class="fas fa-credit-card"></i> Checkout
+                </button>
+                <button class="btn-clear-cart" onclick="clearCart()">
+                    <i class="fas fa-times"></i> Clear Cart
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Complete Payment</h5>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label>Total Amount</label>
+                    <input type="text" class="form-control" id="totalAmount" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method *</label>
+                    <select class="form-control" id="paymentMethod" required>
+                        <option value="">Select method</option>
+                        <option value="cash">Cash</option>
+                        <option value="card">Card</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="amountPaid">Amount Paid *</label>
+                    <input type="number" class="form-control" id="amountPaid" placeholder="Enter amount" step="0.01"
+                        min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Change</label>
+                    <input type="text" class="form-control" id="changeAmount" readonly>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-check"></i> Complete Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- QUANTITY MODAL -->
+    <div class="modal" id="quantityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="quantityModalTitle">Select Quantity</h5>
+                <button class="modal-close" onclick="closeQuantityModal()">&times;</button>
+            </div>
+
+            <form id="quantityForm">
+                <div class="form-group">
+                    <label id="medicineNameLabel">Medicine Name</label>
+                    <input type="text" class="form-control" id="medicineNameDisplay" readonly
+                        style="background: var(--light-color); margin-bottom: 15px;">
+                </div>
+
+                <div class="form-group">
+                    <label id="stockLabel">Available Stock: <strong id="availableStock">0</strong></label>
+                    <input type="number" class="form-control" id="quantityInput" placeholder="Enter quantity" min="1"
+                        max="999" required style="font-size: 18px; padding: 12px;">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeQuantityModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        function checkAuth() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = '../index.html';
+            }
+            return JSON.parse(currentUser);
+        }
+
+        const user = checkAuth();
+        const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+        let cart = [];
+
+        function applyTheme() {
+            const primaryColor = settings.primaryColor || '#2ecc71';
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+        }
+
+        function initializeUI() {
+            $('#profileAvatar').text(user.name.charAt(0).toUpperCase());
+            $('#userName').text(user.name.split(' ')[0]);
+            applyTheme();
+            loadMedicines();
+        }
+
+        function loadMedicines(searchTerm = '') {
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+
+            let filtered = medicines;
+            if (searchTerm.trim()) {
+                const term = searchTerm.toLowerCase();
+                filtered = medicines.filter(m =>
+                    m.name.toLowerCase().includes(term) ||
+                    m.code.toLowerCase().includes(term)
+                );
+            }
+
+            const html = filtered.map(m => {
+                const stockStatus = m.quantity === 0 ? 'Out of Stock' : m.quantity < 20 ? `Low Stock (${m.quantity})` : `In Stock (${m.quantity})`;
+                const stockColor = m.quantity === 0 ? 'var(--danger-color)' : m.quantity < 20 ? 'var(--warning-color)' : 'var(--primary-color)';
+
+                return `
+                    <div class="medicine-card" onclick="openQuantityModal(${m.id})">
+                        <div class="medicine-card-name">${m.name}</div>
+                        <div class="medicine-card-price">$${m.price.toFixed(2)}</div>
+                        <small style="color: ${stockColor}; font-weight: 600;">📦 ${stockStatus}</small>
+                    </div>
+                `;
+            }).join('');
+            $('#medicinesList').html(html || '<p class="text-muted">No medicines found</p>');
+        }
+
+        let pendingMedicineId = null;
+
+        function openQuantityModal(medicineId) {
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+            const medicine = medicines.find(m => m.id === medicineId);
+
+            if (!medicine) return;
+            if (medicine.quantity === 0) {
+                Swal.fire({ icon: 'error', text: `${medicine.name} is out of stock` });
+                return;
+            }
+
+            pendingMedicineId = medicineId;
+            $('#medicineNameDisplay').val(medicine.name);
+            $('#availableStock').text(medicine.quantity);
+            $('#quantityInput').attr('max', medicine.quantity);
+            $('#quantityInput').val(1);
+            $('#quantityModal').addClass('show');
+            $('#quantityInput').focus();
+        }
+
+        function closeQuantityModal() {
+            $('#quantityModal').removeClass('show');
+            $('#quantityForm')[0].reset();
+            pendingMedicineId = null;
+        }
+
+        $('#quantityForm').on('submit', function (e) {
+            e.preventDefault();
+
+            if (!pendingMedicineId) return;
+
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+            const medicine = medicines.find(m => m.id === pendingMedicineId);
+            const quantity = parseInt($('#quantityInput').val());
+
+            if (!medicine || quantity < 1) return;
+            if (quantity > medicine.quantity) {
+                Swal.fire({ icon: 'error', text: `Only ${medicine.quantity} available` });
+                return;
+            }
+
+            const cartItem = cart.find(c => c.id === pendingMedicineId);
+            if (cartItem) {
+                cartItem.quantity += quantity;
+            } else {
+                cart.push({ ...medicine, quantity: quantity });
+            }
+
+            updateCart();
+            closeQuantityModal();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Added',
+                text: `${quantity}x ${medicine.name} added to cart`,
+                showConfirmButton: false,
+                timer: 800
+            });
+        });
+
+        function addToCart(medicineId) {
+            openQuantityModal(medicineId);
+        }
+
+        function updateCart() {
+            const html = cart.map((item, index) => `
+                <div class="cart-item">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--dark-color);">${item.name}</div>
+                        <small>${item.quantity}x $${item.price.toFixed(2)}</small>
+                    </div>
+                    <button class="cart-item-remove" onclick="removeFromCart(${index})">×</button>
+                </div>
+            `).join('');
+
+            $('#cartItems').html(html || '<p class="text-muted text-center">Cart is empty</p>');
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            $('#cartTotal').text(total.toFixed(2));
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function clearCart() {
+            Swal.fire({
+                title: 'Clear Cart',
+                text: 'Clear all items?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                confirmButtonText: 'Yes'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    cart = [];
+                    updateCart();
+                }
+            });
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                Swal.fire({ icon: 'warning', text: 'Cart is empty' });
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            $('#totalAmount').val('$' + total.toFixed(2));
+            $('#amountPaid').val(total.toFixed(2));
+            $('#changeAmount').val('0.00');
+            $('#paymentModal').addClass('show');
+        }
+
+        function closePaymentModal() {
+            $('#paymentModal').removeClass('show');
+            $('#paymentForm')[0].reset();
+        }
+
+        $('#amountPaid').on('input', function () {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const paid = parseFloat($(this).val()) || 0;
+            const change = paid - total;
+            $('#changeAmount').val((change >= 0 ? change : 0).toFixed(2));
+        });
+
+        $('#paymentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const paid = parseFloat($('#amountPaid').val());
+            const method = $('#paymentMethod').val();
+
+            if (paid < total) {
+                Swal.fire({ icon: 'error', text: 'Insufficient payment' });
+                return;
+            }
+
+            // Update medicine quantities
+            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+            cart.forEach(cartItem => {
+                const med = medicines.find(m => m.id === cartItem.id);
+                if (med) med.quantity -= cartItem.quantity;
+            });
+            localStorage.setItem('medicines', JSON.stringify(medicines));
+
+            // Save transaction
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push({
+                id: Math.max(...transactions.map(t => t.id || 0), 0) + 1,
+                items: cart.length,
+                total: total,
+                paymentMethod: method,
+                userId: user.id,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            closePaymentModal();
+            cart = [];
+            updateCart();
+            loadMedicines();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Payment Complete',
+                text: `Transaction ID: ${transactions[transactions.length - 1].id}`
+            });
+        });
+
+        $('#profileBtn').click(function (e) {
+            e.stopPropagation();
+            $('#profileDropdown').toggleClass('show');
+        });
+
+        $(document).click(() => $('#profileDropdown').removeClass('show'));
+
+        $('#logoutBtn').click(() => {
+            Swal.fire({
+                title: 'Logout',
+                text: 'Sure?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                confirmButtonText: 'Yes'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = '../index.html';
+                }
+            });
+        });
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        // Search functionality
+        $('#searchMedicine').on('input', function () {
+            const searchTerm = $(this).val();
+            loadMedicines(searchTerm);
+        });
+
+        $('#searchMedicine').on('keypress', function (e) {
+            if (e.which === 13) { // Enter key
+                e.preventDefault();
+                const searchTerm = $(this).val().toLowerCase();
+
+                if (!searchTerm.trim()) {
+                    Swal.fire({ icon: 'warning', text: 'Please enter a medicine name or code' });
+                    return;
+                }
+
+                const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+                const found = medicines.find(m =>
+                    m.name.toLowerCase().includes(searchTerm) ||
+                    m.code.toLowerCase().includes(searchTerm)
+                );
+
+                if (found) {
+                    $(this).val('');
+                    loadMedicines();
+                    openQuantityModal(found.id);
+                } else {
+                    Swal.fire({ icon: 'error', text: `Medicine "${searchTerm}" not found` });
+                }
+            }
+        });
+
+        // Initialize demo data immediately
+        function initializeAllDemoData() {
+            const existingMedicines = localStorage.getItem('medicines');
+            if (!existingMedicines) {
+                localStorage.setItem('medicines', JSON.stringify([
+                    { id: 1, name: 'Aspirin 500mg', code: 'ASP001', categoryId: 1, supplierId: 1, price: 5.99, quantity: 150, expiryDate: '2025-12-31', description: 'Pain relief and fever reducer' },
+                    { id: 2, name: 'Paracetamol 650mg', code: 'PAR001', categoryId: 1, supplierId: 1, price: 4.99, quantity: 200, expiryDate: '2025-10-15', description: 'Acetaminophen for pain and fever' },
+                    { id: 3, name: 'Ibuprofen 400mg', code: 'IBU001', categoryId: 1, supplierId: 2, price: 7.99, quantity: 120, expiryDate: '2025-08-20', description: 'NSAID for inflammation' },
+                    { id: 4, name: 'Cough Syrup', code: 'COUGH001', categoryId: 2, supplierId: 1, price: 8.99, quantity: 95, expiryDate: '2025-09-10', description: 'Effective cough suppressant' },
+                    { id: 5, name: 'Vitamin C 1000mg', code: 'VIT001', categoryId: 3, supplierId: 2, price: 12.99, quantity: 300, expiryDate: '2026-06-30', description: 'Immune system booster' },
+                    { id: 6, name: 'Multivitamin Tablet', code: 'MULTI001', categoryId: 3, supplierId: 1, price: 15.99, quantity: 180, expiryDate: '2025-11-20', description: 'Daily multivitamin supplement' },
+                    { id: 7, name: 'Antibiotic Cream', code: 'ANTI001', categoryId: 4, supplierId: 2, price: 6.49, quantity: 75, expiryDate: '2025-07-15', description: 'Topical antibiotic ointment' },
+                    { id: 8, name: 'Cold Relief Tablet', code: 'COLD001', categoryId: 2, supplierId: 1, price: 5.49, quantity: 140, expiryDate: '2025-09-30', description: 'Nasal and sinus relief' }
+                ]));
+            }
+            const existingTransactions = localStorage.getItem('transactions');
+            if (!existingTransactions) {
+                localStorage.setItem('transactions', JSON.stringify([
+                    { id: 1, date: '2025-12-28', items: 5, total: 45.50, userId: 3 },
+                    { id: 2, date: '2025-12-27', items: 3, total: 28.99, userId: 3 },
+                    { id: 3, date: '2025-12-26', items: 7, total: 62.45, userId: 3 },
+                    { id: 4, date: '2025-12-25', items: 4, total: 35.75, userId: 3 },
+                    { id: 5, date: '2025-12-24', items: 8, total: 89.99, userId: 3 }
+                ]));
+            }
+        }
+        initializeAllDemoData();
+
+        $(document).ready(() => {
+            initializeUI();
+        });
+    </script>
+</body>
+
+</html>

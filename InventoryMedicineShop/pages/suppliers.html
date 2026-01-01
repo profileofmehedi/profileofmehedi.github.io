@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suppliers - MediShop Inventory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --primary-dark: #27ae60;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --gray-color: #95a5a6;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .topbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .topbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 2px solid var(--light-color);
+            border-radius: 25px;
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            display: none;
+            z-index: 1050;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: var(--dark-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .profile-menu {
+            position: relative;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
+            color: white;
+            width: 250px;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            overflow-y: auto;
+            animation: slideInLeft 0.5s ease-out;
+            z-index: 999;
+        }
+
+        .sidebar-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(46, 204, 113, 0.1);
+            padding-left: 30px;
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-left: 4px solid white;
+            padding-left: 21px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 70px;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .btn-add {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        .table thead th {
+            background: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+            border: none;
+            padding: 15px;
+        }
+
+        .table tbody td {
+            padding: 12px 15px;
+            color: var(--dark-color);
+            border-color: var(--light-color);
+        }
+
+        .btn-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: var(--light-color);
+            color: var(--dark-color);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <a href="dashboard.html" class="topbar-brand"><span>💊</span><span>MediShop</span></a>
+        <div class="profile-menu">
+            <button class="profile-button" id="profileBtn">
+                <div class="profile-avatar" id="profileAvatar">A</div>
+                <span id="userName">User</span>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-item" id="logoutBtn" style="color: var(--danger-color);">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div style="padding: 15px 0;">
+            <div
+                style="padding: 10px 25px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);">
+                Inventory</div>
+            <div class="sidebar-item" onclick="navigateTo('medicines.html')">
+                <i class="fas fa-pills"></i><span>Medicines</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('categories.html')">
+                <i class="fas fa-list"></i><span>Categories</span>
+            </div>
+            <div class="sidebar-item active" onclick="navigateTo('suppliers.html')">
+                <i class="fas fa-truck"></i><span>Suppliers</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-truck"></i>Suppliers</h1>
+            <button class="btn-add" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Supplier</button>
+        </div>
+
+        <div class="data-table">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalTitle">Add Supplier</h5>
+                <button class="modal-close" style="background: none; border: none; font-size: 24px; cursor: pointer;"
+                    onclick="closeModal()">&times;</button>
+            </div>
+            <form id="form">
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact *</label>
+                    <input type="tel" class="form-control" id="contact" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" id="email">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea class="form-control" id="address" rows="2"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+        let currentEditId = null;
+        let suppliers = [];
+
+        // Initialize demo data immediately
+        function initializeAllDemoData() {
+            const existingSuppliers = localStorage.getItem('suppliers');
+            if (!existingSuppliers) {
+                localStorage.setItem('suppliers', JSON.stringify([
+                    { id: 1, name: 'Med Pharma Inc', contact: '+1-555-0101', email: 'contact@medpharma.com', address: '123 Pharmacy Street, NY 10001', phone: '+1-555-0101' },
+                    { id: 2, name: 'Health Solutions Ltd', contact: '+1-555-0102', email: 'info@healthsol.com', address: '456 Health Avenue, CA 90001', phone: '+1-555-0102' },
+                    { id: 3, name: 'Global Meds Co', contact: '+1-555-0103', email: 'sales@globalmeds.com', address: '789 Medical Plaza, TX 75001', phone: '+1-555-0103' },
+                    { id: 4, name: 'Premium Healthcare', contact: '+1-555-0104', email: 'support@premiumhc.com', address: '321 Wellness Drive, FL 32000', phone: '+1-555-0104' }
+                ]));
+            }
+        }
+        initializeAllDemoData();
+
+        $(document).ready(function () {
+            document.documentElement.style.setProperty('--primary-color', settings.primaryColor || '#2ecc71');
+            $('#profileAvatar').text(user.name.charAt(0).toUpperCase());
+            $('#userName').text(user.name.split(' ')[0]);
+            loadSuppliers();
+        });
+
+        function loadSuppliers() {
+            suppliers = JSON.parse(localStorage.getItem('suppliers') || '[]');
+            $('#tbody').html(suppliers.map((s, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${s.name}</td>
+                    <td>${s.contact}</td>
+                    <td>${s.email || '-'}</td>
+                    <td>
+                        <button class="btn-icon btn-edit" onclick="editItem(${s.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon btn-delete" onclick="deleteItem(${s.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" class="text-center text-muted">No suppliers</td></tr>');
+        }
+
+        function openAddModal() {
+            currentEditId = null;
+            $('#modalTitle').text('Add Supplier');
+            $('#form')[0].reset();
+            $('#modal').addClass('show');
+        }
+
+        function closeModal() {
+            $('#modal').removeClass('show');
+        }
+
+        function editItem(id) {
+            const item = suppliers.find(s => s.id === id);
+            if (item) {
+                currentEditId = id;
+                $('#modalTitle').text('Edit Supplier');
+                $('#name').val(item.name);
+                $('#contact').val(item.contact);
+                $('#email').val(item.email || '');
+                $('#address').val(item.address || '');
+                $('#modal').addClass('show');
+            }
+        }
+
+        function deleteItem(id) {
+            Swal.fire({ title: 'Delete?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#e74c3c', confirmButtonText: 'Yes' })
+                .then(r => {
+                    if (r.isConfirmed) {
+                        suppliers = suppliers.filter(s => s.id !== id);
+                        localStorage.setItem('suppliers', JSON.stringify(suppliers));
+                        loadSuppliers();
+                        Swal.fire({ icon: 'success', text: 'Deleted', showConfirmButton: false, timer: 1500 });
+                    }
+                });
+        }
+
+        $('#form').on('submit', function (e) {
+            e.preventDefault();
+            const name = $('#name').val().trim();
+            const contact = $('#contact').val().trim();
+            const email = $('#email').val().trim();
+            const address = $('#address').val().trim();
+
+            if (!name || !contact) {
+                Swal.fire({ icon: 'warning', text: 'Name and contact required' });
+                return;
+            }
+
+            if (currentEditId) {
+                const item = suppliers.find(s => s.id === currentEditId);
+                if (item) {
+                    item.name = name;
+                    item.contact = contact;
+                    item.email = email;
+                    item.address = address;
+                }
+            } else {
+                suppliers.push({
+                    id: Math.max(...suppliers.map(s => s.id || 0), 0) + 1,
+                    name, contact, email, address
+                });
+            }
+
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+            closeModal();
+            loadSuppliers();
+            Swal.fire({ icon: 'success', text: 'Saved', showConfirmButton: false, timer: 1500 });
+        });
+
+        $('#profileBtn').click(function (e) {
+            e.stopPropagation();
+            $('#profileDropdown').toggleClass('show');
+        });
+
+        $(document).click(() => $('#profileDropdown').removeClass('show'));
+
+        $('#logoutBtn').click(() => {
+            Swal.fire({ title: 'Logout?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#e74c3c', confirmButtonText: 'Yes' })
+                .then(r => {
+                    if (r.isConfirmed) {
+                        localStorage.removeItem('currentUser');
+                        window.location.href = '../index.html';
+                    }
+                });
+        });
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - MediShop Inventory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --primary-dark: #27ae60;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --gray-color: #95a5a6;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .topbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .topbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 2px solid var(--light-color);
+            border-radius: 25px;
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            display: none;
+            z-index: 1050;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: var(--dark-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .profile-menu {
+            position: relative;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
+            color: white;
+            width: 250px;
+            min-height: 100vh;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            overflow-y: auto;
+            animation: slideInLeft 0.5s ease-out;
+            z-index: 999;
+        }
+
+        .sidebar-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(46, 204, 113, 0.1);
+            padding-left: 30px;
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-left: 4px solid white;
+            padding-left: 21px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 70px;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: scaleIn 0.4s ease-out;
+            max-width: 600px;
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 48px;
+            margin: 0 auto 25px;
+        }
+
+        .profile-info {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .profile-role {
+            font-size: 16px;
+            color: var(--gray-color);
+            margin-top: 5px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .badge-admin {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge-manager {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .badge-seller {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            width: 30%;
+        }
+
+        .info-value {
+            color: var(--gray-color);
+            width: 70%;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-top: 35px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .btn-save {
+            padding: 12px 30px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-cancel {
+            padding: 12px 30px;
+            background: var(--light-color);
+            color: var(--dark-color);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-change-pwd {
+            padding: 12px 30px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+            }
+
+            .profile-card {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <a href="dashboard.html" class="topbar-brand"><span>💊</span><span>MediShop</span></a>
+        <div class="profile-menu">
+            <button class="profile-button" id="profileBtn">
+                <div class="profile-avatar" id="profileAvatar">A</div>
+                <span id="userName">User</span>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-item" id="logoutBtn" style="color: var(--danger-color);">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div style="padding: 15px 0;">
+            <div class="sidebar-item active" onclick="navigateTo('dashboard.html')">
+                <i class="fas fa-user"></i><span>My Profile</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('dashboard.html')">
+                <i class="fas fa-home"></i><span>Dashboard</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title"><i class="fas fa-user-circle"></i>My Profile</h1>
+
+        <div class="profile-card">
+            <div class="profile-avatar-large" id="avatarLarge">A</div>
+            <div class="profile-info">
+                <div class="profile-name" id="profileNameDisplay">-</div>
+                <div class="profile-role" id="profileEmailDisplay">-</div>
+                <span class="role-badge" id="roleBadge" style="display: block;">Admin</span>
+            </div>
+
+            <div style="border-top: 2px solid var(--light-color); padding-top: 25px;">
+                <div class="info-row">
+                    <div class="info-label">Username</div>
+                    <div class="info-value" id="usernameDisplay">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="emailDisplay">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Role</div>
+                    <div class="info-value" id="roleDisplay">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Member Since</div>
+                    <div class="info-value" id="joinedDisplay">Today</div>
+                </div>
+                <div class="info-row" style="border: none;">
+                    <div class="info-label">Status</div>
+                    <div class="info-value" id="statusDisplay"><span
+                            style="color: var(--primary-color); font-weight: 600;">Active</span></div>
+                </div>
+            </div>
+
+            <h3 class="section-title">Change Password</h3>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label>Current Password *</label>
+                    <input type="password" class="form-control" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password *</label>
+                    <input type="password" class="form-control" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password *</label>
+                    <input type="password" class="form-control" id="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn-change-pwd"><i class="fas fa-lock"></i> Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+        let allUsers = [];
+
+        // Initialize demo users immediately
+        function initializeAllDemoData() {
+            const existingUsers = localStorage.getItem('users');
+            if (!existingUsers) {
+                localStorage.setItem('users', JSON.stringify([
+                    { id: 1, name: 'Admin User', username: 'admin', password: 'admin123', email: 'admin@medishop.com', role: 'admin', active: true },
+                    { id: 2, name: 'Manager User', username: 'manager', password: 'manager123', email: 'manager@medishop.com', role: 'manager', active: true },
+                    { id: 3, name: 'Seller User', username: 'seller', password: 'seller123', email: 'seller@medishop.com', role: 'seller', active: true }
+                ]));
+            }
+        }
+        initializeAllDemoData();
+
+        $(document).ready(function () {
+            document.documentElement.style.setProperty('--primary-color', settings.primaryColor || '#2ecc71');
+            if (!user.id) {
+                window.location.href = '../index.html';
+                return;
+            }
+            loadProfile();
+        });
+
+        function loadProfile() {
+            allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            const currentUser = allUsers.find(u => u.id === user.id) || user;
+
+            const initials = user.name.charAt(0).toUpperCase();
+            const badgeMap = { admin: 'badge-admin', manager: 'badge-manager', seller: 'badge-seller' };
+            const roleDisplay = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+            $('#profileAvatar').text(initials);
+            $('#avatarLarge').text(initials);
+            $('#profileNameDisplay').text(user.name);
+            $('#profileEmailDisplay').text(user.email || 'user@medishop.com');
+            $('#usernameDisplay').text(user.username);
+            $('#emailDisplay').text(user.email || 'N/A');
+            $('#roleDisplay').text(roleDisplay);
+            $('#roleBadge').text(roleDisplay).removeClass().addClass(`role-badge ${badgeMap[user.role]}`);
+            $('#userName').text(user.name.split(' ')[0]);
+        }
+
+        $('#passwordForm').on('submit', function (e) {
+            e.preventDefault();
+            const currentPwd = $('#currentPassword').val();
+            const newPwd = $('#newPassword').val();
+            const confirmPwd = $('#confirmPassword').val();
+
+            if (!currentPwd || !newPwd || !confirmPwd) {
+                Swal.fire({ icon: 'warning', text: 'All fields required' });
+                return;
+            }
+
+            if (currentPwd !== user.password) {
+                Swal.fire({ icon: 'error', text: 'Current password is incorrect' });
+                return;
+            }
+
+            if (newPwd.length < 4) {
+                Swal.fire({ icon: 'warning', text: 'Password must be at least 4 characters' });
+                return;
+            }
+
+            if (newPwd !== confirmPwd) {
+                Swal.fire({ icon: 'warning', text: 'Passwords do not match' });
+                return;
+            }
+
+            // Update password in localStorage
+            const userIndex = allUsers.findIndex(u => u.id === user.id);
+            if (userIndex !== -1) {
+                allUsers[userIndex].password = newPwd;
+                localStorage.setItem('users', JSON.stringify(allUsers));
+
+                // Update currentUser
+                user.password = newPwd;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+
+                $('#passwordForm')[0].reset();
+                Swal.fire({ icon: 'success', text: 'Password updated successfully', showConfirmButton: false, timer: 1500 });
+            }
+        });
+
+        $('#profileBtn').click(function (e) {
+            e.stopPropagation();
+            $('#profileDropdown').toggleClass('show');
+        });
+
+        $(document).click(() => $('#profileDropdown').removeClass('show'));
+
+        $('#logoutBtn').click(() => {
+            Swal.fire({ title: 'Logout?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#e74c3c', confirmButtonText: 'Yes' })
+                .then(r => {
+                    if (r.isConfirmed) {
+                        localStorage.removeItem('currentUser');
+                        window.location.href = '../index.html';
+                    }
+                });
+        });
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+    </script>
+</body>
+
+</html>
