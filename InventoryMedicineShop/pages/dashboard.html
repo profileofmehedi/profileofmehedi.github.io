@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="../css/calculator.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --primary-color: #2ecc71;
@@ -158,122 +160,6 @@
 
         .topbar-brand:hover {
             color: var(--primary-dark);
-        }
-
-        /* ===== CALCULATOR WIDGET ===== */
-        .calculator-widget {
-            position: relative;
-        }
-
-        .calc-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid var(--primary-color);
-            background: white;
-            color: var(--primary-color);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: var(--transition);
-        }
-
-        .calc-button:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .calculator-modal {
-            position: fixed !important;
-            bottom: 20px !important;
-            right: 20px !important;
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            width: 300px;
-            display: none !important;
-            visibility: hidden !important;
-            z-index: 1100 !important;
-            animation: scaleIn 0.3s ease-out;
-            opacity: 0;
-            transition: opacity 0.3s ease-out;
-        }
-
-        .calculator-modal.show {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1;
-        }
-
-        .calc-display {
-            background: var(--dark-color);
-            color: white;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            font-size: 24px;
-            text-align: right;
-            margin-bottom: 15px;
-            font-weight: 600;
-            min-height: 50px;
-            word-wrap: break-word;
-            word-break: break-all;
-        }
-
-        .calc-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-
-        .calc-key {
-            padding: 10px;
-            border: 1px solid var(--light-color);
-            border-radius: var(--border-radius);
-            text-align: center;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            background: white;
-            color: var(--dark-color);
-            font-size: 14px;
-        }
-
-        .calc-key:hover {
-            background: var(--light-color);
-            transform: translateY(-2px);
-        }
-
-        .calc-key.operator {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .calc-key.operator:hover {
-            background: var(--primary-dark);
-        }
-
-        .calc-key.equals {
-            grid-column: span 2;
-            background: var(--secondary-color);
-            color: white;
-        }
-
-        .calc-key.equals:hover {
-            background: #2980b9;
-        }
-
-        .calc-key.clear {
-            grid-column: span 2;
-            background: var(--danger-color);
-            color: white;
-        }
-
-        .calc-key.clear:hover {
-            background: #c0392b;
         }
 
         /* ===== TOPBAR RIGHT ===== */
@@ -541,8 +427,59 @@
             color: var(--danger-color);
         }
 
+        /* ===== CHART CONTAINERS ===== */
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        .chart-container h5 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container i {
+            color: var(--primary-color);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .chart-wrapper-small {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+
             .sidebar {
                 width: 200px;
             }
@@ -820,12 +757,57 @@
             </div>
         </div>
 
+        <!-- CHARTS SECTION -->
+        <div class="chart-row">
+            <div class="chart-container">
+                <h5>
+                    <i class="fas fa-chart-line"></i>
+                    Monthly Sales Trend
+                </h5>
+                <div class="chart-wrapper">
+                    <canvas id="salesTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h5>
+                    <i class="fas fa-pie-chart"></i>
+                    Sales by Category
+                </h5>
+                <div class="chart-wrapper-small">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-container">
+                <h5>
+                    <i class="fas fa-warehouse"></i>
+                    Inventory Status
+                </h5>
+                <div class="chart-wrapper">
+                    <canvas id="inventoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h5>
+                    <i class="fas fa-bars"></i>
+                    Top 5 Medicines
+                </h5>
+                <div class="chart-wrapper-small">
+                    <canvas id="topMedicinesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANSACTIONS & INFO ROW -->
         <div class="row">
             <div class="col-lg-8">
-                <div
-                    style="background: white; border-radius: 8px; padding: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); animation: scaleIn 0.5s ease-out 0.5s both;">
-                    <h5 class="mb-4">
-                        <i class="fas fa-history" style="color: var(--primary-color); margin-right: 10px;"></i>
+                <div class="chart-container">
+                    <h5>
+                        <i class="fas fa-history"></i>
                         Recent Transactions
                     </h5>
                     <div id="recentTransactions">
@@ -835,10 +817,9 @@
             </div>
 
             <div class="col-lg-4">
-                <div
-                    style="background: white; border-radius: 8px; padding: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); animation: scaleIn 0.5s ease-out 0.6s both;">
-                    <h5 class="mb-4">
-                        <i class="fas fa-info-circle" style="color: var(--primary-color); margin-right: 10px;"></i>
+                <div class="chart-container">
+                    <h5>
+                        <i class="fas fa-info-circle"></i>
                         Quick Info
                     </h5>
                     <div style="font-size: 13px; color: var(--gray-color); line-height: 1.8;">
@@ -947,6 +928,185 @@
                 html += '</tbody></table>';
                 $('#recentTransactions').html(html);
             }
+
+            // Initialize Charts
+            initializeCharts(medicines, transactions);
+        }
+
+        // Initialize Dashboard Charts
+        function initializeCharts(medicines, transactions) {
+            const chartColors = {
+                primary: 'rgba(46, 204, 113, 0.8)',
+                secondary: 'rgba(52, 152, 219, 0.8)',
+                warning: 'rgba(243, 156, 18, 0.8)',
+                danger: 'rgba(231, 76, 60, 0.8)',
+                info: 'rgba(26, 188, 156, 0.8)',
+                light: 'rgba(236, 240, 241, 0.8)'
+            };
+
+            // Sales Trend Chart
+            const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+            new Chart(salesTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                    datasets: [{
+                        label: 'Weekly Sales ($)',
+                        data: [245.50, 328.99, 462.45, 335.75, 589.99],
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(46, 204, 113, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: { callback: function(value) { return '$' + value; } }
+                        }
+                    }
+                }
+            });
+
+            // Category Distribution Chart
+            const categories = JSON.parse(localStorage.getItem('categories') || '[]');
+            const categoryLabels = categories.map(c => c.name);
+            const categorySales = categoryLabels.map(label => 
+                transactions.reduce((sum, t) => sum + Math.floor(Math.random() * 100), 0)
+            );
+
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categorySales,
+                        backgroundColor: [
+                            chartColors.primary,
+                            chartColors.secondary,
+                            chartColors.warning,
+                            chartColors.danger,
+                            chartColors.info
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 10,
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Inventory Status Chart
+            const inStock = medicines.filter(m => m.quantity > 50).length;
+            const mediumStock = medicines.filter(m => m.quantity > 20 && m.quantity <= 50).length;
+            const lowStock = medicines.filter(m => m.quantity <= 20).length;
+
+            const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+            new Chart(inventoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['In Stock', 'Medium Stock', 'Low Stock'],
+                    datasets: [{
+                        label: 'Number of Medicines',
+                        data: [inStock, mediumStock, lowStock],
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.8)',
+                            'rgba(243, 156, 18, 0.8)',
+                            'rgba(231, 76, 60, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { font: { size: 12, weight: 'bold' } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        }
+                    }
+                }
+            });
+
+            // Top 5 Medicines Chart
+            const topMedicines = medicines.sort((a, b) => b.quantity - a.quantity).slice(0, 5);
+            const topCtx = document.getElementById('topMedicinesChart').getContext('2d');
+            new Chart(topCtx, {
+                type: 'bar',
+                data: {
+                    labels: topMedicines.map(m => m.name.substring(0, 10)),
+                    datasets: [{
+                        label: 'Stock Quantity',
+                        data: topMedicines.map(m => m.quantity),
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { font: { size: 12, weight: 'bold' } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        }
+                    }
+                }
+            });
         }
 
         // Navigator function
@@ -980,101 +1140,6 @@
                     window.location.href = '../index.html';
                 }
             });
-        });
-
-        // Calculator
-        let calcBuffer = '';
-        let calcCurrentValue = '0';
-        let calcPreviousValue = '';
-        let calcOperator = null;
-
-        function calcKey(key) {
-            if (key === '+' || key === '-' || key === '*' || key === '/') {
-                if (calcCurrentValue !== '0') {
-                    calcPreviousValue = calcCurrentValue;
-                    calcOperator = key;
-                    calcCurrentValue = '0';
-                }
-            } else {
-                if (calcCurrentValue === '0') {
-                    calcCurrentValue = key;
-                } else {
-                    calcCurrentValue += key;
-                }
-            }
-            updateCalcDisplay();
-        }
-
-        function calculateResult() {
-            if (calcOperator && calcPreviousValue !== '') {
-                let result;
-                const prev = parseFloat(calcPreviousValue);
-                const current = parseFloat(calcCurrentValue);
-
-                switch (calcOperator) {
-                    case '+': result = prev + current; break;
-                    case '-': result = prev - current; break;
-                    case '*': result = prev * current; break;
-                    case '/': result = prev / current; break;
-                    default: result = current;
-                }
-
-                calcCurrentValue = result.toString();
-                calcPreviousValue = '';
-                calcOperator = null;
-                updateCalcDisplay();
-            }
-        }
-
-        function clearCalc() {
-            calcCurrentValue = '0';
-            calcPreviousValue = '';
-            calcOperator = null;
-            updateCalcDisplay();
-        }
-
-        function backspaceCalc() {
-            if (calcCurrentValue.length > 1) {
-                calcCurrentValue = calcCurrentValue.slice(0, -1);
-            } else {
-                calcCurrentValue = '0';
-            }
-            updateCalcDisplay();
-        }
-
-        function updateCalcDisplay() {
-            $('#calcDisplay').text(calcCurrentValue);
-        }
-
-        // Keyboard shortcuts
-        $(document).keydown(function (e) {
-            const shortcuts = JSON.parse(localStorage.getItem('shortcuts') || '{}');
-
-            // Calculator shortcut
-            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-                e.preventDefault();
-                $('#calcToggle').click();
-            }
-
-            // Number keys for calculator
-            if ($('#calcModal').hasClass('show')) {
-                if (e.key >= '0' && e.key <= '9') {
-                    calcKey(e.key);
-                } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
-                    calcKey(e.key);
-                } else if (e.key === 'Enter') {
-                    calculateResult();
-                } else if (e.key === 'Escape') {
-                    $('#calcModal').removeClass('show');
-                } else if (e.key === 'Backspace') {
-                    backspaceCalc();
-                }
-            }
-
-            // Other shortcuts
-            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-                navigateTo('medicines.html');
-            }
         });
 
         // Initialize demo data across all pages
@@ -1134,25 +1199,12 @@
             initializeAllDemoData();
             applyTheme();
             initializeUI();
-
-            // Calculator toggle - bind click handler after DOM is ready
-            $('#calcToggle').off('click').on('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Calculator button clicked!');
-                const modal = $('#calcModal');
-                console.log('Modal element:', modal);
-                console.log('Modal before toggle:', modal.attr('class'));
-                modal.toggleClass('show');
-                console.log('Modal after toggle:', modal.attr('class'));
-                console.log('Modal display:', modal.css('display'));
-                console.log('Modal visibility:', modal.css('visibility'));
-            });
-
-            console.log('✅ Calculator initialized and ready');
-            console.log('Calculator button element:', $('#calcToggle'));
         });
     </script>
+    <script src="../js/calculator.js"></script>
 </body>
 
 </html>
+
+
+

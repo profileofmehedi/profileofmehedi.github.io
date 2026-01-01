@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="../css/calculator.css">
     <style>
         :root {
             --primary-color: #2ecc71;
@@ -568,11 +569,47 @@
     <div class="topbar">
         <div class="topbar-left">
             <a href="dashboard.html" class="topbar-brand">
-                <span>💊</span>
+                <span class="logo-icon">💊</span>
                 <span>MediShop</span>
             </a>
+
+            <!-- Calculator Widget -->
+            <div class="calculator-widget">
+                <button class="calc-button" id="calcToggle" title="Calculator (Ctrl+Shift+C)">
+                    <i class="fas fa-calculator"></i>
+                </button>
+                <div class="calculator-modal" id="calcModal">
+                    <div class="calc-display" id="calcDisplay">0</div>
+                    <div class="calc-grid">
+                        <button class="calc-key clear" onclick="clearCalc()">C</button>
+                        <button class="calc-key operator" onclick="calcKey('/')">/</button>
+                        <button class="calc-key operator" onclick="calcKey('*')">×</button>
+                        <button class="calc-key operator" onclick="calcKey('-')">-</button>
+
+                        <button class="calc-key" onclick="calcKey('7')">7</button>
+                        <button class="calc-key" onclick="calcKey('8')">8</button>
+                        <button class="calc-key" onclick="calcKey('9')">9</button>
+                        <button class="calc-key operator" onclick="calcKey('+')">+</button>
+
+                        <button class="calc-key" onclick="calcKey('4')">4</button>
+                        <button class="calc-key" onclick="calcKey('5')">5</button>
+                        <button class="calc-key" onclick="calcKey('6')">6</button>
+                        <button class="calc-key operator" onclick="calcKey('.')">,</button>
+
+                        <button class="calc-key" onclick="calcKey('1')">1</button>
+                        <button class="calc-key" onclick="calcKey('2')">2</button>
+                        <button class="calc-key" onclick="calcKey('3')">3</button>
+                        <button class="calc-key operator" onclick="backspaceCalc()">⌫</button>
+
+                        <button class="calc-key" onclick="calcKey('0')" style="grid-column: span 2;">0</button>
+                        <button class="calc-key equals" onclick="calculateResult()">=</button>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div class="topbar-right">
+            <!-- Profile Menu -->
             <div class="profile-menu">
                 <button class="profile-button" id="profileBtn">
                     <div class="profile-avatar" id="profileAvatar">A</div>
@@ -580,7 +617,13 @@
                     <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="profile-dropdown" id="profileDropdown">
-                    <div class="profile-dropdown-item" id="logoutBtn" style="color: var(--danger-color);">
+                    <a href="profile.html" class="profile-dropdown-item">
+                        <i class="fas fa-user"></i> My Profile
+                    </a>
+                    <a href="settings.html" class="profile-dropdown-item">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <div class="profile-dropdown-item logout" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </div>
                 </div>
@@ -590,9 +633,53 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div style="padding: 15px 0;">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Main Menu</div>
+            <div class="sidebar-item active" onclick="navigateTo('dashboard.html')">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section" id="inventorySection">
+            <div class="sidebar-section-title">Inventory</div>
+            <div class="sidebar-item" onclick="navigateTo('medicines.html')">
+                <i class="fas fa-pills"></i>
+                <span>Medicines</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('categories.html')">
+                <i class="fas fa-list"></i>
+                <span>Categories</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('suppliers.html')">
+                <i class="fas fa-truck"></i>
+                <span>Suppliers</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section" id="salesSection">
+            <div class="sidebar-section-title">Sales</div>
+            <div class="sidebar-item" onclick="navigateTo('sales.html')">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Sales</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('inventory.html')">
+                <i class="fas fa-warehouse"></i>
+                <span>Stock Management</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section" id="reportsSection">
+            <div class="sidebar-section-title">Reports</div>
+            <div class="sidebar-item" onclick="navigateTo('reports.html')">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section" id="adminSection">
             <div class="sidebar-section-title">Administration</div>
-            <div class="sidebar-item active" onclick="navigateTo('users.html')">
+            <div class="sidebar-item" onclick="navigateTo('users.html')">
                 <i class="fas fa-users"></i>
                 <span>User Management</span>
             </div>
@@ -990,6 +1077,7 @@
             initializeUI();
         });
     </script>
+    <script src="../js/calculator.js"></script>
 </body>
 
 </html>
