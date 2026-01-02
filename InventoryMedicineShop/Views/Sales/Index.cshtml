@@ -1,0 +1,341 @@
+@{
+    ViewData["Title"] = "Sales/POS";
+    ViewData["PageTitle"] = "Point of Sale";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - MediShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/calculator.css">
+</head>
+<body>
+    @await Html.PartialAsync("_Sidebar")
+    
+    <div class="main-content">
+        @await Html.PartialAsync("_Topbar")
+        
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-search me-2"></i>Search Medicine</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="searchMedicine" placeholder="Search by name or barcode...">
+                        </div>
+                        <div id="searchResults"></div>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5><i class="fas fa-shopping-cart me-2"></i>Cart Items</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Medicine</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cartItems"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calculator me-2"></i>Checkout</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customerName">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Customer Phone</label>
+                            <input type="text" class="form-control" id="customerPhone">
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <strong id="subtotal">$0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (5%):</span>
+                            <strong id="tax">$0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Discount:</span>
+                            <div>
+                                <input type="number" class="form-control form-control-sm" id="discount" value="0" min="0" style="width: 100px; display: inline;">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5>Total:</h5>
+                            <h5 class="text-success" id="total">$0.00</h5>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-select" id="paymentMethod">
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="Mobile">Mobile</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Amount Paid</label>
+                            <input type="number" class="form-control" id="amountPaid" step="0.01">
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Change:</span>
+                            <strong id="change">$0.00</strong>
+                        </div>
+                        
+                        <button class="btn btn-success w-100" onclick="completeSale()">
+                            <i class="fas fa-check"></i> Complete Sale
+                        </button>
+                        <button class="btn btn-danger w-100 mt-2" onclick="clearCart()">
+                            <i class="fas fa-times"></i> Clear Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/calculator.js"></script>
+    <script>
+        let cart = [];
+        let medicines = [];
+        
+        $(document).ready(function() {
+            loadMedicines();
+            
+            $('#searchMedicine').on('input', function() {
+                searchMedicines($(this).val());
+            });
+            
+            $('#discount, #amountPaid').on('input', updateTotals);
+        });
+
+        async function loadMedicines() {
+            try {
+                const response = await fetch('@Url.Action("GetAvailableBatches", "Sales")');
+                const result = await response.json();
+                
+                if (result.success) {
+                    medicines = result.data;
+                }
+            } catch (error) {
+                console.error('Error loading medicines:', error);
+            }
+        }
+
+        function searchMedicines(query) {
+            if (query.length < 2) {
+                $('#searchResults').html('');
+                return;
+            }
+            
+            const results = medicines.filter(m => 
+                m.name.toLowerCase().includes(query.toLowerCase()) ||
+                m.batchNumber.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            let html = '<div class="list-group">';
+            results.forEach(medicine => {
+                html += `
+                    <a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="addToCart(${medicine.batchId})">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">${medicine.name}</h6>
+                                <small>Batch: ${medicine.batchNumber} | Stock: ${medicine.quantity}</small>
+                            </div>
+                            <div class="text-end">
+                                <strong>$${medicine.sellingPrice.toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            });
+            html += '</div>';
+            
+            $('#searchResults').html(html);
+        }
+
+        function addToCart(batchId) {
+            const medicine = medicines.find(m => m.batchId === batchId);
+            if (!medicine) return;
+            
+            const existingItem = cart.find(item => item.batchId === batchId);
+            if (existingItem) {
+                if (existingItem.quantity < medicine.quantity) {
+                    existingItem.quantity++;
+                } else {
+                    Swal.fire('Warning', 'Insufficient stock!', 'warning');
+                    return;
+                }
+            } else {
+                cart.push({
+                    batchId: medicine.batchId,
+                    medicineId: medicine.medicineId,
+                    name: medicine.name,
+                    price: medicine.sellingPrice,
+                    quantity: 1,
+                    maxQuantity: medicine.quantity
+                });
+            }
+            
+            updateCart();
+        }
+
+        function updateCart() {
+            let html = '';
+            cart.forEach((item, index) => {
+                const total = item.price * item.quantity;
+                html += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>$${item.price.toFixed(2)}</td>
+                        <td>
+                            <div class="input-group input-group-sm" style="width: 120px;">
+                                <button class="btn btn-outline-secondary" onclick="updateQuantity(${index}, -1)">-</button>
+                                <input type="text" class="form-control text-center" value="${item.quantity}" readonly>
+                                <button class="btn btn-outline-secondary" onclick="updateQuantity(${index}, 1)">+</button>
+                            </div>
+                        </td>
+                        <td>$${total.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            $('#cartItems').html(html);
+            updateTotals();
+        }
+
+        function updateQuantity(index, change) {
+            const item = cart[index];
+            const newQuantity = item.quantity + change;
+            
+            if (newQuantity <= 0) {
+                removeFromCart(index);
+            } else if (newQuantity <= item.maxQuantity) {
+                item.quantity = newQuantity;
+                updateCart();
+            } else {
+                Swal.fire('Warning', 'Insufficient stock!', 'warning');
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function updateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.05;
+            const discount = parseFloat($('#discount').val()) || 0;
+            const total = subtotal + tax - discount;
+            
+            $('#subtotal').text('$' + subtotal.toFixed(2));
+            $('#tax').text('$' + tax.toFixed(2));
+            $('#total').text('$' + total.toFixed(2));
+            
+            const amountPaid = parseFloat($('#amountPaid').val()) || 0;
+            const change = amountPaid - total;
+            $('#change').text('$' + change.toFixed(2));
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCart();
+            $('#customerName, #customerPhone, #amountPaid').val('');
+            $('#discount').val(0);
+        }
+
+        async function completeSale() {
+            if (cart.length === 0) {
+                Swal.fire('Error', 'Cart is empty!', 'error');
+                return;
+            }
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.05;
+            const discount = parseFloat($('#discount').val()) || 0;
+            const total = subtotal + tax - discount;
+            
+            const saleData = {
+                customerName: $('#customerName').val() || 'Walk-in Customer',
+                customerPhone: $('#customerPhone').val(),
+                paymentMethod: $('#paymentMethod').val(),
+                subtotal: subtotal,
+                tax: tax,
+                discount: discount,
+                totalAmount: total,
+                items: cart.map(item => ({
+                    batchId: item.batchId,
+                    medicineId: item.medicineId,
+                    quantity: item.quantity,
+                    unitPrice: item.price,
+                    totalPrice: item.price * item.quantity
+                }))
+            };
+            
+            try {
+                const response = await fetch('@Url.Action("Create", "Sales")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify(saleData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire('Success!', 'Sale completed successfully!', 'success');
+                    clearCart();
+                    loadMedicines();
+                } else {
+                    Swal.fire('Error!', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'An error occurred', 'error');
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+</body>
+</html>

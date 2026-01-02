@@ -1,0 +1,292 @@
+@{
+    ViewData["Title"] = "Inventory Management";
+    ViewData["PageTitle"] = "Inventory";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - MediShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="~/css/calculator.css">
+</head>
+<body>
+    @await Html.PartialAsync("_Sidebar")
+    
+    <div class="main-content">
+        @await Html.PartialAsync("_Topbar")
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-boxes me-2"></i>Inventory Batches</h5>
+                <button class="btn btn-primary" onclick="showAddModal()">
+                    <i class="fas fa-plus"></i> Add Batch
+                </button>
+            </div>
+            <div class="card-body">
+                <table id="inventoryTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Batch ID</th>
+                            <th>Medicine</th>
+                            <th>Batch Number</th>
+                            <th>Quantity</th>
+                            <th>Purchase Price</th>
+                            <th>Selling Price</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="batchModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add Batch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="batchForm">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <input type="hidden" id="batchId" name="batchId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Medicine *</label>
+                                <select class="form-select" id="medicineId" name="medicineId" required></select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Batch Number *</label>
+                                <input type="text" class="form-control" id="batchNumber" name="batchNumber" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quantity *</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Purchase Price *</label>
+                                <input type="number" class="form-control" id="purchasePrice" name="purchasePrice" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Selling Price *</label>
+                                <input type="number" class="form-control" id="sellingPrice" name="sellingPrice" step="0.01" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Expiry Date *</label>
+                                <input type="date" class="form-control" id="expiryDate" name="expiryDate" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Manufacture Date *</label>
+                            <input type="date" class="form-control" id="manufactureDate" name="manufactureDate" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/calculator.js"></script>
+    <script>
+        let table;
+        
+        $(document).ready(function() {
+            loadMedicines();
+            
+            table = $('#inventoryTable').DataTable({
+                ajax: '@Url.Action("GetAll", "Inventory")',
+                columns: [
+                    { data: 'batchId' },
+                    { data: 'medicineName' },
+                    { data: 'batchNumber' },
+                    { data: 'quantity' },
+                    { 
+                        data: 'purchasePrice',
+                        render: function(data) {
+                            return '$' + parseFloat(data).toFixed(2);
+                        }
+                    },
+                    { 
+                        data: 'sellingPrice',
+                        render: function(data) {
+                            return '$' + parseFloat(data).toFixed(2);
+                        }
+                    },
+                    { 
+                        data: 'expiryDate',
+                        render: function(data) {
+                            return new Date(data).toLocaleDateString();
+                        }
+                    },
+                    {
+                        data: 'expiryDate',
+                        render: function(data) {
+                            const expiryDate = new Date(data);
+                            const today = new Date();
+                            const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                            
+                            if (diffDays < 0) {
+                                return '<span class="badge bg-danger">Expired</span>';
+                            } else if (diffDays <= 30) {
+                                return '<span class="badge bg-warning">Expiring Soon</span>';
+                            } else {
+                                return '<span class="badge bg-success">Good</span>';
+                            }
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <button class="btn btn-sm btn-info" onclick="editBatch(${row.batchId})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteBatch(${row.batchId})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ]
+            });
+        });
+
+        async function loadMedicines() {
+            try {
+                const response = await fetch('@Url.Action("GetAll", "Medicines")');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = $('#medicineId');
+                    select.empty();
+                    select.append('<option value="">Select Medicine</option>');
+                    result.data.forEach(medicine => {
+                        select.append(`<option value="${medicine.medicineId}">${medicine.name}</option>`);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading medicines:', error);
+            }
+        }
+
+        function showAddModal() {
+            $('#modalTitle').text('Add Batch');
+            $('#batchForm')[0].reset();
+            $('#batchId').val('');
+            new bootstrap.Modal($('#batchModal')).show();
+        }
+
+        async function editBatch(id) {
+            try {
+                const response = await fetch(`@Url.Action("GetById", "Inventory")/${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const batch = result.data;
+                    $('#modalTitle').text('Edit Batch');
+                    $('#batchId').val(batch.batchId);
+                    $('#medicineId').val(batch.medicineId);
+                    $('#batchNumber').val(batch.batchNumber);
+                    $('#quantity').val(batch.quantity);
+                    $('#purchasePrice').val(batch.purchasePrice);
+                    $('#sellingPrice').val(batch.sellingPrice);
+                    $('#expiryDate').val(batch.expiryDate.split('T')[0]);
+                    $('#manufactureDate').val(batch.manufactureDate.split('T')[0]);
+                    new bootstrap.Modal($('#batchModal')).show();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        $('#batchForm').on('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const url = data.batchId ? '@Url.Action("Update", "Inventory")' : '@Url.Action("Create", "Inventory")';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    bootstrap.Modal.getInstance($('#batchModal')).hide();
+                    table.ajax.reload();
+                    Swal.fire('Success!', result.message, 'success');
+                } else {
+                    Swal.fire('Error!', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'An error occurred', 'error');
+            }
+        });
+
+        async function deleteBatch(id) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`@Url.Action("Delete", "Inventory")/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        table.ajax.reload();
+                        Swal.fire('Deleted!', data.message, 'success');
+                    } else {
+                        Swal.fire('Error!', data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'An error occurred', 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+@{
+    ViewData["Title"] = "Medicines Management";
+    ViewData["PageTitle"] = "Medicines";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - MediShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="~/css/calculator.css">
+</head>
+<body>
+    @await Html.PartialAsync("_Sidebar")
+    
+    <div class="main-content">
+        @await Html.PartialAsync("_Topbar")
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-pills me-2"></i>Medicines List</h5>
+                <button class="btn btn-primary" onclick="showAddModal()">
+                    <i class="fas fa-plus"></i> Add Medicine
+                </button>
+            </div>
+            <div class="card-body">
+                <table id="medicinesTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Generic Name</th>
+                            <th>Unit Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="medicineModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add Medicine</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="medicineForm">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <input type="hidden" id="medicineId" name="medicineId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Medicine Name *</label>
+                                <input type="text" class="form-control" id="medicineName" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Generic Name *</label>
+                                <input type="text" class="form-control" id="genericName" name="genericName" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Category *</label>
+                                <select class="form-select" id="categoryId" name="categoryId" required></select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Supplier *</label>
+                                <select class="form-select" id="supplierId" name="supplierId" required></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Unit Price *</label>
+                                <input type="number" class="form-control" id="unitPrice" name="unitPrice" step="0.01" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Min Stock Level *</label>
+                                <input type="number" class="form-control" id="minStockLevel" name="minStockLevel" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Max Stock Level *</label>
+                                <input type="number" class="form-control" id="maxStockLevel" name="maxStockLevel" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/calculator.js"></script>
+    <script>
+        let table;
+        
+        $(document).ready(function() {
+            loadCategories();
+            loadSuppliers();
+            
+            table = $('#medicinesTable').DataTable({
+                ajax: '@Url.Action("GetAll", "Medicines")',
+                columns: [
+                    { data: 'medicineId' },
+                    { data: 'name' },
+                    { data: 'categoryName' },
+                    { data: 'genericName' },
+                    { 
+                        data: 'unitPrice',
+                        render: function(data) {
+                            return '$' + parseFloat(data).toFixed(2);
+                        }
+                    },
+                    { data: 'totalStock' },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <button class="btn btn-sm btn-info" onclick="editMedicine(${row.medicineId})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteMedicine(${row.medicineId})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ]
+            });
+        });
+
+        async function loadCategories() {
+            try {
+                const response = await fetch('@Url.Action("GetAll", "Categories")');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = $('#categoryId');
+                    select.empty();
+                    select.append('<option value="">Select Category</option>');
+                    result.data.forEach(category => {
+                        select.append(`<option value="${category.categoryId}">${category.name}</option>`);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadSuppliers() {
+            try {
+                const response = await fetch('@Url.Action("GetAll", "Suppliers")');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = $('#supplierId');
+                    select.empty();
+                    select.append('<option value="">Select Supplier</option>');
+                    result.data.forEach(supplier => {
+                        select.append(`<option value="${supplier.supplierId}">${supplier.name}</option>`);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading suppliers:', error);
+            }
+        }
+
+        function showAddModal() {
+            $('#modalTitle').text('Add Medicine');
+            $('#medicineForm')[0].reset();
+            $('#medicineId').val('');
+            new bootstrap.Modal($('#medicineModal')).show();
+        }
+
+        async function editMedicine(id) {
+            try {
+                const response = await fetch(`@Url.Action("GetById", "Medicines")/${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const medicine = result.data;
+                    $('#modalTitle').text('Edit Medicine');
+                    $('#medicineId').val(medicine.medicineId);
+                    $('#medicineName').val(medicine.name);
+                    $('#genericName').val(medicine.genericName);
+                    $('#categoryId').val(medicine.categoryId);
+                    $('#supplierId').val(medicine.supplierId);
+                    $('#unitPrice').val(medicine.unitPrice);
+                    $('#minStockLevel').val(medicine.minStockLevel);
+                    $('#maxStockLevel').val(medicine.maxStockLevel);
+                    $('#description').val(medicine.description);
+                    new bootstrap.Modal($('#medicineModal')).show();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        $('#medicineForm').on('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const url = data.medicineId ? '@Url.Action("Update", "Medicines")' : '@Url.Action("Create", "Medicines")';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    bootstrap.Modal.getInstance($('#medicineModal')).hide();
+                    table.ajax.reload();
+                    Swal.fire('Success!', result.message, 'success');
+                } else {
+                    Swal.fire('Error!', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'An error occurred', 'error');
+            }
+        });
+
+        async function deleteMedicine(id) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`@Url.Action("Delete", "Medicines")/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        table.ajax.reload();
+                        Swal.fire('Deleted!', data.message, 'success');
+                    } else {
+                        Swal.fire('Error!', data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'An error occurred', 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

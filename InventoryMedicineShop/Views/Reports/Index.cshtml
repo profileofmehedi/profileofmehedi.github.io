@@ -1,0 +1,260 @@
+@{
+    ViewData["Title"] = "Reports";
+    ViewData["PageTitle"] = "Reports & Analytics";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - MediShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/calculator.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    @await Html.PartialAsync("_Sidebar")
+    
+    <div class="main-content">
+        @await Html.PartialAsync("_Topbar")
+        
+        <!-- Filter Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Report Type</label>
+                        <select class="form-select" id="reportType">
+                            <option value="sales">Sales Report</option>
+                            <option value="inventory">Inventory Report</option>
+                            <option value="expiry">Expiry Report</option>
+                            <option value="profit">Profit Report</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-primary w-100" onclick="generateReport()">
+                            <i class="fas fa-search"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h6>Total Sales</h6>
+                        <h3 id="totalSales">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h6>Total Profit</h6>
+                        <h3 id="totalProfit">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h6>Total Transactions</h6>
+                        <h3 id="totalTransactions">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h6>Average Sale</h6>
+                        <h3 id="averageSale">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Sales Trend</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="exportReport()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salesTrendChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-table me-2"></i>Detailed Report</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="reportTable">
+                        <thead id="reportTableHead"></thead>
+                        <tbody id="reportTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/calculator.js"></script>
+    <script>
+        let chart;
+        
+        $(document).ready(function() {
+            // Set default dates
+            const today = new Date();
+            const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+            
+            $('#startDate').val(lastMonth.toISOString().split('T')[0]);
+            $('#endDate').val(today.toISOString().split('T')[0]);
+            
+            generateReport();
+        });
+
+        async function generateReport() {
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
+            const reportType = $('#reportType').val();
+            
+            if (!startDate || !endDate) {
+                Swal.fire('Error', 'Please select date range', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`@Url.Action("Generate", "Reports")?startDate=${startDate}&endDate=${endDate}&type=${reportType}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateSummary(result.data.summary);
+                    updateChart(result.data.chartData);
+                    updateTable(result.data.details, reportType);
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Failed to generate report', 'error');
+            }
+        }
+
+        function updateSummary(summary) {
+            $('#totalSales').text('$' + (summary.totalSales || 0).toFixed(2));
+            $('#totalProfit').text('$' + (summary.totalProfit || 0).toFixed(2));
+            $('#totalTransactions').text(summary.totalTransactions || 0);
+            $('#averageSale').text('$' + (summary.averageSale || 0).toFixed(2));
+        }
+
+        function updateChart(chartData) {
+            const ctx = document.getElementById('salesTrendChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels || [],
+                    datasets: [{
+                        label: 'Sales',
+                        data: chartData.values || [],
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTable(details, reportType) {
+            let headerHtml = '<tr>';
+            let bodyHtml = '';
+            
+            if (reportType === 'sales') {
+                headerHtml += '<th>Date</th><th>Invoice</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th></tr>';
+                details.forEach(item => {
+                    bodyHtml += `
+                        <tr>
+                            <td>${new Date(item.date).toLocaleDateString()}</td>
+                            <td>${item.invoiceNumber}</td>
+                            <td>${item.customerName}</td>
+                            <td>${item.itemsCount}</td>
+                            <td>$${item.totalAmount.toFixed(2)}</td>
+                            <td>${item.paymentMethod}</td>
+                        </tr>
+                    `;
+                });
+            } else if (reportType === 'inventory') {
+                headerHtml += '<th>Medicine</th><th>Batch</th><th>Quantity</th><th>Purchase Price</th><th>Selling Price</th><th>Expiry</th></tr>';
+                details.forEach(item => {
+                    bodyHtml += `
+                        <tr>
+                            <td>${item.medicineName}</td>
+                            <td>${item.batchNumber}</td>
+                            <td>${item.quantity}</td>
+                            <td>$${item.purchasePrice.toFixed(2)}</td>
+                            <td>$${item.sellingPrice.toFixed(2)}</td>
+                            <td>${new Date(item.expiryDate).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            $('#reportTableHead').html(headerHtml);
+            $('#reportTableBody').html(bodyHtml);
+        }
+
+        function exportReport() {
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
+            const reportType = $('#reportType').val();
+            
+            window.location.href = `@Url.Action("Export", "Reports")?startDate=${startDate}&endDate=${endDate}&type=${reportType}`;
+        }
+    </script>
+</body>
+</html>
