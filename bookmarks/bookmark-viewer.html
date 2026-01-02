@@ -465,9 +465,9 @@
             $('#searchInput').on('keyup', function() {
                 const query = $(this).val().toLowerCase();
                 if(query.length < 2) {
-                    // If search is cleared, go back to root
                     if(query.length === 0 && rootNode) {
-                        $('.tree-item[data-id="root"]').trigger('click');
+                        const first = findFirstFolder(rootNode);
+                        if(first) selectFolder(first);
                     }
                     return; 
                 }
@@ -477,6 +477,7 @@
                 );
                 renderBookmarks(results, `Search Results`, `Found ${results.length} matches`);
             });
+			
         });
 
         // --- THEME & VIEW LOGIC ---
@@ -520,7 +521,7 @@
                 dataType: "text",
                 success: function(data) {
                     parseBookmarksHTML(data);
-                    setTimeout(() => $('#status-screen').fadeOut(500), 400);
+                    setTimeout(() => $('#status-screen').fadeOut(500), 600);
                 },
                 error: function() {
                     if (window.location.protocol === 'file:') {
@@ -542,16 +543,15 @@
             rootNode = rootData;
             renderSidebar(rootData);
 
-            // UPDATED: Automatically click the "All Bookmarks" (Root) item on load
-            setTimeout(() => {
-                const $rootItem = $(`.tree-item[data-id="root"]`);
-                if($rootItem.length) {
-                    $rootItem.trigger('click');
-                } else {
-                    // Fallback if UI failed
-                    selectFolder(rootNode); 
-                }
-            }, 100);
+            const firstFolder = findFirstFolder(rootData);
+            if(firstFolder) {
+                // Auto Expand in tree
+                setTimeout(() => {
+                    const $item = $(`.tree-item[data-id="${firstFolder.id}"]`);
+                    $item.parents('.tree-children').show().prev().find('.toggle-icon').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                    selectFolder(firstFolder);
+                }, 100);
+            }
         }
 
         function traverseNodes($dl, parentObj) {
@@ -589,45 +589,23 @@
             const $root = $('#folder-tree-root');
             $root.empty();
             
-            // UPDATED: Manually create the "All Bookmarks" root item at the top
-            const $rootItem = $('<div>').addClass('tree-item')
-                .attr('data-id', 'root')
-                .html(`<i class="fas fa-home folder-icon" style="color:var(--accent-color)"></i> <span>All Bookmarks</span>`)
-                .on('click', function() {
-                    $('.tree-item').removeClass('active');
-                    $(this).addClass('active');
-                    // For Root, we want to see direct links AND maybe immediate subfolder contents?
-                    // For now, let's show direct links of root.
-                    selectFolder(data);
-                });
-            $root.append($rootItem);
-
             function createTreeItem(item, level = 0) {
                 const hasSubFolders = item.children && item.children.some(c => c.type === 'folder');
                 const $container = $('<div>');
                 
                 const $row = $('<div>')
                     .addClass('tree-item')
-                    .css('padding-left', (level * 15) + 15 + 'px') // Added indent for hierarchy
+                    .css('padding-left', (level * 15) + 10 + 'px')
                     .attr('data-id', item.id)
                     .on('click', function(e) {
                         e.stopPropagation();
-                        // Toggle logic
                         if(hasSubFolders) {
                             const $children = $container.children('.tree-children');
+                            $children.slideToggle(200);
                             const $icon = $(this).find('.toggle-icon');
-                            
-                            // If strictly clicking the arrow, or if it's the folder row
-                            if($children.is(':visible')) {
-                                $children.slideUp(200);
-                                $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
-                            } else {
-                                $children.slideDown(200);
-                                $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                            }
+                            if($children.is(':visible')) $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right'); // Logic flip for animation
+                            else $icon.toggleClass('fa-chevron-right fa-chevron-down');
                         }
-                        
-                        // Selection logic
                         $('.tree-item').removeClass('active');
                         $(this).addClass('active');
                         selectFolder(item);
@@ -647,14 +625,12 @@
                 return $container;
             }
 
-            // Loop through children to build tree
             data.children.forEach(child => {
                 if(child.type === 'folder') $root.append(createTreeItem(child));
             });
         }
 
         function selectFolder(folderData) {
-            // UPDATED: Show links. If root, show links. 
             const links = folderData.children.filter(c => c.type === 'link');
             renderBookmarks(links, folderData.name, `Viewing contents of "${folderData.name}"`);
         }
@@ -704,9 +680,16 @@
         function getShortUrl(url) {
             try { return new URL(url).hostname; } catch { return url; }
         }
+
+        function findFirstFolder(node) {
+            if(node.children && node.children.some(c => c.type === 'folder')) {
+                const bar = node.children.find(c => c.name.toLowerCase().includes("bar"));
+                return bar || node.children.find(c => c.type === 'folder');
+            }
+            return node;
+        }
     </script>
-	
-	<style>
+    <style>
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </body>
