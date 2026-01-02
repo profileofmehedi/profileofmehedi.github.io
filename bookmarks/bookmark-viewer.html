@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmark Studio</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --text-main: #ffffff;
+            --text-muted: #aab2bd;
+            --accent-color: #00d2ff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-main);
+            /* Animated Background */
+            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            height: 70px;
+        }
+
+        .search-input {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: white;
+            border-radius: 20px;
+            padding-left: 20px;
+        }
+        .search-input:focus {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent-color);
+            color: white;
+            box-shadow: none;
+        }
+        .search-input::placeholder { color: var(--text-muted); }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            border-right: 1px solid var(--glass-border);
+            overflow-y: auto;
+            padding: 20px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Tree Items */
+        .tree-item {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+        .tree-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            transform: translateX(5px);
+        }
+        .tree-item.active {
+            background: rgba(0, 210, 255, 0.15);
+            color: var(--accent-color);
+            border-color: rgba(0, 210, 255, 0.3);
+            font-weight: 500;
+        }
+        .tree-children {
+            padding-left: 18px;
+            display: none;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            margin-left: 8px;
+        }
+        .folder-icon { color: #f1c40f; margin-right: 10px; }
+        .toggle-icon { font-size: 0.7rem; width: 15px; text-align: center; margin-right: 5px; opacity: 0.7; }
+
+        /* Content Area */
+        .content-area {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Bookmark Cards (Glassmorphism) */
+        .bookmark-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bookmark-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+
+        .bookmark-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .bookmark-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .card-body {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .favicon-wrapper {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .favicon-img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            margin: 0;
+            font-weight: 500;
+            color: #fff;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-url {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Loading & Error Screens */
+        #status-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f2027;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: var(--accent-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -320px;
+                height: calc(100vh - 70px);
+                z-index: 100;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading / Error Screen -->
+    <div id="status-screen">
+        <div id="loading-content">
+            <span class="loader"></span>
+            <h3>Reading Bookmark File...</h3>
+            <p class="text-muted">Looking for <code>bookmarks_1_3_26.html</code></p>
+        </div>
+        
+        <div id="error-content" style="display:none; max-width: 600px; padding: 20px;">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <h2>Security Restriction Detected</h2>
+            <p class="lead mt-3">Browsers do not allow web pages to read local files automatically for security reasons (CORS Policy).</p>
+            <div class="alert alert-dark text-start mt-4" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+                <strong>How to fix this:</strong><br>
+                1. Open this folder in <strong>VS Code</strong>.<br>
+                2. Install the <strong>"Live Server"</strong> extension.<br>
+                3. Right click this HTML file and choose <strong>"Open with Live Server"</strong>.
+            </div>
+            <p class="mt-3 text-muted small">Alternatively, you can add a file input here, but you requested automatic loading.</p>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar px-4 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <button class="btn btn-link text-white d-md-none me-2" onclick="$('.sidebar').toggleClass('show')">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span class="navbar-brand mb-0 h1 fw-bold">
+                <i class="fas fa-bookmark text-info me-2"></i>Bookmark<span class="text-info">Studio</span>
+            </span>
+        </div>
+        <div class="d-flex w-50">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-0 text-white"><i class="fas fa-search"></i></span>
+                <input type="text" id="searchInput" class="form-control search-input shadow-none" placeholder="Search bookmarks...">
+            </div>
+        </div>
+        <div>
+            <span id="total-count" class="badge bg-info bg-opacity-25 text-info border border-info rounded-pill px-3">Loading...</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar custom-scroll">
+            <h6 class="text-uppercase text-muted small fw-bold mb-3 ls-1">Library</h6>
+            <div id="folder-tree-root">
+                <!-- Tree Generated JS -->
+            </div>
+        </div>
+
+        <!-- Bookmarks Grid -->
+        <div class="content-area custom-scroll">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 id="current-folder-title" class="fw-bold mb-1">Overview</h3>
+                    <p class="text-muted small mb-0" id="current-path">Select a folder to begin</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-light active"><i class="fas fa-th-large"></i></button>
+                    <!-- <button class="btn btn-sm btn-outline-light"><i class="fas fa-list"></i></button> -->
+                </div>
+            </div>
+            
+            <div class="row g-3" id="bookmarks-grid">
+                <!-- Bookmarks Generated JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // CONFIGURATION
+        const TARGET_FILE = 'bookmarks_1_3_26.html';
+        
+        let allBookmarks = []; 
+        let rootNode = null;
+
+        $(document).ready(function() {
+            // Attempt to fetch the file automatically
+            loadBookmarksFile();
+
+            // Search Logic
+            $('#searchInput').on('keyup', function() {
+                const query = $(this).val().toLowerCase();
+                if(query.length < 2) {
+                    if(query.length === 0 && rootNode) {
+                        // Reset to first folder if cleared
+                        const first = findFirstFolder(rootNode);
+                        if(first) selectFolder(first);
+                    }
+                    return; 
+                }
+                
+                const results = allBookmarks.filter(b => 
+                    (b.title && b.title.toLowerCase().includes(query)) || 
+                    (b.url && b.url.toLowerCase().includes(query))
+                );
+                
+                renderBookmarks(results, `Search Results`, `Found ${results.length} matches for "${query}"`);
+            });
+        });
+
+        function loadBookmarksFile() {
+            $.ajax({
+                url: TARGET_FILE,
+                dataType: "text",
+                success: function(data) {
+                    parseBookmarksHTML(data);
+                    // Add slight delay for animation effect
+                    setTimeout(() => {
+                        $('#status-screen').fadeOut(500);
+                    }, 800);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // Check if protocol is file://
+                    if (window.location.protocol === 'file:') {
+                        $('#loading-content').hide();
+                        $('#error-content').show();
+                    } else {
+                        $('#loading-content').html(`
+                            <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                            <h3>File Not Found</h3>
+                            <p>Could not find <code>${TARGET_FILE}</code> in this folder.</p>
+                        `);
+                    }
+                }
+            });
+        }
+
+        function parseBookmarksHTML(html) {
+            const $dom = $('<div>').html(html);
+            const rootData = { id: 'root', name: 'All Bookmarks', children: [], type: 'folder' };
+            
+            // Find main DL
+            let $mainDL = $dom.find('dl').first();
+            
+            traverseNodes($mainDL, rootData);
+            rootNode = rootData;
+
+            // Render UI
+            renderSidebar(rootData);
+            
+            $('#total-count').text(`${allBookmarks.length} Bookmarks`);
+
+            // Auto select first folder with content
+            const firstFolder = findFirstFolder(rootData);
+            if(firstFolder) {
+                // Expand root in tree
+                $(`.tree-item[data-id="${firstFolder.id}"]`).parents('.tree-children').addClass('expanded');
+                $(`.tree-item[data-id="${firstFolder.id}"]`).parents('.tree-children').prev().find('.toggle-icon').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                selectFolder(firstFolder);
+            }
+        }
+
+        function traverseNodes($dl, parentObj) {
+            $dl.children('dt').each(function() {
+                const $dt = $(this);
+                const $h3 = $dt.children('h3');
+                const $a = $dt.children('a');
+                const $subDl = $dt.children('dl'); 
+                const $siblingDl = $dt.next('dd').children('dl'); // Support for standard export format
+
+                let $targetDl = $subDl.length ? $subDl : $siblingDl;
+
+                if ($h3.length > 0) {
+                    // Folder
+                    const folderObj = {
+                        id: Math.random().toString(36).substr(2, 9),
+                        name: $h3.text(),
+                        type: 'folder',
+                        children: []
+                    };
+                    parentObj.children.push(folderObj);
+                    
+                    if ($targetDl.length > 0) traverseNodes($targetDl, folderObj);
+
+                } else if ($a.length > 0) {
+                    // Bookmark
+                    const bookmarkObj = {
+                        id: Math.random().toString(36).substr(2, 9),
+                        title: $a.text(),
+                        url: $a.attr('href'),
+                        icon: $a.attr('icon'),
+                        type: 'link'
+                    };
+                    parentObj.children.push(bookmarkObj);
+                    allBookmarks.push(bookmarkObj);
+                }
+            });
+        }
+
+        function renderSidebar(data) {
+            const $root = $('#folder-tree-root');
+            $root.empty();
+            
+            function createTreeItem(item, level = 0) {
+                const hasSubFolders = item.children && item.children.some(c => c.type === 'folder');
+                
+                // Skip empty folders for cleaner UI? Optional. Let's keep them.
+                
+                const $container = $('<div>');
+                
+                const $row = $('<div>')
+                    .addClass('tree-item')
+                    .css('padding-left', (level * 15) + 10 + 'px')
+                    .attr('data-id', item.id)
+                    .on('click', function(e) {
+                        e.stopPropagation();
+                        // Toggle
+                        if(hasSubFolders) {
+                            const $childrenContainer = $container.children('.tree-children');
+                            $childrenContainer.slideToggle(200);
+                            $childrenContainer.toggleClass('expanded');
+                            
+                            const $icon = $(this).find('.toggle-icon');
+                            if($childrenContainer.hasClass('expanded')) {
+                                $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                            } else {
+                                $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+                            }
+                        }
+                        
+                        // Select
+                        $('.tree-item').removeClass('active');
+                        $(this).addClass('active');
+                        selectFolder(item);
+                    });
+
+                let arrowIcon = `<i class="fas fa-chevron-right toggle-icon" style="opacity:${hasSubFolders ? 1 : 0}"></i>`;
+                let folderIcon = '<i class="fas fa-folder folder-icon"></i>';
+                
+                $row.html(`${arrowIcon} ${folderIcon} <span>${item.name}</span>`);
+                $container.append($row);
+
+                if (hasSubFolders) {
+                    const $childrenDiv = $('<div>').addClass('tree-children');
+                    item.children.forEach(child => {
+                        if (child.type === 'folder') {
+                            $childrenDiv.append(createTreeItem(child, level + 1));
+                        }
+                    });
+                    $container.append($childrenDiv);
+                }
+
+                return $container;
+            }
+
+            data.children.forEach(child => {
+                if(child.type === 'folder') {
+                    $root.append(createTreeItem(child));
+                }
+            });
+        }
+
+        function selectFolder(folderData) {
+            const links = folderData.children.filter(c => c.type === 'link');
+            renderBookmarks(links, folderData.name, `${links.length} bookmarks in this folder`);
+        }
+
+        function renderBookmarks(bookmarks, title, subtitle) {
+            const $grid = $('#bookmarks-grid');
+            $grid.empty().hide();
+
+            $('#current-folder-title').text(title);
+            $('#current-path').text(subtitle);
+
+            if (bookmarks.length === 0) {
+                $grid.html(`
+                    <div class="col-12 text-center py-5 opacity-50">
+                        <i class="far fa-folder-open fa-4x mb-3"></i>
+                        <p>This folder is empty.</p>
+                    </div>
+                `).fadeIn(300);
+                return;
+            }
+
+            bookmarks.forEach((b, index) => {
+                // Fallback icon generator
+                let iconSrc = b.icon;
+                if(!iconSrc) {
+                    try {
+                        let domain = new URL(b.url).hostname;
+                        iconSrc = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                    } catch(e) {
+                        iconSrc = '';
+                    }
+                }
+
+                const card = `
+                    <div class="col-12 col-md-6 col-lg-4 col-xl-3" style="animation: fadeInUp 0.5s ease backwards ${index * 0.05}s">
+                        <a href="${b.url}" target="_blank" class="bookmark-card">
+                            <div class="card-body">
+                                <div class="favicon-wrapper">
+                                    <img src="${iconSrc}" class="favicon-img" onerror="this.src='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/globe.svg'; this.style.filter='invert(1)'">
+                                </div>
+                                <div style="flex:1; min-width:0;">
+                                    <h5 class="card-title" title="${b.title}">${b.title || 'Untitled'}</h5>
+                                    <span class="card-url">${getShortUrl(b.url)}</span>
+                                </div>
+                                <i class="fas fa-external-link-alt text-muted small ms-2 opacity-50"></i>
+                            </div>
+                        </a>
+                    </div>
+                `;
+                $grid.append(card);
+            });
+            $grid.fadeIn(300);
+        }
+
+        function getShortUrl(url) {
+            try {
+                return new URL(url).hostname;
+            } catch {
+                return url;
+            }
+        }
+
+        function findFirstFolder(node) {
+            if(node.children && node.children.some(c => c.type === 'folder')) {
+                // prioritize "Bookmarks bar" if it exists
+                const bar = node.children.find(c => c.name.includes("Bar") || c.name.includes("bar"));
+                if(bar) return bar;
+                return node.children.find(c => c.type === 'folder');
+            }
+            return node;
+        }
+
+    </script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</body>
+</html>

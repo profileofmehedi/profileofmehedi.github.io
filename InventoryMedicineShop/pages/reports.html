@@ -1,556 +1,780 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reports - MediShop Inventory</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="../css/calculator.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
+    />
+    <link rel="stylesheet" href="../css/calculator.css" />
     <style>
-        :root {
-            --primary-color: #2ecc71;
-            --primary-dark: #27ae60;
-            --secondary-color: #3498db;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-            --gray-color: #95a5a6;
-            --border-radius: 8px;
+      :root {
+        --primary-color: #2ecc71;
+        --primary-dark: #27ae60;
+        --secondary-color: #3498db;
+        --danger-color: #e74c3c;
+        --warning-color: #f39c12;
+        --dark-color: #2c3e50;
+        --light-color: #ecf0f1;
+        --gray-color: #95a5a6;
+        --border-radius: 8px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+      }
+
+      @keyframes slideInLeft {
+        from {
+          transform: translateX(-100%);
+          opacity: 0;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInDown {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
         }
 
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
+        to {
+          opacity: 1;
+        }
+      }
 
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
         }
 
-        @keyframes slideInDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        to {
+          transform: scale(1);
+          opacity: 1;
         }
+      }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+      .topbar {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        animation: slideInDown 0.5s ease-out;
+      }
 
-            to {
-                opacity: 1;
-            }
-        }
+      .topbar-left,
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
 
-        @keyframes scaleIn {
-            from {
-                transform: scale(0.95);
-                opacity: 0;
-            }
+      .topbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
 
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
+      .profile-button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        border: 2px solid var(--light-color);
+        border-radius: 25px;
+        padding: 5px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .topbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            animation: slideInDown 0.5s ease-out;
-        }
+      .profile-button:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+      }
 
-        .topbar-left,
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
+      .profile-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color) 0%,
+          var(--primary-dark) 100%
+        );
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      }
 
-        .topbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
+      .profile-dropdown {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        min-width: 200px;
+        display: none;
+        z-index: 1050;
+      }
 
-        .profile-button {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: white;
-            border: 2px solid var(--light-color);
-            border-radius: 25px;
-            padding: 5px 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .profile-dropdown.show {
+        display: block;
+      }
 
-        .profile-button:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
-        }
+      .profile-dropdown-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--dark-color);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid var(--light-color);
+      }
 
-        .profile-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
+      .profile-dropdown-item:last-child {
+        border-bottom: none;
+      }
 
-        .profile-dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            min-width: 200px;
-            display: none;
-            z-index: 1050;
-        }
+      .profile-dropdown-item:hover {
+        background: var(--light-color);
+        padding-left: 25px;
+      }
 
-        .profile-dropdown.show {
-            display: block;
-        }
+      .profile-menu {
+        position: relative;
+      }
 
-        .profile-dropdown-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--dark-color);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--light-color);
-        }
+      .sidebar {
+        background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
+        color: white;
+        width: 250px;
+        min-height: 100vh;
+        padding: 20px 0;
+        position: fixed;
+        left: 0;
+        top: 70px;
+        overflow-y: auto;
+        animation: slideInLeft 0.5s ease-out;
+        z-index: 999;
+      }
 
-        .profile-dropdown-item:last-child {
-            border-bottom: none;
-        }
+      .sidebar-item {
+        padding: 12px 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(255, 255, 255, 0.7);
+      }
 
-        .profile-dropdown-item:hover {
-            background: var(--light-color);
-            padding-left: 25px;
-        }
+      .sidebar-item:hover {
+        background: rgba(46, 204, 113, 0.1);
+        color: white;
+        padding-left: 30px;
+      }
 
-        .profile-menu {
-            position: relative;
-        }
+      .sidebar-item.active {
+        background: var(--primary-color);
+        color: white;
+        border-left: 4px solid white;
+        padding-left: 21px;
+      }
 
+      .main-content {
+        margin-left: 250px;
+        margin-top: 70px;
+        padding: 30px;
+        animation: fadeIn 0.5s ease-out 0.2s both;
+      }
+
+      .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .report-filters {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        animation: scaleIn 0.4s ease-out;
+      }
+
+      .filter-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .form-control {
+        border: 2px solid var(--light-color);
+        border-radius: var(--border-radius);
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+      }
+
+      .btn-filter {
+        padding: 10px 20px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-filter:hover {
+        background: var(--primary-dark);
+      }
+
+      .data-table {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        animation: scaleIn 0.4s ease-out 0.1s both;
+      }
+
+      .table thead th {
+        background: var(--light-color);
+        color: var(--dark-color);
+        font-weight: 600;
+        border: none;
+        padding: 15px;
+      }
+
+      .table tbody td {
+        padding: 12px 15px;
+        color: var(--dark-color);
+        border-color: var(--light-color);
+      }
+
+      .table tbody tr:hover {
+        background-color: rgba(46, 204, 113, 0.05);
+      }
+
+      .stat-box {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        animation: scaleIn 0.4s ease-out;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: var(--gray-color);
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      @media (max-width: 768px) {
         .sidebar {
-            background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
-            color: white;
-            width: 250px;
-            min-height: 100vh;
-            padding: 20px 0;
-            position: fixed;
-            left: 0;
-            top: 70px;
-            overflow-y: auto;
-            animation: slideInLeft 0.5s ease-out;
-            z-index: 999;
-        }
-
-        .sidebar-item {
-            padding: 12px 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .sidebar-item:hover {
-            background: rgba(46, 204, 113, 0.1);
-            color: white;
-            padding-left: 30px;
-        }
-
-        .sidebar-item.active {
-            background: var(--primary-color);
-            color: white;
-            border-left: 4px solid white;
-            padding-left: 21px;
+          width: 200px;
         }
 
         .main-content {
-            margin-left: 250px;
-            margin-top: 70px;
-            padding: 30px;
-            animation: fadeIn 0.5s ease-out 0.2s both;
-        }
-
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--dark-color);
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .report-filters {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            animation: scaleIn 0.4s ease-out;
+          margin-left: 200px;
+          padding: 20px;
         }
 
         .filter-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .sidebar {
+          display: none;
         }
 
-        .form-control {
-            border: 2px solid var(--light-color);
-            border-radius: var(--border-radius);
-            padding: 10px 15px;
-            transition: all 0.3s ease;
+        .main-content {
+          margin-left: 0;
+          padding: 15px;
         }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
-        }
-
-        .btn-filter {
-            padding: 10px 20px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-filter:hover {
-            background: var(--primary-dark);
-        }
-
-        .data-table {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            animation: scaleIn 0.4s ease-out 0.1s both;
-        }
-
-        .table thead th {
-            background: var(--light-color);
-            color: var(--dark-color);
-            font-weight: 600;
-            border: none;
-            padding: 15px;
-        }
-
-        .table tbody td {
-            padding: 12px 15px;
-            color: var(--dark-color);
-            border-color: var(--light-color);
-        }
-
-        .table tbody tr:hover {
-            background-color: rgba(46, 204, 113, 0.05);
-        }
-
-        .stat-box {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            text-align: center;
-            animation: scaleIn 0.4s ease-out;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--gray-color);
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-
-            .main-content {
-                margin-left: 200px;
-                padding: 20px;
-            }
-
-            .filter-group {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .sidebar {
-                display: none;
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <!-- TOP BAR -->
     <div class="topbar">
-        <div class="topbar-left">
-            <a href="dashboard.html" class="topbar-brand">
-                <span class="logo-icon">💊</span>
-                <span>MediShop</span>
+      <div class="topbar-left">
+        <a href="dashboard.html" class="topbar-brand">
+          <span class="logo-icon">💊</span>
+          <span>MediShop</span>
+        </a>
+
+        <!-- Calculator Widget -->
+        <div class="calculator-widget">
+          <button
+            class="calc-button"
+            id="calcToggle"
+            title="Calculator (Ctrl+Shift+C)"
+          >
+            <i class="fas fa-calculator"></i>
+          </button>
+          <div class="calculator-modal" id="calcModal">
+            <div class="calc-header" id="calcHeader">
+              <h5 class="calc-header-title">Calculator</h5>
+              <button class="calc-close-btn" id="calcCloseBtn" type="button">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="calc-content">
+              <div class="calc-display" id="calcDisplay">0</div>
+              <div class="calc-grid">
+                <button class="calc-key clear" onclick="clearCalc()">C</button>
+                <button class="calc-key operator" onclick="calcKey('/')">
+                  /
+                </button>
+                <button class="calc-key operator" onclick="calcKey('*')">
+                  ×
+                </button>
+                <button class="calc-key operator" onclick="calcKey('-')">
+                  -
+                </button>
+
+                <button class="calc-key" onclick="calcKey('7')">7</button>
+                <button class="calc-key" onclick="calcKey('8')">8</button>
+                <button class="calc-key" onclick="calcKey('9')">9</button>
+                <button class="calc-key operator" onclick="calcKey('+')">
+                  +
+                </button>
+
+                <button class="calc-key" onclick="calcKey('4')">4</button>
+                <button class="calc-key" onclick="calcKey('5')">5</button>
+                <button class="calc-key" onclick="calcKey('6')">6</button>
+                <button class="calc-key operator" onclick="calcKey('.')">
+                  ,
+                </button>
+
+                <button class="calc-key" onclick="calcKey('1')">1</button>
+                <button class="calc-key" onclick="calcKey('2')">2</button>
+                <button class="calc-key" onclick="calcKey('3')">3</button>
+                <button class="calc-key operator" onclick="backspaceCalc()">
+                  ⌫
+                </button>
+
+                <button
+                  class="calc-key"
+                  onclick="calcKey('0')"
+                  style="grid-column: span 2"
+                >
+                  0
+                </button>
+                <button class="calc-key equals" onclick="calculateResult()">
+                  =
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Profile Menu -->
+        <div class="profile-menu">
+          <button class="profile-button" id="profileBtn">
+            <div class="profile-avatar" id="profileAvatar">A</div>
+            <span id="userName">User</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a href="profile.html" class="profile-dropdown-item">
+              <i class="fas fa-user"></i> My Profile
             </a>
-
-            <!-- Calculator Widget -->
-            <div class="calculator-widget">
-                <button class="calc-button" id="calcToggle" title="Calculator (Ctrl+Shift+C)">
-                    <i class="fas fa-calculator"></i>
-                </button>
-                <div class="calculator-modal" id="calcModal">
-                    <div class="calc-header" id="calcHeader">
-                        <h5 class="calc-header-title">Calculator</h5>
-                        <button class="calc-close-btn" id="calcCloseBtn" type="button">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="calc-content">
-                        <div class="calc-display" id="calcDisplay">0</div>
-                        <div class="calc-grid">
-                            <button class="calc-key clear" onclick="clearCalc()">C</button>
-                            <button class="calc-key operator" onclick="calcKey('/')">/</button>
-                            <button class="calc-key operator" onclick="calcKey('*')">×</button>
-                            <button class="calc-key operator" onclick="calcKey('-')">-</button>
-
-                            <button class="calc-key" onclick="calcKey('7')">7</button>
-                            <button class="calc-key" onclick="calcKey('8')">8</button>
-                            <button class="calc-key" onclick="calcKey('9')">9</button>
-                            <button class="calc-key operator" onclick="calcKey('+')">+</button>
-
-                            <button class="calc-key" onclick="calcKey('4')">4</button>
-                            <button class="calc-key" onclick="calcKey('5')">5</button>
-                            <button class="calc-key" onclick="calcKey('6')">6</button>
-                            <button class="calc-key operator" onclick="calcKey('.')">,</button>
-
-                            <button class="calc-key" onclick="calcKey('1')">1</button>
-                            <button class="calc-key" onclick="calcKey('2')">2</button>
-                            <button class="calc-key" onclick="calcKey('3')">3</button>
-                            <button class="calc-key operator" onclick="backspaceCalc()">⌫</button>
-
-                            <button class="calc-key" onclick="calcKey('0')" style="grid-column: span 2;">0</button>
-                            <button class="calc-key equals" onclick="calculateResult()">=</button>
-                        </div>
-                    </div>
-                </div>
+            <a href="settings.html" class="profile-dropdown-item">
+              <i class="fas fa-cog"></i> Settings
+            </a>
+            <div class="profile-dropdown-item logout" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i> Logout
             </div>
+          </div>
         </div>
-
-        <div class="topbar-right">
-            <!-- Profile Menu -->
-            <div class="profile-menu">
-                <button class="profile-button" id="profileBtn">
-                    <div class="profile-avatar" id="profileAvatar">A</div>
-                    <span id="userName">User</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <a href="profile.html" class="profile-dropdown-item">
-                        <i class="fas fa-user"></i> My Profile
-                    </a>
-                    <a href="settings.html" class="profile-dropdown-item">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                    <div class="profile-dropdown-item logout" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-section-title">Main Menu</div>
-            <div class="sidebar-item active" onclick="navigateTo('dashboard.html')">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Main Menu</div>
+        <div class="sidebar-item active" onclick="navigateTo('dashboard.html')">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
         </div>
+      </div>
 
-        <div class="sidebar-section" id="inventorySection">
-            <div class="sidebar-section-title">Inventory</div>
-            <div class="sidebar-item" onclick="navigateTo('medicines.html')">
-                <i class="fas fa-pills"></i>
-                <span>Medicines</span>
-            </div>
-            <div class="sidebar-item" onclick="navigateTo('categories.html')">
-                <i class="fas fa-list"></i>
-                <span>Categories</span>
-            </div>
-            <div class="sidebar-item" onclick="navigateTo('suppliers.html')">
-                <i class="fas fa-truck"></i>
-                <span>Suppliers</span>
-            </div>
+      <div class="sidebar-section" id="inventorySection">
+        <div class="sidebar-section-title">Inventory</div>
+        <div class="sidebar-item" onclick="navigateTo('medicines.html')">
+          <i class="fas fa-pills"></i>
+          <span>Medicines</span>
         </div>
+        <div class="sidebar-item" onclick="navigateTo('categories.html')">
+          <i class="fas fa-list"></i>
+          <span>Categories</span>
+        </div>
+        <div class="sidebar-item" onclick="navigateTo('suppliers.html')">
+          <i class="fas fa-truck"></i>
+          <span>Suppliers</span>
+        </div>
+      </div>
 
-        <div class="sidebar-section" id="salesSection">
-            <div class="sidebar-section-title">Sales</div>
-            <div class="sidebar-item" onclick="navigateTo('sales.html')">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Sales</span>
-            </div>
-            <div class="sidebar-item" onclick="navigateTo('inventory.html')">
-                <i class="fas fa-warehouse"></i>
-                <span>Stock Management</span>
-            </div>
+      <div class="sidebar-section" id="salesSection">
+        <div class="sidebar-section-title">Sales</div>
+        <div class="sidebar-item" onclick="navigateTo('sales.html')">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Sales</span>
         </div>
+        <div class="sidebar-item" onclick="navigateTo('inventory.html')">
+          <i class="fas fa-warehouse"></i>
+          <span>Stock Management</span>
+        </div>
+      </div>
 
-        <div class="sidebar-section" id="reportsSection">
-            <div class="sidebar-section-title">Reports</div>
-            <div class="sidebar-item" onclick="navigateTo('reports.html')">
-                <i class="fas fa-chart-bar"></i>
-                <span>Reports</span>
-            </div>
+      <div class="sidebar-section" id="reportsSection">
+        <div class="sidebar-section-title">Reports</div>
+        <div class="sidebar-item" onclick="navigateTo('reports.html')">
+          <i class="fas fa-chart-bar"></i>
+          <span>Reports</span>
         </div>
+      </div>
 
-        <div class="sidebar-section" id="adminSection">
-            <div class="sidebar-section-title">Administration</div>
-            <div class="sidebar-item" onclick="navigateTo('users.html')">
-                <i class="fas fa-users"></i>
-                <span>User Management</span>
-            </div>
-            <div class="sidebar-item" onclick="navigateTo('menus.html')">
-                <i class="fas fa-sitemap"></i>
-                <span>Menu Management</span>
-            </div>
-            <div class="sidebar-item" onclick="navigateTo('settings.html')">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </div>
+      <div class="sidebar-section" id="adminSection">
+        <div class="sidebar-section-title">Administration</div>
+        <div class="sidebar-item" onclick="navigateTo('users.html')">
+          <i class="fas fa-users"></i>
+          <span>User Management</span>
         </div>
+        <div class="sidebar-item" onclick="navigateTo('menus.html')">
+          <i class="fas fa-sitemap"></i>
+          <span>Menu Management</span>
+        </div>
+        <div class="sidebar-item" onclick="navigateTo('settings.html')">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </div>
+      </div>
     </div>
 
     <div class="main-content">
-        <h1 class="page-title">
-            <i class="fas fa-chart-bar"></i>
-            Reports & Analytics
-        </h1>
+      <h1 class="page-title">
+        <i class="fas fa-chart-bar"></i>
+        Reports & Analytics
+      </h1>
 
+      <div class="report-filters">
+        <h6
+          style="
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--dark-color);
+          "
+        >
+          Report Type
+        </h6>
+        <div class="filter-group">
+          <select
+            class="form-control"
+            id="reportType"
+            onchange="loadSelectedReport()"
+            style="max-width: 300px"
+          >
+            <option value="sales">Sales Report</option>
+            <option value="batches">Batch-wise Inventory</option>
+            <option value="expiry">Expiry Report</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="salesReport">
         <div class="report-filters">
-            <h6 style="margin-bottom: 15px; font-weight: 600; color: var(--dark-color);">Filters</h6>
-            <div class="filter-group">
-                <input type="date" class="form-control" id="fromDate" placeholder="From Date">
-                <input type="date" class="form-control" id="toDate" placeholder="To Date">
-                <button class="btn-filter" onclick="applyFilters()">
-                    <i class="fas fa-filter"></i> Apply Filters
-                </button>
-                <button class="btn-filter" style="background: var(--gray-color);" onclick="clearFilters()">
-                    <i class="fas fa-redo"></i> Clear
-                </button>
-            </div>
+          <h6
+            style="
+              margin-bottom: 15px;
+              font-weight: 600;
+              color: var(--dark-color);
+            "
+          >
+            Filters
+          </h6>
+          <div class="filter-group">
+            <input
+              type="date"
+              class="form-control"
+              id="fromDate"
+              placeholder="From Date"
+            />
+            <input
+              type="date"
+              class="form-control"
+              id="toDate"
+              placeholder="To Date"
+            />
+            <button class="btn-filter" onclick="applyFilters()">
+              <i class="fas fa-filter"></i> Apply Filters
+            </button>
+            <button
+              class="btn-filter"
+              style="background: var(--gray-color)"
+              onclick="clearFilters()"
+            >
+              <i class="fas fa-redo"></i> Clear
+            </button>
+          </div>
         </div>
 
         <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-            <div class="stat-box">
-                <div class="stat-label">Total Sales</div>
-                <div class="stat-value">$<span id="totalSalesAmount">0.00</span></div>
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+          "
+        >
+          <div class="stat-box">
+            <div class="stat-label">Total Sales</div>
+            <div class="stat-value">
+              $<span id="totalSalesAmount">0.00</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">Total Transactions</div>
-                <div class="stat-value" id="totalTransactions">0</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Avg Order Value</div>
-                <div class="stat-value">$<span id="avgOrderValue">0.00</span></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Total Items Sold</div>
-                <div class="stat-value" id="totalItemsSold">0</div>
-            </div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-value" id="totalTransactions">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Avg Order Value</div>
+            <div class="stat-value">$<span id="avgOrderValue">0.00</span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Items Sold</div>
+            <div class="stat-value" id="totalItemsSold">0</div>
+          </div>
         </div>
+      </div>
 
-        <div class="data-table">
-            <h6 style="margin-bottom: 20px; font-weight: 600; color: var(--dark-color);">Sales Report</h6>
-            <table class="table table-hover" id="reportsTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Transaction ID</th>
-                        <th>Items</th>
-                        <th>Amount</th>
-                        <th>Payment Method</th>
-                        <th>User</th>
-                    </tr>
-                </thead>
-                <tbody id="reportsTableBody">
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">No transactions</td>
-                    </tr>
-                </tbody>
+      <!-- Batch Report -->
+      <div id="batchReport" style="display: none">
+        <div class="card">
+          <div class="card-header">
+            <h5>Batch-wise Inventory Report</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover" id="batchReportTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Medicine</th>
+                  <th>Batch Number</th>
+                  <th>Supplier</th>
+                  <th>Purchase Date</th>
+                  <th>Expiry Date</th>
+                  <th>Purchase Price</th>
+                  <th>Selling Price</th>
+                  <th>Original Qty</th>
+                  <th>Remaining Qty</th>
+                  <th>Sold Qty</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="batchReportBody"></tbody>
             </table>
+          </div>
         </div>
+      </div>
+
+      <!-- Expiry Report -->
+      <div id="expiryReport" style="display: none">
+        <div class="card">
+          <div class="card-header">
+            <h5>Medicine Expiry Report</h5>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> Showing medicines expiring
+              within the next 90 days and already expired
+            </div>
+            <table class="table table-hover" id="expiryReportTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Medicine</th>
+                  <th>Batch Number</th>
+                  <th>Expiry Date</th>
+                  <th>Days Until Expiry</th>
+                  <th>Remaining Quantity</th>
+                  <th>Value at Risk</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="expiryReportBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-filters">
+        <h6
+          style="
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--dark-color);
+          "
+        >
+          Filters
+        </h6>
+        <div class="filter-group">
+          <input
+            type="date"
+            class="form-control"
+            id="fromDate"
+            placeholder="From Date"
+          />
+          <input
+            type="date"
+            class="form-control"
+            id="toDate"
+            placeholder="To Date"
+          />
+          <button class="btn-filter" onclick="applyFilters()">
+            <i class="fas fa-filter"></i> Apply Filters
+          </button>
+          <button
+            class="btn-filter"
+            style="background: var(--gray-color)"
+            onclick="clearFilters()"
+          >
+            <i class="fas fa-redo"></i> Clear
+          </button>
+        </div>
+      </div>
+
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          margin-bottom: 30px;
+        "
+      >
+        <div class="stat-box">
+          <div class="stat-label">Total Sales</div>
+          <div class="stat-value">$<span id="totalSalesAmount">0.00</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Transactions</div>
+          <div class="stat-value" id="totalTransactions">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Avg Order Value</div>
+          <div class="stat-value">$<span id="avgOrderValue">0.00</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Items Sold</div>
+          <div class="stat-value" id="totalItemsSold">0</div>
+        </div>
+      </div>
+
+      <div class="data-table">
+        <h6
+          style="
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--dark-color);
+          "
+        >
+          Sales Report
+        </h6>
+        <table class="table table-hover" id="reportsTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Transaction ID</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Payment Method</th>
+              <th>User</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTableBody">
+            <tr>
+              <td colspan="6" class="text-center text-muted">
+                No transactions
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -560,143 +784,393 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
-        function checkAuth() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (!currentUser) window.location.href = '../index.html';
-            return JSON.parse(currentUser);
+      function checkAuth() {
+        const currentUser = localStorage.getItem("currentUser");
+        if (!currentUser) window.location.href = "../index.html";
+        return JSON.parse(currentUser);
+      }
+
+      const user = checkAuth();
+      const settings = JSON.parse(localStorage.getItem("appSettings") || "{}");
+      let filteredTransactions = [];
+
+      function applyTheme() {
+        document.documentElement.style.setProperty(
+          "--primary-color",
+          settings.primaryColor || "#2ecc71"
+        );
+      }
+
+      function initializeUI() {
+        $("#profileAvatar").text(user.name.charAt(0).toUpperCase());
+        $("#userName").text(user.name.split(" ")[0]);
+        applyTheme();
+        loadReports();
+      }
+
+      function loadReports() {
+        const reportType = $("#reportType").val();
+        if (reportType === "sales") {
+          const transactions = JSON.parse(
+            localStorage.getItem("transactions") || "[]"
+          );
+          filteredTransactions = transactions;
+          updateReportStats();
+          updateReportTable();
+        } else if (reportType === "batches") {
+          loadBatchReport();
+        } else if (reportType === "expiry") {
+          loadExpiryReport();
+        }
+      }
+
+      function loadSelectedReport() {
+        const reportType = $("#reportType").val();
+
+        // Hide all reports
+        $("#salesReport").hide();
+        $("#batchReport").hide();
+        $("#expiryReport").hide();
+
+        // Show selected report
+        if (reportType === "sales") {
+          $("#salesReport").show();
+          loadReports();
+        } else if (reportType === "batches") {
+          $("#batchReport").show();
+          loadBatchReport();
+        } else if (reportType === "expiry") {
+          $("#expiryReport").show();
+          loadExpiryReport();
+        }
+      }
+
+      function loadBatchReport() {
+        const batches = JSON.parse(
+          localStorage.getItem("medicineBatches") || "[]"
+        );
+        const medicines = JSON.parse(localStorage.getItem("medicines") || "[]");
+        const suppliers = JSON.parse(localStorage.getItem("suppliers") || "[]");
+
+        const tbody = $("#batchReportBody");
+        tbody.empty();
+
+        batches.forEach((batch, index) => {
+          const medicine = medicines.find((m) => m.id === batch.medicineId);
+          const supplier = suppliers.find((s) => s.id === batch.supplierId);
+          const soldQty = batch.quantity - batch.remainingQuantity;
+          const today = new Date();
+          const expiryDate = new Date(batch.expiryDate);
+          const daysLeft = Math.ceil(
+            (expiryDate - today) / (1000 * 60 * 60 * 24)
+          );
+
+          let statusClass, statusText;
+          if (batch.remainingQuantity === 0) {
+            statusClass = "badge-secondary";
+            statusText = "Sold Out";
+          } else if (daysLeft <= 0) {
+            statusClass = "badge-danger";
+            statusText = "Expired";
+          } else if (daysLeft <= 30) {
+            statusClass = "badge-warning";
+            statusText = "Expiring Soon";
+          } else {
+            statusClass = "badge-success";
+            statusText = "Active";
+          }
+
+          const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${
+                          medicine ? medicine.name : "Unknown"
+                        }</strong></td>
+                        <td><code>${batch.batchNumber}</code></td>
+                        <td>${supplier ? supplier.name : "N/A"}</td>
+                        <td>${batch.purchaseDate}</td>
+                        <td>${batch.expiryDate}</td>
+                        <td>$${batch.purchasePrice.toFixed(2)}</td>
+                        <td>$${batch.sellingPrice.toFixed(2)}</td>
+                        <td>${batch.quantity}</td>
+                        <td><strong>${batch.remainingQuantity}</strong></td>
+                        <td>${soldQty}</td>
+                        <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+          tbody.append(row);
+        });
+
+        if (batches.length === 0) {
+          tbody.append(
+            '<tr><td colspan="12" style="text-align: center; color: #999;">No batches found</td></tr>'
+          );
+        }
+      }
+
+      function loadExpiryReport() {
+        const batches = JSON.parse(
+          localStorage.getItem("medicineBatches") || "[]"
+        );
+        const medicines = JSON.parse(localStorage.getItem("medicines") || "[]");
+        const today = new Date();
+        const ninetyDaysLater = new Date(
+          today.getTime() + 90 * 24 * 60 * 60 * 1000
+        );
+
+        // Filter batches expiring within 90 days or already expired
+        const expiringBatches = batches
+          .filter((b) => {
+            const expiryDate = new Date(b.expiryDate);
+            return (
+              b.status === "active" &&
+              b.remainingQuantity > 0 &&
+              expiryDate <= ninetyDaysLater
+            );
+          })
+          .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+        const tbody = $("#expiryReportBody");
+        tbody.empty();
+
+        expiringBatches.forEach((batch, index) => {
+          const medicine = medicines.find((m) => m.id === batch.medicineId);
+          const expiryDate = new Date(batch.expiryDate);
+          const daysLeft = Math.ceil(
+            (expiryDate - today) / (1000 * 60 * 60 * 24)
+          );
+          const valueAtRisk = batch.remainingQuantity * batch.purchasePrice;
+
+          let statusClass, statusText, daysText;
+          if (daysLeft <= 0) {
+            statusClass = "table-danger";
+            statusText = "EXPIRED";
+            daysText = "Expired";
+          } else if (daysLeft <= 7) {
+            statusClass = "table-danger";
+            statusText = "Critical";
+            daysText = `${daysLeft} days`;
+          } else if (daysLeft <= 30) {
+            statusClass = "table-warning";
+            statusText = "Warning";
+            daysText = `${daysLeft} days`;
+          } else {
+            statusClass = "table-info";
+            statusText = "Monitor";
+            daysText = `${daysLeft} days`;
+          }
+
+          const row = `
+                    <tr class="${statusClass}">
+                        <td>${index + 1}</td>
+                        <td><strong>${
+                          medicine ? medicine.name : "Unknown"
+                        }</strong></td>
+                        <td><code>${batch.batchNumber}</code></td>
+                        <td>${batch.expiryDate}</td>
+                        <td><strong>${daysText}</strong></td>
+                        <td>${batch.remainingQuantity}</td>
+                        <td>$${valueAtRisk.toFixed(2)}</td>
+                        <td><span class="badge ${
+                          statusText === "EXPIRED"
+                            ? "badge-danger"
+                            : statusText === "Critical"
+                            ? "badge-danger"
+                            : statusText === "Warning"
+                            ? "badge-warning"
+                            : "badge-info"
+                        }">${statusText}</span></td>
+                    </tr>
+                `;
+          tbody.append(row);
+        });
+
+        if (expiringBatches.length === 0) {
+          tbody.append(
+            '<tr><td colspan="8" style="text-align: center; color: #999;">No expiring medicines found</td></tr>'
+          );
+        }
+      }
+
+      function updateReportStats() {
+        const totalSales = filteredTransactions.reduce(
+          (sum, t) => sum + (t.total || 0),
+          0
+        );
+        const totalItems = filteredTransactions.reduce(
+          (sum, t) => sum + (t.items || 0),
+          0
+        );
+        const avgOrder =
+          filteredTransactions.length > 0
+            ? totalSales / filteredTransactions.length
+            : 0;
+
+        $("#totalSalesAmount").text(totalSales.toFixed(2));
+        $("#totalTransactions").text(filteredTransactions.length);
+        $("#avgOrderValue").text(avgOrder.toFixed(2));
+        $("#totalItemsSold").text(totalItems);
+      }
+
+      function updateReportTable() {
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const tbody = $("#reportsTableBody");
+        tbody.empty();
+
+        if (filteredTransactions.length === 0) {
+          tbody.html(
+            '<tr><td colspan="6" class="text-center text-muted">No transactions</td></tr>'
+          );
+          return;
         }
 
-        const user = checkAuth();
-        const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
-        let filteredTransactions = [];
-
-        function applyTheme() {
-            document.documentElement.style.setProperty('--primary-color', settings.primaryColor || '#2ecc71');
-        }
-
-        function initializeUI() {
-            $('#profileAvatar').text(user.name.charAt(0).toUpperCase());
-            $('#userName').text(user.name.split(' ')[0]);
-            applyTheme();
-            loadReports();
-        }
-
-        function loadReports() {
-            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            filteredTransactions = transactions;
-            updateReportStats();
-            updateReportTable();
-        }
-
-        function updateReportStats() {
-            const totalSales = filteredTransactions.reduce((sum, t) => sum + (t.total || 0), 0);
-            const totalItems = filteredTransactions.reduce((sum, t) => sum + (t.items || 0), 0);
-            const avgOrder = filteredTransactions.length > 0 ? totalSales / filteredTransactions.length : 0;
-
-            $('#totalSalesAmount').text(totalSales.toFixed(2));
-            $('#totalTransactions').text(filteredTransactions.length);
-            $('#avgOrderValue').text(avgOrder.toFixed(2));
-            $('#totalItemsSold').text(totalItems);
-        }
-
-        function updateReportTable() {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const tbody = $('#reportsTableBody');
-            tbody.empty();
-
-            if (filteredTransactions.length === 0) {
-                tbody.html('<tr><td colspan="6" class="text-center text-muted">No transactions</td></tr>');
-                return;
-            }
-
-            filteredTransactions.forEach(t => {
-                const user = users.find(u => u.id === t.userId);
-                tbody.append(`
+        filteredTransactions.forEach((t) => {
+          const user = users.find((u) => u.id === t.userId);
+          tbody.append(`
                     <tr>
                         <td>${new Date(t.date).toLocaleDateString()}</td>
                         <td><code>#${t.id}</code></td>
                         <td>${t.items}</td>
                         <td><strong>$${t.total.toFixed(2)}</strong></td>
-                        <td><span style="text-transform: capitalize;">${t.paymentMethod}</span></td>
-                        <td>${user ? user.name : 'Unknown'}</td>
+                        <td><span style="text-transform: capitalize;">${
+                          t.paymentMethod
+                        }</span></td>
+                        <td>${user ? user.name : "Unknown"}</td>
                     </tr>
                 `);
-            });
-        }
+        });
+      }
 
-        function applyFilters() {
-            const from = $('#fromDate').val();
-            const to = $('#toDate').val();
-            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+      function applyFilters() {
+        const from = $("#fromDate").val();
+        const to = $("#toDate").val();
+        const transactions = JSON.parse(
+          localStorage.getItem("transactions") || "[]"
+        );
 
-            filteredTransactions = transactions.filter(t => {
-                const tDate = new Date(t.date).toISOString().split('T')[0];
-                if (from && tDate < from) return false;
-                if (to && tDate > to) return false;
-                return true;
-            });
-
-            updateReportStats();
-            updateReportTable();
-            Swal.fire({ icon: 'success', text: 'Filters applied', showConfirmButton: false, timer: 1500 });
-        }
-
-        function clearFilters() {
-            $('#fromDate').val('');
-            $('#toDate').val('');
-            loadReports();
-        }
-
-        $('#profileBtn').click(function (e) {
-            e.stopPropagation();
-            $('#profileDropdown').toggleClass('show');
+        filteredTransactions = transactions.filter((t) => {
+          const tDate = new Date(t.date).toISOString().split("T")[0];
+          if (from && tDate < from) return false;
+          if (to && tDate > to) return false;
+          return true;
         });
 
-        $(document).click(() => $('#profileDropdown').removeClass('show'));
-
-        $('#logoutBtn').click(() => {
-            Swal.fire({
-                title: 'Logout',
-                text: 'Sure?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74c3c',
-                confirmButtonText: 'Yes'
-            }).then(r => {
-                if (r.isConfirmed) {
-                    localStorage.removeItem('currentUser');
-                    window.location.href = '../index.html';
-                }
-            });
+        updateReportStats();
+        updateReportTable();
+        Swal.fire({
+          icon: "success",
+          text: "Filters applied",
+          showConfirmButton: false,
+          timer: 1500,
         });
+      }
 
-        function navigateTo(page) {
-            window.location.href = page;
-        }
+      function clearFilters() {
+        $("#fromDate").val("");
+        $("#toDate").val("");
+        loadReports();
+      }
 
-        // Initialize demo data immediately
-        function initializeAllDemoData() {
-            const existingTransactions = localStorage.getItem('transactions');
-            if (!existingTransactions) {
-                localStorage.setItem('transactions', JSON.stringify([
-                    { id: 1, date: '2025-12-28', items: 5, total: 45.50, paymentMethod: 'Cash', userId: 3 },
-                    { id: 2, date: '2025-12-27', items: 3, total: 28.99, paymentMethod: 'Card', userId: 3 },
-                    { id: 3, date: '2025-12-26', items: 7, total: 62.45, paymentMethod: 'Cash', userId: 3 },
-                    { id: 4, date: '2025-12-25', items: 4, total: 35.75, paymentMethod: 'Card', userId: 3 },
-                    { id: 5, date: '2025-12-24', items: 8, total: 89.99, paymentMethod: 'Cash', userId: 3 },
-                    { id: 6, date: '2025-12-23', items: 6, total: 54.30, paymentMethod: 'Card', userId: 3 },
-                    { id: 7, date: '2025-12-22', items: 9, total: 105.20, paymentMethod: 'Cash', userId: 3 }
-                ]));
-            }
-        }
-        initializeAllDemoData();
+      $("#profileBtn").click(function (e) {
+        e.stopPropagation();
+        $("#profileDropdown").toggleClass("show");
+      });
 
-        $(document).ready(() => {
-            initializeUI();
+      $(document).click(() => $("#profileDropdown").removeClass("show"));
+
+      $("#logoutBtn").click(() => {
+        Swal.fire({
+          title: "Logout",
+          text: "Sure?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#e74c3c",
+          confirmButtonText: "Yes",
+        }).then((r) => {
+          if (r.isConfirmed) {
+            localStorage.removeItem("currentUser");
+            window.location.href = "../index.html";
+          }
         });
+      });
+
+      function navigateTo(page) {
+        window.location.href = page;
+      }
+
+      // Initialize demo data immediately
+      function initializeAllDemoData() {
+        const existingTransactions = localStorage.getItem("transactions");
+        if (!existingTransactions) {
+          localStorage.setItem(
+            "transactions",
+            JSON.stringify([
+              {
+                id: 1,
+                date: "2025-12-28",
+                items: 5,
+                total: 45.5,
+                paymentMethod: "Cash",
+                userId: 3,
+              },
+              {
+                id: 2,
+                date: "2025-12-27",
+                items: 3,
+                total: 28.99,
+                paymentMethod: "Card",
+                userId: 3,
+              },
+              {
+                id: 3,
+                date: "2025-12-26",
+                items: 7,
+                total: 62.45,
+                paymentMethod: "Cash",
+                userId: 3,
+              },
+              {
+                id: 4,
+                date: "2025-12-25",
+                items: 4,
+                total: 35.75,
+                paymentMethod: "Card",
+                userId: 3,
+              },
+              {
+                id: 5,
+                date: "2025-12-24",
+                items: 8,
+                total: 89.99,
+                paymentMethod: "Cash",
+                userId: 3,
+              },
+              {
+                id: 6,
+                date: "2025-12-23",
+                items: 6,
+                total: 54.3,
+                paymentMethod: "Card",
+                userId: 3,
+              },
+              {
+                id: 7,
+                date: "2025-12-22",
+                items: 9,
+                total: 105.2,
+                paymentMethod: "Cash",
+                userId: 3,
+              },
+            ])
+          );
+        }
+      }
+      initializeAllDemoData();
+
+      $(document).ready(() => {
+        initializeUI();
+      });
     </script>
     <script src="../js/calculator.js"></script>
-</body>
-
+  </body>
 </html>
