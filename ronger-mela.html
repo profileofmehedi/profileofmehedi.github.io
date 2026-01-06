@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ronger Mela - Meal Rate History</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --accent-color: #ff9a9e;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            padding-bottom: 50px;
+        }
+
+        /* Header Styling */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .main-title {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .sub-title {
+            font-weight: 300;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Card Styling */
+        .stat-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            text-align: center;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .section-title {
+            border-left: 5px solid var(--secondary-color);
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Table Styling */
+        .custom-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .custom-table thead {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .custom-table th, .custom-table td {
+            padding: 15px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .rate-high { color: #e74c3c; font-weight: bold; }
+        .rate-low { color: #27ae60; font-weight: bold; }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 1.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* New Section Divider */
+        .divider-title {
+            text-align: center;
+            margin: 50px 0 30px 0;
+            position: relative;
+        }
+        .divider-title::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #e0e0e0;
+            z-index: -1;
+        }
+        .divider-bg {
+            background: var(--bg-color);
+            padding: 0 20px;
+            font-weight: 700;
+            color: #7f8c8d;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .main-title { font-size: 1.8rem; }
+            .chart-container { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="main-header fade-in">
+        <div class="container">
+            <h1 class="main-title">Ronger Mela</h1>
+            <h2 class="h4 mb-2">Meal Rate History</h2>
+            <p class="sub-title">Jul 24 - Dec 25</p>
+        </div>
+    </header>
+
+    <div class="container fade-in">
+        
+        <!-- Summary Cards Section -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-value" id="grandTotalBazar">0</div>
+                    <div class="stat-label">Total Spent (Bazar)</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">🍛</div>
+                    <div class="stat-value" id="grandTotalMeals">0</div>
+                    <div class="stat-label">Total Meals Consumed</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">📉</div>
+                    <div class="stat-value" id="avgMealRate">0</div>
+                    <div class="stat-label">Average Meal Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chart: Rate vs Bazar -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <h4 class="section-title">Cost & Rate Analysis</h4>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts: Meals Trend & Rate Fluctuation -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h4 class="section-title">Meal Consumption Trend</h4>
+                <div class="chart-container">
+                    <canvas id="mealChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4 class="section-title">Rate Fluctuation</h4>
+                <div class="chart-container">
+                    <canvas id="rateChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table Section (Original Summary) -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <h4 class="section-title">Monthly Summary Table</h4>
+                <div class="table-responsive custom-table">
+                    <table class="table table-hover mb-0" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total Bazar</th>
+                                <th>Total Meal</th>
+                                <th>Meal Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Javascript will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- NEW SECTIONS: MEMBER ANALYTICS & DETAILS -->
+        <!-- ============================================== -->
+
+        <div class="divider-title"><span class="divider-bg">MEMBER ANALYTICS</span></div>
+
+        <!-- New Charts: Spender and Eater -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h4 class="section-title"><i class="fas fa-crown text-warning me-2"></i> Top Spenders (All Time)</h4>
+                <div class="chart-container">
+                    <canvas id="spenderChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4 class="section-title"><i class="fas fa-utensils text-primary me-2"></i> Top Eaters (All Time)</h4>
+                <div class="chart-container">
+                    <canvas id="eaterChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Interactive Table: Person-wise Breakdown -->
+        <div class="row mt-4 mb-5">
+            <div class="col-12">
+                <h4 class="section-title">
+                    <span><i class="fas fa-users me-2"></i> Individual Monthly Details</span>
+                    <select id="monthSelector" class="form-select w-auto shadow-sm" style="border: 2px solid var(--secondary-color); font-weight:600;">
+                        <!-- Options populated by JS -->
+                    </select>
+                </h4>
+                <div class="table-responsive custom-table">
+                    <table class="table table-hover mb-0" id="detailTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Meals Consumed</th>
+                                <th>Money Spent (BDT)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailTableBody">
+                            <!-- Javascript will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="monthFooter" class="text-end mt-2 text-muted fw-bold small"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // --- DATA INPUT ---
+        // Detailed data as provided
+        const messData = [
+            {
+                month: "Jul 24",
+                details: [
+                    { name: "Mehedi", meal: 34, spent: 1842.33 },
+                    { name: "Arafat", meal: 37, spent: 2004.89 },
+                    { name: "Hasim", meal: 32, spent: 1733.96 },
+                    { name: "Moazzem", meal: 22, spent: 1192.10 },
+                    { name: "Nishan", meal: 20, spent: 1083.72 }
+                ]
+            },
+            {
+                month: "Aug 24",
+                details: [
+                    { name: "Mehedi", meal: 31, spent: 1901.33 },
+                    { name: "Arafat", meal: 36, spent: 2208.00 },
+                    { name: "Hasim", meal: 33, spent: 2024.00 },
+                    { name: "Moazzem", meal: 29, spent: 1778.67 },
+                    { name: "Nishan", meal: 18, spent: 1104.00 }
+                ]
+            },
+            {
+                month: "Sep 24",
+                details: [
+                    { name: "Mehedi", meal: 29, spent: 1296.98 },
+                    { name: "Arafat", meal: 38, spent: 1699.49 },
+                    { name: "Hasim", meal: 39, spent: 1744.21 },
+                    { name: "Moazzem", meal: 47, spent: 2102.00 },
+                    { name: "Nishan", meal: 47, spent: 2102.00 },
+                    { name: "Rakib", meal: 53, spent: 2370.34 }
+                ]
+            },
+            {
+                month: "Oct 24",
+                details: [
+                    { name: "Mehedi", meal: 31, spent: 1477.41 },
+                    { name: "Arafat", meal: 50, spent: 2382.92 },
+                    { name: "Hasim", meal: 42, spent: 2001.65 },
+                    { name: "Moazzem", meal: 24, spent: 1143.80 },
+                    { name: "Nishan", meal: 49, spent: 2335.26 },
+                    { name: "Rakib", meal: 47, spent: 2239.95 }
+                ]
+            },
+            {
+                month: "Nov 24",
+                details: [
+                    { name: "Mehedi", meal: 29, spent: 1489.98 },
+                    { name: "Arafat", meal: 51, spent: 2620.30 },
+                    { name: "Hasim", meal: 44, spent: 2260.65 },
+                    { name: "Moazzem", meal: 34, spent: 1746.87 },
+                    { name: "Nishan", meal: 57, spent: 2928.57 },
+                    { name: "Rakib", meal: 36, spent: 1849.63 }
+                ]
+            },
+            {
+                month: "Dec 24",
+                details: [
+                    { name: "Mehedi", meal: 30, spent: 1411.71 },
+                    { name: "Arafat", meal: 54, spent: 2541.08 },
+                    { name: "Hasim", meal: 63, spent: 2964.59 },
+                    { name: "Moazzem", meal: 49, spent: 2305.80 },
+                    { name: "Nishan", meal: 45, spent: 2117.57 },
+                    { name: "Rakib", meal: 57, spent: 2682.25 }
+                ]
+            },
+            {
+                month: "Jan 25",
+                details: [
+                    { name: "Mehedi", meal: 25, spent: 1631.43 },
+                    { name: "Arafat", meal: 44, spent: 2871.31 },
+                    { name: "Rayhan", meal: 67, spent: 4372.22 },
+                    { name: "Moazzem", meal: 43, spent: 2806.05 },
+                    { name: "Nishan", meal: 35, spent: 2284.00 },
+                    { name: "Rakib", meal: 35, spent: 2284.00 }
+                ]
+            },
+            {
+                month: "Feb 25",
+                details: [
+                    { name: "Mehedi", meal: 21, spent: 963.03 },
+                    { name: "Arafat", meal: 26, spent: 1192.32 },
+                    { name: "Rayhan", meal: 56, spent: 2568.08 },
+                    { name: "Moazzem", meal: 33, spent: 1513.33 },
+                    { name: "Nishan", meal: 25, spent: 1146.46 },
+                    { name: "Rakib", meal: 37, spent: 1696.77 }
+                ]
+            },
+            {
+                month: "Mar 25",
+                details: [
+                    { name: "Mehedi", meal: 41, spent: 2702.01 },
+                    { name: "Arafat", meal: 0, spent: 0 },
+                    { name: "Rayhan", meal: 41, spent: 2702.01 },
+                    { name: "Moazzem", meal: 46, spent: 3031.53 },
+                    { name: "Nishan", meal: 0, spent: 0 },
+                    { name: "Rakib", meal: 16, spent: 1054.44 }
+                ]
+            },
+            {
+                month: "Apr 25",
+                details: [
+                    { name: "Mehedi", meal: 25, spent: 1216.46 },
+                    { name: "Arafat", meal: 28, spent: 1362.44 },
+                    { name: "Rayhan", meal: 58, spent: 2822.20 },
+                    { name: "Moazzem", meal: 45, spent: 2189.63 },
+                    { name: "Nishan", meal: 0, spent: 0 },
+                    { name: "Rakib", meal: 49, spent: 2384.27 }
+                ]
+            },
+            {
+                month: "May 25",
+                details: [
+                    { name: "Mehedi", meal: 30, spent: 1435.17 },
+                    { name: "Arafat", meal: 24, spent: 1148.14 },
+                    { name: "Rayhan", meal: 63, spent: 3013.86 },
+                    { name: "Moazzem", meal: 94, spent: 4496.86 },
+                    { name: "Nishan", meal: 0, spent: 0 },
+                    { name: "Pappu", meal: 25, spent: 1195.97 }
+                ]
+            },
+            {
+                month: "Jun 25",
+                details: [
+                    { name: "Mehedi", meal: 12, spent: 861.11 },
+                    { name: "Rayhan", meal: 23, spent: 1650.46 },
+                    { name: "Pappu", meal: 19, spent: 1363.43 }
+                ]
+            },
+            {
+                month: "Jul 25",
+                details: [
+                    { name: "Mehedi", meal: 29, spent: 1364.53 },
+                    { name: "Rayhan", meal: 53, spent: 2493.79 },
+                    { name: "Pappu", meal: 40, spent: 1882.11 },
+                    { name: "Sahriar", meal: 30, spent: 1411.58 },
+                    { name: "Liton", meal: 38, spent: 1788.00 }
+                ]
+            },
+            {
+                month: "Aug 25",
+                details: [
+                    { name: "Mehedi", meal: 35, spent: 2012.58 },
+                    { name: "Rayhan", meal: 49, spent: 2817.62 },
+                    { name: "Pappu", meal: 48, spent: 2760.11 },
+                    { name: "Alif", meal: 36, spent: 2070.08 },
+                    { name: "Liton", meal: 45, spent: 2587.61 }
+                ]
+            },
+            {
+                month: "Sep 25",
+                details: [
+                    { name: "Mehedi", meal: 101, spent: 4566.88 },
+                    { name: "Rayhan", meal: 58, spent: 2622.57 },
+                    { name: "Pappu", meal: 50, spent: 2260.83 },
+                    { name: "Alif", meal: 49, spent: 2215.62 },
+                    { name: "Liton", meal: 42, spent: 1899.10 }
+                ]
+            },
+            {
+                month: "Oct 25",
+                details: [
+                    { name: "Mehedi", meal: 31, spent: 1604.87 },
+                    { name: "Hasim", meal: 52, spent: 2692.04 },
+                    { name: "Pappu", meal: 43, spent: 2226.11 },
+                    { name: "Karim", meal: 57, spent: 2950.88 },
+                    { name: "Sohel", meal: 43, spent: 2226.11 }
+                ]
+            },
+            {
+                month: "Nov 25",
+                details: [
+                    { name: "Mehedi", meal: 29, spent: 1679.47 },
+                    { name: "Hasim", meal: 41, spent: 2374.43 },
+                    { name: "Pappu", meal: 59, spent: 3416.86 },
+                    { name: "Karim", meal: 54, spent: 3127.29 },
+                    { name: "Sohel", meal: 58, spent: 3358.95 }
+                ]
+            },
+            {
+                month: "Dec 25",
+                details: [
+                    { name: "Mehedi", meal: 35, spent: 2085.22 },
+                    { name: "Hasim", meal: 57, spent: 3395.93 },
+                    { name: "Karim", meal: 52, spent: 3098.04 },
+                    { name: "Sohel", meal: 62, spent: 3693.82 }
+                ]
+            }
+        ];
+
+        // --- CALCULATIONS ---
+        // Generate summary data from the detailed messData
+        const monthlySummaries = messData.map(data => {
+            const totalBazar = data.details.reduce((sum, p) => sum + p.spent, 0);
+            const totalMeal = data.details.reduce((sum, p) => sum + p.meal, 0);
+            const rate = totalMeal > 0 ? (totalBazar / totalMeal) : 0;
+            return {
+                month: data.month,
+                bazar: Math.round(totalBazar),
+                meal: totalMeal,
+                rate: rate
+            };
+        });
+
+        const labels = monthlySummaries.map(d => d.month);
+        const bazarData = monthlySummaries.map(d => d.bazar);
+        const mealData = monthlySummaries.map(d => d.meal);
+        const rateData = monthlySummaries.map(d => d.rate);
+
+        const grandTotalBazar = bazarData.reduce((a, b) => a + b, 0);
+        const grandTotalMeals = mealData.reduce((a, b) => a + b, 0);
+        const avgOverallRate = (grandTotalBazar / grandTotalMeals).toFixed(2);
+
+        // Aggregate Member Data for new charts
+        const memberStats = {};
+        messData.forEach(m => {
+            m.details.forEach(p => {
+                if (!memberStats[p.name]) {
+                    memberStats[p.name] = { spent: 0, meal: 0 };
+                }
+                memberStats[p.name].spent += p.spent;
+                memberStats[p.name].meal += p.meal;
+            });
+        });
+
+        const topSpenders = Object.keys(memberStats)
+            .map(name => ({ name, value: memberStats[name].spent }))
+            .sort((a, b) => b.value - a.value);
+
+        const topEaters = Object.keys(memberStats)
+            .map(name => ({ name, value: memberStats[name].meal }))
+            .sort((a, b) => b.value - a.value);
+
+
+        // --- UI & CHARTS ---
+        $(document).ready(function() {
+            // Animate Summary Numbers
+            animateValue("grandTotalBazar", 0, grandTotalBazar, 1500);
+            animateValue("grandTotalMeals", 0, grandTotalMeals, 1500);
+            animateValue("avgMealRate", 0, avgOverallRate, 1500, true);
+
+            // Populate Main Table (Original)
+            const summaryBody = $('#dataTable tbody');
+            monthlySummaries.forEach(row => {
+                let overallAvg = parseFloat(avgOverallRate);
+                let rateClass = row.rate > overallAvg ? 'rate-high' : 'rate-low';
+                let html = `
+                    <tr>
+                        <td class="fw-bold">${row.month}</td>
+                        <td>${row.bazar.toLocaleString()}</td>
+                        <td>${row.meal}</td>
+                        <td class="${rateClass}">${row.rate.toFixed(2)}</td>
+                    </tr>
+                `;
+                summaryBody.append(html);
+            });
+
+            // Populate Dropdown
+            const selector = $('#monthSelector');
+            messData.forEach((d, index) => {
+                let selected = index === messData.length - 1 ? 'selected' : '';
+                selector.append(`<option value="${index}" ${selected}>${d.month}</option>`);
+            });
+
+            // Initialize Detail Table with latest data
+            updateDetailTable(messData.length - 1);
+
+            // Dropdown Listener
+            selector.on('change', function() {
+                updateDetailTable(this.value);
+            });
+        });
+
+        function updateDetailTable(index) {
+            const data = messData[index];
+            const tbody = $('#detailTableBody');
+            tbody.empty();
+
+            const monthSummary = monthlySummaries[index];
+            const sortedDetails = [...data.details].sort((a, b) => b.spent - a.spent);
+
+            sortedDetails.forEach(p => {
+                if(p.meal === 0 && p.spent === 0) return;
+
+                const userRate = p.meal > 0 ? (p.spent / p.meal) : 0;
+                let statusBadge;
+                if(userRate >= monthSummary.rate) {
+                    statusBadge = '<span class="badge bg-success bg-opacity-25 text-success">High Contrib.</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-warning bg-opacity-25 text-warning text-dark">Standard</span>';
+                }
+
+                tbody.append(`
+                    <tr>
+                        <td class="fw-bold text-start ps-4">${p.name}</td>
+                        <td>${p.meal}</td>
+                        <td>${Math.round(p.spent).toLocaleString()}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `);
+            });
+
+            $('#monthFooter').html(`
+                ${data.month} Summary: 
+                <span class="text-primary">Total Spent: ${monthSummary.bazar.toLocaleString()}</span> | 
+                Meals: ${monthSummary.meal} | 
+                Rate: ${monthSummary.rate.toFixed(2)}
+            `);
+        }
+
+        function animateValue(id, start, end, duration, isFloat = false) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                let value = progress * (end - start) + start;
+                obj.innerHTML = isFloat ? value.toFixed(2) : Math.floor(value).toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // --- CHARTS CONFIGURATION ---
+
+        // 1. MAIN CHART (Bar + Line)
+        const ctxMain = document.getElementById('mainChart').getContext('2d');
+        const gradientBazar = ctxMain.createLinearGradient(0, 0, 0, 400);
+        gradientBazar.addColorStop(0, 'rgba(37, 117, 252, 0.8)');
+        gradientBazar.addColorStop(1, 'rgba(37, 117, 252, 0.2)');
+
+        new Chart(ctxMain, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Total Bazar',
+                        data: bazarData,
+                        backgroundColor: gradientBazar,
+                        borderRadius: 5,
+                        order: 2,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Meal Rate',
+                        data: rateData,
+                        type: 'line',
+                        borderColor: '#ff9a9e',
+                        backgroundColor: '#ff9a9e',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.4,
+                        order: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    y: { type: 'linear', display: true, position: 'left', grid: { display: false } },
+                    y1: { type: 'linear', display: true, position: 'right', grid: { borderDash: [5, 5] } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 2. MEAL CONSUMPTION CHART (Filled Line)
+        const ctxMeal = document.getElementById('mealChart').getContext('2d');
+        const gradientMeal = ctxMeal.createLinearGradient(0, 0, 0, 300);
+        gradientMeal.addColorStop(0, 'rgba(106, 17, 203, 0.5)');
+        gradientMeal.addColorStop(1, 'rgba(106, 17, 203, 0.0)');
+
+        new Chart(ctxMeal, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Meals',
+                    data: mealData,
+                    borderColor: '#6a11cb',
+                    backgroundColor: gradientMeal,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6a11cb'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 3. RATE FLUCTUATION (Line with Threshold)
+        const ctxRate = document.getElementById('rateChart').getContext('2d');
+        new Chart(ctxRate, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Meal Rate',
+                    data: rateData,
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    segment: {
+                        borderColor: ctx => ctx.p0.parsed.y > 55 ? '#e74c3c' : '#2ecc71',
+                    },
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return 'Rate: ' + context.parsed.y; }
+                        }
+                    }
+                },
+                scales: {
+                    y: { grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 4. TOP SPENDERS CHART
+        const ctxSpender = document.getElementById('spenderChart').getContext('2d');
+        new Chart(ctxSpender, {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: topSpenders.map(d => d.name),
+                datasets: [{
+                    label: 'Total Spent (BDT)',
+                    data: topSpenders.map(d => d.value),
+                    backgroundColor: 'rgba(37, 117, 252, 0.7)',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+            }
+        });
+
+        // 5. TOP EATERS CHART
+        const ctxEater = document.getElementById('eaterChart').getContext('2d');
+        new Chart(ctxEater, {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: topEaters.map(d => d.name),
+                datasets: [{
+                    label: 'Total Meals',
+                    data: topEaters.map(d => d.value),
+                    backgroundColor: 'rgba(106, 17, 203, 0.7)',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+            }
+        });
+
+    </script>
+</body>
+</html>
