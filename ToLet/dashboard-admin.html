@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - ToLet BD</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="lang-en">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top glass-nav transition-all">
+      <div class="container">
+        <a class="navbar-brand fw-bold text-gradient" href="index.html">
+          <i class="fa-solid fa-building-user"></i>
+          <span data-i18n="brand">ToLet BD</span>
+        </a>
+
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center gap-3">
+            <li class="nav-item">
+              <div class="lang-toggle" onclick="app.events.toggleLang()">
+                <span id="langLabel">EN</span>
+              </div>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link fw-bold" href="index.html">
+                <i class="fa-solid fa-home"></i> Home
+              </a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <img
+                  src="https://ui-avatars.com/api/?name=Admin&background=dc3545"
+                  id="navAvatar"
+                  class="rounded-circle"
+                  width="30"
+                />
+                <span id="navUsername" class="fw-bold">Admin</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                <li>
+                  <span class="dropdown-item-text text-muted small">ADMIN</span>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <button
+                    class="dropdown-item text-danger"
+                    onclick="app.auth.logout()"
+                  >
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                  </button>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="container pt-5 mt-5">
+      <!-- Welcome Banner -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div
+            class="card border-0 shadow-sm rounded-4"
+            style="
+              background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            "
+          >
+            <div class="card-body text-white p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <h3 class="fw-bold mb-1">Admin Control Center 🔐</h3>
+                  <p class="mb-0 opacity-75">
+                    Manage all properties, users, and platform activities
+                  </p>
+                </div>
+                <div class="d-none d-md-block">
+                  <i
+                    class="fa-solid fa-shield-halved"
+                    style="font-size: 4rem; opacity: 0.3"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                    <i class="fa-solid fa-building text-primary fa-2x"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="text-muted mb-1">Total Ads</h6>
+                  <h3 class="fw-bold mb-0" id="statTotalAds">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                    <i class="fa-solid fa-users text-success fa-2x"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="text-muted mb-1">Total Users</h6>
+                  <h3 class="fw-bold mb-0" id="statTotalUsers">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                    <i class="fa-solid fa-check-circle text-info fa-2x"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="text-muted mb-1">Active Ads</h6>
+                  <h3 class="fw-bold mb-0" id="statActiveAds">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                    <i class="fa-solid fa-envelope text-warning fa-2x"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="text-muted mb-1">Messages</h6>
+                  <h3 class="fw-bold mb-0" id="statAdminMessages">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-4">
+              <div class="position-relative d-inline-block mb-3">
+                <img
+                  src="https://ui-avatars.com/api/?name=Admin&background=f5576c"
+                  class="rounded-circle shadow"
+                  width="80"
+                />
+                <span
+                  class="position-absolute bottom-0 end-0 bg-danger border border-2 border-white rounded-circle"
+                  style="width: 20px; height: 20px"
+                >
+                  <i
+                    class="fa-solid fa-crown text-white"
+                    style="font-size: 10px; position: relative; top: 2px"
+                  ></i>
+                </span>
+              </div>
+              <h5 class="fw-bold mb-1">Admin Boss</h5>
+              <span class="badge bg-danger rounded-pill mb-3">ADMIN</span>
+              <div class="d-grid gap-2">
+                <button
+                  class="btn btn-danger shadow-sm"
+                  id="btn-ads"
+                  onclick="switchTab('ads')"
+                >
+                  <i class="fa-solid fa-list"></i> All Ads
+                </button>
+                <button
+                  class="btn btn-outline-danger"
+                  id="btn-users"
+                  onclick="switchTab('users')"
+                >
+                  <i class="fa-solid fa-users"></i> All Users
+                </button>
+                <button
+                  class="btn btn-outline-danger"
+                  id="btn-msgs"
+                  onclick="switchTab('msgs')"
+                >
+                  <i class="fa-solid fa-envelope"></i> Messages
+                  <span class="badge bg-danger rounded-pill ms-2" id="msgCount"
+                    >0</span
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="col-lg-9">
+          <!-- Tab: Ads -->
+          <div id="tab-ads" class="dash-tab">
+            <div class="card border-0 shadow-sm rounded-4">
+              <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">Manage All Advertisements</h5>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table
+                    id="dash-ads-table"
+                    class="table table-hover align-middle mb-0"
+                  >
+                    <thead class="bg-light">
+                      <tr>
+                        <th class="ps-4">Property</th>
+                        <th>Rent</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th class="text-end pe-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dash-ads-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Users -->
+          <div id="tab-users" class="dash-tab d-none">
+            <div class="card border-0 shadow-sm rounded-4">
+              <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">Registered Users</h5>
+              </div>
+              <div class="card-body p-0">
+                <ul
+                  class="list-group list-group-flush"
+                  id="user-list-group"
+                ></ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Messages -->
+          <div id="tab-msgs" class="dash-tab d-none">
+            <div class="card border-0 shadow-sm rounded-4">
+              <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">Private Messages</h5>
+              </div>
+              <div class="card-body p-0">
+                <div
+                  class="list-group list-group-flush"
+                  id="msg-list-group"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg overflow-hidden">
+          <div class="modal-header bg-primary text-white border-0">
+            <h5 class="modal-title fw-bold">Welcome Back</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="alert alert-light border small mb-3">
+              <i class="fa-solid fa-circle-info text-primary"></i>
+              <strong>Demo Credentials:</strong><br />
+              Admin: <code>admin</code> / <code>123456</code><br />
+              User: <code>user</code> / <code>123456</code>
+            </div>
+            <form id="loginForm">
+              <div class="form-floating mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="loginUser"
+                  placeholder="Username"
+                  required
+                />
+                <label>Username</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="loginPass"
+                  placeholder="Password"
+                  required
+                />
+                <label>Password</label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                Login
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="toast-container"
+      class="position-fixed top-0 end-0 p-3"
+      style="z-index: 2000"
+    ></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+      function switchTab(tab) {
+        $(".dash-tab").addClass("d-none");
+        $("#tab-" + tab).removeClass("d-none");
+
+        // Update button states
+        $("#btn-ads, #btn-users, #btn-msgs")
+          .removeClass("btn-danger shadow-sm")
+          .addClass("btn-outline-danger");
+        $("#btn-" + tab)
+          .removeClass("btn-outline-danger")
+          .addClass("btn-danger shadow-sm");
+
+        if (tab === "ads") app.logic.renderDashboardAds();
+        if (tab === "users") app.logic.renderUserList();
+        if (tab === "msgs") app.logic.renderMessages();
+      }
+
+      $(document).ready(function () {
+        app.init();
+
+        // Check if user is logged in
+        if (!app.state.currentUser) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        // Check if not admin
+        if (app.state.currentUser.role !== "admin") {
+          window.location.href = "dashboard-user.html";
+          return;
+        }
+
+        // Populate stats
+        const activeAds = app.state.posts.filter((p) => !p.isRented);
+        const myMsgs = app.state.messages.filter(
+          (m) => m.toUserId === app.state.currentUser.id
+        );
+
+        $("#statTotalUsers").text(app.state.users.length);
+        $("#statTotalAds").text(app.state.posts.length);
+        $("#statActiveAds").text(activeAds.length);
+        $("#statAdminMessages").text(myMsgs.length);
+        $("#navUsername").text(app.state.currentUser.username);
+        $("#msgCount").text(myMsgs.length);
+
+        switchTab("ads");
+      });
+    </script>
+  </body>
+</html>
