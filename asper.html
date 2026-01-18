@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASPER Core Banking Microservices Architecture</title>
+  
+  <!-- Modern Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: 'base',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '#1e293b',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#64748b',
+        secondaryColor: '#0f172a',
+        tertiaryColor: '#1e293b'
+      }
+    });
+  </script>
+
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --text-color: #f8fafc;
+      --flow-speed: 30s;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      padding: 40px;
+      background: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 20px;
+    }
+
+    h1 {
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+      background: linear-gradient(90deg, #fff, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 40px;
+      font-size: 0.9rem;
+    }
+
+    /* Mermaid Container Styling */
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.1));
+    }
+
+    /* --- ANIMATION LOGIC --- */
+    
+    /* Target the connecting lines (edges) */
+    .mermaid .edgePath path {
+      stroke-dasharray: 8;
+      stroke-width: 2px !important;
+      animation: dash 1s linear infinite;
+    }
+
+    /* Target the arrows */
+    .mermaid .marker {
+      fill: var(--accent-color) !important;
+    }
+
+    @keyframes dash {
+      from {
+        stroke-dashoffset: 16;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Node Styling */
+    .mermaid .node rect, 
+    .mermaid .node circle, 
+    .mermaid .node polygon, 
+    .mermaid .node path {
+      fill: #1e293b !important;
+      stroke: var(--accent-color) !important;
+      stroke-width: 1.5px !important;
+      transition: all 0.3s ease;
+    }
+
+    /* Hover effect on nodes */
+    .mermaid .node:hover rect, 
+    .mermaid .node:hover circle {
+      fill: #334155 !important;
+      filter: brightness(1.2);
+      transform: translateY(-2px);
+    }
+
+    /* Text inside nodes */
+    .mermaid .node text {
+      fill: #f8fafc !important;
+      font-weight: 400 !important;
+      font-size: 12px !important;
+    }
+
+    /* Highlight CBS specifically */
+    .mermaid [id^="flowchart-CBS"] rect {
+      stroke-width: 3px !important;
+      stroke: #fbbf24 !important; /* Gold for Core Banking */
+    }
+
+    .legend {
+      margin-top: 30px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>ASPER Core Banking Microservices Architecture</h1>
+    <p class="subtitle">High-concurrency Event-Driven System Overview</p>
+
+    <div class="mermaid">
+flowchart LR
+
+%% =====================
+%% UI & MOBILE APP
+%% =====================
+WebUI[Angular Web UI]
+MobileApp[Mobile App]
+GW[API Gateway]
+
+WebUI -->|HTTP| GW
+MobileApp -->|HTTP| GW
+
+%% =====================
+%% DOMAIN SERVICES / PRODUCTS
+%% =====================
+Auth[Auth Service-🛢]
+FT[Fund Transfer Service-🛢]
+MR[Mobile Recharge Service-🛢]
+DPS[DPS Service-🛢]
+Nano[Nano Loan Service-🛢]
+MFS[MFS Service-🛢]
+CIF[CIF Service-🛢]
+
+GW -->|HTTP| Auth
+GW -->|HTTP| FT
+GW -->|HTTP| MR
+GW -->|HTTP| DPS
+GW -->|HTTP| Nano
+GW -->|HTTP| MFS
+GW -->|HTTP| CIF
+
+%% =====================
+%% CORE BANKING
+%% =====================
+CBS[CBS Core-🛢]
+
+FT -->|gRPC Debit/Credit| CBS
+MR -->|gRPC Debit| CBS
+DPS -->|gRPC Debit| CBS
+Nano -->|gRPC Debit/Credit| CBS
+MFS -->|gRPC Debit/Credit| CBS
+CIF -->|gRPC Debit/Credit| CBS
+
+%% =====================
+%% RABBITMQ
+%% =====================
+RMQ[(RabbitMQ)]
+
+CBS -->|Publish Events| RMQ
+
+%% =====================
+%% EVENT CONSUMERS
+%% =====================
+Notify[Notification Service-🛢]
+Report[Reporting Service-🛢]
+Audit[Audit Service-🛢]
+
+RMQ -->|Consume Events| Notify
+RMQ -->|Consume Events| Report
+RMQ -->|Consume Events| Audit
+
+%% =====================
+%% READ FLOW BACK TO UI / MOBILE
+%% =====================
+Report -->|HTTP| GW
+Notify -->|HTTP| GW
+
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> Synchronous (HTTP/gRPC)</div>
+      <div class="legend-item"><span class="dot" style="background: #fbbf24;"></span> Core System</div>
+      <div class="legend-item"><span class="dot" style="background: #64748b;"></span> Async Events</div>
+    </div>
+  </div>
+
+</body>
+</html>
