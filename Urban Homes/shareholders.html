@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shareholders - Urban Homes CRM</title>
+    <!-- Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1e3c72;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar.collapsed .sidebar-header h4 {
+            font-size: 0.8rem;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link {
+            text-align: center;
+            padding: 15px 10px;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header h4 {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .sidebar-header i {
+            margin-right: 8px;
+            font-size: 1.3rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 12px 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.12);
+            border-left-color: #4fc3f7;
+            padding-left: 24px;
+        }
+
+        .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #4fc3f7;
+            box-shadow: inset -3px 0 0 #4fc3f7;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-link.text-danger:hover {
+            background: rgba(231, 76, 60, 0.2);
+            border-left-color: #e74c3c;
+        }
+
+        /* Topbar Styles */
+        .topbar {
+            background: white;
+            padding: 16px 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-sidebar-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 20px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-sidebar-btn:hover {
+            background: #f0f2f5;
+            color: #2a5298;
+            transform: scale(1.05);
+        }
+
+        .navbar-brand {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+            letter-spacing: 0.3px;
+        }
+
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px 25px;
+            transition: all 0.3s ease;
+        }
+
+        .main-content.with-collapsed-sidebar {
+            margin-left: 70px;
+        }
+
+        /* Search Input */
+        .form-control-sm {
+            border: 1px solid #e0e3e8;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-sm:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        /* Dropdown Styling */
+        .dropdown-menu {
+            border: 1px solid #e0e3e8;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 8px 0;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            color: #555;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+            padding-left: 18px;
+        }
+
+        .dropdown-item i {
+            margin-right: 10px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            margin: 6px 0;
+            border-color: #e0e3e8;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+
+            .sidebar.active {
+                margin-left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-city"></i> Urban Homes</h4>
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item"><a href="dashboard.html" class="nav-link"><i
+                        class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li class="nav-item"><a href="projects.html" class="nav-link"><i class="fas fa-building"></i><span>Projects
+                        & Land</span></a></li>
+            <li class="nav-item"><a href="shareholders.html" class="nav-link active"><i
+                        class="fas fa-users"></i><span>CRM & Shareholders</span></a></li>
+            <li class="nav-item"><a href="construction.html" class="nav-link"><i
+                        class="fas fa-hard-hat"></i><span>Construction</span></a></li>
+            <li class="nav-item"><a href="finance.html" class="nav-link"><i class="fas fa-coins"></i><span>Finance &
+                        Accounts</span></a></li>
+            <li class="nav-item"><a href="login.html" class="nav-link mt-5 text-danger"><i
+                        class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="main-content" id="mainContent">
+        <!-- Top Navbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="toggle-sidebar-btn" id="sidebarCollapseBtn" title="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="navbar-brand"><i class="fas fa-users"></i> CRM & Shareholders</span>
+            </div>
+            <div class="topbar-right">
+                <input type="text" class="form-control form-control-sm" placeholder="Search shareholders..."
+                    style="width: 280px;">
+                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#memberModal">
+                    <i class="fas fa-user-plus"></i> Add Investor
+                </button>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle text-dark" href="#" data-bs-toggle="dropdown" title="User Menu">
+                        <i class="fas fa-user-circle fa-lg" style="color: var(--primary-color);"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> My Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-bell"></i> Notifications</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="login.html"><i class="fas fa-sign-out-alt"></i>
+                                Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Total Shareholders</h6>
+                        <h3 class="text-primary">142</h3>
+                        <small class="text-success"><i class="fas fa-arrow-up"></i> +8 this month</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Total Shares Sold</h6>
+                        <h3 class="text-info">52</h3>
+                        <small class="text-warning"><i class="fas fa-percentage"></i> 43% of Total</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Collections Received</h6>
+                        <h3 class="text-success">৳ 2.5 Cr</h3>
+                        <small class="text-info"><i class="fas fa-info"></i> This month</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Outstanding Dues</h6>
+                        <h3 class="text-danger">৳ 45 Lac</h3>
+                        <small class="text-danger"><i class="fas fa-exclamation-circle"></i> Action needed</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shareholders Table -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Shareholder Directory</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="filter" id="all-sh" checked>
+                        <label class="btn btn-outline-secondary" for="all-sh">All</label>
+                        <input type="radio" class="btn-check" name="filter" id="active-sh">
+                        <label class="btn btn-outline-secondary" for="active-sh">Active</label>
+                        <input type="radio" class="btn-check" name="filter" id="dues-sh">
+                        <label class="btn btn-outline-secondary" for="dues-sh">Pending Dues</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="membersTable" class="table table-hover align-middle" style="width:100%">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="fas fa-code"></i> ID</th>
+                                <th><i class="fas fa-user"></i> Name</th>
+                                <th><i class="fas fa-phone"></i> Phone</th>
+                                <th><i class="fas fa-building"></i> Project</th>
+                                <th><i class="fas fa-cubes"></i> Shares</th>
+                                <th><i class="fas fa-check text-success"></i> Paid</th>
+                                <th><i class="fas fa-exclamation text-danger"></i> Due</th>
+                                <th><i class="fas fa-cogs"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div class="modal fade" id="memberModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title"><i class="fas fa-user-plus text-success"></i> New Shareholder Registration
+                        (KYC)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="memberForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Full Name</strong></label>
+                                <input type="text" class="form-control" id="mName" placeholder="Mr./Ms. Name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Phone Number</strong></label>
+                                <input type="tel" class="form-control" id="mPhone" placeholder="01711xxxxxx" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Email</strong></label>
+                                <input type="email" class="form-control" id="mEmail" placeholder="email@example.com">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>NID/Passport</strong></label>
+                                <input type="text" class="form-control" id="mNID" placeholder="ID Number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Select Project</strong></label>
+                                <select class="form-select" id="mProject">
+                                    <option value="Urban Heights">Urban Heights</option>
+                                    <option value="Green Valley">Green Valley</option>
+                                    <option value="River View">River View</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Number of Shares</strong></label>
+                                <input type="number" class="form-control" id="mShares" value="1" min="1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Booking Money</strong></label>
+                                <input type="number" class="form-control" id="mBooking" placeholder="e.g., 500000"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Payment Method</strong></label>
+                                <select class="form-select" id="mPayment">
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Mobile Banking">Mobile Banking</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="saveMember()">
+                        <i class="fas fa-check-circle"></i> Register Shareholder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ledger Modal -->
+    <div class="modal fade" id="ledgerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title"><i class="fas fa-file-invoice"></i> Shareholder Ledger</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        <strong id="ledgerTitle" class="text-primary"></strong>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th><i class="fas fa-calendar"></i> Date</th>
+                                    <th>Description</th>
+                                    <th class="text-danger">Debit (Due)</th>
+                                    <th class="text-success">Credit (Paid)</th>
+                                    <th><strong>Balance</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><small>01-Jan-2024</small></td>
+                                    <td><strong>Land Share Booking</strong></td>
+                                    <td class="text-danger">৳ 5,00,000</td>
+                                    <td class="text-success">৳ 2,00,000</td>
+                                    <td><strong class="text-danger">৳ 3,00,000</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><small>15-Feb-2024</small></td>
+                                    <td><strong>Installment 1</strong></td>
+                                    <td class="text-danger">-</td>
+                                    <td class="text-success">৳ 1,00,000</td>
+                                    <td><strong class="text-danger">৳ 2,00,000</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><small>01-Mar-2024</small></td>
+                                    <td><strong>Piling Fund Call</strong></td>
+                                    <td class="text-danger">৳ 1,50,000</td>
+                                    <td class="text-danger">-</td>
+                                    <td><strong class="text-danger">৳ 3,50,000</strong></td>
+                                </tr>
+                                <tr class="table-light">
+                                    <td colspan="3" class="text-end"><strong>Current Outstanding:</strong></td>
+                                    <td colspan="2"><strong class="text-danger">৳ 3,50,000</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button class="btn btn-outline-primary btn-sm"><i class="fas fa-print"></i> Print</button>
+                    <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Mock Data
+        let members = [
+            { id: 1001, name: "Rahim Uddin", phone: "01711234567", project: "Urban Heights", shares: 2, paid: "1,200,000", due: "300,000", status: "Active" },
+            { id: 1002, name: "Karim Khan", phone: "01811234567", project: "Urban Heights", shares: 1, paid: "600,000", due: "0", status: "Paid" },
+            { id: 1003, name: "Sultana Begum", phone: "01911234567", project: "Green Valley", shares: 4, paid: "2,000,000", due: "1,500,000", status: "Pending" },
+            { id: 1004, name: "Ahmed Ali", phone: "01712345678", project: "Urban Heights", shares: 1, paid: "500,000", due: "0", status: "Paid" },
+        ];
+        let table;
+
+        $(document).ready(function () {
+            renderTable();
+
+            // Sidebar Toggle
+            $('#sidebarToggle').click(function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+
+        function renderTable() {
+            if (table) table.destroy();
+            let html = '';
+            members.forEach(m => {
+                let dueBadge = m.due === "0" ? '<span class="badge bg-success">Paid</span>' : '<span class="badge bg-danger">Due</span>';
+                html += `<tr>
+                    <td><small class="text-muted">#${m.id}</small></td>
+                    <td><strong>${m.name}</strong></td>
+                    <td><small>${m.phone}</small></td>
+                    <td><small>${m.project}</small></td>
+                    <td><span class="badge bg-info">${m.shares}</span></td>
+                    <td><span class="text-success"><strong>৳ ${m.paid}</strong></span></td>
+                    <td><span class="text-danger"><strong>৳ ${m.due}</strong></span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewLedger('${m.name}')" title="View Ledger">
+                            <i class="fas fa-file-invoice"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" onclick="sendMessage('${m.name}')" title="Send Message">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteShare(${m.id})" title="Remove">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            $('#membersTableBody').html(html || '<tr><td colspan="8" class="text-center text-muted py-4">No shareholders found</td></tr>');
+            table = $('#membersTable').DataTable({
+                responsive: true,
+                paging: true,
+                pageLength: 10,
+                columnDefs: [
+                    { orderable: false, targets: 7 }
+                ]
+            });
+        }
+
+        function saveMember() {
+            let name = $('#mName').val();
+            let phone = $('#mPhone').val();
+            if (!name || !phone) {
+                Swal.fire('Error', 'Name and Phone are required', 'error');
+                return;
+            }
+
+            members.push({
+                id: 1000 + members.length + 1,
+                name: name,
+                phone: phone,
+                project: $('#mProject').val(),
+                shares: $('#mShares').val(),
+                paid: $('#mBooking').val(),
+                due: "Pending",
+                status: "Active"
+            });
+            $('#memberModal').modal('hide');
+            Swal.fire('Success!', 'Shareholder registered successfully', 'success');
+            renderTable();
+            $('#memberForm')[0].reset();
+        }
+
+        function viewLedger(name) {
+            $('#ledgerTitle').text(`Financial Statement for: ${name}`);
+            $('#ledgerModal').modal('show');
+        }
+
+        function sendMessage(name) {
+            Swal.fire({
+                title: `Send Notification to ${name}`,
+                input: 'textarea',
+                inputLabel: 'Message',
+                inputPlaceholder: 'Type your message here...',
+                inputAttributes: {
+                    'aria-label': 'Type your message'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Send'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Sent!', 'Notification sent via SMS/Email', 'success');
+                }
+            });
+        }
+
+        function deleteShare(id) {
+            Swal.fire({
+                title: 'Remove Shareholder?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    members = members.filter(m => m.id !== id);
+                    renderTable();
+                    Swal.fire('Removed!', 'Shareholder has been removed.', 'success');
+                }
+            });
+        }
+
+        // Sidebar Toggle Functionality
+        document.getElementById('sidebarCollapseBtn').addEventListener('click', function () {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('with-collapsed-sidebar');
+        });
+    </script>
+</body>
+
+</html>
