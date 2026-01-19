@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - HR Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        .card-counter { transition: transform 0.2s; cursor: pointer; }
+        .card-counter:hover { transform: translateY(-5px); }
+        .icon-circle { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .activity-feed .feed-item { border-left: 2px solid #e9ecef; padding-left: 20px; padding-bottom: 20px; position: relative; }
+        .activity-feed .feed-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #0d6efd; }
+        .activity-feed .feed-item:last-child { border-left: none; }
+        .birthday-item { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #eee; }
+        .birthday-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    
+    <div class="main-content">
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="page-title">Executive Overview</h3>
+                <p class="text-muted mb-0" id="currentDateDisplay">Tuesday, Oct 25, 2025</p>
+            </div>
+            <div>
+                <button class="btn btn-primary shadow-sm" onclick="window.print()"><i class="fa-solid fa-download me-2"></i> Report</button>
+            </div>
+        </div>
+        
+        <!-- Stats Row 1 -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card card-counter border-0 shadow h-100 py-2 border-start border-4 border-primary">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col"><div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Employees</div><div class="h3 mb-0 font-weight-bold text-gray-800" id="statTotalEmp">0</div></div>
+                            <div class="col-auto"><div class="icon-circle bg-primary bg-opacity-10 text-primary"><i class="fas fa-users"></i></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card card-counter border-0 shadow h-100 py-2 border-start border-4 border-success">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col"><div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Payroll (Mo)</div><div class="h3 mb-0 font-weight-bold text-gray-800" id="statPayroll">$0</div></div>
+                            <div class="col-auto"><div class="icon-circle bg-success bg-opacity-10 text-success"><i class="fas fa-dollar-sign"></i></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card card-counter border-0 shadow h-100 py-2 border-start border-4 border-info">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col"><div class="text-xs font-weight-bold text-info text-uppercase mb-1">On Leave Today</div><div class="h3 mb-0 font-weight-bold text-gray-800" id="statOnLeave">0</div></div>
+                            <div class="col-auto"><div class="icon-circle bg-info bg-opacity-10 text-info"><i class="fas fa-mug-hot"></i></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card card-counter border-0 shadow h-100 py-2 border-start border-4 border-danger">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col"><div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Late Arrivals</div><div class="h3 mb-0 font-weight-bold text-gray-800" id="statLate">0</div></div>
+                            <div class="col-auto"><div class="icon-circle bg-danger bg-opacity-10 text-danger"><i class="fas fa-user-clock"></i></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow mb-4 h-100">
+                    <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Department Headcount</h6>
+                        <div class="dropdown no-arrow"><button class="btn btn-sm btn-light"><i class="fa-solid fa-ellipsis-vertical"></i></button></div>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="deptChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow mb-4 h-100">
+                    <div class="card-header py-3 bg-white">
+                        <h6 class="m-0 font-weight-bold text-primary">Gender Diversity</h6>
+                    </div>
+                    <div class="card-body">
+                         <div style="height: 250px; position: relative;">
+                            <canvas id="genderChart"></canvas>
+                         </div>
+                         <div class="mt-4 text-center small">
+                            <span class="mr-2"><i class="fas fa-circle text-primary"></i> Male</span>
+                            <span class="mr-2"><i class="fas fa-circle text-info"></i> Female</span>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Row -->
+        <div class="row">
+            <!-- Activity Feed -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow mb-4 h-100">
+                    <div class="card-header py-3 bg-white">
+                        <h6 class="m-0 font-weight-bold text-primary">Live Activity Feed</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-feed" id="activityFeed">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Birthdays -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow mb-4 h-100">
+                    <div class="card-header py-3 bg-white">
+                        <h6 class="m-0 font-weight-bold text-primary">Celebrations (This Month)</h6>
+                    </div>
+                    <div class="card-body" id="celebrationList">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Attendance Chart (Wide) -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 font-weight-bold text-primary">Attendance Trend (Last 7 Days)</h6>
+            </div>
+            <div class="card-body">
+                <div style="height: 250px; position: relative;">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+            AppController.initDashboard();
+        });
+    </script>
+</body>
+</html>
