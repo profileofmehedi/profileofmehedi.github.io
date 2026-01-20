@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Shipments - RapidCourier BD</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="page-title">Parcel Management</h4>
+            <a href="booking.html" class="btn btn-primary-custom"><i class="fas fa-plus"></i> New Parcel</a>
+        </div>
+
+        <div class="card card-custom">
+            <div class="card-body">
+                <!-- Filters -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" placeholder="Search Tracking ID...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select">
+                            <option value="">All Statuses</option>
+                            <option>Pending</option>
+                            <option>In Transit</option>
+                            <option>Delivered</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select">
+                            <option value="">All Merchants</option>
+                            <option>Daraz BD</option>
+                            <option>Pickaboo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-light w-100"><i class="fas fa-filter"></i> Apply Filters</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Tracking ID</th>
+                                <th>Date</th>
+                                <th>Merchant/Sender</th>
+                                <th>Receiver Info</th>
+                                <th>Status</th>
+                                <th>COD Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parcelTableBody">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.init('parcels');
+
+            const tbody = document.getElementById('parcelTableBody');
+            
+            // Render all mock data
+            CourierDB.parcels.forEach(p => {
+                const tr = `
+                <tr>
+                    <td>
+                        <span class="fw-bold text-primary">${p.id}</span>
+                        <div class="small text-muted">${p.type}</div>
+                    </td>
+                    <td>${p.date}</td>
+                    <td>
+                        <div class="fw-bold">${p.sender}</div>
+                        <small class="text-muted">${p.from}</small>
+                    </td>
+                    <td>
+                        <div class="fw-bold">${p.receiver}</div>
+                        <small class="text-muted">${p.to}</small>
+                    </td>
+                    <td>${App.getStatusBadge(p.status)}</td>
+                    <td>${App.formatCurrency(p.amount)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-light text-primary" title="View"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-sm btn-light text-success" title="Print Label"><i class="fas fa-print"></i></button>
+                        <button class="btn btn-sm btn-light text-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+                tbody.insertAdjacentHTML('beforeend', tr);
+            });
+        });
+    </script>
+</body>
+</html>
