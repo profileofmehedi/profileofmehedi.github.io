@@ -1,63 +1,464 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payroll - HR Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payroll Management - HR Pro</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
     <div class="main-content">
-        <div class="page-header">
-            <h3 class="page-title">Payroll & Salary Structure</h3>
-            <button class="btn btn-instruction btn-show-instructions" 
-                    data-instruction="<p><b>Configuration:</b> Define salary heads (Basic, HRA, etc.).<br><b>Processing:</b> Select a month and click 'Run Calculation'.</p>">
-                <i class="fa-solid fa-circle-info"></i> Help
-            </button>
+      <div class="page-header">
+        <h3 class="page-title">
+          <i class="fas fa-money-check-alt me-2"></i>Payroll Management System
+        </h3>
+        <div class="d-flex gap-2">
+          <button class="btn btn-success" id="btnBulkPayslip">
+            <i class="fas fa-file-invoice-dollar"></i> Generate Payslips
+          </button>
+          <button class="btn btn-info text-white" id="btnBankAdvice">
+            <i class="fas fa-university"></i> Bank Advice
+          </button>
+          <button class="btn btn-primary" id="btnExportPayroll">
+            <i class="fas fa-file-excel"></i> Export Excel
+          </button>
         </div>
+      </div>
 
-        <ul class="nav nav-tabs mb-4" id="payrollTabs">
-            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-process">Processing</a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-config">Configuration</a></li>
-        </ul>
-
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="tab-process">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
-                        <div class="d-flex align-items-center gap-3">
-                            <select class="form-select" id="payrollPeriodSelect" style="width: 200px;"></select>
-                            <button class="btn btn-success" id="btnRunPayroll"><i class="fa-solid fa-calculator"></i> Run Calculation</button>
-                        </div>
-                        <button class="btn btn-secondary btn-sm" id="btnNewPeriod"><i class="fa-solid fa-plus"></i> New Month</button>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-bordered" id="tablePayroll" width="100%">
-                            <thead class="table-light"><tr><th>Employee</th><th>Dept</th><th>Earnings</th><th>Deductions</th><th>Net Pay</th><th>Status</th><th>Actions</th></tr></thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+      <!-- Summary Cards -->
+      <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+                  >
+                    Total Employees
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryTotalEmployees"
+                  >
+                    0
+                  </div>
                 </div>
+                <div class="col-auto">
+                  <i class="fas fa-users fa-2x text-gray-300"></i>
+                </div>
+              </div>
             </div>
-
-            <div class="tab-pane fade" id="tab-config">
-                <div class="row"><div class="col-md-6"><div class="card shadow mb-4"><div class="card-header bg-white d-flex justify-content-between"><h6>Salary Heads</h6><button class="btn btn-sm btn-primary" id="btnAddHead">Add Head</button></div><div class="card-body"><table class="table table-sm" id="tableHeads"><thead><tr><th>Name</th><th>Type</th><th>Mode</th></tr></thead><tbody></tbody></table></div></div></div></div>
-            </div>
+          </div>
         </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                  >
+                    Total Earnings
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryTotalEarnings"
+                  >
+                    ৳0
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                  >
+                    Total Deductions
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryTotalDeductions"
+                  >
+                    ৳0
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-minus-circle fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-info text-uppercase mb-1"
+                  >
+                    Net Payable
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryNetPayable"
+                  >
+                    ৳0
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter & Period Selection -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-white">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+              <label class="form-label mb-0"
+                ><i class="fas fa-calendar"></i> Payroll Period</label
+              >
+              <select class="form-select" id="payrollPeriodSelect"></select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label mb-0"
+                ><i class="fas fa-building"></i> Department</label
+              >
+              <select class="form-select" id="filterDepartment">
+                <option value="">All Departments</option>
+                <option value="Finance">Finance</option>
+                <option value="HR">HR</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Sales">Sales</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label mb-0"
+                ><i class="fas fa-check-circle"></i> Status</label
+              >
+              <select class="form-select" id="filterStatus">
+                <option value="">All Status</option>
+                <option value="Processed">Processed</option>
+                <option value="Pending">Pending</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label mb-0"
+                ><i class="fas fa-search"></i> Search</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="searchPayroll"
+                placeholder="Employee name or ID..."
+              />
+            </div>
+            <div class="col-md-2">
+              <label class="form-label mb-0">&nbsp;</label>
+              <div class="d-flex gap-2">
+                <button class="btn btn-success w-100" id="btnRunPayroll">
+                  <i class="fas fa-calculator"></i> Calculate
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payroll Table -->
+      <div class="card shadow mb-4">
+        <div
+          class="card-header py-3 bg-white d-flex justify-content-between align-items-center"
+        >
+          <h6 class="m-0 font-weight-bold text-primary">
+            Salary Processing Details
+          </h6>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" id="btnSelectAll">
+              <i class="fas fa-check-square"></i> Select All
+            </button>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              id="btnDeselectAll"
+            >
+              <i class="fas fa-times-circle"></i> Deselect All
+            </button>
+            <button class="btn btn-sm btn-outline-success" id="btnMarkPaid">
+              <i class="fas fa-check"></i> Mark as Paid
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover" id="tablePayroll" width="100%">
+              <thead class="table-light">
+                <tr>
+                  <th width="30">
+                    <input type="checkbox" id="checkAllPayroll" />
+                  </th>
+                  <th>Emp ID</th>
+                  <th>Employee Name</th>
+                  <th>Department</th>
+                  <th>Basic Salary</th>
+                  <th>Allowances</th>
+                  <th>Gross Earnings</th>
+                  <th>Deductions</th>
+                  <th>Tax</th>
+                  <th>Net Pay</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot>
+                <tr class="table-secondary fw-bold">
+                  <td colspan="4" class="text-end">TOTAL:</td>
+                  <td id="totalBasic">৳0</td>
+                  <td id="totalAllowances">৳0</td>
+                  <td id="totalGross">৳0</td>
+                  <td id="totalDeductions">৳0</td>
+                  <td id="totalTax">৳0</td>
+                  <td id="totalNet">৳0</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Add Head Modal -->
-    <div class="modal fade" id="addHeadModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Add Head</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="head-name" class="form-control mb-2" placeholder="Name"><select id="head-type" class="form-select"><option>Earning</option><option>Deduction</option></select></div><div class="modal-footer"><button class="btn btn-primary" id="btnSaveHead">Save</button></div></div></div></div>
+    <!-- Salary Breakdown Modal -->
+    <div class="modal fade" id="salaryBreakdownModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-file-invoice-dollar"></i> Detailed Salary
+              Breakdown
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <p>
+                  <strong>Employee:</strong> <span id="breakdownEmpName"></span>
+                </p>
+                <p>
+                  <strong>Employee ID:</strong>
+                  <span id="breakdownEmpId"></span>
+                </p>
+                <p>
+                  <strong>Department:</strong> <span id="breakdownDept"></span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p>
+                  <strong>Designation:</strong>
+                  <span id="breakdownDesig"></span>
+                </p>
+                <p><strong>Bank:</strong> <span id="breakdownBank"></span></p>
+                <p>
+                  <strong>Account No:</strong>
+                  <span id="breakdownAccount"></span>
+                </p>
+              </div>
+            </div>
+            <hr />
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="text-success">
+                  <i class="fas fa-plus-circle"></i> EARNINGS
+                </h6>
+                <table class="table table-sm table-bordered">
+                  <tbody id="breakdownEarnings"></tbody>
+                  <tfoot class="table-light">
+                    <tr class="fw-bold">
+                      <td>Gross Earnings</td>
+                      <td id="breakdownGrossEarnings" class="text-end">৳0</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-danger">
+                  <i class="fas fa-minus-circle"></i> DEDUCTIONS
+                </h6>
+                <table class="table table-sm table-bordered">
+                  <tbody id="breakdownDeductions"></tbody>
+                  <tfoot class="table-light">
+                    <tr class="fw-bold">
+                      <td>Total Deductions</td>
+                      <td id="breakdownTotalDeductions" class="text-end">৳0</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            <hr />
+            <div
+              class="alert alert-info d-flex justify-content-between align-items-center"
+            >
+              <h5 class="mb-0"><strong>NET PAYABLE</strong></h5>
+              <h4 class="mb-0 text-primary" id="breakdownNetPay">৳0</h4>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" id="btnPrintPayslip">
+              <i class="fas fa-print"></i> Print Payslip
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Salary Modal -->
+    <div class="modal fade" id="editSalaryModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-edit"></i> Edit Salary Components
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editSalaryEmpId" />
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Basic Salary</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editBasicSalary"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">House Rent Allowance (HRA)</label>
+                <input type="number" class="form-control" id="editHRA" />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Transport Allowance</label>
+                <input type="number" class="form-control" id="editTransport" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Medical Allowance</label>
+                <input type="number" class="form-control" id="editMedical" />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Special Allowance</label>
+                <input type="number" class="form-control" id="editSpecial" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Provident Fund (%)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editPF"
+                  value="10"
+                />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Professional Tax</label>
+                <input type="number" class="form-control" id="editProfTax" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Income Tax (%)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editIncomeTax"
+                  value="5"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="btnSaveEditSalary"
+            >
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
-    <script>$(document).ready(() => AppController.initPayroll());</script>
-</body>
+    <script>
+      $(document).ready(() => AppController.initPayroll());
+    </script>
+  </body>
 </html>

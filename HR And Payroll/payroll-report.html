@@ -1,27 +1,517 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payroll Report - HR Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payroll Analytics & Reports - HR Pro</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
     <div class="main-content">
-        <div class="page-header"><h3 class="page-title">Salary Cost Analysis</h3></div>
-        <div class="card shadow mb-4">
-            <div class="card-header bg-white">6-Month Trend</div>
-            <div class="card-body"><canvas id="chartPayrollTrend" style="height:300px"></canvas></div>
+      <div class="page-header">
+        <h3 class="page-title">
+          <i class="fas fa-chart-line me-2"></i>Payroll Analytics &
+          Comprehensive Reports
+        </h3>
+        <div class="d-flex gap-2">
+          <button class="btn btn-success" id="btnPrintReport">
+            <i class="fas fa-print"></i> Print Report
+          </button>
+          <button class="btn btn-primary" id="btnExportExcel">
+            <i class="fas fa-file-excel"></i> Export Excel
+          </button>
+          <button class="btn btn-info text-white" id="btnExportPDF">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </button>
         </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+                  >
+                    Current Month Payroll
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ৳4,50,000
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                  >
+                    Avg. Salary per Employee
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ৳45,000
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+                  >
+                    Total Tax Deducted
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ৳55,000
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                  >
+                    Pending Payments
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ৳1,20,000
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i
+                    class="fas fa-exclamation-triangle fa-2x text-gray-300"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 1 -->
+      <div class="row mb-4">
+        <div class="col-lg-8">
+          <div class="card shadow mb-4">
+            <div
+              class="card-header py-3 bg-white d-flex justify-content-between align-items-center"
+            >
+              <h6 class="m-0 font-weight-bold text-primary">
+                12-Month Payroll Trend
+              </h6>
+              <div class="dropdown no-arrow">
+                <button
+                  class="btn btn-sm btn-outline-primary dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="fas fa-filter"></i> Filter
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Last 6 Months</a></li>
+                  <li><a class="dropdown-item" href="#">Last Year</a></li>
+                  <li><a class="dropdown-item" href="#">Current Year</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-body">
+              <canvas id="chartPayrollTrend" style="height: 300px"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Earnings vs Deductions
+              </h6>
+            </div>
+            <div class="card-body">
+              <canvas
+                id="chartEarningsVsDeductions"
+                style="height: 300px"
+              ></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 2 -->
+      <div class="row mb-4">
+        <div class="col-lg-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Department-wise Payroll Distribution
+              </h6>
+            </div>
+            <div class="card-body">
+              <canvas id="chartDepartmentPayroll"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Salary Range Distribution
+              </h6>
+            </div>
+            <div class="card-body">
+              <canvas id="chartSalaryRange"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 3 -->
+      <div class="row mb-4">
+        <div class="col-lg-4">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Deduction Breakdown
+              </h6>
+            </div>
+            <div class="card-body">
+              <canvas id="chartDeductionBreakdown"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Monthly Comparison: Last 6 Months
+              </h6>
+            </div>
+            <div class="card-body">
+              <canvas id="chartMonthlyComparison"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Tables -->
+      <div class="row mb-4">
+        <div class="col-lg-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Top 10 Highest Paid Employees
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-hover" id="tableTopEarners">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Rank</th>
+                      <th>Employee</th>
+                      <th>Department</th>
+                      <th>Net Salary</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Department-wise Cost Analysis
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-hover" id="tableDeptCost">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Department</th>
+                      <th>Employees</th>
+                      <th>Total Cost</th>
+                      <th>Avg. Salary</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Reports -->
+      <div class="row mb-4">
+        <div class="col-lg-4">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Tax Summary by Month
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm" id="tableTaxSummary">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Month</th>
+                      <th>Total Tax</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>January</td>
+                      <td>৳52,000</td>
+                    </tr>
+                    <tr>
+                      <td>February</td>
+                      <td>৳54,000</td>
+                    </tr>
+                    <tr>
+                      <td>March</td>
+                      <td>৳53,500</td>
+                    </tr>
+                    <tr>
+                      <td>April</td>
+                      <td>৳55,000</td>
+                    </tr>
+                    <tr>
+                      <td>May</td>
+                      <td>৳56,200</td>
+                    </tr>
+                    <tr>
+                      <td>June</td>
+                      <td>৳58,000</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                PF Contribution Summary
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm" id="tablePFSummary">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Month</th>
+                      <th>Total PF</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>January</td>
+                      <td>৳45,000</td>
+                    </tr>
+                    <tr>
+                      <td>February</td>
+                      <td>৳46,000</td>
+                    </tr>
+                    <tr>
+                      <td>March</td>
+                      <td>৳45,800</td>
+                    </tr>
+                    <tr>
+                      <td>April</td>
+                      <td>৳47,000</td>
+                    </tr>
+                    <tr>
+                      <td>May</td>
+                      <td>৳48,000</td>
+                    </tr>
+                    <tr>
+                      <td>June</td>
+                      <td>৳49,500</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Bank-wise Payment Summary
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm" id="tableBankSummary">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Bank Name</th>
+                      <th>Employees</th>
+                      <th>Total Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Salary Analysis -->
+      <div class="row mb-4">
+        <div class="col-lg-12">
+          <div class="card shadow mb-4">
+            <div
+              class="card-header py-3 bg-white d-flex justify-content-between align-items-center"
+            >
+              <h6 class="m-0 font-weight-bold text-primary">
+                Detailed Employee-wise Salary Analysis
+              </h6>
+              <button class="btn btn-sm btn-primary" id="btnRefreshAnalysis">
+                <i class="fas fa-sync"></i> Refresh
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover"
+                  id="tableSalaryAnalysis"
+                  width="100%"
+                >
+                  <thead class="table-light">
+                    <tr>
+                      <th>Emp ID</th>
+                      <th>Name</th>
+                      <th>Department</th>
+                      <th>Basic</th>
+                      <th>HRA</th>
+                      <th>Transport</th>
+                      <th>Medical</th>
+                      <th>Gross</th>
+                      <th>PF</th>
+                      <th>Tax</th>
+                      <th>Net Pay</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compliance Reports -->
+      <div class="row mb-4">
+        <div class="col-lg-12">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Statutory Compliance Reports
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <button
+                    class="btn btn-outline-primary w-100"
+                    id="btnTaxReport"
+                  >
+                    <i class="fas fa-file-invoice"></i><br />
+                    Income Tax Report
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button
+                    class="btn btn-outline-success w-100"
+                    id="btnPFReport"
+                  >
+                    <i class="fas fa-piggy-bank"></i><br />
+                    PF Contribution Report
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button
+                    class="btn btn-outline-info w-100"
+                    id="btnBankAdviceReport"
+                  >
+                    <i class="fas fa-university"></i><br />
+                    Bank Advice Report
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button
+                    class="btn btn-outline-warning w-100"
+                    id="btnPayslipReport"
+                  >
+                    <i class="fas fa-file-invoice-dollar"></i><br />
+                    Bulk Payslip Generation
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
-    <script>$(document).ready(() => AppController.initPayrollReport());</script>
-</body>
+    <script>
+      $(document).ready(() => AppController.initPayrollReport());
+    </script>
+  </body>
 </html>

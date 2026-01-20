@@ -1,33 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leave Requests - HR Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
-</head>
-<body>
-    <div class="main-content">
-        <div class="page-header">
-            <h3 class="page-title">Leave Requests</h3>
-            <button class="btn btn-primary" id="btnApplyLeave">Apply Leave</button>
-        </div>
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <table class="table table-bordered" id="tableLeave" width="100%">
-                    <thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="d-flex">
+      <nav id="sidebar" class="sidebar bg-white border-end"></nav>
+      <div class="flex-grow-1">
+        <header id="topbar" class="topbar bg-light border-bottom"></header>
+        <main class="main-content container py-4">
+          <div
+            class="page-header mb-4 d-flex justify-content-between align-items-center"
+          >
+            <h3 class="page-title">
+              <i class="fa fa-list me-2"></i>Leave Requests
+            </h3>
+            <button class="btn btn-primary" id="btnApplyLeave">
+              <i class="fa fa-plus"></i> Apply Leave
+            </button>
+          </div>
+          <div class="card shadow mb-4">
+            <div
+              class="card-header bg-white d-flex flex-wrap gap-2 align-items-center"
+            >
+              <div class="input-group w-auto">
+                <span class="input-group-text"
+                  ><i class="fa fa-filter"></i
+                ></span>
+                <select id="filterStatus" class="form-select form-select-sm">
+                  <option value="">All Status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
+              <div class="input-group w-auto">
+                <span class="input-group-text"><i class="fa fa-user"></i></span>
+                <input
+                  type="text"
+                  id="filterEmployee"
+                  class="form-control form-control-sm"
+                  placeholder="Employee Name"
+                />
+              </div>
+              <button
+                class="btn btn-outline-secondary btn-sm ms-auto"
+                id="btnBulkApprove"
+              >
+                <i class="fa fa-check"></i> Bulk Approve
+              </button>
+              <button class="btn btn-outline-danger btn-sm" id="btnBulkReject">
+                <i class="fa fa-xmark"></i> Bulk Reject
+              </button>
             </div>
-        </div>
+            <div class="card-body">
+              <table class="table table-bordered" id="tableLeave" width="100%">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="selectAllLeaves" /></th>
+                    <th>Employee</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
 
     <!-- Apply Leave Modal -->
-    <div class="modal fade" id="applyLeaveModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Apply Leave</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="leaveType" class="form-select mb-2"><option>Casual</option><option>Medical</option></select><div class="row mb-2"><div class="col"><input type="date" id="leaveFrom" class="form-control"></div><div class="col"><input type="date" id="leaveTo" class="form-control"></div></div><textarea id="leaveReason" class="form-control" placeholder="Reason"></textarea></div><div class="modal-footer"><button class="btn btn-primary" id="submitLeaveBtn">Submit</button></div></div></div></div>
+    <div class="modal fade" id="applyLeaveModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Apply Leave</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <select id="leaveType" class="form-select mb-2">
+              <option>Casual</option>
+              <option>Medical</option>
+            </select>
+            <div class="row mb-2">
+              <div class="col">
+                <input type="date" id="leaveFrom" class="form-control" />
+              </div>
+              <div class="col">
+                <input type="date" id="leaveTo" class="form-control" />
+              </div>
+            </div>
+            <textarea
+              id="leaveReason"
+              class="form-control"
+              placeholder="Reason"
+            ></textarea>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" id="submitLeaveBtn">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -37,6 +135,58 @@
     <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
-    <script>$(document).ready(() => AppController.initLeave());</script>
-</body>
+    <script>
+      $(document).ready(function () {
+        if (typeof AppLayout !== "undefined") {
+          $("#sidebar").html(AppLayout.render("leave"));
+          $("#topbar").html(`
+                <div class="container-fluid d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-link d-md-none" id="sidebarToggle"><i class="fa fa-bars"></i></button>
+                        <span class="fw-bold text-primary">Leave Requests</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted small">${localStorage.getItem("userName") || "Admin"}</span>
+                        <img src="assets/img/user.png" alt="User" class="rounded-circle" width="32" height="32">
+                    </div>
+                </div>
+            `);
+        }
+        AppController.initLeave();
+        // Advanced filtering and bulk actions
+        $("#filterStatus, #filterEmployee").on("input change", function () {
+          const status = $("#filterStatus").val();
+          const emp = $("#filterEmployee").val().toLowerCase();
+          $("#tableLeave tbody tr").each(function () {
+            const rowStatus = $(this).find("td:eq(5)").text();
+            const rowEmp = $(this).find("td:eq(1)").text().toLowerCase();
+            let show = true;
+            if (status && rowStatus !== status) show = false;
+            if (emp && !rowEmp.includes(emp)) show = false;
+            $(this).toggle(show);
+          });
+        });
+        $(document).on("change", "#selectAllLeaves", function () {
+          $(".select-leave").prop("checked", this.checked);
+        });
+        $(document).on("change", ".select-leave", function () {
+          if (!this.checked) $("#selectAllLeaves").prop("checked", false);
+        });
+        $("#btnBulkApprove").click(function () {
+          $(".select-leave:checked").each(function () {
+            const id = $(this).data("id");
+            AppServices.updateLeaveStatus(id, "Approved");
+          });
+          AppController.initLeave();
+        });
+        $("#btnBulkReject").click(function () {
+          $(".select-leave:checked").each(function () {
+            const id = $(this).data("id");
+            AppServices.updateLeaveStatus(id, "Rejected");
+          });
+          AppController.initLeave();
+        });
+      });
+    </script>
+  </body>
 </html>

@@ -1,31 +1,231 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Holidays - HR Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
-</head>
-<body>
-    <div class="main-content">
-        <div class="page-header"><h3 class="page-title">Holiday Calendar</h3><button class="btn btn-primary" id="btnAddHoliday">Add Holiday</button></div>
-        <div class="card shadow"><div class="card-body"><table class="table table-bordered" id="tableHolidays"><thead><tr><th>Event</th><th>Date</th><th>Type</th></tr></thead><tbody></tbody></table></div></div>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="d-flex">
+      <nav id="sidebar" class="sidebar bg-white border-end"></nav>
+      <div class="flex-grow-1">
+        <header id="topbar" class="topbar bg-light border-bottom"></header>
+        <main class="main-content container py-4">
+          <div
+            class="page-header mb-4 d-flex justify-content-between align-items-center"
+          >
+            <h3 class="page-title">
+              <i class="fa fa-calendar-alt me-2"></i>Holiday Calendar
+            </h3>
+            <button class="btn btn-primary" id="btnAddHoliday">
+              <i class="fa fa-plus"></i> Add Holiday
+            </button>
+          </div>
+          <div class="row mb-4">
+            <div class="col-lg-8 mb-4">
+              <div class="card shadow mb-4 h-100">
+                <div class="card-header bg-white"><b>Calendar View</b></div>
+                <div class="card-body">
+                  <div id="holidayCalendar" style="min-height: 400px"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+              <div class="card shadow mb-4 h-100">
+                <div
+                  class="card-header bg-white d-flex flex-wrap gap-2 align-items-center"
+                >
+                  <div class="input-group w-auto">
+                    <span class="input-group-text"
+                      ><i class="fa fa-filter"></i
+                    ></span>
+                    <select id="filterType" class="form-select form-select-sm">
+                      <option value="">All Types</option>
+                      <option value="Public">Public</option>
+                      <option value="Optional">Optional</option>
+                      <option value="Company">Company</option>
+                    </select>
+                  </div>
+                  <div class="input-group w-auto">
+                    <span class="input-group-text"
+                      ><i class="fa fa-search"></i
+                    ></span>
+                    <input
+                      type="text"
+                      id="filterEvent"
+                      class="form-control form-control-sm"
+                      placeholder="Event Name"
+                    />
+                  </div>
+                  <button
+                    class="btn btn-outline-success btn-sm ms-auto"
+                    id="btnExportHoliday"
+                  >
+                    <i class="fa fa-file-excel"></i> Export
+                  </button>
+                </div>
+                <div class="card-body">
+                  <table class="table table-bordered" id="tableHolidays">
+                    <thead>
+                      <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
-    
-    <div class="modal fade" id="holidayModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">New Holiday</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="holiday-name" class="form-control mb-2" placeholder="Event Name"><input type="date" id="holiday-date" class="form-control"></div><div class="modal-footer"><button class="btn btn-primary" id="btnSaveHoliday">Save</button></div></div></div></div>
+    <!-- Modal -->
+    <div class="modal fade" id="holidayModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New Holiday</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input
+              id="holiday-name"
+              class="form-control mb-2"
+              placeholder="Event Name"
+            /><input
+              type="date"
+              id="holiday-date"
+              class="form-control mb-2"
+            /><select id="holiday-type" class="form-select">
+              <option value="Public">Public</option>
+              <option value="Optional">Optional</option>
+              <option value="Company">Company</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" id="btnSaveHoliday">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
-    <script>$(document).ready(() => AppController.initHolidays());</script>
-</body>
+    <script>
+      $(document).ready(function () {
+        if (typeof AppLayout !== "undefined") {
+          $("#sidebar").html(AppLayout.render("admin-holidays"));
+          $("#topbar").html(`
+                <div class="container-fluid d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-link d-md-none" id="sidebarToggle"><i class="fa fa-bars"></i></button>
+                        <span class="fw-bold text-primary">Holiday Calendar</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted small">${localStorage.getItem("userName") || "Admin"}</span>
+                        <img src="assets/img/user.png" alt="User" class="rounded-circle" width="32" height="32">
+                    </div>
+                </div>
+            `);
+        }
+        AppController.initHolidays();
+        // Calendar view
+        if (window.FullCalendar) {
+          const calendarEl = document.getElementById("holidayCalendar");
+          const events = (
+            AppServices.getHolidays ? AppServices.getHolidays() : []
+          ).map((h) => ({
+            title: h.name,
+            start: h.date,
+            color:
+              h.type === "Public"
+                ? "#4e73df"
+                : h.type === "Optional"
+                  ? "#f6c23e"
+                  : "#1cc88a",
+          }));
+          const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "dayGridMonth",
+            height: 400,
+            events: events,
+          });
+          calendar.render();
+        }
+        // Filter table
+        $("#filterType, #filterEvent").on("input change", function () {
+          const type = $("#filterType").val();
+          const event = $("#filterEvent").val().toLowerCase();
+          $("#tableHolidays tbody tr").each(function () {
+            const rowType = $(this).find("td:eq(2)").text();
+            const rowEvent = $(this).find("td:eq(0)").text().toLowerCase();
+            let show = true;
+            if (type && rowType !== type) show = false;
+            if (event && !rowEvent.includes(event)) show = false;
+            $(this).toggle(show);
+          });
+        });
+        // Export to CSV
+        $("#btnExportHoliday").click(function () {
+          let csv = "Event,Date,Type\n";
+          $("#tableHolidays tbody tr").each(function () {
+            let row = [];
+            $(this)
+              .find("td")
+              .each(function () {
+                row.push($(this).text());
+              });
+            csv += row.join(",") + "\n";
+          });
+          const blob = new Blob([csv], { type: "text/csv" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "holiday_calendar.csv";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+        // Enhance modal to save type
+        $("#btnSaveHoliday")
+          .off("click")
+          .on("click", function () {
+            AppServices.addHoliday({
+              name: $("#holiday-name").val(),
+              date: $("#holiday-date").val(),
+              type: $("#holiday-type").val(),
+            });
+            AppController.initHolidays();
+            bootstrap.Modal.getInstance("#holidayModal").hide();
+          });
+      });
+    </script>
+  </body>
 </html>

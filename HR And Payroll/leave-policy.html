@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leave Policy & Configuration - HR Pro</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="d-flex">
+      <nav id="sidebar" class="sidebar bg-white border-end"></nav>
+      <div class="flex-grow-1">
+        <header id="topbar" class="topbar bg-light border-bottom"></header>
+        <main class="main-content container py-4">
+          <div
+            class="page-header mb-4 d-flex justify-content-between align-items-center"
+          >
+            <h3 class="page-title">
+              <i class="fas fa-cogs me-2"></i>Leave Policy & Configuration
+            </h3>
+            <button
+              class="btn btn-primary"
+              onclick="window.location = 'leave.html'"
+            >
+              <i class="fas fa-list"></i> Manage Requests
+            </button>
+          </div>
+          <div class="card mb-4">
+            <div class="card-header bg-white"><b>Leave Types & Rules</b></div>
+            <div class="card-body">
+              <form id="leaveTypeForm" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                  <label class="form-label">Leave Type</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="leaveTypeName"
+                    required
+                  />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Days/Year</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="leaveTypeDays"
+                    min="1"
+                    required
+                  />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Carry Forward?</label>
+                  <select class="form-select" id="leaveTypeCarry">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Description</label>
+                  <input type="text" class="form-control" id="leaveTypeDesc" />
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-success w-100">
+                    <i class="fa fa-plus"></i> Add
+                  </button>
+                </div>
+              </form>
+              <div class="table-responsive mt-4">
+                <table class="table table-bordered" id="leaveTypeTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Type</th>
+                      <th>Days/Year</th>
+                      <th>Carry Forward</th>
+                      <th>Description</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-4">
+            <div class="card-header bg-white"><b>General Leave Rules</b></div>
+            <div class="card-body">
+              <form id="leaveRulesForm" class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Max Leaves Per Month</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="maxLeavesPerMonth"
+                    min="1"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Min Notice Period (days)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="minNoticePeriod"
+                    min="0"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Allow Negative Balance?</label>
+                  <select class="form-select" id="allowNegativeBalance">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Save Rules
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+      $(document).ready(function () {
+        if (typeof AppLayout !== "undefined") {
+          $("#sidebar").html(AppLayout.render("leave-policy"));
+          $("#topbar").html(`
+                <div class="container-fluid d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-link d-md-none" id="sidebarToggle"><i class="fa fa-bars"></i></button>
+                        <span class="fw-bold text-primary">Leave Policy</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted small">${localStorage.getItem("userName") || "Admin"}</span>
+                        <img src="assets/img/user.png" alt="User" class="rounded-circle" width="32" height="32">
+                    </div>
+                </div>
+            `);
+        }
+        // Leave Types Table
+        function renderLeaveTypes() {
+          const types = AppServices.getLeaveTypes
+            ? AppServices.getLeaveTypes()
+            : [];
+          const tbody = $("#leaveTypeTable tbody");
+          tbody.empty();
+          types.forEach((t, i) => {
+            tbody.append(`<tr>
+                    <td>${t.name}</td>
+                    <td>${t.days}</td>
+                    <td>${t.carry === "yes" ? "Yes" : "No"}</td>
+                    <td>${t.desc || ""}</td>
+                    <td><button class='btn btn-danger btn-sm' onclick='AppServices.deleteLeaveType(${i})'><i class='fa fa-trash'></i></button></td>
+                </tr>`);
+          });
+        }
+        renderLeaveTypes();
+        $("#leaveTypeForm").on("submit", function (e) {
+          e.preventDefault();
+          const type = {
+            name: $("#leaveTypeName").val(),
+            days: parseInt($("#leaveTypeDays").val()),
+            carry: $("#leaveTypeCarry").val(),
+            desc: $("#leaveTypeDesc").val(),
+          };
+          if (AppServices.addLeaveType) AppServices.addLeaveType(type);
+          renderLeaveTypes();
+          this.reset();
+        });
+        // General Rules
+        const rules = AppServices.getLeaveRules
+          ? AppServices.getLeaveRules()
+          : {};
+        $("#maxLeavesPerMonth").val(rules.maxLeavesPerMonth || "");
+        $("#minNoticePeriod").val(rules.minNoticePeriod || "");
+        $("#allowNegativeBalance").val(rules.allowNegativeBalance || "no");
+        $("#leaveRulesForm").on("submit", function (e) {
+          e.preventDefault();
+          const newRules = {
+            maxLeavesPerMonth: parseInt($("#maxLeavesPerMonth").val()),
+            minNoticePeriod: parseInt($("#minNoticePeriod").val()),
+            allowNegativeBalance: $("#allowNegativeBalance").val(),
+          };
+          if (AppServices.saveLeaveRules) AppServices.saveLeaveRules(newRules);
+          alert("Leave rules saved!");
+        });
+      });
+    </script>
+  </body>
+</html>

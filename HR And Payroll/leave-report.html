@@ -1,25 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leave Balance Report - HR Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
-</head>
-<body>
-    <div class="main-content">
-        <div class="page-header"><h3 class="page-title">Employee Leave Balances</h3></div>
-        <div class="card shadow">
-            <div class="card-body">
-                <table class="table table-bordered" id="tableLeaveBalance">
-                    <thead class="table-dark"><tr><th>Employee</th><th>Casual Total</th><th>Casual Used</th><th>Casual Bal</th><th>Medical Total</th><th>Medical Used</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="d-flex">
+      <nav id="sidebar" class="sidebar bg-white border-end"></nav>
+      <div class="flex-grow-1">
+        <header id="topbar" class="topbar bg-light border-bottom"></header>
+        <main class="main-content container py-4">
+          <div
+            class="page-header mb-4 d-flex justify-content-between align-items-center"
+          >
+            <h3 class="page-title">
+              <i class="fa fa-balance-scale me-2"></i>Employee Leave Balances
+            </h3>
+            <div>
+              <button
+                class="btn btn-outline-success btn-sm"
+                id="btnExportLeave"
+              >
+                <i class="fa fa-file-excel"></i> Export
+              </button>
             </div>
-        </div>
+          </div>
+          <div class="card shadow">
+            <div
+              class="card-header bg-white d-flex flex-wrap gap-2 align-items-center"
+            >
+              <div class="input-group w-auto">
+                <span class="input-group-text"
+                  ><i class="fa fa-filter"></i
+                ></span>
+                <input
+                  type="text"
+                  id="filterLeaveEmp"
+                  class="form-control form-control-sm"
+                  placeholder="Employee Name"
+                />
+              </div>
+            </div>
+            <div class="card-body">
+              <table class="table table-bordered" id="tableLeaveBalance">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Employee</th>
+                    <th>Casual Total</th>
+                    <th>Casual Used</th>
+                    <th>Casual Bal</th>
+                    <th>Medical Total</th>
+                    <th>Medical Used</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -28,6 +81,56 @@
     <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
-    <script>$(document).ready(() => AppController.initLeaveReport());</script>
-</body>
+    <script>
+      $(document).ready(function () {
+        if (typeof AppLayout !== "undefined") {
+          $("#sidebar").html(AppLayout.render("leave-report"));
+          $("#topbar").html(`
+                <div class="container-fluid d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-link d-md-none" id="sidebarToggle"><i class="fa fa-bars"></i></button>
+                        <span class="fw-bold text-primary">Leave Balance Report</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted small">${localStorage.getItem("userName") || "Admin"}</span>
+                        <img src="assets/img/user.png" alt="User" class="rounded-circle" width="32" height="32">
+                    </div>
+                </div>
+            `);
+        }
+        AppController.initLeaveReport();
+        // Filter by employee name
+        $("#filterLeaveEmp").on("input", function () {
+          const emp = $(this).val().toLowerCase();
+          $("#tableLeaveBalance tbody tr").each(function () {
+            const rowEmp = $(this).find("td:eq(0)").text().toLowerCase();
+            $(this).toggle(!emp || rowEmp.includes(emp));
+          });
+        });
+        // Export to CSV
+        $("#btnExportLeave").click(function () {
+          let csv =
+            "Employee,Casual Total,Casual Used,Casual Bal,Medical Total,Medical Used\n";
+          $("#tableLeaveBalance tbody tr").each(function () {
+            let row = [];
+            $(this)
+              .find("td")
+              .each(function () {
+                row.push($(this).text());
+              });
+            csv += row.join(",") + "\n";
+          });
+          const blob = new Blob([csv], { type: "text/csv" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "leave_balance_report.csv";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+      });
+    </script>
+  </body>
 </html>

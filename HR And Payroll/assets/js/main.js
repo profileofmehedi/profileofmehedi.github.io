@@ -31,16 +31,71 @@ const AppController = {
         });
     },
 
+    initEmployeeEdit: function() {
+        // Placeholder for Edit Logic
+        console.log("Init Employee Edit");
+    },
+
     initEmployeeReport: function() {
         const emps = AppServices.getEmployees();
         const depts = {};
-        emps.forEach(e => depts[e.dept] = (depts[e.dept] || 0) + 1);
+        
+        if (!emps || emps.length === 0) {
+            $('#tableHeadcount tbody').html('<tr><td colspan="3" class="text-center">No data available</td></tr>');
+            return;
+        }
+
+        emps.forEach(e => {
+            const d = e.dept || 'Unassigned';
+            depts[d] = (depts[d] || 0) + 1;
+        });
+
         let html = '';
         Object.keys(depts).forEach(d => {
-            html += `<tr><td>${d}</td><td class="fw-bold">${depts[d]}</td><td><div class="progress" style="height:10px;"><div class="progress-bar" style="width:${(depts[d]/emps.length)*100}%"></div></div></td></tr>`;
+            const count = depts[d];
+            const ratio = ((count / emps.length) * 100).toFixed(1);
+            html += `<tr>
+                <td>${d}</td>
+                <td class="fw-bold">${count}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="progress flex-grow-1 me-2" style="height:10px;">
+                            <div class="progress-bar bg-primary" style="width:${ratio}%"></div>
+                        </div>
+                        <small>${ratio}%</small>
+                    </div>
+                </td>
+            </tr>`;
         });
         $('#tableHeadcount tbody').html(html);
-        new Chart(document.getElementById('chartHeadcount'), { type: 'pie', data: { labels: Object.keys(depts), datasets: [{ data: Object.values(depts), backgroundColor: ['#4e73df','#1cc88a','#36b9cc'] }] } });
+
+        // Chart
+        const ctx = document.getElementById('chartHeadcount');
+        if (ctx) {
+            // Destroy existing chart if any
+            if (window.empReportChart) {
+                window.empReportChart.destroy();
+            }
+            
+            window.empReportChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(depts),
+                    datasets: [{
+                        data: Object.values(depts),
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
     },
 
     // --- RECRUITMENT ---
@@ -89,6 +144,10 @@ const AppController = {
         $('#btnSaveHead').click(() => { AppServices.addSalaryHead({ name: $('#head-name').val(), type: $('#head-type').val() }); renderHeads(); bootstrap.Modal.getInstance('#addHeadModal').hide(); });
     },
 
+    initPayslipGenerator: function() {
+        console.log("Init Payslip Generator");
+    },
+
     initPayrollReport: function() {
         const ctx = document.getElementById('chartPayrollTrend');
         new Chart(ctx, { type: 'line', data: { labels: ['Jan','Feb','Mar','Apr','May','Jun'], datasets: [{ label: 'Total Cost', data: [400000, 410000, 405000, 420000, 425000, 450000], borderColor: '#1cc88a', tension: 0.4 }] } });
@@ -96,6 +155,11 @@ const AppController = {
 
     // --- ATTENDANCE ---
     initAttendance: function() { renderAttendance(); },
+    
+    initManualAttendance: function() {
+        console.log("Init Manual Attendance");
+    },
+
     initAttendanceReport: function() {
         const emps = AppServices.getEmployees();
         let html = '';
@@ -114,6 +178,11 @@ const AppController = {
         $('#submitLeaveBtn').click(() => { AppServices.addLeave({ emp: 'Current User', type: $('#leaveType').val(), from: $('#leaveFrom').val(), to: $('#leaveTo').val(), reason: $('#leaveReason').val(), status: 'Pending' }); renderLeaves(); bootstrap.Modal.getInstance('#applyLeaveModal').hide(); });
         $(document).on('click', '.btn-leave-action', function() { AppServices.updateLeaveStatus($(this).data('id'), $(this).data('action')); renderLeaves(); });
     },
+    
+    initLeaveDashboard: function() { console.log("Init Leave Dashboard"); },
+    initLeaveCalendar: function() { console.log("Init Leave Calendar"); },
+    initLeavePolicy: function() { console.log("Init Leave Policy"); },
+
     initLeaveReport: function() {
         const emps = AppServices.getEmployees();
         let html = '';

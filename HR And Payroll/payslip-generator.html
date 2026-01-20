@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payslip Generator - HR Pro</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <style>
+      .payslip-container {
+        background: white;
+        padding: 40px;
+        margin: 20px auto;
+        max-width: 900px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      .payslip-header {
+        border-bottom: 3px solid #1cc88a;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .payslip-table {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      .payslip-table td {
+        padding: 8px;
+        border-bottom: 1px solid #e3e6f0;
+      }
+      .payslip-total {
+        background: #f8f9fc;
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+      .company-logo {
+        font-size: 2em;
+        color: #1cc88a;
+      }
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        .payslip-container {
+          box-shadow: none;
+          margin: 0;
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-content no-print">
+      <div class="page-header">
+        <h3 class="page-title">
+          <i class="fas fa-file-invoice me-2"></i>Payslip Generator
+        </h3>
+        <div class="d-flex gap-2">
+          <button class="btn btn-success" id="btnPrintPayslip">
+            <i class="fas fa-print"></i> Print
+          </button>
+          <button class="btn btn-primary" id="btnDownloadPDF">
+            <i class="fas fa-file-pdf"></i> Download PDF
+          </button>
+          <button class="btn btn-secondary" id="btnEmailPayslip">
+            <i class="fas fa-envelope"></i> Email
+          </button>
+        </div>
+      </div>
+
+      <!-- Employee Selection -->
+      <div class="card shadow mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Select Employee *</label>
+              <select class="form-select" id="selectEmployee"></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Select Month *</label>
+              <select class="form-select" id="selectMonth">
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06" selected>June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Select Year *</label>
+              <select class="form-select" id="selectYear">
+                <option value="2023">2023</option>
+                <option value="2024" selected>2024</option>
+                <option value="2025">2025</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-primary w-100" id="btnGeneratePayslip">
+                <i class="fas fa-magic"></i> Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payslip Preview -->
+    <div class="payslip-container" id="payslipPreview">
+      <div class="payslip-header">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="company-logo"><i class="fas fa-building"></i></div>
+            <h3 class="mb-1">HR Pro Solutions</h3>
+            <p class="mb-0 text-muted">
+              House 123, Road 45, Gulshan-2, Dhaka-1212
+            </p>
+            <p class="mb-0 text-muted">
+              Phone: +880 1711-123456 | Email: hr@hrpro.com
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <h4 class="text-primary">PAYSLIP</h4>
+            <p class="mb-0">
+              <strong>Month:</strong> <span id="payslipMonth">June 2024</span>
+            </p>
+            <p class="mb-0">
+              <strong>Pay Date:</strong>
+              <span id="payslipDate">30-Jun-2024</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Info -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <table class="table table-borderless table-sm">
+            <tr>
+              <td width="140"><strong>Employee Name:</strong></td>
+              <td id="payslipEmpName">-</td>
+            </tr>
+            <tr>
+              <td><strong>Employee ID:</strong></td>
+              <td id="payslipEmpId">-</td>
+            </tr>
+            <tr>
+              <td><strong>Designation:</strong></td>
+              <td id="payslipDesignation">-</td>
+            </tr>
+            <tr>
+              <td><strong>Department:</strong></td>
+              <td id="payslipDepartment">-</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-md-6">
+          <table class="table table-borderless table-sm">
+            <tr>
+              <td width="140"><strong>Joining Date:</strong></td>
+              <td id="payslipJoinDate">-</td>
+            </tr>
+            <tr>
+              <td><strong>Bank Name:</strong></td>
+              <td id="payslipBank">-</td>
+            </tr>
+            <tr>
+              <td><strong>Account No:</strong></td>
+              <td id="payslipAccount">-</td>
+            </tr>
+            <tr>
+              <td><strong>PAN/TIN:</strong></td>
+              <td id="payslipTIN">-</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Salary Details -->
+      <div class="row">
+        <div class="col-md-6">
+          <h6 class="text-success mb-3">
+            <i class="fas fa-plus-circle"></i> EARNINGS
+          </h6>
+          <table class="payslip-table">
+            <tbody id="earningsTable">
+              <tr>
+                <td>Basic Salary</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>House Rent Allowance</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>Transport Allowance</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>Medical Allowance</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>Special Allowance</td>
+                <td class="text-end">৳0</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="payslip-total">
+                <td>GROSS EARNINGS</td>
+                <td class="text-end text-success" id="totalEarnings">৳0</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="col-md-6">
+          <h6 class="text-danger mb-3">
+            <i class="fas fa-minus-circle"></i> DEDUCTIONS
+          </h6>
+          <table class="payslip-table">
+            <tbody id="deductionsTable">
+              <tr>
+                <td>Provident Fund (PF)</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>Professional Tax</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>Income Tax (TDS)</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>Loan Deduction</td>
+                <td class="text-end">৳0</td>
+              </tr>
+              <tr>
+                <td>Other Deductions</td>
+                <td class="text-end">৳0</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="payslip-total">
+                <td>TOTAL DEDUCTIONS</td>
+                <td class="text-end text-danger" id="totalDeductions">৳0</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Net Pay -->
+      <div
+        class="alert alert-success d-flex justify-content-between align-items-center"
+        style="background: #d4edda; border: 2px solid #1cc88a"
+      >
+        <h5 class="mb-0"><strong>NET PAYABLE AMOUNT</strong></h5>
+        <h4 class="mb-0 text-success" id="netPayAmount">৳0</h4>
+      </div>
+
+      <!-- Amount in Words -->
+      <div class="mb-4">
+        <p class="mb-0">
+          <strong>Amount in Words:</strong>
+          <span id="amountInWords" class="text-primary">-</span>
+        </p>
+      </div>
+
+      <hr />
+
+      <!-- Attendance Summary -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h6 class="mb-3">ATTENDANCE SUMMARY</h6>
+          <table class="table table-sm table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Total Days</th>
+                <th>Present</th>
+                <th>Leaves</th>
+                <th>Weekends</th>
+                <th>Holidays</th>
+                <th>Payable Days</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="totalDays">30</td>
+                <td id="presentDays">22</td>
+                <td id="leaveDays">0</td>
+                <td id="weekendDays">8</td>
+                <td id="holidayDays">0</td>
+                <td id="payableDays" class="fw-bold">22</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="row mt-5 pt-4" style="border-top: 1px solid #e3e6f0">
+        <div class="col-md-6">
+          <p class="mb-0 text-muted">
+            <small
+              >This is a computer-generated payslip and does not require a
+              signature.</small
+            >
+          </p>
+        </div>
+        <div class="col-md-6 text-end">
+          <p class="mb-0"><strong>_____________________</strong></p>
+          <p class="mb-0">Authorized Signatory</p>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3" style="background: #f8f9fc; border-radius: 5px">
+        <p class="mb-0 text-center text-muted">
+          <small>
+            <i class="fas fa-info-circle"></i> For any queries regarding this
+            payslip, please contact HR Department at hr@hrpro.com or call +880
+            1711-123456
+          </small>
+        </p>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+      $(document).ready(() => AppController.initPayslipGenerator());
+    </script>
+  </body>
+</html>

@@ -11,30 +11,59 @@
     <link href="assets/css/style.css" rel="stylesheet">
 </head>
 <body>
-    <div class="main-content">
-        <div class="page-header"><h3 class="page-title">SMS Management</h3></div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card shadow p-4 mb-4">
-                    <h5>Compose Message</h5>
-                    <hr>
-                    <label class="form-label">Recipient Group</label>
-                    <select class="form-select mb-3" id="smsGroup"><option>All Employees</option><option>Engineering</option><option>Managers</option></select>
-                    <label class="form-label">Message</label>
-                    <textarea class="form-control mb-3" rows="4" id="smsMsg" placeholder="Enter SMS text..."></textarea>
-                    <button class="btn btn-primary w-100" id="btnSendSMS"><i class="fa-solid fa-paper-plane me-2"></i> Send Broadcast</button>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-white">Recent Delivery Logs</div>
-                    <div class="card-body">
-                        <table class="table table-sm" id="tableSMS">
-                            <thead><tr><th>Date</th><th>Group</th><th>Message</th><th>Status</th></tr></thead>
-                            <tbody></tbody>
-                        </table>
+        <div class="d-flex">
+            <nav id="sidebar" class="sidebar bg-white border-end"></nav>
+            <div class="flex-grow-1">
+                <header id="topbar" class="topbar bg-light border-bottom"></header>
+                <main class="main-content container py-4">
+                    <div class="page-header mb-4 d-flex justify-content-between align-items-center">
+                        <h3 class="page-title"><i class="fa fa-comment-sms me-2"></i>Compose SMS</h3>
+                        <button class="btn btn-outline-secondary" onclick="window.location='sms-report.html'"><i class="fa fa-list"></i> Delivery Logs</button>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-lg-5 mb-4">
+                            <div class="card shadow p-4 h-100">
+                                <h5 class="mb-3"><i class="fa fa-paper-plane me-2 text-primary"></i>Compose Message</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Recipient Group</label>
+                                    <select class="form-select" id="smsGroup">
+                                        <option>All Employees</option>
+                                        <option>Engineering</option>
+                                        <option>Managers</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Message</label>
+                                    <textarea class="form-control" rows="4" id="smsMsg" placeholder="Enter SMS text..."></textarea>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <small class="text-muted"><span id="smsCharCount">0</span>/160 chars</small>
+                                        <select class="form-select form-select-sm w-auto" id="smsTemplate">
+                                            <option value="">Insert Template...</option>
+                                            <option>Meeting at 3PM today. Please attend on time.</option>
+                                            <option>Salary has been credited to your account.</option>
+                                            <option>Office will remain closed tomorrow due to holiday.</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary w-100" id="btnSendSMS"><i class="fa-solid fa-paper-plane me-2"></i>Send Broadcast</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 mb-4">
+                            <div class="card shadow mb-4 h-100">
+                                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                                    <span class="fw-bold"><i class="fa fa-clock me-1"></i>Recent Delivery Logs</span>
+                                    <button class="btn btn-outline-success btn-sm" id="btnExportSMS"><i class="fa fa-file-excel"></i> Export</button>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm align-middle" id="tableSMS">
+                                        <thead><tr><th>Date</th><th>Group</th><th>Message</th><th>Status</th></tr></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
             </div>
         </div>
     </div>
@@ -46,7 +75,55 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
-    <script src="assets/js/main.js"></script>
-    <script>$(document).ready(() => AppController.initSMS());</script>
+        <script src="assets/js/main.js"></script>
+        <script>
+            $(document).ready(function () {
+                if (typeof AppLayout !== "undefined") {
+                    $("#sidebar").html(AppLayout.render("sms"));
+                    $("#topbar").html(`
+                                <div class="container-fluid d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center gap-3">
+                                                <button class="btn btn-link d-md-none" id="sidebarToggle"><i class="fa fa-bars"></i></button>
+                                                <span class="fw-bold text-primary">Compose SMS</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                                <span class="text-muted small">${localStorage.getItem("userName") || "Admin"}</span>
+                                                <img src="assets/img/user.png" alt="User" class="rounded-circle" width="32" height="32">
+                                        </div>
+                                </div>
+                        `);
+                }
+                AppController.initSMS();
+                // Character counter
+                $("#smsMsg").on("input", function () {
+                    $("#smsCharCount").text($(this).val().length);
+                });
+                // SMS template insert
+                $("#smsTemplate").on("change", function () {
+                    if ($(this).val()) {
+                        $("#smsMsg").val($("#smsMsg").val() + ($("#smsMsg").val() ? ' ' : '') + $(this).val()).trigger("input");
+                        $(this).val("");
+                    }
+                });
+                // Export logs
+                $("#btnExportSMS").click(function () {
+                    let csv = "Date,Group,Message,Status\n";
+                    $("#tableSMS tbody tr").each(function () {
+                        let row = [];
+                        $(this).find("td").each(function () { row.push($(this).text()); });
+                        csv += row.join(",") + "\n";
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'sms_logs.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                });
+            });
+        </script>
 </body>
 </html>

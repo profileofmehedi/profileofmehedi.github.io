@@ -1,35 +1,617 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Setup - HR Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salary Component Setup - HR Pro</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
     <div class="main-content">
-        <div class="page-header"><h3 class="page-title">Salary Component Configuration</h3><button class="btn btn-primary" id="btnAddHead">Add New Component</button></div>
-        <div class="card shadow">
-            <div class="card-body">
-                <table class="table table-bordered" id="tableHeads">
-                    <thead class="table-light"><tr><th>Component Name</th><th>Type</th><th>Calculation Mode</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+      <div class="page-header">
+        <h3 class="page-title">
+          <i class="fas fa-cog me-2"></i>Salary Structure & Component
+          Configuration
+        </h3>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" id="btnAddComponent">
+            <i class="fas fa-plus"></i> Add Component
+          </button>
+          <button class="btn btn-info text-white" id="btnAddTemplate">
+            <i class="fas fa-clipboard-list"></i> Create Template
+          </button>
+          <button class="btn btn-success" id="btnLoadDefaults">
+            <i class="fas fa-sync"></i> Load Defaults
+          </button>
         </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+                  >
+                    Total Components
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryTotalComponents"
+                  >
+                    0
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-list fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                  >
+                    Earning Components
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryEarningComponents"
+                  >
+                    0
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-plus-circle fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                  >
+                    Deduction Components
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryDeductionComponents"
+                  >
+                    0
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-minus-circle fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+                  >
+                    Active Templates
+                  </div>
+                  <div
+                    class="h5 mb-0 font-weight-bold text-gray-800"
+                    id="summaryActiveTemplates"
+                  >
+                    0
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-4" id="setupTabs">
+        <li class="nav-item">
+          <a class="nav-link active" data-bs-toggle="tab" href="#tab-components"
+            ><i class="fas fa-list"></i> Salary Components</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#tab-templates"
+            ><i class="fas fa-clipboard-list"></i> Salary Templates</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#tab-tax"
+            ><i class="fas fa-calculator"></i> Tax Configuration</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#tab-pf"
+            ><i class="fas fa-piggy-bank"></i> PF Settings</a
+          >
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- Salary Components Tab -->
+        <div class="tab-pane fade show active" id="tab-components">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Salary Component Master
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover"
+                  id="tableComponents"
+                  width="100%"
+                >
+                  <thead class="table-light">
+                    <tr>
+                      <th>Component Name</th>
+                      <th>Type</th>
+                      <th>Category</th>
+                      <th>Calculation Type</th>
+                      <th>Value</th>
+                      <th>Taxable</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Salary Templates Tab -->
+        <div class="tab-pane fade" id="tab-templates">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Salary Templates by Department/Designation
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover"
+                  id="tableTemplates"
+                  width="100%"
+                >
+                  <thead class="table-light">
+                    <tr>
+                      <th>Template Name</th>
+                      <th>Department</th>
+                      <th>Designation</th>
+                      <th>Basic Salary Range</th>
+                      <th>Components</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tax Configuration Tab -->
+        <div class="tab-pane fade" id="tab-tax">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Income Tax Slabs (Bangladesh)
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Configure tax slabs according
+                to Bangladesh Income Tax Rules
+              </div>
+              <div class="table-responsive">
+                <table class="table table-bordered" id="tableTaxSlabs">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Slab No</th>
+                      <th>Income From (৳)</th>
+                      <th>Income To (৳)</th>
+                      <th>Tax Rate (%)</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>0</td>
+                      <td>350,000</td>
+                      <td>0%</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>350,001</td>
+                      <td>450,000</td>
+                      <td>5%</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td>450,001</td>
+                      <td>750,000</td>
+                      <td>10%</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>4</td>
+                      <td>750,001</td>
+                      <td>1,150,000</td>
+                      <td>15%</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>5</td>
+                      <td>1,150,001</td>
+                      <td>1,650,000</td>
+                      <td>20%</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>6</td>
+                      <td>1,650,001</td>
+                      <td>Above</td>
+                      <td>25%</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PF Settings Tab -->
+        <div class="tab-pane fade" id="tab-pf">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Provident Fund Configuration
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold"
+                      >Employee Contribution (%)</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="pfEmployeePercent"
+                      value="10"
+                    />
+                    <small class="text-muted">Percentage of basic salary</small>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold"
+                      >Employer Contribution (%)</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="pfEmployerPercent"
+                      value="10"
+                    />
+                    <small class="text-muted"
+                      >Matching employer contribution</small
+                    >
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold"
+                      >Maximum Monthly PF Ceiling (৳)</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="pfCeiling"
+                      value="0"
+                    />
+                    <small class="text-muted">0 = No ceiling</small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> PF Rules</h6>
+                    <ul class="mb-0">
+                      <li>Standard employee contribution: 10% of basic</li>
+                      <li>Employer matching: 10% of basic</li>
+                      <li>Deducted from monthly salary</li>
+                      <li>Tax-exempt under certain limits</li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-success w-100" id="btnSavePFSettings">
+                    <i class="fas fa-save"></i> Save PF Settings
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <div class="modal fade" id="addHeadModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Add Component</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="head-name" class="form-control mb-2" placeholder="Name"><select id="head-type" class="form-select"><option>Earning</option><option>Deduction</option></select></div><div class="modal-footer"><button class="btn btn-primary" id="btnSaveHead">Save</button></div></div></div></div>
+
+    <!-- Add Component Modal -->
+    <div class="modal fade" id="addComponentModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-plus"></i> Add Salary Component
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Component Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="componentName"
+                  placeholder="e.g., Basic Salary, HRA"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Component Type *</label>
+                <select class="form-select" id="componentType">
+                  <option value="Earning">Earning</option>
+                  <option value="Deduction">Deduction</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Category *</label>
+                <select class="form-select" id="componentCategory">
+                  <option value="Statutory">Statutory (Mandatory)</option>
+                  <option value="Non-Statutory">
+                    Non-Statutory (Optional)
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Calculation Type *</label>
+                <select class="form-select" id="componentCalcType">
+                  <option value="Fixed Amount">Fixed Amount</option>
+                  <option value="Percentage of Basic">
+                    Percentage of Basic
+                  </option>
+                  <option value="Percentage of Gross">
+                    Percentage of Gross
+                  </option>
+                  <option value="Formula">Custom Formula</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Value *</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="componentValue"
+                  placeholder="Amount or Percentage"
+                />
+                <small class="text-muted"
+                  >Enter amount or percentage based on calculation type</small
+                >
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Taxable</label>
+                <select class="form-select" id="componentTaxable">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea
+                class="form-control"
+                id="componentDescription"
+                rows="2"
+                placeholder="Optional description"
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="btnSaveComponent">
+              <i class="fas fa-save"></i> Save Component
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Template Modal -->
+    <div class="modal fade" id="addTemplateModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-clipboard-list"></i> Create Salary Template
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Template Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="templateName"
+                  placeholder="e.g., Manager Template"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Department</label>
+                <select class="form-select" id="templateDept">
+                  <option value="">All Departments</option>
+                  <option value="Finance">Finance</option>
+                  <option value="HR">HR</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Sales">Sales</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Designation</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="templateDesignation"
+                  placeholder="e.g., Senior Manager"
+                />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Basic Salary Range (Min)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="templateBasicMin"
+                  placeholder="Minimum basic salary"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Basic Salary Range (Max)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="templateBasicMax"
+                  placeholder="Maximum basic salary"
+                />
+              </div>
+            </div>
+            <hr />
+            <h6 class="mb-3">
+              <i class="fas fa-plus-circle text-success"></i> Select Earning
+              Components
+            </h6>
+            <div class="mb-3" id="templateEarnings"></div>
+            <hr />
+            <h6 class="mb-3">
+              <i class="fas fa-minus-circle text-danger"></i> Select Deduction
+              Components
+            </h6>
+            <div class="mb-3" id="templateDeductions"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="btnSaveTemplate">
+              <i class="fas fa-save"></i> Save Template
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
-    <script>$(document).ready(() => AppController.initPayrollSetup());</script>
-</body>
+    <script>
+      $(document).ready(() => AppController.initPayrollSetup());
+    </script>
+  </body>
 </html>
