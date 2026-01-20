@@ -6,6 +6,8 @@ const Layout = {
         Localization.init().then(() => {
             this.renderSidebar(activePage);
             this.renderNavbar();
+            // Re-apply localization to update the newly rendered Navbar button
+            Localization.apply(Localization.currentLang);
         });
     },
 
