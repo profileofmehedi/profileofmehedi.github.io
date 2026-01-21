@@ -286,7 +286,18 @@ const Actions = {
     init: function() {
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('button, .btn');
-            if (!btn || btn.getAttribute('onclick')) return;
+            if (!btn) return;
+
+            // Global Safety: Ensure no sticking backdrops after any button click
+            setTimeout(() => {
+                if (!document.querySelector('.modal.show')) {
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                }
+            }, 400);
+
+            if (btn.getAttribute('onclick')) return;
 
             // Handle common actions based on text or icon
             const text = btn.innerText.toLowerCase();

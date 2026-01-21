@@ -11,88 +11,137 @@
 <body>
 
     <div class="main-content">
-        <div class="container py-4">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    
-                    <!-- Search Box -->
-                    <div class="card card-custom mb-5">
-                        <div class="card-body p-5 text-center">
-                            <h3 class="mb-4" data-i18n="track_shipment_title">Track Your Shipment</h3>
-                            <div class="input-group input-group-lg mb-3">
-                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                                <input type="text" class="form-control border-start-0" placeholder="Enter Tracking ID (e.g. CN-1001)" value="CN-1001" data-i18n="track_placeholder">
-                                <button class="btn btn-primary-custom" type="button" data-i18n="track_result_btn">Track Result</button>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <!-- Compact Search Bar -->
+                <div class="card card-custom mb-3">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h5 class="mb-md-0" data-i18n="track_shipment_title">Track Your Shipment</h5>
                             </div>
-                            <small class="text-muted" data-i18n="track_help_text">Enter the Consignment Number found on your receipt.</small>
-                        </div>
-                    </div>
-
-                    <!-- Result Section -->
-                    <div class="card card-custom">
-                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><span data-i18n="trk_id">Tracking ID</span>: <span class="text-primary">CN-1001</span></h5>
-                            <span class="badge bg-success">Delivered</span>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <small class="text-muted text-uppercase" data-i18n="from">From</small>
-                                    <h5>Rahim Store</h5>
-                                    <p class="text-muted mb-0">Dhaka Hub</p>
-                                </div>
-                                <div class="col-md-6 text-md-end">
-                                    <small class="text-muted text-uppercase" data-i18n="to">To</small>
-                                    <h5>Karim Uddin</h5>
-                                    <p class="text-muted mb-0">Chittagong GEC Circle</p>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <h6 class="mb-3" data-i18n="tracking_history">Tracking History</h6>
-                            <div class="tracking-timeline">
-                                <div class="tracking-item active">
-                                    <div class="tracking-date">Jan 20, 2026 - 02:30 PM</div>
-                                    <div class="tracking-content text-success">Delivered Successfully</div>
-                                    <small class="text-muted">Package received by Karim Uddin.</small>
-                                </div>
-                                <div class="tracking-item active">
-                                    <div class="tracking-date">Jan 20, 2026 - 09:00 AM</div>
-                                    <div class="tracking-content">Out for Delivery</div>
-                                    <small class="text-muted">Rider: Md. Solaiman (018........)</small>
-                                </div>
-                                <div class="tracking-item active">
-                                    <div class="tracking-date">Jan 19, 2026 - 11:45 PM</div>
-                                    <div class="tracking-content">Arrived at Chittagong Hub</div>
-                                    <small class="text-muted">Processing at facility.</small>
-                                </div>
-                                <div class="tracking-item active">
-                                    <div class="tracking-date">Jan 19, 2026 - 06:00 PM</div>
-                                    <div class="tracking-content">In Transit</div>
-                                    <small class="text-muted">Departed from Dhaka Hub.</small>
-                                </div>
-                                <div class="tracking-item active">
-                                    <div class="tracking-date">Jan 19, 2026 - 10:00 AM</div>
-                                    <div class="tracking-content">Picked Up</div>
-                                    <small class="text-muted">Package collected from Merchant.</small>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Tracking ID (CN-1001)" value="CN-1001" data-i18n="track_placeholder" id="trackInput">
+                                    <button class="btn btn-primary-custom px-4" type="button" data-i18n="track_result_btn" id="trackBtn">Track</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
+
+                <!-- Result Section -->
+                <div class="card card-custom" id="trackingResult" style="display: none;">
+                    <div class="card-header bg-white py-2 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><span data-i18n="trk_id">Tracking ID</span>: <span class="text-primary" id="resId">CN-1001</span></h6>
+                        <span class="badge bg-success" id="resStatus">Delivered</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="row mb-3 g-2">
+                            <div class="col-6">
+                                <div class="p-2 border rounded bg-light">
+                                    <small class="text-muted text-uppercase d-block" style="font-size: 0.65rem" data-i18n="from">From</small>
+                                    <strong id="resSender" style="font-size: 0.9rem">Rahim Store</strong>
+                                    <div class="text-muted small" id="resFrom">Dhaka Hub</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded bg-light">
+                                    <small class="text-muted text-uppercase d-block" style="font-size: 0.65rem" data-i18n="to">To</small>
+                                    <strong id="resReceiver" style="font-size: 0.9rem">Karim Uddin</strong>
+                                    <div class="text-muted small" id="resTo">Chittagong</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3 small fw-bold text-uppercase border-bottom pb-2" data-i18n="tracking_history">Tracking History</h6>
+                        <div class="tracking-timeline timeline-scrollable" id="resTimeline">
+                            <!-- Dynamic -->
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             Layout.init('tracking');
+            
+            // Check if URL has tracking ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryId = urlParams.get('id');
+            if(queryId) {
+                document.getElementById('trackInput').value = queryId;
+                trackParcel();
+            }
+
+            document.getElementById('trackBtn').addEventListener('click', trackParcel);
+            document.getElementById('trackInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') trackParcel();
+            });
         });
+
+        function trackParcel() {
+            const id = document.getElementById('trackInput').value.trim();
+            if(!id) return alert(Localization.currentLang === 'en' ? 'Please enter a Tracking ID' : 'অনুগ্রহ করে ট্র্যাকিং আইডি লিখুন');
+
+            const resultCard = document.getElementById('trackingResult');
+            
+            // Mock Loading
+            const originalText = document.getElementById('trackBtn').innerText;
+            document.getElementById('trackBtn').innerText = '...';
+            document.getElementById('trackBtn').disabled = true;
+
+            setTimeout(() => {
+                const p = CourierDB.parcels.find(x => x.id === id) || CourierDB.parcels[0]; // Fallback to first for demo
+                
+                // Reset Btn
+                document.getElementById('trackBtn').innerText = originalText;
+                document.getElementById('trackBtn').disabled = false;
+
+                if(p) {
+                    document.getElementById('resId').innerText = id; // Show input ID even if fallback
+                    document.getElementById('resStatus').innerText = p.status;
+                    document.getElementById('resStatus').className = `badge ${p.status === 'Delivered' ? 'bg-success' : 'bg-primary'}`;
+                    
+                    document.getElementById('resSender').innerText = p.sender;
+                    document.getElementById('resFrom').innerText = p.from + ' Hub';
+                    document.getElementById('resReceiver').innerText = p.receiver;
+                    document.getElementById('resTo').innerText = p.to;
+
+                    // Mock Timeline
+                    const timelineHTML = `
+                        <div class="tracking-item active">
+                            <div class="tracking-date">${p.date} - 02:30 PM</div>
+                            <div class="tracking-content text-success">Status Updated: ${p.status}</div>
+                            <small class="text-muted">Package handled at facility.</small>
+                        </div>
+                        <div class="tracking-item active">
+                            <div class="tracking-date">${p.date} - 09:00 AM</div>
+                            <div class="tracking-content">Out for Delivery</div>
+                            <small class="text-muted">Rider: Md. Solaiman (018........)</small>
+                        </div>
+                        <div class="tracking-item active">
+                            <div class="tracking-date">Previous Day - 06:00 PM</div>
+                            <div class="tracking-content">In Transit</div>
+                            <small class="text-muted">Departed from Origin Hub.</small>
+                        </div>
+                    `;
+                    document.getElementById('resTimeline').innerHTML = timelineHTML;
+                    
+                    resultCard.style.display = 'block';
+                    // Scroll to result start
+                    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 800);
+        }
     </script>
 </body>
 </html>

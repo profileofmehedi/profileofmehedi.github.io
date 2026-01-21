@@ -13,7 +13,9 @@
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="page-title" data-i18n="pickups_title">Pickup Management (First Mile)</h4>
-            <button class="btn btn-primary-custom"><i class="fas fa-plus"></i> <span data-i18n="manual_request">Manual Request</span></button>
+            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#pickupModal">
+                <i class="fas fa-plus"></i> <span data-i18n="manual_request">Manual Request</span>
+            </button>
         </div>
 
         <div class="row">
@@ -21,7 +23,7 @@
                 <div class="card card-custom">
                     <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-dark" data-i18n="pending_pickups">Pending Pickup Requests</h6>
-                        <span class="badge bg-warning text-dark">5 Pending</span>
+                        <span class="badge bg-warning text-dark" id="pendingCount">2 Pending</span>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-custom table-hover align-middle">
@@ -34,7 +36,7 @@
                                     <th data-i18n="actions">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="pickupTableBody">
                                 <tr>
                                     <td><small class="text-danger fw-bold">10:00 AM</small></td>
                                     <td>
@@ -44,7 +46,7 @@
                                     <td>Mirpur 10, Dhaka</td>
                                     <td>~ 50 pcs</td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary-custom" data-i18n="assign_rider">Assign Rider</button>
+                                        <button class="btn btn-sm btn-primary-custom btn-assign" onclick="openAssignModal(this)" data-i18n="assign_rider">Assign Rider</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -56,7 +58,7 @@
                                     <td>Bashundhara City</td>
                                     <td>~ 12 pcs</td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary-custom" data-i18n="assign_rider">Assign Rider</button>
+                                        <button class="btn btn-sm btn-primary-custom btn-assign" onclick="openAssignModal(this)" data-i18n="assign_rider">Assign Rider</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -91,13 +93,197 @@
         </div>
     </div>
 
+    <!-- Pickup Modal -->
+    <div class="modal fade" id="pickupModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="manual_request">Manual Pickup Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pickupForm">
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="merchant_name">Merchant Name</label>
+                            <input type="text" class="form-control" id="mName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="pickup_address">Pickup Address</label>
+                            <textarea class="form-control" id="mAddress" rows="2" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label" data-i18n="est_parcels">Est. Parcels</label>
+                                <input type="number" class="form-control" id="mCount" value="1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Phone</label>
+                                <input type="text" class="form-control" id="mPhone" placeholder="017...">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" data-i18n="cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary-custom" onclick="submitPickup()" data-i18n="create_order">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Rider Modal -->
+    <div class="modal fade" id="assignRiderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Rider for Pickup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">Showing available riders near <strong id="pickupZoneDisplay">Dhaka</strong></p>
+                    <div class="list-group" id="riderListContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/db.js"></script>
     <script src="assets/js/layout.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
+        let currentPickupRow = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             Layout.init('pickups');
+            // Attach event listeners to existing buttons
+            document.querySelectorAll('.btn-assign').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openAssignModal(this);
+                });
+            });
         });
+
+        function submitPickup() {
+            const name = document.getElementById('mName').value;
+            const address = document.getElementById('mAddress').value;
+            const count = document.getElementById('mCount').value;
+            const phone = document.getElementById('mPhone').value;
+
+            if(!name || !address) return alert("Please fill all fields");
+
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><small class="text-primary fw-bold">${time}</small></td>
+                <td>
+                    <div class="fw-bold">${name}</div>
+                    <small class="text-muted">${phone}</small>
+                </td>
+                <td>${address}</td>
+                <td>~ ${count} pcs</td>
+                <td>
+                    <button class="btn btn-sm btn-primary-custom btn-assign" onclick="openAssignModal(this)">${Localization.getText('assign_rider')}</button>
+                </td>
+            `;
+
+            document.getElementById('pickupTableBody').insertAdjacentElement('afterbegin', tr);
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('pickupModal'));
+            modal.hide();
+            
+            // Reset form
+            document.getElementById('pickupForm').reset();
+
+            // Notify
+            Actions.notify(Localization.currentLang === 'en' ? "Pickup request added!" : "পিকআপ রিকোয়েস্ট যোগ করা হয়েছে!");
+            
+            // Update Count
+            const rows = document.getElementById('pickupTableBody').rows.length;
+            document.getElementById('pendingCount').innerText = `${rows} ${Localization.currentLang === 'en' ? 'Pending' : 'পেন্ডিং'}`;
+        }
+
+        function openAssignModal(btnElement) {
+            currentPickupRow = btnElement.closest('tr');
+            // Extract location to find zone (mock logic)
+            const locationText = currentPickupRow.cells[2].innerText;
+            document.getElementById('pickupZoneDisplay').innerText = locationText;
+
+            const modal = new bootstrap.Modal(document.getElementById('assignRiderModal'));
+            renderRiderList(locationText);
+            modal.show();
+        }
+
+        function renderRiderList(location) {
+            const container = document.getElementById('riderListContainer');
+            container.innerHTML = '';
+
+            // Filter active riders from DB
+            const activeRiders = CourierDB.riders.filter(r => r.active);
+
+            activeRiders.forEach(rider => {
+                // Simple matching logic
+                const isMatch = location.toLowerCase().includes(rider.zone.split(' ')[0].toLowerCase());
+                
+                const item = document.createElement('a');
+                item.href = '#';
+                item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                item.onclick = (e) => { e.preventDefault(); confirmAssignment(rider); };
+                
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name=${rider.name}&background=random" class="rounded-circle me-3" width="40">
+                        <div>
+                            <div class="fw-bold">${rider.name} 
+                                ${isMatch ? '<span class="badge bg-success ms-2" style="font-size:0.6rem">Best Match</span>' : ''}
+                            </div>
+                            <small class="text-muted"><i class="fas fa-map-marker-alt"></i> ${rider.zone} | Load: ${rider.assigned}</small>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary">Select</button>
+                `;
+                
+                // Put matches at top
+                if(isMatch) container.prepend(item);
+                else container.append(item);
+            });
+        }
+
+        function confirmAssignment(rider) {
+            if(!currentPickupRow) return;
+
+            const actionCell = currentPickupRow.cells[4];
+            actionCell.innerHTML = `
+                <div class="d-flex align-items-center text-success">
+                    <img src="https://ui-avatars.com/api/?name=${rider.name}&background=random" class="rounded-circle me-2" width="25">
+                    <div>
+                        <div class="fw-bold" style="font-size: 0.85rem">${rider.name}</div>
+                        <small style="font-size: 0.7rem">Assigned</small>
+                    </div>
+                    <button class="btn btn-sm btn-light ms-2 text-muted" title="Change" onclick="openAssignModal(this)"><i class="fas fa-edit"></i></button>
+                </div>
+            `;
+
+            // Close modal safely
+            const modalEl = document.getElementById('assignRiderModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) {
+                modal.hide();
+                // Force remove backdrop if it sticks
+                setTimeout(() => {
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 300); // Wait for transition
+            }
+
+            Actions.notify(`${rider.name} assigned successfully!`, 'success');
+        }
     </script>
 </body>
 </html>
