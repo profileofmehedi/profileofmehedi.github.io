@@ -32,8 +32,57 @@ const AppController = {
     },
 
     initEmployeeEdit: function() {
-        // Placeholder for Edit Logic
-        console.log("Init Employee Edit");
+        const urlParams = new URLSearchParams(window.location.search);
+        const empId = urlParams.get('id');
+        if (!empId) return;
+
+        const e = AppServices.getEmployeeById(empId);
+        if (!e) {
+            Swal.fire('Error', 'Employee not found', 'error');
+            return;
+        }
+
+        $('#display-emp-code').text(e.id);
+        $('#name-en').val((e.firstName || '') + ' ' + (e.lastName || ''));
+        $('#dob').val(e.dob);
+        $('#gender').val(e.gender);
+        $('#email-personal').val(e.email);
+        $('#mobile-personal').val(e.phone);
+        
+        $('#join-date').val(e.start ? e.start.replace(/\//g, '-') : '');
+        $('#department').val(e.dept);
+        $('#designation').val(e.position || e.designation);
+        $('#emp-type').val(e.type || 'Permanent');
+        $('#work-station').val(e.location || 'HQ');
+
+        // Update progress bar
+        $('#form-progress').css('width', '50%');
+
+        $('#updateEmployeeBtn').click(function() {
+            const nameParts = $('#name-en').val().trim().split(' ');
+            const fName = nameParts[0];
+            const lName = nameParts.slice(1).join(' ');
+
+            const updatedEmp = {
+                ...e,
+                firstName: fName,
+                lastName: lName,
+                dob: $('#dob').val(),
+                gender: $('#gender').val(),
+                email: $('#email-personal').val(),
+                phone: $('#mobile-personal').val(),
+                start: $('#join-date').val(),
+                dept: $('#department').val(),
+                position: $('#designation').val(),
+                type: $('#emp-type').val(),
+                location: $('#work-station').val()
+            };
+
+            AppServices.updateEmployee(updatedEmp);
+            Swal.fire('Success', 'Employee information updated', 'success').then(() => {
+                window.location.href = 'employees.html';
+            });
+        });
     },
 
     initEmployeeReport: function() {
@@ -130,22 +179,232 @@ const AppController = {
     },
     initKPI: function() { /* Placeholder */ },
 
-    // --- PAYROLL ---
+    // --- PAYROLL (Refactored) ---
     initPayroll: function() {
-        initPayrollPeriods();
-        $('#btnRunPayroll').click(() => { Swal.fire({ title: 'Processing...', timer: 1000, didOpen: () => Swal.showLoading() }).then(() => { renderPayrollTable(AppServices.processPayroll($('#payrollPeriodSelect').val())); Swal.fire('Done', 'Calculated', 'success'); }); });
-        $('#payrollPeriodSelect').change(function() { renderPayrollTable(AppServices.getPayrollRecords($(this).val())); });
-        $('#btnNewPeriod').click(() => { const n = prompt("Month Name:"); if(n) { AppServices.createPeriod(n); initPayrollPeriods(); }});
+        // Load Periods
+        const periods = AppServices.getPeriods(); // .sort not strictly needed if ordered in DB
+        let pOpt = '<option value="">-- Select Period --</option>';
+        periods.forEach(p => pOpt += `<option value="${p.id}">${p.name}</option>`);
+        $('#processPeriodSelect').html(pOpt);
+        
+        $('#processPeriodSelect').change(function() {
+            const pId = $(this).val();
+            const p = periods.find(x => x.id === pId);
+            if(p) {
+                $('#infoPeriodName').text(p.name);
+                $('#infoPeriodMonth').text(`${p.month} ${p.year}`);
+                $('#infoTaxYear').text(p.taxYear);
+                $('#infoStatus').text(p.status).attr('class', p.status==='Locked'?'badge bg-danger':'badge bg-success');
+                $('#periodInfoBox').slideDown();
+                renderProcessedPayroll(AppServices.getPayrollByPeriod(pId));
+            } else {
+                $('#periodInfoBox').slideUp();
+                renderProcessedPayroll([]);
+            }
+        });
+
+        $('#btnProcessSalary').click(() => {
+            const pId = $('#processPeriodSelect').val();
+            if(!pId) return Swal.fire('Error', 'Select a period first', 'error');
+            
+            Swal.fire({
+                title: 'Process Salary?',
+                text: `Are you sure you want to process for ${pId}? This will overwrite existing calculations for this period.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Process'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    Swal.fire({ title: 'Processing...', timer: 1000, didOpen: () => Swal.showLoading() }).then(() => {
+                        const records = AppServices.processPayrollBatch(pId);
+                        renderProcessedPayroll(records);
+                        Swal.fire('Done', `Processed ${records.length} employees.`, 'success');
+                    });
+                }
+            });
+        });
+        
+        $(document).on('click', '.btn-view-breakdown', function() {
+             const id = $(this).data('id');
+             const r = AppServices.getPayrollRecord(id);
+             if(!r) return;
+             
+             let eHtml='', dHtml='';
+             r.earnings.forEach(x => eHtml += `<tr><td>${x.name}</td><td class="text-end">৳${x.amount.toLocaleString()}</td></tr>`);
+             r.deductions.forEach(x => dHtml += `<tr><td>${x.name}</td><td class="text-end">৳${x.amount.toLocaleString()}</td></tr>`);
+             $('#breakdownEarnings').html(eHtml);
+             $('#breakdownDeductions').html(dHtml);
+             $('#breakdownNetPay').text('৳' + r.net.toLocaleString());
+             new bootstrap.Modal('#salaryBreakdownModal').show();
+        });
     },
 
     initPayrollSetup: function() {
-        renderHeads();
-        $('#btnAddHead').click(() => new bootstrap.Modal('#addHeadModal').show());
-        $('#btnSaveHead').click(() => { AppServices.addSalaryHead({ name: $('#head-name').val(), type: $('#head-type').val() }); renderHeads(); bootstrap.Modal.getInstance('#addHeadModal').hide(); });
+        // --- 1. HEADS TAB ---
+        renderSalaryHeadsTable();
+        
+        $('#btnSaveHead').click(() => {
+            const head = {
+                name: $('#headName').val(),
+                code: $('#headCode').val(),
+                type: $('#headType').val(),
+                sortOrder: parseInt($('#headSort').val()) || 99,
+                isIncomeTax: $('#headTax').val(),
+                isInvestment: $('#headInvest').val(),
+                // Defaults
+                category: 'Non-Statutory', calcType: 'Fixed Amount', value: 0, taxable: 'Yes' 
+            };
+            if(!head.name || !head.code) return Swal.fire('Error', 'Name and Code are required', 'error');
+            
+            AppServices.addComponent(head);
+            renderSalaryHeadsTable();
+            $('#formSalaryHead')[0].reset();
+            Swal.fire('Saved', 'Salary Head Added', 'success');
+        });
+
+        // --- 2. STRUCTURE TAB ---
+        const emps = AppServices.getEmployees();
+        let empOpt = '<option value="">Choose Employee...</option>';
+        emps.forEach(e => empOpt += `<option value="${e.id}">${e.firstName} ${e.lastName} (${e.id})</option>`);
+        $('#structEmpSelect').html(empOpt);
+
+        $('#btnLoadStruct').click(() => {
+            const empId = $('#structEmpSelect').val();
+            if(!empId) return;
+            loadEmployeeStructureEditor(empId);
+        });
+
+        $('#btnSaveStructure').click(() => {
+            const empId = $('#structEmpSelect').val();
+            if(!empId) return;
+            
+            const headsData = {};
+            $('.struct-amount').each(function() {
+                const id = $(this).data('head-id');
+                const val = parseFloat($(this).val()) || 0;
+                headsData[id] = val;
+            });
+            
+            const struct = {
+                empId: empId,
+                grade: $('#structGrade').val(),
+                effectiveDate: $('#structDate').val(),
+                bank: $('#structBank').val(),
+                heads: headsData
+            };
+            
+            AppServices.saveEmpSalaryStructure(struct);
+            Swal.fire('Success', 'Structure Updated', 'success');
+        });
+        
+        // Calc live total in structure editor
+        $(document).on('input', '.struct-amount', function() {
+            let tAdd=0, tDed=0;
+            $('.struct-amount').each(function() {
+                const type = $(this).data('type');
+                const val = parseFloat($(this).val()) || 0;
+                if(type === 'Earning') tAdd += val; else tDed += val;
+            });
+            $('#totalAdditions').text(tAdd.toFixed(2));
+            $('#totalDeductions').text(tDed.toFixed(2));
+            $('#netSalary').text((tAdd - tDed).toFixed(2));
+        });
+        
+        // --- 3. PERIOD TAB ---
+        renderPeriodsTable();
+        $('#periodMonth, #periodYear').change(() => {
+            $('#periodName').val(`Salary-${$('#periodMonth').val()}-${$('#periodYear').val()}`);
+        });
+        $('#periodMonth').trigger('change');
+
+        $('#btnSavePeriod').click(() => {
+            const period = {
+                id: $('#periodName').val(),
+                name: $('#periodName').val(),
+                month: $('#periodMonth').val(),
+                year: $('#periodYear').val(),
+                taxYear: $('#periodTaxYear').val(),
+                workingDays: parseInt($('#periodDays').val()) || 30,
+                status: 'Open',
+                processedDate: null
+            };
+            
+            if(AppServices.createPeriod(period)) {
+                renderPeriodsTable();
+                Swal.fire('Success', 'Period Created', 'success');
+            } else {
+                Swal.fire('Error', 'Period ID already exists', 'error');
+            }
+        });
     },
 
     initPayslipGenerator: function() {
-        console.log("Init Payslip Generator");
+        // Populate Employees
+        const emps = AppServices.getEmployees();
+        let html = '<option value="">Select Employee</option>';
+        emps.forEach(e => html += `<option value="${e.id}">${e.firstName} ${e.lastName} (${e.id})</option>`);
+        $('#selectEmployee').html(html);
+        
+        $('#btnGeneratePayslip').click(() => {
+            const empId = $('#selectEmployee').val();
+            const month = $('#selectMonth').val();
+            const year = $('#selectYear').val();
+            
+            if(!empId) return Swal.fire('Error', 'Please select an employee', 'error');
+            
+            const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const pName = monthNames[parseInt(month)] + " " + year;
+            const pId = pName.substring(0,3).toUpperCase() + "-" + year;
+            
+            let record = AppServices.getPayrollByPeriod(pId).find(r => r.empId === empId);
+            
+            if(!record) {
+                 const emp = AppServices.getEmployeeById(empId);
+                 record = AppServices.calculatePayroll(emp, "PREVIEW");
+                 Swal.fire({
+                     icon: 'info',
+                     title: 'Preview Mode',
+                     text: 'No processed payroll found for this period. Showing a preview based on current settings.',
+                     timer: 3000
+                 });
+            }
+            
+            // Fill Preview
+            const emp = AppServices.getEmployeeById(empId);
+            $('#payslipEmpName').text(emp.firstName + ' ' + emp.lastName);
+            $('#payslipEmpId').text(emp.id);
+            $('#payslipDesignation').text(emp.position);
+            $('#payslipDepartment').text(emp.dept);
+            $('#payslipJoinDate').text(emp.start);
+            $('#payslipBank').text(emp.bankName || 'N/A');
+            $('#payslipAccount').text(emp.bankAccount || 'N/A');
+            $('#payslipTIN').text(emp.tin || 'N/A');
+            
+            $('#payslipMonth').text(pName);
+            $('#payslipDate').text(new Date().toLocaleDateString());
+            
+            // Table
+            let eHtml = '', dHtml = '';
+            record.earnings.forEach(e => eHtml += `<tr><td>${e.name}</td><td class="text-end">৳${e.amount.toLocaleString()}</td></tr>`);
+            record.deductions.forEach(d => dHtml += `<tr><td>${d.name}</td><td class="text-end">৳${d.amount.toLocaleString()}</td></tr>`);
+            
+            $('#earningsTable').html(eHtml);
+            $('#totalEarnings').text('৳' + record.gross.toLocaleString());
+            $('#deductionsTable').html(dHtml);
+            $('#totalDeductions').text('৳' + record.totalDeduction.toLocaleString());
+            
+            $('#netPayAmount').text('৳' + record.net.toLocaleString());
+            $('#amountInWords').text(convertNumberToWords(record.net) + ' Taka Only');
+            
+            $('#payslipPreview').fadeIn();
+            $('#payslipPreview').get(0).scrollIntoView({behavior: 'smooth'});
+        });
+        
+        $('#btnPrintPayslip').click(() => window.print());
+        $('#btnDownloadPDF').click(() => {
+             Swal.fire('Info', 'PDF Download functionality would integrate with a library like html2pdf or jsPDF here.', 'info');
+        });
+        $('#btnEmailPayslip').click(() => Swal.fire('Sent', 'Payslip emailed to employee.', 'success'));
     },
 
     initPayrollReport: function() {
@@ -174,9 +433,85 @@ const AppController = {
     // --- LEAVE ---
     initLeave: function() {
         renderLeaves();
-        $('#btnApplyLeave').click(() => new bootstrap.Modal('#applyLeaveModal').show());
-        $('#submitLeaveBtn').click(() => { AppServices.addLeave({ emp: 'Current User', type: $('#leaveType').val(), from: $('#leaveFrom').val(), to: $('#leaveTo').val(), reason: $('#leaveReason').val(), status: 'Pending' }); renderLeaves(); bootstrap.Modal.getInstance('#applyLeaveModal').hide(); });
+        $('#btnApplyLeave').click(() => window.location.href = 'leave-application.html');
         $(document).on('click', '.btn-leave-action', function() { AppServices.updateLeaveStatus($(this).data('id'), $(this).data('action')); renderLeaves(); });
+    },
+    
+    initLeaveApplication: function() {
+        const emps = AppServices.getEmployees();
+        let html = '<option value="">Select Employee</option>';
+        emps.forEach(e => html += `<option value="${e.id}">${e.firstName} ${e.lastName} (${e.id})</option>`);
+        $('#applyEmpId').html(html);
+        
+        $('#applyFromDate, #applyToDate').change(function() {
+            const start = new Date($('#applyFromDate').val());
+            const end = new Date($('#applyToDate').val());
+            if(start && end && !isNaN(start) && !isNaN(end)) {
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+                $('#applyTotalDays').val(diffDays > 0 ? diffDays : 0);
+            }
+        });
+        
+        $('#applyEmpId, #applyLeaveType').change(function() {
+            const empId = $('#applyEmpId').val();
+            const type = $('#applyLeaveType').val();
+            if(empId && type) {
+                const bal = AppServices.getLeaveBalanceByEmp(empId, new Date().getFullYear(), type);
+                if(bal) {
+                    $('#applyBalance').val(`${bal.allocated - bal.used} Remaining (Allocated: ${bal.allocated})`);
+                } else {
+                    $('#applyBalance').val('No allocation found');
+                }
+            }
+        });
+
+        $('#btnSubmitApplication').click(() => {
+            const empId = $('#applyEmpId').val();
+            if(!empId) return Swal.fire('Error', 'Select Employee', 'error');
+            
+            AppServices.addLeave({
+                empId: empId,
+                emp: $('#applyEmpId option:selected').text(),
+                type: $('#applyLeaveType').val(),
+                from: $('#applyFromDate').val(),
+                to: $('#applyToDate').val(),
+                reason: $('#applyReason').val(),
+                status: 'Pending'
+            });
+            Swal.fire('Success', 'Leave Request Submitted', 'success').then(() => window.location.href = 'leave.html');
+        });
+    },
+
+    initLeaveBalanceAdd: function() {
+        const emps = AppServices.getEmployees();
+        let html = '<option value="">Select Employee</option><option value="ALL">ALL EMPLOYEES (Bulk Allocation)</option>';
+        emps.forEach(e => html += `<option value="${e.id}">${e.firstName} ${e.lastName} (${e.id})</option>`);
+        $('#balanceEmpId').html(html);
+
+        $('#btnSaveBalance').click(() => {
+            const year = parseInt($('#balanceYear').val());
+            const targetId = $('#balanceEmpId').val();
+            if(!targetId) return Swal.fire('Error', 'Select Target', 'error');
+            
+            const allocations = [];
+            $('.balance-input').each(function() {
+                allocations.push({ type: $(this).data('type'), val: parseInt($(this).val()) || 0 });
+            });
+
+            const targets = targetId === 'ALL' ? emps.map(e => e.id) : [targetId];
+            targets.forEach(eid => {
+                allocations.forEach(a => {
+                    AppServices.addLeaveBalance({ empId: eid, year: year, type: a.type, allocated: a.val });
+                });
+            });
+            Swal.fire('Success', `Allocated balances for ${targets.length} employee(s)`, 'success');
+        });
+    },
+
+    initLeaveBalanceView: function() {
+        renderLeaveBalances();
+        $('#btnRefreshBalances, #viewYear').click(() => renderLeaveBalances());
     },
     
     initLeaveDashboard: function() { console.log("Init Leave Dashboard"); },
@@ -212,11 +547,156 @@ const AppController = {
         });
     },
 
-    // --- SMS ---
-    initSMS: function() {
-        $('#btnSendSMS').click(() => { if(!$('#smsMsg').val()) return; AppServices.addSMSLog({ date: new Date().toLocaleString(), group: $('#smsGroup').val(), msg: $('#smsMsg').val(), status: 'Sent' }); $('#smsMsg').val(''); Swal.fire('Sent', 'Broadcasted', 'success'); });
+    // --- COMMUNICATION ---
+    initCommunication: function() {
+        // Compose Tab
+        $('input[name="commChannel"]').change(function() {
+            $(this).val() === 'Email' ? $('#subjectWrapper').removeClass('d-none') : $('#subjectWrapper').addClass('d-none');
+        });
+
+        $('#targetType').change(function() {
+            const val = $(this).val();
+            $('#targetDept, #targetIndividual, #targetAllDisplay').addClass('d-none');
+            if(val === 'All') $('#targetAllDisplay').removeClass('d-none');
+            else if(val === 'Department') $('#targetDept').removeClass('d-none');
+            else if(val === 'Individual') $('#targetIndividual').removeClass('d-none');
+        });
+
+        const emps = AppServices.getEmployees();
+        let empHtml = '<option value="">Select Employee...</option>';
+        emps.forEach(e => empHtml += `<option value="${e.id}">${e.firstName} ${e.lastName}</option>`);
+        $('#targetIndividual').html(empHtml);
+
+        $('#scheduleCheck').change(function() {
+            $(this).is(':checked') ? $('#scheduleInput').removeClass('d-none') : $('#scheduleInput').addClass('d-none');
+        });
+
+        function refreshTemplateDropdown() {
+            const tmpls = AppServices.getCommTemplates();
+            let html = '<option value="">Insert Template...</option>';
+            tmpls.forEach(t => html += `<option value="${t.id}">[${t.channel}] ${t.name}</option>`);
+            $('#insertTemplate').html(html);
+        }
+        refreshTemplateDropdown();
+
+        $('#insertTemplate').change(function() {
+            const id = parseInt($(this).val());
+            const t = AppServices.getCommTemplates().find(x => x.id === id);
+            if(t) {
+                $('#commMessage').val(t.content);
+                if(t.channel === 'Email' && t.subject) $('#commSubject').val(t.subject);
+                $(`input[name="commChannel"][value="${t.channel}"]`).prop('checked', true).trigger('change');
+            }
+            $(this).val('');
+        });
+
+        $('#btnSendComm').click(() => {
+            const channel = $('input[name="commChannel"]:checked').val();
+            const targetType = $('#targetType').val();
+            let target = '';
+            if(targetType === 'All') target = 'All Employees';
+            else if(targetType === 'Department') target = $('#targetDept').val();
+            else target = $('#targetIndividual option:selected').text();
+
+            const msg = $('#commMessage').val();
+            if(!msg) return Swal.fire('Error', 'Message content required', 'error');
+
+            const isScheduled = $('#scheduleCheck').is(':checked');
+            const scheduleTime = isScheduled ? $('#scheduleTime').val() : null;
+            if(isScheduled && !scheduleTime) return Swal.fire('Error', 'Select schedule time', 'error');
+
+            const log = {
+                date: new Date().toLocaleString(),
+                channel: channel,
+                target: target,
+                subject: $('#commSubject').val() || '',
+                msg: msg,
+                status: isScheduled ? 'Scheduled' : 'Sent',
+                scheduledFor: scheduleTime
+            };
+
+            AppServices.addCommLog(log);
+            Swal.fire(isScheduled ? 'Scheduled' : 'Sent', 'Message processed successfully', 'success');
+            $('#commMessage').val(''); $('#commSubject').val('');
+        });
+
+        $('#btnSaveTemplateDraft').click(() => {
+            $('#tmplName').val('');
+            $('#tmplChannel').val($('input[name="commChannel"]:checked').val());
+            $('#tmplSubject').val($('#commSubject').val());
+            $('#tmplContent').val($('#commMessage').val());
+            new bootstrap.Modal('#templateModal').show();
+        });
+
+        // Templates Tab
+        function renderCommTemplates() {
+            const tmpls = AppServices.getCommTemplates();
+            let html = '';
+            tmpls.forEach(t => {
+                html += `<tr>
+                    <td>${t.name}</td>
+                    <td><span class="badge bg-secondary">${t.channel}</span></td>
+                    <td><div class="text-truncate" style="max-width: 300px;">${t.content}</div></td>
+                    <td><button class="btn btn-sm btn-outline-danger" onclick="if(confirm('Delete?')) { AppServices.deleteCommTemplate(${t.id}); AppController.initCommunication(); }"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+            destroyAndInitTable('#tableTemplates', html);
+        }
+        renderCommTemplates();
+
+        $('#btnSaveTemplate').click(() => {
+            const t = {
+                name: $('#tmplName').val(),
+                channel: $('#tmplChannel').val(),
+                subject: $('#tmplSubject').val(),
+                content: $('#tmplContent').val()
+            };
+            if(!t.name || !t.content) return Swal.fire('Error', 'Name and Content required', 'error');
+            AppServices.addCommTemplate(t);
+            bootstrap.Modal.getInstance('#templateModal').hide();
+            renderCommTemplates();
+            refreshTemplateDropdown();
+            Swal.fire('Saved', 'Template added', 'success');
+        });
+        
+        // Modal Trigger
+        $('#btnNewTemplateModal').click(() => new bootstrap.Modal('#templateModal').show());
     },
-    initSMSReport: function() { renderSMS(); },
+
+    initCommunicationReport: function() {
+        const logs = AppServices.getCommLogs();
+        function renderLogs(data) {
+            let html = '';
+            data.forEach(l => {
+                let badge = 'bg-success';
+                if(l.status === 'Failed') badge = 'bg-danger';
+                if(l.status === 'Scheduled') badge = 'bg-warning';
+                
+                html += `<tr>
+                    <td><div class="fw-bold">${l.date}</div><div class="small text-muted">${l.scheduledFor ? 'Sch: '+l.scheduledFor : ''}</div></td>
+                    <td><span class="badge bg-light text-dark border">${l.channel}</span></td>
+                    <td>${l.target}</td>
+                    <td><div class="fw-bold">${l.subject||''}</div><div class="small text-muted text-truncate" style="max-width:250px">${l.msg}</div></td>
+                    <td><span class="badge ${badge}">${l.status}</span></td>
+                    <td><button class="btn btn-sm btn-info text-white"><i class="fas fa-eye"></i></button></td>
+                </tr>`;
+            });
+            destroyAndInitTable('#tableLogs', html);
+        }
+        renderLogs(logs);
+
+        $('#filterChannel, #filterStatus, #filterSearch').on('input change', function() {
+            const ch = $('#filterChannel').val();
+            const st = $('#filterStatus').val();
+            const q = $('#filterSearch').val().toLowerCase();
+            const filtered = logs.filter(l => {
+                return (!ch || l.channel === ch) &&
+                       (!st || l.status === st) &&
+                       (!q || l.target.toLowerCase().includes(q) || l.msg.toLowerCase().includes(q));
+            });
+            renderLogs(filtered);
+        });
+    },
 
     // --- USERS ---
     initUsers: function() {
@@ -305,7 +785,7 @@ function initDashboardCharts() {
     const c2=document.getElementById('genderChart'); if(c2) new Chart(c2,{type:'doughnut',data:{labels:['Male','Female'],datasets:[{data:[gc.Male,gc.Female],backgroundColor:['#4e73df','#36b9cc']}]},options:{maintainAspectRatio:false,cutout:'70%'}});
     const c3=document.getElementById('attendanceChart'); if(c3) new Chart(c3,{type:'line',data:{labels:['M','T','W','T','F','S','S'],datasets:[{label:'%',data:[98,95,96,99,92,40,0],borderColor:'#1cc88a',fill:true,backgroundColor:'rgba(28,200,138,0.1)'}]},options:{maintainAspectRatio:false}});
 }
-function renderEmployees() { let h=''; AppServices.getEmployees().forEach(e=>h+=`<tr><td>${e.id}</td><td><div class="d-flex align-items-center"><div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-2 border" style="width:35px;height:35px;"><span class="fw-bold text-primary">${e.firstName.charAt(0)}</span></div><div><div class="fw-bold">${e.firstName} ${e.lastName}</div><div class="small text-muted">${e.email}</div></div></div></td><td><div>${e.position}</div><div class="small text-muted">${e.dept}</div></td><td><span class="badge bg-success bg-opacity-10 text-success">${e.status}</span></td><td>${e.location||'HQ'}</td><td><button class="btn btn-sm btn-outline-primary btn-view-profile" data-id="${e.id}"><i class="fa-address-card"></i></button> <button class="btn btn-sm btn-outline-success btn-setup-salary" data-id="${e.id}"><i class="fa-money-bill"></i></button> <button class="btn btn-sm btn-outline-danger btn-delete-emp" data-id="${e.id}"><i class="fa-trash"></i></button></td></tr>`); destroyAndInitTable('#tableEmployees',h); }
+function renderEmployees() { let h=''; AppServices.getEmployees().forEach(e=>h+=`<tr><td>${e.id}</td><td><div class="d-flex align-items-center"><div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-2 border" style="width:35px;height:35px;"><span class="fw-bold text-primary">${e.firstName.charAt(0)}</span></div><div><div class="fw-bold">${e.firstName} ${e.lastName}</div><div class="small text-muted">${e.email}</div></div></div></td><td><div>${e.position}</div><div class="small text-muted">${e.dept}</div></td><td><span class="badge bg-success bg-opacity-10 text-success">${e.status}</span></td><td>${e.location||'HQ'}</td><td class="text-nowrap"><button class="btn btn-sm btn-outline-primary btn-view-profile" data-id="${e.id}" title="View"><i class="fa-solid fa-address-card"></i></button> <a href="employee-edit.html?id=${e.id}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fa-solid fa-pen-to-square"></i></a> <button class="btn btn-sm btn-outline-success btn-setup-salary" data-id="${e.id}" title="Salary"><i class="fa-solid fa-money-bill"></i></button> <button class="btn btn-sm btn-outline-danger btn-delete-emp" data-id="${e.id}" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>`); destroyAndInitTable('#tableEmployees',h); }
 function renderAttendance() { let h=''; AppServices.getAttendance().forEach(a=>h+=`<tr><td>${a.emp}</td><td>${a.date}</td><td>${a.in}</td><td>${a.out}</td><td>${a.hours}</td><td><span class="badge ${a.status==='Late'?'bg-danger':'bg-success'}">${a.status}</span></td></tr>`); destroyAndInitTable('#tableAttendance',h); }
 function renderLeaves() { let h=''; AppServices.getLeaves().forEach(l=>{ let b=l.status==='Pending'?`<button class="btn btn-sm btn-success btn-leave-action" data-id="${l.id}" data-action="Approved"><i class="fa-check"></i></button> <button class="btn btn-sm btn-danger btn-leave-action" data-id="${l.id}" data-action="Rejected"><i class="fa-xmark"></i></button>`:''; h+=`<tr><td>${l.emp}</td><td>${l.type}</td><td>${l.from}</td><td>${l.to}</td><td>${l.status}</td><td>${b}</td></tr>`; }); destroyAndInitTable('#tableLeave',h); }
 function renderSMS() { let h=''; AppServices.getSMSLogs().forEach(l=>h+=`<tr><td>${l.date}</td><td>${l.group}</td><td>${l.msg}</td><td>${l.status}</td></tr>`); destroyAndInitTable('#tableSMS',h); }
@@ -315,7 +795,97 @@ function renderPayrollTable(r) { let h=''; r.forEach(x=>h+=`<tr><td>${x.empName}
 function renderHeads() { let h=''; AppServices.getSalaryHeads().forEach(x=>h+=`<tr><td>${x.name}</td><td>${x.type}</td><td>Fixed</td></tr>`); $('#tableHeads tbody').html(h); }
 function initPayrollPeriods() { let h=''; AppServices.getPeriods().forEach(p=>h+=`<option value="${p.id}">${p.name}</option>`); $('#payrollPeriodSelect').html(h).trigger('change'); }
 function destroyAndInitTable(s,h) { if($.fn.DataTable.isDataTable(s)) $(s).DataTable().destroy(); $(s+' tbody').html(h); $(s).DataTable({responsive:true,pageLength:5}); }
-function showProfileDrawer(id) { const e=AppServices.getEmployeeById(id); $('#profileDrawer').html(`<div class="p-4"><h3>${e.firstName} ${e.lastName}</h3><p>${e.dept}</p><p>Email: ${e.email}</p><button class="btn btn-secondary btn-close-drawer">Close</button></div>`).addClass('open'); $('#drawerOverlay').fadeIn(); }
+function showProfileDrawer(id) {
+    const e = AppServices.getEmployeeById(id);
+    if (!e) return;
+    const statusBadge = e.status === 'Active' ? 'bg-success' : (e.status === 'On Leave' ? 'bg-warning' : 'bg-secondary');
+    
+    const html = `
+        <div class="drawer-header bg-primary text-white p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <h5 class="mb-0 text-white-50">Profile Details</h5>
+                <button type="button" class="btn-close btn-close-white btn-close-drawer"></button>
+            </div>
+            <div class="text-center mt-4">
+                <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center text-primary fw-bold border border-4 border-white shadow-sm mb-3" style="width: 100px; height: 100px; font-size: 40px;">
+                    ${e.firstName.charAt(0)}
+                </div>
+                <h3 class="mb-1 fw-bold">${e.firstName} ${e.lastName}</h3>
+                <p class="mb-2 opacity-75">${e.position} <span class="mx-2">&bull;</span> ${e.dept}</p>
+                <span class="badge ${statusBadge} bg-opacity-25 border border-white border-opacity-25 px-3 py-2">${e.status}</span>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded h-100">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3"><i class="fa-solid fa-address-card me-2"></i>Contact Info</h6>
+                        <div class="mb-2">
+                            <label class="small text-muted d-block">Email Address</label>
+                            <span class="fw-medium text-break">${e.email}</span>
+                        </div>
+                        <div class="mb-2">
+                            <label class="small text-muted d-block">Phone Number</label>
+                            <span class="fw-medium">${e.phone || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <label class="small text-muted d-block">Location</label>
+                            <span class="fw-medium">${e.location || 'Head Office'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded h-100">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3"><i class="fa-solid fa-briefcase me-2"></i>Employment</h6>
+                        <div class="mb-2">
+                            <label class="small text-muted d-block">Employee ID</label>
+                            <span class="fw-medium font-monospace">${e.id}</span>
+                        </div>
+                        <div class="mb-2">
+                            <label class="small text-muted d-block">Joining Date</label>
+                            <span class="fw-medium">${e.start || e.joiningDate}</span>
+                        </div>
+                        <div>
+                            <label class="small text-muted d-block">Type</label>
+                            <span class="fw-medium">${e.type || 'Full-Time'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-3 bg-light rounded">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3"><i class="fa-solid fa-user me-2"></i>Personal Info</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="small text-muted d-block">Date of Birth</label>
+                                <span class="fw-medium">${e.dob || '-'}</span>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="small text-muted d-block">Gender</label>
+                                <span class="fw-medium">${e.gender || '-'}</span>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="small text-muted d-block">Blood Group</label>
+                                <span class="fw-medium">${e.bloodGroup || '-'}</span>
+                            </div>
+                            <div class="col-12">
+                                <label class="small text-muted d-block">Address</label>
+                                <span class="fw-medium">${e.address || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                 <a href="employee-edit.html?id=${e.id}" class="btn btn-outline-primary"><i class="fa-solid fa-pen-to-square me-1"></i> Edit Profile</a>
+                 <button class="btn btn-secondary btn-close-drawer">Close</button>
+            </div>
+        </div>
+    `;
+
+    $('#profileDrawer').html(html).addClass('open');
+    $('#drawerOverlay').fadeIn();
+}
 function showSalarySetup(id) { const e=AppServices.getEmployeeById(id); const s=AppServices.getEmpStructure(id)||{breakdown:{}}; const h=AppServices.getSalaryHeads(); let html=''; h.forEach(x=>html+=`<div class="row mb-2"><label class="col-6">${x.name}</label><div class="col-6"><input type="number" class="form-control struct-val" data-head="${x.name}" value="${s.breakdown[x.name]||0}"></div></div>`); $('#struct-inputs').html(html); $('#btnSaveStruct').data('id',id); new bootstrap.Modal('#structureModal').show(); }
 function saveSalaryStructure(id) { const b={}; $('.struct-val').each(function(){b[$(this).data('head')]=parseInt($(this).val())||0;}); AppServices.saveEmpStructure(id,b); bootstrap.Modal.getInstance('#structureModal').hide(); Swal.fire('Saved','','success'); }
 function handleAiChat() { $('#aiChatBox').append(`<div class="text-end mb-2"><span class="bg-primary text-white p-2 rounded">Msg</span></div>`); $('#aiInput').val(''); }
@@ -326,3 +896,243 @@ function renderCandidates() { let h=''; AppServices.getCandidates().forEach(c=>h
 function renderReviews() { let h=''; AppServices.getReviews().forEach(r=>h+=`<tr><td>${r.empId}</td><td>${r.period}</td><td>${r.rating}/5</td><td>${r.reviewer}</td><td>${r.status}</td></tr>`); destroyAndInitTable('#tableReviews',h); }
 function renderAssets() { let h=''; AppServices.getAssets().forEach(a=>h+=`<tr><td>${a.name}</td><td>${a.type}</td><td>${a.serial}</td><td>${a.assignedTo}</td><td>${a.status}</td></tr>`); destroyAndInitTable('#tableAssets',h); }
 function renderHolidays() { let h=''; AppServices.getHolidays().forEach(x=>h+=`<tr><td>${x.name}</td><td>${x.date}</td><td>${x.type}</td></tr>`); destroyAndInitTable('#tableHolidays',h); }
+
+// --- Advanced Payroll Helpers ---
+function renderSalaryComponents() {
+    let html = '';
+    const comps = AppServices.getSalaryComponents();
+    if(comps.length === 0) html = '<tr><td colspan="8" class="text-center">No components defined</td></tr>';
+    else comps.forEach(c => {
+        html += `<tr>
+            <td><span class="fw-bold">${c.name}</span><div class="small text-muted">${c.description||''}</div></td>
+            <td><span class="badge ${c.type==='Earning'?'bg-success':'bg-danger'}">${c.type}</span></td>
+            <td>${c.category}</td>
+            <td>${c.calcType}</td>
+            <td>${c.value}</td>
+            <td>${c.taxable}</td>
+            <td><span class="badge bg-success">Active</span></td>
+            <td><button class="btn btn-sm btn-outline-danger" onclick="if(confirm('Delete?')) { AppServices.deleteComponent(${c.id}); renderSalaryComponents(); updateSetupSummary(); }"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
+    });
+    destroyAndInitTable('#tableComponents', html);
+}
+
+function renderSalaryTemplates() {
+    let html = '';
+    const temps = AppServices.getSalaryTemplates();
+    if(temps.length === 0) html = '<tr><td colspan="7" class="text-center">No templates defined</td></tr>';
+    else temps.forEach(t => {
+        html += `<tr>
+            <td>${t.name}</td>
+            <td>${t.dept||'All'}</td>
+            <td>${t.designation||'All'}</td>
+            <td>${t.basicMin} - ${t.basicMax}</td>
+            <td><span class="badge bg-info">${t.earnings.length + t.deductions.length} Components</span></td>
+            <td><span class="badge bg-success">Active</span></td>
+            <td><button class="btn btn-sm btn-outline-danger" onclick="if(confirm('Delete?')) { AppServices.deleteTemplate(${t.id}); renderSalaryTemplates(); updateSetupSummary(); }"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
+    });
+    destroyAndInitTable('#tableTemplates', html);
+}
+
+function renderTaxSlabs() {
+    let html = '';
+    AppServices.getTaxSlabs().forEach(s => {
+        html += `<tr>
+            <td>${s.id}</td>
+            <td>${s.min.toLocaleString()}</td>
+            <td>${s.max > 1000000000 ? 'Above' : s.max.toLocaleString()}</td>
+            <td>${s.rate}%</td>
+            <td><button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button></td>
+        </tr>`;
+    });
+    $('#tableTaxSlabs tbody').html(html);
+}
+
+function initPFSettings() {
+    const pf = AppServices.getPFSettings();
+    if(pf) {
+        $('#pfEmployeePercent').val(pf.employeeContribution);
+        $('#pfEmployerPercent').val(pf.employerContribution);
+        $('#pfCeiling').val(pf.ceiling);
+    }
+}
+
+function updateSetupSummary() {
+    const comps = AppServices.getSalaryComponents();
+    $('#summaryTotalComponents').text(comps.length);
+    $('#summaryEarningComponents').text(comps.filter(c=>c.type==='Earning').length);
+    $('#summaryDeductionComponents').text(comps.filter(c=>c.type==='Deduction').length);
+    $('#summaryActiveTemplates').text(AppServices.getSalaryTemplates().length);
+}
+
+function renderAdvancedPayrollTable(records) {
+    let html = '';
+    let tBasic=0, tAllow=0, tGross=0, tDed=0, tTax=0, tNet=0;
+    
+    if(!records || records.length === 0) {
+        html = '';
+    } else {
+        records.forEach(r => {
+            const allowances = r.gross - r.basic;
+            tBasic += r.basic; tAllow += allowances; tGross += r.gross;
+            tDed += r.totalDeduction; tTax += r.tax; tNet += r.net;
+            
+            html += `<tr>
+                <td><input type="checkbox" class="payroll-check" value="${r.id}"></td>
+                <td>${r.empId}</td>
+                <td><div class="fw-bold">${r.empName}</div><div class="small text-muted">${r.dept}</div></td>
+                <td>${r.dept}</td>
+                <td>${r.basic.toLocaleString()}</td>
+                <td>${allowances.toLocaleString()}</td>
+                <td class="text-success fw-bold">${r.gross.toLocaleString()}</td>
+                <td class="text-danger">${r.totalDeduction.toLocaleString()}</td>
+                <td>${r.tax.toLocaleString()}</td>
+                <td class="fw-bolder text-primary">${r.net.toLocaleString()}</td>
+                <td><span class="badge ${r.status==='Paid'?'bg-success':'bg-warning'}">${r.status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-info btn-view-breakdown" data-id="${r.id}" title="Breakdown"><i class="fas fa-list"></i></button>
+                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-file-pdf"></i></button>
+                </td>
+            </tr>`;
+        });
+    }
+    
+    // Update footer
+    $('#totalBasic').text('৳'+tBasic.toLocaleString());
+    $('#totalAllowances').text('৳'+tAllow.toLocaleString());
+    $('#totalGross').text('৳'+tGross.toLocaleString());
+    $('#totalDeductions').text('৳'+tDed.toLocaleString());
+    $('#totalTax').text('৳'+tTax.toLocaleString());
+    $('#totalNet').text('৳'+tNet.toLocaleString());
+    
+    // Summary Cards in Payroll Page
+    $('#summaryTotalEmployees').text(records ? records.length : 0);
+    $('#summaryTotalEarnings').text('৳'+tGross.toLocaleString());
+    $('#summaryTotalDeductions').text('৳'+tDed.toLocaleString());
+    $('#summaryNetPayable').text('৳'+tNet.toLocaleString());
+
+    destroyAndInitTable('#tablePayroll', html);
+}
+
+function convertNumberToWords(amount) {
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+    function convertGroup(n) {
+        if (n === 0) return '';
+        if (n < 10) return ones[n];
+        if (n < 20) return teens[n - 10];
+        if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
+        return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' ' + convertGroup(n % 100) : '');
+    }
+
+    if (amount === 0) return 'Zero';
+    let str = '';
+    if(amount >= 1000) return amount.toLocaleString() + " (In Words)"; 
+    return convertGroup(amount);
+}
+
+// --- New Payroll Helpers (Refactored Workflow) ---
+
+function renderSalaryHeadsTable() {
+    const heads = AppServices.getSalaryComponents().sort((a,b) => a.sortOrder - b.sortOrder);
+    let html = '';
+    if(heads.length === 0) html = '<tr><td colspan="6" class="text-center">No heads defined</td></tr>';
+    else heads.forEach(h => {
+        html += `<tr>
+            <td>${h.code || '-'}</td>
+            <td><span class="fw-bold">${h.name}</span></td>
+            <td><span class="badge ${h.type==='Earning'?'bg-success':'bg-danger'}">${h.type}</span></td>
+            <td>${h.isIncomeTax || 'No'}</td>
+            <td>${h.sortOrder}</td>
+            <td><button class="btn btn-sm btn-outline-danger" onclick="if(confirm('Delete?')) { AppServices.deleteComponent(${h.id}); renderSalaryHeadsTable(); }"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
+    });
+    destroyAndInitTable('#tableHeads', html);
+}
+
+function loadEmployeeStructureEditor(empId) {
+    const emp = AppServices.getEmployeeById(empId);
+    if(!emp) return;
+    
+    $('#infoName').text(emp.firstName + ' ' + emp.lastName);
+    $('#infoDesig').text(emp.position);
+    $('#infoDept').text(emp.dept);
+    
+    const struct = AppServices.getEmpSalaryStructure(empId) || {};
+    $('#structGrade').val(struct.grade || '');
+    $('#structDate').val(struct.effectiveDate || '');
+    $('#structBank').val(struct.bank || emp.bankName || '');
+    
+    // Render Heads
+    const heads = AppServices.getSalaryComponents().sort((a,b) => a.sortOrder - b.sortOrder);
+    let addHtml = '', dedHtml = '';
+    let tAdd = 0, tDed = 0;
+    
+    heads.forEach(h => {
+        const val = struct.heads ? (struct.heads[h.id] || 0) : 0;
+        const inputHtml = `<input type="number" class="form-control form-control-sm text-end struct-amount" data-head-id="${h.id}" data-type="${h.type}" value="${val}">`;
+        
+        const row = `<tr><td>${h.name}</td><td>${inputHtml}</td></tr>`;
+        
+        if(h.type === 'Earning') {
+            addHtml += row;
+            tAdd += val;
+        } else {
+            dedHtml += row;
+            tDed += val;
+        }
+    });
+    
+    $('#bodyAdditions').html(addHtml);
+    $('#bodyDeductions').html(dedHtml);
+    $('#totalAdditions').text(tAdd.toFixed(2));
+    $('#totalDeductions').text(tDed.toFixed(2));
+    $('#netSalary').text((tAdd - tDed).toFixed(2));
+    
+    $('#structureEditor').slideDown();
+}
+
+function renderPeriodsTable() {
+    const periods = AppServices.getPeriods(); // .sort((a,b) => b.year - a.year);
+    let html = '';
+    if(periods.length === 0) html = '<tr><td colspan="4" class="text-center">No periods created</td></tr>';
+    else periods.forEach(p => {
+        html += `<tr>
+            <td>${p.name}</td>
+            <td>${p.month} ${p.year}</td>
+            <td>${p.workingDays}</td>
+            <td><span class="badge ${p.status==='Open'?'bg-success':'bg-secondary'}">${p.status}</span></td>
+        </tr>`;
+    });
+    destroyAndInitTable('#tablePeriods', html);
+}
+
+function renderLeaveBalances() {
+    const year = $('#viewYear').val() || new Date().getFullYear();
+    const emps = AppServices.getEmployees();
+    const balances = AppServices.getLeaveBalances().filter(b => b.year == year);
+    
+    let html = '';
+    emps.forEach(e => {
+        // Find balances
+        const casual = balances.find(b => b.empId === e.id && b.type === 'Casual') || { allocated: '-', used: '-' };
+        const medical = balances.find(b => b.empId === e.id && b.type === 'Medical') || { allocated: '-', used: '-' };
+        const earned = balances.find(b => b.empId === e.id && b.type === 'Earned') || { allocated: '-', used: '-' };
+        const maternity = balances.find(b => b.empId === e.id && b.type === 'Maternity') || { allocated: '-', used: '-' };
+        
+        html += `<tr>
+            <td>${e.id}</td>
+            <td><div class="fw-bold">${e.firstName} ${e.lastName}</div></td>
+            <td>${e.dept}</td>
+            <td>${casual.used} / ${casual.allocated}</td>
+            <td>${medical.used} / ${medical.allocated}</td>
+            <td>${earned.used} / ${earned.allocated}</td>
+            <td>${maternity.used} / ${maternity.allocated}</td>
+            <td><button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button></td>
+        </tr>`;
+    });
+    destroyAndInitTable('#tableBalances', html);
+}

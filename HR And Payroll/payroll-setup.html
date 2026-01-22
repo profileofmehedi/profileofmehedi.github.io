@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Salary Component Setup - HR Pro</title>
+    <title>Payroll Configuration - HR Pro</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -21,584 +21,280 @@
       rel="stylesheet"
     />
     <link href="assets/css/style.css" rel="stylesheet" />
+    <style>
+        .bg-light-yellow { background-color: #fffcf0; padding: 20px; border-radius: 5px; border: 1px solid #eee; margin-bottom: 20px; }
+        .table-head-blue { background-color: #d1ecf1; color: #0c5460; }
+        .table-head-red { background-color: #f8d7da; color: #721c24; }
+        .row-blue { background-color: #f0f7ff; }
+        .row-red { background-color: #fff5f5; }
+        .total-bar { background-color: #17a2b8; color: white; font-weight: bold; text-align: right; }
+    </style>
   </head>
   <body>
     <div class="main-content">
       <div class="page-header">
         <h3 class="page-title">
-          <i class="fas fa-cog me-2"></i>Salary Structure & Component
-          Configuration
+          <i class="fas fa-cogs me-2"></i>Payroll Configuration
         </h3>
-        <div class="d-flex gap-2">
-          <button class="btn btn-primary" id="btnAddComponent">
-            <i class="fas fa-plus"></i> Add Component
-          </button>
-          <button class="btn btn-info text-white" id="btnAddTemplate">
-            <i class="fas fa-clipboard-list"></i> Create Template
-          </button>
-          <button class="btn btn-success" id="btnLoadDefaults">
-            <i class="fas fa-sync"></i> Load Defaults
-          </button>
-        </div>
       </div>
 
-      <!-- Summary Cards -->
-      <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-3">
-          <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div
-                    class="text-xs font-weight-bold text-primary text-uppercase mb-1"
-                  >
-                    Total Components
-                  </div>
-                  <div
-                    class="h5 mb-0 font-weight-bold text-gray-800"
-                    id="summaryTotalComponents"
-                  >
-                    0
-                  </div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-list fa-2x text-gray-300"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-          <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div
-                    class="text-xs font-weight-bold text-success text-uppercase mb-1"
-                  >
-                    Earning Components
-                  </div>
-                  <div
-                    class="h5 mb-0 font-weight-bold text-gray-800"
-                    id="summaryEarningComponents"
-                  >
-                    0
-                  </div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-plus-circle fa-2x text-gray-300"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-          <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div
-                    class="text-xs font-weight-bold text-danger text-uppercase mb-1"
-                  >
-                    Deduction Components
-                  </div>
-                  <div
-                    class="h5 mb-0 font-weight-bold text-gray-800"
-                    id="summaryDeductionComponents"
-                  >
-                    0
-                  </div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-minus-circle fa-2x text-gray-300"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-          <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-              <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                  <div
-                    class="text-xs font-weight-bold text-warning text-uppercase mb-1"
-                  >
-                    Active Templates
-                  </div>
-                  <div
-                    class="h5 mb-0 font-weight-bold text-gray-800"
-                    id="summaryActiveTemplates"
-                  >
-                    0
-                  </div>
-                </div>
-                <div class="col-auto">
-                  <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tabs -->
-      <ul class="nav nav-tabs mb-4" id="setupTabs">
-        <li class="nav-item">
-          <a class="nav-link active" data-bs-toggle="tab" href="#tab-components"
-            ><i class="fas fa-list"></i> Salary Components</a
-          >
+      <!-- Navigation Tabs -->
+      <ul class="nav nav-tabs mb-4" id="payrollTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="head-tab" data-bs-toggle="tab" data-bs-target="#tab-head" type="button"><i class="fas fa-list me-2"></i>Salary Heads</button>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" data-bs-toggle="tab" href="#tab-templates"
-            ><i class="fas fa-clipboard-list"></i> Salary Templates</a
-          >
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="structure-tab" data-bs-toggle="tab" data-bs-target="#tab-structure" type="button"><i class="fas fa-users-cog me-2"></i>Salary Structure</button>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" data-bs-toggle="tab" href="#tab-tax"
-            ><i class="fas fa-calculator"></i> Tax Configuration</a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" data-bs-toggle="tab" href="#tab-pf"
-            ><i class="fas fa-piggy-bank"></i> PF Settings</a
-          >
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="period-tab" data-bs-toggle="tab" data-bs-target="#tab-period" type="button"><i class="fas fa-calendar-alt me-2"></i>Salary Period</button>
         </li>
       </ul>
 
       <div class="tab-content">
-        <!-- Salary Components Tab -->
-        <div class="tab-pane fade show active" id="tab-components">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 bg-white">
-              <h6 class="m-0 font-weight-bold text-primary">
-                Salary Component Master
-              </h6>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table
-                  class="table table-hover"
-                  id="tableComponents"
-                  width="100%"
-                >
-                  <thead class="table-light">
-                    <tr>
-                      <th>Component Name</th>
-                      <th>Type</th>
-                      <th>Category</th>
-                      <th>Calculation Type</th>
-                      <th>Value</th>
-                      <th>Taxable</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Salary Templates Tab -->
-        <div class="tab-pane fade" id="tab-templates">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 bg-white">
-              <h6 class="m-0 font-weight-bold text-primary">
-                Salary Templates by Department/Designation
-              </h6>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table
-                  class="table table-hover"
-                  id="tableTemplates"
-                  width="100%"
-                >
-                  <thead class="table-light">
-                    <tr>
-                      <th>Template Name</th>
-                      <th>Department</th>
-                      <th>Designation</th>
-                      <th>Basic Salary Range</th>
-                      <th>Components</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tax Configuration Tab -->
-        <div class="tab-pane fade" id="tab-tax">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 bg-white">
-              <h6 class="m-0 font-weight-bold text-primary">
-                Income Tax Slabs (Bangladesh)
-              </h6>
-            </div>
-            <div class="card-body">
-              <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Configure tax slabs according
-                to Bangladesh Income Tax Rules
-              </div>
-              <div class="table-responsive">
-                <table class="table table-bordered" id="tableTaxSlabs">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Slab No</th>
-                      <th>Income From (৳)</th>
-                      <th>Income To (৳)</th>
-                      <th>Tax Rate (%)</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>0</td>
-                      <td>350,000</td>
-                      <td>0%</td>
-                      <td>
-                        <button class="btn btn-sm btn-primary">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>350,001</td>
-                      <td>450,000</td>
-                      <td>5%</td>
-                      <td>
-                        <button class="btn btn-sm btn-primary">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>450,001</td>
-                      <td>750,000</td>
-                      <td>10%</td>
-                      <td>
-                        <button class="btn btn-sm btn-primary">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>750,001</td>
-                      <td>1,150,000</td>
-                      <td>15%</td>
-                      <td>
-                        <button class="btn btn-sm btn-primary">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>1,150,001</td>
-                      <td>1,650,000</td>
-                      <td>20%</td>
-                      <td>
-                        <button class="btn btn-sm btn-primary">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>6</td>
-                      <td>1,650,001</td>
-                      <td>Above</td>
-                      <td>25%</td>
-                      <td>
-                        <button class="btn btn-sm btn-primary">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PF Settings Tab -->
-        <div class="tab-pane fade" id="tab-pf">
-          <div class="card shadow mb-4">
-            <div class="card-header py-3 bg-white">
-              <h6 class="m-0 font-weight-bold text-primary">
-                Provident Fund Configuration
-              </h6>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label fw-bold"
-                      >Employee Contribution (%)</label
-                    >
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="pfEmployeePercent"
-                      value="10"
-                    />
-                    <small class="text-muted">Percentage of basic salary</small>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label fw-bold"
-                      >Employer Contribution (%)</label
-                    >
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="pfEmployerPercent"
-                      value="10"
-                    />
-                    <small class="text-muted"
-                      >Matching employer contribution</small
-                    >
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label fw-bold"
-                      >Maximum Monthly PF Ceiling (৳)</label
-                    >
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="pfCeiling"
-                      value="0"
-                    />
-                    <small class="text-muted">0 = No ceiling</small>
-                  </div>
+        
+        <!-- TAB 1: SALARY HEADS -->
+        <div class="tab-pane fade show active" id="tab-head">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <form id="formSalaryHead">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Head Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="headName" placeholder="e.g. Basic Salary">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Head Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="headCode" placeholder="e.g. 1001">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Head Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="headType">
+                                    <option value="Earning">Earning (Addition)</option>
+                                    <option value="Deduction">Deduction</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Sort Order</label>
+                                <input type="number" class="form-control" id="headSort" value="1">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Is Income Tax?</label>
+                                <select class="form-select" id="headTax">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Is Investment?</label>
+                                <select class="form-select" id="headInvest">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-success" id="btnSaveHead"><i class="fas fa-save me-1"></i> Save Head</button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="text-primary mb-3">Salary Head List</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="tableHeads">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Head Name</th>
+                                    <th>Type</th>
+                                    <th>Taxable</th>
+                                    <th>Sort</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="alert alert-info">
-                    <h6><i class="fas fa-info-circle"></i> PF Rules</h6>
-                    <ul class="mb-0">
-                      <li>Standard employee contribution: 10% of basic</li>
-                      <li>Employer matching: 10% of basic</li>
-                      <li>Deducted from monthly salary</li>
-                      <li>Tax-exempt under certain limits</li>
-                    </ul>
-                  </div>
-                  <button class="btn btn-success w-100" id="btnSavePFSettings">
-                    <i class="fas fa-save"></i> Save PF Settings
-                  </button>
+            </div>
+        </div>
+
+        <!-- TAB 2: SALARY STRUCTURE -->
+        <div class="tab-pane fade" id="tab-structure">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <!-- Employee Search -->
+                    <div class="row mb-4 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label">Select Employee</label>
+                            <div class="input-group">
+                                <select class="form-select" id="structEmpSelect">
+                                    <option value="">Choose Employee...</option>
+                                </select>
+                                <button class="btn btn-primary" id="btnLoadStruct"><i class="fas fa-search"></i> Load</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="structureEditor" style="display:none;">
+                        <!-- Employee Info -->
+                        <div class="bg-light-yellow">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="small text-muted">Name</label>
+                                    <div class="fw-bold" id="infoName">-</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small text-muted">Designation</label>
+                                    <div class="fw-bold" id="infoDesig">-</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small text-muted">Department</label>
+                                    <div class="fw-bold" id="infoDept">-</div>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Salary Grade</label>
+                                    <input type="text" class="form-control form-control-sm" id="structGrade" placeholder="e.g. Grade 1">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Effective Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="structDate">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" class="form-control form-control-sm" id="structBank">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additions / Deductions Columns -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-success border-bottom pb-2">Additions (Earnings)</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-head-blue">
+                                        <tr>
+                                            <th>Head Name</th>
+                                            <th width="150">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyAdditions"></tbody>
+                                    <tfoot>
+                                        <tr class="total-bar">
+                                            <td>Total Addition</td>
+                                            <td id="totalAdditions">0.00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-danger border-bottom pb-2">Deductions</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-head-red">
+                                        <tr>
+                                            <th>Head Name</th>
+                                            <th width="150">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyDeductions"></tbody>
+                                    <tfoot>
+                                        <tr class="total-bar bg-danger">
+                                            <td>Total Deduction</td>
+                                            <td id="totalDeductions">0.00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3 p-3 border bg-light">
+                            <h5 class="mb-0">Net Salary: <span id="netSalary" class="text-primary">0.00</span></h5>
+                            <button class="btn btn-success px-4" id="btnSaveStructure"><i class="fas fa-save me-2"></i> Save Structure</button>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Add Component Modal -->
-    <div class="modal fade" id="addComponentModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">
-              <i class="fas fa-plus"></i> Add Salary Component
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Component Name *</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="componentName"
-                  placeholder="e.g., Basic Salary, HRA"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Component Type *</label>
-                <select class="form-select" id="componentType">
-                  <option value="Earning">Earning</option>
-                  <option value="Deduction">Deduction</option>
-                </select>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Category *</label>
-                <select class="form-select" id="componentCategory">
-                  <option value="Statutory">Statutory (Mandatory)</option>
-                  <option value="Non-Statutory">
-                    Non-Statutory (Optional)
-                  </option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Calculation Type *</label>
-                <select class="form-select" id="componentCalcType">
-                  <option value="Fixed Amount">Fixed Amount</option>
-                  <option value="Percentage of Basic">
-                    Percentage of Basic
-                  </option>
-                  <option value="Percentage of Gross">
-                    Percentage of Gross
-                  </option>
-                  <option value="Formula">Custom Formula</option>
-                </select>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Value *</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="componentValue"
-                  placeholder="Amount or Percentage"
-                />
-                <small class="text-muted"
-                  >Enter amount or percentage based on calculation type</small
-                >
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Taxable</label>
-                <select class="form-select" id="componentTaxable">
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea
-                class="form-control"
-                id="componentDescription"
-                rows="2"
-                placeholder="Optional description"
-              ></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="btnSaveComponent">
-              <i class="fas fa-save"></i> Save Component
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        <!-- TAB 3: SALARY PERIOD -->
+        <div class="tab-pane fade" id="tab-period">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <form id="formPeriod">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Month <span class="text-danger">*</span></label>
+                                <select class="form-select" id="periodMonth">
+                                    <option>January</option>
+                                    <option>February</option>
+                                    <option>March</option>
+                                    <option>April</option>
+                                    <option>May</option>
+                                    <option>June</option>
+                                    <option>July</option>
+                                    <option>August</option>
+                                    <option>September</option>
+                                    <option>October</option>
+                                    <option>November</option>
+                                    <option>December</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Year <span class="text-danger">*</span></label>
+                                <select class="form-select" id="periodYear">
+                                    <option>2025</option>
+                                    <option>2026</option>
+                                    <option>2027</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Period Name</label>
+                                <input type="text" class="form-control bg-light" id="periodName" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tax Year</label>
+                                <select class="form-select" id="periodTaxYear">
+                                    <option>2025-2026</option>
+                                    <option>2026-2027</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Working Days</label>
+                                <input type="number" class="form-control" id="periodDays" value="30">
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary" id="btnSavePeriod"><i class="fas fa-plus-circle me-1"></i> Create Period</button>
+                        </div>
+                    </form>
 
-    <!-- Add Template Modal -->
-    <div class="modal fade" id="addTemplateModal" tabindex="-1">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-header bg-info text-white">
-            <h5 class="modal-title">
-              <i class="fas fa-clipboard-list"></i> Create Salary Template
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <label class="form-label">Template Name *</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="templateName"
-                  placeholder="e.g., Manager Template"
-                />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Department</label>
-                <select class="form-select" id="templateDept">
-                  <option value="">All Departments</option>
-                  <option value="Finance">Finance</option>
-                  <option value="HR">HR</option>
-                  <option value="Engineering">Engineering</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Sales">Sales</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Designation</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="templateDesignation"
-                  placeholder="e.g., Senior Manager"
-                />
-              </div>
+                    <h5 class="text-primary mt-4 mb-3">Existing Periods</h5>
+                    <table class="table table-bordered table-hover" id="tablePeriods">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Period Name</th>
+                                <th>Month/Year</th>
+                                <th>Working Days</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Basic Salary Range (Min)</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="templateBasicMin"
-                  placeholder="Minimum basic salary"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Basic Salary Range (Max)</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="templateBasicMax"
-                  placeholder="Maximum basic salary"
-                />
-              </div>
-            </div>
-            <hr />
-            <h6 class="mb-3">
-              <i class="fas fa-plus-circle text-success"></i> Select Earning
-              Components
-            </h6>
-            <div class="mb-3" id="templateEarnings"></div>
-            <hr />
-            <h6 class="mb-3">
-              <i class="fas fa-minus-circle text-danger"></i> Select Deduction
-              Components
-            </h6>
-            <div class="mb-3" id="templateDeductions"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="btnSaveTemplate">
-              <i class="fas fa-save"></i> Save Template
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-          </div>
         </div>
+
       </div>
     </div>
 

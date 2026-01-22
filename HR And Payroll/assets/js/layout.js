@@ -121,10 +121,12 @@ const AppLayout = {
                         </a>
                         <ul class="submenu-list ${activePage.startsWith('leave') ? 'open' : ''}">
                             <li><a href="leave-dashboard.html" class="${activePage === 'leave-dashboard' ? 'active' : ''}">Dashboard</a></li>
+                            <li><a href="leave-application.html" class="${activePage === 'leave-application' ? 'active' : ''}">Apply Leave</a></li>
                             <li><a href="leave.html" class="${activePage === 'leave' ? 'active' : ''}">Manage Requests</a></li>
+                            <li><a href="leave-balance-add.html" class="${activePage === 'leave-balance-add' ? 'active' : ''}">Add Balance</a></li>
+                            <li><a href="leave-balance-view.html" class="${activePage === 'leave-balance-view' ? 'active' : ''}">View Balance</a></li>
                             <li><a href="leave-calendar.html" class="${activePage === 'leave-calendar' ? 'active' : ''}">Calendar</a></li>
                             <li><a href="leave-policy.html" class="${activePage === 'leave-policy' ? 'active' : ''}">Policies</a></li>
-                            <li><a href="leave-report.html" class="${activePage === 'leave-report' ? 'active' : ''}">Balance Report</a></li>
                         </ul>
                     </li>
 
@@ -142,11 +144,11 @@ const AppLayout = {
                     <!-- Communication Module -->
                     <li class="has-submenu">
                         <a href="#" class="submenu-toggle ${activePage.startsWith('sms') ? 'active' : ''}">
-                            <i class="fa-solid fa-comment-sms"></i> Communication <i class="fa-solid fa-chevron-down ms-auto"></i>
+                            <i class="fa-solid fa-comment-dots"></i> Communication <i class="fa-solid fa-chevron-down ms-auto"></i>
                         </a>
                         <ul class="submenu-list ${activePage.startsWith('sms') ? 'open' : ''}">
-                            <li><a href="sms.html" class="${activePage === 'sms' ? 'active' : ''}">Compose SMS</a></li>
-                            <li><a href="sms-report.html" class="${activePage === 'sms-report' ? 'active' : ''}">Delivery Logs</a></li>
+                            <li><a href="sms.html" class="${activePage === 'sms' ? 'active' : ''}">Compose Message</a></li>
+                            <li><a href="sms-report.html" class="${activePage === 'sms-report' ? 'active' : ''}">Communication Logs</a></li>
                         </ul>
                     </li>
 
@@ -323,6 +325,9 @@ $(document).ready(function() {
     
     // Leave
     else if(path.includes('leave-dashboard')) page = 'leave-dashboard';
+    else if(path.includes('leave-application')) page = 'leave-application';
+    else if(path.includes('leave-balance-add')) page = 'leave-balance-add';
+    else if(path.includes('leave-balance-view')) page = 'leave-balance-view';
     else if(path.includes('leave-calendar')) page = 'leave-calendar';
     else if(path.includes('leave-policy')) page = 'leave-policy';
     else if(path.includes('leave-report')) page = 'leave-report';
