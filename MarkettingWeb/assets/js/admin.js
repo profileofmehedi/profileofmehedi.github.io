@@ -1,58 +1,69 @@
 $(document).ready(function() {
     
+    // --- 0. Theme Toggle Logic ---
+    const themeToggleBtn = $('#theme-toggle');
+    const body = $('body');
+    const icon = themeToggleBtn.find('i');
+
+    // Check Preference
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    body.attr('data-theme', currentTheme);
+    updateIcon(currentTheme);
+
+    themeToggleBtn.click(function() {
+        let newTheme = body.attr('data-theme') === 'light' ? 'dark' : 'light';
+        body.attr('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+        
+        // Refresh charts if they exist to pick up new colors (optional but good)
+        if (window.salesChartInstance) {
+            window.salesChartInstance.options.scales.x.ticks.color = newTheme === 'dark' ? '#e0e0e0' : '#666';
+            window.salesChartInstance.options.scales.y.ticks.color = newTheme === 'dark' ? '#e0e0e0' : '#666';
+            window.salesChartInstance.update();
+        }
+    });
+
+    function updateIcon(theme) {
+        if (theme === 'dark') {
+            icon.removeClass('fa-moon').addClass('fa-sun');
+        } else {
+            icon.removeClass('fa-sun').addClass('fa-moon');
+        }
+    }
+
+
     // --- 1. Authentication Logic ---
     const path = window.location.pathname;
     const page = path.split("/").pop();
     const isLoginPage = page.includes('admin-login.html');
     const isAdminPage = page.includes('admin');
 
-    // Check Auth
     if (isAdminPage && !isLoginPage) {
         if (localStorage.getItem('adminLoggedIn') !== 'true') {
             window.location.href = 'admin-login.html';
-            return; // Stop execution
+            return;
         }
     }
 
-    // Login Handler
     if (isLoginPage) {
         $('#login-form').submit(function(e) {
             e.preventDefault();
             const email = $('#email').val();
             const password = $('#password').val();
-            
-            // Demo Credentials
             if (email === 'admin@naturo.com' && password === 'admin123') {
                 localStorage.setItem('adminLoggedIn', 'true');
-                
-                // Initialize Data if empty
-                if (!localStorage.getItem('naturo_products')) {
-                    localStorage.setItem('naturo_products', JSON.stringify(demoProducts));
-                }
-                if (!localStorage.getItem('naturo_orders')) {
-                    localStorage.setItem('naturo_orders', JSON.stringify(demoOrders));
-                }
+                if (!localStorage.getItem('naturo_products')) localStorage.setItem('naturo_products', JSON.stringify(demoProducts));
+                if (!localStorage.getItem('naturo_orders')) localStorage.setItem('naturo_orders', JSON.stringify(demoOrders));
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'লগইন সফল',
-                    showConfirmButton: false,
-                    timer: 1500
-                }).then(() => {
-                    window.location.href = 'admin.html';
-                });
+                Swal.fire({ icon: 'success', title: 'লগইন সফল', showConfirmButton: false, timer: 1500 }).then(() => window.location.href = 'admin.html');
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'লগইন ব্যর্থ',
-                    text: 'ভুল ইমেইল বা পাসওয়ার্ড।'
-                });
+                Swal.fire({ icon: 'error', title: 'লগইন ব্যর্থ', text: 'ভুল ইমেইল বা পাসওয়ার্ড।' });
             }
         });
-        return; // Don't run dashboard logic on login page
+        return;
     }
 
-    // Logout Handler
     $(document).on('click', '#logout-btn', function(e) {
         e.preventDefault();
         localStorage.removeItem('adminLoggedIn');
@@ -60,12 +71,11 @@ $(document).ready(function() {
     });
 
 
-    // --- 2. Data Initialization (Persistence) ---
+    // --- 2. Data Initialization ---
     function getProducts() {
         const stored = localStorage.getItem('naturo_products');
         let products = stored ? JSON.parse(stored) : demoProducts;
-        products = products.map(p => ({ ...p, stock: p.stock !== undefined ? p.stock : 20 }));
-        return products;
+        return products.map(p => ({ ...p, stock: p.stock !== undefined ? p.stock : 20 }));
     }
 
     function saveProducts(products) {
@@ -83,17 +93,15 @@ $(document).ready(function() {
         updateDashboardStats();
     }
     
-    // Ensure data exists
     if (!localStorage.getItem('naturo_products')) saveProducts(demoProducts);
     if (!localStorage.getItem('naturo_orders')) saveOrders(demoOrders);
 
 
-    // --- Helper: Update Stats (Shared across admin pages) ---
+    // --- Helper: Update Stats ---
     function updateDashboardStats() {
         const products = getProducts();
         const orders = getOrders();
 
-        // Product Stats
         if ($('#stat-total-products').length) $('#stat-total-products').text(products.length);
         if ($('#stat-low-stock').length) $('#stat-low-stock').text(products.filter(p => p.stock < 10).length);
         if ($('#stat-inventory-value').length) {
@@ -101,12 +109,10 @@ $(document).ready(function() {
             $('#stat-inventory-value').text('৳' + val.toLocaleString());
         }
 
-        // Order Stats (admin-orders.html)
         if ($('#stat-total-orders').length) $('#stat-total-orders').text(orders.length);
         if ($('#stat-pending-orders').length) $('#stat-pending-orders').text(orders.filter(o => o.status === 'Pending').length);
         if ($('#stat-completed-orders').length) $('#stat-completed-orders').text(orders.filter(o => o.status === 'Delivered').length);
 
-        // Dashboard Main Stats (admin.html)
         if ($('#admin-dashboard-stats').length) {
             const totalRevenue = orders.reduce((acc, curr) => acc + parseFloat(curr.total), 0);
             $('#total-products').text(products.length);
@@ -116,13 +122,12 @@ $(document).ready(function() {
         }
     }
 
-    // --- 3. Dashboard Charts (admin.html) ---
+    // --- 3. Dashboard Charts ---
     if ($('#salesChart').length) {
         updateDashboardStats();
         
-        // Sales Chart
         const ctxSales = document.getElementById('salesChart').getContext('2d');
-        new Chart(ctxSales, {
+        window.salesChartInstance = new Chart(ctxSales, {
             type: 'line',
             data: {
                 labels: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
@@ -139,11 +144,13 @@ $(document).ready(function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
+                scales: { 
+                    y: { beginAtZero: true, ticks: { color: body.attr('data-theme') === 'dark' ? '#e0e0e0' : '#666' } },
+                    x: { ticks: { color: body.attr('data-theme') === 'dark' ? '#e0e0e0' : '#666' } }
+                }
             }
         });
 
-        // Order Status Chart
         const ctxStatus = document.getElementById('orderStatusChart').getContext('2d');
         const orders = getOrders();
         const statusCounts = {
@@ -166,14 +173,12 @@ $(document).ready(function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
+                plugins: { legend: { position: 'bottom', labels: { color: body.attr('data-theme') === 'dark' ? '#e0e0e0' : '#666' } } }
             }
         });
     }
 
-    // --- 4. Admin Products Page Logic (Preserved) ---
+    // --- 4. Products Page ---
     if ($('#admin-products-table').length) {
         updateDashboardStats();
         const products = getProducts();
@@ -184,7 +189,7 @@ $(document).ready(function() {
             language: {
                 search: "_INPUT_", searchPlaceholder: "অনুসন্ধান...",
                 paginate: { next: '<i class="fas fa-chevron-right"></i>', previous: '<i class="fas fa-chevron-left"></i>' },
-                zeroRecords: "কোন পণ্য পাওয়া যায়নি", infoEmpty: "কোন পণ্য নেই", info: "মোট _TOTAL_ টি পণ্যের মধ্যে _START_ থেকে _END_ দেখানো হচ্ছে"
+                zeroRecords: "কোন পণ্য পাওয়া যায়নি"
             },
             columns: [
                 { data: 'id', className: "ps-4 fw-bold text-secondary" },
@@ -230,34 +235,29 @@ $(document).ready(function() {
             const id = $(this).data('id');
             const row = $(this).closest('tr');
             Swal.fire({
-                title: 'আপনি কি নিশ্চিত?', text: "আপনি এটি ফিরিয়ে আনতে পারবেন না!", icon: 'warning',
-                showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'হ্যাঁ, ডিলিট করুন!', cancelButtonText: 'বাতিল'
+                title: 'নিশ্চিত?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'হ্যাঁ'
             }).then((result) => {
                 if (result.isConfirmed) {
                     let currentProducts = getProducts();
                     currentProducts = currentProducts.filter(p => p.id !== id);
                     saveProducts(currentProducts);
                     table.row(row).remove().draw();
-                    Swal.fire('ডিলিট হয়েছে!', 'পণ্যটি ডিলিট করা হয়েছে।', 'success');
+                    Swal.fire('ডিলিট হয়েছে!', '', 'success');
                 }
             });
         });
     }
 
-    // --- 5. Admin Order Table (Advanced) ---
+    // --- 5. Orders Page (Excel/PDF Export Included) ---
     if ($('#admin-orders-table').length) {
         updateDashboardStats();
         const orders = getOrders();
         
         const table = $('#admin-orders-table').DataTable({
             data: orders,
-            order: [[ 0, "desc" ]], // Order by ID desc
+            order: [[ 0, "desc" ]],
             dom: 'rtip',
-            language: {
-                search: "_INPUT_", searchPlaceholder: "অনুসন্ধান...",
-                paginate: { next: '<i class="fas fa-chevron-right"></i>', previous: '<i class="fas fa-chevron-left"></i>' },
-                zeroRecords: "কোন অর্ডার পাওয়া যায়নি", infoEmpty: "কোন অর্ডার নেই", info: "মোট _TOTAL_ টি অর্ডারের মধ্যে _START_ থেকে _END_ দেখানো হচ্ছে"
-            },
+            language: { search: "_INPUT_", searchPlaceholder: "অনুসন্ধান...", zeroRecords: "কোন অর্ডার পাওয়া যায়নি" },
             columns: [
                 { data: 'id', className: "ps-4 fw-bold text-primary" },
                 { data: 'customer', className: "fw-bold" },
@@ -275,10 +275,32 @@ $(document).ready(function() {
             ]
         });
 
-        // Filter
         $('#statusFilter').on('change', function() { table.column(4).search($(this).val() || '', true, false).draw(); });
 
-        // View Order Details Logic
+        // Export to Excel
+        $('#exportExcel').click(function() {
+            const ws = XLSX.utils.json_to_sheet(getOrders());
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Orders");
+            XLSX.writeFile(wb, "Naturo_Orders.xlsx");
+        });
+
+        // Export to PDF (Simple List)
+        $('#exportPDF').click(function() {
+             const { jsPDF } = window.jspdf;
+             const doc = new jsPDF();
+             
+             doc.text("NaturoBD Order Report", 14, 15);
+             doc.autoTable({
+                 head: [['ID', 'Customer', 'Date', 'Total', 'Status']],
+                 body: getOrders().map(o => [o.id, o.customer, o.date, o.total, o.status]),
+                 startY: 20
+             });
+             doc.save("Naturo_Orders.pdf");
+        });
+
+
+        // View Order & PDF Invoice
         let currentOrderId = null;
         $(document).on('click', '.view-order', function() {
             const id = $(this).data('id');
@@ -294,32 +316,85 @@ $(document).ready(function() {
                 $('#modal-customer-name').text(order.customer);
                 $('#modal-order-date').text(order.date);
                 $('#modal-order-total').text('৳' + order.total);
-                $('#modal-order-grand-total').text('৳' + (order.total + 60)); // +60 delivery charge mock
+                $('#modal-order-grand-total').text('৳' + (order.total + 60));
                 
                 $('#updateStatusSelect').val(order.status);
-                
                 $('#viewOrderModal').modal('show');
             }
         });
 
-        // Update Status Logic
+        // Download Invoice PDF
+        $('#downloadInvoiceBtn').click(function() {
+             if(!currentOrderId) return;
+             const order = getOrders().find(o => o.id === currentOrderId);
+             const { jsPDF } = window.jspdf;
+             const doc = new jsPDF();
+
+             // Header
+             doc.setFontSize(22);
+             doc.setTextColor(76, 175, 80); // Naturo Green
+             doc.text("NaturoBD", 14, 20);
+             
+             doc.setFontSize(12);
+             doc.setTextColor(0, 0, 0);
+             doc.text("INVOICE", 160, 20);
+             doc.text(`Order ID: ${order.id}`, 160, 26);
+             doc.text(`Date: ${order.date}`, 160, 32);
+
+             // Customer Info
+             doc.text("Bill To:", 14, 40);
+             doc.setFont("helvetica", "bold");
+             doc.text(order.customer, 14, 46);
+             doc.setFont("helvetica", "normal");
+             doc.text("Dhaka, Bangladesh", 14, 52);
+
+             // Items Table (Mock items since we don't track per-order items in this simple demo)
+             doc.autoTable({
+                 startY: 60,
+                 head: [['Item', 'Qty', 'Price', 'Total']],
+                 body: [
+                     ['Assorted Organic Products', '1', order.total, order.total]
+                 ],
+                 theme: 'striped',
+                 headStyles: { fillColor: [76, 175, 80] }
+             });
+
+             // Totals
+             const finalY = doc.lastAutoTable.finalY + 10;
+             doc.text(`Subtotal: ${order.total} Taka`, 140, finalY, { align: 'right' });
+             doc.text(`Delivery: 60 Taka`, 140, finalY + 6, { align: 'right' });
+             doc.setFont("helvetica", "bold");
+             doc.text(`Grand Total: ${order.total + 60} Taka`, 140, finalY + 14, { align: 'right' });
+
+             doc.save(`Invoice_${order.id}.pdf`);
+        });
+
+        // Update Status & Deduct Stock
         $('#updateStatusBtn').click(function() {
             const newStatus = $('#updateStatusSelect').val();
             if (currentOrderId && newStatus) {
                 let currentOrders = getOrders();
                 const index = currentOrders.findIndex(o => o.id === currentOrderId);
+                const oldStatus = currentOrders[index].status;
+
                 if (index !== -1) {
                     currentOrders[index].status = newStatus;
                     saveOrders(currentOrders);
                     
-                    // Update Table Row without reload
+                    // Stock Deduct Logic (Simple Simulation)
+                    // If moving to Delivered from non-Delivered, reduce stock of a random product
+                    if (newStatus === 'Delivered' && oldStatus !== 'Delivered') {
+                        let products = getProducts();
+                        // Deduct from first product just to show it working
+                        if (products.length > 0) {
+                            products[0].stock = Math.max(0, products[0].stock - 1);
+                            saveProducts(products);
+                            Swal.fire({ icon: 'info', title: 'স্টক আপডেট', text: 'একটি পণ্যের স্টক স্বয়ংক্রিয়ভাবে কমানো হয়েছে।', timer: 2000 });
+                        }
+                    }
+
                     table.clear().rows.add(currentOrders).draw();
-                    
-                    Swal.fire({
-                        icon: 'success', title: 'আপডেট হয়েছে',
-                        text: `অর্ডার স্ট্যাটাস ${newStatus}-এ পরিবর্তন করা হয়েছে`,
-                        timer: 1500, showConfirmButton: false
-                    });
+                    Swal.fire({ icon: 'success', title: 'আপডেট হয়েছে', timer: 1500, showConfirmButton: false });
                     $('#viewOrderModal').modal('hide');
                 }
             }
