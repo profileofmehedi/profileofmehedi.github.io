@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asper AI Banking Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-bg: #f8f9fa;
+        }
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+            padding-top: 20px;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        .nav-link {
+            color: #495057;
+            padding: 12px 20px;
+            font-weight: 500;
+            border-radius: 0 25px 25px 0;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .nav-link i {
+            width: 25px;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            margin-bottom: 25px;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+            padding: 20px;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        .result-container {
+            padding: 15px;
+            display: none; 
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 180px; /* Reduced from 200px */
+            max-width: 300px; /* Added max-width */
+            margin: 0 auto 20px auto; /* Centered */
+            display: block;
+        }
+        .badge-lg {
+            font-size: 1rem;
+            padding: 8px 15px;
+        }
+        .list-group-item {
+            font-size: 0.9rem;
+            border-left: none;
+            border-right: none;
+        }
+        .tab-pane {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4 class="text-center mb-4 text-primary fw-bold"><i class="fas fa-brain me-2"></i>Asper AI</h4>
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <button class="nav-link active" id="tab-credit" data-bs-toggle="pill" data-bs-target="#content-credit" type="button"><i class="fas fa-credit-card"></i> Credit Scoring</button>
+            <button class="nav-link" id="tab-fraud" data-bs-toggle="pill" data-bs-target="#content-fraud" type="button"><i class="fas fa-shield-alt"></i> Fraud Analysis</button>
+            <button class="nav-link" id="tab-forecast" data-bs-toggle="pill" data-bs-target="#content-forecast" type="button"><i class="fas fa-chart-line"></i> Cash Flow Forecast</button>
+            <button class="nav-link" id="tab-categorize" data-bs-toggle="pill" data-bs-target="#content-categorize" type="button"><i class="fas fa-tags"></i> Expense NLP</button>
+            <button class="nav-link" id="tab-kyc" data-bs-toggle="pill" data-bs-target="#content-kyc" type="button"><i class="fas fa-id-card"></i> KYC Verification</button>
+            <button class="nav-link" id="tab-churn" data-bs-toggle="pill" data-bs-target="#content-churn" type="button"><i class="fas fa-user-times"></i> Churn Prediction</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="tab-content" id="v-pills-tabContent">
+            
+            <!-- 1. Credit Scoring -->
+            <div class="tab-pane fade show active" id="content-credit">
+                <div class="mb-4">
+                    <h3 class="fw-bold">Credit Scoring Model</h3>
+                    <p class="text-muted">Evaluates a user's creditworthiness using a weighted scoring model based on payment history, utilization, and credit age. It provides a score (300-850), risk category, and specific improvement recommendations.</p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>Credit Scoring Model V2</span>
+                                <span class="badge bg-primary">AI Powered</span>
+                            </div>
+                            <div class="card-body">
+                                <form id="form-credit">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Monthly Income ($)</label>
+                                            <input type="number" class="form-control" name="monthly_income" value="5000">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Total Credit Limit ($)</label>
+                                            <input type="number" class="form-control" name="total_credit_limit" value="10000">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Current Balance ($)</label>
+                                            <input type="number" class="form-control" name="current_credit_balance" value="2500">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Oldest Account Age (Years)</label>
+                                            <input type="number" class="form-control" name="oldest_account_age_years" value="4">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Late Payments (Last 6m)</label>
+                                            <input type="number" class="form-control" name="late_payments_last_6m" value="0">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Recent Inquiries (Last 3m)</label>
+                                            <input type="number" class="form-control" name="recent_inquiries_last_3m" value="1">
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-end">
+                                        <button type="submit" class="btn btn-primary px-4">Analyze Credit Score</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card h-100">
+                            <div class="card-header">Analysis Result</div>
+                            <div class="card-body">
+                                <div id="loader-credit" class="loading-spinner">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                    <p class="mt-2 text-muted">Calculating Score...</p>
+                                </div>
+                                <div id="result-credit" class="result-container">
+                                    <div class="chart-container">
+                                        <canvas id="chart-credit-canvas"></canvas>
+                                    </div>
+                                    <div class="text-center mb-3">
+                                        <h2 class="display-6 fw-bold text-primary" id="credit-score-val">--</h2>
+                                        <span class="badge badge-lg bg-info" id="credit-rating">--</span>
+                                    </div>
+                                    <h6 class="border-bottom pb-2">Key Factors</h6>
+                                    <ul class="list-group list-group-flush mb-3" id="credit-factors">
+                                        <!-- Factors go here -->
+                                    </ul>
+                                    <div class="alert alert-light border" id="credit-recommendation">
+                                        <i class="fas fa-info-circle text-primary me-2"></i><span>--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Fraud Analysis -->
+            <div class="tab-pane fade" id="content-fraud">
+                <div class="mb-4">
+                    <h3 class="fw-bold">Banking Fraud Analysis</h3>
+                    <p class="text-muted">Detects fraudulent transactions using multi-factor analysis including amount thresholds, merchant risk, "Impossible Travel" geographical checks, and transaction velocity (spam/bot checks).</p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="card">
+                            <div class="card-header">Banking Fraud Analysis</div>
+                            <div class="card-body">
+                                <form id="form-fraud">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Transaction Amount ($)</label>
+                                            <input type="number" class="form-control" name="transaction_amount" value="5000">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Merchant Category</label>
+                                            <select class="form-select" name="merchant_category">
+                                                <option value="Electronics" selected>Electronics</option>
+                                                <option value="Groceries">Groceries</option>
+                                                <option value="Gambling">Gambling</option>
+                                                <option value="Travel">Travel</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Transaction Location</label>
+                                            <input type="text" class="form-control" name="location" value="London">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Home Location</label>
+                                            <input type="text" class="form-control" name="user_home_location" value="New York">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Avg Transaction Value ($)</label>
+                                            <input type="number" class="form-control" name="user_avg_transaction_val" value="200">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Tx Count (Last Hour)</label>
+                                            <input type="number" class="form-control" name="tx_count_last_hour" value="2">
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-end">
+                                        <button type="submit" class="btn btn-danger px-4">Detect Fraud</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card h-100">
+                            <div class="card-header">Risk Assessment</div>
+                            <div class="card-body">
+                                <div id="loader-fraud" class="loading-spinner">
+                                    <div class="spinner-border text-danger" role="status"></div>
+                                    <p class="mt-2 text-muted">Analyzing Patterns...</p>
+                                </div>
+                                <div id="result-fraud" class="result-container">
+                                    <div class="chart-container">
+                                        <canvas id="chart-fraud-canvas"></canvas>
+                                    </div>
+                                    <div class="text-center mb-3">
+                                        <span class="badge badge-lg" id="fraud-badge">--</span>
+                                        <p class="mt-2 mb-0 fw-bold" id="fraud-action">--</p>
+                                    </div>
+                                    <h6 class="border-bottom pb-2">Flags Raised</h6>
+                                    <ul class="list-group list-group-flush" id="fraud-flags">
+                                        <!-- Flags go here -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Cash Flow Forecast -->
+            <div class="tab-pane fade" id="content-forecast">
+                <div class="mb-4">
+                    <h3 class="fw-bold">Smart Cash Flow Forecast</h3>
+                    <p class="text-muted">Predicts end-of-month balances based on current income, historical expenses, and upcoming bills. It proactively warns users if they are at risk of an overdraft.</p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="card">
+                            <div class="card-header">Smart Cash Flow Forecast</div>
+                            <div class="card-body">
+                                <form id="form-forecast">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Current Balance</label>
+                                            <input type="number" class="form-control" name="current_balance" value="1200">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Avg Monthly Income</label>
+                                            <input type="number" class="form-control" name="avg_monthly_income" value="3000">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Avg Monthly Expenses</label>
+                                            <input type="number" class="form-control" name="avg_monthly_expenses" value="3500">
+                                        </div>
+                                    </div>
+                                    
+                                    <h6 class="mt-4 mb-3 border-bottom pb-2">Upcoming Bills</h6>
+                                    <div id="bills-container">
+                                        <div class="row g-2 mb-2 bill-row">
+                                            <div class="col-7">
+                                                <input type="text" class="form-control" placeholder="Bill Name (e.g. Rent)" value="Rent">
+                                            </div>
+                                            <div class="col-4">
+                                                <input type="number" class="form-control bill-amount" placeholder="Amount" value="1000">
+                                            </div>
+                                            <div class="col-1">
+                                                <button type="button" class="btn btn-outline-danger w-100" onclick="removeBill(this)"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="row g-2 mb-2 bill-row">
+                                            <div class="col-7">
+                                                <input type="text" class="form-control" placeholder="Bill Name" value="Car Loan">
+                                            </div>
+                                            <div class="col-4">
+                                                <input type="number" class="form-control bill-amount" placeholder="Amount" value="400">
+                                            </div>
+                                            <div class="col-1">
+                                                <button type="button" class="btn btn-outline-danger w-100" onclick="removeBill(this)"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addBill()">+ Add Bill</button>
+
+                                    <div class="mt-4 text-end">
+                                        <button type="submit" class="btn btn-success px-4">Generate Forecast</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card h-100">
+                            <div class="card-header">Financial Health</div>
+                            <div class="card-body">
+                                <div id="loader-forecast" class="loading-spinner">
+                                    <div class="spinner-border text-success" role="status"></div>
+                                    <p class="mt-2 text-muted">Forecasting...</p>
+                                </div>
+                                <div id="result-forecast" class="result-container">
+                                    <div class="chart-container">
+                                        <canvas id="chart-forecast-canvas"></canvas>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <h5>Projected EOM Balance: <span id="forecast-balance" class="fw-bold">--</span></h5>
+                                        <div class="alert mt-3" id="forecast-alert">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Expense Categorization -->
+            <div class="tab-pane fade" id="content-categorize">
+                <div class="mb-4">
+                    <h3 class="fw-bold">NLP Expense Categorization</h3>
+                    <p class="text-muted">Uses Natural Language Processing to clean messy bank transaction strings into human-readable merchant names and categories. It also identifies potential recurring subscriptions.</p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 offset-lg-3">
+                        <div class="card">
+                            <div class="card-header">NLP Expense Categorization</div>
+                            <div class="card-body">
+                                <form id="form-categorize">
+                                    <div class="mb-3">
+                                        <label class="form-label">Transaction Description (Raw)</label>
+                                        <input type="text" class="form-control" name="transaction_description" value="PAYPAL *NTFLX.COM 888-222 CA">
+                                        <div class="form-text">Try: "UBER *PENDING SAN FRANCISCO", "AMZN MKTPLACE", "STARBUCKS STORE 234"</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Amount ($)</label>
+                                        <input type="number" class="form-control" name="amount" value="15.99">
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-info text-white">Categorize</button>
+                                    </div>
+                                </form>
+                                <div class="mt-4">
+                                    <div id="loader-categorize" class="loading-spinner">
+                                        <div class="spinner-border text-info" role="status"></div>
+                                    </div>
+                                    <div id="result-categorize" class="result-container">
+                                        <div class="alert alert-light border text-center">
+                                            <p class="text-muted mb-1">Clean Merchant Name</p>
+                                            <h3 class="fw-bold text-dark" id="cat-merchant">--</h3>
+                                            <span class="badge bg-secondary" id="cat-category">--</span>
+                                            <div id="cat-sub-badge" class="mt-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. KYC Verification -->
+            <div class="tab-pane fade" id="content-kyc">
+                <div class="mb-4">
+                    <h3 class="fw-bold">KYC Document Verification</h3>
+                    <p class="text-muted">Simulates Optical Character Recognition (OCR) to verify identity documents like ID cards and passports. It checks for tampering and ensures user-provided names match the document data.</p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">KYC Document Verification</div>
+                            <div class="card-body">
+                                <form id="form-kyc">
+                                    <div class="mb-3">
+                                        <label class="form-label">Document Type</label>
+                                        <select class="form-select" name="document_type">
+                                            <option value="ID_CARD">National ID Card</option>
+                                            <option value="PASSPORT">Passport</option>
+                                            <option value="FAKE_ID">Test Fake ID</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">User Provided Name</label>
+                                        <input type="text" class="form-control" name="user_provided_name" value="John Doe">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Upload Document Image</label>
+                                        <input type="file" class="form-control" id="kyc-file-input" accept="image/*">
+                                        <div class="form-text">Upload any image to simulate scanning (simulated OCR).</div>
+                                    </div>
+                                    <div class="mt-4 text-end">
+                                        <button type="submit" class="btn btn-warning px-4">Verify Identity</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header">Verification Status</div>
+                            <div class="card-body">
+                                <div id="loader-kyc" class="loading-spinner">
+                                    <div class="spinner-border text-warning" role="status"></div>
+                                    <p class="mt-2 text-muted">Scanning Document...</p>
+                                </div>
+                                <div id="result-kyc" class="result-container text-center">
+                                    <div class="chart-container" style="height: 150px;">
+                                        <canvas id="chart-kyc-canvas"></canvas>
+                                    </div>
+                                    <h4 class="mt-2" id="kyc-status">--</h4>
+                                    <p class="text-muted">OCR Name: <span id="kyc-name" class="fw-bold">--</span></p>
+                                    <div id="kyc-tamper-alert"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Churn Prediction -->
+            <div class="tab-pane fade" id="content-churn">
+                <div class="mb-4">
+                    <h3 class="fw-bold">Customer Churn Prediction</h3>
+                    <p class="text-muted">Analyzes user behavior metrics such as login frequency, support complaints, and balance trends to predict the likelihood of a customer leaving. Suggests targeted retention actions.</p>
+                </div>
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="card">
+                            <div class="card-header">Customer Churn Prediction</div>
+                            <div class="card-body">
+                                <form id="form-churn">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Days Since Last Login</label>
+                                            <input type="number" class="form-control" name="days_since_last_login" value="45">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Active Products Count</label>
+                                            <input type="number" class="form-control" name="active_products" value="1">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Complaints (Last 6m)</label>
+                                            <input type="number" class="form-control" name="complaints_last_6m" value="1">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Balance Trend</label>
+                                            <select class="form-select" name="balance_trend">
+                                                <option value="decreasing">Decreasing</option>
+                                                <option value="stable">Stable</option>
+                                                <option value="increasing">Increasing</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-end">
+                                        <button type="submit" class="btn btn-dark px-4">Predict Churn Risk</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card h-100">
+                            <div class="card-header">Retention Insight</div>
+                            <div class="card-body">
+                                <div id="loader-churn" class="loading-spinner">
+                                    <div class="spinner-border text-dark" role="status"></div>
+                                    <p class="mt-2 text-muted">Analyzing Behavior...</p>
+                                </div>
+                                <div id="result-churn" class="result-container">
+                                    <div class="chart-container">
+                                        <canvas id="chart-churn-canvas"></canvas>
+                                    </div>
+                                    <div class="text-center mb-3">
+                                        <h4>Risk Level: <span id="churn-risk-text" class="text-danger">--</span></h4>
+                                    </div>
+                                    <h6 class="border-bottom pb-2">Primary Risk Factors</h6>
+                                    <ul class="list-group list-group-flush mb-3" id="churn-factors">
+                                        <!-- Factors -->
+                                    </ul>
+                                    <div class="alert alert-info" id="churn-action">
+                                        <!-- Action -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error(msg, url, lineNo, columnNo, error);
+            const debugPanel = document.createElement('div');
+            debugPanel.className = 'alert alert-danger position-fixed bottom-0 end-0 m-3';
+            debugPanel.style.zIndex = '9999';
+            debugPanel.innerHTML = `<strong>JS Error:</strong> ${msg} (Line: ${lineNo})`;
+            document.body.appendChild(debugPanel);
+            setTimeout(() => debugPanel.remove(), 5000);
+            return false;
+        };
+
+        const API_BASE = "http://localhost:5001/api/v1";
+        let charts = {};
+
+        function destroyChart(id) {
+            if (charts[id]) {
+                charts[id].destroy();
+            }
+        }
+
+        // --- 1. Credit Scoring Handler ---
+        function handleCreditResponse(response) {
+            const details = response.score_details;
+            const factors = response.factors;
+            
+            $("#credit-score-val").text(details.value);
+            $("#credit-rating").text(details.rating).attr('class', `badge badge-lg ${details.value >= 670 ? 'bg-success' : 'bg-warning'}`);
+            $("#credit-recommendation span").text(response.decision.recommendation);
+            
+            const list = $("#credit-factors").empty();
+            factors.positive.forEach(f => list.append(`<li class="list-group-item text-success"><i class="fas fa-check me-2"></i>${f}</li>`));
+            factors.negative.forEach(f => list.append(`<li class="list-group-item text-danger"><i class="fas fa-times me-2"></i>${f}</li>`));
+
+            // Chart
+            destroyChart('credit');
+            const ctx = document.getElementById('chart-credit-canvas').getContext('2d');
+            charts['credit'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Score', 'Remaining'],
+                    datasets: [{
+                        data: [details.value, 850 - details.value],
+                        backgroundColor: ['#0d6efd', '#e9ecef'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        }
+
+        // --- 2. Fraud Analysis Handler ---
+        function handleFraudResponse(response) {
+            const analysis = response.fraud_analysis;
+            
+            const badgeClass = analysis.risk_level === 'High' ? 'bg-danger' : (analysis.risk_level === 'Medium' ? 'bg-warning' : 'bg-success');
+            $("#fraud-badge").text(analysis.risk_level + " Risk").attr('class', `badge badge-lg ${badgeClass}`);
+            $("#fraud-action").text(analysis.recommended_action);
+            
+            const list = $("#fraud-flags").empty();
+            if (response.details && response.details.flags_raised) {
+                response.details.flags_raised.forEach(f => list.append(`<li class="list-group-item text-danger"><i class="fas fa-exclamation-circle me-2"></i>${f}</li>`));
+            } else {
+                list.append('<li class="list-group-item text-success">No suspicious flags detected.</li>');
+            }
+
+            // Chart
+            destroyChart('fraud');
+            const ctx = document.getElementById('chart-fraud-canvas').getContext('2d');
+            charts['fraud'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Risk Score'],
+                    datasets: [{
+                        label: 'Fraud Probability',
+                        data: [analysis.risk_score],
+                        backgroundColor: analysis.risk_score > 50 ? '#dc3545' : '#198754',
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: { y: { min: 0, max: 100 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- 3. Forecast Handler ---
+        function handleForecastResponse(response) {
+            const f = response.forecast;
+            
+            $("#forecast-balance").text('$' + f.projected_balance_eom);
+            $("#forecast-balance").attr('class', f.projected_balance_eom < 0 ? 'fw-bold text-danger' : 'fw-bold text-success');
+            
+            const alertClass = f.financial_health_status === 'Critical' ? 'alert-danger' : 'alert-success';
+            $("#forecast-alert").text(f.alert).attr('class', `alert ${alertClass}`);
+
+            // Gather inputs for chart context
+            const income = parseFloat($("input[name='avg_monthly_income']").val());
+            const expenses = parseFloat($("input[name='avg_monthly_expenses']").val());
+            
+            // Chart
+            destroyChart('forecast');
+            const ctx = document.getElementById('chart-forecast-canvas').getContext('2d');
+            charts['forecast'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Income', 'Expenses', 'Projected Bal'],
+                    datasets: [{
+                        label: 'Amount ($)',
+                        data: [income, expenses, f.projected_balance_eom],
+                        backgroundColor: ['#198754', '#dc3545', '#0d6efd']
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- 4. Categorize Handler ---
+        function handleCategorizeResponse(response) {
+            const res = response.result;
+            $("#cat-merchant").text(res.merchant_name_clean);
+            $("#cat-category").text(res.category);
+            
+            if (res.is_potential_subscription) {
+                $("#cat-sub-badge").html('<span class="badge bg-warning text-dark"><i class="fas fa-sync-alt me-1"></i>Subscription Detected</span>');
+            } else {
+                $("#cat-sub-badge").empty();
+            }
+        }
+
+        // --- 5. KYC Handler ---
+        function handleKycResponse(response) {
+            const ver = response.verification;
+            
+            $("#kyc-status").text(ver.status).attr('class', ver.status === 'Verified' ? 'text-success mt-2' : 'text-danger mt-2');
+            $("#kyc-name").text(ver.ocr_extracted_name);
+            
+            if (ver.tampering_detected) {
+                $("#kyc-tamper-alert").html('<div class="alert alert-danger mt-2">Tampering Detected!</div>');
+            } else {
+                $("#kyc-tamper-alert").empty();
+            }
+
+            // Chart (Confidence)
+            destroyChart('kyc');
+            const ctx = document.getElementById('chart-kyc-canvas').getContext('2d');
+            charts['kyc'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Confidence', 'Uncertainty'],
+                    datasets: [{
+                        data: [ver.confidence_score * 100, 100 - (ver.confidence_score * 100)],
+                        backgroundColor: ['#ffc107', '#f8f9fa'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: { legend: { display: false }, title: { display: true, text: 'Confidence Score' } }
+                }
+            });
+        }
+
+        // --- 6. Churn Handler ---
+        function handleChurnResponse(response) {
+            const pred = response.churn_prediction;
+            
+            $("#churn-risk-text").text(pred.probability + " (" + pred.risk_score + "%)");
+            $("#churn-action").text("Recommendation: " + pred.recommended_marketing_action);
+            
+            const list = $("#churn-factors").empty();
+            pred.primary_risk_factors.forEach(f => list.append(`<li class="list-group-item"><i class="fas fa-caret-right me-2"></i>${f}</li>`));
+
+            // Chart
+            destroyChart('churn');
+            const ctx = document.getElementById('chart-churn-canvas').getContext('2d');
+            charts['churn'] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Churn Risk', 'Retention Probability'],
+                    datasets: [{
+                        data: [pred.risk_score, 100 - pred.risk_score],
+                        backgroundColor: ['#212529', '#ced4da']
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true
+                }
+            });
+        }
+
+
+        // --- Generic API Call Wrapper ---
+        function callApi(endpoint, data, loaderId, resultId, handler) {
+            $(loaderId).show();
+            $(resultId).hide();
+            console.log("Calling API:", endpoint, data);
+            
+            $.ajax({
+                url: API_BASE + endpoint,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function(response) {
+                    console.log("API Success:", response);
+                    $(loaderId).hide();
+                    $(resultId).fadeIn(200, function() {
+                        handler(response);
+                    });
+                },
+                error: function(xhr) {
+                    console.error("API Error:", xhr);
+                    $(loaderId).hide();
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : (xhr.responseText || "Connection to API failed. Is the server running at http://localhost:5001?");
+                    $(resultId).html(`<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i><strong>Error:</strong> ${errorMsg}</div>`).show();
+                }
+            });
+        }
+
+        // --- URL Parameter Handling ---
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Auto-fill KYC if params exist
+            if(urlParams.has('document_type')) {
+                // Switch to KYC tab
+                const triggerEl = document.querySelector('#tab-kyc');
+                const tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+
+                // Fill Form
+                $("select[name='document_type']").val(urlParams.get('document_type'));
+                if(urlParams.has('user_provided_name')) {
+                    $("input[name='user_provided_name']").val(urlParams.get('user_provided_name'));
+                }
+
+                // Scroll to result
+                $('html, body').animate({
+                    scrollTop: $("#form-kyc").offset().top
+                }, 500);
+
+                // Optional: Auto-submit (requires a small delay for tab animation)
+                setTimeout(() => {
+                    $("#form-kyc").submit();
+                }, 500);
+            }
+        }
+
+        $(document).ready(function() {
+            checkUrlParams();
+            
+            // 1. Credit Scoring
+            $("#form-credit").submit(function(e) {
+                e.preventDefault();
+                const data = {
+                    monthly_income: parseFloat($("input[name='monthly_income']").val()),
+                    total_credit_limit: parseFloat($("input[name='total_credit_limit']").val()),
+                    current_credit_balance: parseFloat($("input[name='current_credit_balance']").val()),
+                    oldest_account_age_years: parseInt($("input[name='oldest_account_age_years']").val()),
+                    late_payments_last_6m: parseInt($("input[name='late_payments_last_6m']").val()),
+                    recent_inquiries_last_3m: parseInt($("input[name='recent_inquiries_last_3m']").val())
+                };
+                callApi("/credit/predict", data, "#loader-credit", "#result-credit", handleCreditResponse);
+            });
+
+            // 2. Fraud Analysis
+            $("#form-fraud").submit(function(e) {
+                e.preventDefault();
+                const data = {
+                    transaction_amount: parseFloat($("input[name='transaction_amount']").val()),
+                    merchant_category: $("select[name='merchant_category']").val(),
+                    location: $("input[name='location']").val(),
+                    user_home_location: $("input[name='user_home_location']").val(),
+                    user_avg_transaction_val: parseFloat($("input[name='user_avg_transaction_val']").val()),
+                    tx_count_last_hour: parseInt($("input[name='tx_count_last_hour']").val())
+                };
+                callApi("/banking/analyze", data, "#loader-fraud", "#result-fraud", handleFraudResponse);
+            });
+
+            // 3. Cash Flow Forecast
+            window.addBill = function() {
+                $("#bills-container").append(`
+                    <div class="row g-2 mb-2 bill-row">
+                        <div class="col-7"><input type="text" class="form-control" placeholder="Bill Name"></div>
+                        <div class="col-4"><input type="number" class="form-control bill-amount" placeholder="Amount"></div>
+                        <div class="col-1"><button type="button" class="btn btn-outline-danger w-100" onclick="removeBill(this)"><i class="fas fa-times"></i></button></div>
+                    </div>
+                `);
+            };
+            window.removeBill = function(btn) {
+                $(btn).closest('.bill-row').remove();
+            };
+
+            $("#form-forecast").submit(function(e) {
+                e.preventDefault();
+                const bills = [];
+                $(".bill-row").each(function() {
+                    const name = $(this).find("input[type='text']").val();
+                    const amount = parseFloat($(this).find(".bill-amount").val());
+                    if(name && amount) bills.push({name: name, amount: amount});
+                });
+
+                const data = {
+                    current_balance: parseFloat($("input[name='current_balance']").val()),
+                    avg_monthly_income: parseFloat($("input[name='avg_monthly_income']").val()),
+                    avg_monthly_expenses: parseFloat($("input[name='avg_monthly_expenses']").val()),
+                    upcoming_bills: bills
+                };
+                callApi("/banking/forecast", data, "#loader-forecast", "#result-forecast", handleForecastResponse);
+            });
+
+            // 4. Expense Categorization
+            $("#form-categorize").submit(function(e) {
+                e.preventDefault();
+                const data = {
+                    transaction_description: $("input[name='transaction_description']").val(),
+                    amount: parseFloat($("input[name='amount']").val())
+                };
+                callApi("/banking/categorize", data, "#loader-categorize", "#result-categorize", handleCategorizeResponse);
+            });
+
+            // 5. KYC Verification
+            $("#form-kyc").submit(function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('kyc-file-input');
+                let base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+                
+                const processAndSend = (b64) => {
+                    const data = {
+                        document_type: $("select[name='document_type']").val(),
+                        user_provided_name: $("input[name='user_provided_name']").val(),
+                        image_data: b64
+                    };
+                    callApi("/kyc/verify-document", data, "#loader-kyc", "#result-kyc", handleKycResponse);
+                };
+
+                if (fileInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        processAndSend(reader.result);
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    processAndSend(base64Image);
+                }
+            });
+
+            // 6. Churn Prediction
+            $("#form-churn").submit(function(e) {
+                e.preventDefault();
+                const data = {
+                    days_since_last_login: parseInt($("input[name='days_since_last_login']").val()),
+                    active_products: parseInt($("input[name='active_products']").val()),
+                    complaints_last_6m: parseInt($("input[name='complaints_last_6m']").val()),
+                    balance_trend: $("select[name='balance_trend']").val()
+                };
+                callApi("/crm/churn-risk", data, "#loader-churn", "#result-churn", handleChurnResponse);
+            });
+
+        });
+    </script>
+</body>
+</html>

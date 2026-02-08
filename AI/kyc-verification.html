@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Verification - Asper AI Banking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary-color: #f59e0b;
+            --danger-color: #dc2626;
+            --success-color: #16a34a;
+            --bg-light: #f8fafc;
+            --bg-darker: #f1f5f9;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-darker) 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            color: white;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 280px;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            padding: 0;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            white-space: nowrap;
+            text-decoration: none;
+            color: white;
+        }
+
+        .sidebar-logo i {
+            font-size: 1.8rem;
+        }
+
+        .sidebar.collapsed .sidebar-logo span {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+            white-space: nowrap;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            min-width: 24px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary-color);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: var(--secondary-color);
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link {
+            padding: 14px 16px;
+            justify-content: center;
+        }
+
+        .main-content {
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-left: 280px;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+
+        .page-header {
+            margin-bottom: 35px;
+            padding: 20px 0;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 25px;
+            transition: all 0.3s;
+            overflow: hidden;
+            background: white;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0 !important;
+            border: none;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .btn {
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: white;
+        }
+
+        .result-container {
+            padding: 15px;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner-border {
+            width: 50px;
+            height: 50px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 150px;
+            display: block;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -80px;
+                z-index: 999;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>Asper AI</span>
+            </a>
+            <button class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <ul class="nav-menu" id="navPills">
+            <li><a href="credit-scoring.html" class="nav-link"><i class="fas fa-credit-card"></i> <span>Credit Scoring</span></a></li>
+            <li><a href="fraud-analysis.html" class="nav-link"><i class="fas fa-shield-alt"></i> <span>Fraud Analysis</span></a></li>
+            <li><a href="cash-flow.html" class="nav-link"><i class="fas fa-chart-line"></i> <span>Cash Flow</span></a></li>
+            <li><a href="expense-categorization.html" class="nav-link"><i class="fas fa-tags"></i> <span>Expense NLP</span></a></li>
+            <li><a href="kyc-verification.html" class="nav-link active"><i class="fas fa-id-card"></i> <span>KYC Verify</span></a></li>
+            <li><a href="churn-prediction.html" class="nav-link"><i class="fas fa-user-times"></i> <span>Churn Risk</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-id-card me-2"></i>Document Verification</h1>
+            <p class="page-subtitle">OCR-based identity verification with tampering detection and name matching.</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">KYC Document Verification</div>
+                    <div class="card-body">
+                        <form id="form-kyc">
+                            <div class="mb-3">
+                                <label class="form-label">Document Type</label>
+                                <select class="form-select" name="document_type">
+                                    <option value="ID_CARD">National ID Card</option>
+                                    <option value="PASSPORT">Passport</option>
+                                    <option value="FAKE_ID">Test Fake ID</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">User Provided Name</label>
+                                <input type="text" class="form-control" name="user_provided_name" value="John Doe">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Upload Document Image</label>
+                                <input type="file" class="form-control" id="kyc-file-input" accept="image/*">
+                                <div class="form-text">Upload any image to simulate scanning (simulated OCR).</div>
+                            </div>
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-warning px-4">Verify Identity</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">Verification Status</div>
+                    <div class="card-body">
+                        <div id="loader-kyc" class="loading-spinner">
+                            <div class="spinner-border text-warning" role="status"></div>
+                            <p class="mt-2 text-muted">Scanning Document...</p>
+                        </div>
+                        <div id="result-kyc" class="result-container text-center">
+                            <div class="chart-container">
+                                <canvas id="chart-kyc-canvas"></canvas>
+                            </div>
+                            <h4 class="mt-2" id="kyc-status">--</h4>
+                            <p class="text-muted">OCR Name: <span id="kyc-name" class="fw-bold">--</span></p>
+                            <div id="kyc-tamper-alert"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const API_BASE = "http://192.168.20.190:5556/api/v1";
+        let charts = {};
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            }
+        });
+
+        function destroyChart(id) {
+            if (charts[id]) {
+                charts[id].destroy();
+            }
+        }
+
+        function handleKycResponse(response) {
+            const ver = response.verification;
+            
+            $("#kyc-status").text(ver.status).attr('class', ver.status === 'Verified' ? 'text-success mt-2' : 'text-danger mt-2');
+            $("#kyc-name").text(ver.ocr_extracted_name);
+            
+            if (ver.tampering_detected) {
+                $("#kyc-tamper-alert").html('<div class="alert alert-danger mt-2">Tampering Detected!</div>');
+            } else {
+                $("#kyc-tamper-alert").empty();
+            }
+
+            destroyChart('kyc');
+            const ctx = document.getElementById('chart-kyc-canvas').getContext('2d');
+            charts['kyc'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Confidence', 'Uncertainty'],
+                    datasets: [{
+                        data: [ver.confidence_score * 100, 100 - (ver.confidence_score * 100)],
+                        backgroundColor: ['#ffc107', '#f8f9fa'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: { legend: { display: false }, title: { display: true, text: 'Confidence Score' } }
+                }
+            });
+        }
+
+        function callApi(endpoint, data, loaderId, resultId, handler) {
+            $(loaderId).show();
+            $(resultId).hide();
+            console.log("Calling API:", endpoint, data);
+            
+            $.ajax({
+                url: API_BASE + endpoint,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function(response) {
+                    console.log("API Success:", response);
+                    $(loaderId).hide();
+                    $(resultId).fadeIn(200, function() {
+                        handler(response);
+                    });
+                },
+                error: function(xhr) {
+                    console.error("API Error:", xhr);
+                    $(loaderId).hide();
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : (xhr.responseText || `Connection to API failed. Is the server running at ${API_BASE}?`);
+                    $(resultId).html(`<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i><strong>Error:</strong> ${errorMsg}</div>`).show();
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $("#form-kyc").submit(function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('kyc-file-input');
+                let base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+                
+                const processAndSend = (b64) => {
+                    const data = {
+                        document_type: $("select[name='document_type']").val(),
+                        user_provided_name: $("input[name='user_provided_name']").val(),
+                        image_data: b64
+                    };
+                    callApi("/kyc/verify-document", data, "#loader-kyc", "#result-kyc", handleKycResponse);
+                };
+
+                if (fileInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        processAndSend(reader.result);
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    processAndSend(base64Image);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

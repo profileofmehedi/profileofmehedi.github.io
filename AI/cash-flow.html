@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Flow Forecast - Asper AI Banking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary-color: #f59e0b;
+            --danger-color: #dc2626;
+            --success-color: #16a34a;
+            --bg-light: #f8fafc;
+            --bg-darker: #f1f5f9;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-darker) 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            color: white;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 280px;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            padding: 0;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            white-space: nowrap;
+            text-decoration: none;
+            color: white;
+        }
+
+        .sidebar-logo i {
+            font-size: 1.8rem;
+        }
+
+        .sidebar.collapsed .sidebar-logo span {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+            white-space: nowrap;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            min-width: 24px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary-color);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: var(--secondary-color);
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link {
+            padding: 14px 16px;
+            justify-content: center;
+        }
+
+        .main-content {
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-left: 280px;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+
+        .page-header {
+            margin-bottom: 35px;
+            padding: 20px 0;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 25px;
+            transition: all 0.3s;
+            overflow: hidden;
+            background: white;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0 !important;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header .badge {
+            font-size: 0.75rem;
+            padding: 6px 12px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .btn {
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, var(--success-color));
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--bg-light);
+        }
+
+        .btn-outline-danger {
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .result-container {
+            padding: 15px;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner-border {
+            width: 50px;
+            height: 50px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            max-width: 350px;
+            margin: 0 auto 20px auto;
+            display: block;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -80px;
+                z-index: 999;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>Asper AI</span>
+            </a>
+            <button class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <ul class="nav-menu" id="navPills">
+            <li><a href="credit-scoring.html" class="nav-link"><i class="fas fa-credit-card"></i> <span>Credit Scoring</span></a></li>
+            <li><a href="fraud-analysis.html" class="nav-link"><i class="fas fa-shield-alt"></i> <span>Fraud Analysis</span></a></li>
+            <li><a href="cash-flow.html" class="nav-link active"><i class="fas fa-chart-line"></i> <span>Cash Flow</span></a></li>
+            <li><a href="expense-categorization.html" class="nav-link"><i class="fas fa-tags"></i> <span>Expense NLP</span></a></li>
+            <li><a href="kyc-verification.html" class="nav-link"><i class="fas fa-id-card"></i> <span>KYC Verify</span></a></li>
+            <li><a href="churn-prediction.html" class="nav-link"><i class="fas fa-user-times"></i> <span>Churn Risk</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-chart-line me-2"></i>Cash Flow Forecast</h1>
+            <p class="page-subtitle">Predict end-of-month balance and get proactive alerts if overdraft risk is detected.</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-header">Smart Cash Flow Forecast</div>
+                    <div class="card-body">
+                        <form id="form-forecast">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Current Balance</label>
+                                    <input type="number" class="form-control" name="current_balance" value="1200">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Avg Monthly Income</label>
+                                    <input type="number" class="form-control" name="avg_monthly_income" value="3000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Avg Monthly Expenses</label>
+                                    <input type="number" class="form-control" name="avg_monthly_expenses" value="3500">
+                                </div>
+                            </div>
+                            
+                            <h6 class="mt-4 mb-3 border-bottom pb-2">Upcoming Bills</h6>
+                            <div id="bills-container">
+                                <div class="row g-2 mb-2 bill-row">
+                                    <div class="col-7">
+                                        <input type="text" class="form-control" placeholder="Bill Name (e.g. Rent)" value="Rent">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control bill-amount" placeholder="Amount" value="1000">
+                                    </div>
+                                    <div class="col-1">
+                                        <button type="button" class="btn btn-outline-danger w-100" onclick="removeBill(this)"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mb-2 bill-row">
+                                    <div class="col-7">
+                                        <input type="text" class="form-control" placeholder="Bill Name" value="Car Loan">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control bill-amount" placeholder="Amount" value="400">
+                                    </div>
+                                    <div class="col-1">
+                                        <button type="button" class="btn btn-outline-danger w-100" onclick="removeBill(this)"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addBill()">+ Add Bill</button>
+
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-success px-4">Generate Forecast</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card h-100">
+                    <div class="card-header">Financial Health</div>
+                    <div class="card-body">
+                        <div id="loader-forecast" class="loading-spinner">
+                            <div class="spinner-border text-success" role="status"></div>
+                            <p class="mt-2 text-muted">Forecasting...</p>
+                        </div>
+                        <div id="result-forecast" class="result-container">
+                            <div class="chart-container">
+                                <canvas id="chart-forecast-canvas"></canvas>
+                            </div>
+                            <div class="text-center mt-3">
+                                <h5>Projected EOM Balance: <span id="forecast-balance" class="fw-bold">--</span></h5>
+                                <div class="alert mt-3" id="forecast-alert">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const API_BASE = "http://192.168.20.190:5556/api/v1";
+        let charts = {};
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            }
+        });
+
+        function destroyChart(id) {
+            if (charts[id]) {
+                charts[id].destroy();
+            }
+        }
+
+        function addBill() {
+            $("#bills-container").append(`
+                <div class="row g-2 mb-2 bill-row">
+                    <div class="col-7"><input type="text" class="form-control" placeholder="Bill Name"></div>
+                    <div class="col-4"><input type="number" class="form-control bill-amount" placeholder="Amount"></div>
+                    <div class="col-1"><button type="button" class="btn btn-outline-danger w-100" onclick="removeBill(this)"><i class="fas fa-times"></i></button></div>
+                </div>
+            `);
+        }
+
+        function removeBill(btn) {
+            $(btn).closest('.bill-row').remove();
+        }
+
+        function handleForecastResponse(response) {
+            const f = response.forecast;
+            
+            $("#forecast-balance").text('$' + f.projected_balance_eom);
+            $("#forecast-balance").attr('class', f.projected_balance_eom < 0 ? 'fw-bold text-danger' : 'fw-bold text-success');
+            
+            const alertClass = f.financial_health_status === 'Critical' ? 'alert-danger' : 'alert-success';
+            $("#forecast-alert").text(f.alert).attr('class', `alert ${alertClass}`);
+
+            const income = parseFloat($("input[name='avg_monthly_income']").val());
+            const expenses = parseFloat($("input[name='avg_monthly_expenses']").val());
+            
+            destroyChart('forecast');
+            const ctx = document.getElementById('chart-forecast-canvas').getContext('2d');
+            charts['forecast'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Income', 'Expenses', 'Projected Bal'],
+                    datasets: [{
+                        label: 'Amount ($)',
+                        data: [income, expenses, f.projected_balance_eom],
+                        backgroundColor: ['#198754', '#dc3545', '#0d6efd']
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function callApi(endpoint, data, loaderId, resultId, handler) {
+            $(loaderId).show();
+            $(resultId).hide();
+            console.log("Calling API:", endpoint, data);
+            
+            $.ajax({
+                url: API_BASE + endpoint,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function(response) {
+                    console.log("API Success:", response);
+                    $(loaderId).hide();
+                    $(resultId).fadeIn(200, function() {
+                        handler(response);
+                    });
+                },
+                error: function(xhr) {
+                    console.error("API Error:", xhr);
+                    $(loaderId).hide();
+                    const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : (xhr.responseText || `Connection to API failed. Is the server running at ${API_BASE}?`);
+                    $(resultId).html(`<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i><strong>Error:</strong> ${errorMsg}</div>`).show();
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $("#form-forecast").submit(function(e) {
+                e.preventDefault();
+                const bills = [];
+                $(".bill-row").each(function() {
+                    const name = $(this).find("input[type='text']").val();
+                    const amount = parseFloat($(this).find(".bill-amount").val());
+                    if(name && amount) bills.push({name: name, amount: amount});
+                });
+
+                const data = {
+                    current_balance: parseFloat($("input[name='current_balance']").val()),
+                    avg_monthly_income: parseFloat($("input[name='avg_monthly_income']").val()),
+                    avg_monthly_expenses: parseFloat($("input[name='avg_monthly_expenses']").val()),
+                    upcoming_bills: bills
+                };
+                callApi("/banking/forecast", data, "#loader-forecast", "#result-forecast", handleForecastResponse);
+            });
+        });
+    </script>
+</body>
+</html>
