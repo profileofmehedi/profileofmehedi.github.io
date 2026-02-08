@@ -1,0 +1,71 @@
+ASPER AI BANKING SYSTEM - MODULE DOCUMENTATION
+
+1. CREDIT SCORING (api_credit.py)
+----------------------------------
+Description: Calculates a credit score (300-850) based on financial history and determines loan/card approval status.
+Inputs (JSON):
+  - monthly_income (float): User's monthly earnings.
+  - total_credit_limit (float): Total credit available to the user.
+  - current_credit_balance (float): Amount of credit currently used.
+  - oldest_account_age_years (int): Age of the oldest credit account.
+  - late_payments_last_6m (int): Number of late payments in the last 6 months.
+  - recent_inquiries_last_3m (int): Number of hard credit inquiries recently.
+Outputs (JSON):
+  - score_details: {value, rating, risk_level, max_possible}
+  - factors: {positive (list), negative (list)}
+  - decision: {approval_status, recommendation}
+
+2. FRAUD ANALYSIS (api_banking.py)
+----------------------------------
+Description: Analyzes individual transactions in real-time to detect fraudulent activity using risk-based scoring.
+Inputs (JSON):
+  - transaction_amount (float): The cost of the transaction.
+  - merchant_category (string): Type of merchant (e.g., 'Gambling', 'Retail').
+  - location (string): Where the transaction is occurring.
+  - user_home_location (string): User's registered home city/state.
+  - user_avg_transaction_val (float): User's typical spending amount.
+  - tx_count_last_hour (int): Number of transactions in the last 60 minutes.
+Outputs (JSON):
+  - fraud_analysis: {risk_score, risk_level, status, recommended_action}
+  - details: {flags_raised (list), merchant_risk}
+
+3. TRANSACTION CATEGORIZATION (api_categorize.py)
+--------------------------------------------------
+Description: Cleans messy transaction descriptions, assigns a category, and identifies potential recurring subscriptions.
+Inputs (JSON):
+  - transaction_description (string): Raw text from bank statement (e.g., "UBR *PENDING").
+  - amount (float): Transaction value.
+Outputs (JSON):
+  - result: {raw_text, category, merchant_name_clean, is_potential_subscription}
+
+4. CHURN PREDICTION (api_churn.py)
+----------------------------------
+Description: Predicts the likelihood of a customer closing their account based on engagement and satisfaction levels.
+Inputs (JSON):
+  - days_since_last_login (int): Recency of user activity.
+  - active_products (int): Number of bank products owned (Checking, Savings, etc.).
+  - complaints_last_6m (int): Number of customer service issues reported.
+  - balance_trend (string): Movement of funds ('stable', 'increasing', 'decreasing').
+Outputs (JSON):
+  - churn_prediction: {risk_score, probability, primary_risk_factors (list), recommended_marketing_action}
+
+5. CASH FLOW FORECASTING (api_forecast.py)
+------------------------------------------
+Description: Predicts the user's end-of-month balance by analyzing income, expenses, and upcoming bills.
+Inputs (JSON):
+  - current_balance (float): Current account balance.
+  - avg_monthly_income (float): Average monthly deposits.
+  - avg_monthly_expenses (float): Average monthly spending.
+  - upcoming_bills (list of objects): [{name, amount, due_date_days_away}]
+Outputs (JSON):
+  - forecast: {current_balance, projected_balance_eom, financial_health_status, alert}
+
+6. KYC VERIFICATION (api_kyc.py)
+--------------------------------
+Description: Simulates identity document verification, OCR name extraction, and digital tampering detection.
+Inputs (JSON):
+  - document_type (string): 'ID_CARD' or 'PASSPORT'.
+  - image_data (string): Base64 encoded image string.
+  - user_provided_name (string): Name entered by the user for matching.
+Outputs (JSON):
+  - verification: {status, ocr_extracted_name, confidence_score, tampering_detected}
