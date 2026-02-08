@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naturo | Discover the Power of Nature</title>
+    <title>AppXen Mart | Discover the Power of Nature</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -22,8 +22,8 @@
                 <i class="fas fa-phone-alt me-2"></i> +৮৮০ ১,২৩৪,৫৬৭,৮৯০
             </div>
             <div>
-                <a href="#">হেল্প সেন্টার</a>
-                <a href="#">অর্ডার ট্র্যাক</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#helpCenterModal">হেল্প সেন্টার</a>
+                <a href="order-track.html">অর্ডার ট্র্যাক</a>
                 <a href="cart.html"><i class="fas fa-shopping-cart"></i> কার্ট</a>
             </div>
         </div>
@@ -33,7 +33,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand fs-3" href="index.html">
-                <i class="fas fa-leaf text-success"></i> নেচারোবিডি
+                <i class="fas fa-shopping-basket text-success"></i> AppXen Mart
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -43,14 +43,16 @@
                     <li class="nav-item"><a class="nav-link active" href="index.html">হোম</a></li>
                     <li class="nav-item"><a class="nav-link" href="#products">শপ</a></li>
                     <li class="nav-item"><a class="nav-link" href="#about">সম্পর্কে</a></li>
-                    <li class="nav-item"><a class="nav-link" href="products.html">পণ্যের তালিকা (টেবিল)</a></li>
                 </ul>
-                <form class="d-flex position-relative">
-                    <input class="form-control rounded-pill pe-5" type="search" placeholder="অনুসন্ধান..." aria-label="Search">
-                    <button class="btn btn-success rounded-circle position-absolute end-0 top-0 m-1" type="submit">
+                <form class="d-flex position-relative me-3">
+                    <input class="form-control rounded-pill pe-5" type="search" placeholder="অনুসন্ধান..." aria-label="Search" id="searchInput">
+                    <button class="btn btn-success rounded-circle position-absolute end-0 top-0 m-1" type="button">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
+                <button class="btn btn-outline-success rounded-pill btn-sm fw-bold" onclick="Swal.fire('Info', 'Language switching will be implemented soon!', 'info')">
+                    BN / EN
+                </button>
             </div>
         </div>
     </nav>
@@ -82,8 +84,52 @@
     <!-- Products Section -->
     <section id="products" class="py-5">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title m-0 mx-auto">আমাদের বেস্ট সেলার</h2>
+            <!-- Advanced Filter & Search Toolbar -->
+            <div class="row g-3 mb-4 align-items-center bg-white p-3 rounded shadow-sm border">
+                <div class="col-md-3">
+                    <h5 class="m-0 fw-bold text-success">পণ্য অনুসন্ধান</h5>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="searchInput" class="form-control border-start-0 bg-light" placeholder="পণ্যের নাম দিয়ে খুঁজুন...">
+                    </div>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                        <i class="fas fa-sliders-h me-1"></i> ফিল্টার
+                    </button>
+                </div>
+                
+                <!-- Collapsible Advanced Filters -->
+                <div class="collapse w-100 mt-3" id="advancedFilters">
+                    <div class="card card-body border-0 bg-light">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">দাম (Price)</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" id="minPrice" class="form-control" placeholder="Min">
+                                    <span class="input-group-text">-</span>
+                                    <input type="number" id="maxPrice" class="form-control" placeholder="Max">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">সাজান (Sort By)</label>
+                                <select id="sortBy" class="form-select form-select-sm">
+                                    <option value="default">ডিফল্ট</option>
+                                    <option value="priceLow">দাম (কম থেকে বেশি)</option>
+                                    <option value="priceHigh">দাম (বেশি থেকে কম)</option>
+                                    <option value="name">নাম (A-Z)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button id="clearFilters" class="btn btn-sm btn-danger w-100">
+                                    <i class="fas fa-times me-1"></i> ফিল্টার মুছুন
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="row g-4" id="product-list">
@@ -91,6 +137,91 @@
                 <div class="col-12 text-center py-5">
                     <div class="spinner-border text-success" role="status">
                         <span class="visually-hidden">লোডিং...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav class="mt-5" aria-label="Page navigation">
+                <ul class="pagination justify-content-center" id="pagination">
+                    <!-- Pagination items will be generated here -->
+                </ul>
+            </nav>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5 bg-light">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <img src="https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?auto=format&fit=crop&w=800&q=80" alt="Our Story" class="img-fluid rounded-4 shadow">
+                </div>
+                <div class="col-lg-6 ps-lg-5">
+                    <h2 class="section-title text-start mb-4">আমাদের সম্পর্কে</h2>
+                    <p class="lead text-success fw-bold">AppXen Mart - আপনার সুস্থ জীবনের বিশ্বস্ত সঙ্গী।</p>
+                    <p class="text-muted">আমরা বিশ্বাস করি যে সুস্থ জীবনের মূল চাবিকাঠি হলো বিশুদ্ধ এবং প্রাকৃতিক খাবার। সেই লক্ষ্য নিয়ে আমরা সরাসরি খামারিদের কাছ থেকে সংগৃহীত ১০০% অর্গানিক পণ্য আপনার দোরগোড়ায় পৌঁছে দিচ্ছি।</p>
+                    <p class="text-muted">আমাদের প্রতিটি পণ্য কঠোর মান নিয়ন্ত্রণ প্রক্রিয়ার মধ্য দিয়ে যায়, যাতে আপনি এবং আপনার পরিবার পায় সেরা স্বাদের এবং পুষ্টির নিশ্চয়তা। মধু, ঘি থেকে শুরু করে যাবতীয় সুপার ফুড - সব পাবেন এক ছাদের নিচে।</p>
+                    <div class="row g-4 mt-2">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success fs-4 me-2"></i>
+                                <span class="fw-bold">১০০% অর্গানিক</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success fs-4 me-2"></i>
+                                <span class="fw-bold">খাঁটি মানের নিশ্চয়তা</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success fs-4 me-2"></i>
+                                <span class="fw-bold">দ্রুত ডেলিভারি</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success fs-4 me-2"></i>
+                                <span class="fw-bold">সেরা গ্রাহক সেবা</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">গ্রাহকদের মতামত</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 p-4 text-center">
+                        <img src="https://ui-avatars.com/api/?name=Rahim+Uddin&background=random" class="rounded-circle mx-auto mb-3" width="60">
+                        <p class="text-muted fst-italic">"পণ্যের মান সত্যিই অসাধারণ। বিশেষ করে মধু এবং ঘি এর স্বাদ একদম খাঁটি। ডেলিভারিও খুব ফাস্ট ছিল।"</p>
+                        <h6 class="fw-bold m-0">রহিম উদ্দিন</h6>
+                        <small class="text-success">ভেরিফাইড কাস্টমার</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 p-4 text-center">
+                        <img src="https://ui-avatars.com/api/?name=Sadia+Islam&background=random" class="rounded-circle mx-auto mb-3" width="60">
+                        <p class="text-muted fst-italic">"আমি অর্গানিক ফুড নিয়ে খুব চিন্তিত থাকি, কিন্তু AppXen Mart এর পণ্যে আমি পূর্ণ আস্থা পেয়েছি। ধন্যবাদ!"</p>
+                        <h6 class="fw-bold m-0">সাদিয়া ইসলাম</h6>
+                        <small class="text-success">ভেরিফাইড কাস্টমার</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 p-4 text-center">
+                        <img src="https://ui-avatars.com/api/?name=Kamal+Hossain&background=random" class="rounded-circle mx-auto mb-3" width="60">
+                        <p class="text-muted fst-italic">"অসাধারণ সার্ভিস! অর্ডার করার ২৪ ঘণ্টার মধ্যেই পণ্য হাতে পেয়েছি। প্যাকেজিংও খুব ভালো ছিল।"</p>
+                        <h6 class="fw-bold m-0">কামাল হোসেন</h6>
+                        <small class="text-success">ভেরিফাইড কাস্টমার</small>
                     </div>
                 </div>
             </div>
@@ -102,7 +233,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-4">
-                    <h4 class="mb-4"><i class="fas fa-leaf text-success"></i> নেচারোবিডি</h4>
+                    <h4 class="mb-4"><i class="fas fa-shopping-basket text-success"></i> AppXen Mart</h4>
                     <p>আমরা সেরা অর্গানিক পণ্য সরবরাহ করতে প্রতিশ্রুতিবদ্ধ। প্রকৃতি আমাদের অনুপ্রেরণা, এবং বিশুদ্ধতা আমাদের প্রতিশ্রুতি।</p>
                 </div>
                 <div class="col-md-4">
@@ -118,15 +249,157 @@
                     <h5 class="mb-3">যোগাযোগ করুন</h5>
                     <p><i class="fas fa-map-marker-alt me-2 text-success"></i> ঢাকা, বাংলাদেশ</p>
                     <p><i class="fas fa-phone me-2 text-success"></i> +৮৮০ ১,২৩৪,৫৬৭,৮৯০</p>
-                    <p><i class="fas fa-envelope me-2 text-success"></i> info@naturobd.com</p>
+                    <p><i class="fas fa-envelope me-2 text-success"></i> info@appxenmart.com</p>
                 </div>
             </div>
             <hr class="my-4">
             <div class="text-center text-white-50">
-                <p>&copy; ২০২৬ নেচারোবিডি। সর্বস্বত্ব সংরক্ষিত।</p>
+                <p>&copy; ২০২৬ AppXen Mart। সর্বস্বত্ব সংরক্ষিত।</p>
             </div>
         </div>
     </footer>
+
+    <!-- Help Center Modal -->
+    <div class="modal fade" id="helpCenterModal" tabindex="-1" aria-labelledby="helpCenterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 bg-success text-white py-4 rounded-top-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-headset fs-3 me-3"></i>
+                        <div>
+                            <h5 class="modal-title fw-bold m-0" id="helpCenterModalLabel">AppXen Mart হেল্প সেন্টার</h5>
+                            <small class="opacity-75">আমরা আপনাকে সহযোগিতা করতে প্রস্তুত</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- Quick Navigation Cards -->
+                    <div class="p-4 bg-light border-bottom">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-0 shadow-sm text-center p-3 help-card" onclick="document.getElementById('q-delivery').scrollIntoView();">
+                                    <i class="fas fa-truck text-success mb-2 fs-4"></i>
+                                    <p class="small fw-bold mb-0">ডেলিভারি</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-0 shadow-sm text-center p-3 help-card" onclick="document.getElementById('q-payment').scrollIntoView();">
+                                    <i class="fas fa-wallet text-success mb-2 fs-4"></i>
+                                    <p class="small fw-bold mb-0">পেমেন্ট</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-0 shadow-sm text-center p-3 help-card" onclick="document.getElementById('q-return').scrollIntoView();">
+                                    <i class="fas fa-undo text-success mb-2 fs-4"></i>
+                                    <p class="small fw-bold mb-0">রিটার্ন</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-0 shadow-sm text-center p-3 help-card" onclick="document.getElementById('q-contact').scrollIntoView();">
+                                    <i class="fas fa-comments text-success mb-2 fs-4"></i>
+                                    <p class="small fw-bold mb-0">সাপোর্ট</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Content & FAQs -->
+                    <div class="p-4">
+                        <!-- Delivery Info -->
+                        <div id="q-delivery" class="mb-5">
+                            <h6 class="fw-bold text-success mb-3"><i class="fas fa-shipping-fast me-2"></i> ডেলিভারি তথ্য</h6>
+                            <ul class="list-group list-group-flush small border rounded-3">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>ঢাকার ভেতরে ডেলিভারি</span>
+                                    <span class="fw-bold">২৪-৪৮ ঘণ্টা (৳৬০)</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>ঢাকার বাইরে ডেলিভারি</span>
+                                    <span class="fw-bold">৩-৫ দিন (৳১২০)</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-info-circle text-info me-1"></i> আমরা সারা বাংলাদেশে হোম ডেলিভারি প্রদান করি।
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Payment Methods -->
+                        <div id="q-payment" class="mb-5">
+                            <h6 class="fw-bold text-success mb-3"><i class="fas fa-credit-card me-2"></i> পেমেন্ট পদ্ধতি</h6>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <div class="border rounded p-2 text-center bg-white" style="width: 80px;">
+                                    <i class="fas fa-money-bill-wave text-success fs-3"></i>
+                                    <p class="m-0 x-small">ক্যাশ অন</p>
+                                </div>
+                                <div class="border rounded p-2 text-center bg-white" style="width: 80px;">
+                                    <i class="fab fa-bootstrap text-danger fs-3"></i>
+                                    <p class="m-0 x-small">বিকাশ</p>
+                                </div>
+                                <div class="border rounded p-2 text-center bg-white" style="width: 80px;">
+                                    <i class="fas fa-university text-primary fs-3"></i>
+                                    <p class="m-0 x-small">ব্যাংক</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Section -->
+                        <div id="faq-list">
+                            <h6 class="fw-bold text-success mb-3"><i class="fas fa-question-circle me-2"></i> সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQ)</h6>
+                            <div class="accordion accordion-flush border rounded-3 overflow-hidden" id="helpAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#h1">
+                                            আপনাদের পণ্য কি আসলেই ১০০% ন্যাচারাল?
+                                        </button>
+                                    </h2>
+                                    <div id="h1" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                        <div class="accordion-body small text-muted">
+                                            জি, আমাদের প্রতিটি পণ্য সরাসরি উৎস থেকে সংগৃহীত এবং কোনো প্রকার রাসায়নিক বা ভেজালহীন। আমাদের ঘি এবং মধু নিজস্ব তত্ত্বাবধানে প্রস্তুত করা হয়।
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="q-return" class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#h2">
+                                            পণ্য নষ্ট বা ভুল হলে কি করব? (রিটার্ন পলিসি)
+                                        </button>
+                                    </h2>
+                                    <div id="h2" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                        <div class="accordion-body small text-muted">
+                                            ডেলিভারি পাওয়ার পর ২৪ ঘণ্টার মধ্যে আমাদের জানান। পণ্য ভুল বা নষ্ট থাকলে আমরা কোনো অতিরিক্ত চার্জ ছাড়াই তা পরিবর্তন করে দিব।
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#h3">
+                                            অর্ডার বাতিল করার নিয়ম কি?
+                                        </button>
+                                    </h2>
+                                    <div id="h3" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                        <div class="accordion-body small text-muted">
+                                            পণ্য শিপমেন্ট হওয়ার আগে আপনি আমাদের কল সেন্টারে ফোন করে অর্ডার বাতিল করতে পারেন।
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Support -->
+                        <div id="q-contact" class="mt-5 p-4 bg-success bg-opacity-10 rounded-4 text-center">
+                            <h6 class="fw-bold mb-2">জরুরী প্রয়োজনে কল করুন</h6>
+                            <h4 class="text-success fw-bold mb-3">+৮৮০ ১,২৩৪,৫৬৭,৮৯০</h4>
+                            <p class="small text-muted mb-0">সকাল ৯টা থেকে রাত ১০টা পর্যন্ত আমরা আপনার সেবায় নিয়োজিত।</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-secondary w-100 py-3 fw-bold rounded-pill shadow-sm" data-bs-dismiss="modal">বন্ধ করুন</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- JS Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

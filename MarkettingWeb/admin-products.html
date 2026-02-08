@@ -13,48 +13,111 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-         /* Admin Specific Styles */
+        /* Sidebar Professional Styles */
         .sidebar {
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            width: 250px;
-            background-color: #343a40;
-            padding-top: 20px;
-            color: white;
+            width: 260px;
+            background-color: #1a1d21 !important;
+            color: #adb5bd !important;
             z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
         .sidebar a {
-            padding: 15px 25px;
+            padding: 12px 25px;
             text-decoration: none;
-            font-size: 1.1rem;
-            color: #ccc;
-            display: block;
-            transition: 0.3s;
-            border-left: 4px solid transparent;
+            font-size: 1rem;
+            color: #adb5bd !important;
+            display: flex;
+            align-items: center;
+            transition: 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
         }
-        .sidebar a:hover, .sidebar a.active {
-            color: white;
-            background-color: #2c3136;
-            border-left-color: #4CAF50;
+
+        .sidebar a i {
+            font-size: 1.2rem;
+            width: 30px;
+            margin-right: 15px;
+            text-align: center;
+            color: #adb5bd;
         }
+
+        .sidebar.collapsed a i {
+            margin-right: 0;
+            width: 100%;
+        }
+
+        .sidebar.collapsed a span, .sidebar.collapsed .logo-full {
+            display: none;
+        }
+
+        .sidebar.collapsed .logo-short {
+            display: block !important;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff !important;
+        }
+
+        .sidebar a:hover i {
+            color: #ffffff;
+        }
+
+        .sidebar a.active {
+            background-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .sidebar a.active i {
+            color: #ffffff;
+        }
+
         .content {
-            margin-left: 250px;
-            padding: 20px;
-            background-color: #f4f6f9;
+            margin-left: 260px;
+            padding: 30px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        .content.expanded {
+            margin-left: 80px;
+        }
+
         @media screen and (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .sidebar a { float: left; }
-            .content { margin-left: 0; }
+            .sidebar {
+                left: -260px;
+                width: 260px;
+            }
+            .sidebar.mobile-show {
+                left: 0;
+            }
+            .content {
+                margin-left: 0 !important;
+                padding: 15px;
+            }
         }
 
         /* Stats Card Enhanced */
         .stat-card-mini {
+            background: var(--card-bg);
+            color: var(--text-color);
             transition: transform 0.2s;
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid #198754;
+            border-right: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
         .stat-card-mini:hover {
             transform: translateY(-3px);
@@ -63,30 +126,29 @@
 
         /* Table Enhancements */
         .table-card {
-            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 15px;
             overflow: hidden;
-            border: none;
+            border: 1px solid var(--border-color);
             box-shadow: 0 0 15px rgba(0,0,0,0.05);
         }
         .table-header {
-            background-color: #fff;
+            background-color: var(--card-bg);
             padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .dataTables_wrapper .dataTables_filter input {
-            border-radius: 20px;
-            padding: 5px 15px;
-            border: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
         }
         
         /* Modal Enhancements */
         .modal-content {
+            background-color: var(--card-bg);
+            color: var(--text-color);
             border-radius: 15px;
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .modal-header {
-            background-color: var(--primary-color);
+            background-color: #198754;
             color: white;
             border-top-left-radius: 15px;
             border-top-right-radius: 15px;
@@ -94,40 +156,73 @@
         .modal-header .btn-close {
             filter: invert(1);
         }
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.25);
-            border-color: #4CAF50;
+        .form-control, .form-select {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--border-color);
         }
+        .form-control:focus, .form-select:focus {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+        
+        [data-theme="dark"] .bg-white { background-color: var(--card-bg) !important; }
+        [data-theme="dark"] .text-dark { color: var(--text-color) !important; }
+        [data-theme="dark"] .bg-light { background-color: var(--bg-color) !important; }
+        [data-theme="dark"] .table { color: var(--text-color); }
+        [data-theme="dark"] .table-hover tbody tr:hover { background-color: rgba(255,255,255,0.05); }
+        [data-theme="dark"] .breadcrumb-item.active { color: var(--text-muted); }
+        [data-theme="dark"] .modal-footer { background-color: var(--card-bg) !important; }
+        [data-theme="dark"] .input-group-text { background-color: var(--input-bg); color: var(--text-muted); border-color: var(--border-color); }
+        
+        /* DataTables Dark Mode Pagination Fix */
+        [data-theme="dark"] .dataTables_info, [data-theme="dark"] .dataTables_paginate { color: var(--text-color) !important; }
+        [data-theme="dark"] .page-link { background-color: var(--card-bg); border-color: var(--border-color); color: var(--primary-color); }
+        [data-theme="dark"] .page-item.disabled .page-link { background-color: var(--bg-color); color: var(--text-muted); }
     </style>
 </head>
 <body class="admin-body">
 
     <!-- Sidebar -->
-    <div class="sidebar d-flex flex-column">
-        <div class="text-center mb-4 pt-2">
-            <h3 class="fw-bold fs-4"><i class="fas fa-leaf text-success"></i> নেচারো অ্যাডমিন</h3>
+    <div class="sidebar d-flex flex-column" id="adminSidebar">
+        <div class="sidebar-header text-center mb-4 pt-3">
+            <h3 class="fw-bold fs-4 logo-full"><i class="fas fa-chart-line text-success"></i> AppXen Mart</h3>
+            <h3 class="fw-bold fs-4 logo-short d-none"><i class="fas fa-chart-line text-success"></i></h3>
         </div>
-        <a href="admin.html"><i class="fas fa-tachometer-alt me-2"></i> ড্যাশবোর্ড</a>
-        <a href="admin-products.html" class="active"><i class="fas fa-box me-2"></i> পণ্য</a>
-        <a href="admin-orders.html"><i class="fas fa-shopping-cart me-2"></i> অর্ডার</a>
-        <a href="#" id="logout-btn" class="mt-auto text-danger"><i class="fas fa-sign-out-alt me-2"></i> লগআউট</a>
-        <a href="index.html" class="bg-dark"><i class="fas fa-home me-2"></i> সাইটে ফিরে যান</a>
+        <div class="sidebar-nav">
+            <a href="admin.html"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
+            <a href="admin-products.html" class="active"><i class="fas fa-box"></i> <span>পণ্য</span></a>
+            <a href="admin-orders.html"><i class="fas fa-shopping-cart"></i> <span>অর্ডার</span></a>
+            <a href="admin-reports.html"><i class="fas fa-chart-bar"></i> <span>রিপোর্ট</span></a>
+        </div>
+        <div class="mt-auto border-top border-secondary border-opacity-25">
+            <a href="index.html" class="text-info"><i class="fas fa-home"></i> <span>সাইটে ফিরে যান</span></a>
+            <a href="#" id="logout-btn" class="text-danger"><i class="fas fa-sign-out-alt"></i> <span>লগআউট</span></a>
+        </div>
     </div>
 
     <!-- Content -->
-    <div class="content">
+    <div class="content" id="adminContent">
         <!-- Top Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="fw-bold m-0 text-dark">পণ্য ব্যবস্থাপনা</h2>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb m-0 text-muted small">
-                        <li class="breadcrumb-item"><a href="admin.html" class="text-decoration-none text-muted">ড্যাশবোর্ড</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">পণ্য</li>
-                    </ol>
-                </nav>
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-white shadow-sm p-3 rounded-3">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-light me-3 d-none d-md-block" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="btn btn-light me-3 d-md-none" id="sidebarToggleMobile">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h4 class="m-0 fw-bold text-dark">পণ্য ব্যবস্থাপনা</h4>
+                    <small class="text-muted">আপনার ইনভেন্টরি নিয়ন্ত্রণ করুন</small>
+                </div>
             </div>
             <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary rounded-circle" id="theme-toggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
                 <div class="text-end d-none d-md-block">
                     <span class="d-block fw-bold text-dark">অ্যাডমিন ইউজার</span>
                     <small class="text-muted">সুপার অ্যাডমিন</small>
@@ -278,8 +373,34 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold text-secondary small text-uppercase">ছবির লিংক</label>
+                                        <label class="form-label fw-bold text-secondary small text-uppercase">প্রধান ছবি (URL)</label>
                                         <input type="url" class="form-control" id="productImage" placeholder="https://..." oninput="document.getElementById('imagePreview').src = this.value || 'https://placehold.co/300x300?text=Preview'">
+                                    </div>
+                                </div>
+
+                                <!-- New Advanced Fields -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">গ্যালারি ছবি (URL - কমা দিয়ে আলাদা করুন)</label>
+                                    <textarea class="form-control" id="productGallery" rows="2" placeholder="https://img1.jpg, https://img2.jpg..."></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-secondary small text-uppercase">বিস্তারিত বিবরণ</label>
+                                    <textarea class="form-control" id="productDescription" rows="3" placeholder="পণ্যের বিস্তারিত বর্ণনা লিখুন..."></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-bold text-secondary small text-uppercase">উৎপত্তি (Origin)</label>
+                                        <input type="text" class="form-control" id="specOrigin" placeholder="যেমন: বাংলাদেশ">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-bold text-secondary small text-uppercase">প্যাকেজিং</label>
+                                        <input type="text" class="form-control" id="specPackaging" placeholder="যেমন: ৫০০ গ্রাম">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-bold text-secondary small text-uppercase">মেয়াদ</label>
+                                        <input type="text" class="form-control" id="specExpiry" placeholder="যেমন: ১ বছর">
                                     </div>
                                 </div>
                             </div>

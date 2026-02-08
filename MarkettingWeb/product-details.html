@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>প্রোডাক্ট ডিটেইলস | AppXen Mart</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .product-gallery {
+            position: sticky;
+            top: 100px;
+        }
+        .main-img-container {
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            cursor: zoom-in;
+        }
+        .thumbnail-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .thumbnail-img.active, .thumbnail-img:hover {
+            border-color: #198754;
+        }
+        .nav-tabs-custom .nav-link {
+            border: none;
+            color: #666;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-bottom: 3px solid transparent;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #198754;
+            background: none;
+            border-bottom-color: #198754;
+        }
+        .share-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            border: 1px solid #ddd;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .share-btn:hover {
+            background-color: #198754;
+            color: white;
+            border-color: #198754;
+        }
+        .stock-badge {
+            font-size: 0.8rem;
+            padding: 5px 15px;
+        }
+        /* Star Rating CSS */
+        .rating-input {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+        .rating-input input { display: none; }
+        .rating-input label {
+            cursor: pointer;
+            font-size: 25px;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+        .rating-input label:hover,
+        .rating-input label:hover ~ label,
+        .rating-input input:checked ~ label {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fs-3 fw-bold" href="index.html">
+                <i class="fas fa-shopping-basket text-success"></i> AppXen Mart
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fw-bold">
+                    <li class="nav-item"><a class="nav-link" href="index.html">হোম</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#products">শপ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cart.html"><i class="fas fa-shopping-cart"></i> কার্ট <span id="cart-count-badge" class="badge bg-success rounded-pill">0</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none text-success">হোম</a></li>
+                <li class="breadcrumb-item"><a href="index.html#products" class="text-decoration-none text-success">শপ</a></li>
+                <li class="breadcrumb-item active" id="breadcrumb-product" aria-current="page">পণ্য</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Left: Gallery -->
+            <div class="col-lg-6">
+                <div class="product-gallery">
+                    <div class="main-img-container">
+                        <img id="main-product-img" src="" class="img-fluid w-100" alt="Product">
+                    </div>
+                    <div class="d-flex gap-3 overflow-auto pb-2" id="thumbnail-list">
+                        <!-- Thumbnails will be injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Details -->
+            <div class="col-lg-6">
+                <div class="ps-lg-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold" id="product-cat">Category</span>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span class="text-muted small ms-1">(১২০টি রিভিউ)</span>
+                        </div>
+                    </div>
+
+                    <h1 class="fw-bold mb-3" id="product-title">লোডিং হচ্ছে...</h1>
+                    
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span class="display-5 fw-bold text-success" id="product-price">৳০</span>
+                        <span class="text-decoration-line-through text-muted fs-4" id="product-old-price">৳০</span>
+                        <span class="badge bg-danger stock-badge">২০% ছাড়</span>
+                    </div>
+
+                    <p class="text-muted mb-4 fs-5" id="product-short-desc">
+                        আমাদের এই পণ্যটি শতভাগ বিশুদ্ধ এবং প্রাকৃতিক উপায়ে প্রস্তুতকৃত। স্বাস্থ্য সচেতন মানুষের জন্য এটি একটি অপরিহার্য পুষ্টিকর উপাদান। সরাসরি খামারিদের কাছ থেকে সংগৃহীত।
+                    </p>
+
+                    <div class="bg-white p-4 rounded-4 shadow-sm mb-4 border">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">পরিমাণ (Quantity)</label>
+                                <div class="d-flex align-items-center border rounded-pill px-2 py-1" style="max-width: 140px;">
+                                    <button class="btn btn-link text-dark text-decoration-none px-3" onclick="updateQty(-1)"><i class="fas fa-minus"></i></button>
+                                    <input type="text" id="qty-val" value="1" class="form-control border-0 text-center fw-bold" readonly>
+                                    <button class="btn btn-link text-dark text-decoration-none px-3" onclick="updateQty(1)"><i class="fas fa-plus"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <button class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm" id="btn-cart-main">
+                                    <i class="fas fa-shopping-cart me-2"></i> কার্টে যোগ করুন
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-5">
+                        <span class="small fw-bold text-muted text-uppercase">শেয়ার করুন:</span>
+                        <a href="#" class="share-btn"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="share-btn"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="share-btn"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="share-btn"><i class="far fa-envelope"></i></a>
+                    </div>
+
+                    <!-- Highlights Info -->
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center p-3 bg-white rounded-3 border">
+                                <i class="fas fa-undo text-success fs-4 me-3"></i>
+                                <div class="small fw-bold">৭ দিনের রিটার্ন</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center p-3 bg-white rounded-3 border">
+                                <i class="fas fa-shield-alt text-success fs-4 me-3"></i>
+                                <div class="small fw-bold">শতভাগ বিশুদ্ধ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Section -->
+        <div class="mt-5 pt-5">
+            <ul class="nav nav-tabs nav-tabs-custom mb-4" id="productTab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button">বিস্তারিত বর্ণনা</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="spec-tab" data-bs-toggle="tab" data-bs-target="#spec" type="button">বৈশিষ্ট্যসমূহ</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button">রিভিউ (১২০)</button>
+                </li>
+            </ul>
+            <div class="tab-content bg-white p-5 rounded-4 shadow-sm border" id="productTabContent">
+                <div class="tab-pane fade show active" id="desc">
+                    <h5 class="fw-bold mb-3 text-success">পণ্যের বিস্তারিত বিবরণ</h5>
+                    <p class="text-muted">AppXen Mart এর এই পণ্যটি সরাসরি প্রাকৃতিক উৎস থেকে সংগৃহীত। আমরা কোনো প্রকার রিফাইন বা কেমিক্যাল ট্রিটমেন্ট ছাড়াই এটি আপনার কাছে পৌঁছে দেই। এতে রয়েছে প্রচুর পরিমাণ অ্যান্টিঅক্সিডেন্ট এবং প্রয়োজনীয় পুষ্টিগুণ যা আপনার রোগ প্রতিরোধ ক্ষমতা বাড়াতে সাহায্য করে।</p>
+                    <ul class="text-muted">
+                        <li>সরাসরি খামারিদের থেকে সংগ্রহ করা হয়েছে।</li>
+                        <li>কোনো কৃত্রিম স্বাদ বা গন্ধ যোগ করা হয়নি।</li>
+                        <li>সম্পূর্ণ স্বাস্থ্যকর পরিবেশে প্যাকেজিং করা।</li>
+                        <li>পুষ্টিগুণ অক্ষুণ্ণ রাখতে কোল্ড প্রসেস মেথড ব্যবহার করা হয়েছে।</li>
+                    </ul>
+                </div>
+                <div class="tab-pane fade" id="spec">
+                    <table class="table table-striped">
+                        <tr><th width="30%">উৎপত্তি</th><td>বাংলাদেশ</td></tr>
+                        <tr><th>ধরণ</th><td>অর্গানিক / প্রাকৃতিক</td></tr>
+                        <tr><th>প্যাকেজিং সাইজ</th><td>৫০০ গ্রাম / ১ কেজি</td></tr>
+                        <tr><th>মেয়াদকাল</th><td>১ বছর</td></tr>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="review">
+                    <div class="row g-5">
+                        <div class="col-md-5">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="me-4">
+                                    <h1 class="display-4 fw-bold text-success mb-0">৪.৮</h1>
+                                    <div class="text-warning mb-2">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
+                                    <p class="text-muted small">১২০টি রেটিং এর ভিত্তিতে</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Review Form -->
+                            <div class="card border-0 bg-light rounded-4 p-4">
+                                <h5 class="fw-bold mb-3">আপনার মতামত লিখুন</h5>
+                                <form id="reviewForm">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">রেটিং দিন</label>
+                                        <div class="rating-input">
+                                            <input type="radio" name="rating" id="star5" value="5" required><label for="star5"><i class="fas fa-star"></i></label>
+                                            <input type="radio" name="rating" id="star4" value="4"><label for="star4"><i class="fas fa-star"></i></label>
+                                            <input type="radio" name="rating" id="star3" value="3"><label for="star3"><i class="fas fa-star"></i></label>
+                                            <input type="radio" name="rating" id="star2" value="2"><label for="star2"><i class="fas fa-star"></i></label>
+                                            <input type="radio" name="rating" id="star1" value="1"><label for="star1"><i class="fas fa-star"></i></label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control border-0" id="reviewerName" placeholder="আপনার নাম" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <textarea class="form-control border-0" id="reviewText" rows="3" placeholder="আপনার অনুভূতি লিখুন..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold">রিভিউ জমা দিন</button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-7">
+                            <h5 class="fw-bold mb-4">সব রিভিউ</h5>
+                            <div id="review-list-container">
+                                <!-- Reviews will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="mt-5 pt-5">
+            <h3 class="fw-bold mb-4">সম্পর্কিত পণ্যসমূহ</h3>
+            <div class="row g-4" id="related-box">
+                <!-- Related items JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white pt-5 pb-3">
+        <div class="container text-center">
+            <h4 class="fw-bold text-success mb-4">AppXen Mart</h4>
+            <p class="text-white-50 small mb-4">আপনার সুস্থ জীবনের বিশ্বস্ত সাথী</p>
+            <hr class="opacity-25 mb-4">
+            <p class="text-white-50 x-small m-0">&copy; ২০২৬ AppXen Mart। সর্বস্বত্ব সংরক্ষিত।</p>
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pid = parseInt(urlParams.get('id'));
+            
+            // Fetch Products
+            const products = JSON.parse(localStorage.getItem('appxen_products')) || [];
+            const product = products.find(p => p.id === pid) || products[0];
+
+            if(product) {
+                $('#product-title, #breadcrumb-product').text(product.name);
+                $('#product-cat').text(product.category);
+                $('#product-price').text('৳' + product.price);
+                $('#product-old-price').text('৳' + (product.original_price || product.price * 1.2));
+                $('#main-product-img').attr('src', product.image);
+                
+                // Thumbnails Mock
+                const thumbnails = [product.image, 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&w=300&q=80', 'https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&w=300&q=80'];
+                thumbnails.forEach((img, i) => {
+                    $('#thumbnail-list').append(`
+                        <img src="${img}" class="thumbnail-img ${i===0?'active':''}" onclick="changeImg(this, '${img}')">
+                    `);
+                });
+
+                // Update Cart Badge
+                updateBadge();
+
+                // Add to Cart Logic
+                $('#btn-cart-main').click(function() {
+                    let cart = JSON.parse(localStorage.getItem('appxen_cart')) || [];
+                    const qty = parseInt($('#qty-val').val());
+                    const existing = cart.find(item => item.id === product.id);
+                    
+                    if (existing) { existing.quantity += qty; }
+                    else {
+                        cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, category: product.category, quantity: qty });
+                    }
+                    localStorage.setItem('appxen_cart', JSON.stringify(cart));
+                    updateBadge();
+                    Swal.fire({ title: 'সফল!', text: 'পণ্যটি কার্টে যোগ করা হয়েছে।', icon: 'success', confirmButtonColor: '#198754' });
+                });
+
+                // Related Box
+                const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+                related.forEach(p => {
+                    $('#related-box').append(`
+                        <div class="col-md-3 col-sm-6">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card" style="cursor:pointer" onclick="window.location.href='product-details.html?id=${p.id}'">
+                                <img src="${p.image}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                <div class="card-body text-center">
+                                    <h6 class="fw-bold mb-1">${p.name}</h6>
+                                    <p class="text-success fw-bold m-0">৳${p.price}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+
+                // --- Review Management ---
+                const reviewKey = `reviews_prod_${product.id}`;
+                function loadReviews() {
+                    const savedReviews = JSON.parse(localStorage.getItem(reviewKey)) || [
+                        { name: 'রহিম উদ্দিন', rating: 5, text: 'পণ্যটি আসলেই খুব ভালো। প্যাকেজিং এবং ডেলিভারি নিয়ে কোনো অভিযোগ নেই। ধন্যবাদ!', date: '২ দিন আগে' }
+                    ];
+                    const container = $('#review-list-container');
+                    container.empty();
+                    savedReviews.reverse().forEach(rev => {
+                        let stars = '';
+                        for(let i=1; i<=5; i++) stars += `<i class="${i <= rev.rating ? 'fas' : 'far'} fa-star text-warning"></i>`;
+                        container.append(`
+                            <div class="mb-4 border-bottom pb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="fw-bold m-0">${rev.name} <span class="badge bg-light text-dark ms-2 fw-normal small">ভেরিফাইড</span></h6>
+                                    <small class="text-muted">${rev.date || 'এইমাত্র'}</small>
+                                </div>
+                                <div class="small mb-2">${stars}</div>
+                                <p class="text-muted small m-0">${rev.text}</p>
+                            </div>
+                        `);
+                    });
+                }
+
+                loadReviews();
+
+                $('#reviewForm').submit(function(e) {
+                    e.preventDefault();
+                    const newRev = {
+                        name: $('#reviewerName').val(),
+                        rating: parseInt($('input[name="rating"]:checked').val()),
+                        text: $('#reviewText').val(),
+                        date: 'এইমাত্র'
+                    };
+                    let savedReviews = JSON.parse(localStorage.getItem(reviewKey)) || [
+                        { name: 'রহিম উদ্দিন', rating: 5, text: 'পণ্যটি আসলেই খুব ভালো। প্যাকেজিং এবং ডেলিভারি নিয়ে কোনো অভিযোগ নেই। ধন্যবাদ!', date: '২ দিন আগে' }
+                    ];
+                    savedReviews.push(newRev);
+                    localStorage.setItem(reviewKey, JSON.stringify(savedReviews));
+                    
+                    Swal.fire('ধন্যবাদ!', 'আপনার রিভিউটি সফলভাবে জমা হয়েছে।', 'success');
+                    this.reset();
+                    loadReviews();
+                });
+            }
+        });
+
+        function changeImg(el, src) {
+            $('.thumbnail-img').removeClass('active');
+            $(el).addClass('active');
+            $('#main-product-img').fadeOut(200, function() {
+                $(this).attr('src', src).fadeIn(200);
+            });
+        }
+
+        function updateQty(c) {
+            let v = parseInt($('#qty-val').val()) + c;
+            if(v < 1) v = 1;
+            $('#qty-val').val(v);
+        }
+
+        function updateBadge() {
+            const cart = JSON.parse(localStorage.getItem('appxen_cart')) || [];
+            $('#cart-count-badge').text(cart.length);
+        }
+    </script>
+</body>
+</html>

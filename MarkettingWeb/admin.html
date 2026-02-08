@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | NaturoBD</title>
+    <title>Admin Dashboard | AppXen Mart</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -17,53 +17,116 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        /* Admin Specific Styles */
+        /* Sidebar Professional Styles */
         .sidebar {
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            width: 250px;
-            background-color: #343a40;
-            padding-top: 20px;
-            color: white;
+            width: 260px;
+            background-color: #1a1d21 !important;
+            color: #adb5bd !important;
             z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
         .sidebar a {
-            padding: 15px 25px;
+            padding: 12px 25px;
             text-decoration: none;
-            font-size: 1.1rem;
-            color: #ccc;
-            display: block;
-            transition: 0.3s;
-            border-left: 4px solid transparent;
+            font-size: 1rem;
+            color: #adb5bd !important;
+            display: flex;
+            align-items: center;
+            transition: 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
         }
-        .sidebar a:hover, .sidebar a.active {
-            color: white;
-            background-color: #2c3136;
-            border-left-color: #4CAF50;
+
+        .sidebar a i {
+            font-size: 1.2rem;
+            width: 30px;
+            margin-right: 15px;
+            text-align: center;
+            color: #adb5bd;
         }
+
+        .sidebar.collapsed a i {
+            margin-right: 0;
+            width: 100%;
+        }
+
+        .sidebar.collapsed a span, .sidebar.collapsed .logo-full {
+            display: none;
+        }
+
+        .sidebar.collapsed .logo-short {
+            display: block !important;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff !important;
+        }
+
+        .sidebar a:hover i {
+            color: #ffffff;
+        }
+
+        .sidebar a.active {
+            background-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .sidebar a.active i {
+            color: #ffffff;
+        }
+
         .content {
-            margin-left: 250px;
-            padding: 20px;
-            background-color: #f4f6f9;
+            margin-left: 260px;
+            padding: 30px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        .content.expanded {
+            margin-left: 80px;
+        }
+
         @media screen and (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .sidebar a { float: left; }
-            .content { margin-left: 0; }
+            .sidebar {
+                left: -260px;
+                width: 260px;
+            }
+            .sidebar.mobile-show {
+                left: 0;
+            }
+            .content {
+                margin-left: 0 !important;
+                padding: 15px;
+            }
         }
 
         /* Dashboard specific enhancements */
         .stat-card-advanced {
-            background: white;
+            background: var(--card-bg);
+            color: var(--text-color);
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             transition: transform 0.2s;
             position: relative;
             overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .stat-card-advanced h2, .stat-card-advanced h6 {
+            color: var(--text-color) !important;
         }
         .stat-card-advanced:hover {
             transform: translateY(-5px);
@@ -78,35 +141,58 @@
             transform: rotate(-15deg);
         }
         .chart-container {
-            background: white;
+            background: var(--card-bg);
+            color: var(--text-color);
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             height: 100%;
+            border: 1px solid var(--border-color);
+        }
+        
+        [data-theme="dark"] .bg-white {
+            background-color: var(--card-bg) !important;
+        }
+        [data-theme="dark"] .text-dark {
+            color: var(--text-color) !important;
         }
     </style>
 </head>
 <body class="admin-body">
 
     <!-- Sidebar -->
-    <div class="sidebar d-flex flex-column">
-        <div class="text-center mb-4 pt-2">
-            <h3 class="fw-bold fs-4"><i class="fas fa-leaf text-success"></i> নেচারো অ্যাডমিন</h3>
+    <div class="sidebar d-flex flex-column" id="adminSidebar">
+        <div class="sidebar-header text-center mb-4 pt-3">
+            <h3 class="fw-bold fs-4 logo-full"><i class="fas fa-chart-line text-success"></i> AppXen Mart</h3>
+            <h3 class="fw-bold fs-4 logo-short d-none"><i class="fas fa-chart-line text-success"></i></h3>
         </div>
-        <a href="admin.html" class="active"><i class="fas fa-tachometer-alt me-2"></i> ড্যাশবোর্ড</a>
-        <a href="admin-products.html"><i class="fas fa-box me-2"></i> পণ্য</a>
-        <a href="admin-orders.html"><i class="fas fa-shopping-cart me-2"></i> অর্ডার</a>
-        <a href="#" id="logout-btn" class="mt-auto text-danger"><i class="fas fa-sign-out-alt me-2"></i> লগআউট</a>
-        <a href="index.html" class="bg-dark"><i class="fas fa-home me-2"></i> সাইটে ফিরে যান</a>
+        <div class="sidebar-nav">
+            <a href="admin.html" class="active"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
+            <a href="admin-products.html"><i class="fas fa-box"></i> <span>পণ্য</span></a>
+            <a href="admin-orders.html"><i class="fas fa-shopping-cart"></i> <span>অর্ডার</span></a>
+            <a href="admin-reports.html"><i class="fas fa-chart-bar"></i> <span>রিপোর্ট</span></a>
+        </div>
+        <div class="mt-auto border-top border-secondary border-opacity-25">
+            <a href="index.html" class="text-info"><i class="fas fa-home"></i> <span>সাইটে ফিরে যান</span></a>
+            <a href="#" id="logout-btn" class="text-danger"><i class="fas fa-sign-out-alt"></i> <span>লগআউট</span></a>
+        </div>
     </div>
 
     <!-- Content -->
-    <div class="content">
+    <div class="content" id="adminContent">
         <!-- Header -->
         <nav class="d-flex justify-content-between align-items-center mb-4 bg-white shadow-sm p-3 rounded-3">
-            <div>
-                <h4 class="m-0 fw-bold text-dark">ড্যাশবোর্ড ওভারভিউ</h4>
-                <small class="text-muted">স্বাগতম ফিরে এসেছেন, অ্যাডমিন</small>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-light me-3 d-none d-md-block" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="btn btn-light me-3 d-md-none" id="sidebarToggleMobile">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h4 class="m-0 fw-bold text-dark">ড্যাশবোর্ড ওভারভিউ</h4>
+                    <small class="text-muted">স্বাগতম ফিরে এসেছেন, অ্যাডমিন</small>
+                </div>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-outline-secondary rounded-circle" id="theme-toggle" title="Toggle Dark Mode">
@@ -183,9 +269,62 @@
             </div>
         </div>
 
-        <!-- Recent Activity / Quick Actions -->
+        <!-- Recent Activity / Quick Actions / Top Selling -->
         <div class="row g-4">
             <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom-0">
+                        <h5 class="mb-0 fw-bold">জনপ্রিয় পণ্য (Top Selling)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-muted small">
+                                <tr>
+                                    <th class="ps-4">পণ্য</th>
+                                    <th>ক্যাটাগরি</th>
+                                    <th>বিক্রয়</th>
+                                    <th>আয়</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-1 me-2"><i class="fas fa-jar text-warning"></i></div>
+                                            <span class="fw-bold">অর্গানিক মধু</span>
+                                        </div>
+                                    </td>
+                                    <td>Honey</td>
+                                    <td>120 ইউনিট</td>
+                                    <td class="fw-bold text-success">৳102,000</td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-1 me-2"><i class="fas fa-bottle-droplet text-warning"></i></div>
+                                            <span class="fw-bold">প্রিমিয়াম ঘি</span>
+                                        </div>
+                                    </td>
+                                    <td>Ghee</td>
+                                    <td>85 ইউনিট</td>
+                                    <td class="fw-bold text-success">৳102,000</td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-1 me-2"><i class="fas fa-seedling text-success"></i></div>
+                                            <span class="fw-bold">চিয়া সিড</span>
+                                        </div>
+                                    </td>
+                                    <td>Super Food</td>
+                                    <td>200 ইউনিট</td>
+                                    <td class="fw-bold text-success">৳90,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="card border-0 shadow-sm rounded-3">
                     <div class="card-header bg-white py-3 border-bottom-0">
                         <h5 class="mb-0 fw-bold">সাম্প্রতিক সিস্টেম কার্যকলাপ</h5>

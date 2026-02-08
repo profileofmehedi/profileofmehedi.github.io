@@ -1,5 +1,22 @@
 $(document).ready(function() {
     
+    // --- Sidebar Toggle Logic ---
+    $('#sidebarToggle').click(function() {
+        $('#adminSidebar').toggleClass('collapsed');
+        $('#adminContent').toggleClass('expanded');
+    });
+
+    $('#sidebarToggleMobile').click(function() {
+        $('#adminSidebar').toggleClass('mobile-show');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    $(document).click(function(event) {
+        if (!$(event.target).closest('#adminSidebar, #sidebarToggleMobile').length) {
+            $('#adminSidebar').removeClass('mobile-show');
+        }
+    });
+
     // --- 0. Theme Toggle Logic ---
     const themeToggleBtn = $('#theme-toggle');
     const body = $('body');
@@ -49,17 +66,27 @@ $(document).ready(function() {
     if (isLoginPage) {
         $('#login-form').submit(function(e) {
             e.preventDefault();
+            const btn = $(this).find('button[type="submit"]');
+            const originalText = btn.html();
+            
+            // Show Loading
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>অপেক্ষা করুন...');
+
             const email = $('#email').val();
             const password = $('#password').val();
-            if (email === 'admin@naturo.com' && password === 'admin123') {
-                localStorage.setItem('adminLoggedIn', 'true');
-                if (!localStorage.getItem('naturo_products')) localStorage.setItem('naturo_products', JSON.stringify(demoProducts));
-                if (!localStorage.getItem('naturo_orders')) localStorage.setItem('naturo_orders', JSON.stringify(demoOrders));
 
-                Swal.fire({ icon: 'success', title: 'লগইন সফল', showConfirmButton: false, timer: 1500 }).then(() => window.location.href = 'admin.html');
-            } else {
-                Swal.fire({ icon: 'error', title: 'লগইন ব্যর্থ', text: 'ভুল ইমেইল বা পাসওয়ার্ড।' });
-            }
+            setTimeout(() => {
+                if (email === 'admin@appxenmart.com' && password === 'admin123') {
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    if (!localStorage.getItem('appxen_products')) localStorage.setItem('appxen_products', JSON.stringify(demoProducts));
+                    if (!localStorage.getItem('appxen_orders')) localStorage.setItem('appxen_orders', JSON.stringify(demoOrders));
+                    
+                    window.location.href = 'admin.html';
+                } else {
+                    btn.prop('disabled', false).html(originalText);
+                    alert('লগইন ব্যর্থ: ভুল ইমেইল বা পাসওয়ার্ড।');
+                }
+            }, 1000); // 1 second artificial delay for loading feel
         });
         return;
     }
@@ -73,28 +100,28 @@ $(document).ready(function() {
 
     // --- 2. Data Initialization ---
     function getProducts() {
-        const stored = localStorage.getItem('naturo_products');
+        const stored = localStorage.getItem('appxen_products');
         let products = stored ? JSON.parse(stored) : demoProducts;
         return products.map(p => ({ ...p, stock: p.stock !== undefined ? p.stock : 20 }));
     }
 
     function saveProducts(products) {
-        localStorage.setItem('naturo_products', JSON.stringify(products));
+        localStorage.setItem('appxen_products', JSON.stringify(products));
         updateDashboardStats(); 
     }
 
     function getOrders() {
-        const stored = localStorage.getItem('naturo_orders');
+        const stored = localStorage.getItem('appxen_orders');
         return stored ? JSON.parse(stored) : demoOrders;
     }
 
     function saveOrders(orders) {
-        localStorage.setItem('naturo_orders', JSON.stringify(orders));
+        localStorage.setItem('appxen_orders', JSON.stringify(orders));
         updateDashboardStats();
     }
     
-    if (!localStorage.getItem('naturo_products')) saveProducts(demoProducts);
-    if (!localStorage.getItem('naturo_orders')) saveOrders(demoOrders);
+    if (!localStorage.getItem('appxen_products')) saveProducts(demoProducts);
+    if (!localStorage.getItem('appxen_orders')) saveOrders(demoOrders);
 
 
     // --- Helper: Update Stats ---
@@ -215,13 +242,28 @@ $(document).ready(function() {
             const price = parseFloat($('#productPrice').val());
             const stock = parseInt($('#productStock').val()) || 0;
             const image = $('#productImage').val() || 'https://placehold.co/300x300?text=New+Product'; 
+            
+            // New Fields
+            const description = $('#productDescription').val() || 'কোন বিবরণ উপলব্ধ নেই।';
+            const galleryText = $('#productGallery').val();
+            const gallery = galleryText ? galleryText.split(',').map(url => url.trim()) : [];
+            if(image) gallery.unshift(image); // Add main image to gallery start if not duplicate logic
+
+            const specs = {
+                origin: $('#specOrigin').val() || 'বাংলাদেশ',
+                packaging: $('#specPackaging').val() || 'স্ট্যান্ডার্ড',
+                expiry: $('#specExpiry').val() || 'প্রযোজ্য নয়'
+            };
 
             if (!name || !price) { Swal.fire('ত্রুটি', 'নাম এবং মূল্য আবশ্যক', 'error'); return; }
 
             const newProduct = {
                 id: getProducts().length > 0 ? Math.max(...getProducts().map(p => p.id)) + 1 : 1,
                 name: name, category: category, price: price, original_price: price * 1.2, 
-                image: image, rating: 0, stock: stock
+                image: image, rating: 0, stock: stock,
+                description: description,
+                gallery: gallery,
+                specs: specs
             };
             const currentProducts = getProducts();
             currentProducts.push(newProduct);
@@ -290,7 +332,7 @@ $(document).ready(function() {
              const { jsPDF } = window.jspdf;
              const doc = new jsPDF();
              
-             doc.text("NaturoBD Order Report", 14, 15);
+             doc.text("AppXen Mart Order Report", 14, 15);
              doc.autoTable({
                  head: [['ID', 'Customer', 'Date', 'Total', 'Status']],
                  body: getOrders().map(o => [o.id, o.customer, o.date, o.total, o.status]),
@@ -333,7 +375,7 @@ $(document).ready(function() {
              // Header
              doc.setFontSize(22);
              doc.setTextColor(76, 175, 80); // Naturo Green
-             doc.text("NaturoBD", 14, 20);
+             doc.text("AppXen Mart", 14, 20);
              
              doc.setFontSize(12);
              doc.setTextColor(0, 0, 0);
@@ -398,6 +440,130 @@ $(document).ready(function() {
                     $('#viewOrderModal').modal('hide');
                 }
             }
+        });
+    }
+
+    // --- 6. Reports Page Logic ---
+    if ($('#monthlySalesChart').length) {
+        // Sales Chart
+        const ctxSales = document.getElementById('monthlySalesChart').getContext('2d');
+        new Chart(ctxSales, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'বিক্রয় (৳)',
+                    data: [12000, 19000, 30000, 50000, 20000, 45000],
+                    backgroundColor: '#198754',
+                    borderRadius: 5
+                }, {
+                    label: 'অর্ডার সংখ্যা',
+                    data: [15, 25, 40, 65, 30, 55],
+                    backgroundColor: '#0dcaf0',
+                    yAxisID: 'y1',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, type: 'linear', position: 'left' },
+                    y1: { beginAtZero: true, type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+
+        // Stock Pie Chart
+        const products = getProducts();
+        const categories = {};
+        products.forEach(p => { categories[p.category] = (categories[p.category] || 0) + p.stock; });
+        
+        const ctxStock = document.getElementById('stockPieChart').getContext('2d');
+        new Chart(ctxStock, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(categories),
+                datasets: [{
+                    data: Object.values(categories),
+                    backgroundColor: ['#4CAF50', '#8D6E63', '#FFC107', '#2196F3', '#9C27B0', '#00BCD4']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Profit Chart
+        const ctxProfit = document.getElementById('profitChart').getContext('2d');
+        new Chart(ctxProfit, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'মোট আয় (Revenue)',
+                    data: [12000, 19000, 30000, 50000, 20000, 45000],
+                    borderColor: '#198754',
+                    tension: 0.4,
+                    fill: false
+                }, {
+                    label: 'নিট মুনাফা (Net Profit)',
+                    data: [4000, 7000, 12000, 22000, 8000, 18000],
+                    borderColor: '#0dcaf0',
+                    tension: 0.4,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Category Sales Chart
+        const ctxCatSales = document.getElementById('categorySalesChart').getContext('2d');
+        new Chart(ctxCatSales, {
+            type: 'bar',
+            data: {
+                labels: ['Honey', 'Ghee', 'Nuts', 'Oil', 'Super Food'],
+                datasets: [{
+                    label: 'বিক্রয় (ইউনিট)',
+                    data: [120, 85, 150, 90, 200],
+                    backgroundColor: ['#ffc107', '#fd7e14', '#20c997', '#6610f2', '#d63384'],
+                    borderRadius: 5
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Populate Top Categories List
+        const topCats = [
+            { name: 'Super Food', sales: 200, growth: '+15%' },
+            { name: 'Nuts', sales: 150, growth: '+8%' },
+            { name: 'Honey', sales: 120, growth: '+12%' },
+            { name: 'Oil', sales: 90, growth: '+5%' }
+        ];
+        const catList = $('#topCategoriesList');
+        catList.empty();
+        topCats.forEach(cat => {
+            catList.append(`
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                    <div>
+                        <span class="fw-bold d-block">${cat.name}</span>
+                        <small class="text-muted">${cat.sales} ইউনিট বিক্রয়</small>
+                    </div>
+                    <span class="badge bg-success rounded-pill">${cat.growth}</span>
+                </li>
+            `);
+        });
+
+        // Low Stock Table
+        const lowStock = products.filter(p => p.stock < 10);
+        const tbody = $('#lowStockTableBody');
+        tbody.empty();
+        lowStock.forEach(p => {
+            tbody.append(`
+                <tr>
+                    <td><span class="fw-bold text-dark">${p.name}</span></td>
+                    <td>${p.stock}</td>
+                    <td><span class="badge bg-danger">Critical</span></td>
+                </tr>
+            `);
         });
     }
 
