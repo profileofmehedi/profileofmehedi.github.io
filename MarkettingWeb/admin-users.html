@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | AppXen Mart Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .sidebar { background-color: #1a1d21 !important; color: #adb5bd !important; height: 100vh; position: fixed; top: 0; left: 0; width: 260px; z-index: 1000; transition: 0.3s; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+        .sidebar.collapsed { width: 80px; }
+        .sidebar a { padding: 12px 25px; text-decoration: none; color: #adb5bd !important; display: flex; align-items: center; transition: 0.2s; white-space: nowrap; overflow: hidden; }
+        .sidebar a i { font-size: 1.2rem; width: 30px; margin-right: 15px; text-align: center; color: #adb5bd; }
+        .sidebar.collapsed a i { margin-right: 0; width: 100%; }
+        .sidebar.collapsed a span, .sidebar.collapsed .logo-full { display: none; }
+        .sidebar.collapsed .logo-short { display: block !important; }
+        .sidebar a:hover { background-color: rgba(255, 255, 255, 0.05); color: #ffffff !important; }
+        .sidebar a:hover i { color: #ffffff; }
+        .sidebar a.active { background-color: #198754 !important; color: #ffffff !important; }
+        .sidebar a.active i { color: #ffffff; }
+        .content { margin-left: 260px; padding: 30px; background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; transition: 0.3s; }
+        .content.expanded { margin-left: 80px; }
+        @media (max-width: 768px) { .sidebar { left: -260px; width: 260px; } .sidebar.mobile-show { left: 0; } .content { margin-left: 0 !important; padding: 15px; } }
+        [data-theme="dark"] .bg-white { background-color: var(--card-bg) !important; }
+        [data-theme="dark"] .text-dark { color: var(--text-color) !important; }
+        .role-badge-admin { background-color: #dc3545; color: white; }
+        .role-badge-editor { background-color: #0dcaf0; color: white; }
+        .role-badge-viewer { background-color: #6c757d; color: white; }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column" id="adminSidebar">
+        <div class="sidebar-header text-center mb-4 pt-3">
+            <h3 class="fw-bold fs-4 logo-full"><i class="fas fa-chart-line text-success"></i> AppXen Mart</h3>
+            <h3 class="fw-bold fs-4 logo-short d-none"><i class="fas fa-chart-line text-success"></i></h3>
+        </div>
+        <div class="sidebar-nav">
+            <a href="admin.html"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
+            <a href="admin-products.html"><i class="fas fa-box"></i> <span>পণ্য</span></a>
+            <a href="admin-orders.html"><i class="fas fa-shopping-cart"></i> <span>অর্ডার</span></a>
+            <a href="admin-reports.html"><i class="fas fa-chart-bar"></i> <span>রিপোর্ট</span></a>
+            <a href="admin-users.html" class="active"><i class="fas fa-users-cog"></i> <span>ব্যবহারকারী</span></a>
+            <a href="admin-system.html"><i class="fas fa-cogs"></i> <span>সিস্টেম সেটিংস</span></a>
+        </div>
+        <div class="mt-auto border-top border-secondary border-opacity-25">
+            <a href="index.html" class="text-info"><i class="fas fa-home"></i> <span>সাইটে ফিরে যান</span></a>
+            <a href="#" id="logout-btn" class="text-danger"><i class="fas fa-sign-out-alt"></i> <span>লগআউট</span></a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content" id="adminContent">
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-white shadow-sm p-3 rounded-3">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-light me-3 d-none d-md-block" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <button class="btn btn-light me-3 d-md-none" id="sidebarToggleMobile"><i class="fas fa-bars"></i></button>
+                <div><h4 class="m-0 fw-bold text-dark">ব্যবহারকারী ব্যবস্থাপনা</h4><small class="text-muted">টিম মেম্বার এবং রোল কন্ট্রোল</small></div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary rounded-circle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+                <div class="text-end d-none d-md-block"><span class="d-block fw-bold text-dark">অ্যাডমিন ইউজার</span><small class="text-muted">সুপার অ্যাডমিন</small></div>
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff" class="rounded-circle shadow-sm" width="45">
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="fas fa-users me-2 text-success"></i>ব্যবহারকারীর তালিকা</h5>
+                <button class="btn btn-success btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fas fa-user-plus me-1"></i> নতুন ইউজার</button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0" id="usersTable">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">নাম</th>
+                            <th>ইমেইল</th>
+                            <th>রোল (Role)</th>
+                            <th>স্ট্যাটাস</th>
+                            <th class="text-end pe-4">অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4 fw-bold"><img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff" class="rounded-circle me-2" width="30"> অ্যাডমিন ইউজার</td>
+                            <td>admin@appxenmart.com</td>
+                            <td><span class="badge role-badge-admin rounded-pill">Super Admin</span></td>
+                            <td><span class="badge bg-success bg-opacity-10 text-success">Active</span></td>
+                            <td class="text-end pe-4"><button class="btn btn-sm btn-light text-muted disabled"><i class="fas fa-lock"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4 fw-bold"><img src="https://ui-avatars.com/api/?name=Manager&background=random" class="rounded-circle me-2" width="30"> ম্যানেজার করিম</td>
+                            <td>manager@appxenmart.com</td>
+                            <td><span class="badge role-badge-editor rounded-pill">Editor</span></td>
+                            <td><span class="badge bg-success bg-opacity-10 text-success">Active</span></td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-light text-primary me-1"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header bg-success text-white border-0">
+                    <h5 class="modal-title fw-bold">নতুন ইউজার তৈরি করুন</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">পুরো নাম</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">ইমেইল ঠিকানা</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">পাসওয়ার্ড</label>
+                            <input type="password" class="form-control" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">রোল নির্বাচন করুন</label>
+                            <select class="form-select">
+                                <option value="Admin">অ্যাডমিন (Admin)</option>
+                                <option value="Editor">এডিটর (Editor)</option>
+                                <option value="Viewer">ভিউয়ার (Viewer)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold">তৈরি করুন</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/admin.js"></script>
+    <script>
+        $('#addUserForm').on('submit', function(e) {
+            e.preventDefault();
+            $('#addUserModal').modal('hide');
+            Swal.fire({ title: 'সফল!', text: 'নতুন ইউজার তৈরি করা হয়েছে।', icon: 'success', confirmButtonColor: '#198754' });
+            this.reset();
+        });
+    </script>
+</body>
+</html>
