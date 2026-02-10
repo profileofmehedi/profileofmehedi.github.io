@@ -133,8 +133,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    window.addEventListener('scroll', scrollActive);
+    window.addEventListener('scroll', () => {
+        scrollActive();
+        updateScrollProgress();
+    });
+    
     scrollActive(); // Initial check
+
+    // =========================================
+    // 3. SCROLL PROGRESS BAR
+    // =========================================
+    const progressBar = document.getElementById('scrollProgress');
+
+    function updateScrollProgress() {
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPosition = window.pageYOffset;
+        const progress = (scrollPosition / totalHeight) * 100;
+        if (progressBar) {
+            progressBar.style.width = progress + '%';
+        }
+    }
 
     // =========================================
     // 3. MOBILE MENU
