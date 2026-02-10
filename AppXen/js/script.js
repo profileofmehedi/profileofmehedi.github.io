@@ -91,21 +91,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 5000); // 5 seconds
             }
         
-            if (slider) {
-                dots.forEach((dot, index) => {
-                    dot.addEventListener('click', () => {
-                        showTestimonial(index);
-                        clearInterval(autoSlideInterval);
+                    if (slider) {
+                        dots.forEach((dot, index) => {
+                            dot.addEventListener('click', () => {
+                                showTestimonial(index);
+                                clearInterval(autoSlideInterval);
+                                startAutoSlide();
+                            });
+                        });
                         startAutoSlide();
-                    });
+                    }
+                
                 });
-                startAutoSlide();
-            }
-        
-        });
-        
-
-    // =========================================
+                    // =========================================
     // 3. ANIMATED STATISTICS
     // =========================================
     const stats = document.querySelectorAll('.stat-number');
