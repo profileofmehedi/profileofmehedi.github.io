@@ -1,7 +1,98 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     // =========================================
-    // 1. SUBTLE PARTICLE BACKGROUND
+    // 1. THEME TOGGLE
+    // =========================================
+    const themeToggle = document.querySelector('.theme-toggle');
+    const storedTheme = localStorage.getItem('theme');
+    
+    // Check local storage or system preference
+    if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        if(themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            let targetTheme = 'light';
+            
+            if (currentTheme !== 'dark') {
+                targetTheme = 'dark';
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+            
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            localStorage.setItem('theme', targetTheme);
+        });
+    }
+
+    // =========================================
+    // 2. MAGNETIC BUTTONS
+    // =========================================
+    const buttons = document.querySelectorAll('.btn');
+    
+    buttons.forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const deltaX = (x - centerX) / 8; // Adjust strength
+            const deltaY = (y - centerY) / 8;
+
+            btn.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'translate(0, 0)';
+        });
+    });
+
+    // =========================================
+    // 3. ANIMATED STATISTICS
+    // =========================================
+    const stats = document.querySelectorAll('.stat-number');
+    let hasAnimatedStats = false;
+
+    function animateStats() {
+        stats.forEach(stat => {
+            const target = +stat.getAttribute('data-target');
+            const duration = 2000; // 2 seconds
+            const increment = target / (duration / 16); // 60fps
+
+            let current = 0;
+            const updateCount = () => {
+                current += increment;
+                if (current < target) {
+                    stat.innerText = Math.ceil(current);
+                    requestAnimationFrame(updateCount);
+                } else {
+                    stat.innerText = target + "+"; // Add suffix
+                }
+            };
+            updateCount();
+        });
+    }
+
+    const statsSection = document.querySelector('.stats-container');
+    if (statsSection) {
+        const statsObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !hasAnimatedStats) {
+                animateStats();
+                hasAnimatedStats = true;
+            }
+        });
+        statsObserver.observe(statsSection);
+    }
+
+    // =========================================
+    // 4. PARTICLE BACKGROUND
     // =========================================
     const canvas = document.getElementById('hero-canvas');
     if (canvas) {
@@ -25,7 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.vx = (Math.random() - 0.5) * 0.4;
                 this.vy = (Math.random() - 0.5) * 0.4;
                 this.size = Math.random() * 2 + 1;
-                this.color = `rgba(37, 99, 235, ${Math.random() * 0.15 + 0.05})`; 
+                // Use CSS variable for color adaptation
+                this.color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#3b82f6';
             }
 
             update() {
@@ -38,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
+                ctx.fillStyle = `rgba(59, 130, 246, 0.2)`; // Hardcoded subtle blue for consistency
                 ctx.fill();
             }
         }
@@ -68,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     if (distance < connectionDistance) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(37, 99, 235, ${0.1 * (1 - distance / connectionDistance)})`;
+                        ctx.strokeStyle = `rgba(59, 130, 246, ${0.1 * (1 - distance / connectionDistance)})`;
                         ctx.lineWidth = 0.5;
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
@@ -103,98 +195,77 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================
-    // 2. NAVBAR SCROLL & SCROLLSPY
+    // 5. UTILITIES (Scroll, Menu, Reveal)
     // =========================================
     const navbar = document.querySelector('.navbar');
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    function scrollActive() {
+    const backToTopBtn = document.getElementById('backToTop');
+    const progressBar = document.getElementById('scrollProgress');
+    const menuBtn = document.querySelector('.menu-btn');
+    const navLinksContainer = document.querySelector('.nav-links');
+    
+    // Scroll Handler
+    window.addEventListener('scroll', () => {
         const scrollY = window.pageYOffset;
+        
+        // Navbar
+        if (scrollY > 50) navbar.classList.add('scrolled');
+        else navbar.classList.remove('scrolled');
 
-        // Navbar scrolled state
-        if (scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
+        // Back to Top
+        if (scrollY > 300) backToTopBtn.classList.add('show');
+        else backToTopBtn.classList.remove('show');
+
+        // Progress Bar
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (scrollY / totalHeight) * 100;
+        if (progressBar) progressBar.style.width = progress + '%';
 
         // ScrollSpy
-        sections.forEach(current => {
+        document.querySelectorAll('section[id]').forEach(current => {
             const sectionHeight = current.offsetHeight;
             const sectionTop = current.offsetTop - 100;
             const sectionId = current.getAttribute('id');
-
             if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
                 document.querySelector('.nav-links a[href*=' + sectionId + ']')?.classList.add('active');
             } else {
                 document.querySelector('.nav-links a[href*=' + sectionId + ']')?.classList.remove('active');
             }
         });
-    }
-
-    window.addEventListener('scroll', () => {
-        scrollActive();
-        updateScrollProgress();
     });
-    
-    scrollActive(); // Initial check
 
-    // =========================================
-    // 3. SCROLL PROGRESS BAR
-    // =========================================
-    const progressBar = document.getElementById('scrollProgress');
-
-    function updateScrollProgress() {
-        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const scrollPosition = window.pageYOffset;
-        const progress = (scrollPosition / totalHeight) * 100;
-        if (progressBar) {
-            progressBar.style.width = progress + '%';
-        }
-    }
-
-    // =========================================
-    // 3. MOBILE MENU
-    // =========================================
-    const menuBtn = document.querySelector('.menu-btn');
-    const navLinksContainer = document.querySelector('.nav-links');
-    const navItems = document.querySelectorAll('.nav-link');
-
+    // Mobile Menu
     if (menuBtn) {
         menuBtn.addEventListener('click', () => {
-            const isOpen = navLinksContainer.classList.contains('active');
-            if (isOpen) {
-                navLinksContainer.classList.remove('active');
-                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                document.body.style.overflow = 'auto';
-            } else {
-                navLinksContainer.classList.add('active');
-                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
-                document.body.style.overflow = 'hidden'; // Prevent scroll when menu is open
-            }
+            navLinksContainer.classList.toggle('active');
+            menuBtn.innerHTML = navLinksContainer.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
         });
     }
-
-    // Close menu when clicking a link
-    navItems.forEach(item => {
+    
+    document.querySelectorAll('.nav-link').forEach(item => {
         item.addEventListener('click', () => {
             navLinksContainer.classList.remove('active');
-            if (menuBtn) {
-                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                document.body.style.overflow = 'auto';
-            }
+            if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
         });
     });
 
-    // =========================================
-    // 4. INTERSECTION OBSERVER (REVEAL)
-    // =========================================
-    const observerOptions = {
-        threshold: 0.15,
-        rootMargin: "0px 0px -50px 0px"
-    };
+    // 3D Tilt for Cards
+    document.querySelectorAll('.glass-card, .mockup-container, .stat-item, .bento-item').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -5;
+            const rotateY = ((x - centerX) / centerX) * 5;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+        });
+    });
 
+    // Reveal Animation
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -202,44 +273,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 revealObserver.unobserve(entry.target);
             }
         });
-    }, observerOptions);
-
+    }, { threshold: 0.1 });
+    
     document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-    // =========================================
-    // 5. FAQ ACCORDION
-    // =========================================
-    const faqItems = document.querySelectorAll('.faq-item');
-    faqItems.forEach(item => {
-        const header = item.querySelector('.faq-header');
-                header.addEventListener('click', () => {
-                    const isActive = item.classList.contains('active');
-                    faqItems.forEach(i => i.classList.remove('active'));
-                    if (!isActive) item.classList.add('active');
-                });
-            });
-        
-            // =========================================
-            // 6. BACK TO TOP
-            // =========================================
-            const backToTopBtn = document.getElementById('backToTop');
-        
-            function toggleBackToTop() {
-                if (window.pageYOffset > 300) {
-                    backToTopBtn.classList.add('show');
-                } else {
-                    backToTopBtn.classList.remove('show');
-                }
-            }
-        
-            window.addEventListener('scroll', toggleBackToTop);
-        
-            backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-        
+    // Back to Top Click
+    if(backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-        
+    }
+
+    // FAQ Accordion
+    document.querySelectorAll('.faq-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const item = header.parentElement;
+            const isActive = item.classList.contains('active');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+            if (!isActive) item.classList.add('active');
+        });
+    });
+});
