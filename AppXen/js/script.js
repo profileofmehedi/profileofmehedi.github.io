@@ -51,8 +51,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btn.addEventListener('mouseleave', () => {
             btn.style.transform = 'translate(0, 0)';
+            });
+        
+            // =========================================
+            // 7. PRE-LOADER
+            // =========================================
+            const loader = document.getElementById('preloader');
+            if (loader) {
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        loader.style.opacity = '0';
+                        loader.style.visibility = 'hidden';
+                    }, 500); // Small delay for polish
+                });
+            }
+        
+            // =========================================
+            // 8. TESTIMONIALS CAROUSEL
+            // =========================================
+            const slider = document.querySelector('.testimonial-slider');
+            const items = document.querySelectorAll('.testimonial-item');
+            const dots = document.querySelectorAll('.testimonial-dots .dot');
+            let currentIndex = 0;
+            let autoSlideInterval;
+        
+            function showTestimonial(index) {
+                if (slider) {
+                    slider.style.transform = `translateX(-${index * 100}%)`;
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    dots[index].classList.add('active');
+                    currentIndex = index;
+                }
+            }
+        
+            function startAutoSlide() {
+                autoSlideInterval = setInterval(() => {
+                    let nextIndex = (currentIndex + 1) % items.length;
+                    showTestimonial(nextIndex);
+                }, 5000); // 5 seconds
+            }
+        
+            if (slider) {
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        showTestimonial(index);
+                        clearInterval(autoSlideInterval);
+                        startAutoSlide();
+                    });
+                });
+                startAutoSlide();
+            }
+        
         });
-    });
+        
 
     // =========================================
     // 3. ANIMATED STATISTICS
