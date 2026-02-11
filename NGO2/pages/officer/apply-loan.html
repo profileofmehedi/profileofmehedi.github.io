@@ -1,119 +1,1962 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apply New Loan - Field Officer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="../../assets/css/style.css" rel="stylesheet">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Loan Application - Field Officer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+      rel="stylesheet"
+    />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .application-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+      }
+      .step-wizard {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+      }
+      .step-wizard::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #dee2e6;
+        z-index: 0;
+      }
+      .step {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .step.active {
+        background: #007bff;
+        border-color: #007bff;
+        color: white;
+      }
+      .step.completed {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+      }
+      .step-content {
+        display: none;
+      }
+      .step-content.active {
+        display: block;
+      }
+      .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+      }
+      .section-title {
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .calculation-card {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+      .document-upload {
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .document-upload:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+      }
+      .guarantor-card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+      }
+      .select2-container {
+        width: 100% !important;
+      }
+      .btn-wizard {
+        min-width: 120px;
+      }
+      .field-required::after {
+        content: " *";
+        color: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar"></div>
 
-<div class="sidebar"></div>
+    <div class="main-content">
+      <div id="topNavbar" class="navbar-custom"></div>
 
-<div class="main-content">
-    <div id="topNavbar" class="navbar-custom"></div>
-
-    <div class="container-fluid">
-        <div class="row justify-content-center">
+      <div class="container-fluid">
+        <!-- Application Header -->
+        <div class="application-header">
+          <div class="row align-items-center">
             <div class="col-md-8">
-                <div class="card-box">
-                    <h5 class="mb-4">Loan Application Form</h5>
-                    <form id="loanAppForm">
-                        <div class="mb-3">
-                            <label class="form-label">Member Selection</label>
-                            <select id="lMember" class="form-select" required></select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Loan Product Scheme</label>
-                            <select id="lProduct" class="form-select" required></select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Requested Principal Amount (৳)</label>
-                            <input type="number" id="lAmount" class="form-control" required placeholder="Enter amount">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Purpose of Loan</label>
-                            <input type="text" id="lPurpose" class="form-control" placeholder="e.g. Small Business, Agriculture">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Preferred Start Date</label>
-                            <input type="date" id="lDate" class="form-control" required>
-                        </div>
-                        <div class="alert alert-warning" id="productInfo" style="display:none">
-                            <small id="productDetails"></small>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Submit Application for Review</button>
-                    </form>
-                </div>
+              <h3 class="mb-0">
+                <i class="fas fa-file-contract me-2"></i>Advanced Loan
+                Application
+              </h3>
+              <p class="mb-0 opacity-75">
+                Complete the multi-step loan application process
+              </p>
             </div>
+            <div class="col-md-4 text-end">
+              <button class="btn btn-light btn-sm" id="saveDraft">
+                <i class="fas fa-save me-1"></i>Save Draft
+              </button>
+              <button class="btn btn-warning btn-sm ms-2" id="loadDraft">
+                <i class="fas fa-folder-open me-1"></i>Load Draft
+              </button>
+            </div>
+          </div>
         </div>
+
+        <!-- Step Wizard -->
+        <div class="step-wizard">
+          <div class="step active" data-step="1">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="step" data-step="2">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="step" data-step="3">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="step" data-step="4">
+            <i class="fas fa-file-upload"></i>
+          </div>
+          <div class="step" data-step="5">
+            <i class="fas fa-check-circle"></i>
+          </div>
+        </div>
+
+        <form id="loanApplicationForm">
+          <!-- Step 1: Member & Basic Information -->
+          <div class="step-content active" id="step1">
+            <div class="row justify-content-center">
+              <div class="col-lg-10">
+                <div class="form-section">
+                  <h5 class="section-title">
+                    <i class="fas fa-user me-2"></i>Member & Basic Information
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Select Member</label
+                      >
+                      <select id="lMember" class="form-select" required>
+                        <option value="">Choose a member...</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Member Since</label>
+                      <input
+                        type="text"
+                        id="memberSince"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row" id="memberInfo" style="display: none">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Phone Number</label>
+                      <input
+                        type="text"
+                        id="memberPhone"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Email</label>
+                      <input
+                        type="text"
+                        id="memberEmail"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Branch</label>
+                      <input
+                        type="text"
+                        id="memberBranch"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Application Date</label
+                      >
+                      <input
+                        type="date"
+                        id="applicationDate"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Preferred Start Date</label
+                      >
+                      <input
+                        type="date"
+                        id="lDate"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label field-required"
+                      >Loan Purpose Category</label
+                    >
+                    <select id="loanCategory" class="form-select" required>
+                      <option value="">Select loan purpose...</option>
+                      <option value="business">Business Development</option>
+                      <option value="agriculture">Agriculture</option>
+                      <option value="education">Education</option>
+                      <option value="housing">Housing Improvement</option>
+                      <option value="emergency">Emergency</option>
+                      <option value="livestock">Livestock</option>
+                      <option value="equipment">Equipment Purchase</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label field-required"
+                      >Detailed Purpose Description</label
+                    >
+                    <textarea
+                      id="lPurpose"
+                      class="form-control"
+                      rows="3"
+                      required
+                      placeholder="Describe in detail what the loan will be used for..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Loan Details & Financial Information -->
+          <div class="step-content" id="step2">
+            <div class="row justify-content-center">
+              <div class="col-lg-10">
+                <div class="form-section">
+                  <h5 class="section-title">
+                    <i class="fas fa-money-bill-wave me-2"></i>Loan Product &
+                    Amount
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Loan Product Scheme</label
+                      >
+                      <select id="lProduct" class="form-select" required>
+                        <option value="">Select loan product...</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Requested Principal Amount (৳)</label
+                      >
+                      <input
+                        type="number"
+                        id="lAmount"
+                        class="form-control"
+                        required
+                        placeholder="Enter loan amount"
+                        min="0"
+                        step="100"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    class="alert alert-info"
+                    id="productInfo"
+                    style="display: none"
+                  >
+                    <div id="productDetails"></div>
+                  </div>
+
+                  <div
+                    class="calculation-card"
+                    id="calculationCard"
+                    style="display: none"
+                  >
+                    <h6 class="mb-3">
+                      <i class="fas fa-calculator me-2"></i>Loan Calculation
+                    </h6>
+                    <div class="row">
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <h4 id="calcPrincipal">৳0</h4>
+                          <small>Principal Amount</small>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <h4 id="calcInterest">৳0</h4>
+                          <small>Total Interest</small>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <h4 id="calcTotal">৳0</h4>
+                          <small>Total Repayment</small>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <h4 id="calcInstallment">৳0</h4>
+                          <small>Per Installment</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <h5 class="section-title">
+                    <i class="fas fa-chart-line me-2"></i>Financial Information
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Monthly Income (৳)</label
+                      >
+                      <input
+                        type="number"
+                        id="monthlyIncome"
+                        class="form-control"
+                        required
+                        placeholder="Total monthly income"
+                        min="0"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Monthly Expenses (৳)</label
+                      >
+                      <input
+                        type="number"
+                        id="monthlyExpenses"
+                        class="form-control"
+                        required
+                        placeholder="Total monthly expenses"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Other Loan EMI (৳)</label>
+                      <input
+                        type="number"
+                        id="otherEmi"
+                        class="form-control"
+                        placeholder="Monthly EMI for other loans"
+                        min="0"
+                        value="0"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Savings/Deposits (৳)</label>
+                      <input
+                        type="number"
+                        id="savings"
+                        class="form-control"
+                        placeholder="Current savings amount"
+                        min="0"
+                        value="0"
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label field-required"
+                        >Primary Income Source</label
+                      >
+                      <select id="incomeSource" class="form-select" required>
+                        <option value="">Select income source...</option>
+                        <option value="salary">Salary/Employment</option>
+                        <option value="business">Business</option>
+                        <option value="agriculture">Agriculture</option>
+                        <option value="freelance">Freelancing</option>
+                        <option value="pension">Pension</option>
+                        <option value="rental">Property Rental</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label"
+                        >Years in Current Income Source</label
+                      >
+                      <input
+                        type="number"
+                        id="incomeYears"
+                        class="form-control"
+                        placeholder="Number of years"
+                        min="0"
+                        step="0.5"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    class="alert alert-warning"
+                    id="financialAlert"
+                    style="display: none"
+                  >
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="financialAlertText"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Guarantor Information -->
+          <div class="step-content" id="step3">
+            <div class="row justify-content-center">
+              <div class="col-lg-10">
+                <div class="form-section">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-3"
+                  >
+                    <h5 class="section-title mb-0">
+                      <i class="fas fa-users me-2"></i>Guarantor Information
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm"
+                      id="addGuarantor"
+                    >
+                      <i class="fas fa-plus me-1"></i>Add Guarantor
+                    </button>
+                  </div>
+
+                  <div id="guarantorsContainer">
+                    <div class="guarantor-card" data-guarantor="1">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-3"
+                      >
+                        <h6><i class="fas fa-user me-2"></i>Guarantor #1</h6>
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger btn-sm remove-guarantor"
+                          style="display: none"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label field-required"
+                            >Full Name</label
+                          >
+                          <input
+                            type="text"
+                            class="form-control guarantor-name"
+                            required
+                            placeholder="Guarantor full name"
+                          />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label field-required"
+                            >Phone Number</label
+                          >
+                          <input
+                            type="tel"
+                            class="form-control guarantor-phone"
+                            required
+                            placeholder="Phone number"
+                          />
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label field-required"
+                            >Relationship with Applicant</label
+                          >
+                          <select
+                            class="form-select guarantor-relationship"
+                            required
+                          >
+                            <option value="">Select relationship...</option>
+                            <option value="spouse">Spouse</option>
+                            <option value="parent">Parent</option>
+                            <option value="child">Child</option>
+                            <option value="sibling">Sibling</option>
+                            <option value="friend">Friend</option>
+                            <option value="colleague">Colleague</option>
+                            <option value="neighbor">Neighbor</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label field-required"
+                            >Occupation</label
+                          >
+                          <input
+                            type="text"
+                            class="form-control guarantor-occupation"
+                            required
+                            placeholder="Guarantor occupation"
+                          />
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Monthly Income (৳)</label>
+                          <input
+                            type="number"
+                            class="form-control guarantor-income"
+                            placeholder="Guarantor monthly income"
+                            min="0"
+                          />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Address</label>
+                          <textarea
+                            class="form-control guarantor-address"
+                            rows="2"
+                            placeholder="Complete address"
+                          ></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Documents & Verification -->
+          <div class="step-content" id="step4">
+            <div class="row justify-content-center">
+              <div class="col-lg-10">
+                <div class="form-section">
+                  <h5 class="section-title">
+                    <i class="fas fa-file-upload me-2"></i>Required Documents
+                  </h5>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label field-required"
+                        >National ID / Passport</label
+                      >
+                      <div class="document-upload" data-doc="id">
+                        <i class="fas fa-id-card fs-2 mb-2 text-muted"></i>
+                        <p class="mb-0">Click to upload ID document</p>
+                        <small class="text-muted"
+                          >PDF, JPG, PNG (Max 2MB)</small
+                        >
+                      </div>
+                      <div class="mt-2">
+                        <span
+                          class="badge bg-secondary doc-status"
+                          id="id-status"
+                          >Not Uploaded</span
+                        >
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label field-required"
+                        >Income Certificate / Proof</label
+                      >
+                      <div class="document-upload" data-doc="income">
+                        <i
+                          class="fas fa-file-invoice-dollar fs-2 mb-2 text-muted"
+                        ></i>
+                        <p class="mb-0">Click to upload income proof</p>
+                        <small class="text-muted"
+                          >PDF, JPG, PNG (Max 2MB)</small
+                        >
+                      </div>
+                      <div class="mt-2">
+                        <span
+                          class="badge bg-secondary doc-status"
+                          id="income-status"
+                          >Not Uploaded</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label"
+                        >Bank Statement (Optional)</label
+                      >
+                      <div class="document-upload" data-doc="bank">
+                        <i class="fas fa-university fs-2 mb-2 text-muted"></i>
+                        <p class="mb-0">Click to upload bank statement</p>
+                        <small class="text-muted"
+                          >PDF, JPG, PNG (Max 2MB)</small
+                        >
+                      </div>
+                      <div class="mt-2">
+                        <span
+                          class="badge bg-secondary doc-status"
+                          id="bank-status"
+                          >Not Uploaded</span
+                        >
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label class="form-label"
+                        >Business License (If Applicable)</label
+                      >
+                      <div class="document-upload" data-doc="business">
+                        <i class="fas fa-certificate fs-2 mb-2 text-muted"></i>
+                        <p class="mb-0">Click to upload business license</p>
+                        <small class="text-muted"
+                          >PDF, JPG, PNG (Max 2MB)</small
+                        >
+                      </div>
+                      <div class="mt-2">
+                        <span
+                          class="badge bg-secondary doc-status"
+                          id="business-status"
+                          >Not Uploaded</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label"
+                      >Additional Notes for Documents</label
+                    >
+                    <textarea
+                      id="documentNotes"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Any additional information about the uploaded documents..."
+                    ></textarea>
+                  </div>
+
+                  <!-- Hidden file inputs -->
+                  <input
+                    type="file"
+                    id="file-id"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    style="display: none"
+                  />
+                  <input
+                    type="file"
+                    id="file-income"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    style="display: none"
+                  />
+                  <input
+                    type="file"
+                    id="file-bank"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    style="display: none"
+                  />
+                  <input
+                    type="file"
+                    id="file-business"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    style="display: none"
+                  />
+                </div>
+
+                <div class="form-section">
+                  <h5 class="section-title">
+                    <i class="fas fa-clipboard-check me-2"></i>Verification
+                    Checklist
+                  </h5>
+                  <div class="form-check mb-3">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="verifyInfo"
+                      required
+                    />
+                    <label class="form-check-label" for="verifyInfo">
+                      I verify that all information provided is true and
+                      accurate
+                    </label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="verifyDocs"
+                      required
+                    />
+                    <label class="form-check-label" for="verifyDocs">
+                      I confirm that all required documents have been uploaded
+                    </label>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="verifyGuarantors"
+                    />
+                    <label class="form-check-label" for="verifyGuarantors">
+                      Guarantor information has been verified and confirmed
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Review & Submit -->
+          <div class="step-content" id="step5">
+            <div class="row justify-content-center">
+              <div class="col-lg-10">
+                <div class="form-section">
+                  <h5 class="section-title">
+                    <i class="fas fa-check-circle me-2"></i>Application Review
+                  </h5>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <h6>Member Information</h6>
+                      <table class="table table-sm table-borderless">
+                        <tr>
+                          <td><strong>Member:</strong></td>
+                          <td id="review-member">-</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Phone:</strong></td>
+                          <td id="review-phone">-</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Branch:</strong></td>
+                          <td id="review-branch">-</td>
+                        </tr>
+                      </table>
+
+                      <h6 class="mt-4">Financial Information</h6>
+                      <table class="table table-sm table-borderless">
+                        <tr>
+                          <td><strong>Monthly Income:</strong></td>
+                          <td id="review-income">-</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Monthly Expenses:</strong></td>
+                          <td id="review-expenses">-</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Net Surplus:</strong></td>
+                          <td id="review-surplus">-</td>
+                        </tr>
+                      </table>
+                    </div>
+                    <div class="col-md-6">
+                      <h6>Loan Details</h6>
+                      <table class="table table-sm table-borderless">
+                        <tr>
+                          <td><strong>Product:</strong></td>
+                          <td id="review-product">-</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Amount:</strong></td>
+                          <td id="review-amount">-</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Purpose:</strong></td>
+                          <td id="review-purpose">-</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Start Date:</strong></td>
+                          <td id="review-startdate">-</td>
+                        </tr>
+                      </table>
+
+                      <h6 class="mt-4">Guarantors</h6>
+                      <div id="review-guarantors">
+                        <!-- Guarantor summary will be populated here -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="calculation-card mt-4">
+                    <h6 class="mb-3">
+                      <i class="fas fa-calculator me-2"></i>Final Loan Summary
+                    </h6>
+                    <div class="row">
+                      <div class="col-md-3 text-center">
+                        <h4 id="final-principal">৳0</h4>
+                        <small>Principal Amount</small>
+                      </div>
+                      <div class="col-md-3 text-center">
+                        <h4 id="final-interest">৳0</h4>
+                        <small>Total Interest</small>
+                      </div>
+                      <div class="col-md-3 text-center">
+                        <h4 id="final-total">৳0</h4>
+                        <small>Total Repayment</small>
+                      </div>
+                      <div class="col-md-3 text-center">
+                        <h4 id="final-installment">৳0</h4>
+                        <small>Monthly EMI</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="alert alert-info mt-4">
+                    <h6><i class="fas fa-info-circle me-2"></i>Next Steps</h6>
+                    <ol class="mb-0">
+                      <li>Application will be submitted for initial review</li>
+                      <li>Credit assessment and verification process</li>
+                      <li>Committee review and approval decision</li>
+                      <li>Loan disbursement upon approval</li>
+                    </ol>
+                  </div>
+
+                  <div class="form-check mb-4">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="finalConfirm"
+                      required
+                    />
+                    <label class="form-check-label" for="finalConfirm">
+                      <strong
+                        >I confirm that I have reviewed all information and
+                        agree to submit this loan application</strong
+                      >
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="row justify-content-center mt-4">
+            <div class="col-lg-10">
+              <div class="d-flex justify-content-between">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-wizard"
+                  id="prevBtn"
+                  style="display: none"
+                >
+                  <i class="fas fa-chevron-left me-1"></i>Previous
+                </button>
+                <div></div>
+                <div>
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-wizard"
+                    id="nextBtn"
+                  >
+                    Next<i class="fas fa-chevron-right ms-1"></i>
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-success btn-wizard"
+                    id="submitBtn"
+                    style="display: none"
+                  >
+                    <i class="fas fa-paper-plane me-1"></i>Submit Application
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../../assets/js/db.js"></script>
-<script src="../../assets/js/auth.js"></script>
-<script src="../../assets/js/app.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/app.js"></script>
 
-<script>
-    $(document).ready(function() {
-        const user = DB.getCurrentUser();
-        const members = DB.getAll(DB.KEYS.MEMBERS).filter(m => m.branchId == user.branchId);
-        const products = DB.getAll(DB.KEYS.PRODUCTS).filter(p => p.ngoId === user.ngoId && p.status === 'Active');
+    <script>
+      const LoanApplicationManager = {
+        user: null,
+        members: [],
+        products: [],
+        branches: [],
+        currentStep: 1,
+        totalSteps: 5,
+        uploadedFiles: {},
+        guarantorCount: 1,
+        applicationData: {},
 
-        members.forEach(m => $('#lMember').append(`<option value="${m.id}">${m.name} (${m.phone})</option>`));
-        products.forEach(p => $('#lProduct').append(`<option value="${p.id}">${p.name} (${p.interestRate}%)</option>`));
+        init: function () {
+          this.user = DB.getCurrentUser();
+          if (!this.user) {
+            window.location.href = "../../pages/login.html";
+            return;
+          }
 
-        $('#lProduct').on('change', function() {
-            const prod = products.find(p => p.id == $(this).val());
-            if (prod) {
-                $('#productDetails').html(`
-                    <strong>${prod.name}</strong>: ${prod.interestRate}% ${prod.interestMethod} | 
-                    ${prod.duration} ${prod.type} installments | Range: ৳${prod.minAmount} - ৳${prod.maxAmount}
-                `);
-                $('#productInfo').show();
+          this.loadData();
+          this.initializeSelects();
+          this.bindEvents();
+          this.setDefaultDates();
+
+          // Initialize first guarantor
+          this.initializeGuarantorSelects();
+        },
+
+        loadData: function () {
+          this.members = DB.getAll(DB.KEYS.MEMBERS).filter(
+            (m) => m.branchId == this.user.branchId,
+          );
+          this.products = DB.getAll(DB.KEYS.PRODUCTS).filter(
+            (p) => p.ngoId === this.user.ngoId && p.status === "Active",
+          );
+          this.branches = DB.getAll(DB.KEYS.BRANCHES);
+        },
+
+        initializeSelects: function () {
+          // Initialize Select2 for member selection
+          $("#lMember").select2({
+            theme: "bootstrap-5",
+            placeholder: "Choose a member...",
+            allowClear: true,
+          });
+
+          // Initialize Select2 for loan products
+          $("#lProduct").select2({
+            theme: "bootstrap-5",
+            placeholder: "Select loan product...",
+            allowClear: true,
+          });
+
+          // Initialize other selects
+          $("#loanCategory, #incomeSource").select2({
+            theme: "bootstrap-5",
+            placeholder: "Please select...",
+            allowClear: true,
+          });
+
+          // Populate members
+          this.members.forEach((m) => {
+            $("#lMember").append(new Option(`${m.name} (${m.phone})`, m.id));
+          });
+
+          // Populate products
+          this.products.forEach((p) => {
+            $("#lProduct").append(
+              new Option(
+                `${p.name} (${p.interestRate}% ${p.interestMethod})`,
+                p.id,
+              ),
+            );
+          });
+        },
+
+        initializeGuarantorSelects: function () {
+          $(".guarantor-relationship").select2({
+            theme: "bootstrap-5",
+            placeholder: "Select relationship...",
+            allowClear: true,
+          });
+        },
+
+        setDefaultDates: function () {
+          const today = new Date().toISOString().split("T")[0];
+          $("#applicationDate").val(today);
+
+          // Set preferred start date to next month
+          const nextMonth = new Date();
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          $("#lDate").val(nextMonth.toISOString().split("T")[0]);
+        },
+
+        bindEvents: function () {
+          // Step navigation
+          $("#nextBtn").on("click", () => this.nextStep());
+          $("#prevBtn").on("click", () => this.prevStep());
+          $(".step").on("click", (e) =>
+            this.goToStep(parseInt($(e.currentTarget).data("step"))),
+          );
+
+          // Member selection
+          $("#lMember").on("change", () => this.loadMemberInfo());
+
+          // Product selection and amount calculation
+          $("#lProduct, #lAmount").on("change", () => this.calculateLoan());
+
+          // Financial calculation
+          $("#monthlyIncome, #monthlyExpenses, #otherEmi").on("input", () =>
+            this.checkFinancialRatio(),
+          );
+
+          // Guarantor management
+          $("#addGuarantor").on("click", () => this.addGuarantor());
+          $(document).on("click", ".remove-guarantor", (e) =>
+            this.removeGuarantor($(e.target).closest(".guarantor-card")),
+          );
+
+          // Document upload
+          $(".document-upload").on("click", (e) =>
+            this.handleDocumentUpload($(e.currentTarget)),
+          );
+          $('input[type=\"file\"]').on("change", (e) =>
+            this.processFileUpload(e),
+          );
+
+          // Form submission
+          $("#loanApplicationForm").on("submit", (e) =>
+            this.submitApplication(e),
+          );
+
+          // Draft management
+          $("#saveDraft").on("click", () => this.saveDraft());
+          $("#loadDraft").on("click", () => this.loadDraft());
+        },
+
+        nextStep: function () {
+          // Skip validation for now - allow free navigation
+          if (this.currentStep < this.totalSteps) {
+            this.currentStep++;
+            this.updateStepDisplay();
+
+            if (this.currentStep === 5) {
+              this.populateReview();
             }
-        });
+          }
+        },
 
-        $('#loanAppForm').on('submit', function(e) {
-            e.preventDefault();
-            const prod = products.find(p => p.id == $('#lProduct').val());
-            const amount = parseFloat($('#lAmount').val());
+        prevStep: function () {
+          if (this.currentStep > 1) {
+            this.currentStep--;
+            this.updateStepDisplay();
+          }
+        },
 
-            if (amount < prod.minAmount || amount > prod.maxAmount) {
-                Swal.fire('Limit Error', `Amount must be between ৳${prod.minAmount} and ৳${prod.maxAmount}`, 'error');
-                return;
+        goToStep: function (step) {
+          // Allow free navigation to any step
+          this.currentStep = step;
+          this.updateStepDisplay();
+
+          if (this.currentStep === 5) {
+            this.populateReview();
+          }
+        },
+
+        updateStepDisplay: function () {
+          // Update step indicators
+          $(".step").removeClass("active completed");
+          for (let i = 1; i <= this.totalSteps; i++) {
+            const $step = $(`.step[data-step=\"${i}\"]`);
+            if (i < this.currentStep) {
+              $step.addClass("completed");
+            } else if (i === this.currentStep) {
+              $step.addClass("active");
+            }
+          }
+
+          // Update content visibility
+          $(".step-content").removeClass("active");
+          $(`#step${this.currentStep}`).addClass("active");
+
+          // Update navigation buttons
+          $("#prevBtn").toggle(this.currentStep > 1);
+          $("#nextBtn").toggle(this.currentStep < this.totalSteps);
+          $("#submitBtn").toggle(this.currentStep === this.totalSteps);
+        },
+
+        validateCurrentStep: function () {
+          const stepValidations = {
+            1: () => this.validateStep1(),
+            2: () => this.validateStep2(),
+            3: () => this.validateStep3(),
+            4: () => this.validateStep4(),
+            5: () => this.validateStep5(),
+          };
+
+          return stepValidations[this.currentStep]();
+        },
+
+        validateStep1: function () {
+          const requiredFields = [
+            "#lMember",
+            "#applicationDate",
+            "#lDate",
+            "#loanCategory",
+            "#lPurpose",
+          ];
+          let isValid = true;
+          let errorMessage = "";
+
+          requiredFields.forEach((field) => {
+            const $field = $(field);
+            const value = $field.val();
+
+            if (!value || value.trim() === "") {
+              isValid = false;
+              $field.addClass("is-invalid");
+              if (!errorMessage)
+                errorMessage =
+                  "Please fill all required fields in Member & Basic Information";
+            } else {
+              $field.removeClass("is-invalid");
+            }
+          });
+
+          // Validate dates
+          const appDate = new Date($("#applicationDate").val());
+          const startDate = new Date($("#lDate").val());
+          const today = new Date();
+
+          if (appDate > today) {
+            $("#applicationDate").addClass("is-invalid");
+            isValid = false;
+            errorMessage = "Application date cannot be in the future";
+          }
+
+          if (startDate < today) {
+            $("#lDate").addClass("is-invalid");
+            isValid = false;
+            errorMessage =
+              "Preferred start date should be today or future date";
+          }
+
+          if (!isValid) {
+            Swal.fire("Validation Error", errorMessage, "error");
+          }
+
+          return isValid;
+        },
+
+        validateStep2: function () {
+          const requiredFields = [
+            "#lProduct",
+            "#lAmount",
+            "#monthlyIncome",
+            "#monthlyExpenses",
+            "#incomeSource",
+          ];
+          let isValid = true;
+          let errorMessage = "";
+
+          requiredFields.forEach((field) => {
+            const $field = $(field);
+            const value = $field.val();
+
+            if (!value || value <= 0) {
+              isValid = false;
+              $field.addClass("is-invalid");
+              if (!errorMessage)
+                errorMessage =
+                  "Please fill all required fields in Loan & Financial Information";
+            } else {
+              $field.removeClass("is-invalid");
+            }
+          });
+
+          // Validate loan amount against product limits
+          const product = this.products.find(
+            (p) => p.id == $("#lProduct").val(),
+          );
+          const amount = parseFloat($("#lAmount").val());
+
+          if (
+            product &&
+            (amount < product.minAmount || amount > product.maxAmount)
+          ) {
+            $("#lAmount").addClass("is-invalid");
+            isValid = false;
+            errorMessage = `Loan amount must be between ৳${product.minAmount.toLocaleString()} and ৳${product.maxAmount.toLocaleString()}`;
+          }
+
+          // Check financial ratio
+          const income = parseFloat($("#monthlyIncome").val()) || 0;
+          const expenses = parseFloat($("#monthlyExpenses").val()) || 0;
+          const otherEmi = parseFloat($("#otherEmi").val()) || 0;
+
+          if (income <= expenses + otherEmi) {
+            isValid = false;
+            errorMessage =
+              "Monthly income should be higher than total expenses + other EMIs";
+          }
+
+          if (!isValid) {
+            Swal.fire("Validation Error", errorMessage, "error");
+          }
+
+          return isValid;
+        },
+
+        validateStep3: function () {
+          let isValid = true;
+          let errorMessage = "";
+
+          $(".guarantor-card").each(function () {
+            const name = $(this).find(".guarantor-name").val();
+            const phone = $(this).find(".guarantor-phone").val();
+            const relationship = $(this).find(".guarantor-relationship").val();
+            const occupation = $(this).find(".guarantor-occupation").val();
+
+            if (!name || !phone || !relationship || !occupation) {
+              isValid = false;
+              errorMessage =
+                "Please complete all required guarantor information";
+
+              // Highlight invalid fields
+              if (!name) $(this).find(".guarantor-name").addClass("is-invalid");
+              if (!phone)
+                $(this).find(".guarantor-phone").addClass("is-invalid");
+              if (!relationship)
+                $(this).find(".guarantor-relationship").addClass("is-invalid");
+              if (!occupation)
+                $(this).find(".guarantor-occupation").addClass("is-invalid");
+            }
+          });
+
+          if (!isValid) {
+            Swal.fire("Validation Error", errorMessage, "error");
+          }
+
+          return isValid;
+        },
+
+        validateStep4: function () {
+          // Check required documents
+          const requiredDocs = ["id", "income"];
+          const missingDocs = [];
+
+          requiredDocs.forEach((docType) => {
+            if (!this.uploadedFiles[docType]) {
+              missingDocs.push(docType);
+            }
+          });
+
+          // Check required checkboxes
+          const requiredChecks = ["#verifyInfo", "#verifyDocs"];
+          let checksValid = true;
+
+          requiredChecks.forEach((checkId) => {
+            if (!$(checkId).is(":checked")) {
+              checksValid = false;
+              $(checkId).addClass("is-invalid");
+            }
+          });
+
+          if (missingDocs.length > 0 || !checksValid) {
+            let errorMessage = "";
+            if (missingDocs.length > 0) {
+              errorMessage += `Missing required documents: ${missingDocs.join(", ")}. `;
+            }
+            if (!checksValid) {
+              errorMessage += "Please check all required verification items.";
             }
 
-            const interest = amount * (prod.interestRate / 100);
-            const total = amount + interest;
+            Swal.fire("Validation Error", errorMessage, "error");
+            return false;
+          }
 
-            const loanApplication = {
-                memberId: parseInt($('#lMember').val()),
-                productId: prod.id,
-                principal: amount,
-                interest: interest,
-                total: total,
-                paid: 0,
-                due: total,
-                status: 'Applied',
-                purpose: $('#lPurpose').val(),
-                startDate: $('#lDate').val(),
-                appliedBy: user.id,
-                appliedAt: new Date().toISOString().split('T')[0]
+          return true;
+        },
+
+        validateStep5: function () {
+          if (!$("#finalConfirm").is(":checked")) {
+            Swal.fire(
+              "Confirmation Required",
+              "Please confirm that you have reviewed all information",
+              "error",
+            );
+            return false;
+          }
+          return true;
+        },
+
+        validateStepsUpTo: function (step) {
+          for (let i = 1; i <= step; i++) {
+            const currentStep = this.currentStep;
+            this.currentStep = i;
+            if (!this.validateCurrentStep()) {
+              this.currentStep = currentStep;
+              return false;
+            }
+          }
+          this.currentStep = step + 1;
+          return true;
+        },
+
+        loadMemberInfo: function () {
+          const memberId = $("#lMember").val();
+          if (memberId) {
+            const member = this.members.find((m) => m.id == memberId);
+            if (member) {
+              $("#memberPhone").val(member.phone);
+              $("#memberEmail").val(member.email || "Not provided");
+              $("#memberSince").val(
+                member.createdAt
+                  ? new Date(member.createdAt).toLocaleDateString()
+                  : "N/A",
+              );
+
+              const branch = this.branches.find((b) => b.id == member.branchId);
+              $("#memberBranch").val(branch ? branch.name : "Unknown Branch");
+
+              $("#memberInfo").show();
+            }
+          } else {
+            $("#memberInfo").hide();
+          }
+        },
+
+        calculateLoan: function () {
+          const productId = $("#lProduct").val();
+          const amount = parseFloat($("#lAmount").val());
+
+          if (productId && amount > 0) {
+            const product = this.products.find((p) => p.id == productId);
+            if (product) {
+              // Show product information
+              $("#productDetails").html(`
+                          <div class=\"row\">
+                              <div class=\"col-md-6\">
+                                  <strong>${product.name}</strong><br>
+                                  <span class=\"text-muted\">Interest: ${product.interestRate}% ${product.interestMethod}</span>
+                              </div>
+                              <div class=\"col-md-6\">
+                                  <strong>Duration:</strong> ${product.duration} ${product.type} installments<br>
+                                  <strong>Range:</strong> ৳${product.minAmount.toLocaleString()} - ৳${product.maxAmount.toLocaleString()}
+                              </div>
+                          </div>
+                      `);
+              $("#productInfo").show();
+
+              // Calculate loan amounts
+              const interest = amount * (product.interestRate / 100);
+              const total = amount + interest;
+              const installment = total / product.duration;
+
+              // Update calculation display
+              $("#calcPrincipal").text("৳" + amount.toLocaleString());
+              $("#calcInterest").text("৳" + interest.toLocaleString());
+              $("#calcTotal").text("৳" + total.toLocaleString());
+              $("#calcInstallment").text("৳" + installment.toLocaleString());
+
+              $("#calculationCard").show();
+            }
+          } else {
+            $("#productInfo").hide();
+            $("#calculationCard").hide();
+          }
+        },
+
+        checkFinancialRatio: function () {
+          const income = parseFloat($("#monthlyIncome").val()) || 0;
+          const expenses = parseFloat($("#monthlyExpenses").val()) || 0;
+          const otherEmi = parseFloat($("#otherEmi").val()) || 0;
+
+          if (income > 0 && expenses > 0) {
+            const netSurplus = income - expenses - otherEmi;
+            const ratio = (netSurplus / income) * 100;
+
+            $("#financialAlert").hide();
+
+            if (ratio < 20) {
+              $("#financialAlertText").text(
+                `Warning: Low surplus ratio (${ratio.toFixed(1)}%). Recommended minimum is 20% of income.`,
+              );
+              $("#financialAlert")
+                .removeClass("alert-success")
+                .addClass("alert-warning")
+                .show();
+            } else if (ratio >= 30) {
+              $("#financialAlertText").text(
+                `Excellent: Good surplus ratio (${ratio.toFixed(1)}%). Financial capacity looks strong.`,
+              );
+              $("#financialAlert")
+                .removeClass("alert-warning")
+                .addClass("alert-success")
+                .show();
+            }
+          }
+        },
+
+        addGuarantor: function () {
+          this.guarantorCount++;
+          const guarantorHtml = `
+                  <div class=\"guarantor-card\" data-guarantor=\"${this.guarantorCount}\">
+                      <div class=\"d-flex justify-content-between align-items-center mb-3\">
+                          <h6><i class=\"fas fa-user me-2\"></i>Guarantor #${this.guarantorCount}</h6>\n                        <button type=\"button\" class=\"btn btn-outline-danger btn-sm remove-guarantor\">
+                              <i class=\"fas fa-times\"></i>
+                          </button>
+                      </div>
+                      <div class=\"row\">
+                          <div class=\"col-md-6 mb-3\">
+                              <label class=\"form-label field-required\">Full Name</label>
+                              <input type=\"text\" class=\"form-control guarantor-name\" required placeholder=\"Guarantor full name\">
+                          </div>
+                          <div class=\"col-md-6 mb-3\">
+                              <label class=\"form-label field-required\">Phone Number</label>
+                              <input type=\"tel\" class=\"form-control guarantor-phone\" required placeholder=\"Phone number\">
+                          </div>
+                      </div>
+                      <div class=\"row\">
+                          <div class=\"col-md-6 mb-3\">
+                              <label class=\"form-label field-required\">Relationship with Applicant</label>
+                              <select class=\"form-select guarantor-relationship\" required>
+                                  <option value=\"\">Select relationship...</option>
+                                  <option value=\"spouse\">Spouse</option>
+                                  <option value=\"parent\">Parent</option>
+                                  <option value=\"child\">Child</option>
+                                  <option value=\"sibling\">Sibling</option>
+                                  <option value=\"friend\">Friend</option>
+                                  <option value=\"colleague\">Colleague</option>
+                                  <option value=\"neighbor\">Neighbor</option>
+                                  <option value=\"other\">Other</option>
+                              </select>
+                          </div>
+                          <div class=\"col-md-6 mb-3\">
+                              <label class=\"form-label field-required\">Occupation</label>
+                              <input type=\"text\" class=\"form-control guarantor-occupation\" required placeholder=\"Guarantor occupation\">
+                          </div>
+                      </div>
+                      <div class=\"row\">
+                          <div class=\"col-md-6 mb-3\">
+                              <label class=\"form-label\">Monthly Income (৳)</label>
+                              <input type=\"number\" class=\"form-control guarantor-income\" placeholder=\"Guarantor monthly income\" min=\"0\">
+                          </div>
+                          <div class=\"col-md-6 mb-3\">
+                              <label class=\"form-label\">Address</label>
+                              <textarea class=\"form-control guarantor-address\" rows=\"2\" placeholder=\"Complete address\"></textarea>
+                          </div>
+                      </div>
+                  </div>
+              `;
+
+          $("#guarantorsContainer").append(guarantorHtml);
+
+          // Initialize Select2 for new guarantor
+          $(
+            "#guarantorsContainer .guarantor-card:last .guarantor-relationship",
+          ).select2({
+            theme: "bootstrap-5",
+            placeholder: "Select relationship...",
+            allowClear: true,
+          });
+
+          // Show remove buttons if more than 1 guarantor
+          if (this.guarantorCount > 1) {
+            $(".remove-guarantor").show();
+          }
+        },
+
+        removeGuarantor: function ($guarantorCard) {
+          const guarantorNumber = $guarantorCard.data("guarantor");
+
+          Swal.fire({
+            title: "Remove Guarantor?",
+            text: `Are you sure you want to remove Guarantor #${guarantorNumber}?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Remove",
+            cancelButtonText: "Cancel",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              $guarantorCard.remove();
+              this.renumberGuarantors();
+            }
+          });
+        },
+
+        renumberGuarantors: function () {
+          this.guarantorCount = 0;
+          $(".guarantor-card").each((index, card) => {
+            this.guarantorCount++;
+            $(card).data("guarantor", this.guarantorCount);
+            $(card)
+              .find("h6")
+              .html(
+                `<i class=\"fas fa-user me-2\"></i>Guarantor #${this.guarantorCount}`,
+              );
+          });
+
+          // Hide remove buttons if only 1 guarantor
+          if (this.guarantorCount <= 1) {
+            $(".remove-guarantor").hide();
+          }
+        },
+
+        handleDocumentUpload: function ($uploadDiv) {
+          const docType = $uploadDiv.data("doc");
+          $(`#file-${docType}`).click();
+        },
+
+        processFileUpload: function (event) {
+          const fileInput = event.target;
+          const file = fileInput.files[0];
+          const docType = fileInput.id.replace("file-", "");
+
+          if (file) {
+            // Validate file size (2MB limit)
+            if (file.size > 2 * 1024 * 1024) {
+              Swal.fire(
+                "File Too Large",
+                "File size must be less than 2MB",
+                "error",
+              );
+              return;
+            }
+
+            // Validate file type
+            const allowedTypes = [
+              "application/pdf",
+              "image/jpeg",
+              "image/jpg",
+              "image/png",
+            ];
+            if (!allowedTypes.includes(file.type)) {
+              Swal.fire(
+                "Invalid File Type",
+                "Only PDF, JPG, and PNG files are allowed",
+                "error",
+              );
+              return;
+            }
+
+            // Store file reference (in a real app, this would upload to server)
+            this.uploadedFiles[docType] = {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              uploadDate: new Date().toISOString(),
             };
 
-            DB.applyLoan(loanApplication);
-            Swal.fire('Success', 'Loan Application Submitted for Approval', 'success').then(() => {
-                location.reload();
-            });
-        });
-    });
-</script>
+            // Update UI
+            $(`#${docType}-status`)
+              .removeClass("bg-secondary")
+              .addClass("bg-success")
+              .text("Uploaded");
+            $(`.document-upload[data-doc=\"${docType}\"]`)
+              .removeClass("border-secondary")
+              .addClass("border-success")
+              .find("i")
+              .removeClass("text-muted")
+              .addClass("text-success");
 
-</body>
+            Swal.fire(
+              "Success",
+              `${file.name} uploaded successfully`,
+              "success",
+            );
+          }
+        },
+
+        populateReview: function () {
+          // Member information
+          const memberId = $("#lMember").val();
+          const member = this.members.find((m) => m.id == memberId);
+          if (member) {
+            $("#review-member").text(member.name);
+            $("#review-phone").text(member.phone);
+            const branch = this.branches.find((b) => b.id == member.branchId);
+            $("#review-branch").text(branch ? branch.name : "Unknown Branch");
+          }
+
+          // Financial information
+          const income = parseFloat($("#monthlyIncome").val()) || 0;
+          const expenses = parseFloat($("#monthlyExpenses").val()) || 0;
+          const otherEmi = parseFloat($("#otherEmi").val()) || 0;
+          const surplus = income - expenses - otherEmi;
+
+          $("#review-income").text("৳" + income.toLocaleString());
+          $("#review-expenses").text("৳" + expenses.toLocaleString());
+          $("#review-surplus").text(
+            "৳" +
+              surplus.toLocaleString() +
+              (surplus > 0 ? " (Positive)" : " (Negative)"),
+          );
+
+          // Loan details
+          const productId = $("#lProduct").val();
+          const product = this.products.find((p) => p.id == productId);
+          const amount = parseFloat($("#lAmount").val()) || 0;
+
+          $("#review-product").text(product ? product.name : "N/A");
+          $("#review-amount").text("৳" + amount.toLocaleString());
+          $("#review-purpose").text($("#lPurpose").val());
+          $("#review-startdate").text(
+            new Date($("#lDate").val()).toLocaleDateString(),
+          );
+
+          // Guarantors
+          let guarantorsHtml = "";
+          $(".guarantor-card").each(function (index) {
+            const name = $(this).find(".guarantor-name").val();
+            const relationship = $(this).find(".guarantor-relationship").val();
+            const occupation = $(this).find(".guarantor-occupation").val();
+
+            guarantorsHtml += `
+                      <div class=\"small mb-2\">
+                          <strong>${index + 1}. ${name}</strong><br>
+                          <span class=\"text-muted\">${relationship} • ${occupation}</span>
+                      </div>
+                  `;
+          });
+          $("#review-guarantors").html(
+            guarantorsHtml ||
+              '<span class=\"text-muted\">No guarantors added</span>',
+          );
+
+          // Final calculations (same as step 2)
+          if (product && amount > 0) {
+            const interest = amount * (product.interestRate / 100);
+            const total = amount + interest;
+            const installment = total / product.duration;
+
+            $("#final-principal").text("৳" + amount.toLocaleString());
+            $("#final-interest").text("৳" + interest.toLocaleString());
+            $("#final-total").text("৳" + total.toLocaleString());
+            $("#final-installment").text("৳" + installment.toLocaleString());
+          }
+        },
+
+        submitApplication: function (event) {
+          event.preventDefault();
+
+          if (!this.validateCurrentStep()) {
+            return;
+          }
+
+          // Gather all form data
+          const formData = this.gatherApplicationData();
+
+          Swal.fire({
+            title: "Submit Application?",
+            text: "Are you sure you want to submit this loan application? It cannot be modified after submission.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Submit",
+            cancelButtonText: "Cancel",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.processApplicationSubmission(formData);
+            }
+          });
+        },
+
+        gatherApplicationData: function () {
+          // Member and basic info
+          const memberId = $("#lMember").val();
+          const member = this.members.find((m) => m.id == memberId);
+
+          // Loan details
+          const productId = $("#lProduct").val();
+          const product = this.products.find((p) => p.id == productId);
+          const amount = parseFloat($("#lAmount").val());
+
+          // Calculate loan terms
+          const interest = amount * (product.interestRate / 100);
+          const total = amount + interest;
+
+          // Guarantors
+          const guarantors = [];
+          $(".guarantor-card").each(function () {
+            guarantors.push({
+              name: $(this).find(".guarantor-name").val(),
+              phone: $(this).find(".guarantor-phone").val(),
+              relationship: $(this).find(".guarantor-relationship").val(),
+              occupation: $(this).find(".guarantor-occupation").val(),
+              income: parseFloat($(this).find(".guarantor-income").val()) || 0,
+              address: $(this).find(".guarantor-address").val(),
+            });
+          });
+
+          return {
+            id: Date.now(), // Generate unique ID
+            memberId: parseInt(memberId),
+            memberName: member.name,
+            productId: productId,
+            productName: product.name,
+            principal: amount,
+            interest: interest,
+            total: total,
+            paid: 0,
+            due: total,
+            status: "Applied",
+            approvalStatus: "Pending",
+
+            // Application details
+            applicationDate: $("#applicationDate").val(),
+            preferredStartDate: $("#lDate").val(),
+            loanCategory: $("#loanCategory").val(),
+            purpose: $("#lPurpose").val(),
+
+            // Financial information
+            monthlyIncome: parseFloat($("#monthlyIncome").val()),
+            monthlyExpenses: parseFloat($("#monthlyExpenses").val()),
+            otherEmi: parseFloat($("#otherEmi").val()) || 0,
+            savings: parseFloat($("#savings").val()) || 0,
+            incomeSource: $("#incomeSource").val(),
+            incomeYears: parseFloat($("#incomeYears").val()) || 0,
+
+            // Guarantors
+            guarantors: guarantors,
+
+            // Documents
+            documents: this.uploadedFiles,
+            documentNotes: $("#documentNotes").val(),
+
+            // Application metadata
+            appliedBy: this.user.id,
+            appliedByName: this.user.name,
+            appliedAt: new Date().toISOString(),
+            branchId: this.user.branchId,
+            ngoId: this.user.ngoId,
+          };
+        },
+
+        processApplicationSubmission: function (formData) {
+          try {
+            // Save to database
+            DB.applyLoan(formData);
+
+            // Clear draft if exists
+            localStorage.removeItem("loan_application_draft");
+
+            Swal.fire({
+              title: "Application Submitted!",
+              html: `
+                          <div class=\"text-start\">
+                              <h6>Application Details:</h6>
+                              <p><strong>Application ID:</strong> ${formData.id}</p>
+                              <p><strong>Member:</strong> ${formData.memberName}</p>
+                              <p><strong>Loan Amount:</strong> ৳${formData.principal.toLocaleString()}</p>
+                              <p><strong>Status:</strong> <span class=\"badge bg-warning\">Pending Review</span></p>
+                              <hr>
+                              <h6>Next Steps:</h6>
+                              <ol class=\"small mb-0\">
+                                  <li>Application will be reviewed by credit team</li>
+                                  <li>Documents will be verified</li>
+                                  <li>Credit committee will make final decision</li>
+                                  <li>You will be notified of the outcome</li>
+                              </ol>
+                          </div>
+                      `,
+              icon: "success",
+              confirmButtonText: "Continue",
+              allowOutsideClick: false,
+            }).then(() => {
+              // Redirect to dashboard or applications list
+              window.location.href = "dashboard.html";
+            });
+          } catch (error) {
+            console.error("Error submitting application:", error);
+            Swal.fire(
+              "Submission Error",
+              "There was an error submitting your application. Please try again.",
+              "error",
+            );
+          }
+        },
+
+        saveDraft: function () {
+          const draftData = {
+            step: this.currentStep,
+            formData: this.gatherFormDataForDraft(),
+            uploadedFiles: this.uploadedFiles,
+            guarantorCount: this.guarantorCount,
+            savedAt: new Date().toISOString(),
+          };
+
+          localStorage.setItem(
+            "loan_application_draft",
+            JSON.stringify(draftData),
+          );
+
+          Swal.fire(
+            "Draft Saved",
+            "Your application progress has been saved",
+            "success",
+          );
+        },
+
+        loadDraft: function () {
+          const draftData = localStorage.getItem("loan_application_draft");
+
+          if (!draftData) {
+            Swal.fire("No Draft Found", "No saved draft was found", "info");
+            return;
+          }
+
+          Swal.fire({
+            title: "Load Draft?",
+            text: "This will replace your current progress with the saved draft.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Load Draft",
+            cancelButtonText: "Cancel",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              const draft = JSON.parse(draftData);
+              this.restoreFromDraft(draft);
+            }
+          });
+        },
+
+        gatherFormDataForDraft: function () {
+          // Gather all current form values
+          const formData = {};
+
+          // Get all form inputs
+          $(
+            "#loanApplicationForm input, #loanApplicationForm select, #loanApplicationForm textarea",
+          ).each(function () {
+            const $field = $(this);
+            const name = $field.attr("id") || $field.attr("class");
+            if (name) {
+              if ($field.attr("type") === "checkbox") {
+                formData[name] = $field.is(":checked");
+              } else {
+                formData[name] = $field.val();
+              }
+            }
+          });
+
+          // Get guarantor data
+          formData.guarantors = [];
+          $(".guarantor-card").each(function () {
+            const guarantorData = {};
+            $(this)
+              .find("input, select, textarea")
+              .each(function () {
+                const className = $(this)
+                  .attr("class")
+                  .split(" ")
+                  .find((c) => c.startsWith("guarantor-"));
+                if (className) {
+                  guarantorData[className] = $(this).val();
+                }
+              });
+            formData.guarantors.push(guarantorData);
+          });
+
+          return formData;
+        },
+
+        restoreFromDraft: function (draft) {
+          // Restore form fields
+          Object.keys(draft.formData).forEach((fieldName) => {
+            const $field = $(`#${fieldName}`);
+            const value = draft.formData[fieldName];
+
+            if ($field.length > 0) {
+              if ($field.attr("type") === "checkbox") {
+                $field.prop("checked", value);
+              } else {
+                $field.val(value).trigger("change");
+              }
+            }
+          });
+
+          // Restore guarantors
+          if (
+            draft.formData.guarantors &&
+            draft.formData.guarantors.length > 1
+          ) {
+            // Add additional guarantors
+            for (let i = 1; i < draft.formData.guarantors.length; i++) {
+              this.addGuarantor();
+            }
+          }
+
+          // Fill guarantor data
+          if (draft.formData.guarantors) {
+            $(".guarantor-card").each((index, card) => {
+              const guarantorData = draft.formData.guarantors[index];
+              if (guarantorData) {
+                Object.keys(guarantorData).forEach((fieldClass) => {
+                  $(card).find(`.${fieldClass}`).val(guarantorData[fieldClass]);
+                });
+              }
+            });
+          }
+
+          // Restore uploaded files
+          this.uploadedFiles = draft.uploadedFiles || {};
+
+          // Update document UI
+          Object.keys(this.uploadedFiles).forEach((docType) => {
+            $(`#${docType}-status`)
+              .removeClass("bg-secondary")
+              .addClass("bg-success")
+              .text("Uploaded");
+          });
+
+          // Go to saved step
+          this.currentStep = draft.step || 1;
+          this.updateStepDisplay();
+
+          Swal.fire(
+            "Draft Loaded",
+            "Your saved progress has been restored",
+            "success",
+          );
+        },
+      };
+
+      $(document).ready(function () {
+        LoanApplicationManager.init();
+      });
+    </script>
+  </body>
 </html>
