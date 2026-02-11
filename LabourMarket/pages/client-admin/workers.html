@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Workers - Client Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="brand">Client Portal</div>
+        <div class="text-center mb-3">
+             <img src="https://ui-avatars.com/api/?name=Client+Admin&background=random" class="avatar-img mb-2" alt="User">
+             <div class="small text-white user-name-display">Client Admin</div>
+        </div>
+        <a href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+        <a href="workers.html" class="active"><i class="fas fa-hard-hat me-2"></i> Workers</a>
+        <a href="calls.html"><i class="fas fa-phone me-2"></i> Call Log</a>
+        <a href="reports.html"><i class="fas fa-chart-line me-2"></i> Reports</a>
+        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    </div>
+
+    <div class="content">
+        <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
+            <div class="container-fluid">
+                <button class="btn btn-outline-secondary d-md-none" id="sidebarCollapse">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="navbar-brand mb-0 h1 ms-2">Worker Management</span>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#workerModal">
+                    <i class="fas fa-plus"></i> Add Worker
+                </button>
+            </div>
+        </nav>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table id="workersTable" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Area</th>
+                            <th>Rate</th>
+                            <th>Availability</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worker Modal -->
+    <div class="modal fade" id="workerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add/Edit Worker</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="workerForm">
+                        <input type="hidden" id="workerId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Name</label>
+                                <input type="text" class="form-control" id="wName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Phone</label>
+                                <input type="text" class="form-control" id="wPhone" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Category</label>
+                                <select class="form-select" id="wCategory">
+                                    <option>Electrician</option>
+                                    <option>Plumber</option>
+                                    <option>Mason</option>
+                                    <option>Carpenter</option>
+                                    <option>Painter</option>
+                                    <option>Cleaner</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Area</label>
+                                <input type="text" class="form-control" id="wArea" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Rate (BDT)</label>
+                                <input type="number" class="form-control" id="wRate" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Rate Type</label>
+                                <select class="form-select" id="wType">
+                                    <option>Daily</option>
+                                    <option>Hourly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                             <label>Experience</label>
+                             <input type="text" class="form-control" id="wExperience" placeholder="e.g. 5 Years">
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="wAvailability" checked>
+                            <label class="form-check-label" for="wAvailability">Available for work</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save Worker</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/app.js"></script>
+    <script>
+        $(document).ready(function() {
+            const user = DB.checkAuth('client-admin');
+            if(!user) return;
+
+            // Load data specific to this client
+            const myWorkers = DB.getAll('workers').filter(w => w.clientId == user.clientId);
+
+            const table = $('#workersTable').DataTable({
+                data: myWorkers,
+                columns: [
+                    { 
+                        data: 'image',
+                        render: function(data) { return `<img src="${data}" class="avatar-img">`; }
+                    },
+                    { data: 'name' },
+                    { data: 'category' },
+                    { data: 'area' },
+                    { 
+                        data: null,
+                        render: function(data) { return `${data.rate} / ${data.type}`; }
+                    },
+                    { 
+                        data: 'availability',
+                        render: function(data) {
+                            return data 
+                                ? '<span class="badge bg-success">Available</span>' 
+                                : '<span class="badge bg-secondary">Busy</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <button class="btn btn-sm btn-info edit-btn" data-id="${row.id}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}"><i class="fas fa-trash"></i></button>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            // Add/Edit
+            $('#workerForm').submit(function(e) {
+                e.preventDefault();
+                const id = $('#workerId').val();
+                const data = {
+                    clientId: user.clientId,
+                    name: $('#wName').val(),
+                    phone: $('#wPhone').val(),
+                    category: $('#wCategory').val(),
+                    area: $('#wArea').val(),
+                    rate: parseInt($('#wRate').val()),
+                    type: $('#wType').val(),
+                    experience: $('#wExperience').val(),
+                    availability: $('#wAvailability').is(':checked'),
+                    image: 'https://placehold.co/100', // Default
+                    status: 'Approved' // Auto approve for demo
+                };
+
+                if (id) {
+                    // Retain existing image if editing
+                    const existing = DB.getAll('workers').find(w => w.id == id);
+                    data.image = existing.image;
+                    
+                    DB.update('workers', id, data);
+                    Swal.fire('Updated!', 'Worker info updated.', 'success');
+                } else {
+                    DB.add('workers', data);
+                    Swal.fire('Added!', 'New worker added.', 'success');
+                }
+                
+                $('#workerModal').modal('hide');
+                setTimeout(() => location.reload(), 1000);
+            });
+
+            // Edit Click
+            $('#workersTable').on('click', '.edit-btn', function() {
+                const id = $(this).data('id');
+                const w = DB.getAll('workers').find(i => i.id == id);
+                $('#workerId').val(w.id);
+                $('#wName').val(w.name);
+                $('#wPhone').val(w.phone);
+                $('#wCategory').val(w.category);
+                $('#wArea').val(w.area);
+                $('#wRate').val(w.rate);
+                $('#wType').val(w.type);
+                $('#wExperience').val(w.experience);
+                $('#wAvailability').prop('checked', w.availability);
+                $('#workerModal').modal('show');
+            });
+
+            // Delete
+             $('#workersTable').on('click', '.delete-btn', function() {
+                const id = $(this).data('id');
+                Swal.fire({
+                    title: 'Delete Worker?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        DB.delete('workers', id);
+                        Swal.fire('Deleted!', 'Worker has been deleted.', 'success')
+                        .then(() => location.reload());
+                    }
+                })
+            });
+        });
+    </script>
+</body>
+</html>

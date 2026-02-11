@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Member Management - NGO Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+    />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .stat-card.green {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      }
+      .stat-card.blue {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .stat-card.orange {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      }
+      .stat-card.red {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      }
+      .stat-card h3 {
+        font-size: 2rem;
+        margin: 10px 0 5px 0;
+      }
+      .stat-card p {
+        font-size: 0.9rem;
+        margin: 0;
+        opacity: 0.9;
+      }
+      .filter-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .filter-badge {
+        display: inline-block;
+        padding: 8px 12px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .filter-badge.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+      .member-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .member-name-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .action-buttons {
+        white-space: nowrap;
+      }
+      .mobile-badge {
+        background: #e8f4f8;
+        color: #0066cc;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+      }
+      .loan-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+      }
+      .no-data-message {
+        text-align: center;
+        padding: 30px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar"></div>
+
+    <div class="main-content">
+      <div id="topNavbar" class="navbar-custom"></div>
+
+      <div class="container-fluid">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4>Member Management</h4>
+            <p class="text-muted small">
+              Manage and monitor member profiles, documents, and loan history
+            </p>
+          </div>
+          <div>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addMemberModal"
+            >
+              <i class="fas fa-plus"></i> Register New Member
+            </button>
+            <button class="btn btn-outline-secondary ms-2" id="exportBtn">
+              <i class="fas fa-download"></i> Export
+            </button>
+          </div>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="stats-container">
+          <div class="stat-card green">
+            <h3 id="totalMembers">0</h3>
+            <p>Total Members</p>
+          </div>
+          <div class="stat-card blue">
+            <h3 id="activeMembers">0</h3>
+            <p>Active Members</p>
+          </div>
+          <div class="stat-card orange">
+            <h3 id="membersWithLoans">0</h3>
+            <p>With Active Loans</p>
+          </div>
+          <div class="stat-card red">
+            <h3 id="totalLoanAmount">৳0</h3>
+            <p>Total Loan Amount</p>
+          </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <strong>Filter by Status:</strong>
+          <span class="filter-badge active" data-filter="all">All</span>
+          <span class="filter-badge" data-filter="Active">Active</span>
+          <span class="filter-badge" data-filter="Inactive">Inactive</span>
+          <span class="filter-badge" data-filter="Suspended">Suspended</span>
+          <div class="mt-3">
+            <strong>Filter by Branch:</strong>
+            <select
+              id="branchFilter"
+              class="form-select form-select-sm d-inline w-auto ms-2"
+              style="max-width: 250px"
+            >
+              <option value="">All Branches</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="mb-3">
+          <input
+            type="text"
+            id="searchBox"
+            class="form-control"
+            placeholder="Search by name, phone, NID..."
+          />
+        </div>
+
+        <!-- Table -->
+        <div class="card-box">
+          <div class="table-responsive">
+            <table id="memberTable" class="table table-hover w-100">
+              <thead class="table-light">
+                <tr>
+                  <th>Photo</th>
+                  <th>Member Info</th>
+                  <th>Phone</th>
+                  <th>NID</th>
+                  <th>Branch</th>
+                  <th>Occupation</th>
+                  <th>Loans</th>
+                  <th>Status</th>
+                  <th width="140">Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="noDataMessage" class="no-data-message" style="display: none">
+            <i
+              class="fas fa-inbox"
+              style="font-size: 3rem; color: #ccc; margin-bottom: 10px"
+            ></i>
+            <p>No members found. Register a new member to get started!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Add/Edit Member Modal -->
+    <div class="modal fade" id="addMemberModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-user-plus"></i>
+              <span id="modalTitle">Register New Member</span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="memberForm">
+              <input type="hidden" id="mId" value="" />
+
+              <!-- Section 1: Personal -->
+              <div class="row">
+                <div class="col-md-12">
+                  <h6 class="text-primary border-bottom pb-2 mb-3">
+                    <i class="fas fa-user"></i> Personal Information
+                  </h6>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label"
+                    >Full Name <span class="text-danger">*</span></label
+                  >
+                  <input type="text" id="mName" class="form-control" required />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label"
+                    >Father/Husband Name
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="mGuardian"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Mother's Name</label>
+                  <input type="text" id="mMother" class="form-control" />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Gender</label>
+                  <select id="mGender" class="form-select" required>
+                    <option value="">Select...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label"
+                    >Date of Birth <span class="text-danger">*</span></label
+                  >
+                  <input type="date" id="mDob" class="form-control" required />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label"
+                    >Phone Number <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="tel"
+                    id="mPhone"
+                    class="form-control"
+                    pattern="[0-9]{11}"
+                    placeholder="01700000000"
+                    required
+                  />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Blood Group</label>
+                  <select id="mBlood" class="form-select">
+                    <option value="">Select</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Religion</label>
+                  <select id="mReligion" class="form-select">
+                    <option value="">Select...</option>
+                    <option value="Islam">Islam</option>
+                    <option value="Hinduism">Hinduism</option>
+                    <option value="Christianity">Christianity</option>
+                    <option value="Buddhism">Buddhism</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Section 2: Education & Occupation -->
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <h6 class="text-primary border-bottom pb-2 mb-3">
+                    <i class="fas fa-briefcase"></i> Socio-Economic Details
+                  </h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Educational Qualification</label>
+                  <select id="mEdu" class="form-select">
+                    <option value="">Select...</option>
+                    <option value="Illiterate">Illiterate</option>
+                    <option value="Primary">Primary (Class 5)</option>
+                    <option value="Middle">Middle (Class 8)</option>
+                    <option value="SSC">SSC</option>
+                    <option value="HSC">HSC</option>
+                    <option value="Bachelor">Bachelor</option>
+                    <option value="Master">Master</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label"
+                    >Primary Occupation
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="mJob"
+                    class="form-control"
+                    placeholder="e.g., Farmer, Business"
+                    required
+                  />
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label"
+                    >Monthly Income (Est.)
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="number"
+                    id="mIncome"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Section 3: KYC & NGO Assignment -->
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <h6 class="text-primary border-bottom pb-2 mb-3">
+                    <i class="fas fa-id-card"></i> Identification & NGO
+                    Assignment
+                  </h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label"
+                    >NID / Smart Card Number
+                    <span class="text-danger">*</span></label
+                  >
+                  <input type="text" id="mNid" class="form-control" required />
+                  <small class="text-muted">13 digit NID number</small>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label"
+                    >Branch <span class="text-danger">*</span></label
+                  >
+                  <select id="mBranch" class="form-select" required></select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Group (Somity) ID</label>
+                  <input
+                    type="text"
+                    id="mGroup"
+                    class="form-control"
+                    placeholder="e.g., DHK-MIR-01"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Present Address <span class="text-danger">*</span></label
+                  >
+                  <textarea
+                    id="mAddress"
+                    class="form-control"
+                    rows="2"
+                    required
+                  ></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Permanent Address</label>
+                  <textarea
+                    id="mPermAddress"
+                    class="form-control"
+                    rows="2"
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- Section 4: Nominee & Reference -->
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <h6 class="text-primary border-bottom pb-2 mb-3">
+                    <i class="fas fa-user-friends"></i> Nominee & Reference
+                  </h6>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Nominee Name</label>
+                  <input type="text" id="nomName" class="form-control" />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Nominee Relation</label>
+                  <input
+                    type="text"
+                    id="nomRelation"
+                    class="form-control"
+                    placeholder="e.g., Spouse, Father"
+                  />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Reference Person Name</label>
+                  <input type="text" id="refName" class="form-control" />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Reference Phone</label>
+                  <input type="tel" id="refPhone" class="form-control" />
+                </div>
+              </div>
+
+              <!-- Section 5: Status -->
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <h6 class="text-primary border-bottom pb-2 mb-3">
+                    <i class="fas fa-check-circle"></i> Member Status
+                  </h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label"
+                    >Status <span class="text-danger">*</span></label
+                  >
+                  <select id="mStatus" class="form-select" required>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Suspended">Suspended</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="text-end mt-4">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary px-5">
+                  <i class="fas fa-save"></i> Save Member
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/app.js"></script>
+
+    <script>
+      const MemberManager = {
+        user: null,
+        currentStatusFilter: "all",
+        currentBranchFilter: "",
+        dataTable: null,
+        allMembers: [],
+        branches: [],
+
+        init: function () {
+          this.user = DB.getCurrentUser();
+          if (!this.user) {
+            window.location.href = "../../pages/login.html";
+            return;
+          }
+
+          App.init();
+          this.loadBranches();
+          this.loadMembers();
+          this.setupEventHandlers();
+          this.updateStatistics();
+        },
+
+        loadBranches: function () {
+          this.branches = DB.getAll(DB.KEYS.BRANCHES).filter(
+            (b) => b.ngoId === this.user.ngoId,
+          );
+
+          // Populate branch select in form
+          const branchSelect = $("#mBranch");
+          branchSelect.html('<option value="">Select...</option>');
+          this.branches.forEach((b) => {
+            branchSelect.append(`<option value="${b.id}">${b.name}</option>`);
+          });
+
+          // Populate branch filter
+          const branchFilter = $("#branchFilter");
+          branchFilter.html('<option value="">All Branches</option>');
+          this.branches.forEach((b) => {
+            branchFilter.append(`<option value="${b.id}">${b.name}</option>`);
+          });
+        },
+
+        loadMembers: function () {
+          const allMembers = DB.getAll(DB.KEYS.MEMBERS) || [];
+          this.allMembers = allMembers.filter((m) => {
+            return m && m.ngoId === this.user.ngoId && this.validateMember(m);
+          });
+          this.renderTable();
+        },
+
+        validateMember: function (member) {
+          // Provide safe defaults for undefined properties
+          member.id = member.id || Math.random();
+          member.name = member.name || "N/A";
+          member.guardian = member.guardian || "N/A";
+          member.motherName = member.motherName || "";
+          member.gender = member.gender || "N/A";
+          member.dob = member.dob || "";
+          member.phone = member.phone || "N/A";
+          member.bloodGroup = member.bloodGroup || "";
+          member.religion = member.religion || "";
+          member.education = member.education || "";
+          member.occupation = member.occupation || "N/A";
+          member.monthlyIncome = member.monthlyIncome || 0;
+          member.nid = member.nid || "N/A";
+          member.branchId = member.branchId || null;
+          member.group = member.group || "";
+          member.address = member.address || "";
+          member.permAddress = member.permAddress || "";
+          member.nominee = member.nominee || { name: "", relation: "" };
+          member.reference = member.reference || { name: "", phone: "" };
+          member.status = member.status || "Active";
+          member.joinedAt =
+            member.joinedAt || new Date().toISOString().split("T")[0];
+          return true;
+        },
+
+        renderTable: function () {
+          let filteredData = this.allMembers;
+
+          // Apply status filter
+          if (this.currentStatusFilter !== "all") {
+            filteredData = filteredData.filter(
+              (m) => m.status === this.currentStatusFilter,
+            );
+          }
+
+          // Apply branch filter
+          if (this.currentBranchFilter) {
+            filteredData = filteredData.filter(
+              (m) => m.branchId == this.currentBranchFilter,
+            );
+          }
+
+          if (this.dataTable) {
+            this.dataTable.destroy();
+          }
+
+          if (filteredData.length === 0) {
+            $("#memberTable tbody").html("");
+            $("#noDataMessage").show();
+            return;
+          }
+
+          $("#noDataMessage").hide();
+
+          this.dataTable = $("#memberTable").DataTable({
+            data: filteredData,
+            destroy: true,
+            pageLength: 10,
+            order: [[1, "asc"]],
+            language: {
+              emptyTable: "No members found",
+              zeroRecords: "No matching members found",
+            },
+            columns: [
+              {
+                data: "name",
+                render: (d) =>
+                  `<img src="https://ui-avatars.com/api/?name=${this.escapeHtml(d)}&background=random&rounded=true" class="member-avatar">`,
+              },
+              {
+                data: "name",
+                render: (d, t, r) => `
+                            <div class="member-name-badge">
+                                <div>
+                                    <div><strong>${this.escapeHtml(d || "N/A")}</strong></div>
+                                    <small class="text-muted">${r.gender || "N/A"}</small>
+                                </div>
+                            </div>
+                        `,
+              },
+              {
+                data: "phone",
+                render: (d) =>
+                  `<span class="mobile-badge"><i class="fas fa-phone"></i> ${d || "N/A"}</span>`,
+              },
+              {
+                data: "nid",
+                render: (d) => `<small>${d || "N/A"}</small>`,
+              },
+              {
+                data: "branchId",
+                render: (data) => {
+                  const branch = this.branches.find((b) => b.id == data);
+                  return `<span class="badge bg-info">${branch ? branch.name : "N/A"}</span>`;
+                },
+              },
+              {
+                data: "occupation",
+                render: (d) => `<small>${d || "N/A"}</small>`,
+              },
+              {
+                data: null,
+                render: (data) => {
+                  const loans = DB.getAll(DB.KEYS.LOANS) || [];
+                  const memberLoans = loans.filter(
+                    (l) => l.memberId == data.id,
+                  );
+                  const activeLoans = memberLoans.filter(
+                    (l) => l.status === "Active",
+                  );
+                  if (activeLoans.length > 0) {
+                    const totalDue = activeLoans.reduce(
+                      (sum, l) => sum + (l.due || 0),
+                      0,
+                    );
+                    return `<span class="loan-status" style="background: #fff3cd; color: #856404;">
+                                    <i class="fas fa-hand-holding-usd"></i> ${activeLoans.length} (৳${this.formatNumber(totalDue)})
+                                </span>`;
+                  }
+                  return '<span class="badge bg-light text-dark">-</span>';
+                },
+              },
+              {
+                data: "status",
+                render: (d) => {
+                  const color =
+                    (d || "Active") === "Active"
+                      ? "success"
+                      : d === "Inactive"
+                        ? "secondary"
+                        : "danger";
+                  return `<span class="badge bg-${color}">${d || "Active"}</span>`;
+                },
+              },
+              {
+                data: null,
+                orderable: false,
+                render: (data) => `
+                            <div class="btn-group btn-group-sm action-buttons">
+                                <button class="btn btn-outline-info view-details" data-id="${data.id}" title="Full Profile">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-warning edit-member" data-id="${data.id}" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger delete-member" data-id="${data.id}" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `,
+              },
+            ],
+          });
+        },
+
+        setupEventHandlers: function () {
+          // Status filter
+          $(".filter-badge").on("click", (e) => {
+            $(".filter-badge").removeClass("active");
+            $(e.target).closest(".filter-badge").addClass("active");
+            this.currentStatusFilter = $(e.target)
+              .closest(".filter-badge")
+              .data("filter");
+            this.renderTable();
+          });
+
+          // Branch filter
+          $("#branchFilter").on("change", () => {
+            this.currentBranchFilter = $("#branchFilter").val();
+            this.renderTable();
+          });
+
+          // Search
+          $("#searchBox").on("keyup", () => {
+            if (this.dataTable) {
+              this.dataTable.search($("#searchBox").val()).draw();
+            }
+          });
+
+          // Form submission
+          $("#memberForm")
+            .off("submit")
+            .on("submit", (e) => {
+              e.preventDefault();
+              this.saveMember();
+            });
+
+          // Table event handlers
+          $("#memberTable")
+            .off("click", ".view-details")
+            .on("click", ".view-details", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.viewMemberDetails(id);
+            });
+
+          $("#memberTable")
+            .off("click", ".edit-member")
+            .on("click", ".edit-member", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.editMember(id);
+            });
+
+          $("#memberTable")
+            .off("click", ".delete-member")
+            .on("click", ".delete-member", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.deleteMember(id);
+            });
+
+          // Export
+          $("#exportBtn").on("click", () => this.exportMembers());
+
+          // Modal reset
+          $("#addMemberModal").on("hidden.bs.modal", () => {
+            $("#memberForm")[0].reset();
+            $("#mId").val("");
+            $("#modalTitle").text("Register New Member");
+          });
+        },
+
+        saveMember: function () {
+          if (!$("#memberForm")[0].checkValidity()) {
+            Swal.fire(
+              "Error",
+              "Please fill all required fields correctly",
+              "error",
+            );
+            return;
+          }
+
+          const id = $("#mId").val();
+          const newMember = {
+            name: $("#mName").val(),
+            guardian: $("#mGuardian").val(),
+            motherName: $("#mMother").val(),
+            gender: $("#mGender").val(),
+            dob: $("#mDob").val(),
+            phone: $("#mPhone").val(),
+            bloodGroup: $("#mBlood").val(),
+            religion: $("#mReligion").val(),
+            education: $("#mEdu").val(),
+            occupation: $("#mJob").val(),
+            monthlyIncome: parseFloat($("#mIncome").val()),
+            nid: $("#mNid").val(),
+            branchId: parseInt($("#mBranch").val()),
+            group: $("#mGroup").val(),
+            address: $("#mAddress").val(),
+            permAddress: $("#mPermAddress").val(),
+            nominee: {
+              name: $("#nomName").val(),
+              relation: $("#nomRelation").val(),
+            },
+            reference: {
+              name: $("#refName").val(),
+              phone: $("#refPhone").val(),
+            },
+            status: $("#mStatus").val(),
+            ngoId: this.user.ngoId,
+          };
+
+          let members = DB.getAll(DB.KEYS.MEMBERS) || [];
+
+          if (id) {
+            // Edit existing
+            const index = members.findIndex((m) => m.id == id);
+            if (index !== -1) {
+              newMember.id = parseInt(id);
+              newMember.joinedAt =
+                members[index].joinedAt ||
+                new Date().toISOString().split("T")[0];
+              members[index] = newMember;
+            }
+          } else {
+            // Add new
+            newMember.id =
+              members.length > 0
+                ? Math.max(...members.map((m) => m.id || 0)) + 1
+                : 1;
+            newMember.joinedAt = new Date().toISOString().split("T")[0];
+            members.push(newMember);
+          }
+
+          DB.save(DB.KEYS.MEMBERS, members);
+          $("#addMemberModal").modal("hide");
+          Swal.fire(
+            "Success",
+            id
+              ? "Member updated successfully"
+              : "Member registered successfully",
+            "success",
+          ).then(() => {
+            this.loadMembers();
+            this.updateStatistics();
+          });
+        },
+
+        editMember: function (id) {
+          const m = this.allMembers.find((x) => x.id == id);
+          if (!m) return;
+
+          $("#mId").val(m.id);
+          $("#mName").val(m.name);
+          $("#mGuardian").val(m.guardian);
+          $("#mMother").val(m.motherName);
+          $("#mGender").val(m.gender);
+          $("#mDob").val(m.dob);
+          $("#mPhone").val(m.phone);
+          $("#mBlood").val(m.bloodGroup);
+          $("#mReligion").val(m.religion);
+          $("#mEdu").val(m.education);
+          $("#mJob").val(m.occupation);
+          $("#mIncome").val(m.monthlyIncome);
+          $("#mNid").val(m.nid);
+          $("#mBranch").val(m.branchId);
+          $("#mGroup").val(m.group);
+          $("#mAddress").val(m.address);
+          $("#mPermAddress").val(m.permAddress);
+          $("#nomName").val(m.nominee.name);
+          $("#nomRelation").val(m.nominee.relation);
+          $("#refName").val(m.reference.name);
+          $("#refPhone").val(m.reference.phone);
+          $("#mStatus").val(m.status);
+          $("#modalTitle").text("Edit: " + m.name);
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("addMemberModal"),
+          );
+          modal.show();
+        },
+
+        viewMemberDetails: function (id) {
+          const m = this.allMembers.find((x) => x.id == id);
+          if (!m) return;
+
+          const branch = this.branches.find((b) => b.id == m.branchId);
+          const loans = DB.getAll(DB.KEYS.LOANS) || [];
+          const memberLoans = loans.filter((l) => l.memberId == m.id);
+
+          const loansSummary =
+            memberLoans.length > 0
+              ? `<br><strong>Active Loans:</strong> ${memberLoans.filter((l) => l.status === "Active").length}<br><strong>Total Loan Amount:</strong> ৳${this.formatNumber(memberLoans.reduce((sum, l) => sum + (l.principal || 0), 0))}`
+              : "<br><strong>No loans yet</strong>";
+
+          const html = `
+                <div class="text-start">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><strong>Guardian:</strong> ${m.guardian}</div>
+                            <div class="col-6"><strong>Phone:</strong> <span class="mobile-badge">${m.phone}</span></div>
+                            <div class="col-6"><strong>Gender:</strong> ${m.gender}</div>
+                            <div class="col-6"><strong>DOB:</strong> ${m.dob}</div>
+                            <div class="col-6"><strong>NID:</strong> ${m.nid}</div>
+                            <div class="col-6"><strong>Blood Group:</strong> ${m.bloodGroup || "N/A"}</div>
+                            <div class="col-6"><strong>Religion:</strong> ${m.religion || "N/A"}</div>
+                            <div class="col-6"><strong>Education:</strong> ${m.education || "N/A"}</div>
+                        </div>
+                        <hr class="my-2">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><strong>Occupation:</strong> ${m.occupation}</div>
+                            <div class="col-6"><strong>Monthly Income:</strong> ৳${this.formatNumber(m.monthlyIncome)}</div>
+                            <div class="col-6"><strong>Branch:</strong> ${branch ? branch.name : "N/A"}</div>
+                            <div class="col-6"><strong>Group:</strong> ${m.group || "N/A"}</div>
+                        </div>
+                        <hr class="my-2">
+                        <div class="mb-3">
+                            <strong>Address:</strong><br>
+                            <small>${m.address}</small>
+                        </div>
+                        ${m.permAddress ? '<div class="mb-3"><strong>Permanent Address:</strong><br><small>' + m.permAddress + "</small></div>" : ""}
+                        <hr class="my-2">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <strong>Nominee:</strong><br>
+                                <small>${m.nominee.name || "N/A"} (${m.nominee.relation || "N/A"})</small>
+                            </div>
+                            <div class="col-6">
+                                <strong>Reference:</strong><br>
+                                <small>${m.reference.name || "N/A"} - ${m.reference.phone || "N/A"}</small>
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                        <div>
+                            <strong>Status:</strong> <span class="badge bg-${(m.status || "Active") === "Active" ? "success" : "danger"}">${m.status || "Active"}</span>
+                            <strong class="ms-3">Joined:</strong> ${m.joinedAt}
+                            ${loansSummary}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+          Swal.fire({
+            title: m.name,
+            html: html,
+            icon: "info",
+            width: "700px",
+            confirmButtonText: "Close",
+          });
+        },
+
+        deleteMember: function (id) {
+          Swal.fire({
+            title: "Delete Member?",
+            text: "This action cannot be undone. Loan records will remain unchanged.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              let members = DB.getAll(DB.KEYS.MEMBERS) || [];
+              members = members.filter((m) => m.id != id);
+              DB.save(DB.KEYS.MEMBERS, members);
+              Swal.fire("Deleted!", "Member has been deleted.", "success").then(
+                () => {
+                  this.loadMembers();
+                  this.updateStatistics();
+                },
+              );
+            }
+          });
+        },
+
+        updateStatistics: function () {
+          const total = this.allMembers.length;
+          const active = this.allMembers.filter(
+            (m) => (m.status || "Active") === "Active",
+          ).length;
+
+          const loans = DB.getAll(DB.KEYS.LOANS) || [];
+          const membersWithLoans = new Set(
+            loans.filter((l) => l.status === "Active").map((l) => l.memberId),
+          );
+          const totalLoanAmount = loans.reduce(
+            (sum, l) => sum + (l.principal || 0),
+            0,
+          );
+
+          $("#totalMembers").text(total);
+          $("#activeMembers").text(active);
+          $("#membersWithLoans").text(membersWithLoans.size);
+          $("#totalLoanAmount").text("৳" + this.formatNumber(totalLoanAmount));
+        },
+
+        exportMembers: function () {
+          if (this.allMembers.length === 0) {
+            Swal.fire("Info", "No members to export", "info");
+            return;
+          }
+
+          let csv =
+            "ID,Name,Father/Husband,Phone,NID,Gender,DOB,Branch,Occupation,Income,Education,Group,Status,Joined\n";
+
+          this.allMembers.forEach((m) => {
+            const branch = this.branches.find((b) => b.id == m.branchId);
+            csv += `${m.id},"${this.escapeHtml(m.name)}","${this.escapeHtml(m.guardian)}",${m.phone},"${m.nid}",${m.gender},"${m.dob}","${branch ? branch.name : "N/A"}","${this.escapeHtml(m.occupation)}","${m.monthlyIncome}","${m.education}","${m.group}",${m.status},"${m.joinedAt}"\n`;
+          });
+
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `members-${new Date().getTime()}.csv`;
+          link.click();
+
+          Swal.fire("Success", "Members exported successfully", "success");
+        },
+
+        escapeHtml: function (text) {
+          const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;",
+          };
+          return (text || "").replace(/[&<>"']/g, (m) => map[m]);
+        },
+
+        formatNumber: function (num) {
+          return (num || 0).toLocaleString("en-BD", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          });
+        },
+      };
+
+      $(document).ready(function () {
+        MemberManager.init();
+      });
+    </script>
+  </body>
+</html>

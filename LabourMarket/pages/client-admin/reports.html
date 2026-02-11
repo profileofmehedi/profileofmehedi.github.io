@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports - Client Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="brand">Client Portal</div>
+        <a href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+        <a href="workers.html"><i class="fas fa-hard-hat me-2"></i> Workers</a>
+        <a href="calls.html"><i class="fas fa-phone me-2"></i> Call Log</a>
+        <a href="reports.html" class="active"><i class="fas fa-chart-line me-2"></i> Reports</a>
+        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    </div>
+
+    <div class="content">
+        <h3 class="mb-4">Performance Reports</h3>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white font-weight-bold">Worker Performance (Total Calls)</div>
+                    <div class="card-body">
+                         <div id="workerPerformance"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white font-weight-bold">Area Wise Demand</div>
+                    <div class="card-body">
+                        <div id="areaDemand"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/app.js"></script>
+    <script>
+        $(document).ready(function() {
+            const user = DB.checkAuth('client-admin');
+            if(!user) return;
+
+            const myWorkers = DB.getAll('workers').filter(w => w.clientId == user.clientId);
+            const myCalls = DB.getAll('calls').filter(c => myWorkers.some(w => w.id == c.workerId));
+
+            // Worker Performance
+            const workerCounts = {};
+            myCalls.forEach(c => workerCounts[c.workerId] = (workerCounts[c.workerId] || 0) + 1);
+            
+            Object.keys(workerCounts).forEach(wid => {
+                const w = myWorkers.find(i => i.id == wid);
+                const count = workerCounts[wid];
+                const pct = Math.min((count / myCalls.length) * 100 * 2, 100); // Scale up for demo
+                
+                if (w) {
+                    $('#workerPerformance').append(`
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>${w.name}</span>
+                                <span>${count} Calls</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" role="progressbar" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+
+            // Area Demand
+            const areaCounts = {};
+            myCalls.forEach(c => {
+                 const w = myWorkers.find(i => i.id == c.workerId);
+                 if(w) areaCounts[w.area] = (areaCounts[w.area] || 0) + 1;
+            });
+
+            Object.keys(areaCounts).forEach(area => {
+                 const count = areaCounts[area];
+                 const pct = Math.min((count / myCalls.length) * 100 * 2, 100);
+
+                 $('#areaDemand').append(`
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>${area}</span>
+                            <span>${count} Calls</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                 `);
+            });
+        });
+    </script>
+</body>
+</html>

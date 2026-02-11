@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Branch Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="../../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidebar"></div>
+<div class="main-content">
+    <div id="topNavbar" class="navbar-custom"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card-box stat-card">
+                    <div>
+                        <h3 id="branchMembers">0</h3>
+                        <p class="text-muted mb-0">Branch Members</p>
+                    </div>
+                    <div class="stat-icon text-primary"><i class="fas fa-users"></i></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-box stat-card">
+                    <div>
+                        <h3 id="branchOfficers">0</h3>
+                        <p class="text-muted mb-0">Field Officers</p>
+                    </div>
+                    <div class="stat-icon text-info"><i class="fas fa-user-tie"></i></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-box stat-card">
+                    <div>
+                        <h3 id="branchCollection">৳0</h3>
+                        <p class="text-muted mb-0">Today's Collection</p>
+                    </div>
+                    <div class="stat-icon text-success"><i class="fas fa-money-check-alt"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="card-box">
+            <h5>Recent Activity in Branch</h5>
+            <table class="table table-striped" id="branchActivity">
+                <thead><tr><th>Officer</th><th>Action</th><th>Date</th></tr></thead>
+                <tbody>
+                    <tr><td>Officer 1</td><td>Collected ৳2,000</td><td>Today</td></tr>
+                    <tr><td>Officer 1</td><td>Added New Member</td><td>Yesterday</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../assets/js/db.js"></script>
+<script src="../../assets/js/auth.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script>
+    $(document).ready(function() {
+        const user = DB.getCurrentUser();
+        const members = DB.getAll(DB.KEYS.MEMBERS).filter(m => m.branchId == user.branchId);
+        const officers = DB.getAll(DB.KEYS.USERS).filter(u => u.role === 'officer' && u.branchId == user.branchId);
+        
+        $('#branchMembers').text(members.length);
+        $('#branchOfficers').text(officers.length);
+    });
+</script>
+</body>
+</html>

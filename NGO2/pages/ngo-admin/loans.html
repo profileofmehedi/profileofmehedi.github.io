@@ -1,0 +1,1767 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Management - NGO Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+    />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .stat-card.green {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      }
+      .stat-card.blue {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .stat-card.orange {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      }
+      .stat-card.red {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      }
+      .stat-card h3 {
+        font-size: 2rem;
+        margin: 10px 0 5px 0;
+      }
+      .stat-card p {
+        font-size: 0.9rem;
+        margin: 0;
+        opacity: 0.9;
+      }
+      .filter-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .filter-badge {
+        display: inline-block;
+        padding: 8px 12px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .filter-badge.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-overdue {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .status-completed {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+      .no-data-message {
+        text-align: center;
+        padding: 30px;
+        color: #666;
+      }
+      .progress-bar-sm {
+        height: 6px;
+      }
+      .member-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .member-avatar-sm {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+      }
+      .workflow-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .workflow-draft {
+        background: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+      }
+      .workflow-pending-check {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .workflow-pending-approval {
+        background: #cce5ff;
+        color: #0066cc;
+        border: 1px solid #7db3d3;
+      }
+      .workflow-approved {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .workflow-rejected {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f1b0b7;
+      }
+      .role-checker .checker-only {
+        display: inline-block !important;
+      }
+      .role-approver .approver-only {
+        display: inline-block !important;
+      }
+      .role-maker .maker-only {
+        display: inline-block !important;
+      }
+      .checker-only,
+      .approver-only,
+      .maker-only {
+        display: none;
+      }
+      .approval-history {
+        font-size: 0.85rem;
+        margin-top: 10px;
+      }
+      .approval-step {
+        padding: 8px;
+        margin: 5px 0;
+        border-left: 3px solid #dee2e6;
+        background: #f8f9fa;
+      }
+      .approval-step.completed {
+        border-left-color: #28a745;
+        background: #d4edda;
+      }
+      .approval-step.rejected {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar"></div>
+
+    <div class="main-content">
+      <div id="topNavbar" class="navbar-custom"></div>
+
+      <div class="container-fluid">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4>Loan Management</h4>
+            <p class="text-muted small">
+              Monitor and manage member loan disbursements and repayments
+            </p>
+          </div>
+          <div>
+            <button
+              class="btn btn-primary maker-only"
+              data-bs-toggle="modal"
+              data-bs-target="#disburseModal"
+            >
+              <i class="fas fa-plus"></i> Create Loan Request
+            </button>
+            <button class="btn btn-info checker-only" id="pendingCheckBtn">
+              <i class="fas fa-clipboard-check"></i> Pending Check
+              <span id="pendingCheckCount" class="badge bg-white text-info ms-1"
+                >0</span
+              >
+            </button>
+            <button
+              class="btn btn-success approver-only"
+              id="pendingApprovalBtn"
+            >
+              <i class="fas fa-stamp"></i> Pending Approval
+              <span
+                id="pendingApprovalCount"
+                class="badge bg-white text-success ms-1"
+                >0</span
+              >
+            </button>
+            <button class="btn btn-outline-secondary ms-2" id="exportBtn">
+              <i class="fas fa-download"></i> Export
+            </button>
+          </div>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="stats-container">
+          <div class="stat-card green">
+            <h3 id="totalLoans">0</h3>
+            <p>Total Loans</p>
+          </div>
+          <div class="stat-card blue">
+            <h3 id="activeLoans">0</h3>
+            <p>Active Loans</p>
+          </div>
+          <div class="stat-card orange">
+            <h3 id="totalDisbursed">৳0</h3>
+            <p>Total Disbursed</p>
+          </div>
+          <div class="stat-card red">
+            <h3 id="totalRecovered">৳0</h3>
+            <p>Total Recovered</p>
+          </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Filter by Approval Status:</strong><br />
+              <span class="filter-badge active" data-filter="all">All</span>
+              <span class="filter-badge" data-filter="Draft">Draft</span>
+              <span
+                class="filter-badge checker-only"
+                data-filter="Pending Check"
+                >Pending Check</span
+              >
+              <span
+                class="filter-badge approver-only"
+                data-filter="Pending Approval"
+                >Pending Approval</span
+              >
+              <span class="filter-badge" data-filter="Approved">Approved</span>
+              <span class="filter-badge" data-filter="Rejected">Rejected</span>
+            </div>
+            <div class="col-md-6">
+              <strong>Filter by Loan Status:</strong><br />
+              <span
+                class="filter-badge"
+                data-filter-type="loan"
+                data-filter="Active"
+                >Active</span
+              >
+              <span
+                class="filter-badge"
+                data-filter-type="loan"
+                data-filter="Completed"
+                >Completed</span
+              >
+              <span
+                class="filter-badge"
+                data-filter-type="loan"
+                data-filter="Overdue"
+                >Overdue</span
+              >
+            </div>
+          </div>
+          <div class="mt-3">
+            <strong>Filter by Product:</strong>
+            <select
+              id="productFilter"
+              class="form-select form-select-sm d-inline w-auto ms-2"
+              style="max-width: 250px"
+            >
+              <option value="">All Products</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="mb-3">
+          <input
+            type="text"
+            id="searchBox"
+            class="form-control"
+            placeholder="Search by member name, loan ID, phone..."
+          />
+        </div>
+
+        <!-- Table -->
+        <div class="card-box">
+          <div class="table-responsive">
+            <table id="loanTable" class="table table-hover w-100">
+              <thead class="table-light">
+                <tr>
+                  <th>Loan ID</th>
+                  <th>Member</th>
+                  <th>Product</th>
+                  <th>Principal</th>
+                  <th>Interest</th>
+                  <th>Total</th>
+                  <th>Paid</th>
+                  <th>Due</th>
+                  <th>Recovery %</th>
+                  <th>Approval Status</th>
+                  <th>Loan Status</th>
+                  <th width="160">Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="noDataMessage" class="no-data-message" style="display: none">
+            <i
+              class="fas fa-inbox"
+              style="font-size: 3rem; color: #ccc; margin-bottom: 10px"
+            ></i>
+            <p>
+              No loans found. Create a new loan disbursement to get started!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disburse/Edit Loan Modal -->
+    <div class="modal fade" id="disburseModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-money-bill"></i>
+              <span id="modalTitle">New Loan Disbursement</span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="loanForm">
+              <input type="hidden" id="lId" value="" />
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Member <span class="text-danger">*</span></label
+                  >
+                  <select id="lMember" class="form-select" required>
+                    <option value="">Select Member...</option>
+                  </select>
+                  <small id="memberStatus" class="text-muted"></small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Loan Product <span class="text-danger">*</span></label
+                  >
+                  <select id="lProduct" class="form-select" required>
+                    <option value="">Select Product...</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Principal Amount (৳)
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="number"
+                    id="lAmount"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
+                  <small id="amountWarning" class="text-warning"></small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Disbursement Date <span class="text-danger">*</span></label
+                  >
+                  <input type="date" id="lDate" class="form-control" required />
+                </div>
+              </div>
+
+              <!-- Loan Preview -->
+              <div
+                class="alert alert-info"
+                id="loanPreview"
+                style="display: none"
+              >
+                <strong>Loan Summary:</strong><br />
+                <table class="table table-sm my-2">
+                  <tr>
+                    <td><strong>Product:</strong></td>
+                    <td id="prvProduct">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Interest Rate:</strong></td>
+                    <td id="prvRate">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Principal:</strong></td>
+                    <td id="prvPrincipal">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Interest Amount:</strong></td>
+                    <td id="prvInterest">-</td>
+                  </tr>
+                  <tr class="table-active">
+                    <td><strong>Total Payable:</strong></td>
+                    <td id="prvTotal">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Duration:</strong></td>
+                    <td id="prvDuration">-</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Inst. Amount:</strong></td>
+                    <td id="prvInstAmount">-</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div class="text-end mt-4">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary px-5">
+                  <i class="fas fa-save"></i>
+                  <span id="submitBtnText">Save Draft</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approval Workflow Modals -->
+
+    <!-- Check Loan Modal -->
+    <div class="modal fade" id="checkLoanModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title">
+              <i class="fas fa-clipboard-check"></i>
+              Review Loan Application
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="checkLoanDetails"></div>
+
+            <div class="mt-4">
+              <label class="form-label"
+                ><strong>Checker Comments:</strong></label
+              >
+              <textarea
+                id="checkerComments"
+                class="form-control"
+                rows="4"
+                placeholder="Add your review comments here..."
+              ></textarea>
+            </div>
+
+            <div class="text-end mt-4">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger me-2"
+                id="rejectFromCheckBtn"
+              >
+                <i class="fas fa-times"></i> Reject Application
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                id="passToApprovalBtn"
+              >
+                <i class="fas fa-check"></i> Pass to Approval
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approve Loan Modal -->
+    <div class="modal fade" id="approveLoanModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-stamp"></i>
+              Approve Loan Application
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="approveLoanDetails"></div>
+
+            <div class="approval-history" id="approvalHistory"></div>
+
+            <div class="mt-4">
+              <label class="form-label"
+                ><strong>Approver Comments:</strong></label
+              >
+              <textarea
+                id="approverComments"
+                class="form-control"
+                rows="4"
+                placeholder="Add your approval comments here..."
+              ></textarea>
+            </div>
+
+            <div class="text-end mt-4">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger me-2"
+                id="rejectFromApprovalBtn"
+              >
+                <i class="fas fa-times"></i> Reject Application
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                id="finalApproveBtn"
+              >
+                <i class="fas fa-stamp"></i> Final Approval & Disburse
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loan Details View Modal -->
+    <div class="modal fade" id="loanDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-info-circle"></i>
+              Loan Application Details
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="fullLoanDetails"></div>
+            <div id="fullApprovalHistory"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/app.js"></script>
+
+    <script>
+      const LoanManager = {
+        user: null,
+        currentStatusFilter: "all",
+        currentLoanStatusFilter: "",
+        currentProductFilter: "",
+        dataTable: null,
+        allLoans: [],
+        members: [],
+        products: [],
+        userRole: "maker", // Default role
+
+        init: function () {
+          this.user = DB.getCurrentUser();
+          if (!this.user) {
+            window.location.href = "../../pages/login.html";
+            return;
+          }
+
+          // Set user role based on user properties (you can modify this logic)
+          this.userRole = this.user.role || "maker"; // Default to maker
+          this.setupRoleUI();
+
+          App.init();
+          this.loadData();
+          this.setupEventHandlers();
+          this.updateStatistics();
+        },
+
+        setupRoleUI: function () {
+          // Add role class to body for CSS targeting
+          $("body").addClass(`role-${this.userRole}`);
+
+          // Update UI based on role
+          if (this.userRole === "maker") {
+            $(".maker-only").show();
+            $(".checker-only, .approver-only").hide();
+          } else if (this.userRole === "checker") {
+            $(".checker-only").show();
+            $(".maker-only, .approver-only").hide();
+          } else if (this.userRole === "approver") {
+            $(".approver-only").show();
+            $(".maker-only, .checker-only").hide();
+          }
+        },
+
+        loadData: function () {
+          // Load and validate data
+          this.members = (DB.getAll(DB.KEYS.MEMBERS) || []).filter(
+            (m) => m.ngoId === this.user.ngoId,
+          );
+          this.products = (DB.getAll(DB.KEYS.PRODUCTS) || []).filter(
+            (p) => p.ngoId === this.user.ngoId,
+          );
+
+          const allLoans = DB.getAll(DB.KEYS.LOANS) || [];
+          this.allLoans = allLoans.filter((l) => {
+            const member = this.members.find((m) => m.id == l.memberId);
+            return member && this.validateLoan(l);
+          });
+
+          this.populateSelects();
+          this.renderTable();
+        },
+
+        validateLoan: function (loan) {
+          // Provide safe defaults for undefined properties
+          loan.id = loan.id || Math.random();
+          loan.memberId = loan.memberId || null;
+          loan.productId = loan.productId || null;
+          loan.principal = loan.principal || 0;
+          loan.interest = loan.interest || 0;
+          loan.total = loan.total || 0;
+          loan.paid = loan.paid || 0;
+          loan.due = loan.due || 0;
+          loan.status = loan.status || "Active";
+          loan.startDate =
+            loan.startDate || new Date().toISOString().split("T")[0];
+          loan.schedule = loan.schedule || [];
+
+          // Approval workflow fields
+          loan.approvalStatus = loan.approvalStatus || "Draft";
+          loan.createdBy = loan.createdBy || this.user.id;
+          loan.createdAt = loan.createdAt || new Date().toISOString();
+          loan.checkedBy = loan.checkedBy || null;
+          loan.checkedAt = loan.checkedAt || null;
+          loan.checkerComments = loan.checkerComments || "";
+          loan.approvedBy = loan.approvedBy || null;
+          loan.approvedAt = loan.approvedAt || null;
+          loan.approverComments = loan.approverComments || "";
+          loan.rejectedBy = loan.rejectedBy || null;
+          loan.rejectedAt = loan.rejectedAt || null;
+          loan.rejectionReason = loan.rejectionReason || "";
+
+          return true;
+        },
+
+        populateSelects: function () {
+          // Populate member select
+          const memberSelect = $("#lMember");
+          memberSelect.html('<option value="">Select Member...</option>');
+          this.members.forEach((m) => {
+            const activeLoansCount = this.allLoans.filter(
+              (l) => l.memberId == m.id && l.status === "Active",
+            ).length;
+            const statusText =
+              activeLoansCount > 0
+                ? ` (${activeLoansCount} loan${activeLoansCount > 1 ? "s" : ""})`
+                : "";
+            memberSelect.append(
+              `<option value="${m.id}" data-phone="${m.phone}">${m.name}${statusText}</option>`,
+            );
+          });
+
+          // Populate product select
+          const productSelect = $("#lProduct");
+          productSelect.html('<option value="">Select Product...</option>');
+          this.products.forEach((p) => {
+            productSelect.append(`<option value="${p.id}" 
+                  data-rate="${p.interestRate}" 
+                  data-dur="${p.duration}" 
+                  data-type="${p.type}"
+                  data-method="${p.interestMethod}"
+                  data-min="${p.minAmount}"
+                  data-max="${p.maxAmount}">${p.name} (${p.interestRate}%)</option>`);
+          });
+
+          // Populate product filter
+          const productFilter = $("#productFilter");
+          productFilter.html('<option value="">All Products</option>');
+          this.products.forEach((p) => {
+            productFilter.append(`<option value="${p.id}">${p.name}</option>`);
+          });
+        },
+
+        renderTable: function () {
+          let filteredData = this.allLoans;
+
+          // Apply approval status filter
+          if (this.currentStatusFilter !== "all") {
+            filteredData = filteredData.filter(
+              (l) => l.approvalStatus === this.currentStatusFilter,
+            );
+          }
+
+          // Apply loan status filter
+          if (this.currentLoanStatusFilter) {
+            if (this.currentLoanStatusFilter === "Overdue") {
+              filteredData = filteredData.filter((l) => this.isOverdue(l));
+            } else {
+              filteredData = filteredData.filter(
+                (l) => l.status === this.currentLoanStatusFilter,
+              );
+            }
+          }
+
+          // Apply product filter
+          if (this.currentProductFilter) {
+            filteredData = filteredData.filter(
+              (l) => l.productId == this.currentProductFilter,
+            );
+          }
+
+          // Role-based filtering
+          if (this.userRole === "checker") {
+            // Checker sees draft and pending check loans
+            filteredData = filteredData.filter((l) =>
+              ["Draft", "Pending Check"].includes(l.approvalStatus),
+            );
+          } else if (this.userRole === "approver") {
+            // Approver sees pending approval loans
+            filteredData = filteredData.filter(
+              (l) => l.approvalStatus === "Pending Approval",
+            );
+          }
+
+          if (this.dataTable) {
+            this.dataTable.destroy();
+          }
+
+          if (filteredData.length === 0) {
+            $("#loanTable tbody").html("");
+            $("#noDataMessage").show();
+            return;
+          }
+
+          $("#noDataMessage").hide();
+
+          this.dataTable = $("#loanTable").DataTable({
+            data: filteredData,
+            destroy: true,
+            pageLength: 10,
+            order: [[0, "desc"]],
+            language: {
+              emptyTable: "No loans found",
+              zeroRecords: "No matching loans found",
+            },
+            columns: [
+              {
+                data: "id",
+                render: (d) => `<strong class="text-primary">#${d}</strong>`,
+              },
+              {
+                data: "memberId",
+                render: (data) => {
+                  const member = this.members.find((m) => m.id == data);
+                  if (!member) return "Unknown";
+                  return `
+                                <div class="member-info">
+                                    <img src="https://ui-avatars.com/api/?name=${this.escapeHtml(member.name)}&background=random&rounded=true" class="member-avatar-sm">
+                                    <div>
+                                        <div><strong>${this.escapeHtml(member.name)}</strong></div>
+                                        <small class="text-muted">${member.phone || "N/A"}</small>
+                                    </div>
+                                </div>
+                            `;
+                },
+              },
+              {
+                data: "productId",
+                render: (data) => {
+                  const product = this.products.find((p) => p.id == data);
+                  return product
+                    ? `<span class="badge bg-info">${product.name}</span>`
+                    : "Unknown";
+                },
+              },
+              {
+                data: "principal",
+                render: (d) => `<strong>৳${this.formatNumber(d || 0)}</strong>`,
+              },
+              {
+                data: "interest",
+                render: (d) => `৳${this.formatNumber(d || 0)}`,
+              },
+              {
+                data: "total",
+                render: (d) =>
+                  `<strong class="text-primary">৳${this.formatNumber(d || 0)}</strong>`,
+              },
+              {
+                data: "paid",
+                render: (d) =>
+                  `<span class="text-success">৳${this.formatNumber(d || 0)}</span>`,
+              },
+              {
+                data: "due",
+                render: (d) =>
+                  `<span class="text-danger">৳${this.formatNumber(d || 0)}</span>`,
+              },
+              {
+                data: null,
+                render: (data) => {
+                  const paid = data.paid || 0;
+                  const total = data.total || 1;
+                  const percentage = Math.round((paid / total) * 100);
+                  return `
+                                <div>
+                                    <div class="progress progress-bar-sm mb-1">
+                                        <div class="progress-bar bg-success" style="width: ${percentage}%"></div>
+                                    </div>
+                                    <small>${percentage}%</small>
+                                </div>
+                            `;
+                },
+              },
+              {
+                data: null,
+                render: (data) => {
+                  const status = data.approvalStatus || "Draft";
+                  let badgeClass = "workflow-draft";
+
+                  switch (status) {
+                    case "Pending Check":
+                      badgeClass = "workflow-pending-check";
+                      break;
+                    case "Pending Approval":
+                      badgeClass = "workflow-pending-approval";
+                      break;
+                    case "Approved":
+                      badgeClass = "workflow-approved";
+                      break;
+                    case "Rejected":
+                      badgeClass = "workflow-rejected";
+                      break;
+                  }
+
+                  return `<span class="workflow-badge ${badgeClass}">${status}</span>`;
+                },
+              },
+              {
+                data: null,
+                render: (data) => {
+                  if (data.approvalStatus !== "Approved") {
+                    return '<span class="text-muted">-</span>';
+                  }
+
+                  let status = data.status || "Active";
+                  let statusClass = "status-active";
+
+                  if (this.isOverdue(data)) {
+                    status = "Overdue";
+                    statusClass = "status-overdue";
+                  } else if (status === "Completed") {
+                    statusClass = "status-completed";
+                  }
+
+                  return `<span class="status-badge ${statusClass}">${status}</span>`;
+                },
+              },
+              {
+                data: null,
+                orderable: false,
+                render: (data) => {
+                  let buttons = [];
+
+                  // View details button (always available)
+                  buttons.push(`<button class="btn btn-outline-info view-details" data-id="${data.id}" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>`);
+
+                  // Role-based action buttons
+                  if (
+                    this.userRole === "maker" &&
+                    data.approvalStatus === "Draft"
+                  ) {
+                    buttons.push(`<button class="btn btn-outline-warning edit-loan" data-id="${data.id}" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>`);
+                    buttons.push(`<button class="btn btn-outline-primary submit-for-check" data-id="${data.id}" title="Submit for Check">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>`);
+                  } else if (
+                    this.userRole === "checker" &&
+                    data.approvalStatus === "Pending Check"
+                  ) {
+                    buttons.push(`<button class="btn btn-outline-warning review-loan" data-id="${data.id}" title="Review">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </button>`);
+                  } else if (
+                    this.userRole === "approver" &&
+                    data.approvalStatus === "Pending Approval"
+                  ) {
+                    buttons.push(`<button class="btn btn-outline-success approve-loan" data-id="${data.id}" title="Approve">
+                                    <i class="fas fa-stamp"></i>
+                                </button>`);
+                  } else if (data.approvalStatus === "Approved") {
+                    // Loan management buttons for approved loans
+                    buttons.push(`<button class="btn btn-outline-info view-schedule" data-id="${data.id}" title="Schedule">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>`);
+                    buttons.push(`<button class="btn btn-outline-success collect-payment" data-id="${data.id}" title="Payment">
+                                    <i class="fas fa-money-bill"></i>
+                                </button>`);
+                  }
+
+                  return `<div class="btn-group btn-group-sm">${buttons.join("")}</div>`;
+                },
+              },
+            ],
+          });
+        },
+
+        isOverdue: function (loan) {
+          if ((loan.status || "Active") !== "Active") return false;
+
+          const today = new Date();
+          const schedule = loan.schedule || [];
+
+          for (let inst of schedule) {
+            if (inst.status !== "Paid" && new Date(inst.date) < today) {
+              return true;
+            }
+          }
+          return false;
+        },
+
+        setupEventHandlers: function () {
+          // Approval Status filter
+          $('.filter-badge[data-filter-type!="loan"]').on("click", (e) => {
+            $('.filter-badge[data-filter-type!="loan"]').removeClass("active");
+            $(e.target).closest(".filter-badge").addClass("active");
+            this.currentStatusFilter = $(e.target)
+              .closest(".filter-badge")
+              .data("filter");
+            this.renderTable();
+          });
+
+          // Loan Status filter
+          $('.filter-badge[data-filter-type="loan"]').on("click", (e) => {
+            $('.filter-badge[data-filter-type="loan"]').removeClass("active");
+            $(e.target).closest(".filter-badge").addClass("active");
+            this.currentLoanStatusFilter = $(e.target)
+              .closest(".filter-badge")
+              .data("filter");
+            this.renderTable();
+          });
+
+          // Product filter
+          $("#productFilter").on("change", () => {
+            this.currentProductFilter = $("#productFilter").val();
+            this.renderTable();
+          });
+
+          // Search
+          $("#searchBox").on("keyup", () => {
+            if (this.dataTable) {
+              this.dataTable.search($("#searchBox").val()).draw();
+            }
+          });
+
+          // Pending buttons in header
+          $("#pendingCheckBtn").on("click", () => {
+            this.currentStatusFilter = "Pending Check";
+            $(".filter-badge").removeClass("active");
+            $('.filter-badge[data-filter="Pending Check"]').addClass("active");
+            this.renderTable();
+          });
+
+          $("#pendingApprovalBtn").on("click", () => {
+            this.currentStatusFilter = "Pending Approval";
+            $(".filter-badge").removeClass("active");
+            $('.filter-badge[data-filter="Pending Approval"]').addClass(
+              "active",
+            );
+            this.renderTable();
+          });
+
+          // Product and amount change for preview
+          $("#lProduct, #lAmount").on("change", () => {
+            this.updateLoanPreview();
+          });
+
+          // Member change for status info
+          $("#lMember").on("change", () => {
+            const memberId = $("#lMember").val();
+            if (memberId) {
+              const member = this.members.find((m) => m.id == memberId);
+              const activeLoans = this.allLoans.filter(
+                (l) => l.memberId == memberId && l.status === "Active",
+              );
+              $("#memberStatus").text(
+                `Phone: ${member.phone || "N/A"} | Active Loans: ${activeLoans.length}`,
+              );
+            } else {
+              $("#memberStatus").text("");
+            }
+          });
+
+          // Form submission
+          $("#loanForm")
+            .off("submit")
+            .on("submit", (e) => {
+              e.preventDefault();
+              this.saveLoan();
+            });
+
+          // Workflow Table events
+          $("#loanTable")
+            .off("click", ".view-details")
+            .on("click", ".view-details", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.viewLoanDetails(id);
+            });
+
+          $("#loanTable")
+            .off("click", ".submit-for-check")
+            .on("click", ".submit-for-check", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.submitForCheck(id);
+            });
+
+          $("#loanTable")
+            .off("click", ".review-loan")
+            .on("click", ".review-loan", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.reviewLoan(id);
+            });
+
+          $("#loanTable")
+            .off("click", ".approve-loan")
+            .on("click", ".approve-loan", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.approveLoan(id);
+            });
+
+          // Existing loan management events
+          $("#loanTable")
+            .off("click", ".view-schedule")
+            .on("click", ".view-schedule", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.viewSchedule(id);
+            });
+
+          $("#loanTable")
+            .off("click", ".collect-payment")
+            .on("click", ".collect-payment", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.collectPayment(id);
+            });
+
+          $("#loanTable")
+            .off("click", ".edit-loan")
+            .on("click", ".edit-loan", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.editLoan(id);
+            });
+
+          // Approval workflow modal events
+          $("#passToApprovalBtn").on("click", () => this.processCheck(true));
+          $("#rejectFromCheckBtn").on("click", () => this.processCheck(false));
+          $("#finalApproveBtn").on("click", () =>
+            this.processFinalApproval(true),
+          );
+          $("#rejectFromApprovalBtn").on("click", () =>
+            this.processFinalApproval(false),
+          );
+
+          // Export
+          $("#exportBtn").on("click", () => this.exportLoans());
+
+          // Modal reset
+          $("#disburseModal").on("hidden.bs.modal", () => {
+            $("#loanForm")[0].reset();
+            $("#lId").val("");
+            $("#modalTitle").text("Create Loan Request");
+            $("#submitBtnText").text("Save Draft");
+            $("#loanPreview").hide();
+            $("#memberStatus").text("");
+            $("#amountWarning").text("");
+          });
+
+          // Clear approval modal data on hide
+          $("#checkLoanModal, #approveLoanModal").on("hidden.bs.modal", () => {
+            $("#checkerComments, #approverComments").val("");
+            this.currentLoanForApproval = null;
+          });
+        },
+
+        updateLoanPreview: function () {
+          const productId = $("#lProduct").val();
+          const amount = parseFloat($("#lAmount").val());
+
+          if (!productId || !amount) {
+            $("#loanPreview").hide();
+            return;
+          }
+
+          const product = this.products.find((p) => p.id == productId);
+          if (!product) return;
+
+          // Validate amount range
+          $("#amountWarning").text("");
+          if (amount < (product.minAmount || 0)) {
+            $("#amountWarning").text(
+              `Minimum amount: ৳${this.formatNumber(product.minAmount)}`,
+            );
+          } else if (amount > (product.maxAmount || Infinity)) {
+            $("#amountWarning").text(
+              `Maximum amount: ৳${this.formatNumber(product.maxAmount)}`,
+            );
+          }
+
+          // Calculate interest
+          const interestAmount =
+            product.interestMethod === "Reducing"
+              ? this.calculateReducingInterest(
+                  amount,
+                  product.interestRate,
+                  product.duration,
+                )
+              : amount * (product.interestRate / 100);
+
+          const total = amount + interestAmount;
+          const instAmount = Math.ceil(total / product.duration);
+
+          // Update preview
+          $("#prvProduct").text(product.name);
+          $("#prvRate").text(
+            `${product.interestRate}% (${product.interestMethod})`,
+          );
+          $("#prvPrincipal").text("৳" + this.formatNumber(amount));
+          $("#prvInterest").text("৳" + this.formatNumber(interestAmount));
+          $("#prvTotal").text("৳" + this.formatNumber(total));
+          $("#prvDuration").text(`${product.duration} ${product.type}s`);
+          $("#prvInstAmount").text("৳" + this.formatNumber(instAmount));
+
+          $("#loanPreview").show();
+        },
+
+        calculateReducingInterest: function (principal, rate, duration) {
+          // Simplified reducing balance calculation
+          return principal * (rate / 100) * (duration / 12);
+        },
+
+        saveLoan: function () {
+          if (!$("#loanForm")[0].checkValidity()) {
+            Swal.fire(
+              "Error",
+              "Please fill all required fields correctly",
+              "error",
+            );
+            return;
+          }
+
+          const productId = $("#lProduct").val();
+          const amount = parseFloat($("#lAmount").val());
+          const product = this.products.find((p) => p.id == productId);
+
+          // Validate amount range
+          if (
+            amount < (product.minAmount || 0) ||
+            amount > (product.maxAmount || Infinity)
+          ) {
+            Swal.fire(
+              "Error",
+              "Amount is outside the allowed range for this product",
+              "error",
+            );
+            return;
+          }
+
+          const interestAmount =
+            product.interestMethod === "Reducing"
+              ? this.calculateReducingInterest(
+                  amount,
+                  product.interestRate,
+                  product.duration,
+                )
+              : amount * (product.interestRate / 100);
+
+          const total = amount + interestAmount;
+          const startDate = $("#lDate").val();
+
+          // Generate schedule
+          const schedule = this.generateSchedule(total, product, startDate);
+
+          const id = $("#lId").val();
+          let loans = DB.getAll(DB.KEYS.LOANS) || [];
+
+          if (id) {
+            // Edit existing draft loan
+            const index = loans.findIndex((l) => l.id == id);
+            if (index !== -1 && loans[index].approvalStatus === "Draft") {
+              loans[index].memberId = parseInt($("#lMember").val());
+              loans[index].productId = parseInt(productId);
+              loans[index].principal = amount;
+              loans[index].interest = interestAmount;
+              loans[index].total = total;
+              loans[index].due = total;
+              loans[index].startDate = startDate;
+              loans[index].schedule = schedule;
+            }
+          } else {
+            // Create new draft loan
+            const newLoan = {
+              id:
+                loans.length > 0
+                  ? Math.max(...loans.map((l) => l.id || 0)) + 1
+                  : 1,
+              memberId: parseInt($("#lMember").val()),
+              productId: parseInt(productId),
+              principal: amount,
+              interest: interestAmount,
+              total: total,
+              paid: 0,
+              due: total,
+              status: "Active", // Loan status (for when approved)
+              approvalStatus: "Draft", // Approval workflow status
+              startDate: startDate,
+              schedule: schedule,
+              createdBy: this.user.id,
+              createdAt: new Date().toISOString(),
+            };
+
+            loans.push(newLoan);
+          }
+
+          DB.save(DB.KEYS.LOANS, loans);
+          $("#disburseModal").modal("hide");
+          Swal.fire(
+            "Success",
+            id
+              ? "Loan draft updated successfully"
+              : "Loan draft created successfully",
+            "success",
+          ).then(() => {
+            this.loadData();
+            this.updateStatistics();
+            this.updatePendingCounts();
+          });
+        },
+
+        generateSchedule: function (total, product, startDate) {
+          const schedule = [];
+          let date = new Date(startDate);
+          const instAmount = Math.ceil(total / product.duration);
+          const daysIncrement =
+            product.type === "Daily"
+              ? 1
+              : product.type === "Weekly"
+                ? 7
+                : product.type === "Bi-Weekly"
+                  ? 14
+                  : 30;
+
+          for (let i = 1; i <= product.duration; i++) {
+            date.setDate(date.getDate() + daysIncrement);
+            schedule.push({
+              no: i,
+              date: date.toISOString().split("T")[0],
+              amount: instAmount,
+              paid: 0,
+              status: "Pending",
+            });
+          }
+
+          return schedule;
+        },
+
+        viewSchedule: function (id) {
+          const loan = this.allLoans.find((l) => l.id == id);
+          if (!loan) return;
+
+          const member = this.members.find((m) => m.id == loan.memberId);
+          let rows = "";
+
+          (loan.schedule || []).forEach((s) => {
+            const statusColor =
+              s.status === "Paid"
+                ? "text-success"
+                : s.status === "Partial"
+                  ? "text-warning"
+                  : new Date(s.date) < new Date()
+                    ? "text-danger"
+                    : "text-muted";
+            rows += `
+                    <tr class="${statusColor}">
+                        <td>${s.no}</td>
+                        <td>${s.date}</td>
+                        <td>৳${this.formatNumber(s.amount)}</td>
+                        <td>৳${this.formatNumber(s.paid || 0)}</td>
+                        <td><span class="badge bg-${s.status === "Paid" ? "success" : s.status === "Partial" ? "warning" : "secondary"}">${s.status}</span></td>
+                    </tr>
+                `;
+          });
+
+          Swal.fire({
+            title: `Repayment Schedule - ${member ? member.name : "Unknown"}`,
+            html: `
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `,
+            width: "700px",
+          });
+        },
+
+        collectPayment: function (id) {
+          const loan = this.allLoans.find((l) => l.id == id);
+          if (!loan) return;
+
+          const member = this.members.find((m) => m.id == loan.memberId);
+
+          Swal.fire({
+            title: `Collect Payment - ${member ? member.name : "Unknown"}`,
+            html: `
+                    <div class="mb-3">
+                        <strong>Loan ID:</strong> #${loan.id}<br>
+                        <strong>Total Due:</strong> ৳${this.formatNumber(loan.due || 0)}
+                    </div>
+                    <input type="number" id="paymentAmount" class="form-control" placeholder="Enter payment amount" min="0" max="${loan.due}">
+                `,
+            showCancelButton: true,
+            confirmButtonText: "Record Payment",
+            preConfirm: () => {
+              const amount = parseFloat(
+                document.getElementById("paymentAmount").value,
+              );
+              if (!amount || amount <= 0) {
+                Swal.showValidationMessage("Please enter a valid amount");
+                return false;
+              }
+              if (amount > (loan.due || 0)) {
+                Swal.showValidationMessage("Amount cannot exceed due amount");
+                return false;
+              }
+              return amount;
+            },
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.recordPayment(id, result.value);
+            }
+          });
+        },
+
+        recordPayment: function (loanId, amount) {
+          const collection = {
+            loanId: loanId,
+            memberId: this.allLoans.find((l) => l.id == loanId)?.memberId,
+            amount: amount,
+            date: new Date().toISOString().split("T")[0],
+            collectedBy: this.user.id,
+          };
+
+          DB.addCollection(collection);
+          Swal.fire(
+            "Success",
+            `Payment of ৳${this.formatNumber(amount)} recorded successfully`,
+            "success",
+          ).then(() => {
+            this.loadData();
+            this.updateStatistics();
+          });
+        },
+
+        editLoan: function (id) {
+          const loan = this.allLoans.find((l) => l.id == id);
+          if (!loan) return;
+
+          // Only allow limited editing for active loans
+          $("#lId").val(loan.id);
+          $("#lMember").val(loan.memberId).prop("disabled", true);
+          $("#lProduct").val(loan.productId).prop("disabled", true);
+          $("#lAmount").val(loan.principal).prop("disabled", true);
+          $("#lDate").val(loan.startDate);
+          $("#modalTitle").text("Edit Loan - Limited");
+          $("#submitBtnText").text("Update Loan");
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("disburseModal"),
+          );
+          modal.show();
+        },
+
+        updateStatistics: function () {
+          // Only count approved loans for financial statistics
+          const approvedLoans = this.allLoans.filter(
+            (l) => l.approvalStatus === "Approved",
+          );
+          const total = approvedLoans.length;
+          const active = approvedLoans.filter(
+            (l) => (l.status || "Active") === "Active",
+          ).length;
+          const totalDisbursed = approvedLoans.reduce(
+            (sum, l) => sum + (l.principal || 0),
+            0,
+          );
+          const totalRecovered = approvedLoans.reduce(
+            (sum, l) => sum + (l.paid || 0),
+            0,
+          );
+
+          $("#totalLoans").text(total);
+          $("#activeLoans").text(active);
+          $("#totalDisbursed").text("৳" + this.formatNumber(totalDisbursed));
+          $("#totalRecovered").text("৳" + this.formatNumber(totalRecovered));
+
+          this.updatePendingCounts();
+        },
+
+        exportLoans: function () {
+          if (this.allLoans.length === 0) {
+            Swal.fire("Info", "No loans to export", "info");
+            return;
+          }
+
+          let csv =
+            "ID,Member,Phone,Product,Principal,Interest,Total,Paid,Due,Status,Start Date\n";
+
+          this.allLoans.forEach((l) => {
+            const member = this.members.find((m) => m.id == l.memberId);
+            const product = this.products.find((p) => p.id == l.productId);
+            csv += `${l.id},"${member ? member.name : "Unknown"}","${member ? member.phone : "N/A"}","${product ? product.name : "Unknown"}",${l.principal},${l.interest},${l.total},${l.paid},${l.due},"${l.status}","${l.startDate}"\n`;
+          });
+
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `loans-${new Date().getTime()}.csv`;
+          link.click();
+
+          Swal.fire("Success", "Loans exported successfully", "success");
+        },
+
+        // Approval Workflow Functions
+        updatePendingCounts: function () {
+          const pendingCheck = this.allLoans.filter(
+            (l) => l.approvalStatus === "Pending Check",
+          ).length;
+          const pendingApproval = this.allLoans.filter(
+            (l) => l.approvalStatus === "Pending Approval",
+          ).length;
+
+          $("#pendingCheckCount").text(pendingCheck);
+          $("#pendingApprovalCount").text(pendingApproval);
+        },
+
+        submitForCheck: function (id) {
+          Swal.fire({
+            title: "Submit for Check?",
+            text: "This loan application will be sent to checker for review.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Submit",
+            cancelButtonText: "Cancel",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.updateLoanStatus(id, "Pending Check");
+            }
+          });
+        },
+
+        reviewLoan: function (id) {
+          const loan = this.allLoans.find((l) => l.id == id);
+          if (!loan) return;
+
+          this.currentLoanForApproval = loan;
+          this.displayLoanDetailsInModal(loan, "#checkLoanDetails");
+          $("#checkLoanModal").modal("show");
+        },
+
+        approveLoan: function (id) {
+          const loan = this.allLoans.find((l) => l.id == id);
+          if (!loan) return;
+
+          this.currentLoanForApproval = loan;
+          this.displayLoanDetailsInModal(loan, "#approveLoanDetails");
+          this.displayApprovalHistory(loan, "#approvalHistory");
+          $("#approveLoanModal").modal("show");
+        },
+
+        viewLoanDetails: function (id) {
+          const loan = this.allLoans.find((l) => l.id == id);
+          if (!loan) return;
+
+          this.displayLoanDetailsInModal(loan, "#fullLoanDetails");
+          this.displayApprovalHistory(loan, "#fullApprovalHistory");
+          $("#loanDetailsModal").modal("show");
+        },
+
+        displayLoanDetailsInModal: function (loan, containerId) {
+          const member = this.members.find((m) => m.id == loan.memberId);
+          const product = this.products.find((p) => p.id == loan.productId);
+
+          const html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><strong>Loan Information</strong></h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Loan ID:</strong></td><td>#${loan.id}</td></tr>
+                            <tr><td><strong>Member:</strong></td><td>${member ? member.name : "Unknown"}</td></tr>
+                            <tr><td><strong>Phone:</strong></td><td>${member ? member.phone : "N/A"}</td></tr>
+                            <tr><td><strong>Product:</strong></td><td>${product ? product.name : "Unknown"}</td></tr>
+                            <tr><td><strong>Principal:</strong></td><td>৳${this.formatNumber(loan.principal)}</td></tr>
+                            <tr><td><strong>Interest:</strong></td><td>৳${this.formatNumber(loan.interest)}</td></tr>
+                            <tr><td><strong>Total:</strong></td><td><strong>৳${this.formatNumber(loan.total)}</strong></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><strong>Approval Status</strong></h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Status:</strong></td><td><span class="workflow-badge workflow-${loan.approvalStatus?.toLowerCase().replace(" ", "-")}">${loan.approvalStatus}</span></td></tr>
+                            <tr><td><strong>Created:</strong></td><td>${new Date(loan.createdAt).toLocaleDateString()}</td></tr>
+                            <tr><td><strong>Start Date:</strong></td><td>${loan.startDate}</td></tr>
+                            <tr><td><strong>Duration:</strong></td><td>${product ? product.duration + " " + product.type + "s" : "N/A"}</td></tr>
+                            <tr><td><strong>Interest Rate:</strong></td><td>${product ? product.interestRate + "%" : "N/A"}</td></tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+          $(containerId).html(html);
+        },
+
+        displayApprovalHistory: function (loan, containerId) {
+          let history = "<h6><strong>Approval History</strong></h6>";
+
+          // Created step
+          history += `
+                <div class="approval-step completed">
+                    <i class="fas fa-user"></i> <strong>Created</strong> - ${new Date(loan.createdAt).toLocaleString()}<br>
+                    <small>Created by: User #${loan.createdBy}</small>
+                </div>
+            `;
+
+          // Checker step
+          if (loan.checkedAt) {
+            const status =
+              loan.approvalStatus === "Rejected" ? "rejected" : "completed";
+            history += `
+                    <div class="approval-step ${status}">
+                        <i class="fas fa-clipboard-check"></i> <strong>Checked</strong> - ${new Date(loan.checkedAt).toLocaleString()}<br>
+                        <small>Checked by: User #${loan.checkedBy}</small><br>
+                        ${loan.checkerComments ? `<small><em>"${loan.checkerComments}"</em></small>` : ""}
+                    </div>
+                `;
+          } else if (
+            ["Pending Check", "Pending Approval", "Approved"].includes(
+              loan.approvalStatus,
+            )
+          ) {
+            history += `<div class="approval-step"><i class="fas fa-clipboard-check"></i> <strong>Pending Check</strong></div>`;
+          }
+
+          // Approver step
+          if (loan.approvedAt) {
+            history += `
+                    <div class="approval-step completed">
+                        <i class="fas fa-stamp"></i> <strong>Approved</strong> - ${new Date(loan.approvedAt).toLocaleString()}<br>
+                        <small>Approved by: User #${loan.approvedBy}</small><br>
+                        ${loan.approverComments ? `<small><em>"${loan.approverComments}"</em></small>` : ""}
+                    </div>
+                `;
+          } else if (loan.approvalStatus === "Pending Approval") {
+            history += `<div class="approval-step"><i class="fas fa-stamp"></i> <strong>Pending Approval</strong></div>`;
+          }
+
+          $(containerId).html(history);
+        },
+
+        processCheck: function (approved) {
+          const comments = $("#checkerComments").val().trim();
+          if (!comments) {
+            Swal.fire("Error", "Please add your review comments", "error");
+            return;
+          }
+
+          const status = approved ? "Pending Approval" : "Rejected";
+          const loan = this.currentLoanForApproval;
+
+          this.updateLoanApproval(loan.id, {
+            approvalStatus: status,
+            checkedBy: this.user.id,
+            checkedAt: new Date().toISOString(),
+            checkerComments: comments,
+            ...(status === "Rejected" && {
+              rejectedBy: this.user.id,
+              rejectedAt: new Date().toISOString(),
+              rejectionReason: comments,
+            }),
+          });
+
+          $("#checkLoanModal").modal("hide");
+          const message = approved
+            ? "Loan passed to approval stage"
+            : "Loan application rejected";
+          Swal.fire("Success", message, "success");
+        },
+
+        processFinalApproval: function (approved) {
+          const comments = $("#approverComments").val().trim();
+          if (!comments) {
+            Swal.fire("Error", "Please add your approval comments", "error");
+            return;
+          }
+
+          const status = approved ? "Approved" : "Rejected";
+          const loan = this.currentLoanForApproval;
+
+          this.updateLoanApproval(loan.id, {
+            approvalStatus: status,
+            approvedBy: this.user.id,
+            approvedAt: new Date().toISOString(),
+            approverComments: comments,
+            ...(status === "Rejected" && {
+              rejectedBy: this.user.id,
+              rejectedAt: new Date().toISOString(),
+              rejectionReason: comments,
+            }),
+          });
+
+          $("#approveLoanModal").modal("hide");
+          const message = approved
+            ? "Loan approved and disbursed successfully!"
+            : "Loan application rejected";
+          Swal.fire("Success", message, approved ? "success" : "error");
+        },
+
+        updateLoanStatus: function (id, status) {
+          let loans = DB.getAll(DB.KEYS.LOANS) || [];
+          const index = loans.findIndex((l) => l.id == id);
+
+          if (index !== -1) {
+            loans[index].approvalStatus = status;
+            DB.save(DB.KEYS.LOANS, loans);
+            this.loadData();
+            this.updateStatistics();
+            this.updatePendingCounts();
+          }
+        },
+
+        updateLoanApproval: function (id, updates) {
+          let loans = DB.getAll(DB.KEYS.LOANS) || [];
+          const index = loans.findIndex((l) => l.id == id);
+
+          if (index !== -1) {
+            Object.assign(loans[index], updates);
+            DB.save(DB.KEYS.LOANS, loans);
+            this.loadData();
+            this.updateStatistics();
+            this.updatePendingCounts();
+          }
+        },
+
+        escapeHtml: function (text) {
+          const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;",
+          };
+          return (text || "").replace(/[&<>"']/g, (m) => map[m]);
+        },
+
+        formatNumber: function (num) {
+          return (num || 0).toLocaleString("en-BD", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          });
+        },
+      };
+
+      $(document).ready(function () {
+        LoanManager.init();
+      });
+    </script>
+  </body>
+</html>

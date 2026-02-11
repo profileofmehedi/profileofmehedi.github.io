@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Branch Management - NGO Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+    />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .stat-card.green {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      }
+      .stat-card.blue {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .stat-card.orange {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      }
+      .stat-card.red {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      }
+      .stat-card h3 {
+        font-size: 2rem;
+        margin: 10px 0 5px 0;
+      }
+      .stat-card p {
+        font-size: 0.9rem;
+        margin: 0;
+        opacity: 0.9;
+      }
+      .filter-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .filter-badge {
+        display: inline-block;
+        padding: 8px 12px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .filter-badge.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .no-data-message {
+        text-align: center;
+        padding: 30px;
+        color: #666;
+      }
+      .branch-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .branch-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+      }
+      .manager-info {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar"></div>
+    <div class="main-content">
+      <div id="topNavbar" class="navbar-custom"></div>
+      <div class="container-fluid">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4>Branch Management</h4>
+            <p class="text-muted small">
+              Manage and monitor all branch locations and operations
+            </p>
+          </div>
+          <div>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#branchModal"
+            >
+              <i class="fas fa-plus"></i> Add New Branch
+            </button>
+            <button class="btn btn-outline-secondary ms-2" id="exportBtn">
+              <i class="fas fa-download"></i> Export
+            </button>
+          </div>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="stats-container">
+          <div class="stat-card green">
+            <h3 id="totalBranches">0</h3>
+            <p>Total Branches</p>
+          </div>
+          <div class="stat-card blue">
+            <h3 id="activeBranches">0</h3>
+            <p>Active Branches</p>
+          </div>
+          <div class="stat-card orange">
+            <h3 id="totalMembers">0</h3>
+            <p>Total Members</p>
+          </div>
+          <div class="stat-card red">
+            <h3 id="totalOfficers">0</h3>
+            <p>Total Officers</p>
+          </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <strong>Filter by Status:</strong>
+          <span class="filter-badge active" data-filter="all">All</span>
+          <span class="filter-badge" data-filter="Active">Active</span>
+          <span class="filter-badge" data-filter="Inactive">Inactive</span>
+        </div>
+
+        <!-- Search -->
+        <div class="mb-3">
+          <input
+            type="text"
+            id="searchBox"
+            class="form-control"
+            placeholder="Search by branch name, code, address, manager..."
+          />
+        </div>
+
+        <!-- Table -->
+        <div class="card-box">
+          <div class="table-responsive">
+            <table id="branchTable" class="table table-hover w-100">
+              <thead class="table-light">
+                <tr>
+                  <th>Branch</th>
+                  <th>Location</th>
+                  <th>Manager</th>
+                  <th>Members</th>
+                  <th>Officers</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th width="140">Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="noDataMessage" class="no-data-message" style="display: none">
+            <i
+              class="fas fa-building"
+              style="font-size: 3rem; color: #ccc; margin-bottom: 10px"
+            ></i>
+            <p>No branches found. Create a new branch to get started!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Branch Modal -->
+    <div class="modal fade" id="branchModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-building"></i>
+              <span id="modalTitle">Add New Branch</span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="branchForm">
+              <input type="hidden" id="branchId" value="" />
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Branch Code <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="branchCode"
+                    class="form-control"
+                    required
+                    placeholder="e.g., BR001"
+                  />
+                  <small class="text-muted"
+                    >Unique identifier for the branch</small
+                  >
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Branch Name <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="branchName"
+                    class="form-control"
+                    required
+                    placeholder="e.g., Downtown Branch"
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label"
+                  >Full Address <span class="text-danger">*</span></label
+                >
+                <textarea
+                  id="branchAddress"
+                  class="form-control"
+                  rows="3"
+                  required
+                  placeholder="Complete branch address with area, city, postal code..."
+                ></textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Phone Number</label>
+                  <input
+                    type="tel"
+                    id="branchPhone"
+                    class="form-control"
+                    placeholder="+880-xxx-xxxxxx"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Email Address</label>
+                  <input
+                    type="email"
+                    id="branchEmail"
+                    class="form-control"
+                    placeholder="branch@ngo.com"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Branch Manager</label>
+                  <input
+                    type="text"
+                    id="branchManager"
+                    class="form-control"
+                    placeholder="Manager name"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label"
+                    >Status <span class="text-danger">*</span></label
+                  >
+                  <select id="branchStatus" class="form-select" required>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Establishment Date</label>
+                  <input
+                    type="date"
+                    id="establishmentDate"
+                    class="form-control"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Branch Type</label>
+                  <select id="branchType" class="form-select">
+                    <option value="Main">Main Branch</option>
+                    <option value="Sub">Sub Branch</option>
+                    <option value="Mobile">Mobile Unit</option>
+                    <option value="Service Center">Service Center</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea
+                  id="branchDescription"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Brief description about the branch (optional)..."
+                ></textarea>
+              </div>
+
+              <div class="text-end mt-4">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-success px-4">
+                  <i class="fas fa-save"></i>
+                  <span id="submitBtnText">Save Branch</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/app.js"></script>
+
+    <script>
+      const BranchManager = {
+        user: null,
+        currentStatusFilter: "all",
+        dataTable: null,
+        allBranches: [],
+        members: [],
+        officers: [],
+
+        init: function () {
+          this.user = DB.getCurrentUser();
+          if (!this.user) {
+            window.location.href = "../../pages/login.html";
+            return;
+          }
+
+          App.init();
+          this.loadData();
+          this.setupEventHandlers();
+          this.updateStatistics();
+        },
+
+        loadData: function () {
+          // Load and validate data
+          this.allBranches = (DB.getAll(DB.KEYS.BRANCHES) || []).filter((b) => {
+            b.ngoId = b.ngoId || this.user.ngoId;
+            return b.ngoId === this.user.ngoId && this.validateBranch(b);
+          });
+
+          this.members = (DB.getAll(DB.KEYS.MEMBERS) || []).filter(
+            (m) => m.ngoId === this.user.ngoId,
+          );
+          this.officers = (DB.getAll(DB.KEYS.OFFICERS) || []).filter(
+            (o) => o.ngoId === this.user.ngoId,
+          );
+
+          this.renderTable();
+        },
+
+        validateBranch: function (branch) {
+          // Provide safe defaults for undefined properties
+          branch.id = branch.id || Math.random();
+          branch.code =
+            branch.code ||
+            `BR${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`;
+          branch.name = branch.name || "Unnamed Branch";
+          branch.address = branch.address || "Address not provided";
+          branch.phone = branch.phone || "";
+          branch.email = branch.email || "";
+          branch.manager = branch.manager || "";
+          branch.status = branch.status || "Active";
+          branch.type = branch.type || "Sub";
+          branch.description = branch.description || "";
+          branch.establishmentDate =
+            branch.establishmentDate || new Date().toISOString().split("T")[0];
+          branch.createdAt = branch.createdAt || new Date().toISOString();
+          return true;
+        },
+
+        renderTable: function () {
+          let filteredData = this.allBranches;
+
+          // Apply status filter
+          if (this.currentStatusFilter !== "all") {
+            filteredData = filteredData.filter(
+              (b) => b.status === this.currentStatusFilter,
+            );
+          }
+
+          if (this.dataTable) {
+            this.dataTable.destroy();
+          }
+
+          if (filteredData.length === 0) {
+            $("#branchTable tbody").html("");
+            $("#noDataMessage").show();
+            return;
+          }
+
+          $("#noDataMessage").hide();
+
+          this.dataTable = $("#branchTable").DataTable({
+            data: filteredData,
+            destroy: true,
+            pageLength: 10,
+            order: [[0, "asc"]],
+            language: {
+              emptyTable: "No branches found",
+              zeroRecords: "No matching branches found",
+            },
+            columns: [
+              {
+                data: null,
+                render: (data) => {
+                  const colors = [
+                    "#667eea",
+                    "#11998e",
+                    "#fa709a",
+                    "#ff6b6b",
+                    "#38ef7d",
+                  ];
+                  const color =
+                    colors[Math.floor(Math.random() * colors.length)];
+                  const initial = data.name?.charAt(0)?.toUpperCase() || "B";
+
+                  return `
+                                <div class="branch-info">
+                                    <div class="branch-avatar" style="background: ${color}">${initial}</div>
+                                    <div>
+                                        <div><strong>${this.escapeHtml(data.name)}</strong></div>
+                                        <small class="text-muted">${data.code}</small>
+                                    </div>
+                                </div>
+                            `;
+                },
+              },
+              {
+                data: null,
+                render: (data) => {
+                  return `
+                                <div>
+                                    <div><i class="fas fa-map-marker-alt text-muted me-1"></i>${this.escapeHtml(data.address)}</div>
+                                    ${data.phone ? `<div class="mt-1"><i class="fas fa-phone text-muted me-1"></i>${data.phone}</div>` : ""}
+                                    ${data.email ? `<div class="mt-1"><i class="fas fa-envelope text-muted me-1"></i>${data.email}</div>` : ""}
+                                </div>
+                            `;
+                },
+              },
+              {
+                data: "manager",
+                render: (data) => {
+                  if (!data)
+                    return '<span class="text-muted">Not assigned</span>';
+                  return `
+                                <div>
+                                    <div><strong>${this.escapeHtml(data)}</strong></div>
+                                    <small class="manager-info">Branch Manager</small>
+                                </div>
+                            `;
+                },
+              },
+              {
+                data: null,
+                render: (data) => {
+                  const memberCount = this.members.filter(
+                    (m) => m.branchId == data.id,
+                  ).length;
+                  return `<span class="badge bg-info">${memberCount}</span>`;
+                },
+              },
+              {
+                data: null,
+                render: (data) => {
+                  const officerCount = this.officers.filter(
+                    (o) => o.branchId == data.id,
+                  ).length;
+                  return `<span class="badge bg-secondary">${officerCount}</span>`;
+                },
+              },
+              {
+                data: "status",
+                render: (data) => {
+                  const statusClass =
+                    data === "Active" ? "status-active" : "status-inactive";
+                  return `<span class="status-badge ${statusClass}">${data}</span>`;
+                },
+              },
+              {
+                data: "establishmentDate",
+                render: (data) => {
+                  return data ? new Date(data).toLocaleDateString() : "-";
+                },
+              },
+              {
+                data: null,
+                orderable: false,
+                render: (data) => `
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-info view-branch" data-id="${data.id}" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-warning edit-branch" data-id="${data.id}" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger delete-branch" data-id="${data.id}" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `,
+              },
+            ],
+          });
+        },
+
+        setupEventHandlers: function () {
+          // Status filter
+          $(".filter-badge").on("click", (e) => {
+            $(".filter-badge").removeClass("active");
+            $(e.target).closest(".filter-badge").addClass("active");
+            this.currentStatusFilter = $(e.target)
+              .closest(".filter-badge")
+              .data("filter");
+            this.renderTable();
+          });
+
+          // Search
+          $("#searchBox").on("keyup", () => {
+            if (this.dataTable) {
+              this.dataTable.search($("#searchBox").val()).draw();
+            }
+          });
+
+          // Form submission
+          $("#branchForm")
+            .off("submit")
+            .on("submit", (e) => {
+              e.preventDefault();
+              this.saveBranch();
+            });
+
+          // Table events
+          $("#branchTable")
+            .off("click", ".view-branch")
+            .on("click", ".view-branch", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.viewBranch(id);
+            });
+
+          $("#branchTable")
+            .off("click", ".edit-branch")
+            .on("click", ".edit-branch", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.editBranch(id);
+            });
+
+          $("#branchTable")
+            .off("click", ".delete-branch")
+            .on("click", ".delete-branch", (e) => {
+              const id = $(e.currentTarget).data("id");
+              this.deleteBranch(id);
+            });
+
+          // Export
+          $("#exportBtn").on("click", () => this.exportBranches());
+
+          // Modal reset
+          $("#branchModal").on("hidden.bs.modal", () => {
+            this.resetForm();
+          });
+        },
+
+        saveBranch: function () {
+          if (!$("#branchForm")[0].checkValidity()) {
+            Swal.fire(
+              "Error",
+              "Please fill all required fields correctly",
+              "error",
+            );
+            return;
+          }
+
+          // Check for duplicate code
+          const code = $("#branchCode").val().trim();
+          const id = $("#branchId").val();
+          const existingBranch = this.allBranches.find(
+            (b) => b.code === code && b.id != id,
+          );
+
+          if (existingBranch) {
+            Swal.fire(
+              "Error",
+              "Branch code already exists. Please use a different code.",
+              "error",
+            );
+            return;
+          }
+
+          let branches = DB.getAll(DB.KEYS.BRANCHES) || [];
+
+          if (id) {
+            // Edit existing branch
+            const index = branches.findIndex((b) => b.id == id);
+            if (index !== -1) {
+              branches[index] = {
+                ...branches[index],
+                code: code,
+                name: $("#branchName").val().trim(),
+                address: $("#branchAddress").val().trim(),
+                phone: $("#branchPhone").val().trim(),
+                email: $("#branchEmail").val().trim(),
+                manager: $("#branchManager").val().trim(),
+                status: $("#branchStatus").val(),
+                type: $("#branchType").val(),
+                description: $("#branchDescription").val().trim(),
+                establishmentDate: $("#establishmentDate").val(),
+                updatedAt: new Date().toISOString(),
+              };
+            }
+          } else {
+            // Create new branch
+            const newBranch = {
+              id:
+                branches.length > 0
+                  ? Math.max(...branches.map((b) => b.id || 0)) + 1
+                  : 1,
+              ngoId: this.user.ngoId,
+              code: code,
+              name: $("#branchName").val().trim(),
+              address: $("#branchAddress").val().trim(),
+              phone: $("#branchPhone").val().trim(),
+              email: $("#branchEmail").val().trim(),
+              manager: $("#branchManager").val().trim(),
+              status: $("#branchStatus").val(),
+              type: $("#branchType").val() || "Sub",
+              description: $("#branchDescription").val().trim(),
+              establishmentDate:
+                $("#establishmentDate").val() ||
+                new Date().toISOString().split("T")[0],
+              createdAt: new Date().toISOString(),
+            };
+
+            branches.push(newBranch);
+          }
+
+          DB.save(DB.KEYS.BRANCHES, branches);
+          $("#branchModal").modal("hide");
+          Swal.fire(
+            "Success",
+            id ? "Branch updated successfully" : "Branch created successfully",
+            "success",
+          ).then(() => {
+            this.loadData();
+            this.updateStatistics();
+          });
+        },
+
+        editBranch: function (id) {
+          const branch = this.allBranches.find((b) => b.id == id);
+          if (!branch) return;
+
+          $("#branchId").val(branch.id);
+          $("#branchCode").val(branch.code);
+          $("#branchName").val(branch.name);
+          $("#branchAddress").val(branch.address);
+          $("#branchPhone").val(branch.phone);
+          $("#branchEmail").val(branch.email);
+          $("#branchManager").val(branch.manager);
+          $("#branchStatus").val(branch.status);
+          $("#branchType").val(branch.type || "Sub");
+          $("#branchDescription").val(branch.description);
+          $("#establishmentDate").val(branch.establishmentDate);
+
+          $("#modalTitle").text("Edit Branch");
+          $("#submitBtnText").text("Update Branch");
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("branchModal"),
+          );
+          modal.show();
+        },
+
+        viewBranch: function (id) {
+          const branch = this.allBranches.find((b) => b.id == id);
+          if (!branch) return;
+
+          const memberCount = this.members.filter(
+            (m) => m.branchId == branch.id,
+          ).length;
+          const officerCount = this.officers.filter(
+            (o) => o.branchId == branch.id,
+          ).length;
+
+          Swal.fire({
+            title: `Branch Details - ${branch.name}`,
+            html: `
+                    <div class="text-start">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>Basic Information</strong></h6>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Code:</strong></td><td>${branch.code}</td></tr>
+                                    <tr><td><strong>Name:</strong></td><td>${branch.name}</td></tr>
+                                    <tr><td><strong>Type:</strong></td><td>${branch.type || "Sub"}</td></tr>
+                                    <tr><td><strong>Status:</strong></td><td><span class="badge bg-${branch.status === "Active" ? "success" : "danger"}">${branch.status}</span></td></tr>
+                                    <tr><td><strong>Manager:</strong></td><td>${branch.manager || "Not assigned"}</td></tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Contact & Statistics</strong></h6>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Phone:</strong></td><td>${branch.phone || "N/A"}</td></tr>
+                                    <tr><td><strong>Email:</strong></td><td>${branch.email || "N/A"}</td></tr>
+                                    <tr><td><strong>Members:</strong></td><td><span class="badge bg-info">${memberCount}</span></td></tr>
+                                    <tr><td><strong>Officers:</strong></td><td><span class="badge bg-secondary">${officerCount}</span></td></tr>
+                                    <tr><td><strong>Established:</strong></td><td>${new Date(branch.establishmentDate).toLocaleDateString()}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6><strong>Address</strong></h6>
+                            <p>${branch.address}</p>
+                            ${branch.description ? `<h6><strong>Description</strong></h6><p>${branch.description}</p>` : ""}
+                        </div>
+                    </div>
+                `,
+            width: "700px",
+          });
+        },
+
+        deleteBranch: function (id) {
+          const branch = this.allBranches.find((b) => b.id == id);
+          if (!branch) return;
+
+          const memberCount = this.members.filter(
+            (m) => m.branchId == branch.id,
+          ).length;
+          const officerCount = this.officers.filter(
+            (o) => o.branchId == branch.id,
+          ).length;
+
+          if (memberCount > 0 || officerCount > 0) {
+            Swal.fire(
+              "Cannot Delete",
+              `This branch has ${memberCount} members and ${officerCount} officers. Please reassign them before deleting the branch.`,
+              "warning",
+            );
+            return;
+          }
+
+          Swal.fire({
+            title: "Delete Branch?",
+            text: `Are you sure you want to delete "${branch.name}"? This action cannot be undone.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, Delete",
+            cancelButtonText: "Cancel",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              let branches = DB.getAll(DB.KEYS.BRANCHES) || [];
+              branches = branches.filter((b) => b.id != id);
+              DB.save(DB.KEYS.BRANCHES, branches);
+
+              Swal.fire(
+                "Deleted",
+                "Branch deleted successfully",
+                "success",
+              ).then(() => {
+                this.loadData();
+                this.updateStatistics();
+              });
+            }
+          });
+        },
+
+        updateStatistics: function () {
+          const total = this.allBranches.length;
+          const active = this.allBranches.filter(
+            (b) => b.status === "Active",
+          ).length;
+          const totalMembers = this.members.length;
+          const totalOfficers = this.officers.length;
+
+          $("#totalBranches").text(total);
+          $("#activeBranches").text(active);
+          $("#totalMembers").text(totalMembers);
+          $("#totalOfficers").text(totalOfficers);
+        },
+
+        exportBranches: function () {
+          if (this.allBranches.length === 0) {
+            Swal.fire("Info", "No branches to export", "info");
+            return;
+          }
+
+          let csv =
+            "Code,Name,Address,Phone,Email,Manager,Status,Type,Establishment Date,Description\n";
+
+          this.allBranches.forEach((b) => {
+            csv += `"${b.code}","${b.name}","${b.address}","${b.phone}","${b.email}","${b.manager}","${b.status}","${b.type}","${b.establishmentDate}","${b.description}"\n`;
+          });
+
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `branches-${new Date().getTime()}.csv`;
+          link.click();
+
+          Swal.fire("Success", "Branches exported successfully", "success");
+        },
+
+        resetForm: function () {
+          $("#branchForm")[0].reset();
+          $("#branchId").val("");
+          $("#modalTitle").text("Add New Branch");
+          $("#submitBtnText").text("Save Branch");
+          $("#establishmentDate").val(new Date().toISOString().split("T")[0]);
+        },
+
+        escapeHtml: function (text) {
+          const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;",
+          };
+          return (text || "").replace(/[&<>"']/g, (m) => map[m]);
+        },
+      };
+
+      $(document).ready(function () {
+        BranchManager.init();
+      });
+    </script>
+  </body>
+</html>

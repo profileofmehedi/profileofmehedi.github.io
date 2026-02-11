@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Member</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="../../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidebar"></div>
+<div class="main-content">
+    <div id="topNavbar" class="navbar-custom"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card-box stat-card">
+                    <div>
+                        <h3 id="activeLoan">৳0</h3>
+                        <p class="text-muted mb-0">Active Loan Principal</p>
+                    </div>
+                    <div class="stat-icon text-primary"><i class="fas fa-hand-holding-usd"></i></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-box stat-card">
+                    <div>
+                        <h3 id="dueAmount">৳0</h3>
+                        <p class="text-muted mb-0">Remaining Due</p>
+                    </div>
+                    <div class="stat-icon text-danger"><i class="fas fa-clock"></i></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-box stat-card">
+                    <div>
+                        <h5 id="nextDate" class="mb-1">-</h5>
+                        <p class="text-muted mb-0">Next Installment Date</p>
+                    </div>
+                    <div class="stat-icon text-info"><i class="fas fa-calendar-check"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="card-box">
+            <h5>My Repayment Schedule</h5>
+            <table class="table table-sm" id="mySchedule">
+                <thead>
+                    <tr><th>Inst #</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../assets/js/db.js"></script>
+<script src="../../assets/js/auth.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script>
+    $(document).ready(function() {
+        const user = DB.getCurrentUser();
+        const loan = DB.getAll(DB.KEYS.LOANS).find(l => l.memberId == user.memberId && l.status === 'Active');
+        if(loan) {
+            $('#activeLoan').text('৳' + loan.principal.toLocaleString());
+            $('#dueAmount').text('৳' + loan.due.toLocaleString());
+            const next = loan.schedule.find(s => s.status !== 'Paid');
+            if(next) {
+                $('#nextDate').text(next.date);
+            }
+            loan.schedule.forEach(s => {
+                $('#mySchedule tbody').append(`
+                    <tr>
+                        <td>${s.no}</td>
+                        <td>${s.date}</td>
+                        <td>৳${s.amount}</td>
+                        <td><span class="badge bg-${s.status === 'Paid' ? 'success' : 'warning'}">${s.status}</span></td>
+                    </tr>
+                `);
+            });
+        }
+    });
+</script>
+</body>
+</html>

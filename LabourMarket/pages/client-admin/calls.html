@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Call Log - Client Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="brand">Client Portal</div>
+        <a href="dashboard.html"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+        <a href="workers.html"><i class="fas fa-hard-hat me-2"></i> Workers</a>
+        <a href="calls.html" class="active"><i class="fas fa-phone me-2"></i> Call Log</a>
+        <a href="reports.html"><i class="fas fa-chart-line me-2"></i> Reports</a>
+        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    </div>
+
+    <div class="content">
+        <h3 class="mb-4">Call History</h3>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table id="callsTable" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Customer</th>
+                            <th>Worker Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/app.js"></script>
+    <script>
+        $(document).ready(function() {
+            const user = DB.checkAuth('client-admin');
+            if(!user) return;
+
+            const myWorkers = DB.getAll('workers').filter(w => w.clientId == user.clientId);
+            const myCalls = DB.getAll('calls').filter(c => myWorkers.some(w => w.id == c.workerId));
+            
+            // Enrich call data with worker info
+            const tableData = myCalls.map(c => {
+                const w = myWorkers.find(worker => worker.id == c.workerId);
+                return {
+                    ...c,
+                    workerName: w ? w.name : 'Unknown',
+                    workerCategory: w ? w.category : '-'
+                };
+            });
+
+            $('#callsTable').DataTable({
+                data: tableData,
+                columns: [
+                    { 
+                        data: null,
+                        render: function(data) { return `${data.date} <br> <small class="text-muted">${data.time}</small>`; }
+                    },
+                    { data: 'customerName' },
+                    { data: 'workerName' },
+                    { data: 'workerCategory' },
+                    { 
+                        data: 'status',
+                        render: function(data) {
+                            let cls = 'bg-secondary';
+                            if (data === 'Completed') cls = 'bg-success';
+                            if (data === 'Missed') cls = 'bg-danger';
+                            return `<span class="badge ${cls}">${data}</span>`;
+                        }
+                    }
+                ],
+                order: [[0, 'desc']] // Sort by date desc
+            });
+        });
+    </script>
+</body>
+</html>

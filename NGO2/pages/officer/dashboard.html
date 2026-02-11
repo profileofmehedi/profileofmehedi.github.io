@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Field Officer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="../../assets/css/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .performance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        .achievement-badge {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .target-progress {
+            background: #e9ecef;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.8s ease;
+        }
+        .activity-timeline {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .timeline-item {
+            border-left: 3px solid #dee2e6;
+            padding-left: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .timeline-item:before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6c757d;
+            position: absolute;
+            left: -8px;
+            top: 5px;
+        }
+        .timeline-item.success:before { background: #28a745; }
+        .timeline-item.warning:before { background: #ffc107; }
+        .timeline-item.info:before { background: #17a2b8; }
+        .due-alert {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-left: 4px solid #dc3545;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar"></div>
+<div class="main-content">
+    <div id="topNavbar" class="navbar-custom"></div>
+    <div class="container-fluid">
+        <!-- Performance Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="performance-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-0">Welcome back, <span id="officerName">Field Officer</span>!</h4>
+                            <p class="mb-3 opacity-75">Here's your collection performance today</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-bullseye me-2"></i>
+                                        <span>Target: <strong id="dailyTarget">৳15,000</strong></span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        <span>Achievement: <strong id="achievementPercent">0%</strong></span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-coins me-2"></i>
+                                        <span>Collected: <strong id="collectedAmount">৳0</strong></span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-users me-2"></i>
+                                        <span>Members: <strong id="membersServed">0</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="achievement-badge mb-2" id="performanceBadge">Getting Started</div>
+                            <div class="target-progress mb-2">
+                                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <small class="opacity-75">Daily Progress</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Statistics -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-lg-6 col-md-6">
+                <div class="card-box stat-card border-primary">
+                    <div>
+                        <h3 id="pendingCollections">0</h3>
+                        <p class="text-muted mb-0">Pending Collections</p>
+                        <small class="text-danger" id="overdueCount">0 overdue</small>
+                    </div>
+                    <div class="stat-icon text-primary"><i class="fas fa-clock"></i></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6">
+                <div class="card-box stat-card border-success">
+                    <div>
+                        <h3 id="todayCollections">0</h3>
+                        <p class="text-muted mb-0">Today's Collections</p>
+                        <small class="text-success" id="todayAmount">৳0</small>
+                    </div>
+                    <div class="stat-icon text-success"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6">
+                <div class="card-box stat-card border-warning">
+                    <div>
+                        <h3 id="activeLoans">0</h3>
+                        <p class="text-muted mb-0">Active Loans</p>
+                        <small class="text-info" id="totalPortfolio">Portfolio: ৳0</small>
+                    </div>
+                    <div class="stat-icon text-warning"><i class="fas fa-hand-holding-usd"></i></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6">
+                <div class="card-box stat-card border-info">
+                    <div>
+                        <h3 id="weeklyTarget">0%</h3>
+                        <p class="text-muted mb-0">Weekly Target</p>
+                        <small class="text-primary" id="weeklyProgress">৳0 of ৳0</small>
+                    </div>
+                    <div class="stat-icon text-info"><i class="fas fa-calendar-week"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Activities -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card-box">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Collection Trend (Last 7 Days)</h5>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <input type="radio" class="btn-check" name="chartPeriod" id="week" checked>
+                            <label class="btn btn-outline-primary" for="week">7 Days</label>
+                            <input type="radio" class="btn-check" name="chartPeriod" id="month">
+                            <label class="btn btn-outline-primary" for="month">30 Days</label>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="collectionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-box">
+                    <h5 class="mb-3">Recent Activities</h5>
+                    <div class="activity-timeline" id="activitiesList">
+                        <!-- Activities will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Due Alerts and Quick Actions -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card-box due-alert">
+                    <h5 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Due Alerts</h5>
+                    <div id="dueAlerts">
+                        <!-- Due alerts will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-box">
+                    <h5 class="mb-3">Quick Actions</h5>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <a href="collection.html" class="btn btn-primary w-100 py-3">
+                                <i class="fas fa-money-bill-wave d-block fs-4 mb-2"></i>
+                                <div>Enter Collection</div>
+                                <small class="opacity-75">Record payments</small>
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <button class="btn btn-success w-100 py-3" id="generateReport">
+                                <i class="fas fa-chart-bar d-block fs-4 mb-2"></i>
+                                <div>Daily Report</div>
+                                <small class="opacity-75">View summary</small>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-info w-100 py-3" id="memberSearch">
+                                <i class="fas fa-search d-block fs-4 mb-2"></i>
+                                <div>Find Member</div>
+                                <small class="opacity-75">Quick search</small>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-warning w-100 py-3" id="overdueList">
+                                <i class="fas fa-clock d-block fs-4 mb-2"></i>
+                                <div>Overdue List</div>
+                                <small class="opacity-75">Follow up</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../assets/js/db.js"></script>
+<script src="../../assets/js/auth.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script>
+    const OfficerDashboard = {
+        user: null,
+        allLoans: [],
+        allMembers: [],
+        allCollections: [],
+        collectionChart: null,
+        dailyTarget: 15000,
+        
+        init: function() {
+            this.user = DB.getCurrentUser();
+            if (!this.user) {
+                window.location.href = '../../pages/login.html';
+                return;
+            }
+            
+            this.loadData();
+            this.updateStats();
+            this.initChart();
+            this.loadActivities();
+            this.loadDueAlerts();
+            this.bindEvents();
+        },
+        
+        loadData: function() {
+            this.allLoans = DB.getAll(DB.KEYS.LOANS).filter(l => l.status === 'Active');
+            this.allMembers = DB.getAll(DB.KEYS.MEMBERS);
+            this.allCollections = DB.getAll(DB.KEYS.COLLECTIONS).filter(c => c.collectedBy == this.user.id);
+        },
+        
+        updateStats: function() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayCollections = this.allCollections.filter(c => c.date === today);
+            const todayAmount = todayCollections.reduce((sum, c) => sum + c.amount, 0);
+            const achievementPercent = Math.round((todayAmount / this.dailyTarget) * 100);
+            
+            // Update officer name
+            $('#officerName').text(this.user.name || 'Field Officer');
+            
+            // Update main performance card
+            $('#dailyTarget').text('৳' + this.dailyTarget.toLocaleString());
+            $('#collectedAmount').text('৳' + todayAmount.toLocaleString());
+            $('#achievementPercent').text(achievementPercent + '%');
+            $('#membersServed').text(todayCollections.length);
+            
+            // Update progress bar
+            $('#progressBar').css('width', Math.min(achievementPercent, 100) + '%');
+            
+            // Update performance badge
+            let badge = 'Getting Started';
+            if (achievementPercent >= 100) badge = 'Target Achieved!';
+            else if (achievementPercent >= 75) badge = 'Almost There!';
+            else if (achievementPercent >= 50) badge = 'Great Progress';
+            else if (achievementPercent >= 25) badge = 'Good Start';
+            $('#performanceBadge').text(badge);
+            
+            // Calculate pending collections
+            let pendingCount = 0;
+            let overdueCount = 0;
+            const todayDate = new Date();
+            
+            this.allLoans.forEach(loan => {
+                const nextDue = loan.schedule.find(s => s.status !== 'Paid');
+                if (nextDue) {
+                    pendingCount++;
+                    const dueDate = new Date(nextDue.date);
+                    if (dueDate < todayDate) overdueCount++;
+                }
+            });
+            
+            $('#pendingCollections').text(pendingCount);
+            $('#overdueCount').text(overdueCount + ' overdue');
+            
+            // Today's collections stats
+            $('#todayCollections').text(todayCollections.length);
+            $('#todayAmount').text('৳' + todayAmount.toLocaleString());
+            
+            // Active loans stats
+            const totalPortfolio = this.allLoans.reduce((sum, l) => sum + l.principal, 0);
+            $('#activeLoans').text(this.allLoans.length);
+            $('#totalPortfolio').text('Portfolio: ৳' + totalPortfolio.toLocaleString());
+            
+            // Weekly progress
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            const weekStartStr = weekStart.toISOString().split('T')[0];
+            
+            const weeklyCollections = this.allCollections.filter(c => c.date >= weekStartStr);
+            const weeklyAmount = weeklyCollections.reduce((sum, c) => sum + c.amount, 0);
+            const weeklyTarget = this.dailyTarget * 7;
+            const weeklyPercent = Math.round((weeklyAmount / weeklyTarget) * 100);
+            
+            $('#weeklyTarget').text(weeklyPercent + '%');
+            $('#weeklyProgress').text('৳' + weeklyAmount.toLocaleString() + ' of ৳' + weeklyTarget.toLocaleString());
+        },
+        
+        initChart: function() {
+            const ctx = document.getElementById('collectionChart').getContext('2d');
+            
+            // Generate last 7 days data
+            const chartData = this.getChartData(7);
+            
+            this.collectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Collections (৳)',
+                        data: chartData.amounts,
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Target',
+                        data: Array(7).fill(this.dailyTarget),
+                        borderColor: '#FF9800',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '৳' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        },
+        
+        getChartData: function(days) {
+            const data = { labels: [], amounts: [] };
+            const today = new Date();
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                // Get collections for this date
+                const dayCollections = this.allCollections.filter(c => c.date === dateStr);
+                const dayAmount = dayCollections.reduce((sum, c) => sum + c.amount, 0);
+                
+                data.labels.push(date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+                data.amounts.push(dayAmount || (Math.random() * 5000 + 8000)); // Demo data if no real data
+            }
+            
+            return data;
+        },
+        
+        loadActivities: function() {
+            const activities = [];
+            const today = new Date();
+            
+            // Recent collections
+            const recentCollections = this.allCollections
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+            
+            recentCollections.forEach(collection => {
+                const member = this.allMembers.find(m => m.id == collection.memberId);
+                activities.push({
+                    type: 'success',
+                    icon: 'fas fa-coins',
+                    title: 'Payment Collected',
+                    description: `৳${collection.amount.toLocaleString()} from ${member?.name || 'Member'}`,
+                    time: this.formatRelativeTime(collection.date)
+                });
+            });
+            
+            // Add demo activities if no real data
+            if (activities.length === 0) {
+                activities.push(
+                    {
+                        type: 'success',
+                        icon: 'fas fa-coins',
+                        title: 'Payment Collected',
+                        description: '৳2,500 from Sarah Ahmed',
+                        time: '1h ago'
+                    },
+                    {
+                        type: 'info',
+                        icon: 'fas fa-phone',
+                        title: 'Member Contact',
+                        description: 'Called Mohammad Rahman for due payment',
+                        time: '3h ago'
+                    },
+                    {
+                        type: 'warning',
+                        icon: 'fas fa-clock',
+                        title: 'Payment Overdue',
+                        description: 'Fatima Khatun - 3 days overdue',
+                        time: '5h ago'
+                    }
+                );
+            }
+            
+            let activitiesHtml = activities.map(activity => `
+                <div class="timeline-item ${activity.type}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <i class="${activity.icon} me-2"></i>
+                            <strong class="small">${activity.title}</strong>
+                            <div class="small text-muted mt-1">${activity.description}</div>
+                        </div>
+                        <small class="text-muted">${activity.time}</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            $('#activitiesList').html(activitiesHtml);
+        },
+        
+        loadDueAlerts: function() {
+            const alerts = [];
+            const today = new Date();
+            
+            this.allLoans.forEach(loan => {
+                const member = this.allMembers.find(m => m.id == loan.memberId);
+                const nextDue = loan.schedule.find(s => s.status !== 'Paid');
+                
+                if (nextDue) {
+                    const dueDate = new Date(nextDue.date);
+                    const daysDiff = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff <= 3) { // Due within 3 days or overdue
+                        alerts.push({
+                            member: member?.name || 'Unknown Member',
+                            phone: member?.phone || 'N/A',
+                            amount: nextDue.amount,
+                            dueDate: nextDue.date,
+                            daysDiff: daysDiff,
+                            isOverdue: daysDiff < 0
+                        });
+                    }
+                }
+            });
+            
+            // Add demo alerts if no real data
+            if (alerts.length === 0) {
+                alerts.push(
+                    {
+                        member: 'Mohammad Rahman',
+                        phone: '01712345678',
+                        amount: 2500,
+                        dueDate: new Date().toISOString().split('T')[0],
+                        daysDiff: 0,
+                        isOverdue: false
+                    },
+                    {
+                        member: 'Fatima Khatun',
+                        phone: '01887654321',
+                        amount: 3000,
+                        dueDate: new Date(Date.now() - 2*24*60*60*1000).toISOString().split('T')[0],
+                        daysDiff: -2,
+                        isOverdue: true
+                    }
+                );
+            }
+            
+            alerts.sort((a, b) => a.daysDiff - b.daysDiff); // Overdue first
+            
+            let alertsHtml = alerts.slice(0, 5).map(alert => `
+                <div class="d-flex justify-content-between align-items-center p-3 bg-white rounded mb-2">
+                    <div>
+                        <strong class="${alert.isOverdue ? 'text-danger' : 'text-warning'}">
+                            ${alert.member}
+                        </strong>
+                        <div class="small text-muted">${alert.phone}</div>
+                        <div class="small">
+                            <strong>৳${alert.amount.toLocaleString()}</strong> - 
+                            ${alert.isOverdue ? 
+                                `<span class="text-danger">${Math.abs(alert.daysDiff)} days overdue</span>` :
+                                alert.daysDiff === 0 ? 
+                                    '<span class="text-warning">Due today</span>' :
+                                    `<span class="text-info">Due in ${alert.daysDiff} days</span>`
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="OfficerDashboard.callMember('${alert.phone}')">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <a href="collection.html" class="btn btn-sm btn-success">
+                            <i class="fas fa-coins"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (alertsHtml === '') {
+                alertsHtml = '<p class="text-center text-muted py-3">No due payments within 3 days!</p>';
+            }
+            
+            $('#dueAlerts').html(alertsHtml);
+        },
+        
+        bindEvents: function() {
+            // Chart period toggle
+            $('input[name="chartPeriod"]').on('change', function() {
+                const days = $(this).attr('id') === 'week' ? 7 : 30;
+                const newData = OfficerDashboard.getChartData(days);
+                
+                OfficerDashboard.collectionChart.data.labels = newData.labels;
+                OfficerDashboard.collectionChart.data.datasets[0].data = newData.amounts;
+                OfficerDashboard.collectionChart.data.datasets[1].data = Array(days).fill(OfficerDashboard.dailyTarget);
+                OfficerDashboard.collectionChart.update();
+            });
+            
+            // Quick action buttons
+            $('#generateReport').on('click', this.generateReport);
+            $('#memberSearch').on('click', this.memberSearch);
+            $('#overdueList').on('click', this.overdueList);
+        },
+        
+        formatRelativeTime: function(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffHours < 1) return 'Just now';
+            if (diffHours < 24) return diffHours + 'h ago';
+            if (diffDays === 1) return 'Yesterday';
+            return diffDays + 'd ago';
+        },
+        
+        callMember: function(phone) {
+            Swal.fire({
+                title: 'Contact Member',
+                text: `Call ${phone}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Call',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // In a real app, this would initiate a call
+                    Swal.fire('Call Initiated', `Calling ${phone}...`, 'success');
+                }
+            });
+        },
+        
+        generateReport: function() {
+            Swal.fire({
+                title: 'Daily Report',
+                html: `
+                    <div class="text-start">
+                        <h6>Collection Summary</h6>
+                        <p><strong>Total Collected:</strong> ৳${$('#collectedAmount').text().replace('৳', '')}</p>
+                        <p><strong>Members Served:</strong> ${$('#membersServed').text()}</p>
+                        <p><strong>Target Achievement:</strong> ${$('#achievementPercent').text()}</p>
+                        <hr>
+                        <h6>Pending Items</h6>
+                        <p><strong>Pending Collections:</strong> ${$('#pendingCollections').text()}</p>
+                        <p><strong>Overdue Payments:</strong> ${$('#overdueCount').text()}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Close'
+            });
+        },
+        
+        memberSearch: function() {
+            Swal.fire({
+                title: 'Find Member',
+                input: 'text',
+                inputPlaceholder: 'Enter member name or phone number',
+                showCancelButton: true,
+                confirmButtonText: 'Search'
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    // In a real app, this would search and display member info
+                    Swal.fire('Search Result', 'Member search functionality would be implemented here', 'info');
+                }
+            });
+        },
+        
+        overdueList: function() {
+            window.location.href = 'collection.html?filter=overdue';
+        }
+    };
+    
+    $(document).ready(function() {
+        OfficerDashboard.init();
+    });
+</script>
+</body>
+</html>

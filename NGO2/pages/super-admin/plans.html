@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Management - Super Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="../../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="sidebar"></div>
+<div class="main-content">
+    <div id="topNavbar" class="navbar-custom"></div>
+    <div class="container-fluid">
+        <div class="card-box">
+            <h5 class="mb-4">Subscription Plans</h5>
+            <div class="row" id="planList"></div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../assets/js/db.js"></script>
+<script src="../../assets/js/auth.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script>
+    $(document).ready(function() {
+        const plans = DB.getAll(DB.KEYS.PLANS);
+        plans.forEach(p => {
+            $('#planList').append(`
+                <div class="col-md-4">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header bg-primary text-white">${p.name}</div>
+                        <div class="card-body">
+                            <h2 class="card-title">$${p.price}</h2>
+                            <p class="card-text">
+                                Member Limit: ${p.memberLimit.toLocaleString()}<br>
+                                Loan Limit: $${p.loanLimit.toLocaleString()}
+                            </p>
+                            <button class="btn btn-outline-primary btn-sm">Edit Plan</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+    });
+</script>
+</body>
+</html>

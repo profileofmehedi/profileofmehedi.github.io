@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NGO Rent Management</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px; border-radius: 15px;">
+        <div class="card-body text-center">
+            <div class="mb-4">
+                <i class="fa-solid fa-house-user fa-3x text-primary"></i>
+                <h3 class="mt-2">Rent Manager</h3>
+                <p class="text-muted">Sign in to your account</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="mb-3 text-start">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" placeholder="name@example.com" value="super@saas.com" required>
+                </div>
+                <div class="mb-3 text-start">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" value="123" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                </div>
+            </form>
+
+            <div class="mt-4 text-start">
+                <small class="text-muted">Demo Credentials:</small>
+                <ul class="text-muted small ps-3 mb-0">
+                    <li>Super: super@saas.com / 123</li>
+                    <li>Owner: owner@demo.com / 123</li>
+                    <li>Manager: manager@demo.com / 123</li>
+                    <li>Tenant: tenant@demo.com / 123</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/core.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Override App.init auto-redirect for login page specific logic if needed
+            // But core.js checkAuth handles redirection if ALREADY logged in.
+            
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault();
+                const email = $('#email').val();
+                const pass = $('#password').val();
+
+                const result = App.login(email, pass);
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Welcome back!',
+                        text: 'Redirecting to dashboard...',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        App.redirectUser(result.user);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: result.message
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

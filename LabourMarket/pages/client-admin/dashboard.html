@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="brand">Client Portal</div>
+        <div class="text-center mb-3">
+             <img src="https://ui-avatars.com/api/?name=Client+Admin&background=random" class="avatar-img mb-2" alt="User">
+             <div class="small text-white user-name-display">Client Admin</div>
+        </div>
+        <a href="dashboard.html" class="active"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+        <a href="workers.html"><i class="fas fa-hard-hat me-2"></i> Workers</a>
+        <a href="calls.html"><i class="fas fa-phone me-2"></i> Call Log</a>
+        <a href="reports.html"><i class="fas fa-chart-line me-2"></i> Reports</a>
+        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    </div>
+
+    <div class="content">
+        <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
+            <div class="container-fluid">
+                <button class="btn btn-outline-secondary d-md-none" id="sidebarCollapse">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="navbar-brand mb-0 h1 ms-2">Agency Dashboard</span>
+            </div>
+        </nav>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card-counter bg-primary-light position-relative">
+                    <i class="fas fa-hard-hat"></i>
+                    <span class="count-numbers" id="myWorkers">0</span>
+                    <span class="count-name">Total Workers</span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card-counter bg-success-light position-relative">
+                    <i class="fas fa-phone-alt"></i>
+                    <span class="count-numbers" id="totalCalls">0</span>
+                    <span class="count-name">Total Calls</span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card-counter bg-warning-light position-relative">
+                    <i class="fas fa-check-double"></i>
+                    <span class="count-numbers" id="activeWorkers">0</span>
+                    <span class="count-name">Active Workers</span>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card-counter bg-danger-light position-relative">
+                    <i class="fas fa-wallet"></i>
+                    <span class="count-numbers" id="totalEarnings">0</span>
+                    <span class="count-name">Earnings (Est.)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+             <div class="col-md-6">
+                 <div class="card shadow-sm h-100">
+                     <div class="card-header bg-white">
+                         <h5 class="mb-0">Recent Calls</h5>
+                     </div>
+                     <div class="card-body p-0">
+                         <ul class="list-group list-group-flush" id="recentCallsList">
+                             <!-- Populated via JS -->
+                         </ul>
+                     </div>
+                 </div>
+             </div>
+             <div class="col-md-6">
+                 <div class="card shadow-sm h-100">
+                     <div class="card-header bg-white">
+                         <h5 class="mb-0">Top Performing Workers</h5>
+                     </div>
+                     <div class="card-body p-0">
+                         <ul class="list-group list-group-flush" id="topWorkersList">
+                             <!-- Populated via JS -->
+                         </ul>
+                     </div>
+                 </div>
+             </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/app.js"></script>
+    <script>
+        $(document).ready(function() {
+            const user = DB.checkAuth('client-admin');
+            if(!user) return;
+
+            const workers = DB.getAll('workers').filter(w => w.clientId == user.clientId);
+            const calls = DB.getAll('calls').filter(c => workers.some(w => w.id == c.workerId));
+
+            $('#myWorkers').text(workers.length);
+            $('#activeWorkers').text(workers.filter(w => w.availability).length);
+            $('#totalCalls').text(calls.length);
+            
+            // Calculate earnings (demo logic: just sum of completed calls)
+            const earnings = calls.reduce((sum, c) => sum + (c.status === 'Completed' ? c.amount : 0), 0);
+            $('#totalEarnings').text(earnings);
+
+            // Recent Calls
+            calls.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5).forEach(c => {
+                const w = workers.find(w => w.id == c.workerId);
+                $('#recentCallsList').append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${c.customerName}</strong> called 
+                            <span class="text-primary">${w ? w.name : 'Unknown'}</span>
+                            <div class="small text-muted">${c.date} at ${c.time}</div>
+                        </div>
+                        <span class="badge bg-secondary">${c.status}</span>
+                    </li>
+                `);
+            });
+
+            // Top Workers (by call count)
+            const workerCallCounts = {};
+            calls.forEach(c => { workerCallCounts[c.workerId] = (workerCallCounts[c.workerId] || 0) + 1; });
+            
+            const sortedWorkerIds = Object.keys(workerCallCounts).sort((a,b) => workerCallCounts[b] - workerCallCounts[a]);
+            
+            sortedWorkerIds.slice(0, 5).forEach(wid => {
+                const w = workers.find(i => i.id == wid);
+                if(w) {
+                    $('#topWorkersList').append(`
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <img src="${w.image}" class="avatar-img me-2">
+                                <div>
+                                    <strong>${w.name}</strong>
+                                    <div class="small text-muted">${w.category}</div>
+                                </div>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">${workerCallCounts[wid]} Calls</span>
+                        </li>
+                    `);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
