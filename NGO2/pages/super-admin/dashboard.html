@@ -3,10 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Super Admin</title>
+    <title>SaaS Overview - Super Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="../../assets/css/style.css" rel="stylesheet">
+    <style>
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .trend-up { color: var(--success-color); font-size: 0.8rem; }
+        .trend-down { color: var(--danger-color); font-size: 0.8rem; }
+        .activity-item { border-left: 2px solid #e3e6f0; padding-left: 20px; position: relative; padding-bottom: 20px; }
+        .activity-item::before { 
+            content: ''; position: absolute; left: -6px; top: 0; 
+            width: 10px; height: 10px; border-radius: 50%; background: var(--primary-color);
+        }
+    </style>
 </head>
 <body>
 
@@ -16,62 +27,103 @@
     <div id="topNavbar" class="navbar-custom"></div>
 
     <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="mb-0">Platform Executive Overview</h4>
+                <p class="text-muted small">Real-time performance metrics across all NGO tenants</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary"><i class="fas fa-download"></i> Report</button>
+                <button class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> New NGO</button>
+            </div>
+        </div>
+
+        <!-- Metric Cards -->
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-xl-3 col-md-6">
                 <div class="card-box stat-card border-primary">
-                    <div class="stat-label text-primary">Total NGOs</div>
+                    <div class="stat-label text-primary">Total NGO Tenants</div>
                     <div class="d-flex align-items-center justify-content-between mt-2">
                         <h3 class="stat-value" id="totalNgos">0</h3>
                         <div class="stat-icon"><i class="fas fa-building"></i></div>
                     </div>
+                    <div class="mt-2"><span class="trend-up"><i class="fas fa-arrow-up"></i> 12%</span> <span class="text-muted small">from last month</span></div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-xl-3 col-md-6">
                 <div class="card-box stat-card border-success">
-                    <div class="stat-label text-success">Active Subs</div>
-                    <div class="d-flex align-items-center justify-content-between mt-2">
-                        <h3 class="stat-value" id="activeSubs">0</h3>
-                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-box stat-card border-info">
-                    <div class="stat-label text-info">Monthly Revenue</div>
+                    <div class="stat-label text-success">Annual Recurring Revenue</div>
                     <div class="d-flex align-items-center justify-content-between mt-2">
                         <h3 class="stat-value" id="monthlyRev">$0</h3>
                         <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
                     </div>
+                    <div class="mt-2"><span class="trend-up"><i class="fas fa-arrow-up"></i> 5.4%</span> <span class="text-muted small">since yesterday</span></div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card-box stat-card border-danger">
-                    <div class="stat-label text-danger">Expired NGOs</div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card-box stat-card border-info">
+                    <div class="stat-label text-info">Active Subscriptions</div>
                     <div class="d-flex align-items-center justify-content-between mt-2">
-                        <h3 class="stat-value" id="expiredNgos">0</h3>
-                        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                        <h3 class="stat-value" id="activeSubs">0</h3>
+                        <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                    </div>
+                    <div class="mt-2"><span class="text-muted small">89% Retention Rate</span></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card-box stat-card border-warning">
+                    <div class="stat-label text-warning">System Health</div>
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <h3 class="stat-value">99.9%</h3>
+                        <div class="stat-icon"><i class="fas fa-server"></i></div>
+                    </div>
+                    <div class="mt-2"><span class="text-success small"><i class="fas fa-circle"></i> Operational</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Revenue Chart -->
+            <div class="col-lg-8">
+                <div class="card-box">
+                    <h6 class="font-weight-bold text-primary mb-4">Revenue Growth (Last 6 Months)</h6>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Plan Distribution -->
+            <div class="col-lg-4">
+                <div class="card-box">
+                    <h6 class="font-weight-bold text-primary mb-4">Subscription Mix</h6>
+                    <div class="chart-container">
+                        <canvas id="planChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-12">
+            <!-- Recent NGOs -->
+            <div class="col-lg-12">
                 <div class="card-box">
-                    <h5 class="mb-4">Recent NGO Registrations</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="font-weight-bold text-primary mb-0">Recent Tenant Onboarding</h6>
+                        <a href="ngos.html" class="btn btn-sm btn-link">View All</a>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover" id="recentNgoTable">
                             <thead>
                                 <tr>
-                                    <th>NGO Name</th>
-                                    <th>Plan</th>
+                                    <th>NGO Identity</th>
+                                    <th>Subscription Plan</th>
                                     <th>Status</th>
-                                    <th>Expiry</th>
+                                    <th>Onboarding Date</th>
+                                    <th>Next Billing</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <!-- JS Populated -->
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -82,38 +134,87 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../../assets/js/db.js"></script>
 <script src="../../assets/js/auth.js"></script>
 <script src="../../assets/js/app.js"></script>
+
 <script>
     $(document).ready(function() {
-        // Load Stats
         const ngos = DB.getAll(DB.KEYS.NGOS);
         const plans = DB.getAll(DB.KEYS.PLANS);
         
+        // Populate Stats
         $('#totalNgos').text(ngos.length);
         $('#activeSubs').text(ngos.filter(n => n.status === 'Active').length);
-        $('#expiredNgos').text(ngos.filter(n => n.status !== 'Active').length);
-
-        // Calc Revenue (Simple assumption: Sum of plan prices for active ngos)
+        
         let revenue = 0;
         ngos.forEach(ngo => {
             const plan = plans.find(p => p.id === ngo.planId);
             if(plan && ngo.status === 'Active') revenue += plan.price;
         });
-        $('#monthlyRev').text('$' + revenue.toLocaleString());
+        $('#monthlyRev').text('$' + (revenue * 12).toLocaleString()); // Showing ARR
 
-        // Table
+        // Recent Onboarding Table
         ngos.slice(0, 5).forEach(ngo => {
             const plan = plans.find(p => p.id === ngo.planId);
             $('#recentNgoTable tbody').append(`
                 <tr>
-                    <td>${ngo.name}</td>
-                    <td><span class="badge bg-info">${plan ? plan.name : 'Unknown'}</span></td>
-                    <td><span class="badge bg-${ngo.status === 'Active' ? 'success' : 'danger'}">${ngo.status}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-light p-2 me-2"><i class="fas fa-building text-primary"></i></div>
+                            <div>
+                                <div class="font-weight-bold">${ngo.name}</div>
+                                <small class="text-muted">ID: NGO-${ngo.id.toString().padStart(4, '0')}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-soft-info text-info border border-info" style="background: #e0f2fe">${plan?.name || 'Standard'}</span></td>
+                    <td><span class="badge bg-${ngo.status === 'Active' ? 'success' : 'danger'} rounded-pill">${ngo.status}</span></td>
+                    <td>Jan 12, 2026</td>
                     <td>${ngo.expiryDate}</td>
                 </tr>
             `);
+        });
+
+        // Charts
+        const revCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'line',
+            data: {
+                labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [12000, 15000, 14000, 18000, 22000, revenue],
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { drawBorder: false } } }
+            }
+        });
+
+        const planCtx = document.getElementById('planChart').getContext('2d');
+        new Chart(planCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Basic', 'Pro', 'Enterprise'],
+                datasets: [{
+                    data: [
+                        ngos.filter(n => n.planId == 1).length,
+                        ngos.filter(n => n.planId == 2).length,
+                        2 // Demo enterprise
+                    ],
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+                    hoverOffset: 4
+                }]
+            },
+            options: { maintainAspectRatio: false }
         });
     });
 </script>

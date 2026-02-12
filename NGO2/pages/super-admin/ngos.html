@@ -18,22 +18,24 @@
 
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4>NGO Management</h4>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNgoModal">
-                <i class="fas fa-plus"></i> Create NGO
+            <div>
+                <h4>Tenant Management</h4>
+                <p class="text-muted small mb-0">Oversee all registered NGO organizations and their statuses.</p>
+            </div>
+            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addNgoModal">
+                <i class="fas fa-plus fa-sm"></i> Onboard New NGO
             </button>
         </div>
 
         <div class="card-box">
-            <table id="ngoTable" class="table table-striped w-100">
-                <thead>
+            <table id="ngoTable" class="table table-hover w-100">
+                <thead class="table-light">
                     <tr>
-                        <th>ID</th>
-                        <th>NGO Name</th>
-                        <th>Plan</th>
+                        <th>Organization</th>
+                        <th>Subscription Plan</th>
                         <th>Status</th>
-                        <th>Expiry</th>
-                        <th>Action</th>
+                        <th>Billing Cycle</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -44,27 +46,36 @@
 
 <!-- Modal -->
 <div class="modal fade" id="addNgoModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New NGO</h5>
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Onboard New Organization</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <p class="text-muted small mb-4">Enter the details to create a new tenant environment.</p>
                 <form id="ngoForm">
-                    <div class="mb-3">
-                        <label class="form-label">NGO Name</label>
-                        <input type="text" id="ngoName" class="form-control" required>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">NGO Name</label>
+                            <input type="text" id="ngoName" class="form-control" placeholder="e.g. Grameen Foundation" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Admin Email</label>
+                            <input type="email" id="ngoEmail" class="form-control" placeholder="admin@domain.com" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Subscription Plan</label>
+                            <select id="ngoPlan" class="form-select" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Contract Expiry</label>
+                            <input type="date" id="ngoExpiry" class="form-control" required>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary w-100 py-2">Create Tenant Environment</button>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Plan</label>
-                        <select id="ngoPlan" class="form-select" required></select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Expiry Date</label>
-                        <input type="date" id="ngoExpiry" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Save NGO</button>
                 </form>
             </div>
         </div>
@@ -86,30 +97,54 @@
         const plans = DB.getAll(DB.KEYS.PLANS);
 
         // Fill Plan Dropdown
-        plans.forEach(p => $('#ngoPlan').append(`<option value="${p.id}">${p.name} ($${p.price})</option>`));
+        plans.forEach(p => $('#ngoPlan').append(`<option value="${p.id}">${p.name} ($${p.price}/mo)</option>`));
 
         const table = $('#ngoTable').DataTable({
             data: ngos,
             columns: [
-                { data: 'id' },
-                { data: 'name' },
+                { 
+                    data: 'name',
+                    render: (d, t, r) => `
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm bg-light rounded-circle p-2 me-3 text-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-building text-primary pt-1"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">${d}</div>
+                                <div class="small text-muted">ID: NGO-${r.id}</div>
+                            </div>
+                        </div>
+                    `
+                },
                 { 
                     data: 'planId',
                     render: (data) => {
                         const plan = plans.find(p => p.id == data);
-                        return `<span class="badge bg-info">${plan ? plan.name : 'N/A'}</span>`;
+                        return `<span class="badge bg-soft-info text-info border border-info px-3 py-1" style="background: #e0f2fe">${plan ? plan.name : 'Custom'}</span>`;
                     }
                 },
                 { 
                     data: 'status',
-                    render: (data) => `<span class="badge bg-${data === 'Active' ? 'success' : 'danger'}">${data}</span>`
+                    render: (data) => {
+                        const color = data === 'Active' ? 'success' : 'danger';
+                        return `<span class="badge bg-${color} rounded-pill px-3">${data}</span>`;
+                    }
                 },
-                { data: 'expiryDate' },
+                { 
+                    data: 'expiryDate',
+                    render: (d) => `<div class="text-muted small"><i class="far fa-calendar-alt me-1"></i> ${d}</div>`
+                },
                 {
                     data: null,
                     render: (data) => `
-                        <button class="btn btn-sm btn-warning toggle-status" data-id="${data.id}">${data.status === 'Active' ? 'Suspend' : 'Activate'}</button>
-                        <button class="btn btn-sm btn-danger delete-ngo" data-id="${data.id}"><i class="fas fa-trash"></i></button>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-warning toggle-status" data-id="${data.id}" title="${data.status === 'Active' ? 'Suspend' : 'Activate'}">
+                                <i class="fas fa-${data.status === 'Active' ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger delete-ngo" data-id="${data.id}" title="Delete Tenant">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     `
                 }
             ]
@@ -126,7 +161,14 @@
             };
             ngos.push(newNgo);
             DB.save(DB.KEYS.NGOS, ngos);
-            Swal.fire('Success', 'NGO Created Successfully', 'success').then(() => location.reload());
+            $('#addNgoModal').modal('hide');
+            Swal.fire({
+                icon: 'success',
+                title: 'Tenant Created',
+                text: 'The new NGO environment has been successfully provisioned.',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => location.reload());
         });
 
         $('#ngoTable').on('click', '.toggle-status', function() {
@@ -140,10 +182,12 @@
         $('#ngoTable').on('click', '.delete-ngo', function() {
             const id = $(this).data('id');
             Swal.fire({
-                title: 'Are you sure?',
+                title: 'Terminate Tenant?',
+                text: "This will permanently delete the NGO and all associated data. This action cannot be undone.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, Terminate'
             }).then((result) => {
                 if (result.isConfirmed) {
                     const updated = ngos.filter(n => n.id != id);

@@ -892,6 +892,127 @@
           $("#receiptModal").modal("show");
         },
 
+        showDemoReceipt: function (demoId) {
+          const demoData = {
+            demo1: {
+              id: "demo1",
+              receiptNo: "RCP24021201",
+              time: "10:30 AM",
+              memberName: "Sarah Ahmed",
+              memberPhone: "01712345678",
+              loanId: 1001,
+              amount: 2500,
+              dueAmount: 2500,
+              paymentMethod: "cash",
+              reference: "CASH-001",
+              notes: "Regular monthly payment",
+              installmentNo: 3,
+              totalInstallments: 12,
+              isPartialPayment: false,
+            },
+            demo2: {
+              id: "demo2",
+              receiptNo: "RCP24021202",
+              time: "11:45 AM",
+              memberName: "Mohammad Rahman",
+              memberPhone: "01823456789",
+              loanId: 1002,
+              amount: 3000,
+              dueAmount: 3000,
+              paymentMethod: "mobile",
+              reference: "bKash-789456123",
+              notes: "Paid via bKash mobile banking",
+              installmentNo: 5,
+              totalInstallments: 10,
+              isPartialPayment: false,
+            },
+            demo3: {
+              id: "demo3",
+              receiptNo: "RCP24021203",
+              time: "02:15 PM",
+              memberName: "Fatima Khatun",
+              memberPhone: "01934567890",
+              loanId: 1003,
+              amount: 1800,
+              dueAmount: 2000,
+              paymentMethod: "cash",
+              reference: "N/A",
+              notes: "Partial payment - remaining ৳200",
+              installmentNo: 2,
+              totalInstallments: 24,
+              isPartialPayment: true,
+            },
+          };
+
+          const demo = demoData[demoId];
+          if (!demo) return;
+
+          const receiptHtml = `
+            <div class="receipt-header text-center">
+                <h4>PAYMENT RECEIPT</h4>
+                <p class="mb-0">NGO Management System</p>
+                <small class="text-muted">Receipt No: ${demo.receiptNo}</small>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-6">
+                    <strong>Date:</strong> ${new Date().toLocaleDateString()}<br>
+                    <strong>Time:</strong> ${demo.time}<br>
+                    <strong>Collected By:</strong> ${this.user?.name || "Field Officer"}
+                </div>
+                <div class="col-6 text-end">
+                    <strong>Payment Method:</strong> ${demo.paymentMethod.toUpperCase()}<br>
+                    <strong>Reference:</strong> ${demo.reference}<br>
+                    ${demo.isPartialPayment ? '<span class="badge bg-warning">Partial Payment</span>' : '<span class="badge bg-success">Full Payment</span>'}
+                </div>
+            </div>
+            
+            <table class="table table-bordered">
+                <tr>
+                    <th>Member Name:</th>
+                    <td>${demo.memberName}</td>
+                    <th>Phone:</th>
+                    <td>${demo.memberPhone}</td>
+                </tr>
+                <tr>
+                    <th>Loan ID:</th>
+                    <td>${demo.loanId}</td>
+                    <th>Installment:</th>
+                    <td>${demo.installmentNo} of ${demo.totalInstallments}</td>
+                </tr>
+                <tr>
+                    <th>Due Amount:</th>
+                    <td>৳${demo.dueAmount.toLocaleString()}</td>
+                    <th>Collected Amount:</th>
+                    <td><strong>৳${demo.amount.toLocaleString()}</strong></td>
+                </tr>
+                ${
+                  demo.isPartialPayment
+                    ? `
+                <tr>
+                    <th colspan="3">Remaining Balance:</th>
+                    <td class="text-danger"><strong>৳${(demo.dueAmount - demo.amount).toLocaleString()}</strong></td>
+                </tr>
+                `
+                    : ""
+                }
+            </table>
+            
+            <div class="mt-3">
+                <strong>Notes:</strong><br>
+                <p class="text-muted">${demo.notes}</p>
+            </div>
+            
+            <div class="mt-4 pt-3 border-top text-center">
+                <p class="mb-0 small text-muted">Thank you for your payment</p>
+                <p class="mb-0 small text-muted">This is a computer generated receipt</p>
+            </div>
+          `;
+
+          $("#receiptContent").html(receiptHtml);
+          $("#receiptModal").modal("show");
+        },
+
         loadRecentCollections: function () {
           const today = new Date().toISOString().split("T")[0];
           const recentCollections = this.allCollections
@@ -906,26 +1027,77 @@
           let recentHtml = "";
           if (recentCollections.length === 0) {
             // Add demo data for presentation
-            recentHtml = `
-                    <tr>
-                        <td>10:30 AM</td>
-                        <td>Sarah Ahmed</td>
-                        <td>৳2,500</td>
-                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>11:45 AM</td>
-                        <td>Mohammad Rahman</td>
-                        <td>৳3,000</td>
-                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>02:15 PM</td>
-                        <td>Fatima Khatun</td>
-                        <td>৳1,800</td>
-                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-                    </tr>
-                `;
+            const demoCollections = [
+              {
+                id: "demo1",
+                time: "10:30 AM",
+                memberName: "Sarah Ahmed",
+                memberId: 1,
+                loanId: 1001,
+                amount: 2500,
+                dueAmount: 2500,
+                date: new Date().toISOString().split("T")[0],
+                collectedBy: this.user?.id || 1,
+                paymentMethod: "cash",
+                reference: "CASH-001",
+                notes: "Regular monthly payment",
+                installmentNo: 3,
+                isPartialPayment: false,
+                receiptNo: "RCP24021201",
+              },
+              {
+                id: "demo2",
+                time: "11:45 AM",
+                memberName: "Mohammad Rahman",
+                memberId: 2,
+                loanId: 1002,
+                amount: 3000,
+                dueAmount: 3000,
+                date: new Date().toISOString().split("T")[0],
+                collectedBy: this.user?.id || 1,
+                paymentMethod: "mobile",
+                reference: "bKash-789456123",
+                notes: "Paid via bKash mobile banking",
+                installmentNo: 5,
+                isPartialPayment: false,
+                receiptNo: "RCP24021202",
+              },
+              {
+                id: "demo3",
+                time: "02:15 PM",
+                memberName: "Fatima Khatun",
+                memberId: 3,
+                loanId: 1003,
+                amount: 1800,
+                dueAmount: 2000,
+                date: new Date().toISOString().split("T")[0],
+                collectedBy: this.user?.id || 1,
+                paymentMethod: "cash",
+                reference: "N/A",
+                notes: "Partial payment - remaining ৳200",
+                installmentNo: 2,
+                isPartialPayment: true,
+                receiptNo: "RCP24021203",
+              },
+            ];
+
+            recentHtml = demoCollections
+              .map(
+                (collection) => `
+              <tr>
+                <td>${collection.time}</td>
+                <td>${collection.memberName}</td>
+                <td>৳${collection.amount.toLocaleString()}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary" 
+                          onclick="CollectionManager.showDemoReceipt('${collection.id}')">
+                    View
+                  </button>
+                </td>
+              </tr>
+            `,
+              )
+              .join("");
           } else {
             recentHtml = recentCollections
               .map((collection) => {

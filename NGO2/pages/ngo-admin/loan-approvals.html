@@ -1,104 +1,1230 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Loan Approvals - NGO Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-    <link href="../../assets/css/style.css" rel="stylesheet">
-</head>
-<body>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css"
+    />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .approval-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+      }
+      .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #28a745;
+      }
+      .filter-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .urgent-row {
+        background-color: #fff5f5 !important;
+      }
+      .high-amount-row {
+        background-color: #fffbf0 !important;
+      }
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .loan-details-card {
+        border-left: 4px solid #007bff;
+      }
+      .risk-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      .risk-low {
+        background-color: #28a745;
+      }
+      .risk-medium {
+        background-color: #ffc107;
+      }
+      .risk-high {
+        background-color: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar"></div>
 
-<div class="sidebar"></div>
+    <div class="main-content">
+      <div id="topNavbar" class="navbar-custom"></div>
 
-<div class="main-content">
-    <div id="topNavbar" class="navbar-custom"></div>
-
-    <div class="container-fluid">
-        <h4>Pending Loan Approvals</h4>
-        <div class="card-box mt-4">
-            <table id="approvalTable" class="table table-striped w-100">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Member</th>
-                        <th>Product</th>
-                        <th>Amount</th>
-                        <th>Officer</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+      <div class="container-fluid">
+        <!-- Approval Overview Header -->
+        <div class="approval-header">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="mb-0">
+                <i class="fas fa-clipboard-check me-2"></i>Loan Approval Center
+              </h3>
+              <p class="mb-0 opacity-75">
+                Review and approve pending loan applications
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-light btn-sm" id="refreshData">
+                  <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+                <button class="btn btn-warning btn-sm" id="bulkActions">
+                  <i class="fas fa-tasks me-1"></i>Bulk Actions
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+          <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="stats-card" style="border-left-color: #007bff">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 class="mb-1" id="pendingCount">0</h4>
+                  <p class="text-muted mb-0">Pending Applications</p>
+                  <small class="text-primary" id="pendingAmount">৳0</small>
+                </div>
+                <i class="fas fa-clock fs-2 text-primary"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="stats-card" style="border-left-color: #dc3545">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 class="mb-1" id="urgentCount">0</h4>
+                  <p class="text-muted mb-0">Urgent Reviews</p>
+                  <small class="text-danger">Older than 3 days</small>
+                </div>
+                <i class="fas fa-exclamation-triangle fs-2 text-danger"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="stats-card" style="border-left-color: #28a745">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 class="mb-1" id="approvedTodayCount">0</h4>
+                  <p class="text-muted mb-0">Approved Today</p>
+                  <small class="text-success" id="approvedTodayAmount"
+                    >৳0</small
+                  >
+                </div>
+                <i class="fas fa-check-circle fs-2 text-success"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="stats-card" style="border-left-color: #ffc107">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 class="mb-1" id="highValueCount">0</h4>
+                  <p class="text-muted mb-0">High Value Loans</p>
+                  <small class="text-warning">Above ৳100,000</small>
+                </div>
+                <i class="fas fa-dollar-sign fs-2 text-warning"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="filter-card">
+          <div class="row align-items-end">
+            <div class="col-md-3">
+              <label class="form-label">Filter by Priority</label>
+              <select class="form-select" id="priorityFilter">
+                <option value="">All Applications</option>
+                <option value="urgent">Urgent (3+ days)</option>
+                <option value="high-value">High Value (100k+)</option>
+                <option value="low-risk">Low Risk</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Search Member/Officer</label>
+              <input
+                type="text"
+                class="form-control"
+                id="searchFilter"
+                placeholder="Name or ID"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Loan Product</label>
+              <select class="form-select" id="productFilter">
+                <option value="">All Products</option>
+                <option value="SME">SME Business Loan</option>
+                <option value="Agricultural">Agricultural Loan</option>
+                <option value="Women">Women Entrepreneur</option>
+                <option value="Micro">Micro Trade Finance</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-primary w-100" id="applyFilters">
+                <i class="fas fa-filter me-1"></i>Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-box">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Loan Applications Awaiting Approval</h5>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-success" id="approveSelected">
+                <i class="fas fa-check me-1"></i>Approve Selected
+              </button>
+              <button class="btn btn-outline-danger" id="rejectSelected">
+                <i class="fas fa-times me-1"></i>Reject Selected
+              </button>
+              <button class="btn btn-outline-primary" id="exportList">
+                <i class="fas fa-file-excel me-1"></i>Export
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table
+              id="approvalTable"
+              class="table table-striped table-hover w-100"
+            >
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="selectAll" /></th>
+                  <th>Priority</th>
+                  <th>Application Date</th>
+                  <th>Member</th>
+                  <th>Product</th>
+                  <th>Amount</th>
+                  <th>Risk Level</th>
+                  <th>Applied By</th>
+                  <th>Days Pending</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../../assets/js/db.js"></script>
-<script src="../../assets/js/auth.js"></script>
-<script src="../../assets/js/app.js"></script>
+    <!-- Loan Details Modal -->
+    <div class="modal fade" id="loanDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-file-contract me-2"></i>Loan Application Details
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="loanDetailsContent">
+              <!-- Content will be loaded here -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-2"></i>Close
+            </button>
+            <button type="button" class="btn btn-danger" id="rejectFromModal">
+              <i class="fas fa-times me-2"></i>Reject Application
+            </button>
+            <button type="button" class="btn btn-success" id="approveFromModal">
+              <i class="fas fa-check me-2"></i>Approve & Send to Disbursement
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<script>
-    $(document).ready(function() {
-        const user = DB.getCurrentUser();
-        const loans = DB.getAll(DB.KEYS.LOANS).filter(l => l.status === 'Applied');
-        const members = DB.getAll(DB.KEYS.MEMBERS);
-        const products = DB.getAll(DB.KEYS.PRODUCTS);
-        const officers = DB.getAll(DB.KEYS.USERS);
+    <!-- Rejection Reason Modal -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-times-circle me-2"></i>Reject Loan Application
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Rejection Reason *</label>
+              <select class="form-select" id="rejectionReason">
+                <option value="">Select rejection reason</option>
+                <option value="insufficient-income">Insufficient Income</option>
+                <option value="poor-credit-history">Poor Credit History</option>
+                <option value="incomplete-documents">
+                  Incomplete Documentation
+                </option>
+                <option value="high-risk-profile">High Risk Profile</option>
+                <option value="business-viability">
+                  Business Viability Concerns
+                </option>
+                <option value="collateral-insufficient">
+                  Insufficient Collateral
+                </option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Additional Comments</label>
+              <textarea
+                class="form-control"
+                id="rejectionComments"
+                rows="3"
+                placeholder="Provide detailed explanation for rejection..."
+              ></textarea>
+            </div>
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Note:</strong> Once rejected, the applicant and field
+              officer will be notified automatically.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmRejection">
+              <i class="fas fa-times me-1"></i>Confirm Rejection
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        $('#approvalTable').DataTable({
-            data: loans,
-            columns: [
-                { data: 'appliedAt' },
-                { 
-                    data: 'memberId',
-                    render: (id) => members.find(m => m.id == id)?.name || 'Unknown'
-                },
-                { 
-                    data: 'productId',
-                    render: (id) => products.find(p => p.id == id)?.name || 'Unknown'
-                },
-                { data: 'principal', render: (d) => '৳' + d.toLocaleString() },
-                { 
-                    data: 'appliedBy',
-                    render: (id) => officers.find(o => o.id == id)?.name || 'Unknown'
-                },
-                {
-                    data: null,
-                    render: (data) => `
-                        <button class="btn btn-sm btn-success approve-btn" data-id="${data.id}"><i class="fas fa-check"></i> Approve</button>
-                        <button class="btn btn-sm btn-danger reject-btn" data-id="${data.id}"><i class="fas fa-times"></i></button>
-                    `
-                }
-            ]
-        });
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/db.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/app.js"></script>
 
-        $('#approvalTable').on('click', '.approve-btn', function() {
-            const id = $(this).data('id');
+    <script>
+      const LoanApprovalManager = {
+        user: null,
+        allApplications: [],
+        allMembers: [],
+        allProducts: [],
+        allOfficers: [],
+        filteredData: [],
+        dataTable: null,
+        selectedApplications: [],
+        currentLoanId: null,
+
+        init: function () {
+          this.user = DB.getCurrentUser();
+          if (!this.user) {
+            window.location.href = "../../pages/login.html";
+            return;
+          }
+
+          // Allow admin roles to access this page (match the role format used in app.js)
+          if (
+            this.user.role !== "ngo-admin" &&
+            this.user.role !== "admin" &&
+            this.user.role !== "super-admin"
+          ) {
             Swal.fire({
-                title: 'Confirm Approval',
-                text: "Are you sure you want to approve this loan application?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Approve'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    DB.approveLoan(id);
-                    Swal.fire('Approved', 'Loan has been approved and moved to disbursement queue.', 'success').then(() => {
-                        location.reload();
-                    });
-                }
+              title: "Access Denied",
+              text: "You do not have permission to access this page. Admin privileges required.",
+              icon: "error",
+              confirmButtonText: "Go Back",
+            }).then(() => {
+              window.location.href = "../dashboard.html";
             });
-        });
-    });
-</script>
+            return;
+          }
 
-</body>
+          this.loadDemoData();
+          this.updateStatistics();
+          this.initializeTable();
+          this.bindEvents();
+        },
+
+        loadDemoData: function () {
+          // Demo admin users (ensure admin access)
+          const demoAdmins = [
+            {
+              id: 999,
+              name: "NGO Admin",
+              email: "admin@ngo.com",
+              role: "ngo-admin",
+              branchId: 1,
+              password: "admin123",
+            },
+            {
+              id: 998,
+              name: "Super Admin",
+              email: "super@ngo.com",
+              role: "super-admin",
+              branchId: 1,
+              password: "admin123",
+            },
+          ];
+
+          // Demo members
+          const demoMembers = [
+            {
+              id: 1,
+              name: "Fatima Begum",
+              phone: "01712345678",
+              address: "Dhaka, Dhanmondi",
+              branchId: 1,
+              creditScore: 750,
+            },
+            {
+              id: 2,
+              name: "Abdul Rahman",
+              phone: "01823456789",
+              address: "Chittagong, Agrabad",
+              branchId: 2,
+              creditScore: 680,
+            },
+            {
+              id: 3,
+              name: "Rashida Khatun",
+              phone: "01934567890",
+              address: "Sylhet, Zindabazar",
+              branchId: 1,
+              creditScore: 720,
+            },
+            {
+              id: 4,
+              name: "Mohammad Ali",
+              phone: "01641234567",
+              address: "Rajshahi, Shaheb Bazar",
+              branchId: 3,
+              creditScore: 600,
+            },
+            {
+              id: 5,
+              name: "Salma Akter",
+              phone: "01756789012",
+              address: "Comilla, Kandirpar",
+              branchId: 2,
+              creditScore: 780,
+            },
+            {
+              id: 6,
+              name: "Karim Sheikh",
+              phone: "01867890123",
+              address: "Rangpur, Guptapara",
+              branchId: 1,
+              creditScore: 650,
+            },
+            {
+              id: 7,
+              name: "Nasreen Sultana",
+              phone: "01978901234",
+              address: "Barisal, Band Road",
+              branchId: 3,
+              creditScore: 700,
+            },
+            {
+              id: 8,
+              name: "Aminul Islam",
+              phone: "01512345678",
+              address: "Khulna, Sonadanga",
+              branchId: 2,
+              creditScore: 690,
+            },
+          ];
+
+          // Demo products
+          const demoProducts = [
+            {
+              id: 1,
+              name: "SME Business Loan",
+              interestRate: 12,
+              duration: 12,
+              type: "Monthly",
+              maxAmount: 500000,
+            },
+            {
+              id: 2,
+              name: "Agricultural Loan",
+              interestRate: 10,
+              duration: 8,
+              type: "Monthly",
+              maxAmount: 200000,
+            },
+            {
+              id: 3,
+              name: "Women Entrepreneur Loan",
+              interestRate: 8,
+              duration: 24,
+              type: "Monthly",
+              maxAmount: 300000,
+            },
+            {
+              id: 4,
+              name: "Micro Trade Finance",
+              interestRate: 15,
+              duration: 6,
+              type: "Monthly",
+              maxAmount: 100000,
+            },
+            {
+              id: 5,
+              name: "Livestock Loan",
+              interestRate: 11,
+              duration: 10,
+              type: "Monthly",
+              maxAmount: 150000,
+            },
+          ];
+
+          // Demo officers
+          const demoOfficers = [
+            { id: 101, name: "Syed Ahmed", role: "officer", branchId: 1 },
+            { id: 102, name: "Mariam Khan", role: "officer", branchId: 2 },
+            { id: 103, name: "Rafiq Hassan", role: "officer", branchId: 3 },
+            { id: 104, name: "Nusrat Jahan", role: "officer", branchId: 1 },
+          ];
+
+          // Demo loan applications
+          const demoApplications = [
+            {
+              id: 1,
+              memberId: 1,
+              productId: 1,
+              principal: 250000,
+              appliedAt: "2024-02-08",
+              appliedBy: 101,
+              status: "Applied",
+              businessType: "Retail Shop",
+              monthlyIncome: 45000,
+              purpose: "Inventory expansion",
+              guarantor1: "Rashida Begum",
+              guarantor2: "Karim Uddin",
+              collateral: "Shop deed",
+            },
+            {
+              id: 2,
+              memberId: 2,
+              productId: 2,
+              principal: 120000,
+              appliedAt: "2024-02-09",
+              appliedBy: 102,
+              status: "Applied",
+              businessType: "Farming",
+              monthlyIncome: 25000,
+              purpose: "Crop cultivation",
+              guarantor1: "Shahida Begum",
+              guarantor2: "Mizanur Rahman",
+              collateral: "Land documents",
+            },
+            {
+              id: 3,
+              memberId: 3,
+              productId: 3,
+              principal: 180000,
+              appliedAt: "2024-02-06",
+              appliedBy: 101,
+              status: "Applied",
+              businessType: "Tailoring",
+              monthlyIncome: 32000,
+              purpose: "Equipment purchase",
+              guarantor1: "Fatima Khatun",
+              guarantor2: "Abdul Karim",
+              collateral: "Machinery",
+            },
+            {
+              id: 4,
+              memberId: 4,
+              productId: 4,
+              principal: 75000,
+              appliedAt: "2024-02-10",
+              appliedBy: 103,
+              status: "Applied",
+              businessType: "Trading",
+              monthlyIncome: 18000,
+              purpose: "Working capital",
+              guarantor1: "Rashida Begum",
+              guarantor2: "Hafizur Rahman",
+              collateral: "Gold ornaments",
+            },
+            {
+              id: 5,
+              memberId: 5,
+              productId: 1,
+              principal: 350000,
+              appliedAt: "2024-02-05",
+              appliedBy: 104,
+              status: "Applied",
+              businessType: "Manufacturing",
+              monthlyIncome: 65000,
+              purpose: "Factory expansion",
+              guarantor1: "Marium Sultana",
+              guarantor2: "Jobair Ahmed",
+              collateral: "Factory building",
+            },
+            {
+              id: 6,
+              memberId: 6,
+              productId: 2,
+              principal: 95000,
+              appliedAt: "2024-02-07",
+              appliedBy: 102,
+              status: "Applied",
+              businessType: "Poultry",
+              monthlyIncome: 22000,
+              purpose: "Farm development",
+              guarantor1: "Salma Khatun",
+              guarantor2: "Nurul Amin",
+              collateral: "Poultry farm",
+            },
+            {
+              id: 7,
+              memberId: 7,
+              productId: 5,
+              principal: 85000,
+              appliedAt: "2024-02-11",
+              appliedBy: 103,
+              status: "Applied",
+              businessType: "Dairy",
+              monthlyIncome: 28000,
+              purpose: "Cattle purchase",
+              guarantor1: "Rashida Begum",
+              guarantor2: "Khorshed Alam",
+              collateral: "Cattle shed",
+            },
+            {
+              id: 8,
+              memberId: 8,
+              productId: 3,
+              principal: 160000,
+              appliedAt: "2024-02-09",
+              appliedBy: 104,
+              status: "Applied",
+              businessType: "Food Processing",
+              monthlyIncome: 38000,
+              purpose: "Equipment upgrade",
+              guarantor1: "Nazma Begum",
+              guarantor2: "Abdur Rahim",
+              collateral: "Processing equipment",
+            },
+          ];
+
+          // Use demo data or fallback to DB data
+          this.allApplications =
+            DB.getAll(DB.KEYS.LOANS).filter((l) => l.status === "Applied")
+              .length > 0
+              ? DB.getAll(DB.KEYS.LOANS).filter((l) => l.status === "Applied")
+              : demoApplications;
+          this.allMembers =
+            DB.getAll(DB.KEYS.MEMBERS).length > 0
+              ? DB.getAll(DB.KEYS.MEMBERS)
+              : demoMembers;
+          this.allProducts =
+            DB.getAll(DB.KEYS.PRODUCTS).length > 0
+              ? DB.getAll(DB.KEYS.PRODUCTS)
+              : demoProducts;
+          this.allOfficers =
+            DB.getAll(DB.KEYS.USERS).length > 0
+              ? DB.getAll(DB.KEYS.USERS)
+              : demoOfficers;
+
+          // Ensure admin users exist in the database
+          let existingUsers = DB.getAll(DB.KEYS.USERS);
+          const hasAdmin = existingUsers.some(
+            (u) =>
+              u.role === "ngo-admin" ||
+              u.role === "super-admin" ||
+              u.role === "admin",
+          );
+          if (!hasAdmin) {
+            existingUsers = existingUsers.concat(demoAdmins);
+            DB.save(DB.KEYS.USERS, existingUsers);
+          }
+
+          this.prepareTableData();
+        },
+
+        prepareTableData: function () {
+          const today = new Date();
+
+          this.filteredData = this.allApplications.map((app) => {
+            const member =
+              this.allMembers.find((m) => m.id == app.memberId) || {};
+            const product =
+              this.allProducts.find((p) => p.id == app.productId) || {};
+            const officer =
+              this.allOfficers.find((o) => o.id == app.appliedBy) || {};
+
+            const applyDate = new Date(app.appliedAt);
+            const daysPending = Math.floor(
+              (today - applyDate) / (1000 * 60 * 60 * 24),
+            );
+
+            let riskLevel = "Low";
+            let riskClass = "risk-low";
+            if (
+              app.principal > 200000 ||
+              member.creditScore < 650 ||
+              daysPending > 7
+            ) {
+              riskLevel = "High";
+              riskClass = "risk-high";
+            } else if (
+              app.principal > 100000 ||
+              member.creditScore < 700 ||
+              daysPending > 3
+            ) {
+              riskLevel = "Medium";
+              riskClass = "risk-medium";
+            }
+
+            let priority = "Normal";
+            if (daysPending >= 3) priority = "Urgent";
+            if (app.principal >= 100000) priority = "High Value";
+
+            return {
+              ...app,
+              memberName: member.name || "Unknown",
+              memberPhone: member.phone || "N/A",
+              memberAddress: member.address || "N/A",
+              memberCreditScore: member.creditScore || 0,
+              productName: product.name || "Unknown",
+              productRate: product.interestRate || 0,
+              officerName: officer.name || "Unknown",
+              daysPending: daysPending,
+              riskLevel: riskLevel,
+              riskClass: riskClass,
+              priority: priority,
+            };
+          });
+        },
+
+        updateStatistics: function () {
+          const today = new Date().toISOString().split("T")[0];
+
+          const pendingCount = this.filteredData.length;
+          const urgentCount = this.filteredData.filter(
+            (app) => app.daysPending >= 3,
+          ).length;
+          const highValueCount = this.filteredData.filter(
+            (app) => app.principal >= 100000,
+          ).length;
+
+          const pendingAmount = this.filteredData.reduce(
+            (sum, app) => sum + app.principal,
+            0,
+          );
+          const approvedTodayCount = 0; // Would come from approved loans today
+          const approvedTodayAmount = 0;
+
+          $("#pendingCount").text(pendingCount);
+          $("#pendingAmount").text("৳" + pendingAmount.toLocaleString());
+          $("#urgentCount").text(urgentCount);
+          $("#approvedTodayCount").text(approvedTodayCount);
+          $("#approvedTodayAmount").text(
+            "৳" + approvedTodayAmount.toLocaleString(),
+          );
+          $("#highValueCount").text(highValueCount);
+        },
+
+        initializeTable: function () {
+          this.dataTable = $("#approvalTable").DataTable({
+            data: this.filteredData,
+            columns: [
+              {
+                data: null,
+                render: (data) =>
+                  `<input type="checkbox" class="row-select" value="${data.id}">`,
+              },
+              {
+                data: "priority",
+                render: (data, type, row) => {
+                  let badgeClass = "bg-secondary";
+                  if (data === "Urgent") badgeClass = "bg-danger";
+                  else if (data === "High Value") badgeClass = "bg-warning";
+                  return `<span class="badge ${badgeClass}">${data}</span>`;
+                },
+              },
+              {
+                data: "appliedAt",
+                render: (data) => new Date(data).toLocaleDateString("en-GB"),
+              },
+              {
+                data: "memberName",
+                render: (data, type, row) => `
+                            <div>
+                                <strong>${data}</strong><br>
+                                <small class="text-muted">${row.memberPhone}</small><br>
+                                <small class="text-muted">Credit: ${row.memberCreditScore}</small>
+                            </div>
+                        `,
+              },
+              {
+                data: "productName",
+                render: (data, type, row) => `
+                            <div>
+                                <strong>${data}</strong><br>
+                                <small class="text-muted">${row.productRate}% interest</small>
+                            </div>
+                        `,
+              },
+              {
+                data: "principal",
+                render: (data) => "৳" + data.toLocaleString(),
+              },
+              {
+                data: "riskLevel",
+                render: (data, type, row) => `
+                            <span class="risk-indicator ${row.riskClass}"></span>${data}
+                        `,
+              },
+              { data: "officerName" },
+              {
+                data: "daysPending",
+                render: (data) => {
+                  let textClass = "text-success";
+                  if (data >= 5) textClass = "text-danger";
+                  else if (data >= 3) textClass = "text-warning";
+                  return `<span class="${textClass}">${data} days</span>`;
+                },
+              },
+              {
+                data: null,
+                render: (data) => `
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary view-details-btn" data-id="${data.id}">
+                                    <i class="fas fa-eye"></i> Details
+                                </button>
+                                <button class="btn btn-success approve-btn" data-id="${data.id}">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn btn-danger reject-btn" data-id="${data.id}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `,
+              },
+            ],
+            order: [
+              [8, "desc"],
+              [5, "desc"],
+            ], // Sort by days pending, then by amount
+            pageLength: 25,
+            responsive: true,
+            dom: "Bfrtip",
+            buttons: [
+              {
+                extend: "excel",
+                text: '<i class="fas fa-file-excel"></i> Export Excel',
+                className: "btn btn-success btn-sm",
+              },
+              {
+                extend: "print",
+                text: '<i class="fas fa-print"></i> Print',
+                className: "btn btn-secondary btn-sm",
+              },
+            ],
+            createdRow: function (row, data) {
+              if (data.daysPending >= 3) {
+                $(row).addClass("urgent-row");
+              } else if (data.principal >= 100000) {
+                $(row).addClass("high-amount-row");
+              }
+            },
+          });
+        },
+
+        showLoanDetails: function (loanId) {
+          const loan = this.filteredData.find((l) => l.id == loanId);
+          if (!loan) return;
+
+          const member = this.allMembers.find((m) => m.id == loan.memberId);
+          const product = this.allProducts.find((p) => p.id == loan.productId);
+
+          const interest = Math.ceil(
+            (loan.principal * product.interestRate * product.duration) /
+              (12 * 100),
+          );
+          const total = loan.principal + interest;
+          const monthlyPayment = Math.ceil(total / product.duration);
+
+          const detailsHtml = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card loan-details-card mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <i class="fas fa-user me-2"></i>Member Information
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Name:</strong> ${member.name}</p>
+                                <p><strong>Phone:</strong> ${member.phone}</p>
+                                <p><strong>Address:</strong> ${member.address}</p>
+                                <p><strong>Credit Score:</strong> <span class="badge bg-${member.creditScore >= 700 ? "success" : member.creditScore >= 650 ? "warning" : "danger"}">${member.creditScore}</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card loan-details-card mb-3">
+                            <div class="card-header bg-success text-white">
+                                <i class="fas fa-briefcase me-2"></i>Business Information  
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Business Type:</strong> ${loan.businessType}</p>
+                                <p><strong>Monthly Income:</strong> ৳${loan.monthlyIncome?.toLocaleString()}</p>
+                                <p><strong>Purpose:</strong> ${loan.purpose}</p>
+                                <p><strong>Collateral:</strong> ${loan.collateral}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card loan-details-card mb-3">
+                            <div class="card-header bg-warning text-dark">
+                                <i class="fas fa-credit-card me-2"></i>Loan Details
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Product:</strong> ${product.name}</p>
+                                <p><strong>Principal Amount:</strong> ৳${loan.principal.toLocaleString()}</p>
+                                <p><strong>Interest Rate:</strong> ${product.interestRate}% per annum</p>
+                                <p><strong>Duration:</strong> ${product.duration} months</p>
+                                <p><strong>Total Interest:</strong> ৳${interest.toLocaleString()}</p>
+                                <p><strong>Total Payable:</strong> <strong>৳${total.toLocaleString()}</strong></p>
+                                <p><strong>Monthly Payment:</strong> ৳${monthlyPayment.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card loan-details-card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <i class="fas fa-users me-2"></i>Guarantors & Application
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Guarantor 1:</strong> ${loan.guarantor1}</p>
+                                <p><strong>Guarantor 2:</strong> ${loan.guarantor2}</p>
+                                <p><strong>Applied Date:</strong> ${new Date(loan.appliedAt).toLocaleDateString("en-GB")}</p>
+                                <p><strong>Applied By:</strong> ${loan.officerName}</p>
+                                <p><strong>Days Pending:</strong> <span class="badge bg-${loan.daysPending >= 5 ? "danger" : loan.daysPending >= 3 ? "warning" : "success"}">${loan.daysPending} days</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card loan-details-card">
+                            <div class="card-header bg-secondary text-white">
+                                <i class="fas fa-chart-line me-2"></i>Risk Assessment
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <div class="p-3 bg-light rounded">
+                                            <span class="risk-indicator ${loan.riskClass}"></span>
+                                            <h6>${loan.riskLevel} Risk</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <div class="p-3 bg-light rounded">
+                                            <i class="fas fa-percentage text-primary fs-4"></i>
+                                            <h6>DTI: ${Math.round((monthlyPayment / loan.monthlyIncome) * 100)}%</h6>
+                                            <small class="text-muted">Debt to Income</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <div class="p-3 bg-light rounded">
+                                            <i class="fas fa-shield-alt text-success fs-4"></i>
+                                            <h6>Secured</h6>
+                                            <small class="text-muted">Has Collateral</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <div class="p-3 bg-light rounded">
+                                            <i class="fas fa-handshake text-info fs-4"></i>
+                                            <h6>2 Guarantors</h6>
+                                            <small class="text-muted">Co-signers</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <h6>Recommendation:</h6>
+                                    <div class="alert ${loan.riskLevel === "Low" ? "alert-success" : loan.riskLevel === "Medium" ? "alert-warning" : "alert-danger"}">
+                                        ${
+                                          loan.riskLevel === "Low"
+                                            ? '<i class="fas fa-check-circle me-2"></i>Application meets all criteria. Recommended for approval.'
+                                            : loan.riskLevel === "Medium"
+                                              ? '<i class="fas fa-exclamation-triangle me-2"></i>Application requires careful review. Consider additional terms.'
+                                              : '<i class="fas fa-times-circle me-2"></i>High risk application. Requires senior approval or additional security.'
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+          $("#loanDetailsContent").html(detailsHtml);
+          $("#approveFromModal").data("loan-id", loanId);
+          $("#rejectFromModal").data("loan-id", loanId);
+          $("#loanDetailsModal").modal("show");
+        },
+
+        approveLoan: function (loanId) {
+          const loan = this.filteredData.find((l) => l.id == loanId);
+          if (!loan) return;
+
+          Swal.fire({
+            title: "Approve Loan Application",
+            html: `
+                    <div class="text-start">
+                        <p><strong>Member:</strong> ${loan.memberName}</p>
+                        <p><strong>Amount:</strong> ৳${loan.principal.toLocaleString()}</p>
+                        <p><strong>Product:</strong> ${loan.productName}</p>
+                        <hr>
+                        <p class="text-muted small">This will move the loan to disbursement queue and notify the field officer.</p>
+                    </div>
+                `,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText:
+              '<i class="fas fa-check me-2"></i>Approve & Send to Disbursement',
+            cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#6c757d",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.updateLoanStatus(loanId, "Approved");
+              Swal.fire({
+                title: "Loan Approved!",
+                text: "The loan has been approved and moved to disbursement queue.",
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+              }).then(() => {
+                this.refreshData();
+              });
+            }
+          });
+        },
+
+        showRejectionModal: function (loanId) {
+          this.currentLoanId = loanId;
+          $("#rejectionReason").val("");
+          $("#rejectionComments").val("");
+          $("#rejectionModal").modal("show");
+        },
+
+        rejectLoan: function () {
+          const reason = $("#rejectionReason").val();
+          const comments = $("#rejectionComments").val();
+
+          if (!reason) {
+            Swal.fire(
+              "Missing Information",
+              "Please select a rejection reason.",
+              "error",
+            );
+            return;
+          }
+
+          const loan = this.filteredData.find(
+            (l) => l.id == this.currentLoanId,
+          );
+          if (!loan) return;
+
+          this.updateLoanStatus(this.currentLoanId, "Rejected", {
+            rejectedBy: this.user.id,
+            rejectedAt: new Date().toISOString().split("T")[0],
+            rejectionReason: reason,
+            rejectionComments: comments,
+          });
+
+          $("#rejectionModal").modal("hide");
+
+          Swal.fire({
+            title: "Loan Rejected",
+            text: "The loan application has been rejected and applicant notified.",
+            icon: "info",
+            timer: 2000,
+            showConfirmButton: false,
+          }).then(() => {
+            this.refreshData();
+          });
+        },
+
+        updateLoanStatus: function (loanId, status, additionalData = {}) {
+          // In a real app, this would update the database
+          let allLoans = DB.getAll(DB.KEYS.LOANS);
+          const loanIndex = allLoans.findIndex((l) => l.id == loanId);
+
+          if (loanIndex !== -1) {
+            allLoans[loanIndex].status = status;
+            allLoans[loanIndex].reviewedBy = this.user.id;
+            allLoans[loanIndex].reviewedAt = new Date()
+              .toISOString()
+              .split("T")[0];
+            Object.assign(allLoans[loanIndex], additionalData);
+
+            if (status === "Approved") {
+              const product = this.allProducts.find(
+                (p) => p.id == allLoans[loanIndex].productId,
+              );
+              const interest = Math.ceil(
+                (allLoans[loanIndex].principal *
+                  product.interestRate *
+                  product.duration) /
+                  (12 * 100),
+              );
+              allLoans[loanIndex].interest = interest;
+              allLoans[loanIndex].total =
+                allLoans[loanIndex].principal + interest;
+              allLoans[loanIndex].approvedDate = new Date()
+                .toISOString()
+                .split("T")[0];
+            }
+
+            DB.save(DB.KEYS.LOANS, allLoans);
+          }
+
+          // Update local data
+          const localIndex = this.filteredData.findIndex((l) => l.id == loanId);
+          if (localIndex !== -1) {
+            this.filteredData.splice(localIndex, 1);
+          }
+        },
+
+        bindEvents: function () {
+          // View details button
+          $("#approvalTable").on("click", ".view-details-btn", (e) => {
+            const loanId = $(e.target).closest("button").data("id");
+            this.showLoanDetails(loanId);
+          });
+
+          // Approve button in table
+          $("#approvalTable").on("click", ".approve-btn", (e) => {
+            const loanId = $(e.target).closest("button").data("id");
+            this.approveLoan(loanId);
+          });
+
+          // Reject button in table
+          $("#approvalTable").on("click", ".reject-btn", (e) => {
+            const loanId = $(e.target).closest("button").data("id");
+            this.showRejectionModal(loanId);
+          });
+
+          // Modal buttons
+          $("#approveFromModal").on("click", () => {
+            const loanId = $("#approveFromModal").data("loan-id");
+            $("#loanDetailsModal").modal("hide");
+            setTimeout(() => this.approveLoan(loanId), 300);
+          });
+
+          $("#rejectFromModal").on("click", () => {
+            const loanId = $("#rejectFromModal").data("loan-id");
+            $("#loanDetailsModal").modal("hide");
+            setTimeout(() => this.showRejectionModal(loanId), 300);
+          });
+
+          $("#confirmRejection").on("click", () => this.rejectLoan());
+
+          // Filter and utility buttons
+          $("#applyFilters").on("click", () => this.applyFilters());
+          $("#refreshData").on("click", () => this.refreshData());
+
+          // Select all checkbox
+          $("#selectAll").on("change", (e) => {
+            $(".row-select").prop("checked", e.target.checked);
+            this.updateSelectedApplications();
+          });
+
+          // Individual row checkboxes
+          $("#approvalTable").on("change", ".row-select", () => {
+            this.updateSelectedApplications();
+          });
+        },
+
+        updateSelectedApplications: function () {
+          this.selectedApplications = [];
+          $(".row-select:checked").each((i, checkbox) => {
+            this.selectedApplications.push(parseInt($(checkbox).val()));
+          });
+        },
+
+        applyFilters: function () {
+          // Implementation for filtering would go here
+          console.log("Applying filters...");
+        },
+
+        refreshData: function () {
+          this.loadDemoData();
+          this.updateStatistics();
+          this.dataTable.clear().rows.add(this.filteredData).draw();
+
+          Swal.fire({
+            title: "Data Refreshed",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        },
+      };
+
+      $(document).ready(function () {
+        LoanApprovalManager.init();
+      });
+    </script>
+  </body>
 </html>

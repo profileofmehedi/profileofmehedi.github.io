@@ -3,20 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan Management - Super Admin</title>
+    <title>Subscription Plans - Super Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
+    <style>
+        .pricing-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .plan-price { font-size: 2.5rem; font-weight: 700; color: var(--primary-color); }
+        .feature-list li { margin-bottom: 10px; color: #6c757d; }
+        .feature-list i { color: var(--success-color); margin-right: 10px; }
+    </style>
 </head>
 <body>
 <div class="sidebar"></div>
 <div class="main-content">
     <div id="topNavbar" class="navbar-custom"></div>
     <div class="container-fluid">
-        <div class="card-box">
-            <h5 class="mb-4">Subscription Plans</h5>
-            <div class="row" id="planList"></div>
+        <div class="text-center mb-5">
+            <h3>Subscription Management</h3>
+            <p class="text-muted">Define usage limits and pricing tiers for your SaaS tenants</p>
         </div>
+        
+        <div class="row justify-content-center" id="planList"></div>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -30,20 +45,36 @@
         plans.forEach(p => {
             $('#planList').append(`
                 <div class="col-md-4">
-                    <div class="card border-primary mb-3">
-                        <div class="card-header bg-primary text-white">${p.name}</div>
+                    <div class="card card-box pricing-card h-100 text-center p-4">
                         <div class="card-body">
-                            <h2 class="card-title">$${p.price}</h2>
-                            <p class="card-text">
-                                Member Limit: ${p.memberLimit.toLocaleString()}<br>
-                                Loan Limit: $${p.loanLimit.toLocaleString()}
-                            </p>
-                            <button class="btn btn-outline-primary btn-sm">Edit Plan</button>
+                            <h5 class="text-uppercase fw-bold text-muted mb-3">${p.name}</h5>
+                            <div class="plan-price mb-3">$${p.price}<span class="fs-6 text-muted fw-normal">/mo</span></div>
+                            <ul class="list-unstyled feature-list text-start mx-auto" style="max-width: 250px;">
+                                <li><i class="fas fa-check-circle"></i> <strong>${p.memberLimit.toLocaleString()}</strong> Members</li>
+                                <li><i class="fas fa-check-circle"></i> <strong>$${p.loanLimit.toLocaleString()}</strong> Loan Capital</li>
+                                <li><i class="fas fa-check-circle"></i> Basic Reporting</li>
+                                <li><i class="fas fa-check-circle"></i> Email Support</li>
+                            </ul>
+                            <button class="btn btn-outline-primary w-100 rounded-pill mt-4">Edit Configuration</button>
                         </div>
                     </div>
                 </div>
             `);
         });
+        
+        // Add "New Plan" placeholder
+        $('#planList').append(`
+            <div class="col-md-4">
+                <div class="card card-box h-100 text-center p-4 border-dashed d-flex align-items-center justify-content-center" style="border-style: dashed; background: #f8f9fc;">
+                    <div>
+                        <div class="display-4 text-muted mb-3"><i class="fas fa-plus-circle"></i></div>
+                        <h5 class="fw-bold text-muted">Create Custom Tier</h5>
+                        <p class="small text-muted mb-4">Define a new enterprise plan</p>
+                        <button class="btn btn-primary rounded-pill px-4">Add Plan</button>
+                    </div>
+                </div>
+            </div>
+        `);
     });
 </script>
 </body>
