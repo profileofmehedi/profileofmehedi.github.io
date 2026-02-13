@@ -1,1338 +1,145 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Collection Management - Field Officer</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css"
-    />
-    <link href="../../assets/css/style.css" rel="stylesheet" />
-    <style>
-      .collection-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 25px;
-      }
-      .stats-card {
-        background: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border-left: 4px solid #28a745;
-      }
-      .filter-card {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-      }
-      .overdue-row {
-        background-color: #fff5f5 !important;
-      }
-      .due-today-row {
-        background-color: #fffbf0 !important;
-      }
-      .payment-badge {
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-      .receipt-container {
-        background: white;
-        border-radius: 10px;
-        padding: 30px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      }
-      .receipt-header {
-        border-bottom: 2px solid #dee2e6;
-        padding-bottom: 20px;
-        margin-bottom: 20px;
-      }
-      .payment-status-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-      }
-      .status-overdue {
-        background-color: #dc3545;
-      }
-      .status-due-today {
-        background-color: #ffc107;
-      }
-      .status-upcoming {
-        background-color: #28a745;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="sidebar"></div>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>কিস্তি সংগ্রহ - ফিল্ড অফিসার</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link href="../../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
 
-    <div class="main-content">
-      <div id="topNavbar" class="navbar-custom"></div>
+<div class="sidebar"></div>
 
-      <div class="container-fluid">
-        <!-- Collection Overview Header -->
-        <div class="collection-header">
-          <div class="row align-items-center">
-            <div class="col-md-8">
-              <h3 class="mb-0">
-                <i class="fas fa-coins me-2"></i>Collection Management
-              </h3>
-              <p class="mb-0 opacity-75">
-                Manage loan installments and payment collection
-              </p>
-            </div>
-            <div class="col-md-4 text-end">
-              <div class="d-flex justify-content-end gap-2">
-                <button class="btn btn-light btn-sm" id="refreshData">
-                  <i class="fas fa-sync-alt me-1"></i>Refresh
-                </button>
-                <button class="btn btn-warning btn-sm" id="dailyReport">
-                  <i class="fas fa-chart-bar me-1"></i>Daily Report
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="main-content">
+    <div id="topNavbar" class="navbar-custom"></div>
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-          <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="stats-card" style="border-left-color: #dc3545">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 class="mb-1" id="overdueCount">0</h4>
-                  <p class="text-muted mb-0">Overdue Payments</p>
-                  <small class="text-danger" id="overdueAmount">৳0</small>
-                </div>
-                <i class="fas fa-exclamation-triangle fs-2 text-danger"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="stats-card" style="border-left-color: #ffc107">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 class="mb-1" id="dueTodayCount">0</h4>
-                  <p class="text-muted mb-0">Due Today</p>
-                  <small class="text-warning" id="dueTodayAmount">৳0</small>
-                </div>
-                <i class="fas fa-clock fs-2 text-warning"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="stats-card" style="border-left-color: #28a745">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 class="mb-1" id="collectedTodayCount">0</h4>
-                  <p class="text-muted mb-0">Collected Today</p>
-                  <small class="text-success" id="collectedTodayAmount"
-                    >৳0</small
-                  >
-                </div>
-                <i class="fas fa-check-circle fs-2 text-success"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-lg-6 col-md-6">
-            <div class="stats-card" style="border-left-color: #17a2b8">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h4 class="mb-1" id="totalPendingCount">0</h4>
-                  <p class="text-muted mb-0">Total Pending</p>
-                  <small class="text-info" id="totalPendingAmount">৳0</small>
-                </div>
-                <i class="fas fa-list fs-2 text-info"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Filters and Search -->
-        <div class="filter-card">
-          <div class="row align-items-end">
-            <div class="col-md-3">
-              <label class="form-label">Filter by Status</label>
-              <select class="form-select" id="statusFilter">
-                <option value="">All Payments</option>
-                <option value="overdue">Overdue</option>
-                <option value="due-today">Due Today</option>
-                <option value="upcoming">Upcoming</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Search Member</label>
-              <input
-                type="text"
-                class="form-control"
-                id="memberSearch"
-                placeholder="Name or Phone"
-              />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Date Range</label>
-              <select class="form-select" id="dateFilter">
-                <option value="">All Dates</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <button class="btn btn-primary w-100" id="applyFilters">
-                <i class="fas fa-filter me-1"></i>Apply Filters
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Collection Table -->
+    <div class="container-fluid">
         <div class="card-box">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Payment Collection List</h5>
-            <div class="btn-group btn-group-sm">
-              <button class="btn btn-outline-primary" id="exportExcel">
-                <i class="fas fa-file-excel me-1"></i>Export
-              </button>
-              <button class="btn btn-outline-primary" id="printList">
-                <i class="fas fa-print me-1"></i>Print
-              </button>
-            </div>
-          </div>
-
-          <div class="table-responsive">
-            <table
-              id="collectionTable"
-              class="table table-striped table-hover w-100"
-            >
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>Member</th>
-                  <th>Contact</th>
-                  <th>Loan ID</th>
-                  <th>Due Date</th>
-                  <th>Due Amount</th>
-                  <th>Days</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
+            <h5 class="mb-4">সদস্যের কিস্তি আদায়</h5>
+            <table id="collectionTable" class="table table-hover w-100">
+                <thead>
+                    <tr>
+                        <th>সদস্যের নাম</th>
+                        <th>ফোন নম্বর</th>
+                        <th>ঋণ নম্বর</th>
+                        <th>পরবর্তী কিস্তি</th>
+                        <th>পরিমাণ</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
             </table>
-          </div>
         </div>
-
-        <!-- Recent Collections -->
-        <div class="card-box">
-          <h5 class="mb-3">Recent Collections</h5>
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Member</th>
-                  <th>Amount</th>
-                  <th>Receipt</th>
-                </tr>
-              </thead>
-              <tbody id="recentCollections">
-                <!-- Recent collections will be loaded here -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
+</div>
 
-    <!-- Payment Collection Modal -->
-    <div class="modal fade" id="paymentModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
+<!-- Modal -->
+<div class="modal fade" id="payModal" tabindex="-1">
+    <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">
-              <i class="fas fa-money-bill-wave me-2"></i>Collect Payment
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Member Name</label>
-                  <input
-                    type="text"
-                    id="paymentMemberName"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Phone Number</label>
-                  <input
-                    type="text"
-                    id="paymentMemberPhone"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Loan ID</label>
-                  <input
-                    type="text"
-                    id="paymentLoanId"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Due Date</label>
-                  <input
-                    type="text"
-                    id="paymentDueDate"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Due Amount (৳)</label>
-                  <input
-                    type="number"
-                    id="paymentDueAmount"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Collection Amount (৳) *</label>
-                  <input
-                    type="number"
-                    id="paymentCollectionAmount"
-                    class="form-control"
-                    min="0"
-                    step="0.01"
-                  />
-                  <div class="form-text">Enter the amount being collected</div>
-                </div>
-              </div>
+            <div class="modal-header">
+                <h5 class="modal-title">টাকা গ্রহণ করুন</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            <div class="row">
-              <div class="col-md-6">
+            <div class="modal-body">
                 <div class="mb-3">
-                  <label class="form-label">Payment Method</label>
-                  <select class="form-select" id="paymentMethod">
-                    <option value="cash">Cash</option>
-                    <option value="bank">Bank Transfer</option>
-                    <option value="mobile">Mobile Money</option>
-                  </select>
+                    <label class="form-label">সদস্যের নাম</label>
+                    <input type="text" id="pName" class="form-control" readonly>
                 </div>
-              </div>
-              <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Reference Number (Optional)</label>
-                  <input
-                    type="text"
-                    id="paymentReference"
-                    class="form-control"
-                    placeholder="Transaction reference"
-                  />
+                    <label class="form-label">সংগৃহীত পরিমাণ (৳)</label>
+                    <input type="number" id="pAmount" class="form-control" placeholder="টাকার পরিমাণ লিখুন">
                 </div>
-              </div>
+                <button type="button" id="confirmPay" class="btn btn-primary w-100">পেমেন্ট নিশ্চিত করুন</button>
             </div>
-
-            <div class="mb-3">
-              <label class="form-label">Notes (Optional)</label>
-              <textarea
-                class="form-control"
-                id="paymentNotes"
-                rows="2"
-                placeholder="Add any additional notes"
-              ></textarea>
-            </div>
-
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle me-2"></i>
-              <strong>Note:</strong> Partial payments are allowed. The remaining
-              balance will be carried forward.
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button type="button" id="confirmPayment" class="btn btn-success">
-              <i class="fas fa-check me-1"></i>Collect Payment
-            </button>
-          </div>
         </div>
-      </div>
     </div>
+</div>
 
-    <!-- Receipt Modal -->
-    <div class="modal fade" id="receiptModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Payment Receipt</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="receipt-container" id="receiptContent">
-              <!-- Receipt content will be generated here -->
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-            <button type="button" class="btn btn-primary" id="printReceipt">
-              <i class="fas fa-print me-1"></i>Print Receipt
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../assets/js/db.js"></script>
+<script src="../../assets/js/auth.js"></script>
+<script src="../../assets/js/app.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../../assets/js/db.js"></script>
-    <script src="../../assets/js/auth.js"></script>
-    <script src="../../assets/js/app.js"></script>
+<script>
+    $(document).ready(function() {
+        const user = DB.getCurrentUser();
+        const loans = DB.getAll(DB.KEYS.LOANS).filter(l => l.status === 'Active');
+        const members = DB.getAll(DB.KEYS.MEMBERS);
 
-    <script>
-      const CollectionManager = {
-        user: null,
-        allLoans: [],
-        allMembers: [],
-        allCollections: [],
-        filteredData: [],
-        dataTable: null,
-        currentPaymentData: null,
-
-        init: function () {
-          this.user = DB.getCurrentUser();
-          if (!this.user) {
-            window.location.href = "../../pages/login.html";
-            return;
-          }
-
-          this.loadData();
-          this.updateStatistics();
-          this.initializeTable();
-          this.loadRecentCollections();
-          this.bindEvents();
-
-          // Check for URL filters
-          this.checkUrlFilters();
-        },
-
-        loadData: function () {
-          this.allLoans = DB.getAll(DB.KEYS.LOANS).filter(
-            (l) => l.status === "Active",
-          );
-          this.allMembers = DB.getAll(DB.KEYS.MEMBERS);
-          this.allCollections = DB.getAll(DB.KEYS.COLLECTIONS).filter(
-            (c) => c.collectedBy == this.user.id,
-          );
-          this.prepareTableData();
-        },
-
-        prepareTableData: function () {
-          const tableData = [];
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          this.allLoans.forEach((loan) => {
-            const member = this.allMembers.find((m) => m.id == loan.memberId);
-            if (!member) return;
-
-            const nextDue = loan.schedule.find((s) => s.status !== "Paid");
-            if (!nextDue) return;
-
-            const dueDate = new Date(nextDue.date);
-            dueDate.setHours(0, 0, 0, 0);
-            const daysDiff = Math.floor(
-              (dueDate - today) / (1000 * 60 * 60 * 24),
-            );
-
-            let status = "upcoming";
-            let statusLabel = "Upcoming";
-            let statusClass = "status-upcoming";
-
-            if (daysDiff < 0) {
-              status = "overdue";
-              statusLabel = `${Math.abs(daysDiff)} days overdue`;
-              statusClass = "status-overdue";
-            } else if (daysDiff === 0) {
-              status = "due-today";
-              statusLabel = "Due today";
-              statusClass = "status-due-today";
+        const tableData = [];
+        loans.forEach(l => {
+            const member = members.find(m => m.id == l.memberId);
+            const nextInst = l.schedule.find(s => s.status !== 'Paid');
+            if(nextInst) {
+                tableData.push({
+                    loanId: l.id,
+                    memberName: member.name,
+                    memberPhone: member.phone,
+                    dueDate: nextInst.date,
+                    dueAmount: nextInst.amount,
+                    memberId: member.id
+                });
             }
+        });
 
-            tableData.push({
-              loanId: loan.id,
-              memberId: member.id,
-              memberName: member.name,
-              memberPhone: member.phone,
-              memberEmail: member.email || "N/A",
-              dueDate: nextDue.date,
-              dueAmount: nextDue.amount,
-              daysDiff: daysDiff,
-              status: status,
-              statusLabel: statusLabel,
-              statusClass: statusClass,
-              installmentNo: loan.schedule.indexOf(nextDue) + 1,
-              totalInstallments: loan.schedule.length,
-              branchName: this.getBranchName(member.branchId),
-              loanPrincipal: loan.principal,
-            });
-          });
-
-          this.filteredData = tableData;
-        },
-
-        getBranchName: function (branchId) {
-          const branches = DB.getAll(DB.KEYS.BRANCHES);
-          const branch = branches.find((b) => b.id == branchId);
-          return branch ? branch.name : "Unknown Branch";
-        },
-
-        updateStatistics: function () {
-          const today = new Date().toISOString().split("T")[0];
-
-          // Calculate statistics
-          const overdueItems = this.filteredData.filter(
-            (item) => item.status === "overdue",
-          );
-          const dueTodayItems = this.filteredData.filter(
-            (item) => item.status === "due-today",
-          );
-          const todayCollections = this.allCollections.filter(
-            (c) => c.date === today,
-          );
-
-          const overdueAmount = overdueItems.reduce(
-            (sum, item) => sum + item.dueAmount,
-            0,
-          );
-          const dueTodayAmount = dueTodayItems.reduce(
-            (sum, item) => sum + item.dueAmount,
-            0,
-          );
-          const collectedTodayAmount = todayCollections.reduce(
-            (sum, c) => sum + c.amount,
-            0,
-          );
-          const totalPendingAmount = this.filteredData.reduce(
-            (sum, item) => sum + item.dueAmount,
-            0,
-          );
-
-          // Update UI
-          $("#overdueCount").text(overdueItems.length);
-          $("#overdueAmount").text("৳" + overdueAmount.toLocaleString());
-
-          $("#dueTodayCount").text(dueTodayItems.length);
-          $("#dueTodayAmount").text("৳" + dueTodayAmount.toLocaleString());
-
-          $("#collectedTodayCount").text(todayCollections.length);
-          $("#collectedTodayAmount").text(
-            "৳" + collectedTodayAmount.toLocaleString(),
-          );
-
-          $("#totalPendingCount").text(this.filteredData.length);
-          $("#totalPendingAmount").text(
-            "৳" + totalPendingAmount.toLocaleString(),
-          );
-        },
-
-        initializeTable: function () {
-          this.dataTable = $("#collectionTable").DataTable({
-            data: this.filteredData,
+        $('#collectionTable').DataTable({
+            data: tableData,
             columns: [
-              {
-                data: "status",
-                render: (data, type, row) => {
-                  return `<span class="payment-status-indicator ${row.statusClass}"></span>${row.statusLabel}`;
-                },
-              },
-              {
-                data: "memberName",
-                render: (data, type, row) => {
-                  return `<div><strong>${data}</strong><br><small class="text-muted">${row.branchName}</small></div>`;
-                },
-              },
-              {
-                data: "memberPhone",
-                render: (data, type, row) => {
-                  return `<div>${data}<br><small class="text-muted">${row.memberEmail}</small></div>`;
-                },
-              },
-              { data: "loanId" },
-              {
-                data: "dueDate",
-                render: (data) => new Date(data).toLocaleDateString(),
-              },
-              {
-                data: "dueAmount",
-                render: (data) => "৳" + data.toLocaleString(),
-              },
-              {
-                data: "daysDiff",
-                render: (data) => {
-                  if (data < 0)
-                    return `<span class="text-danger">${Math.abs(data)} days late</span>`;
-                  if (data === 0)
-                    return '<span class="text-warning">Today</span>';
-                  return `<span class="text-success">${data} days</span>`;
-                },
-              },
-              {
-                data: null,
-                render: (data, type, row) => {
-                  return `
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-success collect-btn" 
-                                            onclick="CollectionManager.showPaymentModal('${row.loanId}', '${row.memberId}')">
-                                        <i class="fas fa-coins"></i> Collect
-                                    </button>
-                                    <button class="btn btn-outline-primary" 
-                                            onclick="CollectionManager.callMember('${row.memberPhone}')">
-                                        <i class="fas fa-phone"></i>
-                                    </button>
-                                    <button class="btn btn-outline-info" 
-                                            onclick="CollectionManager.viewMemberDetails('${row.memberId}')">
-                                        <i class="fas fa-user"></i>
-                                    </button>
-                                </div>
-                            `;
-                },
-              },
-            ],
-            order: [
-              [6, "asc"],
-              [4, "asc"],
-            ], // Sort by days overdue first, then by due date
-            pageLength: 25,
-            responsive: true,
-            dom: "Bfrtip",
-            buttons: [
-              {
-                extend: "excel",
-                text: '<i class="fas fa-file-excel"></i> Export Excel',
-                className: "btn btn-success btn-sm",
-              },
-              {
-                extend: "print",
-                text: '<i class="fas fa-print"></i> Print',
-                className: "btn btn-secondary btn-sm",
-              },
-            ],
-            createdRow: function (row, data) {
-              if (data.status === "overdue") {
-                $(row).addClass("overdue-row");
-              } else if (data.status === "due-today") {
-                $(row).addClass("due-today-row");
-              }
-            },
-          });
-        },
-
-        showPaymentModal: function (loanId, memberId) {
-          const member = this.allMembers.find((m) => m.id == memberId);
-          const loan = this.allLoans.find((l) => l.id == loanId);
-          const nextDue = loan.schedule.find((s) => s.status !== "Paid");
-
-          if (!member || !loan || !nextDue) {
-            Swal.fire("Error", "Unable to find payment details", "error");
-            return;
-          }
-
-          // Store current payment data
-          this.currentPaymentData = {
-            loanId: loanId,
-            memberId: memberId,
-            dueAmount: nextDue.amount,
-            dueDate: nextDue.date,
-            installmentNo: loan.schedule.indexOf(nextDue) + 1,
-          };
-
-          // Populate modal fields
-          $("#paymentMemberName").val(member.name);
-          $("#paymentMemberPhone").val(member.phone);
-          $("#paymentLoanId").val(loanId);
-          $("#paymentDueDate").val(new Date(nextDue.date).toLocaleDateString());
-          $("#paymentDueAmount").val(nextDue.amount);
-          $("#paymentCollectionAmount").val(nextDue.amount);
-          $("#paymentMethod").val("cash");
-          $("#paymentReference").val("");
-          $("#paymentNotes").val("");
-
-          $("#paymentModal").modal("show");
-        },
-
-        confirmPayment: function () {
-          const collectionAmount = parseFloat(
-            $("#paymentCollectionAmount").val(),
-          );
-          const paymentMethod = $("#paymentMethod").val();
-          const reference = $("#paymentReference").val();
-          const notes = $("#paymentNotes").val();
-
-          if (!collectionAmount || collectionAmount <= 0) {
-            Swal.fire(
-              "Invalid Amount",
-              "Please enter a valid collection amount",
-              "error",
-            );
-            return;
-          }
-
-          if (collectionAmount > this.currentPaymentData.dueAmount) {
-            Swal.fire(
-              "Amount Exceeded",
-              "Collection amount cannot exceed due amount",
-              "error",
-            );
-            return;
-          }
-
-          // Create collection record
-          const collectionData = {
-            id: Date.now(),
-            loanId: this.currentPaymentData.loanId,
-            memberId: this.currentPaymentData.memberId,
-            amount: collectionAmount,
-            dueAmount: this.currentPaymentData.dueAmount,
-            date: new Date().toISOString().split("T")[0],
-            time: new Date().toLocaleTimeString(),
-            collectedBy: this.user.id,
-            paymentMethod: paymentMethod,
-            reference: reference || "N/A",
-            notes: notes || "",
-            installmentNo: this.currentPaymentData.installmentNo,
-            isPartialPayment:
-              collectionAmount < this.currentPaymentData.dueAmount,
-            receiptNo: this.generateReceiptNumber(),
-          };
-
-          // Save collection
-          DB.addCollection(collectionData);
-
-          // Update loan schedule if full payment
-          if (collectionAmount === this.currentPaymentData.dueAmount) {
-            const loan = this.allLoans.find(
-              (l) => l.id == this.currentPaymentData.loanId,
-            );
-            const installment = loan.schedule.find((s) => s.status !== "Paid");
-            if (installment) {
-              installment.status = "Paid";
-              installment.paidDate = new Date().toISOString().split("T")[0];
-              installment.paidAmount = collectionAmount;
-
-              // Update loan in database
-              const loans = DB.getAll(DB.KEYS.LOANS);
-              const loanIndex = loans.findIndex(
-                (l) => l.id == this.currentPaymentData.loanId,
-              );
-              if (loanIndex !== -1) {
-                loans[loanIndex] = loan;
-                localStorage.setItem(DB.KEYS.LOANS, JSON.stringify(loans));
-              }
-            }
-          }
-
-          $("#paymentModal").modal("hide");
-
-          // Show success message and receipt
-          Swal.fire({
-            title: "Payment Collected!",
-            text: `৳${collectionAmount.toLocaleString()} collected successfully`,
-            icon: "success",
-            showCancelButton: true,
-            confirmButtonText: "View Receipt",
-            cancelButtonText: "Continue Collection",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.showReceipt(collectionData);
-            }
-            this.refreshData();
-          });
-        },
-
-        generateReceiptNumber: function () {
-          const date = new Date();
-          const year = date.getFullYear().toString().substr(-2);
-          const month = (date.getMonth() + 1).toString().padStart(2, "0");
-          const day = date.getDate().toString().padStart(2, "0");
-          const time = Date.now().toString().substr(-4);
-          return `RCP${year}${month}${day}${time}`;
-        },
-
-        showReceipt: function (collectionData) {
-          const member = this.allMembers.find(
-            (m) => m.id == collectionData.memberId,
-          );
-          const loan = this.allLoans.find((l) => l.id == collectionData.loanId);
-
-          const receiptHtml = `
-                <div class="receipt-header text-center">
-                    <h4>PAYMENT RECEIPT</h4>
-                    <p class="mb-0">NGO Management System</p>
-                    <small class="text-muted">Receipt No: ${collectionData.receiptNo}</small>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <strong>Date:</strong> ${new Date().toLocaleDateString()}<br>
-                        <strong>Time:</strong> ${collectionData.time}<br>
-                        <strong>Collected By:</strong> ${this.user.name}
-                    </div>
-                    <div class="col-6 text-end">
-                        <strong>Payment Method:</strong> ${collectionData.paymentMethod.toUpperCase()}<br>
-                        <strong>Reference:</strong> ${collectionData.reference}<br>
-                        ${collectionData.isPartialPayment ? '<span class="badge bg-warning">Partial Payment</span>' : '<span class="badge bg-success">Full Payment</span>'}
-                    </div>
-                </div>
-                
-                <table class="table table-bordered">
-                    <tr>
-                        <th>Member Name:</th>
-                        <td>${member.name}</td>
-                        <th>Phone:</th>
-                        <td>${member.phone}</td>
-                    </tr>
-                    <tr>
-                        <th>Loan ID:</th>
-                        <td>${collectionData.loanId}</td>
-                        <th>Installment:</th>
-                        <td>${collectionData.installmentNo} of ${loan.schedule.length}</td>
-                    </tr>
-                    <tr>
-                        <th>Due Amount:</th>
-                        <td>৳${collectionData.dueAmount.toLocaleString()}</td>
-                        <th>Collected Amount:</th>
-                        <td><strong>৳${collectionData.amount.toLocaleString()}</strong></td>
-                    </tr>
-                    ${
-                      collectionData.isPartialPayment
-                        ? `
-                    <tr>
-                        <th colspan="3">Remaining Balance:</th>
-                        <td class="text-danger"><strong>৳${(collectionData.dueAmount - collectionData.amount).toLocaleString()}</strong></td>
-                    </tr>
-                    `
-                        : ""
-                    }
-                </table>
-                
-                ${
-                  collectionData.notes
-                    ? `
-                <div class="mt-3">
-                    <strong>Notes:</strong><br>
-                    <p class="text-muted">${collectionData.notes}</p>
-                </div>
-                `
-                    : ""
+                { data: 'memberName' },
+                { data: 'memberPhone' },
+                { data: 'loanId' },
+                { data: 'dueDate' },
+                { data: 'dueAmount', render: (d) => '৳' + d },
+                { 
+                    data: null,
+                    render: (d) => `<button class="btn btn-sm btn-success collect-btn" data-loan="${d.loanId}" data-name="${d.memberName}" data-amt="${d.dueAmount}" data-member="${d.memberId}">টাকা গ্রহণ</button>`
                 }
-                
-                <div class="mt-4 pt-3 border-top text-center">
-                    <p class="mb-0 small text-muted">Thank you for your payment</p>
-                    <p class="mb-0 small text-muted">This is a computer generated receipt</p>
-                </div>
-            `;
+            ],
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/bn-BD.json" }
+        });
 
-          $("#receiptContent").html(receiptHtml);
-          $("#receiptModal").modal("show");
-        },
+        let currentLoanId, currentMemberId;
 
-        showDemoReceipt: function (demoId) {
-          const demoData = {
-            demo1: {
-              id: "demo1",
-              receiptNo: "RCP24021201",
-              time: "10:30 AM",
-              memberName: "Sarah Ahmed",
-              memberPhone: "01712345678",
-              loanId: 1001,
-              amount: 2500,
-              dueAmount: 2500,
-              paymentMethod: "cash",
-              reference: "CASH-001",
-              notes: "Regular monthly payment",
-              installmentNo: 3,
-              totalInstallments: 12,
-              isPartialPayment: false,
-            },
-            demo2: {
-              id: "demo2",
-              receiptNo: "RCP24021202",
-              time: "11:45 AM",
-              memberName: "Mohammad Rahman",
-              memberPhone: "01823456789",
-              loanId: 1002,
-              amount: 3000,
-              dueAmount: 3000,
-              paymentMethod: "mobile",
-              reference: "bKash-789456123",
-              notes: "Paid via bKash mobile banking",
-              installmentNo: 5,
-              totalInstallments: 10,
-              isPartialPayment: false,
-            },
-            demo3: {
-              id: "demo3",
-              receiptNo: "RCP24021203",
-              time: "02:15 PM",
-              memberName: "Fatima Khatun",
-              memberPhone: "01934567890",
-              loanId: 1003,
-              amount: 1800,
-              dueAmount: 2000,
-              paymentMethod: "cash",
-              reference: "N/A",
-              notes: "Partial payment - remaining ৳200",
-              installmentNo: 2,
-              totalInstallments: 24,
-              isPartialPayment: true,
-            },
-          };
+        $('#collectionTable').on('click', '.collect-btn', function() {
+            currentLoanId = $(this).data('loan');
+            currentMemberId = $(this).data('member');
+            $('#pName').val($(this).data('name'));
+            $('#pAmount').val($(this).data('amt'));
+            $('#payModal').modal('show');
+        });
 
-          const demo = demoData[demoId];
-          if (!demo) return;
+        $('#confirmPay').on('click', function() {
+            const amount = $('#pAmount').val();
+            const collectionData = {
+                loanId: currentLoanId,
+                memberId: currentMemberId,
+                amount: parseFloat(amount),
+                date: new Date().toISOString().split('T')[0],
+                collectedBy: user.id
+            };
 
-          const receiptHtml = `
-            <div class="receipt-header text-center">
-                <h4>PAYMENT RECEIPT</h4>
-                <p class="mb-0">NGO Management System</p>
-                <small class="text-muted">Receipt No: ${demo.receiptNo}</small>
-            </div>
+            DB.addCollection(collectionData);
+            $('#payModal').modal('hide');
             
-            <div class="row mb-3">
-                <div class="col-6">
-                    <strong>Date:</strong> ${new Date().toLocaleDateString()}<br>
-                    <strong>Time:</strong> ${demo.time}<br>
-                    <strong>Collected By:</strong> ${this.user?.name || "Field Officer"}
-                </div>
-                <div class="col-6 text-end">
-                    <strong>Payment Method:</strong> ${demo.paymentMethod.toUpperCase()}<br>
-                    <strong>Reference:</strong> ${demo.reference}<br>
-                    ${demo.isPartialPayment ? '<span class="badge bg-warning">Partial Payment</span>' : '<span class="badge bg-success">Full Payment</span>'}
-                </div>
-            </div>
-            
-            <table class="table table-bordered">
-                <tr>
-                    <th>Member Name:</th>
-                    <td>${demo.memberName}</td>
-                    <th>Phone:</th>
-                    <td>${demo.memberPhone}</td>
-                </tr>
-                <tr>
-                    <th>Loan ID:</th>
-                    <td>${demo.loanId}</td>
-                    <th>Installment:</th>
-                    <td>${demo.installmentNo} of ${demo.totalInstallments}</td>
-                </tr>
-                <tr>
-                    <th>Due Amount:</th>
-                    <td>৳${demo.dueAmount.toLocaleString()}</td>
-                    <th>Collected Amount:</th>
-                    <td><strong>৳${demo.amount.toLocaleString()}</strong></td>
-                </tr>
-                ${
-                  demo.isPartialPayment
-                    ? `
-                <tr>
-                    <th colspan="3">Remaining Balance:</th>
-                    <td class="text-danger"><strong>৳${(demo.dueAmount - demo.amount).toLocaleString()}</strong></td>
-                </tr>
-                `
-                    : ""
-                }
-            </table>
-            
-            <div class="mt-3">
-                <strong>Notes:</strong><br>
-                <p class="text-muted">${demo.notes}</p>
-            </div>
-            
-            <div class="mt-4 pt-3 border-top text-center">
-                <p class="mb-0 small text-muted">Thank you for your payment</p>
-                <p class="mb-0 small text-muted">This is a computer generated receipt</p>
-            </div>
-          `;
-
-          $("#receiptContent").html(receiptHtml);
-          $("#receiptModal").modal("show");
-        },
-
-        loadRecentCollections: function () {
-          const today = new Date().toISOString().split("T")[0];
-          const recentCollections = this.allCollections
-            .filter((c) => c.date === today)
-            .sort(
-              (a, b) =>
-                new Date(`${b.date} ${b.time}`) -
-                new Date(`${a.date} ${a.time}`),
-            )
-            .slice(0, 10);
-
-          let recentHtml = "";
-          if (recentCollections.length === 0) {
-            // Add demo data for presentation
-            const demoCollections = [
-              {
-                id: "demo1",
-                time: "10:30 AM",
-                memberName: "Sarah Ahmed",
-                memberId: 1,
-                loanId: 1001,
-                amount: 2500,
-                dueAmount: 2500,
-                date: new Date().toISOString().split("T")[0],
-                collectedBy: this.user?.id || 1,
-                paymentMethod: "cash",
-                reference: "CASH-001",
-                notes: "Regular monthly payment",
-                installmentNo: 3,
-                isPartialPayment: false,
-                receiptNo: "RCP24021201",
-              },
-              {
-                id: "demo2",
-                time: "11:45 AM",
-                memberName: "Mohammad Rahman",
-                memberId: 2,
-                loanId: 1002,
-                amount: 3000,
-                dueAmount: 3000,
-                date: new Date().toISOString().split("T")[0],
-                collectedBy: this.user?.id || 1,
-                paymentMethod: "mobile",
-                reference: "bKash-789456123",
-                notes: "Paid via bKash mobile banking",
-                installmentNo: 5,
-                isPartialPayment: false,
-                receiptNo: "RCP24021202",
-              },
-              {
-                id: "demo3",
-                time: "02:15 PM",
-                memberName: "Fatima Khatun",
-                memberId: 3,
-                loanId: 1003,
-                amount: 1800,
-                dueAmount: 2000,
-                date: new Date().toISOString().split("T")[0],
-                collectedBy: this.user?.id || 1,
-                paymentMethod: "cash",
-                reference: "N/A",
-                notes: "Partial payment - remaining ৳200",
-                installmentNo: 2,
-                isPartialPayment: true,
-                receiptNo: "RCP24021203",
-              },
-            ];
-
-            recentHtml = demoCollections
-              .map(
-                (collection) => `
-              <tr>
-                <td>${collection.time}</td>
-                <td>${collection.memberName}</td>
-                <td>৳${collection.amount.toLocaleString()}</td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary" 
-                          onclick="CollectionManager.showDemoReceipt('${collection.id}')">
-                    View
-                  </button>
-                </td>
-              </tr>
-            `,
-              )
-              .join("");
-          } else {
-            recentHtml = recentCollections
-              .map((collection) => {
-                const member = this.allMembers.find(
-                  (m) => m.id == collection.memberId,
-                );
-                return `
-                        <tr>
-                            <td>${collection.time}</td>
-                            <td>${member?.name || "Unknown Member"}</td>
-                            <td>৳${collection.amount.toLocaleString()}</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" 
-                                        onclick="CollectionManager.showReceipt(${JSON.stringify(collection).replace(/"/g, "&quot;")})">
-                                    View
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-              })
-              .join("");
-          }
-
-          $("#recentCollections").html(recentHtml);
-        },
-
-        bindEvents: function () {
-          // Payment modal confirm button
-          $("#confirmPayment").on("click", () => this.confirmPayment());
-
-          // Receipt print button
-          $("#printReceipt").on("click", () => {
-            window.print();
-          });
-
-          // Filter events
-          $("#applyFilters").on("click", () => this.applyFilters());
-          $("#refreshData").on("click", () => this.refreshData());
-
-          // Quick action buttons
-          $("#dailyReport").on("click", () => this.showDailyReport());
-          $("#exportExcel").on("click", () =>
-            this.dataTable.button(".buttons-excel").trigger(),
-          );
-          $("#printList").on("click", () =>
-            this.dataTable.button(".buttons-print").trigger(),
-          );
-        },
-
-        applyFilters: function () {
-          const statusFilter = $("#statusFilter").val();
-          const memberSearch = $("#memberSearch").val().toLowerCase();
-          const dateFilter = $("#dateFilter").val();
-
-          let filteredData = [...this.filteredData];
-
-          // Status filter
-          if (statusFilter) {
-            filteredData = filteredData.filter(
-              (item) => item.status === statusFilter,
-            );
-          }
-
-          // Member search
-          if (memberSearch) {
-            filteredData = filteredData.filter(
-              (item) =>
-                item.memberName.toLowerCase().includes(memberSearch) ||
-                item.memberPhone.includes(memberSearch),
-            );
-          }
-
-          // Date filter
-          if (dateFilter) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            filteredData = filteredData.filter((item) => {
-              const dueDate = new Date(item.dueDate);
-              dueDate.setHours(0, 0, 0, 0);
-
-              switch (dateFilter) {
-                case "today":
-                  return dueDate.getTime() === today.getTime();
-                case "week":
-                  const weekFromNow = new Date(
-                    today.getTime() + 7 * 24 * 60 * 60 * 1000,
-                  );
-                  return dueDate >= today && dueDate <= weekFromNow;
-                case "month":
-                  const monthFromNow = new Date(
-                    today.getFullYear(),
-                    today.getMonth() + 1,
-                    today.getDate(),
-                  );
-                  return dueDate >= today && dueDate <= monthFromNow;
-                default:
-                  return true;
-              }
+            Swal.fire({
+                title: 'সফল!',
+                text: 'টাকা সংগ্রহ করা হয়েছে। রসিদ তৈরি হয়েছে।',
+                icon: 'success',
+                confirmButtonText: 'রসিদ প্রিন্ট করুন'
+            }).then(() => {
+                location.reload();
             });
-          }
+        });
+    });
+</script>
 
-          // Update table
-          this.dataTable.clear().rows.add(filteredData).draw();
-        },
-
-        refreshData: function () {
-          this.loadData();
-          this.updateStatistics();
-          this.dataTable.clear().rows.add(this.filteredData).draw();
-          this.loadRecentCollections();
-
-          Swal.fire({
-            title: "Data Refreshed",
-            icon: "success",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-        },
-
-        callMember: function (phone) {
-          Swal.fire({
-            title: "Contact Member",
-            text: `Call ${phone}?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Call",
-            cancelButtonText: "Cancel",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              Swal.fire("Call Initiated", `Calling ${phone}...`, "success");
-            }
-          });
-        },
-
-        viewMemberDetails: function (memberId) {
-          const member = this.allMembers.find((m) => m.id == memberId);
-          const memberLoans = this.allLoans.filter(
-            (l) => l.memberId == memberId,
-          );
-          const memberCollections = this.allCollections.filter(
-            (c) => c.memberId == memberId,
-          );
-
-          const totalCollected = memberCollections.reduce(
-            (sum, c) => sum + c.amount,
-            0,
-          );
-          const activeLoansCount = memberLoans.filter(
-            (l) => l.status === "Active",
-          ).length;
-
-          Swal.fire({
-            title: "Member Details",
-            html: `
-                    <div class="text-start">
-                        <h6>${member.name}</h6>
-                        <p><strong>Phone:</strong> ${member.phone}</p>
-                        <p><strong>Branch:</strong> ${this.getBranchName(member.branchId)}</p>
-                        <hr>
-                        <p><strong>Active Loans:</strong> ${activeLoansCount}</p>
-                        <p><strong>Total Collections:</strong> ৳${totalCollected.toLocaleString()}</p>
-                        <p><strong>Last Payment:</strong> ${
-                          memberCollections.length > 0
-                            ? new Date(
-                                Math.max(
-                                  ...memberCollections.map(
-                                    (c) => new Date(c.date),
-                                  ),
-                                ),
-                              ).toLocaleDateString()
-                            : "No payments yet"
-                        }</p>
-                    </div>
-                `,
-            confirmButtonText: "Close",
-          });
-        },
-
-        showDailyReport: function () {
-          const today = new Date().toISOString().split("T")[0];
-          const todayCollections = this.allCollections.filter(
-            (c) => c.date === today,
-          );
-          const totalCollected = todayCollections.reduce(
-            (sum, c) => sum + c.amount,
-            0,
-          );
-
-          const overdueCount = this.filteredData.filter(
-            (item) => item.status === "overdue",
-          ).length;
-          const dueTodayCount = this.filteredData.filter(
-            (item) => item.status === "due-today",
-          ).length;
-
-          Swal.fire({
-            title: "Daily Collection Report",
-            html: `
-                    <div class="text-start">
-                        <h6>Collection Summary - ${new Date().toLocaleDateString()}</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>Total Collections:</strong></td><td>৳${totalCollected.toLocaleString()}</td></tr>
-                            <tr><td><strong>Number of Payments:</strong></td><td>${todayCollections.length}</td></tr>
-                            <tr><td><strong>Pending Today:</strong></td><td>${dueTodayCount}</td></tr>
-                            <tr><td><strong>Overdue Items:</strong></td><td class="text-danger">${overdueCount}</td></tr>
-                        </table>
-                        <hr>
-                        <h6>Collection Methods</h6>
-                        <ul class="list-unstyled">
-                            <li>Cash: ${todayCollections.filter((c) => c.paymentMethod === "cash").length} payments</li>
-                            <li>Bank: ${todayCollections.filter((c) => c.paymentMethod === "bank").length} payments</li>
-                            <li>Mobile: ${todayCollections.filter((c) => c.paymentMethod === "mobile").length} payments</li>
-                        </ul>
-                    </div>
-                `,
-            confirmButtonText: "Close",
-            width: "500px",
-          });
-        },
-
-        checkUrlFilters: function () {
-          const urlParams = new URLSearchParams(window.location.search);
-          const filter = urlParams.get("filter");
-
-          if (filter === "overdue") {
-            $("#statusFilter").val("overdue");
-            this.applyFilters();
-          }
-        },
-      };
-
-      $(document).ready(function () {
-        CollectionManager.init();
-      });
-    </script>
-  </body>
+</body>
 </html>

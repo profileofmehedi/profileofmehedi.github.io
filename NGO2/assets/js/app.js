@@ -16,47 +16,47 @@ const App = {
         
         if (user.role === 'super-admin') {
             menuItems = `
-                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-                <a href="ngos.html" class="${this.isActive('ngos.html')}"><i class="fas fa-building"></i> <span>NGOs</span></a>
-                <a href="plans.html" class="${this.isActive('plans.html')}"><i class="fas fa-tags"></i> <span>Plans</span></a>
-                <a href="billing.html" class="${this.isActive('billing.html')}"><i class="fas fa-file-invoice-dollar"></i> <span>Billing</span></a>
+                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
+                <a href="ngos.html" class="${this.isActive('ngos.html')}"><i class="fas fa-building"></i> <span>এনজিওসমূহ</span></a>
+                <a href="plans.html" class="${this.isActive('plans.html')}"><i class="fas fa-tags"></i> <span>প্ল্যানসমূহ</span></a>
+                <a href="billing.html" class="${this.isActive('billing.html')}"><i class="fas fa-file-invoice-dollar"></i> <span>বিলিং</span></a>
             `;
         } else if (user.role === 'ngo-admin') {
             menuItems = `
-                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-                <a href="branches.html" class="${this.isActive('branches.html')}"><i class="fas fa-code-branch"></i> <span>Branches</span></a>
-                <a href="products.html" class="${this.isActive('products.html')}"><i class="fas fa-box"></i> <span>Loan Products</span></a>
-                <a href="members.html" class="${this.isActive('members.html')}"><i class="fas fa-users"></i> <span>Members</span></a>
-                <a href="loans.html" class="${this.isActive('loans.html')}"><i class="fas fa-hand-holding-usd"></i> <span>Loans</span></a>
-                <a href="loan-approvals.html" class="${this.isActive('loan-approvals.html')}"><i class="fas fa-check-circle"></i> <span>Loan Approvals</span></a>
+                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
+                <a href="branches.html" class="${this.isActive('branches.html')}"><i class="fas fa-code-branch"></i> <span>শাখা ব্যবস্থাপনা</span></a>
+                <a href="products.html" class="${this.isActive('products.html')}"><i class="fas fa-box"></i> <span>ঋণ প্রোডাক্ট</span></a>
+                <a href="members.html" class="${this.isActive('members.html')}"><i class="fas fa-users"></i> <span>সদস্য ব্যবস্থাপনা</span></a>
+                <a href="loans.html" class="${this.isActive('loans.html')}"><i class="fas fa-hand-holding-usd"></i> <span>ঋণ তালিকা</span></a>
+                <a href="loan-approvals.html" class="${this.isActive('loan-approvals.html')}"><i class="fas fa-check-circle"></i> <span>ঋণ অনুমোদন</span></a>
             `;
         } else if (user.role === 'branch') {
             menuItems = `
-                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-                <a href="officers.html" class="${this.isActive('officers.html')}"><i class="fas fa-user-tie"></i> <span>Field Officers</span></a>
-                <a href="members.html" class="${this.isActive('members.html')}"><i class="fas fa-users"></i> <span>Members</span></a>
+                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
+                <a href="officers.html" class="${this.isActive('officers.html')}"><i class="fas fa-user-tie"></i> <span>অফিসার তালিকা</span></a>
+                <a href="members.html" class="${this.isActive('members.html')}"><i class="fas fa-users"></i> <span>সদস্য তালিকা</span></a>
             `;
         } else if (user.role === 'officer') {
             menuItems = `
-                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-                <a href="apply-loan.html" class="${this.isActive('apply-loan.html')}"><i class="fas fa-file-signature"></i> <span>Apply Loan</span></a>
-                <a href="pending-disbursement.html" class="${this.isActive('pending-disbursement.html')}"><i class="fas fa-hand-holding-usd"></i> <span>Disbursement</span></a>
-                <a href="collection.html" class="${this.isActive('collection.html')}"><i class="fas fa-money-bill-wave"></i> <span>Collection</span></a>
+                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
+                <a href="apply-loan.html" class="${this.isActive('apply-loan.html')}"><i class="fas fa-file-signature"></i> <span>ঋণ আবেদন</span></a>
+                <a href="pending-disbursement.html" class="${this.isActive('pending-disbursement.html')}"><i class="fas fa-hand-holding-usd"></i> <span>ঋণ বিতরণ</span></a>
+                <a href="collection.html" class="${this.isActive('collection.html')}"><i class="fas fa-money-bill-wave"></i> <span>কিস্তি সংগ্রহ</span></a>
             `;
         } else if (user.role === 'member') {
             menuItems = `
-                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                <a href="dashboard.html" class="${this.isActive('dashboard.html')}"><i class="fas fa-tachometer-alt"></i> <span>ড্যাশবোর্ড</span></a>
             `;
         }
 
         const sidebarContent = `
-            <div class="brand"><i class="fas fa-hand-holding-heart"></i> <span>NGO CLOUD</span></div>
+            <div class="brand"><i class="fas fa-hand-holding-heart"></i> <span>এনজিও ক্লাউড</span></div>
             <div class="sidebar-nav">
                 ${menuItems}
             </div>
             <div class="sidebar-footer">
                 <div class="d-flex align-items-center text-white-50 small">
-                    <i class="fas fa-shield-alt"></i> <span class="ms-2">Secure</span>
+                    <i class="fas fa-shield-alt"></i> <span class="ms-2">নিরাপদ সিস্টেম</span>
                 </div>
             </div>
         `;
@@ -70,10 +70,10 @@ const App = {
             <h5>${this.getPageTitle()}</h5>
             <div class="user-menu dropdown">
                 <a href="#" class="text-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fas fa-user-circle"></i> ${user.name} (${user.role})
+                    <i class="fas fa-user-circle"></i> ${user.name}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                    <li><a class="dropdown-item" href="#" id="logoutBtn">লগআউট</a></li>
                 </ul>
             </div>
         `;

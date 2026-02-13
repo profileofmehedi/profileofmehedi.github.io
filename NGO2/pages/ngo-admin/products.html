@@ -1,806 +1,148 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Loan Products - NGO Admin</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
-    />
-    <link href="../../assets/css/style.css" rel="stylesheet" />
-    <style>
-      .product-stats {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-      }
-      .stat-item {
-        flex: 1;
-        text-align: center;
-      }
-      .stat-item h3 {
-        font-size: 2rem;
-        margin: 0;
-      }
-      .stat-item p {
-        margin: 5px 0 0 0;
-        opacity: 0.9;
-      }
-      .product-filter {
-        margin-bottom: 20px;
-      }
-      .filter-badge {
-        display: inline-block;
-        padding: 8px 12px;
-        margin-right: 8px;
-        margin-bottom: 8px;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 20px;
-        cursor: pointer;
-      }
-      .filter-badge.active {
-        background: #667eea;
-        color: white;
-        border-color: #667eea;
-      }
-      .advanced-table td {
-        vertical-align: middle;
-      }
-      .scheme-badge {
-        display: inline-block;
-        padding: 4px 8px;
-        background: #e7f3ff;
-        border-left: 3px solid #0066cc;
-        border-radius: 3px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="sidebar"></div>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ঋণ প্রোডাক্ট - এনজিও এডমিন</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link href="../../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
 
-    <div class="main-content">
-      <div id="topNavbar" class="navbar-custom"></div>
+<div class="sidebar"></div>
 
-      <div class="container-fluid">
-        <!-- Header Section -->
+<div class="main-content">
+    <div id="topNavbar" class="navbar-custom"></div>
+
+    <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h4>Loan Products Management</h4>
-            <p class="text-muted small">
-              Configure and manage advanced loan schemes and interest rules
-            </p>
-          </div>
-          <div>
-            <button
-              class="btn btn-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#addProductModal"
-            >
-              <i class="fas fa-plus"></i> Create Product
+            <div>
+                <h4>ঋণ প্রোডাক্ট সেটআপ</h4>
+                <p class="text-muted small mb-0">নতুন ঋণের স্কিম এবং সুদের হার নির্ধারণ করুন।</p>
+            </div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="fas fa-plus"></i> নতুন প্রোডাক্ট তৈরি করুন
             </button>
-            <button class="btn btn-outline-secondary ms-2" id="exportBtn">
-              <i class="fas fa-download"></i> Export
-            </button>
-          </div>
         </div>
 
-        <!-- Statistics Section -->
-        <div class="product-stats d-flex">
-          <div class="stat-item">
-            <h3 id="totalProducts">0</h3>
-            <p>Total Products</p>
-          </div>
-          <div class="stat-item">
-            <h3 id="activeProducts">0</h3>
-            <p>Active Products</p>
-          </div>
-          <div class="stat-item">
-            <h3 id="avgRate">0%</h3>
-            <p>Average Interest</p>
-          </div>
-          <div class="stat-item">
-            <h3 id="totalLoan">0</h3>
-            <p>Products in Use</p>
-          </div>
-        </div>
-
-        <!-- Filter Section -->
-        <div class="product-filter">
-          <strong>Filter by Status:</strong>
-          <span class="filter-badge active" data-filter="all">All</span>
-          <span class="filter-badge" data-filter="Active">Active</span>
-          <span class="filter-badge" data-filter="Inactive">Inactive</span>
-        </div>
-
-        <!-- Search Section -->
-        <div class="mb-3">
-          <input
-            type="text"
-            id="searchBox"
-            class="form-control"
-            placeholder="Search by scheme name, rate, type..."
-          />
-        </div>
-
-        <!-- Table Section -->
         <div class="card-box">
-          <div class="table-responsive">
-            <table
-              id="productTable"
-              class="table table-hover w-100 advanced-table"
-            >
-              <thead class="table-light">
-                <tr>
-                  <th>Scheme Name</th>
-                  <th>Interest Rate</th>
-                  <th>Method</th>
-                  <th>Duration</th>
-                  <th>Loan Range</th>
-                  <th>Fees</th>
-                  <th>Grace</th>
-                  <th>Status</th>
-                  <th width="120">Action</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
+            <table id="productTable" class="table table-hover w-100">
+                <thead>
+                    <tr>
+                        <th>স্কিমের নাম</th>
+                        <th>সুদ (%)</th>
+                        <th>মেয়াদ</th>
+                        <th>পদ্ধতি</th>
+                        <th>অবস্থা</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
             </table>
-          </div>
-          <div
-            id="noDataMessage"
-            class="alert alert-info text-center mt-3"
-            style="display: none"
-          >
-            <i class="fas fa-info-circle"></i> No loan products found. Create
-            one to get started!
-          </div>
         </div>
-      </div>
     </div>
+</div>
 
-    <!-- Advanced Add/Edit Product Modal -->
-    <div class="modal fade" id="addProductModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
+<!-- Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">
-              <i class="fas fa-plus-circle"></i>
-              <span id="modalTitle">New Loan Scheme</span>
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form id="productForm">
-              <input type="hidden" id="pId" value="" />
-              <div class="row">
-                <div class="col-md-12">
-                  <h6 class="text-primary border-bottom pb-2 mb-3">
-                    Core Configuration
-                  </h6>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label"
-                    >Product/Scheme Name
-                    <span class="text-danger">*</span></label
-                  >
-                  <input type="text" id="pName" class="form-control" required />
-                  <small class="text-muted"
-                    >e.g., Micro Credit, Agriculture Loan</small
-                  >
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label class="form-label"
-                    >Interest Rate (%) <span class="text-danger">*</span></label
-                  >
-                  <input
-                    type="number"
-                    step="0.01"
-                    id="pRate"
-                    class="form-control"
-                    min="0"
-                    required
-                  />
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label class="form-label"
-                    >Interest Method <span class="text-danger">*</span></label
-                  >
-                  <select id="pMethod" class="form-select" required>
-                    <option value="">Select...</option>
-                    <option value="Flat">Flat Rate</option>
-                    <option value="Reducing">Reducing Balance</option>
-                  </select>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <label class="form-label"
-                    >Installment Type <span class="text-danger">*</span></label
-                  >
-                  <select id="pType" class="form-select" required>
-                    <option value="">Select...</option>
-                    <option value="Daily">Daily</option>
-                    <option value="Weekly">Weekly</option>
-                    <option value="Bi-Weekly">Bi-Weekly</option>
-                    <option value="Monthly">Monthly</option>
-                  </select>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label"
-                    >Duration (No. of Inst.)
-                    <span class="text-danger">*</span></label
-                  >
-                  <input
-                    type="number"
-                    id="pDuration"
-                    class="form-control"
-                    min="1"
-                    required
-                  />
-                  <small class="text-muted">Number of installments</small>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Grace Period (Days)</label>
-                  <input
-                    type="number"
-                    id="pGrace"
-                    class="form-control"
-                    value="0"
-                    min="0"
-                  />
-                </div>
-
-                <div class="col-md-12 mt-3">
-                  <h6 class="text-primary border-bottom pb-2 mb-3">
-                    Financial Limits & Fees
-                  </h6>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label"
-                    >Min Loan Amount (৳)
-                    <span class="text-danger">*</span></label
-                  >
-                  <input
-                    type="number"
-                    id="pMin"
-                    class="form-control"
-                    value="5000"
-                    min="100"
-                    required
-                  />
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label"
-                    >Max Loan Amount (৳)
-                    <span class="text-danger">*</span></label
-                  >
-                  <input
-                    type="number"
-                    id="pMax"
-                    class="form-control"
-                    value="50000"
-                    min="100"
-                    required
-                  />
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Processing Fee (%)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    id="pProcFee"
-                    class="form-control"
-                    value="1"
-                    min="0"
-                  />
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Insurance Fee (%)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    id="pInsFee"
-                    class="form-control"
-                    value="0.5"
-                    min="0"
-                  />
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Late Fee (৳ per Inst.)</label>
-                  <input
-                    type="number"
-                    id="pFine"
-                    class="form-control"
-                    value="50"
-                    min="0"
-                  />
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label"
-                    >Status <span class="text-danger">*</span></label
-                  >
-                  <select id="pStatus" class="form-select" required>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Archived">Archived</option>
-                  </select>
-                </div>
-              </div>
-              <div
-                class="alert alert-info mt-3 mb-3"
-                id="formValidationMsg"
-                style="display: none"
-              ></div>
-              <div class="text-end mt-4">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Cancel
-                </button>
-                <button type="submit" class="btn btn-primary px-5">
-                  <i class="fas fa-save"></i> Save Product
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../../assets/js/db.js"></script>
-    <script src="../../assets/js/auth.js"></script>
-    <script src="../../assets/js/app.js"></script>
-
-    <script>
-      const ProductManager = {
-        user: null,
-        currentFilter: "all",
-        dataTable: null,
-        allProducts: [],
-
-        init: function () {
-          this.user = DB.getCurrentUser();
-          if (!this.user) {
-            window.location.href = "../../pages/login.html";
-            return;
-          }
-
-          App.init();
-          this.loadProducts();
-          this.setupEventHandlers();
-          this.updateStatistics();
-        },
-
-        loadProducts: function () {
-          // Load products specific to this NGO with safety checks
-          const allProducts = DB.getAll(DB.KEYS.PRODUCTS) || [];
-          this.allProducts = allProducts.filter((p) => {
-            // Ensure all required fields exist
-            return p && p.ngoId === this.user.ngoId && this.validateProduct(p);
-          });
-          this.renderTable();
-        },
-
-        validateProduct: function (product) {
-          // Provide defaults for undefined properties
-          product.name = product.name || "N/A";
-          product.interestRate = product.interestRate || 0;
-          product.interestMethod = product.interestMethod || "Flat";
-          product.type = product.type || "Monthly";
-          product.duration = product.duration || 0;
-          product.minAmount = product.minAmount || 0;
-          product.maxAmount = product.maxAmount || 0;
-          product.processingFee = product.processingFee || 0;
-          product.insuranceFee = product.insuranceFee || 0;
-          product.lateFee = product.lateFee || 0;
-          product.gracePeriod = product.gracePeriod || 0;
-          product.status = product.status || "Active";
-          return true;
-        },
-
-        renderTable: function () {
-          const filteredData =
-            this.currentFilter === "all"
-              ? this.allProducts
-              : this.allProducts.filter((p) => p.status === this.currentFilter);
-
-          if (this.dataTable) {
-            this.dataTable.destroy();
-          }
-
-          if (filteredData.length === 0) {
-            $("#productTable tbody").html("");
-            $("#noDataMessage").show();
-            return;
-          }
-
-          $("#noDataMessage").hide();
-
-          this.dataTable = $("#productTable").DataTable({
-            data: filteredData,
-            destroy: true,
-            pageLength: 10,
-            order: [[0, "asc"]],
-            language: {
-              emptyTable: "No products available",
-              zeroRecords: "No matching products found",
-            },
-            columns: [
-              {
-                data: "name",
-                render: (d) =>
-                  `<span class="scheme-badge"><strong>${this.escapeHtml(d || "N/A")}</strong></span>`,
-              },
-              {
-                data: "interestRate",
-                render: (d) => `<strong>${(d || 0).toFixed(2)}%</strong>`,
-              },
-              {
-                data: "interestMethod",
-                render: (d) =>
-                  `<span class="badge bg-info">${d || "N/A"}</span>`,
-              },
-              {
-                data: "duration",
-                render: (d, t, r) =>
-                  `${d || 0} ${(r.type || "Monthly").charAt(0)}`,
-              },
-              {
-                data: "minAmount",
-                render: (d, t, r) =>
-                  `<small>৳${this.formatNumber(d || 0)} - ৳${this.formatNumber(r.maxAmount || 0)}</small>`,
-              },
-              {
-                data: "processingFee",
-                render: (d, t, r) => {
-                  const procFee = d || 0;
-                  const insFee = r.insuranceFee || 0;
-                  return `<small>P: ${procFee.toFixed(1)}% | I: ${insFee.toFixed(1)}%</small>`;
-                },
-              },
-              {
-                data: "gracePeriod",
-                render: (d) =>
-                  `<span class="badge bg-secondary">${d || 0}d</span>`,
-              },
-              {
-                data: "status",
-                render: (d) => {
-                  const color =
-                    (d || "Active") === "Active"
-                      ? "success"
-                      : d === "Inactive"
-                        ? "danger"
-                        : "secondary";
-                  return `<span class="badge bg-${color}">${d || "Active"}</span>`;
-                },
-              },
-              {
-                data: null,
-                orderable: false,
-                render: (data) => `
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-info view-prod" data-id="${data.id}" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-outline-warning edit-prod" data-id="${data.id}" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-outline-danger delete-prod" data-id="${data.id}" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `,
-              },
-            ],
-          });
-        },
-
-        setupEventHandlers: function () {
-          // Filter handlers
-          $(".filter-badge").on("click", (e) => {
-            $(".filter-badge").removeClass("active");
-            $(e.target).closest(".filter-badge").addClass("active");
-            this.currentFilter = $(e.target)
-              .closest(".filter-badge")
-              .data("filter");
-            this.renderTable();
-          });
-
-          // Search handler
-          $("#searchBox").on("keyup", () => {
-            if (this.dataTable) {
-              this.dataTable.search($("#searchBox").val()).draw();
-            }
-          });
-
-          // Form submission
-          $("#productForm")
-            .off("submit")
-            .on("submit", (e) => {
-              e.preventDefault();
-              this.saveProduct();
-            });
-
-          // Table event handlers
-          $("#productTable")
-            .off("click", ".view-prod")
-            .on("click", ".view-prod", (e) => {
-              const id = $(e.currentTarget).data("id");
-              this.viewProduct(id);
-            });
-
-          $("#productTable")
-            .off("click", ".edit-prod")
-            .on("click", ".edit-prod", (e) => {
-              const id = $(e.currentTarget).data("id");
-              this.editProduct(id);
-            });
-
-          $("#productTable")
-            .off("click", ".delete-prod")
-            .on("click", ".delete-prod", (e) => {
-              const id = $(e.currentTarget).data("id");
-              this.deleteProduct(id);
-            });
-
-          // Export handler
-          $("#exportBtn").on("click", () => this.exportProducts());
-
-          // Modal reset on close
-          $("#addProductModal").on("hidden.bs.modal", () => {
-            $("#productForm")[0].reset();
-            $("#pId").val("");
-            $("#modalTitle").text("New Loan Scheme");
-          });
-        },
-
-        saveProduct: function () {
-          // Validate form
-          if (!$("#productForm")[0].checkValidity()) {
-            Swal.fire(
-              "Error",
-              "Please fill all required fields correctly",
-              "error",
-            );
-            return;
-          }
-
-          // Validate min < max
-          const min = parseFloat($("#pMin").val());
-          const max = parseFloat($("#pMax").val());
-          if (min >= max) {
-            Swal.fire(
-              "Error",
-              "Minimum amount must be less than maximum amount",
-              "error",
-            );
-            return;
-          }
-
-          const id = $("#pId").val();
-          const newProd = {
-            name: $("#pName").val(),
-            interestRate: parseFloat($("#pRate").val()),
-            interestMethod: $("#pMethod").val(),
-            type: $("#pType").val(),
-            duration: parseInt($("#pDuration").val()),
-            gracePeriod: parseInt($("#pGrace").val()),
-            minAmount: parseFloat($("#pMin").val()),
-            maxAmount: parseFloat($("#pMax").val()),
-            processingFee: parseFloat($("#pProcFee").val()),
-            insuranceFee: parseFloat($("#pInsFee").val()),
-            lateFee: parseFloat($("#pFine").val()),
-            status: $("#pStatus").val(),
-            ngoId: this.user.ngoId,
-          };
-
-          let products = DB.getAll(DB.KEYS.PRODUCTS) || [];
-
-          if (id) {
-            // Edit existing
-            const index = products.findIndex((p) => p.id == id);
-            if (index !== -1) {
-              newProd.id = parseInt(id);
-              products[index] = newProd;
-            }
-          } else {
-            // Add new
-            newProd.id =
-              products.length > 0
-                ? Math.max(...products.map((p) => p.id || 0)) + 1
-                : 1;
-            products.push(newProd);
-          }
-
-          DB.save(DB.KEYS.PRODUCTS, products);
-          $("#addProductModal").modal("hide");
-          Swal.fire(
-            "Success",
-            id
-              ? "Product updated successfully"
-              : "Product created successfully",
-            "success",
-          ).then(() => {
-            this.loadProducts();
-            this.updateStatistics();
-          });
-        },
-
-        viewProduct: function (id) {
-          const p = this.allProducts.find((x) => x.id == id);
-          if (!p) return;
-
-          const html = `
-                <div class="text-start">
+            <div class="modal-header">
+                <h5 class="modal-title">নতুন ঋণ স্কিম যোগ করুন</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
                     <div class="row g-3">
-                        <div class="col-6"><strong>Interest Rate:</strong> <span class="badge bg-primary">${(p.interestRate || 0).toFixed(2)}%</span></div>
-                        <div class="col-6"><strong>Method:</strong> ${p.interestMethod || "N/A"}</div>
-                        <div class="col-6"><strong>Type:</strong> ${p.type || "N/A"}</div>
-                        <div class="col-6"><strong>Duration:</strong> ${p.duration || 0} Installments</div>
-                        <div class="col-6"><strong>Grace Period:</strong> ${p.gracePeriod || 0} Days</div>
-                        <div class="col-6"><strong>Late Fee:</strong> ৳${(p.lateFee || 0).toFixed(2)}</div>
-                        <hr class="my-2">
-                        <div class="col-6 text-success"><strong>Min Amount:</strong> ৳${this.formatNumber(p.minAmount || 0)}</div>
-                        <div class="col-6 text-danger"><strong>Max Amount:</strong> ৳${this.formatNumber(p.maxAmount || 0)}</div>
-                        <div class="col-6"><strong>Processing Fee:</strong> ${(p.processingFee || 0).toFixed(2)}%</div>
-                        <div class="col-6"><strong>Insurance Fee:</strong> ${(p.insuranceFee || 0).toFixed(2)}%</div>
-                        <hr class="my-2">
-                        <div class="col-12">
-                            <strong>Status:</strong> <span class="badge bg-${(p.status || "Active") === "Active" ? "success" : "danger"}">${p.status || "Active"}</span>
+                        <div class="col-md-6">
+                            <label class="form-label">প্রোডাক্টের নাম</label>
+                            <input type="text" id="pName" class="form-control" placeholder="যেমন: সাধারণ ঋণ" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">সুদের হার (%)</label>
+                            <input type="number" step="0.01" id="pRate" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">কিস্তির ধরণ</label>
+                            <select id="pType" class="form-select">
+                                <option value="সাপ্তাহিক">সাপ্তাহিক</option>
+                                <option value="মাসিক">মাসিক</option>
+                                <option value="দৈনিক">দৈনিক</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">কিস্তির সংখ্যা</label>
+                            <input type="number" id="pDuration" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">সুদ গণনা পদ্ধতি</label>
+                            <select id="pMethod" class="form-select">
+                                <option value="ফ্ল্যাট">ফ্ল্যাট রেট</option>
+                                <option value="হ্রাসমান">হ্রাসমান ব্যালেন্স</option>
+                            </select>
                         </div>
                     </div>
-                </div>
-            `;
+                    <button type="submit" class="btn btn-primary w-100 mt-4">সেভ করুন</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-          Swal.fire({
-            title: p.name,
-            html: html,
-            icon: "info",
-            confirmButtonText: "Close",
-          });
-        },
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../assets/js/db.js"></script>
+<script src="../../assets/js/auth.js"></script>
+<script src="../../assets/js/app.js"></script>
 
-        editProduct: function (id) {
-          const p = this.allProducts.find((x) => x.id == id);
-          if (!p) return;
+<script>
+    $(document).ready(function() {
+        const user = DB.getCurrentUser();
+        const render = () => {
+            const products = DB.getAll(DB.KEYS.PRODUCTS).filter(p => p.ngoId === user.ngoId);
+            $('#productTable').DataTable({
+                data: products,
+                destroy: true,
+                columns: [
+                    { data: 'name' },
+                    { data: 'interestRate', render: d => d + '%' },
+                    { data: 'duration', render: (d, t, r) => `${d} টি (${r.type})` },
+                    { data: 'interestMethod', defaultContent: 'ফ্ল্যাট' },
+                    { data: 'status', render: d => `<span class="badge bg-success">${d || 'সক্রিয়'}</span>` },
+                    {
+                        data: null,
+                        render: (data) => `
+                            <button class="btn btn-sm btn-outline-info view-prod" data-id="${data.id}"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-danger delete-prod" data-id="${data.id}"><i class="fas fa-trash"></i></button>
+                        `
+                    }
+                ]
+            });
+        };
+        render();
 
-          $("#pId").val(p.id);
-          $("#pName").val(p.name);
-          $("#pRate").val(p.interestRate);
-          $("#pMethod").val(p.interestMethod);
-          $("#pType").val(p.type);
-          $("#pDuration").val(p.duration);
-          $("#pGrace").val(p.gracePeriod);
-          $("#pMin").val(p.minAmount);
-          $("#pMax").val(p.maxAmount);
-          $("#pProcFee").val(p.processingFee);
-          $("#pInsFee").val(p.insuranceFee);
-          $("#pFine").val(p.lateFee);
-          $("#pStatus").val(p.status);
-          $("#modalTitle").text("Edit: " + p.name);
+        $('#productForm').on('submit', function(e) {
+            e.preventDefault();
+            const newProd = {
+                name: $('#pName').val(),
+                interestRate: parseFloat($('#pRate').val()),
+                duration: parseInt($('#pDuration').val()),
+                type: $('#pType').val(),
+                interestMethod: $('#pMethod').val(),
+                status: 'সক্রিয়',
+                ngoId: user.ngoId
+            };
+            DB.addProduct(newProd);
+            $('#addProductModal').modal('hide');
+            Swal.fire('সফল', 'প্রোডাক্টটি সফলভাবে যোগ করা হয়েছে', 'success').then(() => location.reload());
+        });
+    });
+</script>
 
-          const modal = new bootstrap.Modal(
-            document.getElementById("addProductModal"),
-          );
-          modal.show();
-        },
-
-        deleteProduct: function (id) {
-          Swal.fire({
-            title: "Delete Product?",
-            text: "This action cannot be undone. Associated loans will remain unchanged.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              let products = DB.getAll(DB.KEYS.PRODUCTS) || [];
-              products = products.filter((p) => p.id != id);
-              DB.save(DB.KEYS.PRODUCTS, products);
-              Swal.fire(
-                "Deleted!",
-                "Product has been deleted.",
-                "success",
-              ).then(() => {
-                this.loadProducts();
-                this.updateStatistics();
-              });
-            }
-          });
-        },
-
-        updateStatistics: function () {
-          const total = this.allProducts.length;
-          const active = this.allProducts.filter(
-            (p) => (p.status || "Active") === "Active",
-          ).length;
-          const avgRate =
-            total > 0
-              ? (
-                  this.allProducts.reduce(
-                    (sum, p) => sum + (p.interestRate || 0),
-                    0,
-                  ) / total
-                ).toFixed(2)
-              : 0;
-
-          // Count loans using these products
-          const loans = DB.getAll(DB.KEYS.LOANS) || [];
-          const usedProducts = new Set(loans.map((l) => l.productId));
-
-          $("#totalProducts").text(total);
-          $("#activeProducts").text(active);
-          $("#avgRate").text(avgRate + "%");
-          $("#totalLoan").text(usedProducts.size);
-        },
-
-        exportProducts: function () {
-          if (this.allProducts.length === 0) {
-            Swal.fire("Info", "No products to export", "info");
-            return;
-          }
-
-          let csv =
-            "Scheme Name,Interest Rate (%),Method,Type,Duration,Min Amount (৳),Max Amount (৳),Processing Fee (%),Insurance Fee (%),Late Fee (৳),Grace Period (Days),Status\n";
-
-          this.allProducts.forEach((p) => {
-            csv += `"${p.name || "N/A"}",${p.interestRate || 0},${p.interestMethod || "N/A"},${p.type || "N/A"},${p.duration || 0},${p.minAmount || 0},${p.maxAmount || 0},${p.processingFee || 0},${p.insuranceFee || 0},${p.lateFee || 0},${p.gracePeriod || 0},${p.status || "Active"}\n`;
-          });
-
-          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = `loan-products-${new Date().getTime()}.csv`;
-          link.click();
-
-          Swal.fire("Success", "Products exported successfully", "success");
-        },
-
-        escapeHtml: function (text) {
-          const map = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;",
-          };
-          return (text || "").replace(/[&<>"']/g, (m) => map[m]);
-        },
-
-        formatNumber: function (num) {
-          return (num || 0).toLocaleString("en-BD", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          });
-        },
-      };
-
-      $(document).ready(function () {
-        ProductManager.init();
-      });
-    </script>
-  </body>
+</body>
 </html>

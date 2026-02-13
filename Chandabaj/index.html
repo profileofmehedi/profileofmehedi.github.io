@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>চাঁদা ও ঘুষ ট্র্যাকার | জনগণের হিসাব</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Hind Siliguri -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .btn-primary {
+            background-color: #e74c3c;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #c0392b;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+            border-bottom: 5px solid transparent;
+        }
+        .stat-chanda { border-color: #e67e22; }
+        .stat-ghus { border-color: #e74c3c; }
+        .stat-total { border-color: #3498db; }
+        
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .type-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-chanda { background-color: #e67e22; color: white; }
+        .badge-ghus { background-color: #e74c3c; color: white; }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: #2c3e50 !important;
+        }
+        .section-title {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 4px;
+            background: #e74c3c;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand animate__animated animate__fadeInLeft" href="#">
+                <i class="fa-solid fa-scale-unbalanced-flip me-2"></i>হিসাব রক্ষক
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">হোম</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#stats">পরিসংখ্যান</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#visualize">চার্ট</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#history">ইতিহাস</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold animate__animated animate__zoomIn">চাঁদা ও ঘুষের হিসাব রাখুন</h1>
+            <p class="lead animate__animated animate__fadeInUp animate__delay-1s">আপনার পকেট থেকে কত টাকা অন্যায়ভাবে যাচ্ছে তার সঠিক হিসাব এখানে জমা দিন।</p>
+            <div class="animate__animated animate__fadeInUp animate__delay-2s">
+                <button class="btn btn-warning btn-lg mt-3 me-2" data-bs-toggle="modal" data-bs-target="#addEntryModal">
+                    <i class="fa-solid fa-plus me-2"></i>নতুন হিসাব যোগ করুন
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Stats Row -->
+        <div id="stats" class="row mb-5">
+            <div class="col-md-3 animate__animated animate__fadeInUp">
+                <div class="card stat-card stat-chanda">
+                    <i class="fa-solid fa-handshake-angle text-warning"></i>
+                    <h3 id="totalChanda">০</h3>
+                    <p class="text-muted">মোট চাঁদা (৳)</p>
+                </div>
+            </div>
+            <div class="col-md-3 animate__animated animate__fadeInUp animate__delay-1s">
+                <div class="card stat-card stat-ghus">
+                    <i class="fa-solid fa-briefcase text-danger"></i>
+                    <h3 id="totalGhus">০</h3>
+                    <p class="text-muted">মোট ঘুষ (৳)</p>
+                </div>
+            </div>
+            <div class="col-md-3 animate__animated animate__fadeInUp animate__delay-2s">
+                <div class="card stat-card stat-total">
+                    <i class="fa-solid fa-vault text-primary"></i>
+                    <h3 id="grandTotal">০</h3>
+                    <p class="text-muted">সর্বমোট (৳)</p>
+                </div>
+            </div>
+            <div class="col-md-3 animate__animated animate__fadeInUp animate__delay-3s">
+                <div class="card stat-card">
+                    <i class="fa-solid fa-building-columns text-success"></i>
+                    <h3 id="totalTakers">০</h3>
+                    <p class="text-muted">মোট গ্রহীতা</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div id="visualize" class="row mb-5">
+            <div class="col-lg-8 animate__animated animate__fadeInLeft">
+                <div class="card p-4">
+                    <h4 class="section-title">কারা বেশি টাকা নিচ্ছে (ভিজুয়ালাইজেশন)</h4>
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4 animate__animated animate__fadeInRight">
+                <div class="card p-4 h-100">
+                    <h4 class="section-title">দ্রুত এন্ট্রি</h4>
+                    <form id="quickForm">
+                        <div class="mb-3">
+                            <label class="form-label">ধরণ</label>
+                            <select class="form-select" id="type" required>
+                                <option value="চাঁদা">চাঁদা</option>
+                                <option value="ঘুষ">ঘুষ</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">গ্রহীতার নাম/সংগঠন</label>
+                            <input type="text" class="form-control" id="takerName" list="takerList" placeholder="তালিকা থেকে বা নতুন নাম লিখুন" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">টাকার পরিমাণ</label>
+                            <input type="number" class="form-control" id="amount" placeholder="৫০০" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">তারিখ</label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">জমা দিন</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div id="history" class="row mb-5">
+            <div class="col-12 animate__animated animate__fadeInUp">
+                <div class="card p-4">
+                    <h4 class="section-title">টাকা প্রদানের সাম্প্রতিক ইতিহাস</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>তারিখ</th>
+                                    <th>ধরণ</th>
+                                    <th>গ্রহীতার নাম</th>
+                                    <th>পরিমাণ (টাকা)</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Taker List (Datalist) -->
+    <datalist id="takerList">
+        <option value="পুলিশ (ট্রাফিক)">
+        <option value="পুলিশ (থানা)">
+        <option value="ভূমি অফিস (তহশিল)">
+        <option value="পাসপোর্ট অফিস">
+        <option value="বিআরটিএ (BRTA)">
+        <option value="বিদ্যুৎ অফিস (ডেসকো/ডিপিডিসি)">
+        <option value="গ্যাস অফিস (তিতাস)">
+        <option value="পৌরসভা/সিটি কর্পোরেশন">
+        <option value="সরকারি হাসপাতাল">
+        <option value="শিক্ষা প্রতিষ্ঠান (ভর্তি/কাগজপত্র)">
+        <option value="কাস্টমস অফিস">
+        <option value="আদালত/কোর্ট">
+        <option value="স্থানীয় মাস্তান">
+        <option value="বাজার কমিটি">
+        <option value="রাজনৈতিক দল">
+        <option value="সিন্ডিকেট">
+        <option value="ওয়াসা (WASA)">
+        <option value="উপজেলা পরিষদ">
+        <option value="নির্বাচন অফিস">
+    </datalist>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; ২০২৪ চাঁদাবাজি ও ঘুষ ট্র্যাকার | দুর্নীতির বিরুদ্ধে আওয়াজ তুলুন।</p>
+        </div>
+    </footer>
+
+    <!-- Add Entry Modal -->
+    <div class="modal fade" id="addEntryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">নতুন হিসাব যোগ করুন</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalForm">
+                        <div class="mb-3">
+                            <label class="form-label">ধরণ</label>
+                            <select class="form-select" id="modalType" required>
+                                <option value="চাঁদা">চাঁদা</option>
+                                <option value="ঘুষ">ঘুষ</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">গ্রহীতার নাম/সংগঠন</label>
+                            <input type="text" class="form-control" id="modalTakerName" list="takerList" placeholder="তালিকা থেকে বা নতুন নাম লিখুন" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">টাকার পরিমাণ</label>
+                            <input type="number" class="form-control" id="modalAmount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">তারিখ</label>
+                            <input type="date" class="form-control" id="modalDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">সংরক্ষণ করুন</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Demo Data
+            let records = [
+                { id: 1, type: "চাঁদা", taker: "স্থানীয় মাস্তান", amount: 5000, date: "2024-05-10" },
+                { id: 2, type: "ঘুষ", taker: "পাসপোর্ট অফিস", amount: 3500, date: "2024-05-12" },
+                { id: 3, type: "চাঁদা", taker: "বাজার কমিটি", amount: 1000, date: "2024-05-15" },
+                { id: 4, type: "ঘুষ", taker: "পুলিশ (ট্রাফিক)", amount: 500, date: "2024-05-18" },
+                { id: 5, type: "চাঁদা", taker: "রাজনৈতিক দল", amount: 10000, date: "2024-05-20" },
+                { id: 6, type: "ঘুষ", taker: "भूमि অফিস (তহশিল)", amount: 12000, date: "2024-05-22" }
+            ];
+
+            let myChart;
+
+            function updateUI() {
+                const tableBody = $('#dataTableBody');
+                tableBody.empty();
+                
+                let totalChanda = 0;
+                let totalGhus = 0;
+                let uniqueTakers = new Set();
+
+                records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                records.forEach(item => {
+                    const amount = parseInt(item.amount);
+                    if (item.type === "চাঁদা") totalChanda += amount;
+                    else totalGhus += amount;
+                    
+                    uniqueTakers.add(item.taker);
+                    
+                    const badgeClass = item.type === "চাঁদা" ? "badge-chanda" : "badge-ghus";
+                    
+                    tableBody.append(`
+                        <tr class="animate__animated animate__fadeIn">
+                            <td>${item.date}</td>
+                            <td><span class="type-badge ${badgeClass}">${item.type}</span></td>
+                            <td><strong>${item.taker}</strong></td>
+                            <td>${amount.toLocaleString('bn-BD')} ৳</td>
+                            <td><button class="btn btn-sm btn-outline-danger delete-btn" data-id="${item.id}"><i class="fa-solid fa-trash"></i></button></td>
+                        </tr>
+                    `);
+                });
+
+                // Update Stats
+                $('#totalChanda').text(totalChanda.toLocaleString('bn-BD'));
+                $('#totalGhus').text(totalGhus.toLocaleString('bn-BD'));
+                $('#grandTotal').text((totalChanda + totalGhus).toLocaleString('bn-BD'));
+                $('#totalTakers').text(uniqueTakers.size.toLocaleString('bn-BD'));
+
+                updateChart();
+            }
+
+            function updateChart() {
+                const ctx = document.getElementById('mainChart').getContext('2d');
+                
+                // Group data by taker
+                const takerData = {};
+                records.forEach(item => {
+                    if (!takerData[item.taker]) {
+                        takerData[item.taker] = { chanda: 0, ghus: 0 };
+                    }
+                    if (item.type === "চাঁদা") takerData[item.taker].chanda += parseInt(item.amount);
+                    else takerData[item.taker].ghus += parseInt(item.amount);
+                });
+
+                const labels = Object.keys(takerData);
+                const chandaValues = labels.map(l => takerData[l].chanda);
+                const ghusValues = labels.map(l => takerData[l].ghus);
+
+                if (myChart) {
+                    myChart.destroy();
+                }
+
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'চাঁদা (৳)',
+                                data: chandaValues,
+                                backgroundColor: 'rgba(230, 126, 34, 0.7)',
+                                borderColor: 'rgba(230, 126, 34, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'ঘুষ (৳)',
+                                data: ghusValues,
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: 'rgba(231, 76, 60, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, stacked: true },
+                            x: { stacked: true }
+                        },
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // Handle Form Submissions
+            $('#quickForm, #modalForm').on('submit', function(e) {
+                e.preventDefault();
+                const isModal = $(this).attr('id') === 'modalForm';
+                const prefix = isModal ? 'modal' : '';
+                
+                const newEntry = {
+                    id: Date.now(),
+                    type: $(`#${prefix}Type`).val(),
+                    taker: $(`#${prefix}TakerName`).val(),
+                    amount: $(`#${prefix}Amount`).val(),
+                    date: $(`#${prefix}Date`).val()
+                };
+
+                records.push(newEntry);
+                updateUI();
+                
+                this.reset();
+                if (isModal) {
+                    bootstrap.Modal.getInstance($('#addEntryModal')).hide();
+                }
+                
+                // Reset date to today after submit
+                const today = new Date().toISOString().split('T')[0];
+                $(`#${prefix}Date`).val(today);
+            });
+
+            // Delete Entry
+            $(document).on('click', '.delete-btn', function() {
+                if(confirm('আপনি কি এই হিসাবটি মুছে ফেলতে চান?')) {
+                    const id = $(this).data('id');
+                    records = records.filter(r => r.id !== id);
+                    updateUI();
+                }
+            });
+
+            // Initial Load
+            updateUI();
+
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            $('#date, #modalDate').val(today);
+
+            // Smooth scrolling
+            $('a.nav-link').on('click', function(event) {
+                if (this.hash !== "") {
+                    event.preventDefault();
+                    var hash = this.hash;
+                    $('html, body').animate({
+                        scrollTop: $(hash).offset().top - 70
+                    }, 800);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

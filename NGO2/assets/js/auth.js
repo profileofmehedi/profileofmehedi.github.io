@@ -53,8 +53,8 @@ $(document).ready(function() {
         } else {
             Swal.fire({
                 icon: 'error',
-                title: 'Login Failed',
-                text: 'Invalid email or password'
+                title: 'লগইন ব্যর্থ',
+                text: 'ভুল ইমেইল অথবা পাসওয়ার্ড'
             });
         }
     });
