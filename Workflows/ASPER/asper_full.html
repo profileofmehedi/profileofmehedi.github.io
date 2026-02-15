@@ -105,8 +105,8 @@
   /* ── Wide canvas so nodes have room to breathe ── */
   .diagram {
     position:relative;
-    width: 1760px;
-    height: 1120px;
+    width: 2020px;
+    height: 1380px;
     margin:0 auto;
   }
 
@@ -139,6 +139,7 @@
   .node.finance::before { background:var(--purple); opacity:0.5; }
   .node.mfs::before     { background:var(--orange); opacity:0.5; }
   .node.sms::before     { background:var(--teal);   opacity:0.5; }
+  .node.gateway::before { background:#ffb347;       opacity:0.7; }
 
   .node.active        { border-color:var(--blue);   box-shadow:0 0 22px rgba(77,163,255,0.3),inset 0 0 16px rgba(77,163,255,0.06); background:rgba(77,163,255,0.06);   transform:scale(1.05); color:#fff; }
   .node.active-green  { border-color:var(--green);  box-shadow:0 0 22px rgba(45,217,122,0.3),inset 0 0 16px rgba(45,217,122,0.06);  background:rgba(45,217,122,0.06);  transform:scale(1.05); }
@@ -206,7 +207,7 @@
     <div class="tls"><span class="tl-r"></span><span class="tl-y"></span><span class="tl-g"></span></div>
     <div class="header-title"><strong>ASPER</strong> Digital Banking — Microservice Architecture Flow</div>
   </div>
-  <div class="header-badge">v2.1 · UPDATED</div>
+  <div class="header-badge">v2.2 · UPDATED</div>
 </header>
 
 <div class="controls">
@@ -228,10 +229,12 @@
 
   <!-- GROUP LABELS -->
   <div class="group-label" style="left:26px;   top:10px; width:210px;">Input Channels</div>
-  <div class="group-label" style="left:430px;  top:10px; width:190px;">Onboarding Layer</div>
-  <div class="group-label" style="left:760px;  top:10px; width:240px;">Core Services</div>
-  <div class="group-label" style="left:1130px; top:10px; width:240px;">Processing &amp; GL</div>
-  <div class="group-label" style="left:1530px; top:10px; width:190px;">Posting</div>
+  <div class="group-label" style="left:340px;  top:10px; width:185px;">MFS Gateway</div>
+  <div class="group-label" style="left:600px;  top:10px; width:185px;">MFS Bridges</div>
+  <div class="group-label" style="left:760px;  top:10px; width:200px;">Onboarding Layer</div>
+  <div class="group-label" style="left:1060px; top:10px; width:240px;">Core Services</div>
+  <div class="group-label" style="left:1330px; top:10px; width:240px;">Processing &amp; GL</div>
+  <div class="group-label" style="left:1730px; top:10px; width:190px;">Posting</div>
 
   <!-- ══════════════════════════════════
        COL 1 — INPUT CHANNELS
@@ -246,48 +249,55 @@
   <div class="node channel" id="n-dps-pay-web"  style="left:26px; top:590px; width:152px;"><span class="tag">web</span>DPS Payment<br>(Web)</div>
   <div class="node channel" id="n-dps-pay-app"  style="left:26px; top:710px; width:152px;"><span class="tag">app</span>DPS Payment<br>(Asper App)</div>
   <div class="node mfs"     id="n-bkash"        style="left:26px; top:840px; width:152px;"><span class="tag">mfs</span>bKash DPS<br>(Open or Payment)</div>
-  <div class="node channel" id="n-loan-apply"   style="left:26px; top:990px; width:152px;"><span class="tag">web &amp; app</span>Loan Apply</div>
+  <div class="node mfs"     id="n-opus"         style="left:26px; top:980px; width:152px;"><span class="tag">mfs</span>Opus DPS<br>(Open or Payment)</div>
+  <div class="node channel" id="n-portal"      style="left:26px; top:1110px; width:152px;"><span class="tag">web &amp; app</span>Customer Portal</div>
+  <div class="node channel" id="n-loan-apply"  style="left:26px; top:1250px; width:152px;"><span class="tag">web &amp; app</span>Loan Apply</div>
 
   <!-- ══════════════════════════════════
        COL 2 — ONBOARDING / CREDIT LAYER
   ══════════════════════════════════ -->
 
   <!-- Onboarding Service: midpoint of rows 1+2 -->
-  <div class="node module" id="n-onb-svc"     style="left:430px; top:120px; width:145px; padding:16px 14px;"><span class="tag">service</span>Onboarding<br>Service</div>
+  <div class="node module" id="n-onb-svc"     style="left:760px; top:120px; width:145px; padding:16px 14px;"><span class="tag">service</span>Onboarding<br>Service</div>
   <!-- Credit Score for DPS: midpoint of rows 3+4 -->
-  <div class="node module" id="n-credit"      style="left:430px; top:400px; width:135px; padding:14px 14px;"><span class="tag">check</span>Credit Score</div>
-  <!-- Credit Score for Loan: row 8 -->
-  <div class="node module" id="n-credit-loan" style="left:430px; top:990px; width:135px; padding:14px 14px;"><span class="tag">check</span>Credit Score</div>
+  <div class="node module" id="n-credit"      style="left:760px; top:400px; width:135px; padding:14px 14px;"><span class="tag">check</span>Credit Score</div>
+  <!-- Credit Score for Loan: row pushed down -->
+  <div class="node module" id="n-credit-loan" style="left:760px; top:1250px; width:135px; padding:14px 14px;"><span class="tag">check</span>Credit Score</div>
+  <!-- Customer Portal Service -->
+  <div class="node module" id="n-portal-svc"  style="left:760px; top:1110px; width:155px; padding:14px 14px;"><span class="tag">service</span>Customer Portal<br>Service</div>
 
   <!-- ══════════════════════════════════
        COL 3 — CORE SERVICES
   ══════════════════════════════════ -->
 
-  <div class="node module" id="n-cif"     style="left:760px; top:110px; width:135px; padding:20px 14px;"><span class="tag">module</span>CIF</div>
-  <div class="node module" id="n-dps"     style="left:760px; top:520px; width:135px; padding:20px 14px;"><span class="tag">module</span>DPS Service</div>
-  <div class="node mfs"    id="n-dps-mfs" style="left:760px; top:830px; width:145px;"><span class="tag">mfs bridge</span>DPS MFS<br>(bKash)</div>
-  <div class="node module" id="n-loan"    style="left:760px; top:985px; width:135px; padding:20px 14px;"><span class="tag">module</span>Loan</div>
+  <div class="node module" id="n-cif"     style="left:1060px; top:110px; width:135px; padding:20px 14px;"><span class="tag">module</span>CIF</div>
+  <div class="node module" id="n-dps"     style="left:1060px; top:520px; width:135px; padding:20px 14px;"><span class="tag">module</span>DPS Service</div>
+  <!-- MFS Gateway — physically between bKash/Opus DPS and DPS MFS nodes -->
+  <div class="node gateway" id="n-mfs-gw"  style="left:370px; top:895px; width:155px; border-color:#ffb347;"><span class="tag" style="color:#ffb347;">gateway</span>MFS Gateway<br>(Route Decision)</div>
+  <div class="node mfs"    id="n-dps-mfs" style="left:620px; top:840px; width:145px;"><span class="tag">mfs bridge</span>DPS MFS<br>(bKash)</div>
+  <div class="node mfs"    id="n-dps-mfs-opus" style="left:620px; top:960px; width:145px;"><span class="tag">mfs bridge</span>DPS MFS<br>(Opus)</div>
+  <div class="node module" id="n-loan"    style="left:1060px; top:1250px; width:135px; padding:20px 14px;"><span class="tag">module</span>Loan</div>
 
   <!-- ══════════════════════════════════
        COL 4 — CBS CORE + SMS
   ══════════════════════════════════ -->
 
-  <div class="node sms"    id="n-sms-cif"  style="left:1130px; top:90px;  width:135px; padding:16px 14px;"><span class="tag">notification</span>SMS Service</div>
-  <div class="node module" id="n-cbs"      style="left:1130px; top:490px; width:170px;"><span class="tag">core</span>CBS Core<br>(Create Account<br>or Transaction)</div>
-  <div class="node sms"    id="n-sms-loan" style="left:1130px; top:975px; width:135px; padding:16px 14px;"><span class="tag">notification</span>SMS Service</div>
+  <div class="node sms"    id="n-sms-cif"  style="left:1330px; top:90px;  width:135px; padding:16px 14px;"><span class="tag">notification</span>SMS Service</div>
+  <div class="node module" id="n-cbs"      style="left:1330px; top:490px; width:170px;"><span class="tag">core</span>CBS Core<br>(Create Account<br>or Transaction)</div>
+  <div class="node sms"    id="n-sms-loan" style="left:1330px; top:1240px; width:135px; padding:16px 14px;"><span class="tag">notification</span>SMS Service</div>
 
   <!-- ══════════════════════════════════
        COL 5 — GL LAYER
   ══════════════════════════════════ -->
 
-  <div class="node finance" id="n-gl"     style="left:1530px; top:400px; width:165px;"><span class="tag">finance</span>GL Process<br>(Create Pending<br>Voucher &amp; Prepare<br>GL Posting)</div>
-  <div class="node finance" id="n-glmap"  style="left:1530px; top:670px; width:145px; padding:16px 14px;"><span class="tag">config</span>GL Mapping</div>
+  <div class="node finance" id="n-gl"     style="left:1730px; top:400px; width:165px;"><span class="tag">finance</span>GL Process<br>(Create Pending<br>Voucher &amp; Prepare<br>GL Posting)</div>
+  <div class="node finance" id="n-glmap"  style="left:1730px; top:670px; width:145px; padding:16px 14px;"><span class="tag">config</span>GL Mapping</div>
 
   <!-- ══════════════════════════════════
        COL 6 — POSTING
   ══════════════════════════════════ -->
 
-  <div class="node finance" id="n-cbs-post" style="left:1560px; top:160px; width:135px; padding:18px 14px;"><span class="tag">posting</span>CBS Posting</div>
+  <div class="node finance" id="n-cbs-post" style="left:1760px; top:160px; width:135px; padding:18px 14px;"><span class="tag">posting</span>CBS Posting</div>
 
   <!-- SVG Arrows -->
   <svg class="connections" id="svg-arrows">
@@ -383,15 +393,28 @@ $(function () {
     const cifB=nB('n-cif'), dpsT=nT('n-dps');
     mkPath('p-cif-dps', `M${cifB.x},${cifB.y} C${cifB.x},${cifB.y+90} ${dpsT.x},${dpsT.y-90} ${dpsT.x},${dpsT.y}`);
 
-    // bKash → DPS MFS
-    mkPath('p-bkash-mfs', H(nR('n-bkash'), nL('n-dps-mfs')));
+    // bKash DPS → MFS Gateway
+    mkPath('p-bkash-gw', H(nR('n-bkash'), nL('n-mfs-gw')));
+
+    // Opus DPS → MFS Gateway
+    mkPath('p-opus-gw', H(nR('n-opus'), {x:nL('n-mfs-gw').x, y:nL('n-mfs-gw').y+10}));
 
     // DPS Service → CBS Core
     mkPath('p-dps-cbs', H(nR('n-dps'), nL('n-cbs'), 90, 90));
 
-    // DPS MFS → DPS Service (logs back into DPS Service)
+    // MFS Gateway → DPS MFS bKash
+    mkPath('p-gw-mfs-bkash', H(nR('n-mfs-gw'), {x:nL('n-dps-mfs').x, y:nL('n-dps-mfs').y}));
+
+    // MFS Gateway → DPS MFS Opus
+    mkPath('p-gw-mfs-opus', H({x:nR('n-mfs-gw').x, y:nR('n-mfs-gw').y+10}, nL('n-dps-mfs-opus')));
+
+    // DPS MFS bKash → DPS Service (logs back)
     const mfsR=nR('n-dps-mfs'), dpsLb={x:nL('n-dps').x, y:nL('n-dps').y+12};
     mkPath('p-mfs-dps', `M${mfsR.x},${mfsR.y} C${mfsR.x+90},${mfsR.y} ${dpsLb.x-90},${dpsLb.y} ${dpsLb.x},${dpsLb.y}`);
+
+    // DPS MFS Opus → DPS Service (logs back)
+    const opusMfsR=nR('n-dps-mfs-opus'), dpsLb2={x:nL('n-dps').x, y:nL('n-dps').y+22};
+    mkPath('p-mfs-opus-dps', `M${opusMfsR.x},${opusMfsR.y} C${opusMfsR.x+90},${opusMfsR.y} ${dpsLb2.x-90},${dpsLb2.y} ${dpsLb2.x},${dpsLb2.y}`);
 
     // (DPS MFS goes only to DPS Service — DPS then forwards to CBS Core)
 
@@ -406,6 +429,20 @@ $(function () {
     // CBS Core → DPS (Return Account Info)
     const cbsLt={x:nL('n-cbs').x, y:nL('n-cbs').y-8}, dpsRb={x:nR('n-dps').x, y:nR('n-dps').y+8};
     mkPath('p-cbs-dps-return', `M${cbsLt.x},${cbsLt.y} C${cbsLt.x-80},${cbsLt.y} ${dpsRb.x+80},${dpsRb.y} ${dpsRb.x},${dpsRb.y}`);
+
+    // Customer Portal → Customer Portal Service (request)
+    mkPath('p-portal-svc', H(nR('n-portal'), {x:nL('n-portal-svc').x, y:nL('n-portal-svc').y-6}));
+    // Customer Portal Service → Customer Portal (response — arc below nodes)
+    const svcB=nB('n-portal-svc'), portalB=nB('n-portal');
+    mkPath('p-svc-portal', `M${svcB.x},${svcB.y} C${svcB.x},${svcB.y+40} ${portalB.x},${portalB.y+40} ${portalB.x},${portalB.y}`);
+
+    // DPS Service → Customer Portal Service (sync)
+    const dpsB2=nB('n-dps'), portalSvcT=nT('n-portal-svc');
+    mkPath('p-dps-portal', `M${dpsB2.x},${dpsB2.y} C${dpsB2.x},${dpsB2.y+70} ${portalSvcT.x},${portalSvcT.y-70} ${portalSvcT.x},${portalSvcT.y}`);
+
+    // Loan → Customer Portal Service (sync)
+    const loanL=nL('n-loan'), portalSvcR={x:nR('n-portal-svc').x, y:nR('n-portal-svc').y+8};
+    mkPath('p-loan-portal', `M${loanL.x},${loanL.y} C${loanL.x-80},${loanL.y} ${portalSvcR.x+80},${portalSvcR.y} ${portalSvcR.x},${portalSvcR.y}`);
 
     // Loan Apply → Credit Score (loan)
     mkPath('p-la-credit', H(nR('n-loan-apply'), nL('n-credit-loan')));
@@ -444,12 +481,20 @@ $(function () {
     lbl('p-dpspay-web-dps', 'DPS Update to DPS Service',   0,  -10);
     lbl('p-dpspay-app-dps', 'DPS Update to DPS Service',   0,   10);
     lbl('p-cif-dps',        'Sync Customer',              18,    0);
-    lbl('p-bkash-mfs',      'Log DPS to MFS Service',      0,  -10);
+    lbl('p-bkash-gw',       'Route to Gateway',            0,  -10);
+    lbl('p-opus-gw',        'Route to Gateway',            0,   10);
+    lbl('p-gw-mfs-bkash',   'bKash Route',                 0,  -10);
+    lbl('p-gw-mfs-opus',    'Opus Route',                  0,   10);
     lbl('p-mfs-dps',        'Create DPS',                 18,  -10);
+    lbl('p-mfs-opus-dps',   'Create DPS',                 18,   10);
     lbl('p-dps-cbs',        'Create Acct & Transaction',   0,  -10);
     lbl('p-cif-cbs',        'Create Customer',            26,    0);
     lbl('p-cif-loan',       'Sync Customer',             -22,    0);
     lbl('p-cbs-dps-return', 'Return Account Info',         0,   10);
+    lbl('p-portal-svc',     'Request Data',                0,  -10);
+    lbl('p-svc-portal',     'Return Data',                 0,   18);
+    lbl('p-dps-portal',     'Sync DPS Data',              18,    0);
+    lbl('p-loan-portal',    'Sync Loan Data',              0,  -10);
     lbl('p-la-credit',      'Verify Credit Score',         0,  -10);
     lbl('p-credit-loan',    'Create Loan to Service',      0,  -10);
     lbl('p-loan-cbs',       'Create Acct & Transaction',  36,    0);
@@ -527,18 +572,18 @@ $(function () {
     softReset();
 
     // PHASE 1 — Onboarding → Svc → CIF → SMS
-    status('Customer initiating onboarding via Web & App...','running','1 / 7');
+    status('Customer initiating onboarding via Web & App...','running','1 / 8');
     on('n-onb-web'); on('n-onb-app'); await wait(400);
     setPathColor('p-onb-web-svc','active','blue');
     setPathColor('p-onb-app-svc','active','blue');
     await Promise.all([animateDot('p-onb-web-svc','#4da3ff',520),animateDot('p-onb-app-svc','#4da3ff',520)]);
     on('n-onb-svc');
-    status('Onboarding Service — logging customer data...','running','1 / 7');
+    status('Onboarding Service — logging customer data...','running','1 / 8');
     await wait(400);
     setPathColor('p-svc-cif','active','blue');
     await animateDot('p-svc-cif','#4da3ff',600);
     on('n-cif');
-    status('CIF module activated — creating customer record...','running','1 / 7');
+    status('CIF module activated — creating customer record...','running','1 / 8');
     await wait(350);
     off('n-onb-web'); off('n-onb-app'); off('n-onb-svc');
     if(stopLoop)return;
@@ -546,23 +591,23 @@ $(function () {
     setPathColor('p-cif-sms','active-teal','teal');
     await animateDot('p-cif-sms','#22d3ee',500);
     on('n-sms-cif','active-teal');
-    status('CIF → SMS: sending customer notification...','running','1 / 7');
+    status('CIF → SMS: sending customer notification...','running','1 / 8');
     await wait(350); off('n-sms-cif');
     if(stopLoop)return;
 
     // PHASE 2 — CIF → DPS + Open DPS → Credit → DPS
-    status('Syncing customer to DPS Service...','running','2 / 7');
+    status('Syncing customer to DPS Service...','running','2 / 8');
     setPathColor('p-cif-dps','active','blue');
     await animateDot('p-cif-dps','#4da3ff',660);
     on('n-dps'); await wait(300);
 
-    status('Open DPS channels verifying credit score...','running','2 / 7');
+    status('Open DPS channels verifying credit score...','running','2 / 8');
     on('n-open-dps-web'); on('n-open-dps-app'); await wait(280);
     setPathColor('p-odps-web-credit','active','blue');
     setPathColor('p-odps-app-credit','active','blue');
     await Promise.all([animateDot('p-odps-web-credit','#4da3ff',530),animateDot('p-odps-app-credit','#4da3ff',530)]);
     on('n-credit');
-    status('Credit score validated ✓','running','2 / 7');
+    status('Credit score validated ✓','running','2 / 8');
     await wait(380);
     setPathColor('p-credit-dps','active','blue');
     await animateDot('p-credit-dps','#4da3ff',560);
@@ -570,31 +615,39 @@ $(function () {
     if(stopLoop)return;
 
     // PHASE 3 — DPS Payment → DPS Service
-    status('DPS Payment channels routing to DPS Service...','running','3 / 7');
+    status('DPS Payment channels routing to DPS Service...','running','3 / 8');
     on('n-dps-pay-web'); on('n-dps-pay-app'); await wait(260);
     setPathColor('p-dpspay-web-dps','active','blue');
     setPathColor('p-dpspay-app-dps','active','blue');
     await Promise.all([animateDot('p-dpspay-web-dps','#4da3ff',535),animateDot('p-dpspay-app-dps','#4da3ff',535)]);
-    status('DPS Service consolidating all DPS requests...','running','3 / 7');
+    status('DPS Service consolidating all DPS requests...','running','3 / 8');
     await wait(340); off('n-dps-pay-web'); off('n-dps-pay-app');
     if(stopLoop)return;
 
-    // PHASE 4 — bKash → DPS MFS
-    status('bKash MFS routing to DPS MFS bridge...','running','4 / 7');
-    on('n-bkash','active-orange'); await wait(300);
-    setPathColor('p-bkash-mfs','active-orange','orange');
-    await animateDot('p-bkash-mfs','#ff8c42',580);
-    on('n-dps-mfs','active-orange');
-    status('DPS MFS (bKash) — logging to DPS Service...','running','4 / 7');
+    // PHASE 4 — bKash DPS + Opus DPS → MFS Gateway → DPS MFS bKash / DPS MFS Opus
+    status('bKash DPS & Opus DPS routing to MFS Gateway...','running','4 / 8');
+    on('n-bkash','active-orange'); on('n-opus','active-orange'); await wait(300);
+    setPathColor('p-bkash-gw','active-orange','orange');
+    setPathColor('p-opus-gw','active-orange','orange');
+    await Promise.all([animateDot('p-bkash-gw','#ff8c42',520), animateDot('p-opus-gw','#ff8c42',580)]);
+    on('n-mfs-gw','active-orange');
+    status('MFS Gateway — deciding route (bKash or Opus)...','running','4 / 8');
+    await wait(400);
+    setPathColor('p-gw-mfs-bkash','active-orange','orange');
+    setPathColor('p-gw-mfs-opus','active-orange','orange');
+    await Promise.all([animateDot('p-gw-mfs-bkash','#ff8c42',540), animateDot('p-gw-mfs-opus','#ff8c42',600)]);
+    on('n-dps-mfs','active-orange'); on('n-dps-mfs-opus','active-orange');
+    status('DPS MFS (bKash) & DPS MFS (Opus) — logging to DPS Service...','running','4 / 8');
     await wait(360);
     setPathColor('p-mfs-dps','active-orange','orange');
-    await animateDot('p-mfs-dps','#ff8c42',560);
-    status('DPS MFS → DPS Service linked...','running','4 / 7');
-    await wait(280); off('n-bkash');
+    setPathColor('p-mfs-opus-dps','active-orange','orange');
+    await Promise.all([animateDot('p-mfs-dps','#ff8c42',560), animateDot('p-mfs-opus-dps','#ff8c42',600)]);
+    status('DPS MFS → DPS Service linked...','running','4 / 8');
+    await wait(280); off('n-bkash'); off('n-opus'); off('n-mfs-gw');
     if(stopLoop)return;
 
     // PHASE 5 — DPS + CIF → CBS Core (DPS MFS already fed into DPS Service in phase 4)
-    status('DPS Service & CIF forwarding to CBS Core...','running','5 / 7');
+    status('DPS Service & CIF forwarding to CBS Core...','running','5 / 8');
     setPathColor('p-dps-cbs','active-green','green');
     setPathColor('p-cif-cbs','active','blue');
     await Promise.all([
@@ -602,23 +655,42 @@ $(function () {
       animateDot('p-cif-cbs','#4da3ff',720),
     ]);
     on('n-cbs','active-green');
-    status('CBS Core creating account / transaction records...','running','5 / 7');
-    await wait(420); off('n-dps'); off('n-dps-mfs'); off('n-cif');
+    status('CBS Core creating account / transaction records...','running','5 / 8');
+    await wait(420); off('n-dps'); off('n-dps-mfs'); off('n-dps-mfs-opus'); off('n-cif');
 
     // CIF → Loan (Sync Customer)
     setPathColor('p-cif-loan','active','blue');
     await animateDot('p-cif-loan','#4da3ff',620);
-    status('CIF syncing customer data to Loan module...','running','5 / 7');
+    status('CIF syncing customer data to Loan module...','running','5 / 8');
     await wait(300);
 
     setPathColor('p-cbs-dps-return','active','blue');
     await animateDot('p-cbs-dps-return','#4da3ff',560);
-    status('CBS Core returning account info to DPS...','running','5 / 7');
+    status('CBS Core returning account info to DPS...','running','5 / 8');
     await wait(300);
     if(stopLoop)return;
 
-    // PHASE 6 — Loan Apply → Credit → Loan → CBS + SMS
-    status('Loan Apply: verifying credit score...','running','6 / 7');
+    // PHASE 6 — Customer Portal ↔ Portal Service ← DPS + Loan
+    status('Customer Portal requesting data from Portal Service...','running','6 / 8');
+    on('n-portal','active'); await wait(300);
+    setPathColor('p-portal-svc','active','blue');
+    await animateDot('p-portal-svc','#4da3ff',500);
+    on('n-portal-svc','active');
+    status('Customer Portal Service syncing from DPS Service & Loan...','running','6 / 8');
+    await wait(300);
+    setPathColor('p-dps-portal','active-green','green');
+    setPathColor('p-loan-portal','active-orange','orange');
+    await Promise.all([animateDot('p-dps-portal','#2dd97a',580), animateDot('p-loan-portal','#ff8c42',620)]);
+    status('Portal Service returning data to Customer Portal...','running','6 / 8');
+    await wait(300);
+    setPathColor('p-svc-portal','active','blue');
+    await animateDot('p-svc-portal','#4da3ff',500);
+    status('Customer Portal ↔ Portal Service sync complete ✓','running','6 / 8');
+    await wait(300); off('n-portal'); off('n-portal-svc');
+    if(stopLoop)return;
+
+    // PHASE 7 — Loan Apply → Credit → Loan → CBS + SMS
+    status('Loan Apply: verifying credit score...','running','7 / 8');
     on('n-loan-apply','active-orange'); await wait(300);
     setPathColor('p-la-credit','active-orange','orange');
     await animateDot('p-la-credit','#ff8c42',520);
@@ -627,30 +699,30 @@ $(function () {
     setPathColor('p-credit-loan','active-orange','orange');
     await animateDot('p-credit-loan','#ff8c42',520);
     on('n-loan','active-orange');
-    status('Loan module — forwarding to CBS Core & SMS...','running','6 / 7');
+    status('Loan module — forwarding to CBS Core & SMS...','running','7 / 8');
     await wait(300); off('n-credit-loan');
 
     setPathColor('p-loan-cbs','active-orange','orange');
     setPathColor('p-loan-sms','active-teal','teal');
     await Promise.all([animateDot('p-loan-cbs','#ff8c42',710),animateDot('p-loan-sms','#22d3ee',600)]);
     on('n-sms-loan','active-teal');
-    status('Loan → CBS Core & SMS dispatched...','running','6 / 7');
+    status('Loan → CBS Core & SMS dispatched...','running','7 / 8');
     await wait(360); off('n-loan'); off('n-sms-loan');
     if(stopLoop)return;
 
     // PHASE 7 — GL Mapping → GL ↔ CBS → CBS Posting
-    status('GL Mapping feeding configuration to GL Process...','running','7 / 7');
+    status('GL Mapping feeding configuration to GL Process...','running','8 / 8');
     on('n-glmap','active-purple'); await wait(300);
     setPathColor('p-glmap-gl','active-purple','purple');
     await animateDot('p-glmap-gl','#c084fc',590);
     on('n-gl','active-purple'); await wait(260); off('n-glmap');
 
-    status('CBS Core → GL Process: preparing pending voucher...','running','7 / 7');
+    status('CBS Core → GL Process: preparing pending voucher...','running','8 / 8');
     setPathColor('p-cbs-gl','active-green','green');
     await animateDot('p-cbs-gl','#2dd97a',600);
     off('n-cbs'); await wait(360);
 
-    status('GL Process → CBS Posting: posting vouchers...','running','7 / 7');
+    status('GL Process → CBS Posting: posting vouchers...','running','8 / 8');
     setPathColor('p-gl-post','active-purple','purple');
     await animateDot('p-gl-post','#c084fc',630);
     on('n-cbs-post','active-green'); await wait(420);
