@@ -51,57 +51,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btn.addEventListener('mouseleave', () => {
             btn.style.transform = 'translate(0, 0)';
-        });
-    });
-
-    // =========================================
-    // 7. PRE-LOADER
-    // =========================================
-    const loader = document.getElementById('preloader');
-    if (loader) {
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                loader.style.visibility = 'hidden';
-            }, 500); // Small delay for polish
-        });
-    }
-
-    // =========================================
-    // 8. TESTIMONIALS CAROUSEL
-    // =========================================
-    const slider = document.querySelector('.testimonial-slider');
-    const items = document.querySelectorAll('.testimonial-item');
-    const dots = document.querySelectorAll('.testimonial-dots .dot');
-    let currentIndex = 0;
-    let autoSlideInterval;
-
-    function showTestimonial(index) {
-        if (slider) {
-            slider.style.transform = `translateX(-${index * 100}%)`;
-            dots.forEach(dot => dot.classList.remove('active'));
-            dots[index].classList.add('active');
-            currentIndex = index;
-        }
-    }
-
-    function startAutoSlide() {
-        autoSlideInterval = setInterval(() => {
-            let nextIndex = (currentIndex + 1) % items.length;
-            showTestimonial(nextIndex);
-        }, 5000); // 5 seconds
-    }
-
-    if (slider) {
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                showTestimonial(index);
-                clearInterval(autoSlideInterval);
-                startAutoSlide();
             });
-        });
-        startAutoSlide();
-    }
+        
+            // =========================================
+            // 7. PRE-LOADER
+            // =========================================
+            const loader = document.getElementById('preloader');
+            if (loader) {
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        loader.style.opacity = '0';
+                        loader.style.visibility = 'hidden';
+                    }, 500); // Small delay for polish
+                });
+            }
+        
+            // =========================================
+            // 8. TESTIMONIALS CAROUSEL
+            // =========================================
+            const slider = document.querySelector('.testimonial-slider');
+            const items = document.querySelectorAll('.testimonial-item');
+            const dots = document.querySelectorAll('.testimonial-dots .dot');
+            let currentIndex = 0;
+            let autoSlideInterval;
+        
+            function showTestimonial(index) {
+                if (slider) {
+                    slider.style.transform = `translateX(-${index * 100}%)`;
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    dots[index].classList.add('active');
+                    currentIndex = index;
+                }
+            }
+        
+            function startAutoSlide() {
+                autoSlideInterval = setInterval(() => {
+                    let nextIndex = (currentIndex + 1) % items.length;
+                    showTestimonial(nextIndex);
+                }, 5000); // 5 seconds
+            }
+        
+                    if (slider) {
+                        dots.forEach((dot, index) => {
+                            dot.addEventListener('click', () => {
+                                showTestimonial(index);
+                                clearInterval(autoSlideInterval);
+                                startAutoSlide();
+                            });
+                        });
+                        startAutoSlide();
+                    }
+                
+                });
                     // =========================================
     // 3. ANIMATED STATISTICS
     // =========================================
@@ -341,37 +342,4 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isActive) item.classList.add('active');
         });
     });
-
-    // =========================================
-    // 6. AFFILIATE FORM SUBMISSION
-    // =========================================
-    const affiliateForm = document.getElementById('affiliateForm');
-    if (affiliateForm) {
-        affiliateForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const btn = affiliateForm.querySelector('button');
-            const originalContent = btn.innerHTML;
-            
-            // Show loading state
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
-            
-            // Simulate API call
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> আবেদন সফল হয়েছে!';
-                btn.style.background = '#16a34a'; // Success color
-                
-                alert('ধন্যবাদ! আপনার অ্যাফিলিয়েট আবেদনটি সফলভাবে জমা হয়েছে। আমাদের টিম খুব শীঘ্রই আপনার সাথে যোগাযোগ করবে।');
-                
-                affiliateForm.reset();
-                
-                // Reset button after 3 seconds
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                    btn.style.background = ''; // Reset to default
-                }, 3000);
-            }, 1500);
-        });
-    }
 });

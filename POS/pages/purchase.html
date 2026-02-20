@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchases - Deshi POS</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-primary" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 fs-4 fw-bold text-white border-bottom border-light border-opacity-25">
+                <i class="fas fa-cash-register me-2"></i> Deshi POS
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="../dashboard.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="pos.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-shopping-cart me-2"></i> POS Screen
+                </a>
+                <a href="products.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-box me-2"></i> Products
+                </a>
+                <a href="suppliers.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-truck me-2"></i> Suppliers
+                </a>
+                <a href="purchase.html" class="list-group-item list-group-item-action text-white bg-transparent active border-0">
+                    <i class="fas fa-dolly me-2"></i> Purchase
+                </a>
+                 <a href="customers.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-users me-2"></i> Customers
+                </a>
+                <a href="sales.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-file-invoice-dollar me-2"></i> Sales History
+                </a>
+                <a href="stock.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-warehouse me-2"></i> Stock
+                </a>
+                <a href="expense.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-money-bill-wave me-2"></i> Expense
+                </a>
+                <a href="reports.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-chart-line me-2"></i> Reports
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm px-4">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-primary" id="menu-toggle"><i class="fas fa-bars fa-lg"></i></button>
+                    <h4 class="mb-0 ms-3 text-gray-800">Purchase Management</h4>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-lg-inline text-gray-600 small" id="user-name-display">User</span>
+                                <img class="img-profile rounded-circle" src="https://placehold.co/60x60" style="height: 2rem; width: 2rem;">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in">
+                                <a class="dropdown-item" href="#" id="logout-btn">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                        <h6 class="m-0 fw-bold text-primary">All Purchases</h6>
+                        <button class="btn btn-primary btn-sm" onclick="openAddModal()"><i class="fas fa-plus"></i> New Purchase</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="purchasesTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Supplier</th>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Cost Price</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Purchase Modal -->
+    <div class="modal fade" id="purchaseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Purchase Entry</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="purchaseForm">
+                        <div class="mb-3">
+                            <label class="form-label">Supplier</label>
+                            <select class="form-select" id="pur-supplier" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product</label>
+                            <select class="form-select" id="pur-product" required></select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="pur-qty" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Unit Cost</label>
+                                <input type="number" class="form-control" id="pur-cost" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="savePurchase()">Complete Purchase</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/db.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            loadPurchases();
+        });
+
+        function loadPurchases() {
+            const purchases = DB.getAll('pos_purchases');
+            const tbody = $('#purchasesTable tbody');
+            tbody.empty();
+
+            purchases.forEach(p => {
+                tbody.append(`
+                    <tr>
+                        <td>${p.date}</td>
+                        <td>${p.supplierName}</td>
+                        <td class="fw-bold">${p.productName}</td>
+                        <td>${p.qty}</td>
+                        <td>৳ ${p.cost}</td>
+                        <td class="fw-bold">৳ ${p.qty * p.cost}</td>
+                        <td><span class="badge bg-success">Received</span></td>
+                    </tr>
+                `);
+            });
+
+            if ($.fn.DataTable.isDataTable('#purchasesTable')) {
+                $('#purchasesTable').DataTable().destroy();
+            }
+            $('#purchasesTable').DataTable({ "order": [[ 0, "desc" ]] });
+        }
+
+        function openAddModal() {
+            $('#purchaseForm')[0].reset();
+            
+            // Populate Suppliers
+            const sups = DB.getAll('pos_suppliers');
+            const supSelect = $('#pur-supplier').empty();
+            sups.forEach(s => supSelect.append(`<option value="${s.id}">${s.name}</option>`));
+
+            // Populate Products
+            const prods = DB.getAll('pos_products');
+            const prodSelect = $('#pur-product').empty();
+            prods.forEach(p => prodSelect.append(`<option value="${p.id}" data-cost="${p.cost}">${p.name}</option>`));
+
+            $('#pur-product').on('change', function() {
+                const cost = $(this).find(':selected').data('cost');
+                $('#pur-cost').val(cost);
+            }).trigger('change');
+
+            $('#purchaseModal').modal('show');
+        }
+
+        function savePurchase() {
+            const data = {
+                date: new Date().toLocaleDateString(),
+                supplierId: $('#pur-supplier').val(),
+                supplierName: $('#pur-supplier option:selected').text(),
+                productId: $('#pur-product').val(),
+                productName: $('#pur-product option:selected').text(),
+                qty: parseInt($('#pur-qty').val()),
+                cost: parseFloat($('#pur-cost').val())
+            };
+
+            if(!data.qty || !data.cost) {
+                Swal.fire('Error', 'Please enter quantity and cost', 'error');
+                return;
+            }
+
+            // Save Purchase
+            DB.add('pos_purchases', data);
+
+            // Update Product Stock and Cost
+            const prods = DB.getAll('pos_products');
+            const p = prods.find(x => x.id == data.productId);
+            if(p) {
+                p.stock += data.qty;
+                p.cost = data.cost; // Update last purchase price
+                DB.update('pos_products', p.id, p);
+            }
+
+            Swal.fire('Success', 'Inventory updated successfully', 'success');
+            $('#purchaseModal').modal('hide');
+            loadPurchases();
+        }
+    </script>
+</body>
+</html>

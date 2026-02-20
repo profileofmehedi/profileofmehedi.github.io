@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales History - Deshi POS</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-primary" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 fs-4 fw-bold text-white border-bottom border-light border-opacity-25">
+                <i class="fas fa-cash-register me-2"></i> Deshi POS
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="../dashboard.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="pos.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-shopping-cart me-2"></i> POS Screen
+                </a>
+                <a href="products.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-box me-2"></i> Products
+                </a>
+                 <a href="customers.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-users me-2"></i> Customers
+                </a>
+                <a href="sales.html" class="list-group-item list-group-item-action text-white bg-transparent active border-0">
+                    <i class="fas fa-file-invoice-dollar me-2"></i> Sales History
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm px-4">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-primary" id="menu-toggle"><i class="fas fa-bars fa-lg"></i></button>
+                    <h4 class="mb-0 ms-3 text-gray-800">Sales History</h4>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-lg-inline text-gray-600 small" id="user-name-display">User</span>
+                                <img class="img-profile rounded-circle" src="https://placehold.co/60x60" style="height: 2rem; width: 2rem;">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in">
+                                <a class="dropdown-item" href="#" id="logout-btn">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 fw-bold text-primary">Transaction List</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="salesTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice #</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Items</th>
+                                        <th>Total Amount</th>
+                                        <th>Paid</th>
+                                        <th>Method</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Sales Data -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div class="modal fade" id="invoiceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Invoice Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="invoice-content">
+                    <!-- Invoice Injected Here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/db.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            const sales = DB.getAll('pos_sales');
+            const tbody = $('#salesTable tbody');
+
+            sales.forEach(sale => {
+                const itemCount = sale.items.reduce((acc, i) => acc + i.qty, 0);
+                tbody.append(`
+                    <tr>
+                        <td>INV-${sale.id.toString().padStart(4, '0')}</td>
+                        <td>${sale.date}</td>
+                        <td>${sale.customerName}</td>
+                        <td>${itemCount} Items</td>
+                        <td class="fw-bold">৳ ${sale.total}</td>
+                        <td>৳ ${sale.paid}</td>
+                        <td><span class="badge bg-info text-dark">${sale.paymentMethod}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewInvoice(${sale.id})"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            $('#salesTable').DataTable({
+                "order": [[ 0, "desc" ]]
+            });
+        });
+
+        function viewInvoice(id) {
+            const sales = DB.getAll('pos_sales');
+            const sale = sales.find(s => s.id === id);
+            
+            if(!sale) return;
+
+            let itemsHtml = '';
+            sale.items.forEach(item => {
+                itemsHtml += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td class="text-center">${item.qty}</td>
+                        <td class="text-end">৳ ${item.price}</td>
+                        <td class="text-end">৳ ${item.price * item.qty}</td>
+                    </tr>
+                `;
+            });
+
+            const html = `
+                <div class="text-center mb-4">
+                    <h4 class="fw-bold">Deshi POS</h4>
+                    <p class="small text-muted">Dhaka, Bangladesh<br>Phone: +8801700000000</p>
+                </div>
+                <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                    <div>
+                        <strong>Invoice:</strong> INV-${sale.id.toString().padStart(4, '0')}<br>
+                        <strong>Date:</strong> ${sale.date}
+                    </div>
+                    <div class="text-end">
+                        <strong>Customer:</strong><br>${sale.customerName}
+                    </div>
+                </div>
+                <table class="table table-sm table-borderless">
+                    <thead class="border-bottom">
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                    <tfoot class="border-top">
+                        <tr>
+                            <td colspan="3" class="text-end">Subtotal</td>
+                            <td class="text-end">৳ ${sale.subtotal}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end">VAT (5%)</td>
+                            <td class="text-end">৳ ${sale.tax}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end">Discount</td>
+                            <td class="text-end">- ৳ ${sale.discount}</td>
+                        </tr>
+                        <tr class="fw-bold fs-5">
+                            <td colspan="3" class="text-end">Total</td>
+                            <td class="text-end">৳ ${sale.total}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div class="text-center mt-4 small text-muted">
+                    Thank you for shopping with us!
+                </div>
+            `;
+            
+            $('#invoice-content').html(html);
+            $('#invoiceModal').modal('show');
+        }
+    </script>
+</body>
+</html>

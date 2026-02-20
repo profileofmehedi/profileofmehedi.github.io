@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses - Deshi POS</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-primary" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 fs-4 fw-bold text-white border-bottom border-light border-opacity-25">
+                <i class="fas fa-cash-register me-2"></i> Deshi POS
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="../dashboard.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="pos.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-shopping-cart me-2"></i> POS Screen
+                </a>
+                <a href="products.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-box me-2"></i> Products
+                </a>
+                <a href="expense.html" class="list-group-item list-group-item-action text-white bg-transparent active border-0">
+                    <i class="fas fa-money-bill-wave me-2"></i> Expense
+                </a>
+                <a href="stock.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-warehouse me-2"></i> Stock
+                </a>
+                <a href="purchase.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-dolly me-2"></i> Purchase
+                </a>
+                <a href="customers.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-users me-2"></i> Customers
+                </a>
+                <a href="sales.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-file-invoice-dollar me-2"></i> Sales History
+                </a>
+                <a href="reports.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-chart-line me-2"></i> Reports
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm px-4">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-primary" id="menu-toggle"><i class="fas fa-bars fa-lg"></i></button>
+                    <h4 class="mb-0 ms-3 text-gray-800">Expense Management</h4>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                        <h6 class="m-0 fw-bold text-primary">All Expenses</h6>
+                        <button class="btn btn-primary btn-sm" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Expense</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="expensesTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>Note / Reference</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div class="modal fade" id="expenseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="expenseForm">
+                        <input type="hidden" id="exp-id">
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="exp-category" required>
+                                <option value="Rent">Rent</option>
+                                <option value="Electricity">Electricity</option>
+                                <option value="Water">Water</option>
+                                <option value="Salary">Staff Salary</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <input type="number" class="form-control" id="exp-amount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Note</label>
+                            <textarea class="form-control" id="exp-note"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveExpense()">Save Expense</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/db.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            loadExpenses();
+        });
+
+        function loadExpenses() {
+            const expenses = DB.getAll('pos_expenses');
+            const tbody = $('#expensesTable tbody');
+            tbody.empty();
+
+            expenses.forEach(e => {
+                tbody.append(`
+                    <tr>
+                        <td>${e.date}</td>
+                        <td><span class="badge bg-info text-dark">${e.category}</span></td>
+                        <td class="fw-bold text-danger">৳ ${e.amount}</td>
+                        <td>${e.note || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="deleteExpense(${e.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            if ($.fn.DataTable.isDataTable('#expensesTable')) {
+                $('#expensesTable').DataTable().destroy();
+            }
+            $('#expensesTable').DataTable({ "order": [[ 0, "desc" ]] });
+        }
+
+        function openAddModal() {
+            $('#expenseForm')[0].reset();
+            $('#exp-id').val('');
+            $('#expenseModal').modal('show');
+        }
+
+        function saveExpense() {
+            const data = {
+                date: new Date().toLocaleDateString(),
+                category: $('#exp-category').val(),
+                amount: parseFloat($('#exp-amount').val()),
+                note: $('#exp-note').val()
+            };
+
+            if(!data.amount) {
+                Swal.fire('Error', 'Please enter amount', 'error');
+                return;
+            }
+
+            DB.add('pos_expenses', data);
+            Swal.fire('Success', 'Expense recorded', 'success');
+            $('#expenseModal').modal('hide');
+            loadExpenses();
+        }
+
+        function deleteExpense(id) {
+            Swal.fire({
+                title: 'Delete expense?',
+                icon: 'warning',
+                showCancelButton: true
+            }).then(res => {
+                if (res.isConfirmed) {
+                    DB.delete('pos_expenses', id);
+                    loadExpenses();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

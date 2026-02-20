@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - Deshi POS</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-primary" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 fs-4 fw-bold text-white border-bottom border-light border-opacity-25">
+                <i class="fas fa-cash-register me-2"></i> Deshi POS
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="../dashboard.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="pos.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-shopping-cart me-2"></i> POS Screen
+                </a>
+                <a href="products.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-box me-2"></i> Products
+                </a>
+                <a href="customers.html" class="list-group-item list-group-item-action text-white bg-transparent active border-0">
+                    <i class="fas fa-users me-2"></i> Customers
+                </a>
+                <a href="sales.html" class="list-group-item list-group-item-action text-white bg-transparent border-0">
+                    <i class="fas fa-file-invoice-dollar me-2"></i> Sales History
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm px-4">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-primary" id="menu-toggle"><i class="fas fa-bars fa-lg"></i></button>
+                    <h4 class="mb-0 ms-3 text-gray-800">Customer Management</h4>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-lg-inline text-gray-600 small" id="user-name-display">User</span>
+                                <img class="img-profile rounded-circle" src="https://placehold.co/60x60" style="height: 2rem; width: 2rem;">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in">
+                                <a class="dropdown-item" href="#" id="logout-btn">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                        <h6 class="m-0 fw-bold text-primary">All Customers</h6>
+                        <button class="btn btn-primary btn-sm" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Customer</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="customersTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Address</th>
+                                        <th>Due Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Customer Modal -->
+    <div class="modal fade" id="customerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="customerForm">
+                        <input type="hidden" id="cust-id">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" id="cust-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="cust-phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" id="cust-address"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCustomer()">Save Customer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/db.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        let dataTable;
+
+        $(document).ready(function() {
+            loadCustomers();
+        });
+
+        function loadCustomers() {
+            const customers = DB.getAll('pos_customers');
+            const tbody = $('#customersTable tbody');
+            tbody.empty();
+
+            customers.forEach(c => {
+                tbody.append(`
+                    <tr>
+                        <td>${c.id}</td>
+                        <td class="fw-bold text-dark">${c.name}</td>
+                        <td>${c.phone}</td>
+                        <td>${c.address}</td>
+                        <td class="text-danger fw-bold">৳ ${c.due || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info text-white me-1" onclick="editCustomer(${c.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${c.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            if ($.fn.DataTable.isDataTable('#customersTable')) {
+                $('#customersTable').DataTable().destroy();
+            }
+            dataTable = $('#customersTable').DataTable({
+                "order": [[ 0, "desc" ]]
+            });
+        }
+
+        function openAddModal() {
+            $('#customerForm')[0].reset();
+            $('#cust-id').val('');
+            $('#modalTitle').text('Add Customer');
+            $('#customerModal').modal('show');
+        }
+
+        function editCustomer(id) {
+            const customers = DB.getAll('pos_customers');
+            const c = customers.find(x => x.id === id);
+            if(c) {
+                $('#cust-id').val(c.id);
+                $('#cust-name').val(c.name);
+                $('#cust-phone').val(c.phone);
+                $('#cust-address').val(c.address);
+                
+                $('#modalTitle').text('Edit Customer');
+                $('#customerModal').modal('show');
+            }
+        }
+
+        function saveCustomer() {
+            const id = $('#cust-id').val();
+            const data = {
+                name: $('#cust-name').val(),
+                phone: $('#cust-phone').val(),
+                address: $('#cust-address').val(),
+                due: 0
+            };
+
+            if(!data.name || !data.phone) {
+                Swal.fire('Error', 'Please fill required fields', 'error');
+                return;
+            }
+
+            if(id) {
+                DB.update('pos_customers', parseInt(id), data);
+                Swal.fire('Updated!', 'Customer updated successfully.', 'success');
+            } else {
+                DB.add('pos_customers', data);
+                Swal.fire('Added!', 'New customer added.', 'success');
+            }
+            
+            $('#customerModal').modal('hide');
+            loadCustomers();
+        }
+
+        function deleteCustomer(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    DB.delete('pos_customers', id);
+                    loadCustomers();
+                    Swal.fire('Deleted!', 'Customer has been deleted.', 'success');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

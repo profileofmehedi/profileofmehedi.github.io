@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced POS - Deshi POS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; background: #f4f7fa; }
+        #page-content-wrapper { height: 100vh; display: flex; flex-direction: column; }
+        
+        /* POS Advanced Layout */
+        .pos-header { background: #fff; border-bottom: 1px solid #e3e6f0; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .pos-main { flex-grow: 1; display: flex; overflow: hidden; }
+        
+        /* Left: Product Section */
+        .product-section { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow: hidden; }
+        .product-grid { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+        
+        /* Right: Cart Section */
+        .cart-section { width: 450px; background: #fff; border-left: 1px solid #e3e6f0; display: flex; flex-direction: column; }
+        
+        /* Components */
+        .category-pill { 
+            padding: 8px 18px; border-radius: 50px; background: #fff; border: 1px solid #ddd; 
+            cursor: pointer; transition: all 0.2s; white-space: nowrap; font-size: 0.85rem; font-weight: 600;
+        }
+        .category-pill.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3); }
+        
+        .pos-card { 
+            border: none; border-radius: 12px; transition: all 0.2s; cursor: pointer; background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid transparent;
+        }
+        .pos-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: var(--primary-color); }
+        .pos-card .price-tag { position: absolute; top: 10px; right: 10px; background: rgba(78, 115, 223, 0.9); color: #fff; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }
+        
+        .cart-tabs { display: flex; background: #f8f9fc; border-bottom: 1px solid #e3e6f0; }
+        .cart-tab { padding: 12px 20px; cursor: pointer; border-right: 1px solid #e3e6f0; font-weight: 600; font-size: 0.85rem; color: #858796; position: relative; }
+        .cart-tab.active { background: #fff; color: var(--primary-color); border-bottom: 2px solid var(--primary-color); }
+        .cart-tab .close-tab { margin-left: 8px; font-size: 0.7rem; opacity: 0.5; }
+        .cart-tab .close-tab:hover { opacity: 1; color: var(--danger-color); }
+
+        .cart-items-list { flex-grow: 1; overflow-y: auto; }
+        .cart-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f8f9fc; transition: background 0.2s; }
+        .cart-item:hover { background: #fbfcfe; }
+        .qty-control { display: flex; align-items: center; background: #f1f3f9; border-radius: 8px; padding: 2px; }
+        .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: none; background: #fff; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.8rem; }
+        
+        .action-buttons { padding: 15px; background: #fff; border-top: 1px solid #e3e6f0; }
+        .pay-btn { background: linear-gradient(90deg, #1cc88a 0%, #13855c 100%); border: none; font-weight: 800; letter-spacing: 1px; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+
+        .kbd-shortcut { font-size: 0.7rem; background: #eee; padding: 1px 4px; border-radius: 3px; color: #666; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+    <div id="page-content-wrapper">
+        <!-- Header -->
+        <header class="pos-header shadow-sm">
+            <div class="d-flex align-items-center">
+                <a href="../dashboard.html" class="btn btn-outline-secondary btn-sm me-3"><i class="fas fa-arrow-left"></i> Dashboard</a>
+                <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-cash-register text-primary me-2"></i> Deshi POS <span class="badge bg-light text-primary border ms-2">v2.0</span></h5>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end d-none d-md-block">
+                    <div class="small fw-bold text-dark" id="user-name-display">Cashier Karim</div>
+                    <div class="text-xs text-muted">Terminal #01</div>
+                </div>
+                <div class="vr mx-2"></div>
+                <button class="btn btn-light btn-sm position-relative">
+                    <i class="fas fa-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">3</span>
+                </button>
+                <button class="btn btn-primary" onclick="window.location.reload()"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </header>
+
+        <div class="pos-main">
+            <!-- LEFT: Products -->
+            <div class="product-section">
+                <!-- Filters -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="prod-search" class="form-control border-start-0 ps-0" placeholder="Search (F2) - Name or Barcode...">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex gap-2 overflow-x-auto pb-1" id="category-list">
+                            <div class="category-pill active" data-cat="all">All Items</div>
+                            <!-- Cats by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="product-grid" id="product-container">
+                    <div class="row g-3" id="product-list">
+                        <!-- Products by JS -->
+                    </div>
+                </div>
+
+                <!-- Footer Stats -->
+                <div class="mt-3 d-flex justify-content-between align-items-center text-muted small">
+                    <div><span class="kbd-shortcut">F2</span> Search | <span class="kbd-shortcut">F4</span> Pay | <span class="kbd-shortcut">ESC</span> Clear</div>
+                    <div id="item-count-info">Showing 0 products</div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Cart -->
+            <div class="cart-section">
+                <!-- Multi-cart Tabs -->
+                <div class="cart-tabs" id="cart-tabs-container">
+                    <div class="cart-tab active" data-id="0">Cart 1</div>
+                    <button class="btn btn-sm text-primary px-3" onclick="createNewCart()"><i class="fas fa-plus"></i></button>
+                </div>
+
+                <!-- Customer Selection -->
+                <div class="p-3 border-bottom bg-light bg-opacity-50">
+                    <div class="d-flex gap-2">
+                        <div class="flex-grow-1">
+                            <select class="form-select form-select-sm select2" id="customer-select">
+                                <option value="1">Walk-in Customer</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="addNewCustomer()"><i class="fas fa-user-plus"></i></button>
+                    </div>
+                </div>
+
+                <!-- Cart Items -->
+                <div class="cart-items-list" id="cart-items">
+                    <!-- Items by JS -->
+                    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-50">
+                        <i class="fas fa-shopping-basket fa-4x mb-3"></i>
+                        <p>Your cart is empty</p>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="p-3 border-top bg-light">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Subtotal</span>
+                        <span class="fw-bold" id="sum-subtotal">৳ 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Tax (5%)</span>
+                        <span class="text-danger small" id="sum-tax">৳ 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small">Discount</span>
+                            <button class="btn btn-link btn-sm p-0 ms-1 text-decoration-none" style="font-size: 0.7rem;" onclick="applyDiscount()">Edit</button>
+                        </div>
+                        <span class="text-success small" id="sum-discount">- ৳ 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                        <h4 class="mb-0 fw-800 text-dark">Total</h4>
+                        <h3 class="mb-0 fw-800 text-primary" id="sum-total">৳ 0.00</h3>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <button class="btn btn-light w-100 py-3 fw-bold text-secondary" onclick="clearCurrentCart()">
+                                <i class="fas fa-trash-alt d-block mb-1"></i> Void
+                            </button>
+                        </div>
+                        <div class="col-8">
+                            <button class="btn btn-success w-100 py-3 pay-btn" onclick="openPaymentModal()">
+                                <i class="fas fa-money-bill-wave me-2"></i> PAY NOW (F4)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal fade" id="payModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Complete Transaction</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="text-muted small mb-1">Total Amount Due</div>
+                        <h1 class="fw-800 text-primary display-5" id="pay-total">৳ 0.00</h1>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-4">
+                            <input type="radio" class="btn-check" name="pay-method" id="m-cash" value="Cash" checked>
+                            <label class="btn btn-outline-light border text-dark w-100 py-3 d-flex flex-column align-items-center" for="m-cash">
+                                <i class="fas fa-money-bill-wave text-success fa-2x mb-2"></i> Cash
+                            </label>
+                        </div>
+                        <div class="col-4">
+                            <input type="radio" class="btn-check" name="pay-method" id="m-card" value="Card">
+                            <label class="btn btn-outline-light border text-dark w-100 py-3 d-flex flex-column align-items-center" for="m-card">
+                                <i class="fas fa-credit-card text-primary fa-2x mb-2"></i> Card
+                            </label>
+                        </div>
+                        <div class="col-4">
+                            <input type="radio" class="btn-check" name="pay-method" id="m-bkash" value="Bkash/Nagad">
+                            <label class="btn btn-outline-light border text-dark w-100 py-3 d-flex flex-column align-items-center" for="m-bkash">
+                                <i class="fas fa-mobile-alt text-danger fa-2x mb-2"></i> MFS
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold">Amount Paid</label>
+                        <input type="number" class="form-control form-control-lg fw-bold" id="input-paid" placeholder="Enter amount...">
+                    </div>
+                    
+                    <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-muted">Change Return</span>
+                        <h4 class="mb-0 fw-bold text-dark" id="display-change">৳ 0.00</h4>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button class="btn btn-primary btn-lg w-100 fw-bold py-3" onclick="finalizeSale()">COMPLETE SALE & PRINT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/db.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        // POS State
+        let carts = [{ items: [], discount: 0, customerId: 1 }];
+        let activeCartIndex = 0;
+        let products = [];
+        let customers = [];
+
+        $(document).ready(function() {
+            loadInitialData();
+            initKeyboardShortcuts();
+            
+            // Search Logic
+            $('#prod-search').on('input', function() {
+                const term = $(this).val().toLowerCase();
+                const filtered = products.filter(p => p.name.toLowerCase().includes(term) || p.barcode.includes(term));
+                renderProducts(filtered);
+            });
+
+            // Category Click
+            $(document).on('click', '.category-pill', function() {
+                $('.category-pill').removeClass('active');
+                $(this).addClass('active');
+                const cat = $(this).data('cat');
+                const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
+                renderProducts(filtered);
+            });
+
+            // Paid Calculation
+            $('#input-paid').on('input', calculateChange);
+        });
+
+        function loadInitialData() {
+            products = DB.getAll('pos_products');
+            customers = DB.getAll('pos_customers');
+            renderCategories();
+            renderProducts(products);
+            renderCustomerSelect();
+            renderCart();
+        }
+
+        function renderCategories() {
+            const cats = [...new Set(products.map(p => p.category))];
+            const container = $('#category-list');
+            cats.forEach(c => {
+                container.append(`<div class="category-pill" data-cat="${c}">${c}</div>`);
+            });
+        }
+
+        function renderProducts(list) {
+            const container = $('#product-list');
+            container.empty();
+            $('#item-count-info').text(`Showing ${list.length} products`);
+
+            list.forEach(p => {
+                container.append(`
+                    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                        <div class="card pos-card h-100 position-relative" onclick="addToCart(${p.id})">
+                            <span class="price-tag">৳ ${p.price}</span>
+                            <div class="card-body p-2 text-center">
+                                <div class="bg-light rounded mb-2 py-3">
+                                    <i class="fas fa-box fa-2x text-secondary opacity-25"></i>
+                                </div>
+                                <h6 class="mb-1 fw-bold text-dark small text-truncate" title="${p.name}">${p.name}</h6>
+                                <div class="text-xs text-muted">Stock: ${p.stock}</div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        function renderCustomerSelect() {
+            const select = $('#customer-select');
+            select.empty();
+            customers.forEach(c => {
+                select.append(`<option value="${c.id}">${c.name} (${c.phone})</option>`);
+            });
+        }
+
+        // Cart Logic
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            if (prod.stock <= 0) return Swal.fire('Out of Stock', '', 'error');
+
+            const cart = carts[activeCartIndex];
+            const existing = cart.items.find(i => i.id === id);
+
+            if (existing) {
+                if (existing.qty >= prod.stock) return Swal.fire('Stock Limit', '', 'warning');
+                existing.qty++;
+            } else {
+                cart.items.push({ ...prod, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function updateCartQty(id, delta) {
+            const item = carts[activeCartIndex].items.find(i => i.id === id);
+            const prod = products.find(p => p.id === id);
+            
+            if (item) {
+                const newQty = item.qty + delta;
+                if (newQty <= 0) return removeFromCart(id);
+                if (newQty > prod.stock) return Swal.fire('Stock Limit', '', 'warning');
+                item.qty = newQty;
+                renderCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            carts[activeCartIndex].items = carts[activeCartIndex].items.filter(i => i.id !== id);
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = $('#cart-items');
+            const cart = carts[activeCartIndex];
+            container.empty();
+
+            if (cart.items.length === 0) {
+                container.append(`
+                    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-50">
+                        <i class="fas fa-shopping-basket fa-4x mb-3"></i>
+                        <p>Your cart is empty</p>
+                    </div>
+                `);
+            } else {
+                cart.items.forEach(item => {
+                    container.append(`
+                        <div class="cart-item">
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-dark small">${item.name}</div>
+                                <div class="text-xs text-muted">৳ ${item.price} x ${item.qty}</div>
+                            </div>
+                            <div class="qty-control me-3">
+                                <button class="qty-btn" onclick="updateCartQty(${item.id}, -1)">-</button>
+                                <span class="mx-2 small fw-bold" style="min-width: 20px; text-align: center;">${item.qty}</span>
+                                <button class="qty-btn" onclick="updateCartQty(${item.id}, 1)">+</button>
+                            </div>
+                            <div class="text-end fw-bold text-dark small" style="min-width: 70px;">
+                                ৳ ${(item.price * item.qty).toFixed(2)}
+                            </div>
+                            <button class="btn btn-link text-danger btn-sm p-0 ms-2" onclick="removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
+                        </div>
+                    `);
+                });
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const cart = carts[activeCartIndex];
+            const subtotal = cart.items.reduce((acc, i) => acc + (i.price * i.qty), 0);
+            const tax = subtotal * 0.05;
+            const total = subtotal + tax - cart.discount;
+
+            $('#sum-subtotal').text(`৳ ${subtotal.toFixed(2)}`);
+            $('#sum-tax').text(`৳ ${tax.toFixed(2)}`);
+            $('#sum-discount').text(`- ৳ ${cart.discount.toFixed(2)}`);
+            $('#sum-total').text(`৳ ${total.toFixed(2)}`);
+        }
+
+        // Multi-cart Tabs
+        function createNewCart() {
+            carts.push({ items: [], discount: 0, customerId: 1 });
+            activeCartIndex = carts.length - 1;
+            renderCartTabs();
+            renderCart();
+        }
+
+        function renderCartTabs() {
+            const container = $('#cart-tabs-container');
+            container.find('.cart-tab').remove();
+            
+            carts.forEach((c, idx) => {
+                const activeClass = idx === activeCartIndex ? 'active' : '';
+                const tabHtml = `
+                    <div class="cart-tab ${activeClass}" onclick="switchCart(${idx})">
+                        Cart ${idx + 1}
+                        ${carts.length > 1 ? `<i class="fas fa-times close-tab" onclick="closeCart(event, ${idx})"></i>` : ''}
+                    </div>
+                `;
+                container.prepend(tabHtml);
+            });
+        }
+
+        function switchCart(idx) {
+            activeCartIndex = idx;
+            renderCartTabs();
+            renderCart();
+        }
+
+        function closeCart(e, idx) {
+            e.stopPropagation();
+            carts.splice(idx, 1);
+            if (activeCartIndex >= carts.length) activeCartIndex = carts.length - 1;
+            renderCartTabs();
+            renderCart();
+        }
+
+        function clearCurrentCart() {
+            carts[activeCartIndex].items = [];
+            carts[activeCartIndex].discount = 0;
+            renderCart();
+        }
+
+        // Checkout
+        function openPaymentModal() {
+            const cart = carts[activeCartIndex];
+            if (cart.items.length === 0) return Swal.fire('Empty Cart', '', 'warning');
+            
+            const total = parseFloat($('#sum-total').text().replace('৳ ', ''));
+            $('#pay-total').text(`৳ ${total.toFixed(2)}`);
+            $('#input-paid').val(total).select();
+            calculateChange();
+            
+            const modal = new bootstrap.Modal(document.getElementById('payModal'));
+            modal.show();
+        }
+
+        function calculateChange() {
+            const total = parseFloat($('#pay-total').text().replace('৳ ', ''));
+            const paid = parseFloat($('#input-paid').val()) || 0;
+            const change = paid - total;
+            $('#display-change').text(`৳ ${change > 0 ? change.toFixed(2) : '0.00'}`);
+            $('#display-change').toggleClass('text-success', change >= 0).toggleClass('text-danger', change < 0);
+        }
+
+        function finalizeSale() {
+            const cart = carts[activeCartIndex];
+            const total = parseFloat($('#pay-total').text().replace('৳ ', ''));
+            const paid = parseFloat($('#input-paid').val()) || 0;
+
+            if (paid < total) return Swal.fire('Insufficient Amount', '', 'error');
+
+            const saleData = {
+                date: new Date().toLocaleString(),
+                customerName: $('#customer-select option:selected').text(),
+                items: cart.items,
+                total: total,
+                paid: paid,
+                paymentMethod: $('input[name="pay-method"]:checked').val()
+            };
+
+            // Save and Update Stock
+            DB.add('pos_sales', saleData);
+            cart.items.forEach(item => {
+                const p = products.find(x => x.id === item.id);
+                p.stock -= item.qty;
+                DB.update('pos_products', p.id, p);
+            });
+
+            $('#payModal').modal('hide');
+            Swal.fire({ icon: 'success', title: 'Sale Completed', timer: 1500, showConfirmButton: false }).then(() => {
+                clearCurrentCart();
+                loadInitialData(); // Refresh UI stock
+            });
+        }
+
+        function applyDiscount() {
+            Swal.fire({
+                title: 'Apply Discount',
+                input: 'number',
+                inputValue: carts[activeCartIndex].discount,
+                showCancelButton: true
+            }).then(res => {
+                if (res.isConfirmed) {
+                    carts[activeCartIndex].discount = parseFloat(res.value) || 0;
+                    renderCart();
+                }
+            });
+        }
+
+        function addNewCustomer() {
+            Swal.fire({
+                title: 'New Customer',
+                html: '<input id="c-name" class="swal2-input" placeholder="Name"><input id="c-phone" class="swal2-input" placeholder="Phone">',
+                preConfirm: () => [$('#c-name').val(), $('#c-phone').val()]
+            }).then(res => {
+                if (res.value && res.value[0]) {
+                    DB.add('pos_customers', { name: res.value[0], phone: res.value[1], due: 0 });
+                    loadInitialData();
+                }
+            });
+        }
+
+        function initKeyboardShortcuts() {
+            $(document).on('keydown', function(e) {
+                if (e.key === 'F2') { e.preventDefault(); $('#prod-search').focus(); }
+                if (e.key === 'F4') { e.preventDefault(); openPaymentModal(); }
+                if (e.key === 'Escape') { e.preventDefault(); clearCurrentCart(); }
+            });
+        }
+    </script>
+</body>
+</html>

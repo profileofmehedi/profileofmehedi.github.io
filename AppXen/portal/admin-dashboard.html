@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Next Xen IT</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-rocket text-gradient"></i> Next Xen IT
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="javascript:void(0)" class="nav-link active" onclick="showPage(event, 'overview')"><i class="fas fa-chart-pie"></i> Overview</a></li>
+                <li class="nav-item"><a href="javascript:void(0)" class="nav-link" onclick="showPage(event, 'affiliates')"><i class="fas fa-users"></i> Affiliates</a></li>
+                <li class="nav-item"><a href="javascript:void(0)" class="nav-link" onclick="showPage(event, 'sales')"><i class="fas fa-shopping-cart"></i> Sales Tracking</a></li>
+                <li class="nav-item"><a href="javascript:void(0)" class="nav-link" onclick="showPage(event, 'payouts')"><i class="fas fa-wallet"></i> Payouts</a></li>
+                <li class="nav-item"><a href="javascript:void(0)" class="nav-link" onclick="showPage(event, 'settings')"><i class="fas fa-cog"></i> Settings</a></li>
+                <li class="nav-item" style="margin-top: 3rem;"><a href="login.html" class="nav-link text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header style="margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 id="current-page-title" style="font-size: 1.8rem;">Admin Overview</h2>
+                    <p id="current-page-desc" style="color: var(--text-muted);">Real-time system performance</p>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div id="theme-btn" style="cursor:pointer; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-card); padding: 5px 15px; border-radius: 50px; border: 1px solid var(--border-color);">
+                        <span style="font-weight: 600; font-size: 0.9rem;">System Admin</span>
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center;">SA</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- OVERVIEW PAGE -->
+            <div id="page-overview" class="page-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;"><i class="fas fa-users"></i></div>
+                            <span style="color: #16a34a; font-size: 0.8rem; font-weight: 600;">+12%</span>
+                        </div>
+                        <div class="stat-value">1,248</div>
+                        <div class="stat-label">Total Affiliates</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: rgba(124, 58, 237, 0.1); color: #7c3aed;"><i class="fas fa-shopping-bag"></i></div>
+                            <span style="color: #16a34a; font-size: 0.8rem; font-weight: 600;">+8%</span>
+                        </div>
+                        <div class="stat-value">৳১২৪,৫০০</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: rgba(22, 163, 74, 0.1); color: #16a34a;"><i class="fas fa-chart-line"></i></div>
+                        </div>
+                        <div class="stat-value">342</div>
+                        <div class="stat-label">Total Referrals</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header"><h3>Recent Applications</h3></div>
+                    <table>
+                        <thead>
+                            <tr><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>John Doe</td><td>john@example.com</td><td><span class="badge badge-warning">Pending</span></td><td><button class="btn-login" style="padding: 5px 10px; font-size: 0.7rem; width: auto; margin:0;" onclick="approveAffiliate(this)">Approve</button></td></tr>
+                            <tr><td>Sarah Miller</td><td>sarah@test.com</td><td><span class="badge badge-success">Active</span></td><td><button style="border:none; color:var(--primary); font-weight:600; cursor:pointer;" onclick="viewAffiliate('Sarah Miller')">View</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- AFFILIATES PAGE -->
+            <div id="page-affiliates" class="page-content">
+                <div class="table-container">
+                    <div class="table-header"><h3>All Affiliates</h3> <button class="btn-login" style="width:auto; margin:0; padding: 10px 20px;" onclick="addNewAffiliate()">+ Add New</button></div>
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Affiliate</th><th>Performance</th><th>Total Earned</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>#AFF001</td><td>Mehedi Hasan</td><td>142 Sales</td><td>৳৪,২৫০</td><td><span class="badge badge-success">Verified</span></td></tr>
+                            <tr><td>#AFF002</td><td>Alex Carry</td><td>89 Sales</td><td>৳২,১০০</td><td><span class="badge badge-success">Verified</span></td></tr>
+                            <tr><td>#AFF003</td><td>Rahul Roy</td><td>12 Sales</td><td>৳৪৫০</td><td><span class="badge badge-warning">Review</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SALES PAGE -->
+            <div id="page-sales" class="page-content">
+                <div class="stats-grid">
+                    <div class="stat-card"><h3>৳৮,৪২০</h3><p>Sales This Month</p></div>
+                    <div class="stat-card"><h3>156</h3><p>Total Conversions</p></div>
+                </div>
+                <div class="table-container" style="margin-top: 2rem;">
+                    <table>
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Commission</th><th>Affiliate</th></tr></thead>
+                        <tbody>
+                            <tr><td>#ORD-771</td><td>Client A</td><td>HR Payroll</td><td>৳৩০০</td><td>Mehedi</td></tr>
+                            <tr><td>#ORD-772</td><td>Client B</td><td>Web Dev</td><td>৳১৬০</td><td>Alex</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PAYOUTS PAGE -->
+            <div id="page-payouts" class="page-content">
+                <div class="table-container">
+                    <div class="table-header"><h3>Pending Payouts</h3></div>
+                    <table>
+                        <thead><tr><th>Affiliate</th><th>Amount</th><th>Method</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <tr><td>Mehedi Hasan</td><td>৳৪২০.০০</td><td>Bkash</td><td><button class="btn-login" style="width:auto; margin:0; padding:5px 15px;" onclick="payNow(this)">Pay Now</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SETTINGS PAGE -->
+            <div id="page-settings" class="page-content">
+                <div class="glass-card" style="max-width: 600px;">
+                    <h3>General Settings</h3>
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label>Commission Rate (%)</label>
+                        <input type="number" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Payout Amount (৳)</label>
+                        <input type="number" value="50">
+                    </div>
+                    <button class="btn-login" onclick="saveConfig()">Save Configuration</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showPage(event, pageId) {
+            if (event) event.preventDefault();
+            
+            // Update Navigation
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                // Fallback for direct calls
+                const navLink = document.querySelector(`[onclick*="'${pageId}'"]`);
+                if (navLink) navLink.classList.add('active');
+            }
+
+            // Update Header
+            const title = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+            document.getElementById('current-page-title').innerText = `Admin ${title}`;
+            document.getElementById('current-page-desc').innerText = `Manage system ${pageId}`;
+
+            // Show Content
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+        }
+
+        // Theme Toggle Simple
+        document.getElementById('theme-btn').onclick = function() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            this.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        };
+
+        function approveAffiliate(btn) {
+            const row = btn.closest('tr');
+            const badge = row.querySelector('.badge');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                badge.className = 'badge badge-success';
+                badge.innerText = 'Active';
+                btn.parentElement.innerHTML = '<span style="color: #16a34a; font-size: 0.8rem; font-weight: 600;"><i class="fas fa-check-circle"></i> Approved</span>';
+                alert("Affiliate approved successfully!");
+            }, 1000);
+        }
+
+        function viewAffiliate(name) {
+            alert("Viewing details for: " + name + "\n(Detailed modal or profile page would open here)");
+        }
+
+        function addNewAffiliate() {
+            const name = prompt("Enter Affiliate Name:");
+            if (name) {
+                alert("Affiliate '" + name + "' added to the system (simulation).");
+            }
+        }
+
+        function payNow(btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const row = btn.closest('tr');
+                btn.parentElement.innerHTML = '<span style="color: #16a34a; font-weight: 600;"><i class="fas fa-check"></i> Paid</span>';
+                alert("Payment processed successfully via Bkash!");
+            }, 1500);
+        }
+
+        function saveConfig() {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert("Configuration saved successfully!");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
