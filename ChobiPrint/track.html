@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অর্ডার ট্র্যাক করুন - ছবিপ্রিন্ট</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark glass-header">
+        <div class="container">
+            <a class="navbar-brand font-fancy fs-3 text-primary" href="index.html">
+                <i class="fas fa-camera-retro me-2"></i>ছবিপ্রিন্ট
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">হোম</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="track.html">ট্র্যাকিং</a></li>
+                    <li class="nav-item"><a class="nav-link" href="upload.html">আপলোড</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="py-5 mt-5">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 text-center mb-5" data-aos="fade-down">
+                    <h1 class="fw-bold">অর্ডার <span class="text-primary">ট্র্যাক</span> করুন</h1>
+                    <p class="text-muted">আপনার ট্র্যাকিং আইডি দিয়ে অর্ডারের বর্তমান অবস্থা জানুন</p>
+                    
+                    <div class="input-group mb-3 mt-4 glass-card p-2">
+                        <input type="text" id="tracking-id-input" class="form-control border-0 bg-transparent" placeholder="CP-XXXXX">
+                        <button class="btn btn-primary-custom" id="track-btn">খুঁজুন</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tracking-result" class="row justify-content-center d-none">
+                <div class="col-lg-8">
+                    <div class="glass-card p-4 mb-4" data-aos="fade-up">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">অর্ডার আইডি: <span id="res-id" class="text-primary"></span></h4>
+                            <span id="res-status-badge" class="badge rounded-pill bg-primary p-2 px-3"></span>
+                        </div>
+
+                        <div class="timeline mt-4">
+                            <div class="timeline-item active" id="step-pending">
+                                <h6>অর্ডার গ্রহণ করা হয়েছে</h6>
+                                <p class="small text-muted" id="res-date"></p>
+                            </div>
+                            <div class="timeline-item" id="step-edited">
+                                <h6>ছবি এডিট করা হয়েছে</h6>
+                                <p class="small text-muted">আমাদের ডিজাইনার ছবিগুলো এডিট করেছেন</p>
+                            </div>
+                            <div class="timeline-item" id="step-shipped">
+                                <h6>কুরিয়ারে পাঠানো হয়েছে</h6>
+                                <p class="small text-muted">আপনার ঠিকানায় ছবিগুলো আসছে</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approval Section (Visible when status is 'edited') -->
+                    <div id="approval-section" class="glass-card p-4 d-none" data-aos="zoom-in">
+                        <h5 class="mb-4 text-center">এডিট করা ছবিগুলো দেখুন এবং অনুমোদন দিন</h5>
+                        <div id="edited-previews" class="row g-3 mb-4">
+                            <!-- Edited images here -->
+                        </div>
+                        <div class="alert alert-info small">
+                            <i class="fas fa-info-circle me-2"></i> ছবিগুলো দেখে সন্তুষ্ট হলে "নিশ্চিত করুন" বাটনে ক্লিক করুন। এরপর আমরা প্রিন্ট শুরু করব।
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button class="btn btn-success px-5" id="confirm-order-btn">নিশ্চিত করুন</button>
+                            <button class="btn btn-outline-danger" id="re-edit-btn">আবার এডিট করুন</button>
+                        </div>
+                    </div>
+
+                    <!-- Admin Demo Tool (Hidden in production) -->
+                    <div class="mt-5 p-3 border rounded border-warning bg-light">
+                        <small class="text-warning fw-bold d-block mb-2">এডমিন সিমুলেশন (পরীক্ষার জন্য):</small>
+                        <button class="btn btn-sm btn-warning" id="demo-mark-edited">ছবি এডিট সম্পন্ন করুন</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/app.js"></script>
+    <script src="js/track.js"></script>
+</body>
+</html>

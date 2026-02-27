@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আপলোড করুন - ছবিপ্রিন্ট</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .cropper-container {
+            width: 100%;
+            height: 400px;
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark glass-header">
+        <div class="container">
+            <a class="navbar-brand font-fancy fs-3 text-primary" href="index.html">
+                <i class="fas fa-camera-retro me-2"></i>ছবিপ্রিন্ট
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">হোম</a></li>
+                    <li class="nav-item"><a class="nav-link" href="track.html">ট্র্যাকিং</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="upload.html">আপলোড</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-sm btn-primary-custom ms-lg-3 px-3 position-relative" href="cart.html">
+                            <i class="fas fa-shopping-cart me-1"></i> কার্ট
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">
+                                0
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Upload Section -->
+    <section class="py-5 mt-5">
+        <div class="container mt-5">
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-8 text-center" data-aos="fade-down">
+                    <h1 class="display-4 fw-bold mb-3">ছবি <span class="text-primary">আপলোড</span> করুন</h1>
+                    <p class="text-muted lead">আপনার ছবিগুলো এখানে আপলোড করে প্রয়োজন মতো এডিট এবং সাইজ ঠিক করে অর্ডার করুন।</p>
+                </div>
+            </div>
+
+            <!-- Upload Area -->
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-8" data-aos="zoom-in">
+                    <div class="upload-zone" id="drop-zone">
+                        <input type="file" id="fileInput" multiple accept="image/*" class="d-none">
+                        <div class="mb-4">
+                            <i class="fas fa-cloud-upload-alt fa-5x text-primary mb-3"></i>
+                            <h3 class="fw-bold text-dark">ড্র্যাগ করুন অথবা ক্লিক করুন</h3>
+                            <p class="text-muted">JPG, PNG বা JPEG ফরম্যাট সমর্থিত</p>
+                        </div>
+                        <button class="btn btn-primary-custom px-5" onclick="$('#fileInput').click()">ফাইল বাছুন</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Grid -->
+            <div id="preview-container" class="row g-4 mb-5">
+                <!-- Dynamic Content Here -->
+            </div>
+            
+            <!-- Bottom Actions -->
+            <div class="row mb-5 d-none" id="action-buttons">
+                <div class="col-12 text-center">
+                    <a href="cart.html" class="btn btn-success btn-lg px-5 shadow-lg">
+                        <i class="fas fa-check-circle me-2"></i>অর্ডার সম্পন্ন করুন
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-card border-0">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title text-dark">ছবি এডিট করুন</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0 bg-light">
+                    <div class="img-container p-3">
+                        <img id="image-to-edit" src="" alt="Picture" style="display: block; max-width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-footer border-top justify-content-between">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="cropper.rotate(-90)" title="Rotate Left">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="cropper.rotate(90)" title="Rotate Right">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="cropper.zoom(0.1)" title="Zoom In">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="cropper.zoom(-0.1)" title="Zoom Out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">বাতিল</button>
+                        <button type="button" class="btn btn-primary-custom" id="save-crop">সেভ করুন</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/app.js"></script>
+    <script src="js/upload.js"></script>
+    <script src="js/editor.js"></script>
+</body>
+</html>
