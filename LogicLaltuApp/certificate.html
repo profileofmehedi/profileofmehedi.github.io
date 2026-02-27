@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Get Certificate - Logic Laltu</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <!-- html2canvas Library for Image Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  </head>
+  <body>
+    <div id="navbar-placeholder"></div>
+
+    <div class="container main-content text-center">
+      <h1 class="mb-3">🎓 লাল্টুর সনদপত্র বিতরণ কেন্দ্র</h1>
+      <p class="lead mb-5 text-muted">
+        কোর্স তো করলি, এখন একটা ফাও সার্টিফিকেট নিয়ে যা!
+      </p>
+
+      <!-- Input Form -->
+      <div class="row justify-content-center mb-5" id="inputSection">
+        <div class="col-md-6">
+          <div class="card p-4 shadow-sm border-0 bg-white">
+            <label class="form-label fw-bold">তোর নাম কী মামা?</label>
+            <input
+              type="text"
+              id="studentName"
+              class="form-control form-control-lg text-center mb-3"
+              placeholder="এখানে নাম লেখ..."
+            />
+            <button
+              class="btn btn-primary-custom w-100"
+              onclick="generateCert()"
+            >
+              সার্টিফিকেট দেখান
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificate Display Area (Hidden Initially) -->
+      <div id="certDisplayArea" style="display: none">
+        <!-- This part will be converted to Image -->
+        <div class="certificate-wrapper">
+          <div id="targetCert">
+            <h5
+              class="text-secondary text-uppercase mb-2"
+              style="letter-spacing: 2px"
+            >
+              Logic Laltu Academy
+            </h5>
+            <h1
+              style="
+                font-size: 3.5rem;
+                color: var(--primary-color);
+                line-height: 1.2;
+              "
+            >
+              খাঁটি ওস্তাদের সনদপত্র
+            </h1>
+            <p class="mt-4 fs-5 text-dark">এই মর্মে প্রত্যয়ন করা যাইতেছে যে,</p>
+
+            <h2
+              id="certNameDisplay"
+              style="
+                font-size: 3rem;
+                color: #2c3e50;
+                text-decoration: underline;
+                text-decoration-color: var(--primary-color);
+                margin: 20px 0;
+                font-weight: 800;
+              "
+            >
+              [Student Name]
+            </h2>
+
+            <p class="fs-5 px-4 text-dark" style="line-height: 1.8">
+              সফলভাবে <strong>"লজিক লাল্টুর ডায়েরি"</strong> থেকে .NET এবং
+              সিস্টেম ডিজাইন পড়ে মাথা নষ্ট করিয়াছেন। এখন তিনি নিজেকে "সিনিয়র
+              আর্কিটেক্ট" দাবি করার সম্পূর্ণ অধিকার রাখেন (যতক্ষণ কোড এরর না
+              দেয়)।
+            </p>
+
+            <div
+              class="row mt-5 align-items-end"
+              style="margin-top: 60px !important"
+            >
+              <div class="col-6 text-start ps-5">
+                <p class="fw-bold mb-0 text-dark">___________</p>
+                <p class="text-muted">তারিখ: <span id="certDate"></span></p>
+              </div>
+              <div class="col-6 text-end pe-5">
+                <!-- Signature Font Style -->
+                <div
+                  style="
+                    font-family: &quot;Brush Script MT&quot;, cursive;
+                    font-size: 2rem;
+                    color: var(--primary-color);
+                  "
+                >
+                  Logic Laltu
+                </div>
+                <p class="fw-bold mb-0 text-dark">___________</p>
+                <p class="text-muted">স্বাক্ষর (লাল্টু ভাই)</p>
+              </div>
+            </div>
+
+            <div class="cert-seal">Laltu<br />Approved</div>
+          </div>
+        </div>
+
+        <!-- Download Button -->
+        <div class="mt-4 mb-5">
+          <button
+            class="btn btn-success btn-lg px-5 shadow"
+            onclick="downloadCert()"
+          >
+            📥 ডাউনলোড (Image)
+          </button>
+          <button
+            class="btn btn-outline-secondary btn-lg ms-2"
+            onclick="location.reload()"
+          >
+            🔄 নতুন বানাও
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="components.js"></script>
+
+    <script>
+      // 1. Generate Certificate View
+      function generateCert() {
+        var name = $("#studentName").val();
+        if (name.trim() === "") {
+          alert("আরে মামা! নাম না দিলে সার্টিফিকেট কার নামে ইস্যু হবে? 😡");
+          return;
+        }
+        $("#certNameDisplay").text(name);
+        $("#certDate").text(new Date().toLocaleDateString("bn-BD"));
+
+        $("#inputSection").slideUp(); // Hide Input
+        $("#certDisplayArea").fadeIn(); // Show Cert
+
+        // Scroll to Cert
+        $("html, body").animate(
+          {
+            scrollTop: $("#certDisplayArea").offset().top - 50,
+          },
+          500,
+        );
+      }
+
+      // 2. Download Certificate as Image
+      function downloadCert() {
+        var element = document.getElementById("targetCert");
+        var btn = event.target;
+
+        // Button Feedback
+        var originalText = btn.innerText;
+        btn.innerText = "ডাউনলোড হচ্ছে...";
+        btn.disabled = true;
+
+        html2canvas(element, {
+          scale: 2, // Higher resolution
+          backgroundColor: "#ffffff", // Ensure white background
+          useCORS: true,
+        }).then((canvas) => {
+          // Convert canvas to image data
+          var link = document.createElement("a");
+          link.download = "Laltu-Certificate-" + Date.now() + ".png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+
+          // Reset Button
+          btn.innerText = "✅ ডাউনলোড কমপ্লিট";
+          setTimeout(() => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+          }, 3000);
+        });
+      }
+    </script>
+  </body>
+</html>

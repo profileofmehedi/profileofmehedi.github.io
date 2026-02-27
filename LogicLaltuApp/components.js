@@ -1,6 +1,6 @@
-/* components.js */
+/* components.js - Full Updated Code */
 $(document).ready(function () {
-  // --- 1. Navbar Render ---
+  // --- 1. Navbar Render (Updated with new links) ---
   const navbarHTML = `
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
@@ -9,11 +9,13 @@ $(document).ready(function () {
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">হোম (Home)</a></li>
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">হোম</a></li>
+                    
+                    <!-- Basic Section -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">.NET এর রোজনামচা</a>
-                        <ul class="dropdown-menu">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">বেসিক .NET</a>
+                        <ul class="dropdown-menu border-0 shadow">
                             <li><a class="dropdown-item" href="dotnet-basics.html">1. .NET Ecosystem</a></li>
                             <li><a class="dropdown-item" href="csharp-oop.html">2. OOP & C#</a></li>
                             <li><a class="dropdown-item" href="linq-magic.html">3. LINQ Magic</a></li>
@@ -21,13 +23,23 @@ $(document).ready(function () {
                             <li><a class="dropdown-item" href="dependency-injection.html">5. Dependency Injection</a></li>
                         </ul>
                     </li>
+
+                    <!-- Advanced Section (New) -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">সিস্টেম ডিজাইন</a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="sql-vs-oracle.html">SQL vs Databases</a></li>
-                            <li><a class="dropdown-item" href="system-design.html">Scalability & Caching</a></li>
-                            <li><a class="dropdown-item" href="git-github.html">Git Time Machine</a></li>
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">অ্যাডভান্সড</a>
+                        <ul class="dropdown-menu border-0 shadow">
+                            <li><a class="dropdown-item" href="web-api.html">6. Web API (New)</a></li>
+                            <li><a class="dropdown-item" href="sql-vs-oracle.html">7. Databases</a></li>
+                            <li><a class="dropdown-item" href="system-design.html">8. System Design</a></li>
+                            <li><a class="dropdown-item" href="docker-kubernetes.html">9. Docker & K8s (New)</a></li>
+                            <li><a class="dropdown-item" href="git-github.html">10. Git & GitHub</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item fw-bold text-primary" href="interview-prep.html">🔥 ভাইভা বোর্ড</a></li>
                         </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-sm btn-outline-success text-success px-3 ms-2" href="certificate.html" style="border-radius: 20px;">🎓 সনদপত্র</a>
                     </li>
                 </ul>
             </div>
@@ -39,30 +51,27 @@ $(document).ready(function () {
   const footerHTML = `
     <footer>
         <div class="container">
-            <p class="mb-0">© 2025 Logic Laltu's Diary | শেখো বাংলায়, গড়ো দুনিয়া।</p>
-            <small class="text-muted">Developed with ❤️ and ☕</small>
+            <h5 style="color: var(--primary-color)">📙 লজিক লাল্টুর ডায়েরি</h5>
+            <p class="mb-0 text-muted">শেখো বাংলায়, গড়ো দুনিয়া। কপিরাইট © ২০২৫</p>
         </div>
     </footer>
     `;
 
-  // Inject Navbar & Footer
   $("#navbar-placeholder").html(navbarHTML);
   $("#footer-placeholder").html(footerHTML);
 
-  // Active Link Highlighter
+  // Active Link Highlight logic
   var path = window.location.pathname.split("/").pop();
   if (path == "") path = "index.html";
   $(".nav-link").each(function () {
-    var href = $(this).attr("href");
-    if (path === href) {
-      $(this).addClass("active");
-    }
+    if ($(this).attr("href") === path) $(this).addClass("active");
+  });
+  $(".dropdown-item").each(function () {
+    if ($(this).attr("href") === path) $(this).addClass("active");
   });
 
-  // --- 3. Scroll to Top Button (Rocket) ---
+  // --- 3. Scroll to Top Rocket ---
   $("body").append('<button id="scrollTopBtn" title="উপরে যান">🚀</button>');
-
-  // CSS for the button (Applied via JS for easy setup)
   $("#scrollTopBtn").css({
     display: "none",
     position: "fixed",
@@ -70,94 +79,50 @@ $(document).ready(function () {
     right: "30px",
     "z-index": "999",
     border: "none",
-    outline: "none",
-    "background-color": "#e67e22",
+    "background-color": "#008080",
     color: "white",
     cursor: "pointer",
     padding: "15px",
     "border-radius": "50%",
-    "font-size": "20px",
-    "box-shadow": "0 4px 10px rgba(0,0,0,0.3)",
-    transition: "background-color 0.3s",
+    "font-size": "22px",
+    "box-shadow": "0 5px 15px rgba(0,0,0,0.2)",
   });
 
-  // Show/Hide on Scroll
   $(window).scroll(function () {
-    if ($(this).scrollTop() > 300) {
-      $("#scrollTopBtn").fadeIn();
-    } else {
-      $("#scrollTopBtn").fadeOut();
-    }
+    $(this).scrollTop() > 300
+      ? $("#scrollTopBtn").fadeIn()
+      : $("#scrollTopBtn").fadeOut();
   });
-
-  // Click Action
   $("#scrollTopBtn").click(function () {
     $("html, body").animate({ scrollTop: 0 }, 100);
     return false;
   });
 
-  // --- 4. Copy Code Button Logic ---
+  // --- 4. Copy Code & Quiz Logic ---
   $("pre").each(function () {
-    // Create Button
     var $btn = $(
-      '<button class="btn btn-sm btn-dark" style="position: absolute; right: 10px; top: 10px; opacity: 0.8;">কপি মারেন 📋</button>',
+      '<button class="btn btn-sm btn-light border" style="position: absolute; right: 10px; top: 10px; color: #333;">Copy</button>',
     );
-
-    // Make parent relative
-    $(this).css("position", "relative");
-    $(this).append($btn);
-
-    // Click Event
+    $(this).css("position", "relative").append($btn);
     $btn.click(function () {
-      // Get text excluding the button text itself
-      var codeText = $(this)
-        .parent()
-        .text()
-        .replace("কপি মারেন 📋", "")
-        .replace("কপি হইছে! ✅", "");
-
-      navigator.clipboard.writeText(codeText.trim()).then(
-        function () {
-          $btn.text("কপি হইছে! ✅");
-          $btn.removeClass("btn-dark").addClass("btn-success");
-
-          setTimeout(function () {
-            $btn.text("কপি মারেন 📋");
-            $btn.removeClass("btn-success").addClass("btn-dark");
-          }, 2000);
-        },
-        function (err) {
-          console.error("Could not copy text: ", err);
-        },
+      var code = $(this).parent().text().replace("Copy", "");
+      navigator.clipboard.writeText(code);
+      $(this).text("Copied!").removeClass("btn-light").addClass("btn-success");
+      setTimeout(
+        () =>
+          $(this).text("Copy").removeClass("btn-success").addClass("btn-light"),
+        2000,
       );
     });
   });
 
-  // --- 5. Quiz Logic Handler ---
-  // This works for any page with a quiz button class 'check-quiz-btn'
   $(".check-quiz-btn").click(function () {
-    // Find the parent container of the clicked button
-    var $quizContainer = $(this).closest(".card");
-
-    // Find the selected radio button inside this container
-    var selected = $quizContainer.find('input[type="radio"]:checked').val();
-    var $resultText = $quizContainer.find(".quiz-result");
-
-    if (!selected) {
-      $resultText
-        .text("আরে মামা! একটা অপশন তো সিলেক্ট করবি! 🤔")
-        .css("color", "#d35400");
-    } else if (selected === "correct") {
-      $resultText
-        .text("সাবাস ওস্তাদ! একদম সঠিক উত্তর। লাল্টু খুশি হয়েছে। 🎉")
-        .css("color", "green");
-      // Disable inputs after correct answer
-      $quizContainer.find("input").prop("disabled", true);
-      $(this).prop("disabled", true).text("লক করা হয়েছে");
-    } else {
-      $resultText
-        .text("হইলো না মামা! আবার চেষ্টা কর। লজিক খাটা! 😅")
-        .css("color", "red");
-    }
+    var $card = $(this).closest(".card");
+    var val = $card.find("input:checked").val();
+    var $res = $card.find(".quiz-result");
+    if (!val) $res.text("অপশন সিলেক্ট কর মামা!").css("color", "orange");
+    else if (val === "correct")
+      $res.text("ফাটিয়ে দিছোস! সঠিক উত্তর। 🎉").css("color", "green");
+    else $res.text("ভুল উত্তর! আবার পড়। 😐").css("color", "red");
   });
 });
