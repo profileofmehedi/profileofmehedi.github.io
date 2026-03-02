@@ -569,7 +569,6 @@
         window._tableDataStore = {};
         let _tableIdCounter = 0;
         let isAppInitialized = false;
-        let _cachedProducts = []; // Save API products globally for easy resetting
 
         function updateUrlDisplay() {
             document.getElementById('baseUrlDisplay').innerText = currentBaseUrl;
@@ -973,7 +972,7 @@
                             <a href="postman://app" class="btn-postman" title="Open installed Postman app">
                                 <i class="fas fa-rocket"></i> Open Postman
                             </a>
-                            <button class="btn-outline" onclick="resetEndpoint('${ep.id}')" title="Reset form and payloads to default state">
+                            <button class="btn-outline" onclick="resetEndpoint('${ep.id}')" title="Reset form and payloads to blank state">
                                 <i class="fas fa-undo"></i> Reset
                             </button>
                             <button class="btn-send" onclick="handleSend('${ep.id}', '${ep.method}', '${ep.url}')" id="btn-${ep.id}">
@@ -1076,34 +1075,32 @@
         }
 
         function resetEndpoint(id) {
-            // Find default API data
-            let epData = null;
-            for(let cat of apiData) {
-                let found = cat.endpoints.find(e => e.id === id);
-                if(found) { epData = found; break; }
-            }
-
-            // Replace entire form block if it exists
             const formContainer = document.getElementById(`req-form-${id}`);
+            
+            // 1. If form exists, clear all inputs completely
             if (formContainer) {
-                formContainer.outerHTML = getFormHtmlForEndpoint(id);
-                // Re-populate dropdowns if we successfully fetched them earlier
-                if (_cachedProducts && _cachedProducts.length > 0) {
-                    populateDropdowns(_cachedProducts);
-                } else {
-                    updateAllForms();
-                }
+                const inputs = formContainer.querySelectorAll('input');
+                inputs.forEach(input => input.value = '');
+                
+                // Clear selects (reset to 0 index)
+                const selects = formContainer.querySelectorAll('select');
+                selects.forEach(select => {
+                    if(select.options.length > 0) select.selectedIndex = 0;
+                });
+
+                // Regenerate the JSON with blank fields
+                updateAllForms(); 
             } else {
-                // If it's a raw body endpoint without a form
+                // Raw JSON payload textareas without a form
                 const bodyEl = document.getElementById(`req-body-${id}`);
-                if(bodyEl) bodyEl.value = (epData && epData.body) ? JSON.stringify(epData.body, null, 4) : '';
+                if(bodyEl) bodyEl.value = '';
             }
 
-            // Clear Encrypted Payload
+            // 2. Clear Encrypted Payload
             const encReq = document.getElementById(`req-enc-${id}`);
             if(encReq) encReq.value = '';
 
-            // Clear Response Panes
+            // 3. Clear Response Panes
             const decRes = document.getElementById(`res-dec-${id}`);
             if(decRes) decRes.value = '';
             const rawRes = document.getElementById(`res-raw-${id}`);
@@ -1118,11 +1115,11 @@
                     </div>`;
             }
 
-            // Clear Status Indicator
+            // 4. Clear Status Indicator
             const statusEl = document.getElementById(`status-${id}`);
             if(statusEl) statusEl.innerHTML = '';
 
-            // Revert active tabs back to defaults (Form/Visual)
+            // 5. Return tabs back to active defaults
             switchTab(id, 'req', formContainer ? 'form' : 'body');
             switchTab(id, 'res', 'vis');
         }
@@ -1484,7 +1481,6 @@
                 }
 
                 if (Array.isArray(productList) && productList.length > 0) {
-                    _cachedProducts = productList; // Save globally for easy resetting
                     populateDropdowns(productList);
                 }
             } catch (err) {
