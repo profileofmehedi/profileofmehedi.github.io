@@ -212,6 +212,64 @@
         }
         .editor:disabled { opacity: 0.7; cursor: not-allowed; }
 
+        /* Custom Form Builder */
+        .form-builder {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            overflow-y: auto;
+            color: #1e293b;
+        }
+        .form-section {
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+            background: #f8fafc;
+        }
+        .form-section-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 140px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: #475569;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            color: #1e293b;
+            background: white;
+            transition: 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
         /* Button */
         .btn-send {
             background: var(--primary);
@@ -358,6 +416,7 @@
         const STORAGE_KEY = "opus_dps_base_v3";
 
         let currentBaseUrl = localStorage.getItem(STORAGE_KEY) || DEFAULT_BASE_URL;
+        window.productTenureMap = {}; // Global Map for Product -> Tenures
 
         function updateUrlDisplay() {
             document.getElementById('baseUrlDisplay').innerText = currentBaseUrl;
@@ -424,28 +483,28 @@
                         url: "/MfsDPS/create", 
                         desc: "Create a new DPS Account",
                         body: {
-							"Customer": {
-								"NidNo": "19876543210987654",
-								"FatherName": "Abul",
-								"MobileNo": "01700000000",
-								"DpsAmount": 5000,
-								"DateOfBirth": "2000-01-01",
-								"Gender": "Male"
-							},
-							"Account": {
-								"ProductCode": "D5056",
-								"AccountTitle": "My Savings",
-								"Tenure": "2 Years"
-							},
-							"Nominees": [{
-								"NomineeName": "Rahim",
-								"Relation": "Brother",
-								"NomineeNID": "34543522",
-								"NomineeDOB": "2000-01-02",
-								"NomineeShare": 100,
-								"IsMinor": false
-							}]
-						}
+                            "Customer": {
+                                "NidNo": "19876543210987654",
+                                "FatherName": "Abul",
+                                "MobileNo": "01700000000",
+                                "DpsAmount": 5000,
+                                "DateOfBirth": "2000-01-01",
+                                "Gender": "Male"
+                            },
+                            "Account": {
+                                "ProductCode": "D5056",
+                                "AccountTitle": "My Savings",
+                                "Tenure": "2 Years"
+                            },
+                            "Nominees": [{
+                                "NomineeName": "Rahim",
+                                "Relation": "Brother",
+                                "NomineeNID": "34543522",
+                                "NomineeDOB": "2000-01-02",
+                                "NomineeShare": 100,
+                                "IsMinor": false
+                            }]
+                        }
                     }
                 ]
             },
@@ -494,6 +553,186 @@
             });
 
             if(apiData.length > 0) activateEndpoint(apiData[0].endpoints[0].id);
+
+            // Fetch and populate background dropdown products
+            loadProductsForDropdown();
+            // Force Sync of initial JSON states
+            updateAllForms();
+        }
+
+        function getFormHtmlForEndpoint(epId) {
+            switch(epId) {
+                case 'create-account':
+                    return `
+                        <div id="req-form-${epId}" class="form-builder">
+                            <div class="form-section">
+                                <div class="form-section-title">Customer Details</div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>NID No</label><input type="text" id="ca-nid" value="19876543210987654" oninput="updateCreateAccountJSON()"></div>
+                                    <div class="form-group"><label>Father's Name</label><input type="text" id="ca-fname" value="Abul" oninput="updateCreateAccountJSON()"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Mobile No</label><input type="text" id="ca-mobile" value="01700000000" oninput="updateCreateAccountJSON()"></div>
+                                    <div class="form-group"><label>Date of Birth</label><input type="date" id="ca-dob" value="2000-01-01" oninput="updateCreateAccountJSON()"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>DPS Amount</label><input type="number" id="ca-amount" value="5000" oninput="updateCreateAccountJSON()"></div>
+                                    <div class="form-group">
+                                        <label>Gender</label>
+                                        <select id="ca-gender" onchange="updateCreateAccountJSON()">
+                                            <option value="Male" selected>Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="form-section-title">Account Details</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Product Code</label>
+                                        <select id="ca-pcode" onchange="handleProductChange()">
+                                            <option value="D5056" selected>D5056</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group"><label>Account Title</label><input type="text" id="ca-atitle" value="My Savings" oninput="updateCreateAccountJSON()"></div>
+                                    <div class="form-group">
+                                        <label>Tenure</label>
+                                        <select id="ca-tenure" onchange="updateCreateAccountJSON()">
+                                            <option value="2 Years" selected>2 Years</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="form-section-title">Nominee Details</div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Name</label><input type="text" id="ca-nname" value="Rahim" oninput="updateCreateAccountJSON()"></div>
+                                    <div class="form-group"><label>Relation</label><input type="text" id="ca-nrel" value="Brother" oninput="updateCreateAccountJSON()"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>NID</label><input type="text" id="ca-nnid" value="34543522" oninput="updateCreateAccountJSON()"></div>
+                                    <div class="form-group"><label>Date of Birth</label><input type="date" id="ca-ndob" value="2000-01-02" oninput="updateCreateAccountJSON()"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Share (%)</label><input type="number" id="ca-nshare" value="100" oninput="updateCreateAccountJSON()"></div>
+                                    <div class="form-group">
+                                        <label>Is Minor?</label>
+                                        <select id="ca-nminor" onchange="updateCreateAccountJSON()">
+                                            <option value="false" selected>No</option>
+                                            <option value="true">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'maturity-calc':
+                    return `
+                        <div id="req-form-${epId}" class="form-builder">
+                            <div class="form-section">
+                                <div class="form-section-title">Calculation Details</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Product Code</label>
+                                        <select id="mc-pcode" onchange="updateMaturityCalcJSON()">
+                                            <option value="D5020">D5020</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>DPS Amount</label>
+                                        <input type="number" id="mc-amount" value="5000" oninput="updateMaturityCalcJSON()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'get-by-nid':
+                    return `
+                        <div id="req-form-${epId}" class="form-builder">
+                            <div class="form-section">
+                                <div class="form-section-title">Customer Identity</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>NID No</label>
+                                        <input type="text" id="gbn-nid" value="19876543210987654" oninput="updateGetByNidJSON()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'get-details':
+                    return `
+                        <div id="req-form-${epId}" class="form-builder">
+                            <div class="form-section">
+                                <div class="form-section-title">Account Target</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Account No</label>
+                                        <input type="text" id="gd-acc" value="000000" oninput="updateGetDetailsJSON()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'get-schedule':
+                    return `
+                        <div id="req-form-${epId}" class="form-builder">
+                            <div class="form-section">
+                                <div class="form-section-title">Account Target</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Account No</label>
+                                        <input type="text" id="gs-acc" value="000000" oninput="updateGetScheduleJSON()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'payment':
+                    return `
+                        <div id="req-form-${epId}" class="form-builder">
+                            <div class="form-section">
+                                <div class="form-section-title">Payment Payload</div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Customer Account No</label><input type="text" id="pay-acc" value="123" oninput="updatePaymentJSON()"></div>
+                                    <div class="form-group"><label>Transaction ID</label><input type="text" id="pay-txn" value="TXN01" oninput="updatePaymentJSON()"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Payment Amount</label><input type="number" id="pay-amt" value="5000" oninput="updatePaymentJSON()"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'encashment':
+                    return `
+                        <div id="req-form-${epId}" class="form-builder">
+                            <div class="form-section">
+                                <div class="form-section-title">Encashment Details</div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Customer Account No</label><input type="text" id="enc-acc" value="123" oninput="updateEncashmentJSON()"></div>
+                                    <div class="form-group">
+                                        <label>MFS Type</label>
+                                        <select id="enc-type" onchange="updateEncashmentJSON()">
+                                            <option value="bkash">bkash</option>
+                                            <option value="nagad">nagad</option>
+                                            <option value="upay">upay</option>
+                                            <option value="rocket">rocket</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>MFS Number</label><input type="text" id="enc-num" value="017000" oninput="updateEncashmentJSON()"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                default:
+                    return '';
+            }
         }
 
         function createCard(ep) {
@@ -503,6 +742,34 @@
             
             const isPost = ep.method === 'POST';
             const bodyJson = ep.body ? JSON.stringify(ep.body, null, 4) : '';
+
+            const formHtml = getFormHtmlForEndpoint(ep.id);
+            const hasForm = formHtml !== '';
+
+            let reqTabsHtml = '';
+            let reqContentHtml = '';
+
+            if (hasForm) {
+                reqTabsHtml = `
+                    <span class="tab active" onclick="switchTab('${ep.id}', 'req', 'form')">Form</span>
+                    <span class="tab" onclick="switchTab('${ep.id}', 'req', 'body')">Raw JSON</span>
+                    ${isPost ? `<span class="tab" onclick="switchTab('${ep.id}', 'req', 'enc')">Encrypted</span>` : ''}
+                `;
+                reqContentHtml = `
+                    ${formHtml}
+                    <textarea id="req-body-${ep.id}" class="editor hidden" spellcheck="false">${bodyJson}</textarea>
+                    <textarea id="req-enc-${ep.id}" class="editor hidden" readonly placeholder="Encrypted payload will appear here after sending..."></textarea>
+                `;
+            } else {
+                reqTabsHtml = `
+                    <span class="tab active" onclick="switchTab('${ep.id}', 'req', 'body')">Body</span>
+                    ${isPost ? `<span class="tab" onclick="switchTab('${ep.id}', 'req', 'enc')">Encrypted</span>` : ''}
+                `;
+                reqContentHtml = `
+                    <textarea id="req-body-${ep.id}" class="editor" spellcheck="false" ${!isPost ? 'disabled placeholder="No Body required for GET"' : ''}>${bodyJson}</textarea>
+                    <textarea id="req-enc-${ep.id}" class="editor hidden" readonly placeholder="Encrypted payload will appear here after sending..."></textarea>
+                `;
+            }
 
             card.innerHTML = `
                 <div class="card-header">
@@ -529,12 +796,10 @@
                             <div class="pane-header">
                                 <span>Request</span>
                                 <div class="tabs">
-                                    <span class="tab active" onclick="switchTab('${ep.id}', 'req', 'body')">Body</span>
-                                    ${isPost ? `<span class="tab" onclick="switchTab('${ep.id}', 'req', 'enc')">Encrypted</span>` : ''}
+                                    ${reqTabsHtml}
                                 </div>
                             </div>
-                            <textarea id="req-body-${ep.id}" class="editor" spellcheck="false" ${!isPost ? 'disabled placeholder="No Body required for GET"' : ''}>${bodyJson}</textarea>
-                            <textarea id="req-enc-${ep.id}" class="editor hidden" readonly placeholder="Encrypted payload will appear here after sending..."></textarea>
+                            ${reqContentHtml}
                         </div>
 
                         <div class="pane">
@@ -573,9 +838,17 @@
             event.target.classList.add('active');
 
             if(type === 'req') {
-                document.getElementById(`req-body-${id}`).classList.add('hidden');
-                document.getElementById(`req-enc-${id}`).classList.add('hidden');
-                document.getElementById(`req-${mode}-${id}`).classList.remove('hidden');
+                const bodyEl = document.getElementById(`req-body-${id}`);
+                const encEl = document.getElementById(`req-enc-${id}`);
+                const formEl = document.getElementById(`req-form-${id}`);
+
+                if(bodyEl) bodyEl.classList.add('hidden');
+                if(encEl) encEl.classList.add('hidden');
+                if(formEl) formEl.classList.add('hidden');
+
+                if(mode === 'body' && bodyEl) bodyEl.classList.remove('hidden');
+                if(mode === 'enc' && encEl) encEl.classList.remove('hidden');
+                if(mode === 'form' && formEl) formEl.classList.remove('hidden');
             } else {
                 document.getElementById(`res-dec-${id}`).classList.add('hidden');
                 document.getElementById(`res-raw-${id}`).classList.add('hidden');
@@ -584,10 +857,242 @@
         }
 
         // ==========================================
+        // FORM & DROPDOWN GENERATOR LOGIC
+        // ==========================================
+        function updateAllForms() {
+            if(document.getElementById('ca-pcode')) updateCreateAccountJSON();
+            if(document.getElementById('mc-amount')) updateMaturityCalcJSON();
+            if(document.getElementById('gbn-nid')) updateGetByNidJSON();
+            if(document.getElementById('gd-acc')) updateGetDetailsJSON();
+            if(document.getElementById('gs-acc')) updateGetScheduleJSON();
+            if(document.getElementById('pay-acc')) updatePaymentJSON();
+            if(document.getElementById('enc-acc')) updateEncashmentJSON();
+        }
+
+        function updateCreateAccountJSON() {
+            const pCodeEl = document.getElementById('ca-pcode');
+            const tenureEl = document.getElementById('ca-tenure');
+            
+            const json = {
+                "Customer": {
+                    "NidNo": document.getElementById('ca-nid')?.value || "",
+                    "FatherName": document.getElementById('ca-fname')?.value || "",
+                    "MobileNo": document.getElementById('ca-mobile')?.value || "",
+                    "DpsAmount": Number(document.getElementById('ca-amount')?.value || 0),
+                    "DateOfBirth": document.getElementById('ca-dob')?.value || "",
+                    "Gender": document.getElementById('ca-gender')?.value || ""
+                },
+                "Account": {
+                    "ProductCode": pCodeEl ? pCodeEl.value : "D5056",
+                    "AccountTitle": document.getElementById('ca-atitle')?.value || "",
+                    "Tenure": tenureEl ? tenureEl.value : "2 Years"
+                },
+                "Nominees": [{
+                    "NomineeName": document.getElementById('ca-nname')?.value || "",
+                    "Relation": document.getElementById('ca-nrel')?.value || "",
+                    "NomineeNID": document.getElementById('ca-nnid')?.value || "",
+                    "NomineeDOB": document.getElementById('ca-ndob')?.value || "",
+                    "NomineeShare": Number(document.getElementById('ca-nshare')?.value || 100),
+                    "IsMinor": document.getElementById('ca-nminor')?.value === 'true'
+                }]
+            };
+
+            const targetTextarea = document.getElementById('req-body-create-account');
+            if (targetTextarea) targetTextarea.value = JSON.stringify(json, null, 4);
+        }
+
+        function updateMaturityCalcJSON() {
+            const pCodeEl = document.getElementById('mc-pcode');
+            const json = {
+                "productCode": pCodeEl ? pCodeEl.value : "D5020",
+                "dpsAmount": Number(document.getElementById('mc-amount')?.value || 0)
+            };
+            const targetTextarea = document.getElementById('req-body-maturity-calc');
+            if (targetTextarea) targetTextarea.value = JSON.stringify(json, null, 4);
+        }
+
+        function updateGetByNidJSON() {
+            const json = { "NidNo": document.getElementById('gbn-nid')?.value || "" };
+            const targetTextarea = document.getElementById('req-body-get-by-nid');
+            if (targetTextarea) targetTextarea.value = JSON.stringify(json, null, 4);
+        }
+
+        function updateGetDetailsJSON() {
+            const json = { "AccountNo": document.getElementById('gd-acc')?.value || "" };
+            const targetTextarea = document.getElementById('req-body-get-details');
+            if (targetTextarea) targetTextarea.value = JSON.stringify(json, null, 4);
+        }
+
+        function updateGetScheduleJSON() {
+            const json = { "AccountNo": document.getElementById('gs-acc')?.value || "" };
+            const targetTextarea = document.getElementById('req-body-get-schedule');
+            if (targetTextarea) targetTextarea.value = JSON.stringify(json, null, 4);
+        }
+
+        function updatePaymentJSON() {
+            const json = {
+                "customerAccountNo": document.getElementById('pay-acc')?.value || "",
+                "transactionId": document.getElementById('pay-txn')?.value || "",
+                "paymentAmount": Number(document.getElementById('pay-amt')?.value || 0)
+            };
+            const targetTextarea = document.getElementById('req-body-payment');
+            if (targetTextarea) targetTextarea.value = JSON.stringify(json, null, 4);
+        }
+
+        function updateEncashmentJSON() {
+            const json = {
+                "customerAccountNo": document.getElementById('enc-acc')?.value || "",
+                "mfsType": document.getElementById('enc-type')?.value || "",
+                "mfsNumber": document.getElementById('enc-num')?.value || ""
+            };
+            const targetTextarea = document.getElementById('req-body-encashment');
+            if (targetTextarea) targetTextarea.value = JSON.stringify(json, null, 4);
+        }
+
+        function handleProductChange() {
+            const pcodeSelect = document.getElementById('ca-pcode');
+            const tenureSelect = document.getElementById('ca-tenure');
+            
+            if(pcodeSelect && tenureSelect) {
+                const selectedCode = pcodeSelect.value;
+                const rawTenureData = window.productTenureMap[selectedCode];
+                
+                // Clear existing tenures in dropdown
+                tenureSelect.innerHTML = '';
+                
+                let tenuresList = [];
+
+                // Safely handle Array, String, or Number data types coming from API
+                if (Array.isArray(rawTenureData)) {
+                    tenuresList = rawTenureData.map(t => String(t).trim()).filter(t => t);
+                } else if (typeof rawTenureData === 'string') {
+                    tenuresList = rawTenureData.split(',').map(t => t.trim()).filter(t => t);
+                } else if (rawTenureData !== null && rawTenureData !== undefined && rawTenureData !== "") {
+                    tenuresList = [String(rawTenureData).trim()];
+                }
+                
+                if (tenuresList.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = "";
+                    opt.innerText = "No Tenures Available";
+                    tenureSelect.appendChild(opt);
+                } else {
+                    tenuresList.forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t;
+                        opt.innerText = t;
+                        tenureSelect.appendChild(opt);
+                    });
+                }
+            }
+            
+            // Once updated, recalculate the JSON to pick up the newly selected default Tenure
+            updateCreateAccountJSON();
+        }
+
+        // Background call to fetch available Products and parse them into Dropdowns
+        async function loadProductsForDropdown() {
+            try {
+                const apiBase = currentBaseUrl + '/api';
+                const endpoint = `${apiBase}/Product/get-all-products`;
+
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Signature': 'SANDBOX_SIG',
+                        'RequestId': crypto.randomUUID(),
+                        'Timestamp': new Date().toISOString()
+                    }
+                });
+
+                if (!response.ok) return; // Silent fail, keeps default fallback options
+
+                const rawText = await response.text();
+                let parsedRaw = null;
+                try { parsedRaw = JSON.parse(rawText); } catch(e) { parsedRaw = rawText; }
+
+                // Same logic to detect if data arrived encrypted
+                const encryptedContent = extractEncryptedString(parsedRaw);
+                let productList = [];
+
+                if (encryptedContent) {
+                    const cryptoDecryptUrl = `${apiBase}/Crypto/decrypt`;
+                    const decryptResponse = await fetch(cryptoDecryptUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify({ encryptedText: encryptedContent })
+                    });
+                    
+                    if (decryptResponse.ok) {
+                        const decryptedText = await decryptResponse.text();
+                        try {
+                            let temp = JSON.parse(decryptedText);
+                            productList = typeof temp === 'string' ? JSON.parse(temp) : temp;
+                        } catch(e) {}
+                    }
+                } else {
+                    productList = (typeof parsedRaw === 'object') ? parsedRaw : [];
+                }
+
+                // Safely extract from common wrapper arrays if necessary
+                if (!Array.isArray(productList)) {
+                    if (productList && productList.Data && Array.isArray(productList.Data)) productList = productList.Data;
+                    else if (productList && productList.data && Array.isArray(productList.data)) productList = productList.data;
+                }
+
+                if (Array.isArray(productList) && productList.length > 0) {
+                    populateDropdowns(productList);
+                }
+            } catch (err) {
+                console.error("Background Product fetch failed:", err);
+            }
+        }
+
+        function populateDropdowns(products) {
+            window.productTenureMap = {}; // Reset global map
+            const pcodeSelect = document.getElementById('ca-pcode');
+            const mcPcodeSelect = document.getElementById('mc-pcode');
+
+            if (pcodeSelect) pcodeSelect.innerHTML = '';
+            if (mcPcodeSelect) mcPcodeSelect.innerHTML = '';
+            
+            products.forEach(p => {
+                // Safety logic looking for common mapping keys in your API response
+                const code = p.ProductCode || p.productCode || p.Code || p.code || p.productId || p.id;
+                const title = p.ProductTitle || p.productTitle || p.ProductName || p.productName || p.Title || p.title || p.name || '';
+                const tenures = p.Tenures || p.tenures || p.Tenure || p.tenure || p.Term || p.term || "";
+
+                if (code) {
+                    const text = title ? `${code} - ${title}` : code;
+                    
+                    // Store the raw tenure data into the global map based on the product code
+                    window.productTenureMap[code] = tenures;
+                    
+                    if (pcodeSelect) {
+                        const opt = document.createElement('option');
+                        opt.value = code;
+                        opt.innerText = text;
+                        pcodeSelect.appendChild(opt);
+                    }
+
+                    if (mcPcodeSelect) {
+                        const opt = document.createElement('option');
+                        opt.value = code;
+                        opt.innerText = text;
+                        mcPcodeSelect.appendChild(opt);
+                    }
+                }
+            });
+
+            // Fire updates
+            handleProductChange(); 
+            updateMaturityCalcJSON();
+        }
+
+        // ==========================================
         // LOGIC ENGINE
         // ==========================================
-        
-        // Helper to extract encrypted string from various JSON formats
         function extractEncryptedString(data) {
             if (typeof data === 'string') return data;
             if (data.Data && typeof data.Data === 'string') return data.Data;
@@ -748,7 +1253,6 @@
                      const decryptResponse = await fetch(cryptoDecryptUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        // This matches your Swagger Screenshot: { "encryptedText": "..." }
                         body: JSON.stringify({ encryptedText: encryptedContent })
                     });
 
