@@ -270,6 +270,34 @@
             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
         }
 
+        /* Beautiful Visual Response Viewer */
+        .visual-view {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: var(--bg-body);
+            color: #334155;
+            font-size: 0.85rem;
+        }
+        .res-wrapper { background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); overflow: hidden; margin-bottom: 15px; }
+        .res-header { padding: 12px 15px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: #f8fafc; }
+        .res-status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: white; }
+        .status-success { background: var(--success); }
+        .status-error { background: #ef4444; }
+        .status-neutral { background: #64748b; }
+        .res-body { padding: 15px; }
+        
+        .res-table { width: 100%; border-collapse: collapse; }
+        .res-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        .res-table tr:last-child td { border-bottom: none; }
+        .res-table tr:hover { background-color: #f8fafc; }
+        .res-key { font-weight: 600; color: #475569; width: 35%; white-space: nowrap; }
+        .res-value { color: #1e293b; font-family: 'JetBrains Mono', monospace; word-break: break-all; }
+        
+        .res-array { display: flex; flex-direction: column; gap: 10px; }
+        .res-array-item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; background: white; }
+        .res-array-index { font-size: 0.7rem; font-weight: 700; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; display: inline-block; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;}
+
         /* Button */
         .btn-send {
             background: var(--primary);
@@ -808,12 +836,19 @@
                                 <div style="display:flex; align-items:center; gap:8px;">
                                     <button class="btn-mini" onclick="manualDecrypt('${ep.id}')" title="Decrypt Raw Content"><i class="fas fa-unlock"></i> Decrypt</button>
                                     <div class="tabs">
-                                        <span class="tab active" onclick="switchTab('${ep.id}', 'res', 'dec')">Decrypted</span>
+                                        <span class="tab active" onclick="switchTab('${ep.id}', 'res', 'vis')">Visual</span>
+                                        <span class="tab" onclick="switchTab('${ep.id}', 'res', 'dec')">JSON</span>
                                         <span class="tab" onclick="switchTab('${ep.id}', 'res', 'raw')">Raw</span>
                                     </div>
                                 </div>
                             </div>
-                            <textarea id="res-dec-${ep.id}" class="editor" readonly placeholder="// Response will appear here..."></textarea>
+                            <div id="res-vis-${ep.id}" class="visual-view">
+                                <div style="color: #94a3b8; text-align: center; margin-top: 50px; font-size: 0.85rem;">
+                                    <i class="fas fa-satellite-dish" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i><br>
+                                    Awaiting Request...
+                                </div>
+                            </div>
+                            <textarea id="res-dec-${ep.id}" class="editor hidden" readonly placeholder="// Response JSON will appear here..."></textarea>
                             <textarea id="res-raw-${ep.id}" class="editor hidden" readonly placeholder="// Raw encrypted response..."></textarea>
                         </div>
                     </div>
@@ -850,10 +885,97 @@
                 if(mode === 'enc' && encEl) encEl.classList.remove('hidden');
                 if(mode === 'form' && formEl) formEl.classList.remove('hidden');
             } else {
-                document.getElementById(`res-dec-${id}`).classList.add('hidden');
-                document.getElementById(`res-raw-${id}`).classList.add('hidden');
-                document.getElementById(`res-${mode}-${id}`).classList.remove('hidden');
+                const decEl = document.getElementById(`res-dec-${id}`);
+                const rawEl = document.getElementById(`res-raw-${id}`);
+                const visEl = document.getElementById(`res-vis-${id}`);
+
+                if(decEl) decEl.classList.add('hidden');
+                if(rawEl) rawEl.classList.add('hidden');
+                if(visEl) visEl.classList.add('hidden');
+
+                if(mode === 'dec' && decEl) decEl.classList.remove('hidden');
+                if(mode === 'raw' && rawEl) rawEl.classList.remove('hidden');
+                if(mode === 'vis' && visEl) visEl.classList.remove('hidden');
             }
+        }
+
+        // ==========================================
+        // UI JSON VISUALIZER (BEAUTIFUL CARDS)
+        // ==========================================
+        function renderProfessionalCard(data) {
+            if (data === null || data === undefined) return '<div style="color: #64748b; padding: 20px;">No Response Data</div>';
+            
+            let headerHtml = '';
+            let bodyData = data;
+
+            // Detect Standard Generic API Wrapper Pattern
+            const isWrapper = (data.hasOwnProperty('Message') || data.hasOwnProperty('message')) && 
+                              (data.hasOwnProperty('StatusCode') || data.hasOwnProperty('Status') || data.hasOwnProperty('status'));
+            
+            if (isWrapper) {
+                const status = data.StatusCode || data.Status || data.status || 200;
+                const msg = data.Message || data.message || 'Processed';
+                const isSuccess = status == 200 || status == '000' || data.IsSuccess === true || status == true;
+                
+                const badgeClass = isSuccess ? 'status-success' : 'status-error';
+                
+                headerHtml = `
+                    <div class="res-header">
+                        <span class="res-status-badge ${badgeClass}">${status}</span>
+                        <strong style="font-size: 0.9rem;">${msg}</strong>
+                    </div>
+                `;
+                
+                if (data.hasOwnProperty('Data')) bodyData = data.Data;
+                else if (data.hasOwnProperty('data')) bodyData = data.data;
+                else if (data.hasOwnProperty('Result')) bodyData = data.Result;
+            } else {
+                // If it's just raw data, give it a default header
+                headerHtml = `
+                    <div class="res-header">
+                        <span class="res-status-badge status-neutral">Response</span>
+                        <strong style="font-size: 0.9rem;">Payload Data</strong>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="res-wrapper">
+                    ${headerHtml}
+                    <div class="res-body">
+                        ${generateValueHtml(bodyData)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateValueHtml(val) {
+            if (val === null || val === undefined) return '<span style="color:#94a3b8;font-style:italic;">null</span>';
+            if (typeof val !== 'object') return `<span class="res-value">${val}</span>`;
+            
+            if (Array.isArray(val)) {
+                if (val.length === 0) return '<span style="color:#94a3b8;font-style:italic;">Empty Array []</span>';
+                let html = '<div class="res-array">';
+                val.forEach((item, index) => {
+                    html += `<div class="res-array-item">
+                                <span class="res-array-index">Item #${index + 1}</span>
+                                ${generateValueHtml(item)}
+                             </div>`;
+                });
+                html += '</div>';
+                return html;
+            }
+
+            // Object
+            let html = '<table class="res-table">';
+            for (let key in val) {
+                html += `<tr>
+                            <td class="res-key">${key}</td>
+                            <td>${generateValueHtml(val[key])}</td>
+                         </tr>`;
+            }
+            html += '</table>';
+            return html;
         }
 
         // ==========================================
@@ -1108,15 +1230,11 @@
             }
 
             const resDecEl = document.getElementById(`res-dec-${id}`);
+            const resVisEl = document.getElementById(`res-vis-${id}`);
             resDecEl.value = "// Manually decrypting...";
             
-            // Force switch to decrypted tab
-            switchTab(id, 'res', 'dec');
-            // Hacky way to set active tab UI
-            const container = document.getElementById(`card-${id}`);
-            const header = container.querySelectorAll('.pane')[1];
-            header.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            header.querySelectorAll('.tab')[0].classList.add('active');
+            // Force switch to decrypted visual tab
+            switchTab(id, 'res', 'vis');
 
             try {
                 let parsed;
@@ -1126,6 +1244,7 @@
                 
                 if(!encryptedStr) {
                     resDecEl.value = "Could not identify an encrypted string in the Raw response.\nExpected 'Data' field or raw string.";
+                    resVisEl.innerHTML = renderProfessionalCard({ Status: "Error", Message: "Could not identify an encrypted string in the Raw response."});
                     return;
                 }
 
@@ -1146,12 +1265,15 @@
                     // Sometimes double encoded
                     const finalJson = typeof tempObj === 'string' ? JSON.parse(tempObj) : tempObj;
                     resDecEl.value = JSON.stringify(finalJson, null, 4);
+                    resVisEl.innerHTML = renderProfessionalCard(finalJson);
                 } catch(e) {
                     resDecEl.value = decryptResultText;
+                    resVisEl.innerHTML = renderProfessionalCard({ Payload: decryptResultText });
                 }
 
             } catch(e) {
                 resDecEl.value = "Error during manual decryption:\n" + e.message;
+                resVisEl.innerHTML = renderProfessionalCard({ Status: "Error", Message: e.message });
             }
         }
 
@@ -1162,12 +1284,17 @@
             const reqEncEl = document.getElementById(`req-enc-${id}`);
             const resDecEl = document.getElementById(`res-dec-${id}`);
             const resRawEl = document.getElementById(`res-raw-${id}`);
+            const resVisEl = document.getElementById(`res-vis-${id}`);
 
             btn.disabled = true;
             btn.innerHTML = `<div class="spinner"></div> Sending...`;
             resDecEl.value = '// Processing...';
             resRawEl.value = '// Processing...';
+            resVisEl.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8;"><div class="spinner" style="border-color:#94a3b8; border-top-color:transparent; margin:0 auto 10px;"></div>Processing Request...</div>`;
             
+            // Switch to visual tab automatically
+            switchTab(id, 'res', 'vis');
+
             try {
                 let payloadToSend = null;
                 const apiBase = currentBaseUrl + '/api';
@@ -1205,7 +1332,7 @@
                         "OrgCode": "MFS" 
                     };
 
-                    reqEncEl.value = JSON.stringify(envelope, null, 4);
+                    if(reqEncEl) reqEncEl.value = JSON.stringify(envelope, null, 4);
                     payloadToSend = JSON.stringify(envelope);
                 }
 
@@ -1263,12 +1390,13 @@
                         finalObj = typeof temp === 'string' ? JSON.parse(temp) : temp;
                     } catch(e) {}
 
-                    // Combine headers from original response with decrypted body for clarity
                     resDecEl.value = JSON.stringify(finalObj, null, 4);
+                    resVisEl.innerHTML = renderProfessionalCard(finalObj);
 
                 } else {
                     // It wasn't encrypted, just show raw
                     resDecEl.value = (typeof parsedRaw === 'object') ? JSON.stringify(parsedRaw, null, 4) : rawResText;
+                    resVisEl.innerHTML = renderProfessionalCard(typeof parsedRaw === 'object' ? parsedRaw : { Payload: rawResText });
                 }
 
                 statusEl.innerHTML = `<span style="color:var(--success)"><i class="fas fa-check"></i> Complete</span>`;
@@ -1276,6 +1404,7 @@
             } catch (err) {
                 console.error(err);
                 resDecEl.value = `Error:\n${err.message}`;
+                resVisEl.innerHTML = renderProfessionalCard({ Status: "Failed", Message: err.message });
                 statusEl.innerHTML = `<span style="color:red"><i class="fas fa-times"></i> Failed</span>`;
             } finally {
                 btn.disabled = false;
