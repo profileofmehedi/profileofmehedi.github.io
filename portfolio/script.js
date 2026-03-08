@@ -166,3 +166,20 @@ if (backToTopBtn) {
         });
     });
 }
+
+// Contact Speed Dial Logic
+const speedDial = document.querySelector('.contact-speed-dial');
+const dialMainBtn = document.querySelector('.dial-main-btn');
+
+if (speedDial && dialMainBtn) {
+    dialMainBtn.addEventListener('click', () => {
+        speedDial.classList.toggle('active');
+    });
+
+    // Close speed dial when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!speedDial.contains(e.target)) {
+            speedDial.classList.remove('active');
+        }
+    });
+}
