@@ -183,3 +183,37 @@ if (speedDial && dialMainBtn) {
         }
     });
 }
+
+// Session Timer Logic
+const timerDisplay = document.getElementById('timer-display');
+if (timerDisplay) {
+    // Check if session start time exists, if not set it
+    let startTime = sessionStorage.getItem('session_start_time');
+    if (!startTime) {
+        startTime = Date.now();
+        sessionStorage.setItem('session_start_time', startTime);
+    } else {
+        startTime = parseInt(startTime);
+    }
+    
+    function updateTimer() {
+        const now = Date.now();
+        const seconds = Math.floor((now - startTime) / 1000);
+        
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        
+        const display = [
+            hrs.toString().padStart(2, '0'),
+            mins.toString().padStart(2, '0'),
+            secs.toString().padStart(2, '0')
+        ].join(':');
+        
+        timerDisplay.textContent = display;
+    }
+    
+    // Update immediately and then every second
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
