@@ -36,7 +36,55 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            width: 300px;
         }
+
+        .search-container {
+            position: relative;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 4px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        #search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        #search-input::placeholder { color: var(--text-dim); }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .search-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .search-item:hover { background: var(--accent); }
+        .search-item:last-child { border-bottom: none; }
 
         .btn-group {
             background: rgba(30, 41, 59, 0.8);
@@ -45,8 +93,9 @@
             border-radius: 14px;
             border: 1px solid var(--border);
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             gap: 10px;
+            width: fit-content;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
         }
 
@@ -133,7 +182,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
             pointer-events: auto;
-            max-height: 80vh;
+            max-height: 60vh;
             overflow-y: auto;
         }
 
@@ -183,17 +232,21 @@
             letter-spacing: 1.5px;
         }
 
-        /* Custom Scrollbar for dashboard */
-        .dashboard::-webkit-scrollbar { width: 6px; }
-        .dashboard::-webkit-scrollbar-track { background: transparent; }
-        .dashboard::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-        .dashboard::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
     </style>
 </head>
 <body>
 
     <div class="controls">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search country name...">
+            <div id="search-results" class="search-results"></div>
+        </div>
         <div class="btn-group">
             <button class="btn" id="zoom-in" title="Zoom In">+</button>
             <button class="btn" id="zoom-out" title="Zoom Out">−</button>
@@ -212,7 +265,7 @@
     <div class="dashboard" id="details-panel">
         <h2 id="country-name">World Map</h2>
         <div id="country-info">
-            <p style="color: var(--text-dim); line-height: 1.6;">Select a country to explore detailed geographic, demographic, political, and media data.</p>
+            <p style="color: var(--text-dim); line-height: 1.6;">Select or search a country to explore details.</p>
         </div>
     </div>
 
@@ -225,112 +278,35 @@
         const viewport = document.getElementById('map-viewport');
         const countryTitle = document.getElementById('country-name');
         const infoPanel = document.getElementById('country-info');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
 
         let viewBox = { x: 0, y: 0, w: 2000, h: 857 };
         let isPanning = false;
         let startMousePos = { x: 0, y: 0 };
         let totalDistMoved = 0;
+        let countries = []; // Search index
 
         const palette = ['#38bdf8', '#4ade80', '#fbbf24', '#f87171', '#818cf8', '#c084fc', '#2dd4bf', '#fb7185', '#34d399', '#a78bfa'];
 
-        // Comprehensive Country Database with 2026 Political and Cultural Data
+        // Comprehensive Country Database
         const countryDatabase = {
-            "US": { 
-                capital: "Washington, D.C.", population: "335M", continent: "North America", area: "9.83M km²",
-                language: "English", religion: "Christianity",
-                leaderTitle: "President", leaderName: "Donald Trump", leaderLink: "https://en.wikipedia.org/wiki/Donald_Trump",
-                mediaName: "The New York Times", mediaLink: "https://www.nytimes.com"
-            },
-            "CN": { 
-                capital: "Beijing", population: "1.41B", continent: "Asia", area: "9.6M km²",
-                language: "Mandarin", religion: "Unaffiliated / Buddhism",
-                leaderTitle: "President", leaderName: "Xi Jinping", leaderLink: "https://en.wikipedia.org/wiki/Xi_Jinping",
-                mediaName: "Xinhua News Agency", mediaLink: "http://www.xinhuanet.com/english/"
-            },
-            "IN": { 
-                capital: "New Delhi", population: "1.43B", continent: "Asia", area: "3.28M km²",
-                language: "Hindi, English", religion: "Hinduism",
-                leaderTitle: "Prime Minister", leaderName: "Narendra Modi", leaderLink: "https://en.wikipedia.org/wiki/Narendra_Modi",
-                mediaName: "The Times of India", mediaLink: "https://timesofindia.indiatimes.com"
-            },
-            "RU": { 
-                capital: "Moscow", population: "143M", continent: "Europe/Asia", area: "17.1M km²",
-                language: "Russian", religion: "Orthodox Christianity",
-                leaderTitle: "President", leaderName: "Vladimir Putin", leaderLink: "https://en.wikipedia.org/wiki/Vladimir_Putin",
-                mediaName: "TASS", mediaLink: "https://tass.com"
-            },
-            "GB": { 
-                capital: "London", population: "67.7M", continent: "Europe", area: "243,610 km²",
-                language: "English", religion: "Christianity",
-                leaderTitle: "Prime Minister", leaderName: "Keir Starmer", leaderLink: "https://en.wikipedia.org/wiki/Keir_Starmer",
-                mediaName: "BBC News", mediaLink: "https://www.bbc.com/news"
-            },
-            "FR": { 
-                capital: "Paris", population: "68M", continent: "Europe", area: "643,801 km²",
-                language: "French", religion: "Christianity",
-                leaderTitle: "President", leaderName: "Emmanuel Macron", leaderLink: "https://en.wikipedia.org/wiki/Emmanuel_Macron",
-                mediaName: "Le Monde", mediaLink: "https://www.lemonde.fr/en/"
-            },
-            "DE": { 
-                capital: "Berlin", population: "83.3M", continent: "Europe", area: "357,022 km²",
-                language: "German", religion: "Christianity",
-                leaderTitle: "Chancellor", leaderName: "Olaf Scholz", leaderLink: "https://en.wikipedia.org/wiki/Olaf_Scholz",
-                mediaName: "Der Spiegel", mediaLink: "https://www.spiegel.de/international/"
-            },
-            "BR": { 
-                capital: "Brasília", population: "216M", continent: "South America", area: "8.51M km²",
-                language: "Portuguese", religion: "Christianity (Catholic)",
-                leaderTitle: "President", leaderName: "Luiz Inácio Lula da Silva", leaderLink: "https://en.wikipedia.org/wiki/Luiz_In%C3%A1cio_Lula_da_Silva",
-                mediaName: "O Globo", mediaLink: "https://oglobo.globo.com"
-            },
-            "JP": { 
-                capital: "Tokyo", population: "124M", continent: "Asia", area: "377,975 km²",
-                language: "Japanese", religion: "Shinto / Buddhism",
-                leaderTitle: "Prime Minister", leaderName: "Fumio Kishida", leaderLink: "https://en.wikipedia.org/wiki/Fumio_Kishida",
-                mediaName: "The Japan Times", mediaLink: "https://www.japantimes.co.jp"
-            },
-            "CA": { 
-                capital: "Ottawa", population: "39M", continent: "North America", area: "9.98M km²",
-                language: "English, French", religion: "Christianity",
-                leaderTitle: "Prime Minister", leaderName: "Justin Trudeau", leaderLink: "https://en.wikipedia.org/wiki/Justin_Trudeau",
-                mediaName: "The Globe and Mail", mediaLink: "https://www.theglobeandmail.com"
-            },
-            "AU": { 
-                capital: "Canberra", population: "26.4M", continent: "Oceania", area: "7.69M km²",
-                language: "English", religion: "Christianity",
-                leaderTitle: "Prime Minister", leaderName: "Anthony Albanese", leaderLink: "https://en.wikipedia.org/wiki/Anthony_Albanese",
-                mediaName: "ABC News", mediaLink: "https://www.abc.net.au/news"
-            },
-            "ZA": { 
-                capital: "Pretoria", population: "60M", continent: "Africa", area: "1.22M km²",
-                language: "12 Official Languages", religion: "Christianity",
-                leaderTitle: "President", leaderName: "Cyril Ramaphosa", leaderLink: "https://en.wikipedia.org/wiki/Cyril_Ramaphosa",
-                mediaName: "News24", mediaLink: "https://www.news24.com"
-            },
-            "MX": { 
-                capital: "Mexico City", population: "128M", continent: "North America", area: "1.96M km²",
-                language: "Spanish", religion: "Christianity (Catholic)",
-                leaderTitle: "President", leaderName: "Claudia Sheinbaum", leaderLink: "https://en.wikipedia.org/wiki/Claudia_Sheinbaum",
-                mediaName: "El Universal", mediaLink: "https://www.eluniversal.com.mx"
-            },
-            "IT": { 
-                capital: "Rome", population: "58M", continent: "Europe", area: "301,340 km²",
-                language: "Italian", religion: "Christianity (Catholic)",
-                leaderTitle: "Prime Minister", leaderName: "Giorgia Meloni", leaderLink: "https://en.wikipedia.org/wiki/Giorgia_Meloni",
-                mediaName: "La Repubblica", mediaLink: "https://www.repubblica.it"
-            },
-            "KR": { 
-                capital: "Seoul", population: "51.7M", continent: "Asia", area: "100,210 km²",
-                language: "Korean", religion: "Unaffiliated / Christianity",
-                leaderTitle: "President", leaderName: "Yoon Suk-yeol", leaderLink: "https://en.wikipedia.org/wiki/Yoon_Suk-yeol",
-                mediaName: "The Korea Herald", mediaLink: "https://www.koreaherald.com"
-            },
-            "ES": { 
-                capital: "Madrid", population: "47.4M", continent: "Europe", area: "505,990 km²",
-                language: "Spanish", religion: "Christianity (Catholic)",
-                leaderTitle: "Prime Minister", leaderName: "Pedro Sánchez", leaderLink: "https://en.wikipedia.org/wiki/Pedro_S%C3%A1nchez",
-                mediaName: "El País", mediaLink: "https://elpais.com"
-            }
+            "US": { capital: "Washington, D.C.", population: "335M", continent: "North America", area: "9.83M km²", language: "English", religion: "Christianity", leaderTitle: "President", leaderName: "Donald Trump", leaderLink: "https://en.wikipedia.org/wiki/Donald_Trump", mediaName: "NY Times", mediaLink: "https://www.nytimes.com" },
+            "CN": { capital: "Beijing", population: "1.41B", continent: "Asia", area: "9.6M km²", language: "Mandarin", religion: "Unaffiliated", leaderTitle: "President", leaderName: "Xi Jinping", leaderLink: "https://en.wikipedia.org/wiki/Xi_Jinping", mediaName: "Xinhua", mediaLink: "http://www.xinhuanet.com" },
+            "IN": { capital: "New Delhi", population: "1.43B", continent: "Asia", area: "3.28M km²", language: "Hindi, English", religion: "Hinduism", leaderTitle: "Prime Minister", leaderName: "Narendra Modi", leaderLink: "https://en.wikipedia.org/wiki/Narendra_Modi", mediaName: "Times of India", mediaLink: "https://timesofindia.indiatimes.com" },
+            "RU": { capital: "Moscow", population: "143M", continent: "Europe/Asia", area: "17.1M km²", language: "Russian", religion: "Orthodox", leaderTitle: "President", leaderName: "Vladimir Putin", leaderLink: "https://en.wikipedia.org/wiki/Vladimir_Putin", mediaName: "TASS", mediaLink: "https://tass.com" },
+            "GB": { capital: "London", population: "67.7M", continent: "Europe", area: "243,610 km²", language: "English", religion: "Christianity", leaderTitle: "Prime Minister", leaderName: "Keir Starmer", leaderLink: "https://en.wikipedia.org/wiki/Keir_Starmer", mediaName: "BBC News", mediaLink: "https://www.bbc.com/news" },
+            "FR": { capital: "Paris", population: "68M", continent: "Europe", area: "643,801 km²", language: "French", religion: "Christianity", leaderTitle: "President", leaderName: "Emmanuel Macron", leaderLink: "https://en.wikipedia.org/wiki/Emmanuel_Macron", mediaName: "Le Monde", mediaLink: "https://www.lemonde.fr" },
+            "DE": { capital: "Berlin", population: "83.3M", continent: "Europe", area: "357,022 km²", language: "German", religion: "Christianity", leaderTitle: "Chancellor", leaderName: "Olaf Scholz", leaderLink: "https://en.wikipedia.org/wiki/Olaf_Scholz", mediaName: "Der Spiegel", mediaLink: "https://www.spiegel.de" },
+            "BR": { capital: "Brasília", population: "216M", continent: "South America", area: "8.51M km²", language: "Portuguese", religion: "Christianity", leaderTitle: "President", leaderName: "Lula da Silva", leaderLink: "https://en.wikipedia.org/wiki/Luiz_In%C3%A1cio_Lula_da_Silva", mediaName: "O Globo", mediaLink: "https://oglobo.globo.com" },
+            "JP": { capital: "Tokyo", population: "124M", continent: "Asia", area: "377,975 km²", language: "Japanese", religion: "Shinto/Buddhism", leaderTitle: "Prime Minister", leaderName: "Fumio Kishida", leaderLink: "https://en.wikipedia.org/wiki/Fumio_Kishida", mediaName: "Japan Times", mediaLink: "https://www.japantimes.co.jp" },
+            "CA": { capital: "Ottawa", population: "39M", continent: "North America", area: "9.98M km²", language: "English, French", religion: "Christianity", leaderTitle: "Prime Minister", leaderName: "Justin Trudeau", leaderLink: "https://en.wikipedia.org/wiki/Justin_Trudeau", mediaName: "Globe and Mail", mediaLink: "https://www.theglobeandmail.com" },
+            "AU": { capital: "Canberra", population: "26.4M", continent: "Oceania", area: "7.69M km²", language: "English", religion: "Christianity", leaderTitle: "Prime Minister", leaderName: "Anthony Albanese", leaderLink: "https://en.wikipedia.org/wiki/Anthony_Albanese", mediaName: "ABC News", mediaLink: "https://www.abc.net.au/news" },
+            "ZA": { capital: "Pretoria", population: "60M", continent: "Africa", area: "1.22M km²", language: "Multilingual", religion: "Christianity", leaderTitle: "President", leaderName: "Cyril Ramaphosa", leaderLink: "https://en.wikipedia.org/wiki/Cyril_Ramaphosa", mediaName: "News24", mediaLink: "https://www.news24.com" },
+            "MX": { capital: "Mexico City", population: "128M", continent: "North America", area: "1.96M km²", language: "Spanish", religion: "Christianity", leaderTitle: "President", leaderName: "Claudia Sheinbaum", leaderLink: "https://en.wikipedia.org/wiki/Claudia_Sheinbaum", mediaName: "El Universal", mediaLink: "https://www.eluniversal.com.mx" },
+            "IT": { capital: "Rome", population: "58M", continent: "Europe", area: "301,340 km²", language: "Italian", religion: "Christianity", leaderTitle: "Prime Minister", leaderName: "Giorgia Meloni", leaderLink: "https://en.wikipedia.org/wiki/Giorgia_Meloni", mediaName: "La Repubblica", mediaLink: "https://www.repubblica.it" },
+            "KR": { capital: "Seoul", population: "51.7M", continent: "Asia", area: "100,210 km²", language: "Korean", religion: "Diverse", leaderTitle: "President", leaderName: "Yoon Suk-yeol", leaderLink: "https://en.wikipedia.org/wiki/Yoon_Suk-yeol", mediaName: "Korea Herald", mediaLink: "https://www.koreaherald.com" },
+            "ES": { capital: "Madrid", population: "47.4M", continent: "Europe", area: "505,990 km²", language: "Spanish", religion: "Christianity", leaderTitle: "Prime Minister", leaderName: "Pedro Sánchez", leaderLink: "https://en.wikipedia.org/wiki/Pedro_S%C3%A1nchez", mediaName: "El País", mediaLink: "https://elpais.com" }
         };
 
         async function init() {
@@ -354,6 +330,7 @@
                             color: palette[Object.keys(countryGroups).length % palette.length],
                             id: id
                         };
+                        countries.push({ id, name, groupKey });
                     }
                     
                     const newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -368,7 +345,93 @@
                 });
             } catch (e) {
                 console.error("Map load error", e);
-                mapLayer.innerHTML = `<text x="1000" y="400" text-anchor="middle" fill="white" font-size="24">Error: world.svg missing. Please ensure it is in the same folder.</text>`;
+            }
+        }
+
+        // --- Search Functionality ---
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            searchResults.innerHTML = '';
+            if (!val) { searchResults.style.display = 'none'; return; }
+
+            const filtered = countries.filter(c => c.name.toLowerCase().includes(val)).slice(0, 10);
+            
+            if (filtered.length > 0) {
+                filtered.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.textContent = c.name;
+                    div.onclick = () => selectCountry(c.id, c.name, c.groupKey, true);
+                    searchResults.appendChild(div);
+                });
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        function selectCountry(id, name, groupKey, shouldZoom) {
+            searchInput.value = name;
+            searchResults.style.display = 'none';
+            
+            document.querySelectorAll('path.selected').forEach(p => p.classList.remove('selected'));
+            const parts = document.querySelectorAll(`path[data-country="${groupKey}"]`);
+            parts.forEach(p => p.classList.add('selected'));
+
+            // Show Data
+            countryTitle.textContent = name;
+            let data = countryDatabase[id];
+            if (!data) {
+                const wikiName = name.replace(/ /g, '_');
+                data = { capital: "Regional Data", population: "Varies", continent: "Global Map", area: "N/A", language: "Official", religion: "Diverse", leaderTitle: "Leader", leaderName: "Official Site", leaderLink: `https://en.wikipedia.org/wiki/${wikiName}`, mediaName: "News Search", mediaLink: `https://news.google.com/search?q=${encodeURIComponent(name)}` };
+            }
+
+            infoPanel.innerHTML = `
+                <div class="info-grid">
+                    <div class="info-label">Language</div><div class="info-value">${data.language}</div>
+                    <div class="info-label">Religion</div><div class="info-value">${data.religion}</div>
+                    <div class="info-label">${data.leaderTitle}</div><div class="info-value"><a href="${data.leaderLink}" class="info-link" target="_blank">${data.leaderName}</a></div>
+                    <div class="info-label">Media</div><div class="info-value"><a href="${data.mediaLink}" class="info-link" target="_blank">${data.mediaName}</a></div>
+                    <div class="info-label">Maps</div><div class="info-value"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}" class="info-link" target="_blank">Google Maps</a></div>
+                    <div style="grid-column: 1 / -1; border-top: 1px solid var(--border); margin: 6px 0;"></div>
+                    <div class="info-label">Capital</div><div class="info-value">${data.capital}</div>
+                    <div class="info-label">Region</div><div class="info-value">${data.continent}</div>
+                    <div class="info-label">Population</div><div class="info-value">${data.population}</div>
+                    <div class="info-label">Area</div><div class="info-value">${data.area}</div>
+                </div>`;
+
+            if (shouldZoom && parts.length > 0) {
+                // Calculate Bounding Box of all parts
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                parts.forEach(p => {
+                    const box = p.getBBox();
+                    minX = Math.min(minX, box.x); minY = Math.min(minY, box.y);
+                    maxX = Math.max(maxX, box.x + box.width); maxY = Math.max(maxY, box.y + box.height);
+                });
+
+                const w = maxX - minX; const h = maxY - minY;
+                const padding = 1.5; // Zoom out slightly to see context
+                
+                viewBox = {
+                    x: minX - (w * (padding - 1)) / 2,
+                    y: minY - (h * (padding - 1)) / 2,
+                    w: w * padding,
+                    h: h * padding
+                };
+                
+                // Ensure ratio matches screen
+                const screenRatio = viewport.clientWidth / viewport.clientHeight;
+                if (viewBox.w / viewBox.h > screenRatio) {
+                    const newH = viewBox.w / screenRatio;
+                    viewBox.y -= (newH - viewBox.h) / 2;
+                    viewBox.h = newH;
+                } else {
+                    const newW = viewBox.h * screenRatio;
+                    viewBox.x -= (newW - viewBox.w) / 2;
+                    viewBox.w = newW;
+                }
+                
+                updateViewBox();
             }
         }
 
@@ -391,8 +454,7 @@
         // --- Panning Logic ---
         viewport.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            isPanning = true;
-            totalDistMoved = 0;
+            isPanning = true; totalDistMoved = 0;
             startMousePos = { x: e.clientX, y: e.clientY };
             e.preventDefault();
         });
@@ -402,11 +464,8 @@
                 const dx = e.clientX - startMousePos.x;
                 const dy = e.clientY - startMousePos.y;
                 totalDistMoved += Math.abs(dx) + Math.abs(dy);
-
                 const scale = viewBox.w / svg.getBoundingClientRect().width;
-                viewBox.x -= dx * scale;
-                viewBox.y -= dy * scale;
-
+                viewBox.x -= dx * scale; viewBox.y -= dy * scale;
                 startMousePos = { x: e.clientX, y: e.clientY };
                 updateViewBox();
             }
@@ -416,7 +475,6 @@
 
         window.addEventListener('mouseup', () => { isPanning = false; });
 
-        // --- INTERACTION ---
         mapLayer.addEventListener('mouseover', (e) => {
             if (e.target.tagName === 'path') {
                 const countryKey = e.target.getAttribute('data-country');
@@ -433,61 +491,7 @@
 
         mapLayer.addEventListener('click', (e) => {
             if (e.target.tagName === 'path' && totalDistMoved < 10) {
-                document.querySelectorAll('path.selected').forEach(p => p.classList.remove('selected'));
-                const id = e.target.getAttribute('data-id');
-                const name = e.target.getAttribute('data-name');
-                const countryKey = e.target.getAttribute('data-country');
-                document.querySelectorAll(`path[data-country="${countryKey}"]`).forEach(p => p.classList.add('selected'));
-                
-                countryTitle.textContent = name;
-                
-                // Fetch predefined data or generate dynamic data for missing countries
-                let data = countryDatabase[id];
-                if (!data) {
-                    const wikiName = name.replace(/ /g, '_');
-                    data = { 
-                        capital: "Regional Data", 
-                        population: "See Demographics", 
-                        continent: "Global Map", 
-                        area: "Territorial Area",
-                        language: "Official Languages",
-                        religion: "Major Religion",
-                        leaderTitle: "Head of State/Gov",
-                        leaderName: "Current Leadership",
-                        leaderLink: `https://en.wikipedia.org/wiki/${wikiName}`,
-                        mediaName: "Google News",
-                        mediaLink: `https://news.google.com/search?q=${encodeURIComponent(name)}`
-                    };
-                }
-                
-                infoPanel.innerHTML = `
-                    <div class="info-grid">
-                        <div class="info-label">Language</div><div class="info-value">${data.language}</div>
-                        <div class="info-label">Religion</div><div class="info-value">${data.religion}</div>
-                        
-                        <div class="info-label">${data.leaderTitle}</div>
-                        <div class="info-value">
-                            <a href="${data.leaderLink}" class="info-link" target="_blank" rel="noopener noreferrer">${data.leaderName}</a>
-                        </div>
-                        
-                        <div class="info-label">News Media</div>
-                        <div class="info-value">
-                            <a href="${data.mediaLink}" class="info-link" target="_blank" rel="noopener noreferrer">${data.mediaName}</a>
-                        </div>
-
-                        <div class="info-label">Google Maps</div>
-                        <div class="info-value">
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}" class="info-link" target="_blank" rel="noopener noreferrer">View on Maps</a>
-                        </div>
-
-                        <div style="grid-column: 1 / -1; border-top: 1px solid var(--border); margin: 6px 0;"></div>
-
-                        <div class="info-label">Capital</div><div class="info-value">${data.capital}</div>
-                        <div class="info-label">Region</div><div class="info-value">${data.continent}</div>
-                        <div class="info-label">Population</div><div class="info-value">${data.population}</div>
-                        <div class="info-label">Land Area</div><div class="info-value">${data.area}</div>
-                    </div>
-                `;
+                selectCountry(e.target.getAttribute('data-id'), e.target.getAttribute('data-name'), e.target.getAttribute('data-country'), false);
             }
         });
 
@@ -497,8 +501,9 @@
             viewBox = { x: 0, y: 0, w: 2000, h: 857 };
             updateViewBox();
             countryTitle.textContent = "World Map";
-            infoPanel.innerHTML = `<p style="color: var(--text-dim); line-height: 1.6;">Select a country to explore detailed geographic, demographic, political, and media data.</p>`;
+            infoPanel.innerHTML = `<p style="color: var(--text-dim);">Select or search a country to explore details.</p>`;
             document.querySelectorAll('path.selected').forEach(p => p.classList.remove('selected'));
+            searchInput.value = '';
         };
 
         init();
