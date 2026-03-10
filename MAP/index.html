@@ -125,16 +125,15 @@
             align-items: center;
             justify-content: center;
             touch-action: none;
-            overflow: hidden;
             background: var(--bg);
         }
 
-        #map-viewport:active { cursor: grabbing; }
+        #map-viewport.panning { cursor: grabbing; }
 
         svg { 
             width: 100%; 
             height: 100%; 
-            display: block; 
+            display: block;
             pointer-events: all;
         }
 
@@ -155,6 +154,8 @@
 
         path.highlighted { stroke: #fff; stroke-width: 1.2; filter: brightness(1.2); }
         path.selected { stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 12px var(--accent)); }
+
+        #label-layer { pointer-events: none; }
 
         .country-label {
             fill: white;
@@ -273,7 +274,7 @@
         </div>
     </div>
 
-    <div class="instructions">Scroll to Zoom • Click & Drag to Move • Click to Select</div>
+    <div class="instructions">Scroll to Zoom • Drag to Move • Click to Select</div>
 
     <script>
         const mapLayer = document.getElementById('map-layer');
@@ -287,9 +288,9 @@
         const searchResults = document.getElementById('search-results');
 
         let viewBox = { x: 0, y: 0, w: 2000, h: 857 };
-        let isDragging = false;
-        let startPoint = { x: 0, y: 0 };
-        let totalDistMoved = 0;
+        let isPanning = false;
+        let startPos = { x: 0, y: 0 };
+        let totalMoved = 0;
         let countries = [];
 
         const palette = ['#38bdf8', '#4ade80', '#fbbf24', '#f87171', '#818cf8', '#c084fc', '#2dd4bf', '#fb7185', '#34d399', '#a78bfa'];
@@ -341,23 +342,22 @@
                         minX = Math.min(minX, box.x); minY = Math.min(minY, box.y);
                         maxX = Math.max(maxX, box.x + box.width); maxY = Math.max(maxY, box.y + box.height);
                     });
-                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('x', minX + (maxX - minX) / 2);
-                    text.setAttribute('y', minY + (maxY - minY) / 2);
-                    text.setAttribute('class', 'country-label');
-                    text.setAttribute('data-country', key);
-                    text.textContent = group.name;
-                    labelLayer.appendChild(text);
+                    const textNode = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    textNode.setAttribute('x', minX + (maxX - minX) / 2);
+                    textNode.setAttribute('y', minY + (maxY - minY) / 2);
+                    textNode.setAttribute('class', 'country-label');
+                    textNode.setAttribute('data-country', key);
+                    textNode.textContent = group.name;
+                    labelLayer.appendChild(textNode);
                 });
             } catch (e) { console.error("Map load failed", e); }
         }
 
         function updateViewBox() {
             svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`);
-            const zoomThreshold = 1200; 
             const labels = document.querySelectorAll('.country-label');
             labels.forEach(l => {
-                l.style.opacity = viewBox.w < zoomThreshold ? "1" : "0";
+                l.style.opacity = viewBox.w < 1200 ? "1" : "0";
                 l.style.fontSize = Math.max(10, viewBox.w / 80) + "px";
             });
         }
@@ -366,39 +366,55 @@
             const zoomFactor = delta > 0 ? 0.8 : 1.25;
             const newW = viewBox.w * zoomFactor;
             const newH = viewBox.h * zoomFactor;
-            if (newW < 5 || newW > 10000) return;
+            if (newW < 5 || newW > 15000) return;
+
             const rect = svg.getBoundingClientRect();
             const mouseX = (clientX - rect.left) / rect.width;
             const mouseY = (clientY - rect.top) / rect.height;
+
             viewBox.x += (viewBox.w - newW) * mouseX;
             viewBox.y += (viewBox.h - newH) * mouseY;
             viewBox.w = newW; viewBox.h = newH;
             updateViewBox();
         }
 
-        viewport.addEventListener('mousedown', (e) => {
+        // --- STABLE PANNING SYSTEM ---
+        const startPanning = (e) => {
             if (e.button !== 0) return;
-            isDragging = true; totalDistMoved = 0;
-            startPoint = { x: e.clientX, y: e.clientY };
+            isPanning = true;
+            totalMoved = 0;
+            startPos = { x: e.clientX, y: e.clientY };
+            viewport.classList.add('panning');
             e.preventDefault();
-        });
+        };
 
-        window.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const dx = e.clientX - startPoint.x;
-                const dy = e.clientY - startPoint.y;
-                totalDistMoved += Math.sqrt(dx*dx + dy*dy);
-                const scale = viewBox.w / svg.getBoundingClientRect().width;
+        const handlePan = (e) => {
+            if (isPanning) {
+                const dx = e.clientX - startPos.x;
+                const dy = e.clientY - startPos.y;
+                totalMoved += Math.abs(dx) + Math.abs(dy);
+
+                const rect = svg.getBoundingClientRect();
+                const scale = viewBox.w / rect.width;
+                
                 viewBox.x -= dx * scale;
                 viewBox.y -= dy * scale;
-                startPoint = { x: e.clientX, y: e.clientY };
+
+                startPos = { x: e.clientX, y: e.clientY };
                 updateViewBox();
             }
             tooltip.style.left = e.clientX + 'px';
             tooltip.style.top = e.clientY + 'px';
-        });
+        };
 
-        window.addEventListener('mouseup', () => { isDragging = false; });
+        const stopPanning = () => {
+            isPanning = false;
+            viewport.classList.remove('panning');
+        };
+
+        window.addEventListener('mousemove', handlePan);
+        window.addEventListener('mouseup', stopPanning);
+        viewport.addEventListener('mousedown', startPanning);
 
         function selectCountry(id, name, groupKey, shouldZoom) {
             searchInput.value = name;
@@ -431,22 +447,10 @@
                     minX = Math.min(minX, box.x); minY = Math.min(minY, box.y);
                     maxX = Math.max(maxX, box.x + box.width); maxY = Math.max(maxY, box.y + box.height);
                 });
-                
                 let w = maxX - minX; let h = maxY - minY;
-                let zoomW = w * 2.5; let zoomH = h * 2.5;
-                const minViewW = 800; // Minimum window width to avoid over-zooming
-                
-                if (zoomW < minViewW) {
-                    zoomW = minViewW;
-                    zoomH = zoomW * (viewport.clientHeight / viewport.clientWidth);
-                }
-
-                viewBox = {
-                    x: minX + (w / 2) - (zoomW / 2),
-                    y: minY + (h / 2) - (zoomH / 2),
-                    w: zoomW,
-                    h: zoomH
-                };
+                let zoomW = Math.max(800, w * 2.5);
+                let zoomH = zoomW * (viewport.clientHeight / viewport.clientWidth);
+                viewBox = { x: minX + (w/2) - (zoomW/2), y: minY + (h/2) - (zoomH/2), w: zoomW, h: zoomH };
                 updateViewBox();
             }
         }
@@ -483,13 +487,11 @@
         });
 
         mapLayer.addEventListener('click', (e) => {
-            if (e.target.tagName === 'path' && totalDistMoved < 5) {
+            if (e.target.tagName === 'path' && totalMoved < 10) {
                 selectCountry(e.target.getAttribute('data-id'), e.target.getAttribute('data-name'), e.target.getAttribute('data-country'), false);
             }
         });
 
-        document.getElementById('zoom-in').onclick = () => zoom(1, window.innerWidth/2, window.innerHeight/2);
-        document.getElementById('zoom-out').onclick = () => zoom(-1, window.innerWidth/2, window.innerHeight/2);
         document.getElementById('reset').onclick = () => {
             viewBox = { x: 0, y: 0, w: 2000, h: 857 };
             updateViewBox();
@@ -498,6 +500,9 @@
             document.querySelectorAll('path.selected').forEach(p => p.classList.remove('selected'));
             searchInput.value = '';
         };
+
+        document.getElementById('zoom-in').onclick = () => zoom(1, window.innerWidth/2, window.innerHeight/2);
+        document.getElementById('zoom-out').onclick = () => zoom(-1, window.innerWidth/2, window.innerHeight/2);
 
         init();
     </script>
