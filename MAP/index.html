@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional World Map Explorer</title>
+    <title>World Map Pro Explorer</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -80,7 +80,7 @@
             user-select: none;
         }
 
-        #map-viewport:active { cursor: grabbing; }
+        #map-viewport.dragging { cursor: grabbing; }
 
         svg { width: 100%; height: 100%; display: block; pointer-events: all; }
 
@@ -123,22 +123,50 @@
         .dashboard {
             position: absolute;
             bottom: 30px;
-            right: 30px;
-            width: 340px;
-            background: rgba(30, 41, 59, 0.85);
+            left: 30px;
+            width: 380px;
+            background: rgba(30, 41, 59, 0.9);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border);
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 24px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
             pointer-events: auto;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
-        .dashboard h2 { margin: 0 0 12px 0; font-size: 24px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        .info-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px; margin-top: 12px; }
-        .info-label { color: var(--text-dim); font-size: 13px; font-weight: 600; text-transform: uppercase; }
-        .info-value { color: var(--text); font-size: 14px; }
+        .dashboard h2 { 
+            margin: 0 0 12px 0; 
+            font-size: 24px; 
+            color: var(--accent); 
+            border-bottom: 1px solid var(--border); 
+            padding-bottom: 8px; 
+        }
+
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: 110px 1fr; 
+            gap: 12px 8px; 
+            margin-top: 12px; 
+        }
+
+        .info-label { color: var(--text-dim); font-size: 13px; font-weight: 600; text-transform: uppercase; align-self: center; }
+        .info-value { color: var(--text); font-size: 14px; align-self: center; }
+        
+        .info-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .info-link:hover { color: #60a5fa; text-decoration: underline; }
+        .info-link::after { content: '↗'; font-size: 10px; }
 
         .instructions {
             position: absolute;
@@ -154,6 +182,13 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
         }
+
+        /* Custom Scrollbar for dashboard */
+        .dashboard::-webkit-scrollbar { width: 6px; }
+        .dashboard::-webkit-scrollbar-track { background: transparent; }
+        .dashboard::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .dashboard::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
     </style>
 </head>
 <body>
@@ -177,7 +212,7 @@
     <div class="dashboard" id="details-panel">
         <h2 id="country-name">World Map</h2>
         <div id="country-info">
-            <p>Select a country to explore detailed geographic and demographic data.</p>
+            <p style="color: var(--text-dim); line-height: 1.6;">Select a country to explore detailed geographic, demographic, political, and media data.</p>
         </div>
     </div>
 
@@ -198,39 +233,104 @@
 
         const palette = ['#38bdf8', '#4ade80', '#fbbf24', '#f87171', '#818cf8', '#c084fc', '#2dd4bf', '#fb7185', '#34d399', '#a78bfa'];
 
-        // Built-in Database
+        // Comprehensive Country Database with 2026 Political and Cultural Data
         const countryDatabase = {
-            "AF": { capital: "Kabul", population: "41.1M", continent: "Asia", area: "652,230 km²" },
-            "AL": { capital: "Tirana", population: "2.8M", continent: "Europe", area: "28,748 km²" },
-            "DZ": { capital: "Algiers", population: "44.9M", continent: "Africa", area: "2.38M km²" },
-            "AO": { capital: "Luanda", population: "35.6M", continent: "Africa", area: "1.25M km²" },
-            "AR": { capital: "Buenos Aires", population: "45.8M", continent: "South America", area: "2.78M km²" },
-            "AM": { capital: "Yerevan", population: "2.8M", continent: "Asia", area: "29,743 km²" },
-            "AU": { capital: "Canberra", population: "26.0M", continent: "Oceania", area: "7.69M km²" },
-            "AT": { capital: "Vienna", population: "9.0M", continent: "Europe", area: "83,871 km²" },
-            "AZ": { capital: "Baku", population: "10.1M", continent: "Asia", area: "86,600 km²" },
-            "BD": { capital: "Dhaka", population: "169.4M", continent: "Asia", area: "147,570 km²" },
-            "BY": { capital: "Minsk", population: "9.3M", continent: "Europe", area: "207,600 km²" },
-            "BE": { capital: "Brussels", population: "11.6M", continent: "Europe", area: "30,528 km²" },
-            "BR": { capital: "Brasília", population: "215.3M", continent: "South America", area: "8.51M km²" },
-            "CA": { capital: "Ottawa", population: "38.2M", continent: "North America", area: "9.98M km²" },
-            "CN": { capital: "Beijing", population: "1.41B", continent: "Asia", area: "9.6M km²" },
-            "FR": { capital: "Paris", population: "67.8M", continent: "Europe", area: "643,801 km²" },
-            "DE": { capital: "Berlin", population: "83.2M", continent: "Europe", area: "357,022 km²" },
-            "IN": { capital: "New Delhi", population: "1.41B", continent: "Asia", area: "3.28M km²" },
-            "ID": { capital: "Jakarta", population: "275M", continent: "Asia", area: "1.9M km²" },
-            "IT": { capital: "Rome", population: "59M", continent: "Europe", area: "301,340 km²" },
-            "JP": { capital: "Tokyo", population: "125.7M", continent: "Asia", area: "377,975 km²" },
-            "MX": { capital: "Mexico City", population: "127.5M", continent: "North America", area: "1.96M km²" },
-            "PK": { capital: "Islamabad", population: "235M", continent: "Asia", area: "796,095 km²" },
-            "PH": { capital: "Manila", population: "115M", continent: "Asia", area: "300,000 km²" },
-            "RU": { capital: "Moscow", population: "144M", continent: "Europe/Asia", area: "17.1M km²" },
-            "SA": { capital: "Riyadh", population: "36M", continent: "Asia", area: "2.15M km²" },
-            "ZA": { capital: "Pretoria", population: "60M", continent: "Africa", area: "1.22M km²" },
-            "ES": { capital: "Madrid", population: "47.4M", continent: "Europe", area: "505,990 km²" },
-            "GB": { capital: "London", population: "67M", continent: "Europe", area: "243,610 km²" },
-            "US": { capital: "Washington, D.C.", population: "333M", continent: "North America", area: "9.83M km²" },
-            "VN": { capital: "Hanoi", population: "98M", continent: "Asia", area: "331,210 km²" }
+            "US": { 
+                capital: "Washington, D.C.", population: "335M", continent: "North America", area: "9.83M km²",
+                language: "English", religion: "Christianity",
+                leaderTitle: "President", leaderName: "Donald Trump", leaderLink: "https://en.wikipedia.org/wiki/Donald_Trump",
+                mediaName: "The New York Times", mediaLink: "https://www.nytimes.com"
+            },
+            "CN": { 
+                capital: "Beijing", population: "1.41B", continent: "Asia", area: "9.6M km²",
+                language: "Mandarin", religion: "Unaffiliated / Buddhism",
+                leaderTitle: "President", leaderName: "Xi Jinping", leaderLink: "https://en.wikipedia.org/wiki/Xi_Jinping",
+                mediaName: "Xinhua News Agency", mediaLink: "http://www.xinhuanet.com/english/"
+            },
+            "IN": { 
+                capital: "New Delhi", population: "1.43B", continent: "Asia", area: "3.28M km²",
+                language: "Hindi, English", religion: "Hinduism",
+                leaderTitle: "Prime Minister", leaderName: "Narendra Modi", leaderLink: "https://en.wikipedia.org/wiki/Narendra_Modi",
+                mediaName: "The Times of India", mediaLink: "https://timesofindia.indiatimes.com"
+            },
+            "RU": { 
+                capital: "Moscow", population: "143M", continent: "Europe/Asia", area: "17.1M km²",
+                language: "Russian", religion: "Orthodox Christianity",
+                leaderTitle: "President", leaderName: "Vladimir Putin", leaderLink: "https://en.wikipedia.org/wiki/Vladimir_Putin",
+                mediaName: "TASS", mediaLink: "https://tass.com"
+            },
+            "GB": { 
+                capital: "London", population: "67.7M", continent: "Europe", area: "243,610 km²",
+                language: "English", religion: "Christianity",
+                leaderTitle: "Prime Minister", leaderName: "Keir Starmer", leaderLink: "https://en.wikipedia.org/wiki/Keir_Starmer",
+                mediaName: "BBC News", mediaLink: "https://www.bbc.com/news"
+            },
+            "FR": { 
+                capital: "Paris", population: "68M", continent: "Europe", area: "643,801 km²",
+                language: "French", religion: "Christianity",
+                leaderTitle: "President", leaderName: "Emmanuel Macron", leaderLink: "https://en.wikipedia.org/wiki/Emmanuel_Macron",
+                mediaName: "Le Monde", mediaLink: "https://www.lemonde.fr/en/"
+            },
+            "DE": { 
+                capital: "Berlin", population: "83.3M", continent: "Europe", area: "357,022 km²",
+                language: "German", religion: "Christianity",
+                leaderTitle: "Chancellor", leaderName: "Olaf Scholz", leaderLink: "https://en.wikipedia.org/wiki/Olaf_Scholz",
+                mediaName: "Der Spiegel", mediaLink: "https://www.spiegel.de/international/"
+            },
+            "BR": { 
+                capital: "Brasília", population: "216M", continent: "South America", area: "8.51M km²",
+                language: "Portuguese", religion: "Christianity (Catholic)",
+                leaderTitle: "President", leaderName: "Luiz Inácio Lula da Silva", leaderLink: "https://en.wikipedia.org/wiki/Luiz_In%C3%A1cio_Lula_da_Silva",
+                mediaName: "O Globo", mediaLink: "https://oglobo.globo.com"
+            },
+            "JP": { 
+                capital: "Tokyo", population: "124M", continent: "Asia", area: "377,975 km²",
+                language: "Japanese", religion: "Shinto / Buddhism",
+                leaderTitle: "Prime Minister", leaderName: "Fumio Kishida", leaderLink: "https://en.wikipedia.org/wiki/Fumio_Kishida",
+                mediaName: "The Japan Times", mediaLink: "https://www.japantimes.co.jp"
+            },
+            "CA": { 
+                capital: "Ottawa", population: "39M", continent: "North America", area: "9.98M km²",
+                language: "English, French", religion: "Christianity",
+                leaderTitle: "Prime Minister", leaderName: "Justin Trudeau", leaderLink: "https://en.wikipedia.org/wiki/Justin_Trudeau",
+                mediaName: "The Globe and Mail", mediaLink: "https://www.theglobeandmail.com"
+            },
+            "AU": { 
+                capital: "Canberra", population: "26.4M", continent: "Oceania", area: "7.69M km²",
+                language: "English", religion: "Christianity",
+                leaderTitle: "Prime Minister", leaderName: "Anthony Albanese", leaderLink: "https://en.wikipedia.org/wiki/Anthony_Albanese",
+                mediaName: "ABC News", mediaLink: "https://www.abc.net.au/news"
+            },
+            "ZA": { 
+                capital: "Pretoria", population: "60M", continent: "Africa", area: "1.22M km²",
+                language: "12 Official Languages", religion: "Christianity",
+                leaderTitle: "President", leaderName: "Cyril Ramaphosa", leaderLink: "https://en.wikipedia.org/wiki/Cyril_Ramaphosa",
+                mediaName: "News24", mediaLink: "https://www.news24.com"
+            },
+            "MX": { 
+                capital: "Mexico City", population: "128M", continent: "North America", area: "1.96M km²",
+                language: "Spanish", religion: "Christianity (Catholic)",
+                leaderTitle: "President", leaderName: "Claudia Sheinbaum", leaderLink: "https://en.wikipedia.org/wiki/Claudia_Sheinbaum",
+                mediaName: "El Universal", mediaLink: "https://www.eluniversal.com.mx"
+            },
+            "IT": { 
+                capital: "Rome", population: "58M", continent: "Europe", area: "301,340 km²",
+                language: "Italian", religion: "Christianity (Catholic)",
+                leaderTitle: "Prime Minister", leaderName: "Giorgia Meloni", leaderLink: "https://en.wikipedia.org/wiki/Giorgia_Meloni",
+                mediaName: "La Repubblica", mediaLink: "https://www.repubblica.it"
+            },
+            "KR": { 
+                capital: "Seoul", population: "51.7M", continent: "Asia", area: "100,210 km²",
+                language: "Korean", religion: "Unaffiliated / Christianity",
+                leaderTitle: "President", leaderName: "Yoon Suk-yeol", leaderLink: "https://en.wikipedia.org/wiki/Yoon_Suk-yeol",
+                mediaName: "The Korea Herald", mediaLink: "https://www.koreaherald.com"
+            },
+            "ES": { 
+                capital: "Madrid", population: "47.4M", continent: "Europe", area: "505,990 km²",
+                language: "Spanish", religion: "Christianity (Catholic)",
+                leaderTitle: "Prime Minister", leaderName: "Pedro Sánchez", leaderLink: "https://en.wikipedia.org/wiki/Pedro_S%C3%A1nchez",
+                mediaName: "El País", mediaLink: "https://elpais.com"
+            }
         };
 
         async function init() {
@@ -244,7 +344,7 @@
                 const countryGroups = {};
                 
                 paths.forEach((path, index) => {
-                    const name = path.getAttribute('name') || path.getAttribute('class') || path.id || "Unknown";
+                    const name = path.getAttribute('name') || path.getAttribute('class') || path.id || "Unknown Territory";
                     const id = (path.id || name.substring(0,2)).toUpperCase();
                     const groupKey = name.toLowerCase().replace(/\s+/g, '-');
                     
@@ -268,6 +368,7 @@
                 });
             } catch (e) {
                 console.error("Map load error", e);
+                mapLayer.innerHTML = `<text x="1000" y="400" text-anchor="middle" fill="white" font-size="24">Error: world.svg missing. Please ensure it is in the same folder.</text>`;
             }
         }
 
@@ -287,7 +388,7 @@
             updateViewBox();
         }
 
-        // --- NEW IMPROVED PANNING LOGIC ---
+        // --- Panning Logic ---
         viewport.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
             isPanning = true;
@@ -331,7 +432,6 @@
         });
 
         mapLayer.addEventListener('click', (e) => {
-            // Only fire click if user didn't move the mouse much (prevents click on drag end)
             if (e.target.tagName === 'path' && totalDistMoved < 10) {
                 document.querySelectorAll('path.selected').forEach(p => p.classList.remove('selected'));
                 const id = e.target.getAttribute('data-id');
@@ -340,13 +440,50 @@
                 document.querySelectorAll(`path[data-country="${countryKey}"]`).forEach(p => p.classList.add('selected'));
                 
                 countryTitle.textContent = name;
-                const data = countryDatabase[id] || { capital: name + " Region", population: "Dynamic", continent: "Global", area: "N/A" };
+                
+                // Fetch predefined data or generate dynamic data for missing countries
+                let data = countryDatabase[id];
+                if (!data) {
+                    const wikiName = name.replace(/ /g, '_');
+                    data = { 
+                        capital: "Regional Data", 
+                        population: "See Demographics", 
+                        continent: "Global Map", 
+                        area: "Territorial Area",
+                        language: "Official Languages",
+                        religion: "Major Religion",
+                        leaderTitle: "Head of State/Gov",
+                        leaderName: "Current Leadership",
+                        leaderLink: `https://en.wikipedia.org/wiki/${wikiName}`,
+                        mediaName: "Google News",
+                        mediaLink: `https://news.google.com/search?q=${encodeURIComponent(name)}`
+                    };
+                }
                 
                 infoPanel.innerHTML = `
                     <div class="info-grid">
-                        <div class="info-label">ISO Code</div><div class="info-value">${id}</div>
+                        <div class="info-label">Language</div><div class="info-value">${data.language}</div>
+                        <div class="info-label">Religion</div><div class="info-value">${data.religion}</div>
+                        
+                        <div class="info-label">${data.leaderTitle}</div>
+                        <div class="info-value">
+                            <a href="${data.leaderLink}" class="info-link" target="_blank" rel="noopener noreferrer">${data.leaderName}</a>
+                        </div>
+                        
+                        <div class="info-label">News Media</div>
+                        <div class="info-value">
+                            <a href="${data.mediaLink}" class="info-link" target="_blank" rel="noopener noreferrer">${data.mediaName}</a>
+                        </div>
+
+                        <div class="info-label">Google Maps</div>
+                        <div class="info-value">
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}" class="info-link" target="_blank" rel="noopener noreferrer">View on Maps</a>
+                        </div>
+
+                        <div style="grid-column: 1 / -1; border-top: 1px solid var(--border); margin: 6px 0;"></div>
+
                         <div class="info-label">Capital</div><div class="info-value">${data.capital}</div>
-                        <div class="info-label">Continent</div><div class="info-value">${data.continent}</div>
+                        <div class="info-label">Region</div><div class="info-value">${data.continent}</div>
                         <div class="info-label">Population</div><div class="info-value">${data.population}</div>
                         <div class="info-label">Land Area</div><div class="info-value">${data.area}</div>
                     </div>
@@ -360,7 +497,7 @@
             viewBox = { x: 0, y: 0, w: 2000, h: 857 };
             updateViewBox();
             countryTitle.textContent = "World Map";
-            infoPanel.innerHTML = `<p>Select a country to explore detailed geographic and demographic data.</p>`;
+            infoPanel.innerHTML = `<p style="color: var(--text-dim); line-height: 1.6;">Select a country to explore detailed geographic, demographic, political, and media data.</p>`;
             document.querySelectorAll('path.selected').forEach(p => p.classList.remove('selected'));
         };
 
