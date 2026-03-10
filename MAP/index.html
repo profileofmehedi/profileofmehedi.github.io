@@ -156,7 +156,6 @@
         path.highlighted { stroke: #fff; stroke-width: 1.2; filter: brightness(1.2); }
         path.selected { stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 12px var(--accent)); }
 
-        /* Country Labels */
         .country-label {
             fill: white;
             font-size: 14px;
@@ -295,7 +294,6 @@
 
         const palette = ['#38bdf8', '#4ade80', '#fbbf24', '#f87171', '#818cf8', '#c084fc', '#2dd4bf', '#fb7185', '#34d399', '#a78bfa'];
 
-        // Comprehensive Country Database (Truncated for space, assume full list is logic-bound)
         const countryDatabase = {
             "US": { capital: "Washington, D.C.", population: "335M", continent: "North America", area: "9.83M km²", language: "English", religion: "Christianity", leaderTitle: "President", leaderName: "Donald Trump", leaderLink: "https://en.wikipedia.org/wiki/Donald_Trump", mediaName: "NY Times", mediaLink: "https://www.nytimes.com" },
             "CN": { capital: "Beijing", population: "1.41B", continent: "Asia", area: "9.6M km²", language: "Mandarin", religion: "Unaffiliated", leaderTitle: "President", leaderName: "Xi Jinping", leaderLink: "https://en.wikipedia.org/wiki/Xi_Jinping", mediaName: "Xinhua", mediaLink: "http://www.xinhuanet.com" },
@@ -319,12 +317,7 @@
                     const groupKey = name.toLowerCase().replace(/\s+/g, '-');
                     
                     if (!countryGroups[groupKey]) {
-                        countryGroups[groupKey] = {
-                            name: name,
-                            color: palette[Object.keys(countryGroups).length % palette.length],
-                            id: id,
-                            paths: []
-                        };
+                        countryGroups[groupKey] = { name, color: palette[Object.keys(countryGroups).length % palette.length], id, paths: [] };
                         countries.push({ id, name, groupKey });
                     }
                     
@@ -340,7 +333,6 @@
                     countryGroups[groupKey].paths.push(newPath);
                 });
 
-                // Generate Labels
                 Object.keys(countryGroups).forEach(key => {
                     const group = countryGroups[key];
                     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -349,7 +341,6 @@
                         minX = Math.min(minX, box.x); minY = Math.min(minY, box.y);
                         maxX = Math.max(maxX, box.x + box.width); maxY = Math.max(maxY, box.y + box.height);
                     });
-
                     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     text.setAttribute('x', minX + (maxX - minX) / 2);
                     text.setAttribute('y', minY + (maxY - minY) / 2);
@@ -358,20 +349,15 @@
                     text.textContent = group.name;
                     labelLayer.appendChild(text);
                 });
-
             } catch (e) { console.error("Map load failed", e); }
         }
 
-        // --- ViewBox Control ---
         function updateViewBox() {
             svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`);
-            
-            // Show labels if zoom is high enough (viewBox width is small)
             const zoomThreshold = 1200; 
             const labels = document.querySelectorAll('.country-label');
             labels.forEach(l => {
                 l.style.opacity = viewBox.w < zoomThreshold ? "1" : "0";
-                // Scale text size with zoom
                 l.style.fontSize = Math.max(10, viewBox.w / 80) + "px";
             });
         }
@@ -381,22 +367,18 @@
             const newW = viewBox.w * zoomFactor;
             const newH = viewBox.h * zoomFactor;
             if (newW < 5 || newW > 10000) return;
-
             const rect = svg.getBoundingClientRect();
             const mouseX = (clientX - rect.left) / rect.width;
             const mouseY = (clientY - rect.top) / rect.height;
-
             viewBox.x += (viewBox.w - newW) * mouseX;
             viewBox.y += (viewBox.h - newH) * mouseY;
             viewBox.w = newW; viewBox.h = newH;
             updateViewBox();
         }
 
-        // --- NEW ROBUST DRAGGING ---
         viewport.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            isDragging = true;
-            totalDistMoved = 0;
+            isDragging = true; totalDistMoved = 0;
             startPoint = { x: e.clientX, y: e.clientY };
             e.preventDefault();
         });
@@ -406,12 +388,9 @@
                 const dx = e.clientX - startPoint.x;
                 const dy = e.clientY - startPoint.y;
                 totalDistMoved += Math.sqrt(dx*dx + dy*dy);
-
-                // Exact scale mapping
                 const scale = viewBox.w / svg.getBoundingClientRect().width;
                 viewBox.x -= dx * scale;
                 viewBox.y -= dy * scale;
-
                 startPoint = { x: e.clientX, y: e.clientY };
                 updateViewBox();
             }
@@ -421,7 +400,6 @@
 
         window.addEventListener('mouseup', () => { isDragging = false; });
 
-        // --- INTERACTION ---
         function selectCountry(id, name, groupKey, shouldZoom) {
             searchInput.value = name;
             searchResults.style.display = 'none';
@@ -453,13 +431,26 @@
                     minX = Math.min(minX, box.x); minY = Math.min(minY, box.y);
                     maxX = Math.max(maxX, box.x + box.width); maxY = Math.max(maxY, box.y + box.height);
                 });
-                const w = maxX - minX; const h = maxY - minY;
-                viewBox = { x: minX - w*0.2, y: minY - h*0.2, w: w*1.4, h: h*1.4 };
+                
+                let w = maxX - minX; let h = maxY - minY;
+                let zoomW = w * 2.5; let zoomH = h * 2.5;
+                const minViewW = 800; // Minimum window width to avoid over-zooming
+                
+                if (zoomW < minViewW) {
+                    zoomW = minViewW;
+                    zoomH = zoomW * (viewport.clientHeight / viewport.clientWidth);
+                }
+
+                viewBox = {
+                    x: minX + (w / 2) - (zoomW / 2),
+                    y: minY + (h / 2) - (zoomH / 2),
+                    w: zoomW,
+                    h: zoomH
+                };
                 updateViewBox();
             }
         }
 
-        // Event Bindings
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
             searchResults.innerHTML = '';
