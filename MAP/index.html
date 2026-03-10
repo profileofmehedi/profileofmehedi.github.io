@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Map Pro Explorer</title>
+    <title>Professional World Map Explorer</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -80,9 +80,9 @@
             user-select: none;
         }
 
-        #map-viewport.dragging { cursor: grabbing; }
+        #map-viewport:active { cursor: grabbing; }
 
-        svg { width: 100%; height: 100%; display: block; }
+        svg { width: 100%; height: 100%; display: block; pointer-events: all; }
 
         path {
             stroke: rgba(15, 23, 42, 0.5);
@@ -132,6 +132,7 @@
             padding: 24px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
+            pointer-events: auto;
         }
 
         .dashboard h2 { margin: 0 0 12px 0; font-size: 24px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
@@ -180,7 +181,7 @@
         </div>
     </div>
 
-    <div class="instructions">Scroll to Zoom • Click & Drag to Move • Click to Select</div>
+    <div class="instructions">Scroll to Zoom • Drag to Move • Click to Select</div>
 
     <script>
         const mapLayer = document.getElementById('map-layer');
@@ -191,12 +192,13 @@
         const infoPanel = document.getElementById('country-info');
 
         let viewBox = { x: 0, y: 0, w: 2000, h: 857 };
-        let isDragging = false;
-        let lastMousePos = { x: 0, y: 0 };
+        let isPanning = false;
+        let startMousePos = { x: 0, y: 0 };
+        let totalDistMoved = 0;
 
         const palette = ['#38bdf8', '#4ade80', '#fbbf24', '#f87171', '#818cf8', '#c084fc', '#2dd4bf', '#fb7185', '#34d399', '#a78bfa'];
 
-        // Comprehensive Country Database (Populated for over 200 countries)
+        // Built-in Database
         const countryDatabase = {
             "AF": { capital: "Kabul", population: "41.1M", continent: "Asia", area: "652,230 km²" },
             "AL": { capital: "Tirana", population: "2.8M", continent: "Europe", area: "28,748 km²" },
@@ -229,8 +231,6 @@
             "GB": { capital: "London", population: "67M", continent: "Europe", area: "243,610 km²" },
             "US": { capital: "Washington, D.C.", population: "333M", continent: "North America", area: "9.83M km²" },
             "VN": { capital: "Hanoi", population: "98M", continent: "Asia", area: "331,210 km²" }
-            // Add entries for all other countries as needed. For now, every country 
-            // will show its dynamic region and ID.
         };
 
         async function init() {
@@ -244,8 +244,8 @@
                 const countryGroups = {};
                 
                 paths.forEach((path, index) => {
-                    const name = path.getAttribute('name') || path.getAttribute('class') || path.id || "Unknown Territory";
-                    const id = path.id || name.substring(0,2).toUpperCase();
+                    const name = path.getAttribute('name') || path.getAttribute('class') || path.id || "Unknown";
+                    const id = (path.id || name.substring(0,2)).toUpperCase();
                     const groupKey = name.toLowerCase().replace(/\s+/g, '-');
                     
                     if (!countryGroups[groupKey]) {
@@ -267,7 +267,7 @@
                     mapLayer.appendChild(newPath);
                 });
             } catch (e) {
-                mapLayer.innerHTML = `<text x="1000" y="400" text-anchor="middle" fill="white" font-size="24">Error: world.svg missing.</text>`;
+                console.error("Map load error", e);
             }
         }
 
@@ -287,33 +287,35 @@
             updateViewBox();
         }
 
-        // --- Dragging Logic ---
+        // --- NEW IMPROVED PANNING LOGIC ---
         viewport.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            isDragging = true;
-            viewport.classList.add('dragging');
-            lastMousePos = { x: e.clientX, y: e.clientY };
+            isPanning = true;
+            totalDistMoved = 0;
+            startMousePos = { x: e.clientX, y: e.clientY };
             e.preventDefault();
         });
 
         window.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const dx = e.clientX - lastMousePos.x;
-                const dy = e.clientY - lastMousePos.y;
-                const scaleX = viewBox.w / viewport.clientWidth;
-                const scaleY = viewBox.h / viewport.clientHeight;
-                viewBox.x -= dx * scaleX;
-                viewBox.y -= dy * scaleY;
-                lastMousePos = { x: e.clientX, y: e.clientY };
+            if (isPanning) {
+                const dx = e.clientX - startMousePos.x;
+                const dy = e.clientY - startMousePos.y;
+                totalDistMoved += Math.abs(dx) + Math.abs(dy);
+
+                const scale = viewBox.w / svg.getBoundingClientRect().width;
+                viewBox.x -= dx * scale;
+                viewBox.y -= dy * scale;
+
+                startMousePos = { x: e.clientX, y: e.clientY };
                 updateViewBox();
             }
             tooltip.style.left = e.clientX + 'px';
             tooltip.style.top = e.clientY + 'px';
         });
 
-        window.addEventListener('mouseup', () => { isDragging = false; viewport.classList.remove('dragging'); });
+        window.addEventListener('mouseup', () => { isPanning = false; });
 
-        // --- Interaction ---
+        // --- INTERACTION ---
         mapLayer.addEventListener('mouseover', (e) => {
             if (e.target.tagName === 'path') {
                 const countryKey = e.target.getAttribute('data-country');
@@ -329,7 +331,8 @@
         });
 
         mapLayer.addEventListener('click', (e) => {
-            if (e.target.tagName === 'path' && !isDragging) {
+            // Only fire click if user didn't move the mouse much (prevents click on drag end)
+            if (e.target.tagName === 'path' && totalDistMoved < 10) {
                 document.querySelectorAll('path.selected').forEach(p => p.classList.remove('selected'));
                 const id = e.target.getAttribute('data-id');
                 const name = e.target.getAttribute('data-name');
@@ -337,7 +340,7 @@
                 document.querySelectorAll(`path[data-country="${countryKey}"]`).forEach(p => p.classList.add('selected'));
                 
                 countryTitle.textContent = name;
-                const data = countryDatabase[id] || { capital: name + " Center", population: "Varies", continent: "Global Region", area: "N/A" };
+                const data = countryDatabase[id] || { capital: name + " Region", population: "Dynamic", continent: "Global", area: "N/A" };
                 
                 infoPanel.innerHTML = `
                     <div class="info-grid">
@@ -345,7 +348,7 @@
                         <div class="info-label">Capital</div><div class="info-value">${data.capital}</div>
                         <div class="info-label">Continent</div><div class="info-value">${data.continent}</div>
                         <div class="info-label">Population</div><div class="info-value">${data.population}</div>
-                        <div class="info-label">Area Size</div><div class="info-value">${data.area}</div>
+                        <div class="info-label">Land Area</div><div class="info-value">${data.area}</div>
                     </div>
                 `;
             }
