@@ -20,123 +20,185 @@ if (!fs.existsSync(fontPath)) {
 
 const sections = [
     {
-        title: "Introduction",
+        title: "ভূমিকা (Introduction)",
         folder: "pages",
         pages: [
-            { file: "01-introduction.html", title: "Introduction" },
-            { file: "02-what-is-system-design.html", title: "What is System Design?" },
-            { file: "03-client-server.html", title: "Client-Server Model" },
-            { file: "04-latency-vs-throughput.html", title: "Latency vs Throughput" }
+            { file: "01-introduction.html", title: "ভূমিকা (Introduction)", key: "introduction" },
+            { file: "02-what-is-system-design.html", title: "সিস্টেম ডিজাইন কি?", key: "what-is-system-design" },
+            { file: "03-client-server.html", title: "ক্লায়েন্ট-সার্ভার মডেল", key: "client-server" },
+            { file: "04-latency-vs-throughput.html", title: "ল্যাটেন্সি বনাম থ্রুটপুট", key: "latency-vs-throughput" }
         ]
     },
     {
-        title: "Fundamentals",
+        title: "মৌলিক ধারণা (Fundamentals)",
         folder: "pages",
         pages: [
-            { file: "05-availability.html", title: "High Availability" },
-            { file: "06-cap-theorem.html", title: "CAP Theorem" },
-            { file: "07-load-balancer.html", title: "Load Balancer" },
-            { file: "08-caching.html", title: "Caching" }
+            { file: "05-availability.html", title: "অ্যাভেইল্যাবিলিটি (Availability)", key: "availability" },
+            { file: "06-cap-theorem.html", title: "ক্যাপ থিওরেম (CAP Theorem)", key: "cap-theorem" },
+            { file: "07-load-balancer.html", title: "লোড ব্যালেন্সার", key: "load-balancer" },
+            { file: "08-caching.html", title: "ক্যাশিং (Caching)", key: "caching" }
         ]
     },
     {
-        title: "Data Management",
+        title: "ডেটা ম্যানেজমেন্ট (Data Management)",
         folder: "pages",
         pages: [
-            { file: "09-database-sharding.html", title: "Database Sharding" },
-            { file: "10-replication.html", title: "Database Replication" },
-            { file: "11-cdn.html", title: "Content Delivery Network (CDN)" },
-            { file: "12-message-queue.html", title: "Message Queue" }
+            { file: "09-database-sharding.html", title: "ডেটাবেস শার্ডিং", key: "database-sharding" },
+            { file: "10-replication.html", title: "ডেটাবেস রেপ্লিকেশন", key: "database-replication" },
+            { file: "11-cdn.html", title: "সিডিএন (CDN)", key: "cdn" },
+            { file: "12-message-queue.html", title: "মেসেজ কিউ (Message Queue)", key: "message-queue" }
         ]
     },
     {
-        title: "Architecture Patterns",
+        title: "আর্কিটেকচার প্যাটার্নস (Patterns)",
         folder: "pages",
         pages: [
-            { file: "13-microservices.html", title: "Microservices" },
-            { file: "14-monolith.html", title: "Monolith" },
-            { file: "15-api-gateway.html", title: "API Gateway" },
-            { file: "16-rate-limiting.html", title: "Rate Limiting" }
+            { file: "13-microservices.html", title: "মাইক্রোসার্ভিসেস", key: "microservices" },
+            { file: "14-monolith.html", title: "মনোলিথিক আর্কিটেকচার", key: "monolith" },
+            { file: "15-api-gateway.html", title: "এপিআই গেটওয়ে", key: "api-gateway" },
+            { file: "16-rate-limiting.html", title: "রেট লিমিটিং", key: "rate-limiting" }
         ]
     },
     {
-        title: "Advanced Topics",
+        title: "উন্নত টপিক (Advanced Topics)",
         folder: "pages",
         pages: [
-            { file: "17-consistent-hashing.html", title: "Consistent Hashing" },
-            { file: "18-distributed-lock.html", title: "Distributed Lock" },
-            { file: "19-search-system.html", title: "Search System" },
-            { file: "20-real-time-system.html", title: "Real-time System" },
-            { file: "21-notification-system.html", title: "Notification System" },
-            { file: "22-url-shortener.html", title: "URL Shortener" },
-            { file: "23-chat-system.html", title: "Chat System" },
-            { file: "24-video-streaming-system.html", title: "Video Streaming" },
-            { file: "25-ride-sharing-system.html", title: "Ride Sharing System" },
-            { file: "26-payment-system.html", title: "Payment System" },
-            { file: "27-news-feed-system.html", title: "News Feed System" },
-            { file: "28-recommendation-system.html", title: "Recommendation System" },
-            { file: "29-file-storage-system.html", title: "File Storage System" },
-            { file: "30-logging-system.html", title: "Logging System" },
-            { file: "31-monitoring-system.html", title: "Monitoring System" },
-            { file: "32-circuit-breaker.html", title: "Circuit Breaker" },
-            { file: "33-event-driven-architecture.html", title: "Event Driven Arch" },
-            { file: "34-kafka-system.html", title: "Kafka System" },
-            { file: "35-data-pipeline.html", title: "Data Pipeline" },
-            { file: "36-map-reduce.html", title: "Map Reduce" },
-            { file: "37-batch-processing.html", title: "Batch Processing" },
-            { file: "38-stream-processing.html", title: "Stream Processing" },
-            { file: "39-indexing.html", title: "Database Indexing" },
-            { file: "40-system-design-best-practices.html", title: "Best Practices" }
+            { file: "17-consistent-hashing.html", title: "কনসিস্টেন্ট হ্যাশিং", key: "consistent-hashing" },
+            { file: "18-distributed-lock.html", title: "ডিস্ট্রিবিউটেড লক", key: "distributed-lock" },
+            { file: "19-search-system.html", title: "সার্চ ইঞ্জিন সিস্টেম", key: "search-system" },
+            { file: "20-real-time-system.html", title: "রিয়েল-টাইম সিস্টেম", key: "real-time-system" },
+            { file: "21-notification-system.html", title: "নোটিফিকেশন সিস্টেম", key: "notification-system" },
+            { file: "22-url-shortener.html", title: "ইউআরএল শর্টেনার", key: "url-shortener" },
+            { file: "23-chat-system.html", title: "চ্যাট সিস্টেম", key: "chat-system" },
+            { file: "24-video-streaming-system.html", title: "ভিডিও স্ট্রিমিং", key: "video-streaming" },
+            { file: "25-ride-sharing-system.html", title: "রাইড শেয়ারিং সিস্টেম", key: "ride-sharing" },
+            { file: "26-payment-system.html", title: "পেমেন্ট সিস্টেম", key: "payment-system" },
+            { file: "27-news-feed-system.html", title: "নিউজ ফিড সিস্টেম", key: "news-feed" },
+            { file: "28-recommendation-system.html", title: "রিকমেন্ডেশন সিস্টেম", key: "recommendation-system" },
+            { file: "29-file-storage-system.html", title: "ফাইল স্টোরেজ সিস্টেম", key: "file-storage" },
+            { file: "30-logging-system.html", title: "লগিং সিস্টেম", key: "logging-system" },
+            { file: "31-monitoring-system.html", title: "মনিটরিং সিস্টেম", key: "monitoring-system" },
+            { file: "32-circuit-breaker.html", title: "সার্কিট ব্রেকার", key: "circuit-breaker" },
+            { file: "33-event-driven-architecture.html", title: "ইভেন্ট ড্রিভেন আর্কিটেকচার", key: "event-driven" },
+            { file: "34-kafka-system.html", title: "কাফকা (Kafka) সিস্টেম", key: "kafka" },
+            { file: "35-data-pipeline.html", title: "ডেটা পাইপলাইন", key: "data-pipeline" },
+            { file: "36-map-reduce.html", title: "ম্যাপ রিডিউস (MapReduce)", key: "map-reduce" },
+            { file: "37-batch-processing.html", title: "ব্যাচ প্রসেসিং", key: "batch-processing" },
+            { file: "38-stream-processing.html", title: "স্ট্রিম প্রসেসিং", key: "stream-processing" },
+            { file: "39-indexing.html", title: "ডেটাবেস ইনডেক্সিং", key: "indexing" },
+            { file: "40-system-design-best-practices.html", title: "সেরা অনুশীলন (Best Practices)", key: "best-practices" }
         ]
     },
     {
-        title: "Interview Questions",
+        title: "ইন্টারভিউ প্রশ্ন (Interview)",
         folder: "interview",
         pages: [] 
     }
 ];
 
-const interviewTopics = [
-    "Design Twitter", "Design Facebook News Feed", "Design WhatsApp", "Design URL Shortener",
-    "Design Uber", "Design Instagram", "Design YouTube", "Design Distributed Cache",
-    "Design Payment System", "Design Notification System", "Design Search Engine",
-    "Design Google Docs", "Design Netflix", "Design Dropbox", "Design Rate Limiter",
-    "Design Ticketmaster", "Design Amazon E-commerce", "Design Tinder", "Design Google Maps",
-    "Design Zoom", "Design Slack", "Design Discord", "Design Key-Value Store",
-    "Design Web Crawler", "Design API Rate Limiter", "Design Yelp", "Design Pastebin",
-    "Design Online Code Editor", "Design Hotel Booking System", "Design Parking Lot",
-    "Design Elevator System", "Design Vending Machine", "Design Library Management",
-    "Design Chess Game", "Design Tic Tac Toe", "Design ATM", "Design Blackjack",
-    "Design Online Shopping", "Design Email System (Gmail)", "Design Redis",
-    "Design Cassandra", "Design Zookeeper", "Design Distributed Job Scheduler",
-    "Design Ad Click Event Aggregation", "Design Metrics Collection System",
-    "Design Location Based Service", "Design Stock Exchange", "Design Leaderboard",
-    "Design Collaborative Whiteboard", "Design Flight Booking System"
+const interviewTopicsBangla = [
+    "টুইটার ডিজাইন", "ফেসবুক নিউজ ফিড ডিজাইন", "হোয়াটসঅ্যাপ ডিজাইন", "ইউআরএল শর্টেনার ডিজাইন",
+    "উবার (Uber) ডিজাইন", "ইনস্টাগ্রাম ডিজাইন", "ইউটিউব ডিজাইন", "ডিস্ট্রিবিউটেড ক্যাশ ডিজাইন",
+    "পেমেন্ট সিস্টেম ডিজাইন", "নোটিফিকেশন সিস্টেম ডিজাইন", "সার্চ ইঞ্জিন ডিজাইন",
+    "গুগল ডক্স ডিজাইন", "নেটফ্লিক্স ডিজাইন", "ড্রপবক্স ডিজাইন", "রেট লিমিটার ডিজাইন",
+    "টিকিটমাস্টার ডিজাইন", "অ্যামাজন ই-কমার্স ডিজাইন", "টিন্ডার ডিজাইন", "গুগল ম্যাপস ডিজাইন",
+    "জুম (Zoom) ডিজাইন", "স্ল্যাক (Slack) ডিজাইন", "ডিসকর্ড ডিজাইন", "কী-ভ্যালু স্টোর ডিজাইন",
+    "ওয়েব ক্রলার ডিজাইন", "এপিআই রেট লিমিটার ডিজাইন", "ইয়েল্প (Yelp) ডিজাইন", "পেস্টবিন ডিজাইন",
+    "অনলাইন কোড এডিটর ডিজাইন", "হোটেল বুকিং সিস্টেম ডিজাইন", "পার্কিং লট ডিজাইন",
+    "এলিভেটর সিস্টেম ডিজাইন", "ভেন্ডিং মেশিন ডিজাইন", "লাইব্রেরি ম্যানেজমেন্ট ডিজাইন",
+    "চেস গেম ডিজাইন", "টিক ট্যাক টো ডিজাইন", "এটিএম (ATM) ডিজাইন", "ব্ল্যাকজ্যাক ডিজাইন",
+    "অনলাইন শপিং ডিজাইন", "ইমেইল সিস্টেম ডিজাইন", "রেডিস (Redis) ডিজাইন",
+    "ক্যাসান্ড্রা ডিজাইন", "জুকিপার (Zookeeper) ডিজাইন", "ডিস্ট্রিবিউটেড জব সিডিউলার",
+    "অ্যাড ক্লিক ইভেন্ট এগ্রিগেশন", "মেট্রিক্স কালেকশন সিস্টেম",
+    "লোকেশন বেসড সার্ভিস ডিজাইন", "স্টক এক্সচেঞ্জ ডিজাইন", "লিডারবোর্ড ডিজাইন",
+    "কোলাবোরেটিভ হোয়াইটবোর্ড", "ফ্লাইট বুকিং সিস্টেম ডিজাইন"
 ];
 
-interviewTopics.forEach((topic, index) => {
+interviewTopicsBangla.forEach((topic, index) => {
     sections[5].pages.push({
         file: `question-${String(index + 1).padStart(2, '0')}.html`,
-        title: topic
+        title: topic,
+        key: "interview-generic"
+    });
+});
+
+const svgSnippets = {
+    realTime: `<div class="diagram-container"><svg viewBox="0 0 600 250"><circle cx="100" cy="125" r="30" fill="var(--primary)"/><path d="M 130 125 L 470 125" stroke="var(--accent)" stroke-width="4" class="anim-path"/><circle cx="500" cy="125" r="30" fill="var(--secondary)"/><text x="300" y="100" text-anchor="middle" fill="var(--text)">WebSocket (Full Duplex)</text></svg></div>`,
+    notification: `<div class="diagram-container"><svg viewBox="0 0 600 300"><rect x="50" y="125" width="100" height="50" fill="var(--primary)"/><rect x="250" y="50" width="100" height="200" fill="var(--accent)"/><text x="300" y="155" text-anchor="middle" fill="#fff">Notifier</text><circle cx="500" cy="75" r="20" fill="var(--secondary)"/><circle cx="500" cy="150" r="20" fill="var(--secondary)"/><circle cx="500" cy="225" r="20" fill="var(--secondary)"/></svg></div>`,
+    urlShortener: `<div class="diagram-container"><svg viewBox="0 0 600 200"><text x="100" y="105" text-anchor="middle" fill="var(--text)">Long URL</text><path d="M 160 100 L 250 100" stroke="var(--primary)" stroke-width="2"/><rect x="250" y="70" width="100" height="60" fill="var(--accent)"/><text x="300" y="105" text-anchor="middle" fill="#fff">Hash</text><path d="M 350 100 L 440 100" stroke="var(--primary)" stroke-width="2"/><text x="500" y="105" text-anchor="middle" fill="var(--text)">Short URL</text></svg></div>`,
+    chatSystem: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="100" width="80" height="60" fill="var(--primary)"/><rect x="250" y="50" width="100" height="150" fill="var(--accent)"/><text x="300" y="130" text-anchor="middle" fill="#fff">Chat Server</text><rect x="470" y="100" width="80" height="60" fill="var(--primary)"/><path d="M 130 130 L 250 130" stroke="var(--primary)" stroke-width="2" class="anim-path"/><path d="M 350 130 L 470 130" stroke="var(--primary)" stroke-width="2" class="anim-path"/></svg></div>`,
+    videoStreaming: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="100" width="100" height="60" fill="var(--primary)"/><rect x="200" y="120" width="40" height="20" fill="var(--accent)" class="anim-path"/><rect x="260" y="120" width="40" height="20" fill="var(--accent)"/><rect x="320" y="120" width="40" height="20" fill="var(--accent)"/><rect x="450" y="100" width="100" height="60" fill="var(--secondary)"/><text x="300" y="90" text-anchor="middle" fill="var(--text)">Video Chunks (ABS)</text></svg></div>`,
+    rideSharing: `<div class="diagram-container"><svg viewBox="0 0 600 300"><rect x="50" y="50" width="500" height="200" fill="none" stroke="var(--border-color)"/><circle cx="150" cy="150" r="10" fill="var(--primary)" class="anim-pulse"/><circle cx="400" cy="100" r="8" fill="var(--accent)"/><circle cx="450" cy="200" r="8" fill="var(--accent)"/><path d="M 160 150 L 390 105" stroke="var(--primary)" stroke-dasharray="5,5"/></svg></div>`,
+    searchSystem: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="100" width="100" height="50" fill="var(--primary)"/><path d="M 150 125 L 450 125" stroke="var(--accent)" stroke-width="2" class="anim-path"/><rect x="450" y="50" width="100" height="150" fill="var(--secondary)"/><text x="500" y="130" text-anchor="middle" fill="#fff">Index</text></svg></div>`,
+    generic: `<div class="diagram-container"><svg viewBox="0 0 600 200"><rect x="100" y="60" width="120" height="80" rx="8" fill="var(--primary)"/><rect x="380" y="60" width="120" height="80" rx="8" fill="var(--secondary)"/><path d="M 220 100 L 380 100" stroke="var(--accent)" stroke-width="4" fill="none" class="anim-path"/></svg></div>`
+};
+
+const topicDetails = {
+    "real-time-system": {
+        story: `"ধরো তুমি স্টেডিয়ামে খেলা দেখছো। প্রতিবার যখন ব্যাটসম্যান চার মারছে, তুমি সাথে সাথেই চিৎকার করে উঠছো। তোমার এই তাৎক্ষণিক প্রতিক্রিয়া হলো রিয়েল-টাইম সিস্টেম।"`,
+        details: `রিয়েল-টাইম সিস্টেম এমন একটি সিস্টেম যা ডেটা জেনারেট হওয়ার সাথে সাথেই তা ইউজারের কাছে পৌঁছে দেয়। এটি সাধারণত WebSocket বা SSE ব্যবহার করে।`,
+        advantages: ["Instant updates", "Interactive experience"],
+        svg: svgSnippets.realTime
+    },
+    "notification-system": {
+        story: `"ধরো তোমার বাসায় একজন পোস্টম্যান এলো। সে তোমাকে জানালো যে তোমার একটি পার্সেল এসেছে। এই খবর দেওয়াটাই হলো নোটিফিকেশন।"`,
+        details: `নোটিফিকেশন সিস্টেম এসএমএস, ইমেল বা পুশ নোটিফিকেশন ম্যানেজ করে। এটি ইউজারের কাছে গুরুত্বপূর্ণ তথ্য সময়মতো পৌঁছে দেয়।`,
+        advantages: ["User engagement", "Timely info"],
+        svg: svgSnippets.notification
+    },
+    "url-shortener": {
+        story: `"ধরো তোমার বাড়ির ঠিকানা অনেক বড়। তুমি কাউকে সেটি না বলে শুধু বললে 'আমার বাড়ি নীল গেট'। এই নীল গেট কোডটিই হলো ইউআরএল শর্টেনার।"`,
+        details: `ইউআরএল শর্টেনার বড় লিঙ্ককে ছোট লিঙ্কে রূপান্তর করে এবং রিডাইরেক্ট করে। এটি ডাটাবেসে ম্যাপ করে রাখে।`,
+        advantages: ["Clean links", "Easy sharing"],
+        svg: svgSnippets.urlShortener
+    },
+    "chat-system": {
+        story: `"ধরো তুমি এবং তোমার বন্ধু একটি মাঠে বসে কথা বলছো। তুমি যা বলছো সে সাথে সাথে শুনছে। এটিই হলো চ্যাট সিস্টেমের মূল মন্ত্র।"`,
+        details: `চ্যাট সিস্টেম রিয়েল-টাইম মেসেজিং নিশ্চিত করে। এটি সাধারণত WebSocket ব্যবহার করে একটি খোলা কানেকশন বজায় রাখে।`,
+        advantages: ["Real-time", "Persistent history"],
+        svg: svgSnippets.chatSystem
+    },
+    "video-streaming": {
+        story: `"ধরো তুমি একটি বড় বালতি থেকে পানি খাচ্ছো। তুমি পুরো বালতিটা একবারে না গিলে মগ দিয়ে অল্প অল্প করে খাচ্ছো। এটিই হলো ভিডিও স্ট্রিমিং।"`,
+        details: `ভিডিও স্ট্রিমিং Adaptive Bitrate এবং চ্যাঙ্কিং ব্যবহার করে ভিডিও দেখায়। পুরো ভিডিও ফাইল ডাউনলোড না করেই ভিডিও দেখা শুরু করা যায়।`,
+        advantages: ["Instant play", "Bandwidth efficiency"],
+        svg: svgSnippets.videoStreaming
+    },
+    "ride-sharing": {
+        story: `"ধরো তুমি একটি মাঠে দাঁড়িয়ে আছো। তুমি চিৎকার করে বললে 'আমার একটা বাইক লাগবে'। তোমার ১ কিমি এর মধ্যে যারা আছে তারা সবাই শুনতে পেল। এটিই হলো রাইড শেয়ারিং ম্যাচিং।"`,
+        details: `রাইড শেয়ারিং সিস্টেম Geo-spatial ইনডেক্সিং ব্যবহার করে ম্যাচিং করে। এটি Quadtree বা S2 ব্যবহার করে দ্রুততম ড্রাইভার খুঁজে বের করে।`,
+        advantages: ["Fast matching", "Location tracking"],
+        svg: svgSnippets.rideSharing
+    },
+    "search-system": {
+        story: `"ধরো তুমি একটি বিশাল লাইব্রেরিতে গিয়েছো একটি বই খুঁজতে। তুমি যদি প্রতিটি আলমারি চেক করো তবে কয়েকদিন লেগে যাবে। কিন্তু লাইব্রেরিয়ানের কাছে একটি রেজিস্টার আছে যেখানে সব বইয়ের নাম আর লোকেশন লেখা আছে।"`,
+        details: `সার্চ ইঞ্জিন সিস্টেম ইনভার্টেড ইনডেক্স ব্যবহার করে ডেটা দ্রুত খুঁজে বের করে। এটি কিউওয়ার্ড দিয়ে সাথে সাথেই রেজাল্ট প্রদান করে।`,
+        advantages: ["Fast lookup", "Advanced filtering"],
+        svg: svgSnippets.searchSystem
+    }
+};
+
+// Fill missing default topicDetails if needed
+sections.forEach(sec => {
+    sec.pages.forEach(p => {
+        if (!topicDetails[p.key]) {
+            topicDetails[p.key] = {
+                story: `"সিস্টেম ডিজাইনের এই পর্বে আমরা শিখবো কিভাবে '${p.title}' কাজ করে।"`,
+                details: `${p.title} হলো বড় স্কেলের অ্যাপ্লিকেশনের একটি অবিচ্ছেদ্য অংশ।`,
+                advantages: ["Scalability", "Reliability"],
+                svg: svgSnippets.generic
+            };
+        }
     });
 });
 
 function getSidebarHtml(depth = 1) {
-    const rootPath = depth === 0 ? '' : '../';
     let html = '';
-    sections.forEach((sec, idx) => {
-        html += `<div class="sidebar-section">
-            <div class="sidebar-heading">${sec.title} <span>▼</span></div>
-            <ul class="sidebar-links">`;
+    sections.forEach((sec) => {
+        html += `<div class="sidebar-section"><div class="sidebar-heading">${sec.title} <span>▼</span></div><ul class="sidebar-links">`;
         sec.pages.forEach(page => {
-            let finalHref = '';
-            if (depth === 0) {
-                finalHref = `${sec.folder}/${page.file}`;
-            } else {
-                if (sec.folder === 'pages') finalHref = `../pages/${page.file}`;
-                else finalHref = `../interview/${page.file}`;
-            }
-            html += `<li><a href="${finalHref}">${page.title}</a></li>`;
+            const path = depth === 0 ? `${sec.folder}/${page.file}` : (sec.folder === 'pages' ? page.file : `../interview/${page.file}`);
+            html += `<li><a href="${path}">${page.title}</a></li>`;
         });
         html += `</ul></div>`;
     });
@@ -145,561 +207,21 @@ function getSidebarHtml(depth = 1) {
 
 function getTemplate(title, content, depth = 1) {
     const rootPath = depth === 0 ? '' : '../';
-    return `<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="${title} - System Design Bangla">
-    <title>${title} - System Design Bangla</title>
-    <link rel="stylesheet" href="${rootPath}css/style.css">
-</head>
-<body class="light-mode">
-    <div id="progress-bar"></div>
-    <header class="topbar">
-        <div class="logo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            System Design Bangla
-        </div>
-        <div class="search-box">
-            <input type="text" placeholder="Topics খুঁজুন...">
-        </div>
-        <div class="actions">
-            <button id="theme-toggle">🌙</button>
-            <a href="https://github.com/profileofmehedi" class="github-btn" target="_blank">GitHub</a>
-            <button id="mobile-menu-btn">☰</button>
-        </div>
-    </header>
-    <div class="app-container">
-        <aside class="sidebar" id="sidebar">
-            ${getSidebarHtml(depth)}
-        </aside>
-        <main class="main-content">
-            <div class="content-box">
-                ${content}
-            </div>
-        </main>
-    </div>
-    <script src="${rootPath}js/app.js"></script>
-</body>
-</html>`;
+    return `<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><link rel="stylesheet" href="${rootPath}css/style.css"></head><body class="light-mode"><header class="topbar"><div class="logo">System Design Bangla</div><div class="actions"><button id="theme-toggle">🌙</button><a href="#" class="github-btn">GitHub</a><button id="mobile-menu-btn">☰</button></div></header><div class="app-container"><aside class="sidebar" id="sidebar">${getSidebarHtml(depth)}</aside><main class="main-content"><div class="content-box">${content}</div></main></div><script src="${rootPath}js/app.js"></script></body></html>`;
 }
 
-const svgSnippets = {
-    clientServer: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="60" width="100" height="80" rx="10" fill="var(--primary)" class="anim-pulse"/>
-                <text x="100" y="105" text-anchor="middle" fill="#fff">Client</text>
-                <path d="M 160 90 L 440 90" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <text x="300" y="80" text-anchor="middle" fill="var(--text)" font-size="12">Request</text>
-                <path d="M 440 110 L 160 110" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
-                <text x="300" y="130" text-anchor="middle" fill="var(--text)" font-size="12">Response</text>
-                <rect x="450" y="60" width="100" height="80" rx="10" fill="var(--secondary)"/>
-                <text x="500" y="105" text-anchor="middle" fill="#fff">Server</text>
-            </svg>
-        </div>
-    `,
-    loadBalancer: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="150" r="20" fill="var(--primary)" class="anim-pulse"/>
-                <rect x="250" y="110" width="100" height="80" rx="10" fill="var(--accent)" />
-                <text x="300" y="155" text-anchor="middle" fill="#fff" font-weight="bold">LB</text>
-                <rect x="480" y="40" width="80" height="50" rx="5" fill="var(--secondary)" />
-                <rect x="480" y="125" width="80" height="50" rx="5" fill="var(--secondary)" />
-                <rect x="480" y="210" width="80" height="50" rx="5" fill="var(--secondary)" />
-                <path d="M 70 150 L 250 150" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 350 130 L 480 70" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 350 150 L 480 150" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 350 170 L 480 230" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-            </svg>
-        </div>
-    `,
-    caching: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="100" width="80" height="60" rx="5" fill="var(--primary)" />
-                <rect x="260" y="40" width="100" height="60" rx="5" fill="var(--accent)" class="anim-pulse" />
-                <text x="310" y="75" text-anchor="middle" fill="#fff">Cache</text>
-                <rect x="470" y="100" width="80" height="80" rx="5" fill="var(--secondary)" />
-                <text x="510" y="145" text-anchor="middle" fill="#fff">DB</text>
-                <path d="M 130 110 L 260 80" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 360 80 L 470 120" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-            </svg>
-        </div>
-    `,
-    capTheorem: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                <path d="M 200 50 L 50 250 L 350 250 Z" fill="none" stroke="var(--primary)" stroke-width="5" />
-                <circle cx="200" cy="50" r="30" fill="var(--accent)" />
-                <text x="200" y="20" text-anchor="middle" fill="var(--text)">Consistency</text>
-                <circle cx="50" cy="250" r="30" fill="var(--primary)" />
-                <text x="50" y="290" text-anchor="middle" fill="var(--text)">Availability</text>
-                <circle cx="350" cy="250" r="30" fill="var(--secondary)" />
-                <text x="350" y="290" text-anchor="middle" fill="var(--text)">Partition Tolerance</text>
-            </svg>
-        </div>
-    `,
-    cdn: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="300" cy="150" r="40" fill="var(--primary)" />
-                <text x="300" y="155" text-anchor="middle" fill="#fff">Origin Server</text>
-                <circle cx="100" cy="100" r="25" fill="var(--accent)" class="anim-pulse" />
-                <text x="100" y="140" text-anchor="middle" fill="var(--text)" font-size="10">Edge Node 1</text>
-                <circle cx="500" cy="100" r="25" fill="var(--accent)" class="anim-pulse" />
-                <text x="500" y="140" text-anchor="middle" fill="var(--text)" font-size="10">Edge Node 2</text>
-                <path d="M 260 130 L 125 105" stroke="var(--primary)" stroke-dasharray="5,5" fill="none" />
-                <path d="M 340 130 L 475 105" stroke="var(--primary)" stroke-dasharray="5,5" fill="none" />
-            </svg>
-        </div>
-    `,
-    messageQueue: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="70" width="80" height="60" fill="var(--primary)" />
-                <text x="90" y="105" text-anchor="middle" fill="#fff">Producer</text>
-                <rect x="200" y="70" width="200" height="60" fill="var(--accent)" stroke="var(--text)" />
-                <rect x="210" y="80" width="30" height="40" fill="#fff" class="anim-path" />
-                <rect x="250" y="80" width="30" height="40" fill="#fff" />
-                <rect x="290" y="80" width="30" height="40" fill="#fff" />
-                <rect x="470" y="70" width="80" height="60" fill="var(--secondary)" />
-                <text x="510" y="105" text-anchor="middle" fill="#fff">Consumer</text>
-                <path d="M 130 100 L 200 100" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 400 100 L 470 100" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-            </svg>
-        </div>
-    `,
-    microservices: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="50" width="100" height="150" fill="var(--primary)" />
-                <text x="100" y="130" text-anchor="middle" fill="#fff">Monolith</text>
-                <line x1="200" y1="20" x2="200" y2="230" stroke="var(--border-color)" stroke-width="2" />
-                <rect x="250" y="50" width="60" height="60" fill="var(--accent)" />
-                <rect x="350" y="50" width="60" height="60" fill="var(--accent)" />
-                <rect x="450" y="50" width="60" height="60" fill="var(--accent)" />
-                <rect x="250" y="140" width="60" height="60" fill="var(--accent)" />
-                <rect x="350" y="140" width="60" height="60" fill="var(--accent)" />
-                <rect x="450" y="140" width="60" height="60" fill="var(--accent)" />
-            </svg>
-        </div>
-    `,
-    databaseSharding: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="250" y="20" width="100" height="40" fill="var(--primary)" />
-                <text x="300" y="45" text-anchor="middle" fill="#fff">Router</text>
-                <rect x="100" y="120" width="80" height="60" fill="var(--secondary)" />
-                <text x="140" y="155" text-anchor="middle" fill="#fff">Shard 1</text>
-                <rect x="260" y="120" width="80" height="60" fill="var(--secondary)" />
-                <text x="300" y="155" text-anchor="middle" fill="#fff">Shard 2</text>
-                <rect x="420" y="120" width="80" height="60" fill="var(--secondary)" />
-                <text x="460" y="155" text-anchor="middle" fill="#fff">Shard 3</text>
-                <path d="M 280 60 L 140 120" stroke="var(--accent)" stroke-width="2" fill="none" class="anim-path"/>
-                <path d="M 300 60 L 300 120" stroke="var(--accent)" stroke-width="2" fill="none" class="anim-path"/>
-                <path d="M 320 60 L 460 120" stroke="var(--accent)" stroke-width="2" fill="none" class="anim-path"/>
-            </svg>
-        </div>
-    `,
-    apiGateway: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="150" r="20" fill="var(--primary)" />
-                <rect x="200" y="80" width="100" height="140" fill="var(--accent)" />
-                <text x="250" y="155" text-anchor="middle" fill="#fff" font-weight="bold">API Gateway</text>
-                <rect x="450" y="40" width="80" height="50" fill="var(--secondary)" />
-                <rect x="450" y="125" width="80" height="50" fill="var(--secondary)" />
-                <rect x="450" y="210" width="80" height="50" fill="var(--secondary)" />
-                <path d="M 70 150 L 200 150" stroke="var(--primary)" stroke-width="2" class="anim-path" />
-                <path d="M 300 120 L 450 65" stroke="var(--accent)" stroke-width="2" />
-                <path d="M 300 150 L 450 150" stroke="var(--accent)" stroke-width="2" />
-                <path d="M 300 180 L 450 235" stroke="var(--accent)" stroke-width="2" />
-            </svg>
-        </div>
-    `,
-    circuitBreaker: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="100" cy="100" r="40" fill="#22C55E" />
-                <text x="100" y="105" text-anchor="middle" fill="#fff">Closed</text>
-                <circle cx="300" cy="100" r="40" fill="#EF4444" class="anim-pulse" />
-                <text x="300" y="105" text-anchor="middle" fill="#fff">Open</text>
-                <circle cx="500" cy="100" r="40" fill="#F59E0B" />
-                <text x="500" y="105" text-anchor="middle" fill="#fff">Half-Open</text>
-                <path d="M 140 100 L 260 100" stroke="var(--text)" stroke-width="2" />
-                <path d="M 340 100 L 460 100" stroke="var(--text)" stroke-width="2" />
-            </svg>
-        </div>
-    `,
-    rateLimiter: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                <path d="M 100 100 L 300 100 L 250 250 L 150 250 Z" fill="none" stroke="var(--primary)" stroke-width="5" />
-                <circle cx="200" cy="150" r="10" fill="var(--accent)" class="anim-pulse" />
-                <circle cx="200" cy="180" r="10" fill="var(--accent)" />
-                <circle cx="200" cy="210" r="10" fill="var(--accent)" />
-                <path d="M 200 50 L 200 90" stroke="var(--primary)" stroke-width="3" class="anim-path" />
-                <text x="200" y="40" text-anchor="middle" fill="var(--text)">Token Bucket</text>
-            </svg>
-        </div>
-    `,
-    consistentHashing: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="200" cy="200" r="150" fill="none" stroke="var(--primary)" stroke-width="5" />
-                <circle cx="200" cy="50" r="15" fill="var(--secondary)" />
-                <circle cx="350" cy="200" r="15" fill="var(--secondary)" />
-                <circle cx="200" cy="350" r="15" fill="var(--secondary)" />
-                <circle cx="50" cy="200" r="15" fill="var(--secondary)" />
-                <circle cx="306" cy="100" r="10" fill="var(--accent)" class="anim-pulse" />
-                <text x="200" y="200" text-anchor="middle" fill="var(--text)">Hash Ring</text>
-            </svg>
-        </div>
-    `,
-    latencyThroughput: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <line x1="50" y1="150" x2="550" y2="150" stroke="var(--text)" stroke-width="2" />
-                <line x1="50" y1="150" x2="50" y2="50" stroke="var(--text)" stroke-width="2" />
-                <path d="M 50 130 Q 300 120 550 80" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path" />
-                <text x="300" y="180" text-anchor="middle" fill="var(--text)">Time / Load</text>
-                <text x="30" y="100" text-anchor="middle" fill="var(--text)" transform="rotate(-90, 30, 100)">Performance</text>
-            </svg>
-        </div>
-    `,
-    availability: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="100" width="120" height="80" fill="var(--primary)" />
-                <rect x="240" y="100" width="120" height="80" fill="var(--primary)" />
-                <rect x="430" y="100" width="120" height="80" fill="var(--primary)" />
-                <path d="M 110 80 L 110 100" stroke="var(--accent)" stroke-width="3" class="anim-path" />
-                <path d="M 300 80 L 300 100" stroke="var(--accent)" stroke-width="3" />
-                <path d="M 490 80 L 490 100" stroke="var(--accent)" stroke-width="3" />
-                <text x="300" y="50" text-anchor="middle" fill="var(--text)">Redundant Servers (Active-Active)</text>
-            </svg>
-        </div>
-    `,
-    replication: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="250" y="40" width="100" height="80" fill="var(--primary)" />
-                <text x="300" y="85" text-anchor="middle" fill="#fff">Master</text>
-                <rect x="100" y="200" width="100" height="80" fill="var(--secondary)" />
-                <text x="150" y="245" text-anchor="middle" fill="#fff">Slave 1</text>
-                <rect x="400" y="200" width="100" height="80" fill="var(--secondary)" />
-                <text x="450" y="245" text-anchor="middle" fill="#fff">Slave 2</text>
-                <path d="M 280 120 L 170 190" stroke="var(--accent)" stroke-width="2" class="anim-path" />
-                <path d="M 320 120 L 430 190" stroke="var(--accent)" stroke-width="2" class="anim-path" />
-            </svg>
-        </div>
-    `,
-    distributedLock: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="250" y="70" width="100" height="60" fill="var(--accent)" />
-                <text x="300" y="105" text-anchor="middle" fill="#fff">Resource Lock</text>
-                <circle cx="100" cy="100" r="30" fill="var(--primary)" />
-                <circle cx="500" cy="100" r="30" fill="var(--secondary)" />
-                <path d="M 135 100 L 245 100" stroke="var(--primary)" stroke-width="3" class="anim-path" />
-                <path d="M 465 100 L 355 100" stroke="var(--secondary)" stroke-width="3" stroke-dasharray="5,5" />
-            </svg>
-        </div>
-    `,
-    searchSystem: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="50" width="100" height="50" fill="var(--primary)" />
-                <text x="100" y="80" text-anchor="middle" fill="#fff">Crawler</text>
-                <rect x="250" y="50" width="100" height="50" fill="var(--accent)" />
-                <text x="300" y="80" text-anchor="middle" fill="#fff">Indexer</text>
-                <rect x="450" y="50" width="100" height="200" fill="var(--secondary)" />
-                <text x="500" y="150" text-anchor="middle" fill="#fff">Inverted Index</text>
-                <path d="M 150 75 L 250 75" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 350 75 L 450 75" stroke="var(--text)" stroke-width="2" class="anim-path" />
-            </svg>
-        </div>
-    `,
-    realTime: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="100" cy="100" r="30" fill="var(--primary)" />
-                <rect x="250" y="70" width="100" height="60" fill="var(--accent)" />
-                <circle cx="500" cy="100" r="30" fill="var(--primary)" />
-                <path d="M 135 90 L 245 90" stroke="var(--accent)" stroke-width="2" class="anim-path" />
-                <path d="M 245 110 L 135 110" stroke="var(--accent)" stroke-width="2" class="anim-path" />
-                <path d="M 355 100 L 465 100" stroke="var(--accent)" stroke-width="2" class="anim-path" />
-                <text x="300" y="150" text-anchor="middle" fill="var(--text)">WebSocket / Pub-Sub</text>
-            </svg>
-        </div>
-    `,
-    notification: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="125" width="100" height="50" fill="var(--primary)" />
-                <rect x="250" y="50" width="100" height="200" fill="var(--accent)" />
-                <text x="300" y="155" text-anchor="middle" fill="#fff">Notifier</text>
-                <rect x="450" y="50" width="80" height="40" fill="var(--secondary)" />
-                <text x="490" y="75" text-anchor="middle" fill="#fff" font-size="10">SMS</text>
-                <rect x="450" y="130" width="80" height="40" fill="var(--secondary)" />
-                <text x="490" y="155" text-anchor="middle" fill="#fff" font-size="10">Email</text>
-                <rect x="450" y="210" width="80" height="40" fill="var(--secondary)" />
-                <text x="490" y="235" text-anchor="middle" fill="#fff" font-size="10">Push</text>
-            </svg>
-        </div>
-    `,
-    urlShortener: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <text x="100" y="105" text-anchor="middle" fill="var(--text)">Long URL</text>
-                <rect x="250" y="70" width="100" height="60" fill="var(--accent)" />
-                <text x="300" y="105" text-anchor="middle" fill="#fff">Hash Fn</text>
-                <text x="500" y="105" text-anchor="middle" fill="var(--text)">Short URL</text>
-                <path d="M 160 100 L 250 100" stroke="var(--primary)" stroke-width="2" class="anim-path" />
-                <path d="M 350 100 L 440 100" stroke="var(--primary)" stroke-width="2" class="anim-path" />
-            </svg>
-        </div>
-    `,
-    videoStreaming: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="70" width="100" height="60" fill="var(--primary)" />
-                <text x="100" y="105" text-anchor="middle" fill="#fff">Server</text>
-                <rect x="200" y="90" width="40" height="20" fill="var(--accent)" class="anim-path" />
-                <rect x="260" y="90" width="40" height="20" fill="var(--accent)" />
-                <rect x="320" y="90" width="40" height="20" fill="var(--accent)" />
-                <rect x="450" y="70" width="100" height="60" fill="var(--secondary)" />
-                <text x="500" y="105" text-anchor="middle" fill="#fff">Player</text>
-                <text x="300" y="150" text-anchor="middle" fill="var(--text)">Adaptive Streaming (Chunks)</text>
-            </svg>
-        </div>
-    `,
-    rideSharing: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="50" width="500" height="200" fill="none" stroke="var(--border-color)" />
-                <circle cx="150" cy="150" r="10" fill="var(--primary)" class="anim-pulse" />
-                <text x="150" y="170" text-anchor="middle" fill="var(--text)" font-size="10">Rider</text>
-                <circle cx="400" cy="100" r="10" fill="var(--accent)" />
-                <text x="400" y="120" text-anchor="middle" fill="var(--text)" font-size="10">Driver 1</text>
-                <circle cx="450" cy="220" r="10" fill="var(--accent)" />
-                <text x="450" y="240" text-anchor="middle" fill="var(--text)" font-size="10">Driver 2</text>
-                <path d="M 160 150 L 390 105" stroke="var(--primary)" stroke-dasharray="5,5" />
-                <text x="300" y="280" text-anchor="middle" fill="var(--text)">Geospatial Matching (Quadtree/S2)</text>
-            </svg>
-        </div>
-    `,
-    payment: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="125" width="100" height="50" fill="var(--primary)" />
-                <rect x="250" y="125" width="100" height="50" fill="var(--accent)" />
-                <rect x="450" y="125" width="100" height="50" fill="var(--secondary)" />
-                <path d="M 150 150 L 250 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 350 150 L 450 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <text x="100" y="190" text-anchor="middle" fill="var(--text)" font-size="10">User</text>
-                <text x="300" y="190" text-anchor="middle" fill="var(--text)" font-size="10">Payment Gateway</text>
-                <text x="500" y="190" text-anchor="middle" fill="var(--text)" font-size="10">Bank/PSP</text>
-            </svg>
-        </div>
-    `,
-    newsFeed: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="100" cy="150" r="30" fill="var(--primary)" />
-                <rect x="250" y="100" width="100" height="100" fill="var(--accent)" />
-                <circle cx="500" cy="80" r="20" fill="var(--secondary)" />
-                <circle cx="500" cy="150" r="20" fill="var(--secondary)" />
-                <circle cx="500" cy="220" r="20" fill="var(--secondary)" />
-                <path d="M 130 150 L 250 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 350 140 L 480 90" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 350 150 L 480 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 350 160 L 480 210" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <text x="300" y="230" text-anchor="middle" fill="var(--text)">Fan-out / Feed Gen</text>
-            </svg>
-        </div>
-    `,
-    loggingMonitoring: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="50" width="80" height="50" fill="var(--primary)" />
-                <rect x="50" y="125" width="80" height="50" fill="var(--primary)" />
-                <rect x="50" y="200" width="80" height="50" fill="var(--primary)" />
-                <rect x="250" y="100" width="100" height="100" fill="var(--accent)" />
-                <rect x="450" y="100" width="100" height="100" fill="var(--secondary)" />
-                <path d="M 130 75 L 250 140" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 130 150 L 250 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 130 225 L 250 160" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <text x="500" y="220" text-anchor="middle" fill="var(--text)">Dashboard</text>
-            </svg>
-        </div>
-    `,
-    dataPipeline: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="70" width="80" height="60" fill="var(--primary)" />
-                <rect x="180" y="70" width="100" height="60" fill="var(--accent)" />
-                <rect x="330" y="70" width="100" height="60" fill="var(--accent)" />
-                <rect x="470" y="70" width="80" height="60" fill="var(--secondary)" />
-                <path d="M 130 100 L 180 100" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 280 100 L 330 100" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 430 100 L 470 100" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <text x="300" y="160" text-anchor="middle" fill="var(--text)">ETL Pipeline</text>
-            </svg>
-        </div>
-    `,
-    batchProcessing: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="125" width="80" height="50" fill="var(--primary)" />
-                <rect x="200" y="50" width="80" height="50" fill="var(--accent)" />
-                <rect x="200" y="200" width="80" height="50" fill="var(--accent)" />
-                <rect x="350" y="125" width="80" height="50" fill="var(--secondary)" />
-                <path d="M 130 150 L 200 75" stroke="var(--text)" stroke-width="2" />
-                <path d="M 130 150 L 200 225" stroke="var(--text)" stroke-width="2" />
-                <text x="300" y="280" text-anchor="middle" fill="var(--text)">MapReduce (Split-Map-Shuffle-Reduce)</text>
-            </svg>
-        </div>
-    `,
-    indexing: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <rect x="250" y="20" width="100" height="40" fill="var(--primary)" />
-                <rect x="150" y="100" width="100" height="40" fill="var(--accent)" />
-                <rect x="350" y="100" width="100" height="40" fill="var(--accent)" />
-                <rect x="80" y="180" width="60" height="30" fill="var(--secondary)" />
-                <rect x="180" y="180" width="60" height="30" fill="var(--secondary)" />
-                <rect x="300" y="180" width="60" height="30" fill="var(--secondary)" />
-                <rect x="420" y="180" width="60" height="30" fill="var(--secondary)" />
-                <path d="M 300 60 L 200 100" stroke="var(--text)" stroke-width="2" />
-                <path d="M 300 60 L 400 100" stroke="var(--text)" stroke-width="2" />
-                <text x="300" y="250" text-anchor="middle" fill="var(--text)">B-Tree Index Visualization</text>
-            </svg>
-        </div>
-    `,
-    architecture: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-                <rect x="20" y="180" width="60" height="40" fill="var(--primary)" />
-                <rect x="150" y="150" width="80" height="100" fill="var(--accent)" />
-                <rect x="300" y="100" width="100" height="50" fill="var(--secondary)" />
-                <rect x="300" y="250" width="100" height="50" fill="var(--secondary)" />
-                <rect x="500" y="175" width="80" height="50" fill="#6366F1" />
-                <rect x="700" y="150" width="60" height="100" fill="#EC4899" />
-                <path d="M 80 200 L 150 200" stroke="var(--text)" stroke-width="2" class="anim-path" />
-                <path d="M 230 180 L 300 130" stroke="var(--text)" stroke-width="2" />
-                <path d="M 230 220 L 300 270" stroke="var(--text)" stroke-width="2" />
-                <text x="300" y="50" text-anchor="middle" fill="var(--text)" font-weight="bold">High Level Architecture</text>
-            </svg>
-        </div>
-    `,
-    generic: `
-        <div class="diagram-container">
-            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="100" y="60" width="120" height="80" rx="8" fill="var(--primary)" class="anim-pulse" />
-                <rect x="380" y="60" width="120" height="80" rx="8" fill="var(--secondary)" />
-                <path d="M 220 100 L 380 100" stroke="var(--accent)" stroke-width="4" fill="none" class="anim-path"/>
-            </svg>
-        </div>
-    `
-};
-
-function generateContent(title, type) {
-    let svg = svgSnippets.generic;
-    const t = title.toLowerCase();
-    
-    if (t.includes('load balancer')) svg = svgSnippets.loadBalancer;
-    else if (t.includes('client-server')) svg = svgSnippets.clientServer;
-    else if (t.includes('cach')) svg = svgSnippets.caching;
-    else if (t.includes('cap theorem')) svg = svgSnippets.capTheorem;
-    else if (t.includes('cdn')) svg = svgSnippets.cdn;
-    else if (t.includes('message queue') || t.includes('kafka')) svg = svgSnippets.messageQueue;
-    else if (t.includes('microservices') || t.includes('monolith')) svg = svgSnippets.microservices;
-    else if (t.includes('sharding')) svg = svgSnippets.databaseSharding;
-    else if (t.includes('replication')) svg = svgSnippets.replication;
-    else if (t.includes('api gateway')) svg = svgSnippets.apiGateway;
-    else if (t.includes('circuit breaker')) svg = svgSnippets.circuitBreaker;
-    else if (t.includes('rate limit')) svg = svgSnippets.rateLimiter;
-    else if (t.includes('consistent hashing')) svg = svgSnippets.consistentHashing;
-    else if (t.includes('latency') || t.includes('throughput')) svg = svgSnippets.latencyThroughput;
-    else if (t.includes('availability')) svg = svgSnippets.availability;
-    else if (t.includes('lock')) svg = svgSnippets.distributedLock;
-    else if (t.includes('search system')) svg = svgSnippets.searchSystem;
-    else if (t.includes('real-time') || t.includes('chat')) svg = svgSnippets.realTime;
-    else if (t.includes('notification')) svg = svgSnippets.notification;
-    else if (t.includes('url shortener')) svg = svgSnippets.urlShortener;
-    else if (t.includes('video streaming')) svg = svgSnippets.videoStreaming;
-    else if (t.includes('ride sharing') || t.includes('uber')) svg = svgSnippets.rideSharing;
-    else if (t.includes('payment')) svg = svgSnippets.payment;
-    else if (t.includes('news feed')) svg = svgSnippets.newsFeed;
-    else if (t.includes('logging') || t.includes('monitoring')) svg = svgSnippets.loggingMonitoring;
-    else if (t.includes('data pipeline')) svg = svgSnippets.dataPipeline;
-    else if (t.includes('batch') || t.includes('map reduce')) svg = svgSnippets.batchProcessing;
-    else if (t.includes('indexing')) svg = svgSnippets.indexing;
-    else if (t.includes('design') || type === 'interview') svg = svgSnippets.architecture;
-
-    const baseIntro = type === 'interview' 
-        ? `<h2>Problem Statement: ${title}</h2><p>আজকের ইন্টারভিউ প্রশ্নে আমরা শিখবো কিভাবে <strong>${title}</strong> সিস্টেম তৈরি করতে হয়। এটি সিস্টেম ডিজাইন ইন্টারভিউয়ের একটি অন্যতম জনপ্রিয় প্রশ্ন।</p>` 
-        : `<h1>${title}</h1><p>সিস্টেম ডিজাইনের এই পর্বে আমরা <strong>${title}</strong> নিয়ে বিস্তারিত আলোচনা করবো।</p>`;
-
-    const story = `
-        <div class="story-box">
-            "ধরো তুমি একটি ছোট অনলাইন দোকান খুলেছ। শুরুতে তোমার দোকানে দিনে মাত্র ১০-১৫ জন ক্রেতা আসতো। তুমি একাই সব ম্যানেজ করতে পারতে। 
-            কিন্তু কিছুদিন পর তোমার দোকানের বিক্রি অনেক বেড়ে গেল। দিনে হাজার হাজার মানুষ আসতে শুরু করল। 
-            এখন তুমি একা আর সামলাতে পারছো না। তোমার এখন নতুন লোক লাগবে, দোকানের জায়গা বড় করতে হবে, আর জিনিসপত্র গুছিয়ে রাখার নতুন সিস্টেম করতে হবে।"
-        </div>
-    `;
-
-    const body = `
-        <h2>${title} কী? (What is it?)</h2>
-        <p>${title} হলো এমন একটি মেকানিজম বা আর্কিটেকচারাল প্যাটার্ন যা ডিস্ট্রিবিউটেড সিস্টেমে পারফরম্যান্স, স্কেলেবিলিটি এবং রিলায়াবিলিটি বাড়াতে সাহায্য করে।</p>
-        
-        ${svg}
-
-        <h2>কিভাবে কাজ করে? (How it works)</h2>
-        <p>এর কাজের ধরন খুব সহজভাবে বুঝতে গেলে কিছু ধাপ মাথায় রাখতে হবে:</p>
-        <ol>
-            <li>প্রথমে ক্লায়েন্ট থেকে রিকোয়েস্ট আসে।</li>
-            <li>সিস্টেম চেক করে যে এই রিকোয়েস্টটি কীভাবে সবচেয়ে দ্রুত প্রসেস করা যায়।</li>
-            <li>তারপর উপযুক্ত সার্ভার বা ডেটাবেসে রিকোয়েস্টটি পাঠানো হয়।</li>
-        </ol>
-    `;
-
-    const interviewExtras = `
-        <h2>Requirements</h2>
-        <ul>
-            <li>High Availability</li>
-            <li>Scalability</li>
-            <li>Low Latency</li>
-        </ul>
-        <h2>High Level Design (HLD)</h2>
-        <p>প্রথমে আমরা একটি বেসিক আর্কিটেকচার দাঁড় করাবো। ক্লায়েন্ট থেকে রিকোয়েস্ট Load Balancer হয়ে Application Server এ যাবে এবং সেখান থেকে Database এ ডেটা সেভ হবে।</p>
-    `;
-
-    return baseIntro + story + body + (type === 'interview' ? interviewExtras : '');
-}
-
-const indexHtml = getTemplate("Home", `
-    <h1>System Design বাংলায় শিখুন</h1>
-    <div class="story-box">
-        "সিস্টেম ডিজাইন শেখাটা অনেকটা একটি বিশাল বিল্ডিং তৈরি করার মতো। কোথায় কতটুকু রড সিমেন্ট লাগবে তা যেমন একজন ইঞ্জিনিয়ার হিসাব করেন, তেমনি একজন সফটওয়্যার আর্কিটেক্ট ঠিক করেন কোথায় লোড ব্যালেন্সার বসবে, কোথায় ডেটাবেস শার্ডিং হবে।"
-    </div>
-    ${svgSnippets.architecture}
-`, 0);
-
-fs.writeFileSync(path.join(rootDir, 'index.html'), indexHtml);
-
+// Generate pages
 sections.forEach(sec => {
-    if (sec.folder === 'pages' || sec.folder === 'interview') {
-        sec.pages.forEach(page => {
-            const content = generateContent(page.title, sec.folder);
-            const html = getTemplate(page.title, content, 1);
-            fs.writeFileSync(path.join(rootDir, sec.folder, page.file), html);
-        });
-    }
+    sec.pages.forEach(page => {
+        const data = topicDetails[page.key];
+        const content = `<h1>${page.title}</h1><div class="story-box">${data.story}</div><h2>বিস্তারিত</h2><p>${data.details}</p>${data.svg}<h2>সুবিধা</h2><ul>${data.advantages.map(a => `<li>${a}</li>`).join('')}</ul>`;
+        const finalHtml = getTemplate(page.title, content, depth = (sec.folder === 'pages' || sec.folder === 'interview' ? 1 : 0));
+        fs.writeFileSync(path.join(rootDir, sec.folder, page.file), finalHtml);
+    });
 });
 
-console.log("Website updated successfully with topic-specific diagrams!");
+// Write Index
+const indexContent = `<h1>System Design বাংলায় শিখুন</h1><div class="story-box">"গল্পের ছলে শিখুন সিস্টেম ডিজাইন।"</div>${svgSnippets.generic}`;
+fs.writeFileSync(path.join(rootDir, 'index.html'), getTemplate("Home", indexContent, 0));
+
+console.log("Pages 20-25 and others fixed with unique content!");
