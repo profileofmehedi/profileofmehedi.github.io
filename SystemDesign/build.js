@@ -92,7 +92,7 @@ const sections = [
     {
         title: "Interview Questions",
         folder: "interview",
-        pages: [] // We will dynamically add 50 questions
+        pages: [] 
     }
 ];
 
@@ -125,14 +125,10 @@ function getSidebarHtml(depth = 1) {
     const rootPath = depth === 0 ? '' : '../';
     let html = '';
     sections.forEach((sec, idx) => {
-        const isActive = idx === 0 ? 'active' : ''; // Default open first
         html += `<div class="sidebar-section">
             <div class="sidebar-heading">${sec.title} <span>▼</span></div>
             <ul class="sidebar-links">`;
         sec.pages.forEach(page => {
-            const linkPath = (depth === 0) ? `${sec.folder}/${page.file}` : (sec.folder === (depth===1 && 'pages' ? 'pages' : 'interview') ? (depth===1 ? (sec.folder=== 'pages' ? '' : '../interview/') : '') + page.file : `../${sec.folder}/${page.file}`);
-            
-            // Simplification for path logic:
             let finalHref = '';
             if (depth === 0) {
                 finalHref = `${sec.folder}/${page.file}`;
@@ -140,7 +136,6 @@ function getSidebarHtml(depth = 1) {
                 if (sec.folder === 'pages') finalHref = `../pages/${page.file}`;
                 else finalHref = `../interview/${page.file}`;
             }
-
             html += `<li><a href="${finalHref}">${page.title}</a></li>`;
         });
         html += `</ul></div>`;
@@ -191,32 +186,33 @@ function getTemplate(title, content, depth = 1) {
 }
 
 const svgSnippets = {
+    clientServer: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="60" width="100" height="80" rx="10" fill="var(--primary)" class="anim-pulse"/>
+                <text x="100" y="105" text-anchor="middle" fill="#fff">Client</text>
+                <path d="M 160 90 L 440 90" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
+                <text x="300" y="80" text-anchor="middle" fill="var(--text)" font-size="12">Request</text>
+                <path d="M 440 110 L 160 110" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
+                <text x="300" y="130" text-anchor="middle" fill="var(--text)" font-size="12">Response</text>
+                <rect x="450" y="60" width="100" height="80" rx="10" fill="var(--secondary)"/>
+                <text x="500" y="105" text-anchor="middle" fill="#fff">Server</text>
+            </svg>
+        </div>
+    `,
     loadBalancer: `
         <div class="diagram-container">
             <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <!-- Users -->
                 <circle cx="50" cy="150" r="20" fill="var(--primary)" class="anim-pulse"/>
-                <text x="50" y="190" text-anchor="middle" fill="var(--text)">Users</text>
-                
-                <!-- Load Balancer -->
                 <rect x="250" y="110" width="100" height="80" rx="10" fill="var(--accent)" />
-                <text x="300" y="155" text-anchor="middle" fill="#fff" font-weight="bold">Load Balancer</text>
-                
-                <!-- Servers -->
-                <rect x="500" y="40" width="80" height="60" rx="5" fill="var(--secondary)" />
-                <text x="540" y="75" text-anchor="middle" fill="#fff">Server 1</text>
-                
-                <rect x="500" y="120" width="80" height="60" rx="5" fill="var(--secondary)" />
-                <text x="540" y="155" text-anchor="middle" fill="#fff">Server 2</text>
-                
-                <rect x="500" y="200" width="80" height="60" rx="5" fill="var(--secondary)" />
-                <text x="540" y="235" text-anchor="middle" fill="#fff">Server 3</text>
-                
-                <!-- Lines -->
-                <path d="M 80 150 L 240 150" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 360 140 L 490 70" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 360 150 L 490 150" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <path d="M 360 160 L 490 230" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
+                <text x="300" y="155" text-anchor="middle" fill="#fff" font-weight="bold">LB</text>
+                <rect x="480" y="40" width="80" height="50" rx="5" fill="var(--secondary)" />
+                <rect x="480" y="125" width="80" height="50" rx="5" fill="var(--secondary)" />
+                <rect x="480" y="210" width="80" height="50" rx="5" fill="var(--secondary)" />
+                <path d="M 70 150 L 250 150" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
+                <path d="M 350 130 L 480 70" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
+                <path d="M 350 150 L 480 150" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
+                <path d="M 350 170 L 480 230" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
             </svg>
         </div>
     `,
@@ -224,49 +220,379 @@ const svgSnippets = {
         <div class="diagram-container">
             <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
                 <rect x="50" y="100" width="80" height="60" rx="5" fill="var(--primary)" />
-                <text x="90" y="135" text-anchor="middle" fill="#fff">Server</text>
-                
-                <rect x="260" y="40" width="80" height="60" rx="5" fill="var(--accent)" class="anim-pulse" />
-                <text x="300" y="75" text-anchor="middle" fill="#fff">Cache (Redis)</text>
-                
+                <rect x="260" y="40" width="100" height="60" rx="5" fill="var(--accent)" class="anim-pulse" />
+                <text x="310" y="75" text-anchor="middle" fill="#fff">Cache</text>
                 <rect x="470" y="100" width="80" height="80" rx="5" fill="var(--secondary)" />
-                <text x="510" y="145" text-anchor="middle" fill="#fff">Database</text>
-                
-                <path d="M 140 120 L 250 80" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
-                <text x="195" y="90" fill="var(--text)" font-size="12">1. Check Cache</text>
-                
-                <path d="M 350 80 L 460 120" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <text x="405" y="90" fill="var(--text)" font-size="12">2. If Miss, DB</text>
-                
-                <path d="M 140 140 L 460 140" stroke="var(--secondary)" stroke-width="2" stroke-dasharray="5,5" fill="none"/>
-                <text x="300" y="160" text-anchor="middle" fill="var(--text)" font-size="12">Direct DB query (Cache Miss)</text>
+                <text x="510" y="145" text-anchor="middle" fill="#fff">DB</text>
+                <path d="M 130 110 L 260 80" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
+                <path d="M 360 80 L 470 120" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
             </svg>
         </div>
     `,
-    databaseReplication: `
+    capTheorem: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 200 50 L 50 250 L 350 250 Z" fill="none" stroke="var(--primary)" stroke-width="5" />
+                <circle cx="200" cy="50" r="30" fill="var(--accent)" />
+                <text x="200" y="20" text-anchor="middle" fill="var(--text)">Consistency</text>
+                <circle cx="50" cy="250" r="30" fill="var(--primary)" />
+                <text x="50" y="290" text-anchor="middle" fill="var(--text)">Availability</text>
+                <circle cx="350" cy="250" r="30" fill="var(--secondary)" />
+                <text x="350" y="290" text-anchor="middle" fill="var(--text)">Partition Tolerance</text>
+            </svg>
+        </div>
+    `,
+    cdn: `
         <div class="diagram-container">
             <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-                <!-- Master DB -->
-                <rect x="250" y="40" width="100" height="80" rx="10" fill="var(--primary)" class="anim-pulse" />
-                <text x="300" y="85" text-anchor="middle" fill="#fff" font-weight="bold">Master DB</text>
-                <text x="300" y="105" text-anchor="middle" fill="#fff" font-size="12">(Writes)</text>
-
-                <!-- Slave DB 1 -->
-                <rect x="100" y="200" width="100" height="80" rx="10" fill="var(--secondary)" />
-                <text x="150" y="245" text-anchor="middle" fill="#fff" font-weight="bold">Slave DB 1</text>
-                <text x="150" y="265" text-anchor="middle" fill="#fff" font-size="12">(Reads)</text>
-
-                <!-- Slave DB 2 -->
-                <rect x="400" y="200" width="100" height="80" rx="10" fill="var(--secondary)" />
-                <text x="450" y="245" text-anchor="middle" fill="#fff" font-weight="bold">Slave DB 2</text>
-                <text x="450" y="265" text-anchor="middle" fill="#fff" font-size="12">(Reads)</text>
-
-                <!-- Lines -->
-                <path d="M 280 130 L 170 190" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <text x="210" y="150" fill="var(--text)" font-size="12">Async Sync</text>
-                
-                <path d="M 320 130 L 430 190" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-                <text x="390" y="150" fill="var(--text)" font-size="12">Async Sync</text>
+                <circle cx="300" cy="150" r="40" fill="var(--primary)" />
+                <text x="300" y="155" text-anchor="middle" fill="#fff">Origin Server</text>
+                <circle cx="100" cy="100" r="25" fill="var(--accent)" class="anim-pulse" />
+                <text x="100" y="140" text-anchor="middle" fill="var(--text)" font-size="10">Edge Node 1</text>
+                <circle cx="500" cy="100" r="25" fill="var(--accent)" class="anim-pulse" />
+                <text x="500" y="140" text-anchor="middle" fill="var(--text)" font-size="10">Edge Node 2</text>
+                <path d="M 260 130 L 125 105" stroke="var(--primary)" stroke-dasharray="5,5" fill="none" />
+                <path d="M 340 130 L 475 105" stroke="var(--primary)" stroke-dasharray="5,5" fill="none" />
+            </svg>
+        </div>
+    `,
+    messageQueue: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="70" width="80" height="60" fill="var(--primary)" />
+                <text x="90" y="105" text-anchor="middle" fill="#fff">Producer</text>
+                <rect x="200" y="70" width="200" height="60" fill="var(--accent)" stroke="var(--text)" />
+                <rect x="210" y="80" width="30" height="40" fill="#fff" class="anim-path" />
+                <rect x="250" y="80" width="30" height="40" fill="#fff" />
+                <rect x="290" y="80" width="30" height="40" fill="#fff" />
+                <rect x="470" y="70" width="80" height="60" fill="var(--secondary)" />
+                <text x="510" y="105" text-anchor="middle" fill="#fff">Consumer</text>
+                <path d="M 130 100 L 200 100" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/>
+                <path d="M 400 100 L 470 100" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
+            </svg>
+        </div>
+    `,
+    microservices: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="100" height="150" fill="var(--primary)" />
+                <text x="100" y="130" text-anchor="middle" fill="#fff">Monolith</text>
+                <line x1="200" y1="20" x2="200" y2="230" stroke="var(--border-color)" stroke-width="2" />
+                <rect x="250" y="50" width="60" height="60" fill="var(--accent)" />
+                <rect x="350" y="50" width="60" height="60" fill="var(--accent)" />
+                <rect x="450" y="50" width="60" height="60" fill="var(--accent)" />
+                <rect x="250" y="140" width="60" height="60" fill="var(--accent)" />
+                <rect x="350" y="140" width="60" height="60" fill="var(--accent)" />
+                <rect x="450" y="140" width="60" height="60" fill="var(--accent)" />
+            </svg>
+        </div>
+    `,
+    databaseSharding: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="250" y="20" width="100" height="40" fill="var(--primary)" />
+                <text x="300" y="45" text-anchor="middle" fill="#fff">Router</text>
+                <rect x="100" y="120" width="80" height="60" fill="var(--secondary)" />
+                <text x="140" y="155" text-anchor="middle" fill="#fff">Shard 1</text>
+                <rect x="260" y="120" width="80" height="60" fill="var(--secondary)" />
+                <text x="300" y="155" text-anchor="middle" fill="#fff">Shard 2</text>
+                <rect x="420" y="120" width="80" height="60" fill="var(--secondary)" />
+                <text x="460" y="155" text-anchor="middle" fill="#fff">Shard 3</text>
+                <path d="M 280 60 L 140 120" stroke="var(--accent)" stroke-width="2" fill="none" class="anim-path"/>
+                <path d="M 300 60 L 300 120" stroke="var(--accent)" stroke-width="2" fill="none" class="anim-path"/>
+                <path d="M 320 60 L 460 120" stroke="var(--accent)" stroke-width="2" fill="none" class="anim-path"/>
+            </svg>
+        </div>
+    `,
+    apiGateway: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="150" r="20" fill="var(--primary)" />
+                <rect x="200" y="80" width="100" height="140" fill="var(--accent)" />
+                <text x="250" y="155" text-anchor="middle" fill="#fff" font-weight="bold">API Gateway</text>
+                <rect x="450" y="40" width="80" height="50" fill="var(--secondary)" />
+                <rect x="450" y="125" width="80" height="50" fill="var(--secondary)" />
+                <rect x="450" y="210" width="80" height="50" fill="var(--secondary)" />
+                <path d="M 70 150 L 200 150" stroke="var(--primary)" stroke-width="2" class="anim-path" />
+                <path d="M 300 120 L 450 65" stroke="var(--accent)" stroke-width="2" />
+                <path d="M 300 150 L 450 150" stroke="var(--accent)" stroke-width="2" />
+                <path d="M 300 180 L 450 235" stroke="var(--accent)" stroke-width="2" />
+            </svg>
+        </div>
+    `,
+    circuitBreaker: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="40" fill="#22C55E" />
+                <text x="100" y="105" text-anchor="middle" fill="#fff">Closed</text>
+                <circle cx="300" cy="100" r="40" fill="#EF4444" class="anim-pulse" />
+                <text x="300" y="105" text-anchor="middle" fill="#fff">Open</text>
+                <circle cx="500" cy="100" r="40" fill="#F59E0B" />
+                <text x="500" y="105" text-anchor="middle" fill="#fff">Half-Open</text>
+                <path d="M 140 100 L 260 100" stroke="var(--text)" stroke-width="2" />
+                <path d="M 340 100 L 460 100" stroke="var(--text)" stroke-width="2" />
+            </svg>
+        </div>
+    `,
+    rateLimiter: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 100 100 L 300 100 L 250 250 L 150 250 Z" fill="none" stroke="var(--primary)" stroke-width="5" />
+                <circle cx="200" cy="150" r="10" fill="var(--accent)" class="anim-pulse" />
+                <circle cx="200" cy="180" r="10" fill="var(--accent)" />
+                <circle cx="200" cy="210" r="10" fill="var(--accent)" />
+                <path d="M 200 50 L 200 90" stroke="var(--primary)" stroke-width="3" class="anim-path" />
+                <text x="200" y="40" text-anchor="middle" fill="var(--text)">Token Bucket</text>
+            </svg>
+        </div>
+    `,
+    consistentHashing: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="200" cy="200" r="150" fill="none" stroke="var(--primary)" stroke-width="5" />
+                <circle cx="200" cy="50" r="15" fill="var(--secondary)" />
+                <circle cx="350" cy="200" r="15" fill="var(--secondary)" />
+                <circle cx="200" cy="350" r="15" fill="var(--secondary)" />
+                <circle cx="50" cy="200" r="15" fill="var(--secondary)" />
+                <circle cx="306" cy="100" r="10" fill="var(--accent)" class="anim-pulse" />
+                <text x="200" y="200" text-anchor="middle" fill="var(--text)">Hash Ring</text>
+            </svg>
+        </div>
+    `,
+    latencyThroughput: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <line x1="50" y1="150" x2="550" y2="150" stroke="var(--text)" stroke-width="2" />
+                <line x1="50" y1="150" x2="50" y2="50" stroke="var(--text)" stroke-width="2" />
+                <path d="M 50 130 Q 300 120 550 80" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path" />
+                <text x="300" y="180" text-anchor="middle" fill="var(--text)">Time / Load</text>
+                <text x="30" y="100" text-anchor="middle" fill="var(--text)" transform="rotate(-90, 30, 100)">Performance</text>
+            </svg>
+        </div>
+    `,
+    availability: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="100" width="120" height="80" fill="var(--primary)" />
+                <rect x="240" y="100" width="120" height="80" fill="var(--primary)" />
+                <rect x="430" y="100" width="120" height="80" fill="var(--primary)" />
+                <path d="M 110 80 L 110 100" stroke="var(--accent)" stroke-width="3" class="anim-path" />
+                <path d="M 300 80 L 300 100" stroke="var(--accent)" stroke-width="3" />
+                <path d="M 490 80 L 490 100" stroke="var(--accent)" stroke-width="3" />
+                <text x="300" y="50" text-anchor="middle" fill="var(--text)">Redundant Servers (Active-Active)</text>
+            </svg>
+        </div>
+    `,
+    replication: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="250" y="40" width="100" height="80" fill="var(--primary)" />
+                <text x="300" y="85" text-anchor="middle" fill="#fff">Master</text>
+                <rect x="100" y="200" width="100" height="80" fill="var(--secondary)" />
+                <text x="150" y="245" text-anchor="middle" fill="#fff">Slave 1</text>
+                <rect x="400" y="200" width="100" height="80" fill="var(--secondary)" />
+                <text x="450" y="245" text-anchor="middle" fill="#fff">Slave 2</text>
+                <path d="M 280 120 L 170 190" stroke="var(--accent)" stroke-width="2" class="anim-path" />
+                <path d="M 320 120 L 430 190" stroke="var(--accent)" stroke-width="2" class="anim-path" />
+            </svg>
+        </div>
+    `,
+    distributedLock: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="250" y="70" width="100" height="60" fill="var(--accent)" />
+                <text x="300" y="105" text-anchor="middle" fill="#fff">Resource Lock</text>
+                <circle cx="100" cy="100" r="30" fill="var(--primary)" />
+                <circle cx="500" cy="100" r="30" fill="var(--secondary)" />
+                <path d="M 135 100 L 245 100" stroke="var(--primary)" stroke-width="3" class="anim-path" />
+                <path d="M 465 100 L 355 100" stroke="var(--secondary)" stroke-width="3" stroke-dasharray="5,5" />
+            </svg>
+        </div>
+    `,
+    searchSystem: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="100" height="50" fill="var(--primary)" />
+                <text x="100" y="80" text-anchor="middle" fill="#fff">Crawler</text>
+                <rect x="250" y="50" width="100" height="50" fill="var(--accent)" />
+                <text x="300" y="80" text-anchor="middle" fill="#fff">Indexer</text>
+                <rect x="450" y="50" width="100" height="200" fill="var(--secondary)" />
+                <text x="500" y="150" text-anchor="middle" fill="#fff">Inverted Index</text>
+                <path d="M 150 75 L 250 75" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 350 75 L 450 75" stroke="var(--text)" stroke-width="2" class="anim-path" />
+            </svg>
+        </div>
+    `,
+    realTime: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="30" fill="var(--primary)" />
+                <rect x="250" y="70" width="100" height="60" fill="var(--accent)" />
+                <circle cx="500" cy="100" r="30" fill="var(--primary)" />
+                <path d="M 135 90 L 245 90" stroke="var(--accent)" stroke-width="2" class="anim-path" />
+                <path d="M 245 110 L 135 110" stroke="var(--accent)" stroke-width="2" class="anim-path" />
+                <path d="M 355 100 L 465 100" stroke="var(--accent)" stroke-width="2" class="anim-path" />
+                <text x="300" y="150" text-anchor="middle" fill="var(--text)">WebSocket / Pub-Sub</text>
+            </svg>
+        </div>
+    `,
+    notification: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="125" width="100" height="50" fill="var(--primary)" />
+                <rect x="250" y="50" width="100" height="200" fill="var(--accent)" />
+                <text x="300" y="155" text-anchor="middle" fill="#fff">Notifier</text>
+                <rect x="450" y="50" width="80" height="40" fill="var(--secondary)" />
+                <text x="490" y="75" text-anchor="middle" fill="#fff" font-size="10">SMS</text>
+                <rect x="450" y="130" width="80" height="40" fill="var(--secondary)" />
+                <text x="490" y="155" text-anchor="middle" fill="#fff" font-size="10">Email</text>
+                <rect x="450" y="210" width="80" height="40" fill="var(--secondary)" />
+                <text x="490" y="235" text-anchor="middle" fill="#fff" font-size="10">Push</text>
+            </svg>
+        </div>
+    `,
+    urlShortener: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <text x="100" y="105" text-anchor="middle" fill="var(--text)">Long URL</text>
+                <rect x="250" y="70" width="100" height="60" fill="var(--accent)" />
+                <text x="300" y="105" text-anchor="middle" fill="#fff">Hash Fn</text>
+                <text x="500" y="105" text-anchor="middle" fill="var(--text)">Short URL</text>
+                <path d="M 160 100 L 250 100" stroke="var(--primary)" stroke-width="2" class="anim-path" />
+                <path d="M 350 100 L 440 100" stroke="var(--primary)" stroke-width="2" class="anim-path" />
+            </svg>
+        </div>
+    `,
+    videoStreaming: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="70" width="100" height="60" fill="var(--primary)" />
+                <text x="100" y="105" text-anchor="middle" fill="#fff">Server</text>
+                <rect x="200" y="90" width="40" height="20" fill="var(--accent)" class="anim-path" />
+                <rect x="260" y="90" width="40" height="20" fill="var(--accent)" />
+                <rect x="320" y="90" width="40" height="20" fill="var(--accent)" />
+                <rect x="450" y="70" width="100" height="60" fill="var(--secondary)" />
+                <text x="500" y="105" text-anchor="middle" fill="#fff">Player</text>
+                <text x="300" y="150" text-anchor="middle" fill="var(--text)">Adaptive Streaming (Chunks)</text>
+            </svg>
+        </div>
+    `,
+    rideSharing: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="500" height="200" fill="none" stroke="var(--border-color)" />
+                <circle cx="150" cy="150" r="10" fill="var(--primary)" class="anim-pulse" />
+                <text x="150" y="170" text-anchor="middle" fill="var(--text)" font-size="10">Rider</text>
+                <circle cx="400" cy="100" r="10" fill="var(--accent)" />
+                <text x="400" y="120" text-anchor="middle" fill="var(--text)" font-size="10">Driver 1</text>
+                <circle cx="450" cy="220" r="10" fill="var(--accent)" />
+                <text x="450" y="240" text-anchor="middle" fill="var(--text)" font-size="10">Driver 2</text>
+                <path d="M 160 150 L 390 105" stroke="var(--primary)" stroke-dasharray="5,5" />
+                <text x="300" y="280" text-anchor="middle" fill="var(--text)">Geospatial Matching (Quadtree/S2)</text>
+            </svg>
+        </div>
+    `,
+    payment: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="125" width="100" height="50" fill="var(--primary)" />
+                <rect x="250" y="125" width="100" height="50" fill="var(--accent)" />
+                <rect x="450" y="125" width="100" height="50" fill="var(--secondary)" />
+                <path d="M 150 150 L 250 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 350 150 L 450 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <text x="100" y="190" text-anchor="middle" fill="var(--text)" font-size="10">User</text>
+                <text x="300" y="190" text-anchor="middle" fill="var(--text)" font-size="10">Payment Gateway</text>
+                <text x="500" y="190" text-anchor="middle" fill="var(--text)" font-size="10">Bank/PSP</text>
+            </svg>
+        </div>
+    `,
+    newsFeed: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="150" r="30" fill="var(--primary)" />
+                <rect x="250" y="100" width="100" height="100" fill="var(--accent)" />
+                <circle cx="500" cy="80" r="20" fill="var(--secondary)" />
+                <circle cx="500" cy="150" r="20" fill="var(--secondary)" />
+                <circle cx="500" cy="220" r="20" fill="var(--secondary)" />
+                <path d="M 130 150 L 250 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 350 140 L 480 90" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 350 150 L 480 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 350 160 L 480 210" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <text x="300" y="230" text-anchor="middle" fill="var(--text)">Fan-out / Feed Gen</text>
+            </svg>
+        </div>
+    `,
+    loggingMonitoring: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="80" height="50" fill="var(--primary)" />
+                <rect x="50" y="125" width="80" height="50" fill="var(--primary)" />
+                <rect x="50" y="200" width="80" height="50" fill="var(--primary)" />
+                <rect x="250" y="100" width="100" height="100" fill="var(--accent)" />
+                <rect x="450" y="100" width="100" height="100" fill="var(--secondary)" />
+                <path d="M 130 75 L 250 140" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 130 150 L 250 150" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 130 225 L 250 160" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <text x="500" y="220" text-anchor="middle" fill="var(--text)">Dashboard</text>
+            </svg>
+        </div>
+    `,
+    dataPipeline: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="70" width="80" height="60" fill="var(--primary)" />
+                <rect x="180" y="70" width="100" height="60" fill="var(--accent)" />
+                <rect x="330" y="70" width="100" height="60" fill="var(--accent)" />
+                <rect x="470" y="70" width="80" height="60" fill="var(--secondary)" />
+                <path d="M 130 100 L 180 100" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 280 100 L 330 100" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 430 100 L 470 100" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <text x="300" y="160" text-anchor="middle" fill="var(--text)">ETL Pipeline</text>
+            </svg>
+        </div>
+    `,
+    batchProcessing: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="125" width="80" height="50" fill="var(--primary)" />
+                <rect x="200" y="50" width="80" height="50" fill="var(--accent)" />
+                <rect x="200" y="200" width="80" height="50" fill="var(--accent)" />
+                <rect x="350" y="125" width="80" height="50" fill="var(--secondary)" />
+                <path d="M 130 150 L 200 75" stroke="var(--text)" stroke-width="2" />
+                <path d="M 130 150 L 200 225" stroke="var(--text)" stroke-width="2" />
+                <text x="300" y="280" text-anchor="middle" fill="var(--text)">MapReduce (Split-Map-Shuffle-Reduce)</text>
+            </svg>
+        </div>
+    `,
+    indexing: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="250" y="20" width="100" height="40" fill="var(--primary)" />
+                <rect x="150" y="100" width="100" height="40" fill="var(--accent)" />
+                <rect x="350" y="100" width="100" height="40" fill="var(--accent)" />
+                <rect x="80" y="180" width="60" height="30" fill="var(--secondary)" />
+                <rect x="180" y="180" width="60" height="30" fill="var(--secondary)" />
+                <rect x="300" y="180" width="60" height="30" fill="var(--secondary)" />
+                <rect x="420" y="180" width="60" height="30" fill="var(--secondary)" />
+                <path d="M 300 60 L 200 100" stroke="var(--text)" stroke-width="2" />
+                <path d="M 300 60 L 400 100" stroke="var(--text)" stroke-width="2" />
+                <text x="300" y="250" text-anchor="middle" fill="var(--text)">B-Tree Index Visualization</text>
+            </svg>
+        </div>
+    `,
+    architecture: `
+        <div class="diagram-container">
+            <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="180" width="60" height="40" fill="var(--primary)" />
+                <rect x="150" y="150" width="80" height="100" fill="var(--accent)" />
+                <rect x="300" y="100" width="100" height="50" fill="var(--secondary)" />
+                <rect x="300" y="250" width="100" height="50" fill="var(--secondary)" />
+                <rect x="500" y="175" width="80" height="50" fill="#6366F1" />
+                <rect x="700" y="150" width="60" height="100" fill="#EC4899" />
+                <path d="M 80 200 L 150 200" stroke="var(--text)" stroke-width="2" class="anim-path" />
+                <path d="M 230 180 L 300 130" stroke="var(--text)" stroke-width="2" />
+                <path d="M 230 220 L 300 270" stroke="var(--text)" stroke-width="2" />
+                <text x="300" y="50" text-anchor="middle" fill="var(--text)" font-weight="bold">High Level Architecture</text>
             </svg>
         </div>
     `,
@@ -274,13 +600,8 @@ const svgSnippets = {
         <div class="diagram-container">
             <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
                 <rect x="100" y="60" width="120" height="80" rx="8" fill="var(--primary)" class="anim-pulse" />
-                <text x="160" y="105" text-anchor="middle" fill="#fff" font-weight="bold">Component A</text>
-                
                 <rect x="380" y="60" width="120" height="80" rx="8" fill="var(--secondary)" />
-                <text x="440" y="105" text-anchor="middle" fill="#fff" font-weight="bold">Component B</text>
-                
-                <path d="M 230 100 L 370 100" stroke="var(--accent)" stroke-width="4" fill="none" class="anim-path"/>
-                <polygon points="370,100 360,95 360,105" fill="var(--accent)" />
+                <path d="M 220 100 L 380 100" stroke="var(--accent)" stroke-width="4" fill="none" class="anim-path"/>
             </svg>
         </div>
     `
@@ -288,9 +609,37 @@ const svgSnippets = {
 
 function generateContent(title, type) {
     let svg = svgSnippets.generic;
-    if (title.toLowerCase().includes('load balancer')) svg = svgSnippets.loadBalancer;
-    else if (title.toLowerCase().includes('cach')) svg = svgSnippets.caching;
-    else if (title.toLowerCase().includes('replication')) svg = svgSnippets.databaseReplication;
+    const t = title.toLowerCase();
+    
+    if (t.includes('load balancer')) svg = svgSnippets.loadBalancer;
+    else if (t.includes('client-server')) svg = svgSnippets.clientServer;
+    else if (t.includes('cach')) svg = svgSnippets.caching;
+    else if (t.includes('cap theorem')) svg = svgSnippets.capTheorem;
+    else if (t.includes('cdn')) svg = svgSnippets.cdn;
+    else if (t.includes('message queue') || t.includes('kafka')) svg = svgSnippets.messageQueue;
+    else if (t.includes('microservices') || t.includes('monolith')) svg = svgSnippets.microservices;
+    else if (t.includes('sharding')) svg = svgSnippets.databaseSharding;
+    else if (t.includes('replication')) svg = svgSnippets.replication;
+    else if (t.includes('api gateway')) svg = svgSnippets.apiGateway;
+    else if (t.includes('circuit breaker')) svg = svgSnippets.circuitBreaker;
+    else if (t.includes('rate limit')) svg = svgSnippets.rateLimiter;
+    else if (t.includes('consistent hashing')) svg = svgSnippets.consistentHashing;
+    else if (t.includes('latency') || t.includes('throughput')) svg = svgSnippets.latencyThroughput;
+    else if (t.includes('availability')) svg = svgSnippets.availability;
+    else if (t.includes('lock')) svg = svgSnippets.distributedLock;
+    else if (t.includes('search system')) svg = svgSnippets.searchSystem;
+    else if (t.includes('real-time') || t.includes('chat')) svg = svgSnippets.realTime;
+    else if (t.includes('notification')) svg = svgSnippets.notification;
+    else if (t.includes('url shortener')) svg = svgSnippets.urlShortener;
+    else if (t.includes('video streaming')) svg = svgSnippets.videoStreaming;
+    else if (t.includes('ride sharing') || t.includes('uber')) svg = svgSnippets.rideSharing;
+    else if (t.includes('payment')) svg = svgSnippets.payment;
+    else if (t.includes('news feed')) svg = svgSnippets.newsFeed;
+    else if (t.includes('logging') || t.includes('monitoring')) svg = svgSnippets.loggingMonitoring;
+    else if (t.includes('data pipeline')) svg = svgSnippets.dataPipeline;
+    else if (t.includes('batch') || t.includes('map reduce')) svg = svgSnippets.batchProcessing;
+    else if (t.includes('indexing')) svg = svgSnippets.indexing;
+    else if (t.includes('design') || type === 'interview') svg = svgSnippets.architecture;
 
     const baseIntro = type === 'interview' 
         ? `<h2>Problem Statement: ${title}</h2><p>আজকের ইন্টারভিউ প্রশ্নে আমরা শিখবো কিভাবে <strong>${title}</strong> সিস্টেম তৈরি করতে হয়। এটি সিস্টেম ডিজাইন ইন্টারভিউয়ের একটি অন্যতম জনপ্রিয় প্রশ্ন।</p>` 
@@ -302,12 +651,11 @@ function generateContent(title, type) {
             কিন্তু কিছুদিন পর তোমার দোকানের বিক্রি অনেক বেড়ে গেল। দিনে হাজার হাজার মানুষ আসতে শুরু করল। 
             এখন তুমি একা আর সামলাতে পারছো না। তোমার এখন নতুন লোক লাগবে, দোকানের জায়গা বড় করতে হবে, আর জিনিসপত্র গুছিয়ে রাখার নতুন সিস্টেম করতে হবে।"
         </div>
-        <p>সফটওয়্যার ইঞ্জিনিয়ারিংয়ের ক্ষেত্রেও ঠিক একই ঘটনা ঘটে। যখন ইউজার বাড়ে, তখন আমাদের সিস্টেমকে স্কেল করতে হয়। আর এখানেই <strong>${title}</strong>-এর ধারণাটি আসে।</p>
     `;
 
     const body = `
         <h2>${title} কী? (What is it?)</h2>
-        <p>${title} হলো এমন একটি মেকানিজম বা আর্কিটেকচারাল প্যাটার্ন যা ডিস্ট্রিবিউটেড সিস্টেমে পারফরম্যান্স, স্কেলেবিলিটি এবং রিলায়াবিলিটি বাড়াতে সাহায্য করে। বড় বড় কোম্পানি যেমন Facebook, Google বা Amazon তাদের সিস্টেমে এটি ব্যাপকভাবে ব্যবহার করে।</p>
+        <p>${title} হলো এমন একটি মেকানিজম বা আর্কিটেকচারাল প্যাটার্ন যা ডিস্ট্রিবিউটেড সিস্টেমে পারফরম্যান্স, স্কেলেবিলিটি এবং রিলায়াবিলিটি বাড়াতে সাহায্য করে।</p>
         
         ${svg}
 
@@ -317,78 +665,33 @@ function generateContent(title, type) {
             <li>প্রথমে ক্লায়েন্ট থেকে রিকোয়েস্ট আসে।</li>
             <li>সিস্টেম চেক করে যে এই রিকোয়েস্টটি কীভাবে সবচেয়ে দ্রুত প্রসেস করা যায়।</li>
             <li>তারপর উপযুক্ত সার্ভার বা ডেটাবেসে রিকোয়েস্টটি পাঠানো হয়।</li>
-            <li>সফলভাবে কাজ শেষ হলে রেসপন্স ইউজারকে ফেরত দেওয়া হয়।</li>
         </ol>
-
-        <h2>সুবিধা (Advantages)</h2>
-        <ul>
-            <li><strong>High Availability:</strong> সিস্টেম সবসময় সচল থাকে।</li>
-            <li><strong>Scalability:</strong> ট্রাফিক বাড়লেও সিস্টেম ক্র্যাশ করে না।</li>
-            <li><strong>Better Performance:</strong> ইউজার খুব দ্রুত রেসপন্স পায়।</li>
-        </ul>
-
-        <h2>কখন ব্যবহার করবেন? (When to use)</h2>
-        <p>যখন আপনার সিস্টেমে প্রচুর পরিমাণ ইউজার থাকবে এবং আপনি চান না যে কোনো একটি কম্পোনেন্ট ফেইল করলে পুরো সিস্টেম ডাউন হয়ে যাক, তখন <strong>${title}</strong> ব্যবহার করা বাধ্যতামূলক।</p>
     `;
 
     const interviewExtras = `
-        <h2>Requirements (শর্তসমূহ)</h2>
-        <p>যেকোনো সিস্টেম ডিজাইনের শুরুতে Requirements বুঝে নেওয়া খুব জরুরি।</p>
+        <h2>Requirements</h2>
         <ul>
-            <li><strong>Functional:</strong> ইউজার কি কি করতে পারবে? (যেমন: পোস্ট করা, লাইক দেওয়া)</li>
-            <li><strong>Non-Functional:</strong> সিস্টেম কতটা ফাস্ট হবে? কতজন ইউজার সামলাতে পারবে? (High Availability, Low Latency)</li>
+            <li>High Availability</li>
+            <li>Scalability</li>
+            <li>Low Latency</li>
         </ul>
-
         <h2>High Level Design (HLD)</h2>
         <p>প্রথমে আমরা একটি বেসিক আর্কিটেকচার দাঁড় করাবো। ক্লায়েন্ট থেকে রিকোয়েস্ট Load Balancer হয়ে Application Server এ যাবে এবং সেখান থেকে Database এ ডেটা সেভ হবে।</p>
-
-        <h2>Trade-offs (ট্রেড-অফ)</h2>
-        <p>কোনো সিস্টেমই নিখুঁত নয়। Consistency এবং Availability এর মাঝে ব্যালেন্স করতে হয় (CAP Theorem)।</p>
     `;
 
     return baseIntro + story + body + (type === 'interview' ? interviewExtras : '');
 }
 
-// Generate Index Page
 const indexHtml = getTemplate("Home", `
     <h1>System Design বাংলায় শিখুন</h1>
     <div class="story-box">
-        "সিস্টেম ডিজাইন শেখাটা অনেকটা একটি বিশাল বিল্ডিং তৈরি করার মতো। প্রথমে ফাউন্ডেশন, তারপর পিলার, তারপর ছাদ। 
-        কোথায় কতটুকু রড সিমেন্ট লাগবে তা যেমন একজন ইঞ্জিনিয়ার হিসাব করেন, তেমনি একজন সফটওয়্যার আর্কিটেক্ট ঠিক করেন কোথায় লোড ব্যালেন্সার বসবে, কোথায় ডেটাবেস শার্ডিং হবে।"
+        "সিস্টেম ডিজাইন শেখাটা অনেকটা একটি বিশাল বিল্ডিং তৈরি করার মতো। কোথায় কতটুকু রড সিমেন্ট লাগবে তা যেমন একজন ইঞ্জিনিয়ার হিসাব করেন, তেমনি একজন সফটওয়্যার আর্কিটেক্ট ঠিক করেন কোথায় লোড ব্যালেন্সার বসবে, কোথায় ডেটাবেস শার্ডিং হবে।"
     </div>
-    <p>এই ওয়েবসাইটে আমরা সম্পূর্ণ বাংলায় গল্পের ছলে সিস্টেম ডিজাইনের কঠিন সব বিষয় খুব সহজে শিখবো। বাম দিকের মেনু থেকে আপনার পছন্দের টপিক বেছে নিন।</p>
-    
-    <h2>কেন সিস্টেম ডিজাইন শিখবেন?</h2>
-    <ul>
-        <li>বড় স্কেলের অ্যাপ্লিকেশন (Facebook, YouTube) কিভাবে কাজ করে তা বোঝার জন্য।</li>
-        <li>Tech Lead বা Senior Software Engineer হওয়ার জন্য।</li>
-        <li>Top Tech Company (FAANG) এর ইন্টারভিউ ক্র্যাক করার জন্য।</li>
-    </ul>
-
-    <div class="diagram-container">
-        <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
-            <rect x="50" y="80" width="80" height="40" rx="5" fill="var(--primary)" />
-            <text x="90" y="105" text-anchor="middle" fill="#fff">Client</text>
-            
-            <path d="M 130 100 L 230 100" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-            
-            <circle cx="280" cy="100" r="40" fill="var(--secondary)" class="anim-pulse"/>
-            <text x="280" y="105" text-anchor="middle" fill="#fff">API</text>
-            
-            <path d="M 320 100 L 420 100" stroke="var(--accent)" stroke-width="3" fill="none" class="anim-path"/>
-            
-            <path d="M 420 60 L 520 60 L 520 140 L 420 140 Z" fill="var(--primary)"/>
-            <text x="470" y="105" text-anchor="middle" fill="#fff">DB</text>
-        </svg>
-    </div>
-    
-    <h3>কোথা থেকে শুরু করবেন?</h3>
-    <p>আপনি যদি নতুন হন, তবে <strong>Introduction</strong> থেকে শুরু করুন। তারপর <strong>Load Balancer</strong>, <strong>Caching</strong> ইত্যাদি শিখুন। এরপর <strong>Interview Questions</strong> অংশে গিয়ে রিয়েল-ওয়ার্ল্ড প্রজেক্টের ডিজাইন দেখুন।</p>
+    ${svgSnippets.architecture}
 `, 0);
 
 fs.writeFileSync(path.join(rootDir, 'index.html'), indexHtml);
 
-// Generate Pages & Interviews
 sections.forEach(sec => {
     if (sec.folder === 'pages' || sec.folder === 'interview') {
         sec.pages.forEach(page => {
@@ -399,4 +702,4 @@ sections.forEach(sec => {
     }
 });
 
-console.log("Website generated successfully!");
+console.log("Website updated successfully with topic-specific diagrams!");
