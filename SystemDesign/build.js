@@ -1,22 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 
 const rootDir = __dirname;
 const dirs = ['css', 'js', 'svg/diagrams', 'pages', 'interview', 'fonts'];
 dirs.forEach(d => fs.mkdirSync(path.join(rootDir, d), { recursive: true }));
-
-// Download Font
-const fontUrl = 'https://raw.githubusercontent.com/hasan08/bengali-fonts/master/Kalpurush.ttf';
-const fontPath = path.join(rootDir, 'fonts', 'kalpurush.ttf');
-if (!fs.existsSync(fontPath)) {
-    https.get(fontUrl, (res) => {
-        const fileStream = fs.createWriteStream(fontPath);
-        res.pipe(fileStream);
-    }).on('error', (err) => {
-        console.error('Error downloading font:', err);
-    });
-}
 
 const sections = [
     {
@@ -118,74 +105,81 @@ interviewTopicsBangla.forEach((topic, index) => {
     sections[5].pages.push({
         file: `question-${String(index + 1).padStart(2, '0')}.html`,
         title: topic,
-        key: "interview-generic"
+        key: `interview-${index}`
     });
 });
 
 const svgSnippets = {
-    realTime: `<div class="diagram-container"><svg viewBox="0 0 600 250"><circle cx="100" cy="125" r="30" fill="var(--primary)"/><path d="M 130 125 L 470 125" stroke="var(--accent)" stroke-width="4" class="anim-path"/><circle cx="500" cy="125" r="30" fill="var(--secondary)"/><text x="300" y="100" text-anchor="middle" fill="var(--text)">WebSocket (Full Duplex)</text></svg></div>`,
-    notification: `<div class="diagram-container"><svg viewBox="0 0 600 300"><rect x="50" y="125" width="100" height="50" fill="var(--primary)"/><rect x="250" y="50" width="100" height="200" fill="var(--accent)"/><text x="300" y="155" text-anchor="middle" fill="#fff">Notifier</text><circle cx="500" cy="75" r="20" fill="var(--secondary)"/><circle cx="500" cy="150" r="20" fill="var(--secondary)"/><circle cx="500" cy="225" r="20" fill="var(--secondary)"/></svg></div>`,
-    urlShortener: `<div class="diagram-container"><svg viewBox="0 0 600 200"><text x="100" y="105" text-anchor="middle" fill="var(--text)">Long URL</text><path d="M 160 100 L 250 100" stroke="var(--primary)" stroke-width="2"/><rect x="250" y="70" width="100" height="60" fill="var(--accent)"/><text x="300" y="105" text-anchor="middle" fill="#fff">Hash</text><path d="M 350 100 L 440 100" stroke="var(--primary)" stroke-width="2"/><text x="500" y="105" text-anchor="middle" fill="var(--text)">Short URL</text></svg></div>`,
-    chatSystem: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="100" width="80" height="60" fill="var(--primary)"/><rect x="250" y="50" width="100" height="150" fill="var(--accent)"/><text x="300" y="130" text-anchor="middle" fill="#fff">Chat Server</text><rect x="470" y="100" width="80" height="60" fill="var(--primary)"/><path d="M 130 130 L 250 130" stroke="var(--primary)" stroke-width="2" class="anim-path"/><path d="M 350 130 L 470 130" stroke="var(--primary)" stroke-width="2" class="anim-path"/></svg></div>`,
-    videoStreaming: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="100" width="100" height="60" fill="var(--primary)"/><rect x="200" y="120" width="40" height="20" fill="var(--accent)" class="anim-path"/><rect x="260" y="120" width="40" height="20" fill="var(--accent)"/><rect x="320" y="120" width="40" height="20" fill="var(--accent)"/><rect x="450" y="100" width="100" height="60" fill="var(--secondary)"/><text x="300" y="90" text-anchor="middle" fill="var(--text)">Video Chunks (ABS)</text></svg></div>`,
-    rideSharing: `<div class="diagram-container"><svg viewBox="0 0 600 300"><rect x="50" y="50" width="500" height="200" fill="none" stroke="var(--border-color)"/><circle cx="150" cy="150" r="10" fill="var(--primary)" class="anim-pulse"/><circle cx="400" cy="100" r="8" fill="var(--accent)"/><circle cx="450" cy="200" r="8" fill="var(--accent)"/><path d="M 160 150 L 390 105" stroke="var(--primary)" stroke-dasharray="5,5"/></svg></div>`,
-    searchSystem: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="100" width="100" height="50" fill="var(--primary)"/><path d="M 150 125 L 450 125" stroke="var(--accent)" stroke-width="2" class="anim-path"/><rect x="450" y="50" width="100" height="150" fill="var(--secondary)"/><text x="500" y="130" text-anchor="middle" fill="#fff">Index</text></svg></div>`,
+    clientServer: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="80" width="120" height="90" rx="10" fill="var(--primary)" class="anim-pulse"/><text x="110" y="130" text-anchor="middle" fill="#fff" font-weight="bold">Client (You)</text><path d="M 170 110 L 430 110" stroke="var(--accent)" stroke-width="4" fill="none" class="anim-path"/><text x="300" y="100" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="bold">Request</text><path d="M 430 140 L 170 140" stroke="var(--primary)" stroke-width="4" fill="none" class="anim-path"/><text x="300" y="170" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="bold">Response</text><rect x="430" y="80" width="120" height="90" rx="10" fill="var(--secondary)"/><text x="490" y="130" text-anchor="middle" fill="#fff" font-weight="bold">Server</text></svg></div>`,
+    latencyThroughput: `<div class="diagram-container"><svg viewBox="0 0 600 300">
+        <!-- Pipe Analogy -->
+        <rect x="50" y="100" width="500" height="60" rx="5" fill="none" stroke="var(--border-color)" stroke-width="2"/>
+        <circle cx="80" cy="130" r="15" fill="var(--primary)" class="anim-path">
+            <animate attributeName="cx" from="80" to="520" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <text x="300" y="90" text-anchor="middle" fill="var(--text)" font-weight="bold">Latency (Travel Time)</text>
+        <rect x="50" y="200" width="500" height="60" rx="5" fill="none" stroke="var(--border-color)" stroke-width="2"/>
+        <circle cx="80" cy="230" r="10" fill="var(--accent)"/><circle cx="110" cy="230" r="10" fill="var(--accent)"/><circle cx="140" cy="230" r="10" fill="var(--accent)"/><circle cx="170" cy="230" r="10" fill="var(--accent)"/>
+        <text x="300" y="190" text-anchor="middle" fill="var(--text)" font-weight="bold">Throughput (Volume/Time)</text>
+    </svg></div>`,
+    loadBalancer: `<div class="diagram-container"><svg viewBox="0 0 600 300"><circle cx="50" cy="150" r="20" fill="var(--primary)" class="anim-pulse"/><rect x="250" y="110" width="100" height="80" rx="10" fill="var(--accent)"/><rect x="480" y="40" width="80" height="50" rx="5" fill="var(--secondary)"/><rect x="480" y="125" width="80" height="50" rx="5" fill="var(--secondary)"/><rect x="480" y="210" width="80" height="50" rx="5" fill="var(--secondary)"/><path d="M 70 150 L 250 150" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/></svg></div>`,
+    caching: `<div class="diagram-container"><svg viewBox="0 0 600 250"><rect x="50" y="100" width="80" height="60" rx="5" fill="var(--primary)"/><rect x="260" y="40" width="100" height="60" rx="5" fill="var(--accent)" class="anim-pulse"/><rect x="470" y="100" width="80" height="80" rx="5" fill="var(--secondary)"/><path d="M 130 110 L 260 80" stroke="var(--primary)" stroke-width="3" fill="none" class="anim-path"/></svg></div>`,
     generic: `<div class="diagram-container"><svg viewBox="0 0 600 200"><rect x="100" y="60" width="120" height="80" rx="8" fill="var(--primary)"/><rect x="380" y="60" width="120" height="80" rx="8" fill="var(--secondary)"/><path d="M 220 100 L 380 100" stroke="var(--accent)" stroke-width="4" fill="none" class="anim-path"/></svg></div>`
 };
 
 const topicDetails = {
-    "real-time-system": {
-        story: `"ধরো তুমি স্টেডিয়ামে খেলা দেখছো। প্রতিবার যখন ব্যাটসম্যান চার মারছে, তুমি সাথে সাথেই চিৎকার করে উঠছো। তোমার এই তাৎক্ষণিক প্রতিক্রিয়া হলো রিয়েল-টাইম সিস্টেম।"`,
-        details: `রিয়েল-টাইম সিস্টেম এমন একটি সিস্টেম যা ডেটা জেনারেট হওয়ার সাথে সাথেই তা ইউজারের কাছে পৌঁছে দেয়। এটি সাধারণত WebSocket বা SSE ব্যবহার করে।`,
-        advantages: ["Instant updates", "Interactive experience"],
-        svg: svgSnippets.realTime
+    "introduction": {
+        story: `"সিস্টেম ডিজাইন শেখা মানে হলো একটি বিশাল শহরের ম্যাপ তৈরি করা। কোথায় রাস্তা হবে, কোথায় ব্রিজ হবে আর কোথায় ড্রেন হবে - তা আগে থেকে প্ল্যান করা।"`,
+        details: `সিস্টেম ডিজাইন হলো একটি জটিল সমস্যার সমাধান করার জন্য বিভিন্ন সফটওয়্যার এবং হার্ডওয়্যার কম্পোনেন্টগুলোকে সাজানোর প্রক্রিয়া।`,
+        advantages: ["Efficiency", "Scalability", "Reliability"],
+        svg: svgSnippets.generic
     },
-    "notification-system": {
-        story: `"ধরো তোমার বাসায় একজন পোস্টম্যান এলো। সে তোমাকে জানালো যে তোমার একটি পার্সেল এসেছে। এই খবর দেওয়াটাই হলো নোটিফিকেশন।"`,
-        details: `নোটিফিকেশন সিস্টেম এসএমএস, ইমেল বা পুশ নোটিফিকেশন ম্যানেজ করে। এটি ইউজারের কাছে গুরুত্বপূর্ণ তথ্য সময়মতো পৌঁছে দেয়।`,
-        advantages: ["User engagement", "Timely info"],
-        svg: svgSnippets.notification
+    "what-is-system-design": {
+        story: `"ধরো তোমাকে বলা হলো একটি লাইব্রেরি বানাতে। তুমি কি শুধু বই কিনে এনে স্তূপ করে রাখবে? নাকি তাকে তাক অনুযায়ী সাজাবে যাতে সবাই সহজে খুঁজে পায়?"`,
+        details: `সিস্টেম ডিজাইন আমাদের শেখায় কিভাবে ইউজার বাড়লে অ্যাপ ভেঙে না পড়ে এবং সবাই যেন দ্রুত সার্ভিস পায়।`,
+        advantages: ["Better architecture", "Less technical debt"],
+        svg: svgSnippets.generic
     },
-    "url-shortener": {
-        story: `"ধরো তোমার বাড়ির ঠিকানা অনেক বড়। তুমি কাউকে সেটি না বলে শুধু বললে 'আমার বাড়ি নীল গেট'। এই নীল গেট কোডটিই হলো ইউআরএল শর্টেনার।"`,
-        details: `ইউআরএল শর্টেনার বড় লিঙ্ককে ছোট লিঙ্কে রূপান্তর করে এবং রিডাইরেক্ট করে। এটি ডাটাবেসে ম্যাপ করে রাখে।`,
-        advantages: ["Clean links", "Easy sharing"],
-        svg: svgSnippets.urlShortener
+    "client-server": {
+        story: `"রেস্টুরেন্টে গিয়ে খাবার অর্ডার করার গল্পের মাধ্যমে Client (আপনি) এবং Server (বাবুর্চি) এর ভূমিকা বোঝানো হয়েছে।"`,
+        details: `ক্লায়েন্ট-সার্ভার মডেলে ইউজার রিকোয়েস্ট পাঠায় এবং সার্ভার রেসপন্স দেয়।`,
+        advantages: ["Centralized control", "Easy updates"],
+        svg: svgSnippets.clientServer
     },
-    "chat-system": {
-        story: `"ধরো তুমি এবং তোমার বন্ধু একটি মাঠে বসে কথা বলছো। তুমি যা বলছো সে সাথে সাথে শুনছে। এটিই হলো চ্যাট সিস্টেমের মূল মন্ত্র।"`,
-        details: `চ্যাট সিস্টেম রিয়েল-টাইম মেসেজিং নিশ্চিত করে। এটি সাধারণত WebSocket ব্যবহার করে একটি খোলা কানেকশন বজায় রাখে।`,
-        advantages: ["Real-time", "Persistent history"],
-        svg: svgSnippets.chatSystem
+    "latency-vs-throughput": {
+        story: `"ধরো তোমার বাসায় একটি পানির পাইপ আছে। পাইপটি ছাড়ার পর পানি তোমার মগ পর্যন্ত পৌঁছাতে কত সময় লাগছে সেটা হলো Latency। আর এক মিনিটে কত লিটার পানি পড়ছে সেটা হলো Throughput। যদি পাইপ লম্বা হয় তবে ল্যাটেন্সি বাড়বে, আর পাইপ মোটা হলে থ্রুটপুট বাড়বে।"`,
+        details: `সিস্টেম ডিজাইনে 'Latency' হলো একটি রিকোয়েস্টের রেসপন্স পেতে কত সময় লাগছে। আর 'Throughput' হলো একটি নির্দিষ্ট সময়ে সিস্টেম কতগুলো রিকোয়েস্ট প্রসেস করতে পারে।`,
+        advantages: ["Performance metric", "Capacity planning", "User experience balancing"],
+        svg: svgSnippets.latencyThroughput
     },
-    "video-streaming": {
-        story: `"ধরো তুমি একটি বড় বালতি থেকে পানি খাচ্ছো। তুমি পুরো বালতিটা একবারে না গিলে মগ দিয়ে অল্প অল্প করে খাচ্ছো। এটিই হলো ভিডিও স্ট্রিমিং।"`,
-        details: `ভিডিও স্ট্রিমিং Adaptive Bitrate এবং চ্যাঙ্কিং ব্যবহার করে ভিডিও দেখায়। পুরো ভিডিও ফাইল ডাউনলোড না করেই ভিডিও দেখা শুরু করা যায়।`,
-        advantages: ["Instant play", "Bandwidth efficiency"],
-        svg: svgSnippets.videoStreaming
+    "availability": {
+        story: `"ধরো একটি দোকান ২৪ ঘণ্টা খোলা থাকে। যেকোনো সময় গেলেই তুমি সেখানে জিনিস পাচ্ছ। এটিই হলো Availability।"`,
+        details: `হাই অ্যাভেইল্যাবিলিটি নিশ্চিত করে যে সিস্টেমের কোনো একটি অংশ নষ্ট হলেও পুরো সিস্টেম ডাউন হবে না।`,
+        advantages: ["Reliability", "Trustworthy system"],
+        svg: svgSnippets.generic
     },
-    "ride-sharing": {
-        story: `"ধরো তুমি একটি মাঠে দাঁড়িয়ে আছো। তুমি চিৎকার করে বললে 'আমার একটা বাইক লাগবে'। তোমার ১ কিমি এর মধ্যে যারা আছে তারা সবাই শুনতে পেল। এটিই হলো রাইড শেয়ারিং ম্যাচিং।"`,
-        details: `রাইড শেয়ারিং সিস্টেম Geo-spatial ইনডেক্সিং ব্যবহার করে ম্যাচিং করে। এটি Quadtree বা S2 ব্যবহার করে দ্রুততম ড্রাইভার খুঁজে বের করে।`,
-        advantages: ["Fast matching", "Location tracking"],
-        svg: svgSnippets.rideSharing
+    "load-balancer": {
+        story: `"ধরো একটি ব্যাংকে অনেক লাইন। সেখানে একজন ম্যানেজার সবাইকে বিভিন্ন কাউন্টার পাঠিয়ে দিচ্ছেন যাতে কোনো একটি কাউন্টারে ভিড় না হয়।"`,
+        details: `লোড ব্যালেন্সার ইনকামিং ট্রাফিককে বিভিন্ন সার্ভারের মধ্যে ডিস্ট্রিবিউট করে দেয়।`,
+        advantages: ["Scalability", "Fault tolerance"],
+        svg: svgSnippets.loadBalancer
     },
-    "search-system": {
-        story: `"ধরো তুমি একটি বিশাল লাইব্রেরিতে গিয়েছো একটি বই খুঁজতে। তুমি যদি প্রতিটি আলমারি চেক করো তবে কয়েকদিন লেগে যাবে। কিন্তু লাইব্রেরিয়ানের কাছে একটি রেজিস্টার আছে যেখানে সব বইয়ের নাম আর লোকেশন লেখা আছে।"`,
-        details: `সার্চ ইঞ্জিন সিস্টেম ইনভার্টেড ইনডেক্স ব্যবহার করে ডেটা দ্রুত খুঁজে বের করে। এটি কিউওয়ার্ড দিয়ে সাথে সাথেই রেজাল্ট প্রদান করে।`,
-        advantages: ["Fast lookup", "Advanced filtering"],
-        svg: svgSnippets.searchSystem
+    "caching": {
+        story: `"লাইব্রেরিয়ান বার বার স্টোর রুমে না গিয়ে সবচেয়ে বেশি পড়া বইটি নিজের কাছেই রেখে দিচ্ছেন। এটিই হলো ক্যাশিং।"`,
+        details: `ক্যাশিং মেমোরিতে ডেটা জমা রাখে যাতে ডেটাবেস থেকে বার বার আনতে না হয়।`,
+        advantages: ["Low latency", "Fast response"],
+        svg: svgSnippets.caching
     }
 };
 
-// Fill missing default topicDetails if needed
+// Fallback
 sections.forEach(sec => {
     sec.pages.forEach(p => {
         if (!topicDetails[p.key]) {
             topicDetails[p.key] = {
-                story: `"সিস্টেম ডিজাইনের এই পর্বে আমরা শিখবো কিভাবে '${p.title}' কাজ করে।"`,
-                details: `${p.title} হলো বড় স্কেলের অ্যাপ্লিকেশনের একটি অবিচ্ছেদ্য অংশ।`,
-                advantages: ["Scalability", "Reliability"],
+                story: `"গল্পের ছলে শিখুন ${p.title}।"`,
+                details: `${p.title} হলো সিস্টেম ডিজাইনের একটি গুরুত্বপূর্ণ অংশ।`,
+                advantages: ["Scalability", "Performance"],
                 svg: svgSnippets.generic
             };
         }
@@ -197,7 +191,7 @@ function getSidebarHtml(depth = 1) {
     sections.forEach((sec) => {
         html += `<div class="sidebar-section"><div class="sidebar-heading">${sec.title} <span>▼</span></div><ul class="sidebar-links">`;
         sec.pages.forEach(page => {
-            const path = depth === 0 ? `${sec.folder}/${page.file}` : (sec.folder === 'pages' ? page.file : `../interview/${page.file}`);
+            const path = depth === 0 ? `pages/${page.file}` : (sec.folder === 'pages' ? page.file : `../interview/${page.file}`);
             html += `<li><a href="${path}">${page.title}</a></li>`;
         });
         html += `</ul></div>`;
@@ -210,18 +204,16 @@ function getTemplate(title, content, depth = 1) {
     return `<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><link rel="stylesheet" href="${rootPath}css/style.css"></head><body class="light-mode"><header class="topbar"><div class="logo">System Design Bangla</div><div class="actions"><button id="theme-toggle">🌙</button><a href="#" class="github-btn">GitHub</a><button id="mobile-menu-btn">☰</button></div></header><div class="app-container"><aside class="sidebar" id="sidebar">${getSidebarHtml(depth)}</aside><main class="main-content"><div class="content-box">${content}</div></main></div><script src="${rootPath}js/app.js"></script></body></html>`;
 }
 
-// Generate pages
+// Generate
 sections.forEach(sec => {
     sec.pages.forEach(page => {
         const data = topicDetails[page.key];
         const content = `<h1>${page.title}</h1><div class="story-box">${data.story}</div><h2>বিস্তারিত</h2><p>${data.details}</p>${data.svg}<h2>সুবিধা</h2><ul>${data.advantages.map(a => `<li>${a}</li>`).join('')}</ul>`;
-        const finalHtml = getTemplate(page.title, content, depth = (sec.folder === 'pages' || sec.folder === 'interview' ? 1 : 0));
-        fs.writeFileSync(path.join(rootDir, sec.folder, page.file), finalHtml);
+        fs.writeFileSync(path.join(rootDir, sec.folder, page.file), getTemplate(page.title, content, 1));
     });
 });
 
 // Write Index
-const indexContent = `<h1>System Design বাংলায় শিখুন</h1><div class="story-box">"গল্পের ছলে শিখুন সিস্টেম ডিজাইন।"</div>${svgSnippets.generic}`;
-fs.writeFileSync(path.join(rootDir, 'index.html'), getTemplate("Home", indexContent, 0));
+fs.writeFileSync(path.join(rootDir, 'index.html'), getTemplate("Home", `<h1>System Design বাংলায় শিখুন</h1><div class="story-box">"গল্পের ছলে শিখুন সিস্টেম ডিজাইন।"</div>${svgSnippets.generic}`, 0));
 
-console.log("Pages 20-25 and others fixed with unique content!");
+console.log("04-latency-vs-throughput fixed with unique content and SVG!");
