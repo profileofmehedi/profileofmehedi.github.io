@@ -176,12 +176,14 @@ function updateGlobalUI() {
 }
 
 // --- OpenAI Integration ---
-// IMPORTANT: Replace this placeholder with a NEW API Key.
-// Generate one at: https://platform.openai.com/api-keys
-const OPENAI_API_KEY = "YOUR_NEW_API_KEY_HERE"; 
-
 async function askAI(userMessage) {
   const state = getState();
+  const savedKey = localStorage.getItem("tasknotifier_openai_key");
+
+  if (!savedKey) {
+    return "API Key Missing: Please go to 'Profile Settings' -> 'Preferences' and save your OpenAI API Key to enable the chat.";
+  }
+
   const systemPrompt = `You are a helpful, professional Corporate Smart Assistant named "TaskBot". 
     You speak in English.
     The user's name is ${state.profile.name} and their role is ${state.profile.role}.
@@ -197,8 +199,6 @@ async function askAI(userMessage) {
     { role: "user", content: userMessage },
   ];
 
-  // We use a CORS proxy to allow browser-side calls from GitHub Pages
-  // Note: This is for DEMO purposes only.
   const proxyUrl = "https://corsproxy.io/?"; 
   const targetUrl = "https://api.openai.com/v1/chat/completions";
 
@@ -207,7 +207,7 @@ async function askAI(userMessage) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${savedKey}`,
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
@@ -219,7 +219,7 @@ async function askAI(userMessage) {
     if (!response.ok) {
         const errorData = await response.json();
         if (response.status === 401) {
-            return "Error 401: Your API key is invalid or has been deactivated. Please generate a new key at platform.openai.com and update assets/js/main.js.";
+            return "Error 401: Invalid API Key. Please update your key in Profile Settings.";
         }
         return `OpenAI Error: ${errorData.error ? errorData.error.message : "Request failed"}`;
     }
@@ -228,7 +228,7 @@ async function askAI(userMessage) {
     return data.choices[0].message.content;
   } catch (error) {
     console.error("Chat Error:", error);
-    return "Connection Error: Could not reach OpenAI. Please ensure your API key is correct and you have an active internet connection.";
+    return "Connection Error: Please check your internet connection.";
   }
 }
 // --- Chat Rendering ---
@@ -266,6 +266,23 @@ function hideTypingIndicator() {
 // --- Event Handlers ---
 $(document).ready(function () {
   updateGlobalUI();
+
+  // Load saved API key in input if exists
+  const existingKey = localStorage.getItem("tasknotifier_openai_key");
+  if ($("#apiKeyInput").length && existingKey) {
+    $("#apiKeyInput").val(existingKey);
+  }
+
+  // Handle API Key Saving
+  $("#aiConfigForm").on("submit", function(e) {
+    e.preventDefault();
+    const newKey = $("#apiKeyInput").val().trim();
+    if (newKey) {
+        localStorage.setItem("tasknotifier_openai_key", newKey);
+        const toast = bootstrap.Toast.getOrCreateInstance($("#saveToast")[0]);
+        toast.show();
+    }
+  });
 
   // Theme Toggle
   $(document).on("click", "#themeToggle", toggleTheme);
