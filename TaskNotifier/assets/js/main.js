@@ -1,12 +1,13 @@
 /* 
    ==========================================================================
-   Corporate Smart Assistant - Main JS (jQuery + LocalStorage)
+   Corporate Smart Assistant - Advanced Main JS (Theme + Data + Analytics)
    ==========================================================================
 */
 
-const STORAGE_KEY = 'tasknotifier_state';
+const STORAGE_KEY = 'tasknotifier_advanced_state';
 
 const defaultState = {
+    theme: 'light',
     profile: {
         name: 'জন ডয়',
         role: 'প্রোডাক্ট ম্যানেজার @ টেক-কর্প',
@@ -16,9 +17,9 @@ const defaultState = {
         avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=2563EB&color=fff'
     },
     tasks: [
-        { id: 1, title: 'ত্রৈমাসিক রিপোর্ট আপডেট করুন', dueDate: '২০২৪-১০-২৪', priority: 'উচ্চ', completed: false },
-        { id: 2, title: 'ক্লায়েন্ট ফিডব্যাক মিটিং', dueDate: '২০২৪-১০-২৫', priority: 'মাঝারি', completed: true },
-        { id: 3, title: 'সিস্টেম ডকুমেন্টেশন আপডেট', dueDate: '২০২৪-১০-২৬', priority: 'নিম্ন', completed: false }
+        { id: 1, title: 'ত্রৈমাসিক রিপোর্ট আপডেট করুন', dueDate: '২০২৪-১০-২৪', priority: 'উচ্চ', completed: false, category: 'অফিস' },
+        { id: 2, title: 'ক্লায়েন্ট ফিডব্যাক মিটিং', dueDate: '২০২৪-১০-২৫', priority: 'মাঝারি', completed: true, category: 'মিটিং' },
+        { id: 3, title: 'সিস্টেম ডকুমেন্টেশন আপডেট', dueDate: '২০২৪-১০-২৬', priority: 'নিম্ন', completed: false, category: 'প্রযুক্তি' }
     ],
     notifications: [
         { id: 1, type: 'info', title: 'নতুন টাস্ক বরাদ্দ করা হয়েছে', message: 'সারা আপনাকে "ডিজাইন রিভিউ" টাস্কটি দিয়েছে।', time: '২ মিনিট আগে', read: false },
@@ -29,7 +30,7 @@ const defaultState = {
     ]
 };
 
-// --- Data Management ---
+// --- Core Logic ---
 function getState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : defaultState;
@@ -39,107 +40,109 @@ function saveState(state) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-// --- UI Rendering ---
-function updateGlobalUI() {
+function toggleTheme() {
     const state = getState();
-    // Update Sidebar & Topbar Profile
-    $('.profile-name').text(state.profile.name);
-    $('.profile-role').text(state.profile.role);
-    $('.profile-avatar').attr('src', state.profile.avatar);
-    $('.notif-count').text(state.notifications.filter(n => !n.read).length);
+    state.theme = state.theme === 'light' ? 'dark' : 'light';
+    saveState(state);
+    applyTheme();
 }
 
-function renderTasks(page = 'dashboard') {
+function applyTheme() {
+    const state = getState();
+    document.documentElement.setAttribute('data-theme', state.theme);
+    $('.theme-icon').attr('class', state.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun');
+}
+
+// --- Analytics ---
+function calculateProgress() {
+    const state = getState();
+    if (state.tasks.length === 0) return 0;
+    const completed = state.tasks.filter(t => t.completed).length;
+    return Math.round((completed / state.tasks.length) * 100);
+}
+
+function updateAnalyticsUI() {
+    const progress = calculateProgress();
+    const circle = $('.donut-chart .progress');
+    if (circle.length) {
+        const offset = 339.292 * (1 - progress / 100); // 2 * PI * r (r=54)
+        circle.css('stroke-dashoffset', offset);
+        $('.progress-text').text(progress + '%');
+    }
+    $('.pending-tasks-count').text(getState().tasks.filter(t => !t.completed).length);
+}
+
+// --- Dynamic Rendering ---
+function renderAdvancedTasks(filter = 'all') {
     const state = getState();
     const container = $('#task-list');
     if (!container.length) return;
 
     container.empty();
-    const tasksToRender = page === 'dashboard' ? state.tasks.slice(0, 3) : state.tasks;
+    let filteredTasks = state.tasks;
+    if (filter === 'completed') filteredTasks = state.tasks.filter(t => t.completed);
+    if (filter === 'pending') filteredTasks = state.tasks.filter(t => !t.completed);
 
-    tasksToRender.forEach(task => {
-        const priorityClass = task.priority === 'উচ্চ' ? 'bg-danger-subtle text-danger' : 
-                            (task.priority === 'মাঝারি' ? 'bg-warning-subtle text-warning' : 'bg-info-subtle text-info');
-        
+    filteredTasks.forEach((task, index) => {
+        const priorityColor = task.priority === 'উচ্চ' ? 'danger' : (task.priority === 'মাঝারি' ? 'warning' : 'info');
         const html = `
-            <div class="task-item px-4 ${task.completed ? 'completed' : ''}" data-id="${task.id}">
-                <input type="checkbox" class="form-check-input me-3 task-checkbox" ${task.completed ? 'checked' : ''}>
+            <div class="task-item px-4 slide-up" style="animation-delay: ${index * 0.1}s" data-id="${task.id}">
+                <div class="form-check me-3">
+                    <input type="checkbox" class="form-check-input task-checkbox" ${task.completed ? 'checked' : ''}>
+                </div>
                 <div class="flex-grow-1">
-                    <span class="d-block fw-bold">${task.title}</span>
-                    <small class="text-secondary"><i class="far fa-calendar-alt me-1"></i> শেষ সময়: ${task.dueDate}</small>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge ${priorityClass} rounded-pill px-3">${task.priority}</span>
-                    <button class="btn btn-sm text-danger delete-task"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        `;
-        container.append(html);
-    });
-
-    // Update Dashboard Counter
-    if (page === 'dashboard') {
-        $('.pending-tasks-count').text(state.tasks.filter(t => !t.completed).length);
-    }
-}
-
-function renderNotifications() {
-    const container = $('#notif-list');
-    if (!container.length) return;
-
-    const state = getState();
-    container.empty();
-
-    state.notifications.forEach(notif => {
-        const iconClass = notif.type === 'info' ? 'bg-primary' : (notif.type === 'warning' ? 'bg-warning' : 'bg-success');
-        const icon = notif.type === 'info' ? 'fa-info-circle' : (notif.type === 'warning' ? 'fa-exclamation-triangle' : 'fa-check');
-
-        const html = `
-            <div class="p-4 border-bottom ${notif.read ? '' : 'bg-light'}">
-                <div class="d-flex align-items-start">
-                    <div class="${iconClass} text-white rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas ${icon}"></i>
+                    <span class="d-block fw-bold ${task.completed ? 'text-decoration-line-through text-secondary' : ''}">${task.title}</span>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        <span class="badge bg-light text-secondary border small" style="font-size: 0.65rem;">${task.category || 'সাধারণ'}</span>
+                        <small class="text-secondary small"><i class="far fa-clock me-1"></i>${task.dueDate}</small>
                     </div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h6 class="mb-0 fw-bold">${notif.title}</h6>
-                            <small class="text-secondary">${notif.time}</small>
-                        </div>
-                        <p class="text-secondary small mb-0">${notif.message}</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-${priorityColor}-subtle text-${priorityColor} rounded-pill px-3">${task.priority}</span>
+                    <div class="dropdown">
+                        <button class="btn btn-sm text-secondary" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                            <li><a class="dropdown-item delete-task text-danger" href="#"><i class="fas fa-trash me-2"></i>মুছে ফেলুন</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
         `;
         container.append(html);
     });
+    updateAnalyticsUI();
 }
 
-function renderChat() {
-    const container = $('#chatWindow');
-    if (!container.length) return;
-
+function updateGlobalUI() {
     const state = getState();
-    container.empty();
-    state.chatHistory.forEach(chat => {
-        container.append(`
-            <div class="chat-bubble ${chat.sender === 'bot' ? 'bot' : 'user'}">
-                ${chat.message}
-            </div>
-        `);
-    });
-    container.scrollTop(container[0].scrollHeight);
+    $('.profile-name').text(state.profile.name);
+    $('.profile-role').text(state.profile.role);
+    $('.profile-avatar').attr('src', state.profile.avatar);
+    $('.notif-count').text(state.notifications.filter(n => !n.read).length);
+    applyTheme();
+    updateAnalyticsUI();
 }
 
 // --- Event Handlers ---
 $(document).ready(function() {
     updateGlobalUI();
 
-    // Sidebar Toggle
+    // Theme Toggle
+    $(document).on('click', '#themeToggle', toggleTheme);
+
+    // Sidebar
     $('#sidebarToggle').on('click', function() {
         $('.sidebar').toggleClass('active');
+        if ($('.sidebar-overlay').length === 0) $('body').append('<div class="sidebar-overlay"></div>');
+        $('.sidebar-overlay').toggleClass('active');
     });
 
-    // Task Completion Toggle
+    $(document).on('click', '.sidebar-overlay', function() {
+        $('.sidebar').removeClass('active');
+        $(this).removeClass('active');
+    });
+
+    // Task Interactions
     $(document).on('change', '.task-checkbox', function() {
         const id = $(this).closest('.task-item').data('id');
         const state = getState();
@@ -147,75 +150,34 @@ $(document).ready(function() {
         if (task) {
             task.completed = $(this).is(':checked');
             saveState(state);
-            $(this).closest('.task-item').toggleClass('completed');
-            updateGlobalUI();
+            renderAdvancedTasks();
         }
     });
 
-    // Delete Task
-    $(document).on('click', '.delete-task', function() {
+    $(document).on('click', '.delete-task', function(e) {
+        e.preventDefault();
         const id = $(this).closest('.task-item').data('id');
         const state = getState();
         state.tasks = state.tasks.filter(t => t.id != id);
         saveState(state);
-        $(this).closest('.task-item').fadeOut(300, function() { $(this).remove(); });
-        updateGlobalUI();
+        $(this).closest('.task-item').fadeOut(300, renderAdvancedTasks);
     });
 
-    // Add Task
-    $('#addTaskForm').on('submit', function(e) {
-        e.preventDefault();
-        const state = getState();
-        const newTask = {
-            id: Date.now(),
-            title: $('#taskTitle').val(),
-            dueDate: $('#taskDate').val(),
-            priority: $('#taskPriority').val(),
-            completed: false
-        };
-        state.tasks.push(newTask);
-        saveState(state);
-        renderTasks($('main').hasClass('tasks-page') ? 'tasks' : 'dashboard');
-        bootstrap.Modal.getInstance($('#addTaskModal')).hide();
-        this.reset();
-        updateGlobalUI();
+    // Filter Tasks
+    $('.task-filter').on('click', function() {
+        $('.task-filter').removeClass('btn-primary').addClass('btn-outline-secondary');
+        $(this).removeClass('btn-outline-secondary').addClass('btn-primary');
+        renderAdvancedTasks($(this).data('filter'));
     });
 
-    // Profile Update
-    $('#profileForm').on('submit', function(e) {
-        e.preventDefault();
-        const state = getState();
-        state.profile.name = $('#pName').val();
-        state.profile.bio = $('#pBio').val();
-        state.profile.timezone = $('#pTimezone').val();
-        saveState(state);
-        updateGlobalUI();
-        const toast = bootstrap.Toast.getOrCreateInstance($('#saveToast')[0]);
-        toast.show();
+    // Search Tasks
+    $('#taskSearch').on('keyup', function() {
+        const value = $(this).val().toLowerCase();
+        $(".task-item").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
     });
 
-    // AI Chat
-    $('#chat-form').on('submit', function(e) {
-        e.preventDefault();
-        const input = $('#chat-input').val();
-        if (!input.trim()) return;
-
-        const state = getState();
-        state.chatHistory.push({ sender: 'user', message: input });
-        saveState(state);
-        renderChat();
-        $('#chat-input').val('');
-
-        setTimeout(() => {
-            const botMsg = `আমি আপনার "${input}" নিয়ে কাজ করছি। আর কোনো সাহায্য লাগবে?`;
-            state.chatHistory.push({ sender: 'bot', message: botMsg });
-            saveState(state);
-            renderChat();
-        }, 1000);
-    });
-
-    // Page Specific Initial Renders
-    if ($('#task-list').length) renderTasks($('main').hasClass('tasks-page') ? 'tasks' : 'dashboard');
-    if ($('#notif-list').length) renderNotifications();
-    if ($('#chatWindow').length) renderChat();
+    // Initial Renders
+    if ($('#task-list').length) renderAdvancedTasks();
 });
