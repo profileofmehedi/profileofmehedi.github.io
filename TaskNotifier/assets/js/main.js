@@ -178,7 +178,8 @@ function updateGlobalUI() {
 // --- OpenAI Integration ---
 // SECURITY WARNING: In a real production app, never expose your API key in the frontend.
 // This should be done via a secure backend server.
-const OPENAI_API_KEY = "";
+const OPENAI_API_KEY =
+  "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";
 
 async function askAI(userMessage) {
   const state = getState();
