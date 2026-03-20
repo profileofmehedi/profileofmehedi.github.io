@@ -176,10 +176,9 @@ function updateGlobalUI() {
 }
 
 // --- OpenAI Integration ---
-// IMPORTANT: Replace this placeholder with your actual OpenAI API Key.
-// WARNING: Exposing your API key on the frontend is not secure for production.
-const OPENAI_API_KEY =
-  "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";
+// IMPORTANT: Replace this placeholder with a NEW API Key.
+// Generate one at: https://platform.openai.com/api-keys
+const OPENAI_API_KEY = "YOUR_NEW_API_KEY_HERE"; 
 
 async function askAI(userMessage) {
   const state = getState();
@@ -187,11 +186,10 @@ async function askAI(userMessage) {
     You speak in English.
     The user's name is ${state.profile.name} and their role is ${state.profile.role}.
     They currently have ${state.tasks.filter((t) => !t.completed).length} pending tasks.
-    Provide concise, professional, and helpful responses regarding task management and productivity.`;
+    Provide concise, professional, and helpful responses.`;
 
   const messages = [
     { role: "system", content: systemPrompt },
-    // Include last 10 messages for better context
     ...state.chatHistory.slice(-10).map((m) => ({
       role: m.sender === "bot" ? "assistant" : "user",
       content: m.message,
@@ -199,38 +197,40 @@ async function askAI(userMessage) {
     { role: "user", content: userMessage },
   ];
 
+  // We use a CORS proxy to allow browser-side calls from GitHub Pages
+  // Note: This is for DEMO purposes only.
+  const proxyUrl = "https://corsproxy.io/?"; 
+  const targetUrl = "https://api.openai.com/v1/chat/completions";
+
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo", // You can use "gpt-4" if your key supports it
+        model: "gpt-3.5-turbo",
         messages: messages,
         temperature: 0.7,
-        max_tokens: 500,
       }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("OpenAI API Error:", errorData);
-      throw new Error(errorData.error.message || "API Request failed");
+        const errorData = await response.json();
+        if (response.status === 401) {
+            return "Error 401: Your API key is invalid or has been deactivated. Please generate a new key at platform.openai.com and update assets/js/main.js.";
+        }
+        return `OpenAI Error: ${errorData.error ? errorData.error.message : "Request failed"}`;
     }
 
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
     console.error("Chat Error:", error);
-    if (OPENAI_API_KEY === "YOUR_OPENAI_API_KEY_HERE") {
-      return "Please configure your OpenAI API Key in assets/js/main.js to enable the AI Assistant.";
-    }
-    return "I'm having trouble connecting right now. Please check your internet or API configuration.";
+    return "Connection Error: Could not reach OpenAI. Please ensure your API key is correct and you have an active internet connection.";
   }
 }
-
 // --- Chat Rendering ---
 function renderChat() {
   const container = $("#chatWindow");
