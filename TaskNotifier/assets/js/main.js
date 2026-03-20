@@ -176,23 +176,23 @@ function updateGlobalUI() {
 }
 
 // --- OpenAI Integration ---
-// SECURITY WARNING: In a real production app, never expose your API key in the frontend.
-// This should be done via a secure backend server.
+// IMPORTANT: Replace this placeholder with your actual OpenAI API Key.
+// WARNING: Exposing your API key on the frontend is not secure for production.
 const OPENAI_API_KEY =
   "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";
 
 async function askAI(userMessage) {
   const state = getState();
   const systemPrompt = `You are a helpful, professional Corporate Smart Assistant named "TaskBot". 
-    You speak ONLY in fluent Bengali (Bangla).
+    You speak in English.
     The user's name is ${state.profile.name} and their role is ${state.profile.role}.
     They currently have ${state.tasks.filter((t) => !t.completed).length} pending tasks.
-    Provide concise, professional, and helpful responses.`;
+    Provide concise, professional, and helpful responses regarding task management and productivity.`;
 
   const messages = [
     { role: "system", content: systemPrompt },
-    // Include last 5 messages for context
-    ...state.chatHistory.slice(-5).map((m) => ({
+    // Include last 10 messages for better context
+    ...state.chatHistory.slice(-10).map((m) => ({
       role: m.sender === "bot" ? "assistant" : "user",
       content: m.message,
     })),
@@ -207,18 +207,27 @@ async function askAI(userMessage) {
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-3.5-turbo", // You can use "gpt-4" if your key supports it
         messages: messages,
-        max_tokens: 150,
+        temperature: 0.7,
+        max_tokens: 500,
       }),
     });
 
-    if (!response.ok) throw new Error("API Error");
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("OpenAI API Error:", errorData);
+      throw new Error(errorData.error.message || "API Request failed");
+    }
+
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
-    console.error(error);
-    return "দুঃখিত, এই মুহূর্তে আমি আপনার রিকোয়েস্ট প্রসেস করতে পারছি না। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।";
+    console.error("Chat Error:", error);
+    if (OPENAI_API_KEY === "YOUR_OPENAI_API_KEY_HERE") {
+      return "Please configure your OpenAI API Key in assets/js/main.js to enable the AI Assistant.";
+    }
+    return "I'm having trouble connecting right now. Please check your internet or API configuration.";
   }
 }
 
