@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মৌজা ম্যাপ বাংলাদেশ | আরএস ও সিএস ম্যাপ</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top mb-0">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <div class="bg-success text-white p-2 rounded-3 me-2">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div>
+                    <span class="d-block lh-1">মৌজা ম্যাপ বিডি</span>
+                    <small class="text-muted fw-normal" style="font-size: 10px;">ডিজিটাল ম্যাপ রিপোজিটরি</small>
+                </div>
+            </a>
+            <div class="d-flex flex-grow-1 mx-lg-5 mx-2">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-pill-start">
+                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    </span>
+                    <input type="text" id="moujaSearch" class="form-control border-start-0 rounded-pill-end shadow-none" placeholder="মৌজা বা জেএল নম্বর দিয়ে খুঁজুন...">
+                </div>
+            </div>
+            <button class="btn btn-success rounded-pill px-4 d-none d-lg-block">লগইন</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4 px-lg-4">
+        <div class="row g-4">
+            <!-- Sidebar Filter -->
+            <div class="col-xl-3 col-lg-4">
+                <div class="sidebar shadow-sm border-0">
+                    <h5 class="mb-4"><i class="fa-solid fa-sliders me-2 text-success"></i>ফিল্টার করুন</h5>
+                    
+                    <div class="mb-4">
+                        <label class="form-label d-block mb-3">ম্যাপের ধরন</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="mapType" id="typeRS" value="RS" checked>
+                            <label class="btn btn-outline-success border-2 py-2" for="typeRS">আরএস (RS)</label>
+                            
+                            <input type="radio" class="btn-check" name="mapType" id="typeCS" value="CS">
+                            <label class="btn btn-outline-success border-2 py-2" for="typeCS">সিএস (CS)</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="division" class="form-label small fw-bold">বিভাগ</label>
+                        <select class="form-select form-select-lg shadow-none" id="division">
+                            <option value="">বিভাগ নির্বাচন করুন</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="district" class="form-label small fw-bold">জেলা</label>
+                        <select class="form-select form-select-lg shadow-none" id="district">
+                            <option value="">জেলা নির্বাচন করুন</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="upazila" class="form-label small fw-bold">উপজেলা</label>
+                        <select class="form-select form-select-lg shadow-none" id="upazila">
+                            <option value="">উপজেলা নির্বাচন করুন</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-success w-100 py-3 rounded-4 shadow-sm fw-bold fs-5" id="viewMap">
+                        <i class="fa-solid fa-map-marked-alt me-2"></i>ম্যাপ দেখুন
+                    </button>
+                    
+                    <div class="mt-4 p-3 bg-light rounded-4">
+                        <p class="small text-muted mb-0">
+                            <i class="fa-solid fa-info-circle me-1 text-primary"></i>
+                            বিভাগ ও জেলা নির্বাচন করে ম্যাপ বাটনে ক্লিক করুন। আপনি সরাসরি মৌজা পর্যন্ত এক্সপ্লোর করতে পারবেন।
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Display Area -->
+            <div class="col-xl-9 col-lg-8">
+                <div class="map-container border-0" id="mapInfo">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fa-solid fa-earth-asia fa-5x text-success opacity-25"></i>
+                        </div>
+                        <h2 class="fw-bold">বাংলাদেশ মৌজা ম্যাপ এক্সপ্লোরার</h2>
+                        <p class="text-muted lead mx-auto" style="max-width: 600px;">
+                            আমাদের আর্কাইভে বাংলাদেশের ৮টি বিভাগ এবং ৬৪টি জেলার সকল আরএস ও সিএস ম্যাপ সংরক্ষিত আছে। বামে থাকা ফিল্টার থেকে আপনার কাঙ্ক্ষিত এলাকাটি নির্বাচন করুন।
+                        </p>
+                        
+                        <div class="row mt-5 g-4 justify-content-center">
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white rounded-4 shadow-sm">
+                                    <h3 class="fw-bold text-success mb-0">৮</h3>
+                                    <small class="text-muted">বিভাগ</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white rounded-4 shadow-sm">
+                                    <h3 class="fw-bold text-success mb-0">৬৪</h3>
+                                    <small class="text-muted">জেলা</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white rounded-4 shadow-sm">
+                                    <h3 class="fw-bold text-success mb-0">৪৯৫</h3>
+                                    <small class="text-muted">উপজেলা</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4 bg-white border-top">
+        <div class="container text-center">
+            <p class="mb-0 text-muted small">ডিজিটাল মৌজা ম্যাপ পোর্টাল &copy; ২০২৬ | ডিজাইন ও ডেভেলপমেন্ট: <a href="#" class="text-success fw-bold">Mehedi</a></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
