@@ -269,9 +269,44 @@ function hideTypingIndicator() {
   $("#typingIndicator").remove();
 }
 
+function renderNotifications() {
+  const container = $("#notif-list");
+  if (!container.length) return;
+
+  container.empty();
+  const state = getState();
+
+  if (state.notifications.length === 0) {
+    container.append('<div class="p-5 text-center text-secondary">কোনো নতুন নোটিফিকেশন নেই।</div>');
+    return;
+  }
+
+  state.notifications.forEach((notif) => {
+    const icon = notif.type === "warning" ? "fa-exclamation-triangle text-warning" : "fa-info-circle text-info";
+    const html = `
+            <div class="p-4 border-bottom notif-item ${notif.read ? "opacity-50" : ""}" style="cursor: pointer;">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="bg-light rounded-circle p-2">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1 fw-bold">${notif.title}</h6>
+                        <p class="small text-secondary mb-1">${notif.message}</p>
+                        <small class="text-muted" style="font-size: 0.7rem;">${notif.time}</small>
+                    </div>
+                    ${!notif.read ? '<span class="badge bg-primary rounded-pill" style="padding: 0.4rem;"> </span>' : ""}
+                </div>
+            </div>
+        `;
+    container.append(html);
+  });
+}
+
 // --- Event Handlers ---
 $(document).ready(function () {
   updateGlobalUI();
+
+  if ($("#notif-list").length) renderNotifications();
 
   // Load saved API key in input if exists
   const existingKey = localStorage.getItem("tasknotifier_openai_key");
