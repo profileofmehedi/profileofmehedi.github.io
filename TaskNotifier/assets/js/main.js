@@ -188,7 +188,13 @@ async function askAI(userMessage) {
     You speak in Bengali.
     The user's name is ${state.profile.name} and their role is ${state.profile.role}.
     They currently have ${state.tasks.filter((t) => !t.completed).length} pending tasks.
-    Provide concise, professional, and helpful responses in Bengali.`;
+    
+    Formatting Instructions:
+    - Use bullet points (•) for lists.
+    - Use bold text for emphasis or headings.
+    - Add line breaks between different sections to make the response highly readable.
+    - Keep responses concise but professional and helpful.
+    - Respond in Bengali.`;
 
   const messages = [
     { role: "system", content: systemPrompt },
