@@ -123,6 +123,84 @@ function updateGlobalUI() {
     updateAnalyticsUI();
 }
 
+// --- OpenAI Integration ---
+// SECURITY WARNING: In a real production app, never expose your API key in the frontend.
+// This should be done via a secure backend server.
+const OPENAI_API_KEY = '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';
+
+async function askAI(userMessage) {
+    const state = getState();
+    const systemPrompt = `You are a helpful, professional Corporate Smart Assistant named "TaskBot". 
+    You speak ONLY in fluent Bengali (Bangla).
+    The user's name is ${state.profile.name} and their role is ${state.profile.role}.
+    They currently have ${state.tasks.filter(t => !t.completed).length} pending tasks.
+    Provide concise, professional, and helpful responses.`;
+
+    const messages = [
+        { role: 'system', content: systemPrompt },
+        // Include last 5 messages for context
+        ...state.chatHistory.slice(-5).map(m => ({
+            role: m.sender === 'bot' ? 'assistant' : 'user',
+            content: m.message
+        })),
+        { role: 'user', content: userMessage }
+    ];
+
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: messages,
+                max_tokens: 150
+            })
+        });
+
+        if (!response.ok) throw new Error('API Error');
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error(error);
+        return "দুঃখিত, এই মুহূর্তে আমি আপনার রিকোয়েস্ট প্রসেস করতে পারছি না। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।";
+    }
+}
+
+// --- Chat Rendering ---
+function renderChat() {
+    const container = $('#chatWindow');
+    if (!container.length) return;
+
+    container.empty();
+    const state = getState();
+    state.chatHistory.forEach(chat => {
+        container.append(`
+            <div class="chat-bubble ${chat.sender === 'bot' ? 'bot' : 'user'}">
+                ${chat.message}
+            </div>
+        `);
+    });
+    container.scrollTop(container[0].scrollHeight);
+}
+
+function showTypingIndicator() {
+    $('#chatWindow').append(`
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `);
+    $('#chatWindow').scrollTop($('#chatWindow')[0].scrollHeight);
+}
+
+function hideTypingIndicator() {
+    $('#typingIndicator').remove();
+}
+
 // --- Event Handlers ---
 $(document).ready(function() {
     updateGlobalUI();
@@ -163,6 +241,39 @@ $(document).ready(function() {
         $(this).closest('.task-item').fadeOut(300, renderAdvancedTasks);
     });
 
+    // Add Task
+    $('#addTaskForm').on('submit', function(e) {
+        e.preventDefault();
+        const state = getState();
+        const newTask = {
+            id: Date.now(),
+            title: $('#taskTitle').val(),
+            dueDate: $('#taskDate').val(),
+            priority: $('#taskPriority').val(),
+            completed: false,
+            category: 'সাধারণ'
+        };
+        state.tasks.push(newTask);
+        saveState(state);
+        if ($('#task-list').length) renderAdvancedTasks();
+        bootstrap.Modal.getInstance($('#addTaskModal')).hide();
+        this.reset();
+        updateGlobalUI();
+    });
+
+    // Profile Update
+    $('#profileForm').on('submit', function(e) {
+        e.preventDefault();
+        const state = getState();
+        state.profile.name = $('#pName').val();
+        state.profile.bio = $('#pBio').val();
+        state.profile.timezone = $('#pTimezone').val();
+        saveState(state);
+        updateGlobalUI();
+        const toast = bootstrap.Toast.getOrCreateInstance($('#saveToast')[0]);
+        toast.show();
+    });
+
     // Filter Tasks
     $('.task-filter').on('click', function() {
         $('.task-filter').removeClass('btn-primary').addClass('btn-outline-secondary');
@@ -178,6 +289,57 @@ $(document).ready(function() {
         });
     });
 
-    // Initial Renders
+    // Quick Prompts
+    $('.quick-prompt').on('click', function() {
+        const promptText = $(this).text();
+        $('#chat-input').val(promptText);
+        $('#chat-form').submit();
+    });
+
+    // AI Chat Submission
+    $('#chat-form').on('submit', async function(e) {
+        e.preventDefault();
+        const input = $('#chat-input').val();
+        if (!input.trim()) return;
+
+        // User Message
+        const state = getState();
+        state.chatHistory.push({ sender: 'user', message: input });
+        saveState(state);
+        renderChat();
+        
+        const inputField = $('#chat-input');
+        const submitBtn = $(this).find('button[type="submit"]');
+        
+        inputField.val('').prop('disabled', true);
+        submitBtn.prop('disabled', true);
+        showTypingIndicator();
+
+        // API Call
+        const aiResponse = await askAI(input);
+        
+        hideTypingIndicator();
+        state.chatHistory.push({ sender: 'bot', message: aiResponse });
+        saveState(state);
+        renderChat();
+        
+        inputField.prop('disabled', false).focus();
+        submitBtn.prop('disabled', false);
+    });
+
+    // Page Specific Initial Renders
     if ($('#task-list').length) renderAdvancedTasks();
+    if ($('#chatWindow').length) {
+        renderChat();
+        
+        // Check for URL prompt (from Dashboard)
+        const urlParams = new URLSearchParams(window.location.search);
+        const prompt = urlParams.get('prompt');
+        if (prompt === 'summary') {
+            $('#chat-input').val('আমার আজকের কাজের সারসংক্ষেপ দিন');
+            $('#chat-form').submit();
+            // Remove parameter from URL without reloading
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
 });
