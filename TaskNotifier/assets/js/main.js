@@ -290,8 +290,8 @@ $(document).ready(function () {
     }
   });
 
-  // Clear Chat History
-  $("#clearChat").on("click", function () {
+  // Clear Chat History (Delegated Event)
+  $(document).on("click", "#clearChat", function () {
     if (confirm("আপনি কি নিশ্চিতভাবে চ্যাট হিস্ট্রি মুছে ফেলতে চান?")) {
       const state = getState();
       state.chatHistory = [
