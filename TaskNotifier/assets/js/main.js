@@ -181,14 +181,14 @@ async function askAI(userMessage) {
   const savedKey = localStorage.getItem("tasknotifier_openai_key");
 
   if (!savedKey) {
-    return "API Key Missing: Please go to 'Profile Settings' -> 'Preferences' and save your OpenAI API Key to enable the chat.";
+    return "এপিআই কি (API Key) পাওয়া যায়নি: দয়া করে 'প্রোফাইল সেটিংস' মেনুতে গিয়ে 'পছন্দসমূহ (Preferences)' ট্যাব থেকে আপনার OpenAI API Key সেভ করুন।";
   }
 
   const systemPrompt = `You are a helpful, professional Corporate Smart Assistant named "TaskBot". 
-    You speak in English.
+    You speak in Bengali.
     The user's name is ${state.profile.name} and their role is ${state.profile.role}.
     They currently have ${state.tasks.filter((t) => !t.completed).length} pending tasks.
-    Provide concise, professional, and helpful responses.`;
+    Provide concise, professional, and helpful responses in Bengali.`;
 
   const messages = [
     { role: "system", content: systemPrompt },
@@ -219,16 +219,16 @@ async function askAI(userMessage) {
     if (!response.ok) {
         const errorData = await response.json();
         if (response.status === 401) {
-            return "Error 401: Invalid API Key. Please update your key in Profile Settings.";
+            return "Error 401: অবৈধ এপিআই কি। দয়া করে প্রোফাইল সেটিংস থেকে সঠিক কি প্রদান করুন।";
         }
-        return `OpenAI Error: ${errorData.error ? errorData.error.message : "Request failed"}`;
+        return `OpenAI Error: ${errorData.error ? errorData.error.message : "অনুরোধ ব্যর্থ হয়েছে"}`;
     }
 
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
     console.error("Chat Error:", error);
-    return "Connection Error: Please check your internet connection.";
+    return "কানেকশন এরর: দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।";
   }
 }
 // --- Chat Rendering ---
