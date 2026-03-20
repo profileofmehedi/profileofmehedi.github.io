@@ -1,6 +1,6 @@
 /* 
    ==========================================================================
-   Corporate Smart Assistant - Advanced Main JS (Theme + Data + Analytics)
+   Personal Productivity Coach - Advanced Main JS (Theme + Data + Analytics)
    ==========================================================================
 */
 
@@ -10,7 +10,7 @@ const defaultState = {
   theme: "light",
   profile: {
     name: "মেহেদী হাসান",
-    role: "প্রোডাক্ট ম্যানেজার @ টেক-কর্প",
+    role: "ব্যক্তিগত মোড",
     email: "mehedihasan9339@gmail.com",
     bio: "রিয়েল-ওয়ার্ল্ড সমস্যা সমাধান করে এমন প্রোডাক্ট তৈরিতে আমি আগ্রহী।",
     timezone: "ঢাকা (UTC+6)",
@@ -20,35 +20,35 @@ const defaultState = {
   tasks: [
     {
       id: 1,
-      title: "ত্রৈমাসিক রিপোর্ট আপডেট করুন",
+      title: "ব্যায়াম করা",
       dueDate: "২০২৪-১০-২৪",
       priority: "উচ্চ",
       completed: false,
-      category: "অফিস",
+      category: "স্বাস্থ্য",
     },
     {
       id: 2,
-      title: "ক্লায়েন্ট ফিডব্যাক মিটিং",
+      title: "অ্যাপের নতুন ফিচার ডিজাইন",
       dueDate: "২০২৪-১০-২৫",
       priority: "মাঝারি",
       completed: true,
-      category: "মিটিং",
+      category: "ব্যক্তিগত",
     },
     {
       id: 3,
-      title: "সিস্টেম ডকুমেন্টেশন আপডেট",
+      title: "নতুন বই পড়া শুরু করা",
       dueDate: "২০২৪-১০-২৬",
       priority: "নিম্ন",
       completed: false,
-      category: "প্রযুক্তি",
+      category: "ব্যক্তিগত",
     },
   ],
   notifications: [
     {
       id: 1,
       type: "info",
-      title: "নতুন টাস্ক বরাদ্দ করা হয়েছে",
-      message: 'সারা আপনাকে "ডিজাইন রিভিউ" টাস্কটি দিয়েছে।',
+      title: "প্রতিদিনের সারসংক্ষেপ",
+      message: "আপনার আজকের ৩টি গুরুত্বপূর্ণ কাজ বাকি আছে।",
       time: "২ মিনিট আগে",
       read: false,
     },
@@ -56,7 +56,7 @@ const defaultState = {
       id: 2,
       type: "warning",
       title: "ডেডলাইন আসন্ন",
-      message: '"স্কাইলাইন" প্রজেক্টটি ৩ ঘণ্টার মধ্যে শেষ করতে হবে।',
+      message: 'আপনার "ডিজাইন" কাজটি ২ ঘণ্টার মধ্যে শেষ করতে হবে।',
       time: "১ ঘণ্টা আগে",
       read: false,
     },
@@ -184,9 +184,11 @@ async function askAI(userMessage) {
     return "এপিআই কি (API Key) পাওয়া যায়নি: দয়া করে 'প্রোফাইল সেটিংস' মেনুতে গিয়ে 'পছন্দসমূহ (Preferences)' ট্যাব থেকে আপনার OpenAI API Key সেভ করুন।";
   }
 
-  const systemPrompt = `You are a helpful, professional Corporate Smart Assistant named "TaskBot". 
-    You speak in Bengali.
-    The user's name is ${state.profile.name} and their role is ${state.profile.role}.
+  const systemPrompt = `You are a motivating and practical "Personal Productivity Coach" named "TaskBot". 
+    Your goal is to help the user organize their life, achieve personal goals, and maintain a healthy work-life balance.
+    You speak in Bengali and provide encouraging, actionable advice.
+    
+    The user's name is ${state.profile.name} and they are in ${state.profile.role}.
     They currently have ${state.tasks.filter((t) => !t.completed).length} pending tasks.
     
     Formatting Rules (EXTREMELY IMPORTANT):
