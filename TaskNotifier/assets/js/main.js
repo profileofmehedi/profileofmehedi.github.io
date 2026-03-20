@@ -11,11 +11,11 @@ const defaultState = {
   profile: {
     name: "জন ডয়",
     role: "প্রোডাক্ট ম্যানেজার @ টেক-কর্প",
-    email: "john.doe@techcorp.com",
+    email: "mehedihasan9339@gmail.com",
     bio: "রিয়েল-ওয়ার্ল্ড সমস্যা সমাধান করে এমন প্রোডাক্ট তৈরিতে আমি আগ্রহী।",
     timezone: "ঢাকা (UTC+6)",
     avatar:
-      "https://ui-avatars.com/api/?name=John+Doe&background=2563EB&color=fff",
+      "https://ui-avatars.com/api/?name=Mehedi+Hasan&background=2563EB&color=fff",
   },
   tasks: [
     {
