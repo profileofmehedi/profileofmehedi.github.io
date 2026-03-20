@@ -9,7 +9,7 @@ const STORAGE_KEY = "tasknotifier_advanced_state";
 const defaultState = {
   theme: "light",
   profile: {
-    name: "জন ডয়",
+    name: "মেহেদী হাসান",
     role: "প্রোডাক্ট ম্যানেজার @ টেক-কর্প",
     email: "mehedihasan9339@gmail.com",
     bio: "রিয়েল-ওয়ার্ল্ড সমস্যা সমাধান করে এমন প্রোডাক্ট তৈরিতে আমি আগ্রহী।",
