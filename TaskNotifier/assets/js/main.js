@@ -290,6 +290,21 @@ $(document).ready(function () {
     }
   });
 
+  // Clear Chat History
+  $("#clearChat").on("click", function () {
+    if (confirm("আপনি কি নিশ্চিতভাবে চ্যাট হিস্ট্রি মুছে ফেলতে চান?")) {
+      const state = getState();
+      state.chatHistory = [
+        {
+          sender: "bot",
+          message: "হ্যালো! আমি আপনার স্মার্ট অ্যাসিস্ট্যান্ট। আজ আমি আপনাকে কীভাবে সাহায্য করতে পারি?",
+        },
+      ];
+      saveState(state);
+      renderChat();
+    }
+  });
+
   // Theme Toggle
   $(document).on("click", "#themeToggle", toggleTheme);
 
