@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Commands — Professional Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface2: #f0f2f5;
+    --border: #d0d7de;
+    --accent: #0969da;
+    --accent2: #059669;
+    --accent3: #d97706;
+    --text: #1f2328;
+    --text-muted: #636c76;
+    --text-dim: #8c959f;
+    --green: #1a7f37;
+    --blue: #0969da;
+    --orange: #9a6700;
+    --purple: #8250df;
+    --red: #cf222e;
+    --yellow: #9a6700;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(9,105,218,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(9,105,218,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glowing orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+    animation: float 8s ease-in-out infinite;
+  }
+  .orb-1 { width: 400px; height: 400px; background: rgba(9,105,218,0.05); top: -100px; left: -100px; animation-delay: 0s; }
+  .orb-2 { width: 300px; height: 300px; background: rgba(5,150,105,0.05); top: 40%; right: -80px; animation-delay: -3s; }
+  .orb-3 { width: 350px; height: 350px; background: rgba(217,119,6,0.04); bottom: -100px; left: 30%; animation-delay: -6s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-30px) scale(1.05); }
+  }
+
+  .container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 60px 0 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(9,105,218,0.08);
+    border: 1px solid rgba(9,105,218,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeInDown 0.6s ease both;
+  }
+
+  .header-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--text);
+    animation: fadeInDown 0.6s ease 0.1s both;
+  }
+
+  h1 span.green { color: var(--accent2); }
+  h1 span.blue { color: var(--accent); }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-top: 14px;
+    font-weight: 400;
+    animation: fadeInDown 0.6s ease 0.2s both;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin: 36px 0;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.6s ease 0.3s both;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.6s ease 0.4s both;
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-wrap::before {
+    content: '⌕';
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  #search {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px 12px 42px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  #search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+  }
+
+  #search::placeholder { color: var(--text-dim); }
+
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 18px;
+    color: var(--text-muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: rgba(9,105,218,0.05);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* CATEGORIES NAV */
+  .cat-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.6s ease 0.5s both;
+  }
+
+  .cat-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cat-btn:hover { background: var(--surface2); }
+  .cat-btn.active { border-color: transparent; }
+
+  /* Sections */
+  .section {
+    margin-bottom: 48px;
+    animation: fadeInUp 0.5s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  /* Command Grid */
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+  }
+
+  .cmd-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: cardIn 0.4s ease both;
+  }
+
+  .cmd-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(140,149,159,0.2);
+  }
+
+  .cmd-card.copied {
+    animation: copyFlash 0.4s ease;
+  }
+
+  @keyframes copyFlash {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
+
+  .cmd-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .cmd-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cmd-name .dollar {
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .copy-btn {
+    width: 28px; height: 28px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .cmd-card:hover .copy-btn {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .cmd-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .cmd-example {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cmd-example .ex-label {
+    color: var(--text-dim);
+    margin-right: 6px;
+  }
+
+  .cmd-example .ex-cmd { color: var(--blue); }
+  .cmd-example .ex-arg { color: var(--orange); }
+  .cmd-example .ex-path { color: var(--green); }
+
+  .difficulty-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    margin-top: 8px;
+  }
+
+  .diff-beginner { background: rgba(26,127,55,0.1); color: var(--green); border: 1px solid rgba(26,127,55,0.2); }
+  .diff-intermediate { background: rgba(154,103,0,0.1); color: var(--orange); border: 1px solid rgba(154,103,0,0.2); }
+  .diff-advanced { background: rgba(130,80,223,0.1); color: var(--purple); border: 1px solid rgba(130,80,223,0.2); }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 24px rgba(9,105,218,0.15);
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Terminal modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(31,35,40,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-backdrop.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+    animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 24px 80px rgba(31,35,40,0.2);
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .modal-filename {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .modal-body { padding: 24px; }
+
+  .modal-cmd-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .modal-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .modal-section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .syntax-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 16px;
+    position: relative;
+    color: var(--text);
+  }
+
+  .syntax-block .prompt {
+    color: var(--accent);
+    margin-right: 8px;
+  }
+
+  .examples-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .example-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: var(--text);
+  }
+
+  .example-item .ex-comment {
+    color: var(--text-dim);
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1;
+  }
+
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--text-muted);
+    color: var(--text);
+  }
+
+  /* Animations */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progress / scrollbar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    z-index: 999;
+    transition: width 0.1s;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px 0 60px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+
+  footer span { color: var(--accent); }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  .no-results {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 0;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+  }
+
+  /* Back to Top */
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 46px;
+    height: 46px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 90;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .back-to-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .back-to-top:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 8px 24px rgba(9,105,218,0.15);
+    transform: translateY(-3px);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  @media (max-width: 600px) {
+    .cmd-grid { grid-template-columns: 1fr; }
+    .stats-bar { gap: 20px; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="container">
+  <header>
+    <div class="header-badge">v2.0 • Professional Edition</div>
+    <h1><span class="green">Linux</span> Commands<br><span class="blue">Cheat Sheet</span></h1>
+    <p class="subtitle">200+ commands across 12 categories — click any card to explore</p>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-num" id="total-count">0</div><div class="stat-label">Commands</div></div>
+      <div class="stat"><div class="stat-num">12</div><div class="stat-label">Categories</div></div>
+      <div class="stat"><div class="stat-num" id="shown-count">0</div><div class="stat-label">Showing</div></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Search commands, descriptions, examples..." autocomplete="off" />
+    </div>
+    <button class="filter-btn active" onclick="filterDifficulty(this, 'all')">All</button>
+    <button class="filter-btn" onclick="filterDifficulty(this, 'beginner')">Beginner</button>
+    <button class="filter-btn" onclick="filterDifficulty(this, 'intermediate')">Intermediate</button>
+    <button class="filter-btn" onclick="filterDifficulty(this, 'advanced')">Advanced</button>
+  </div>
+
+  <div class="cat-nav" id="cat-nav"></div>
+  <div id="content"></div>
+
+  <footer>
+    <span>$</span> linux-cheatsheet --version 2.0.0 &nbsp;|&nbsp; Click cards to copy • Click for details<br>
+    <span style="color:var(--text-dim);margin-top:6px;display:block">Built with ♥ for developers & sysadmins</span>
+  </footer>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-backdrop" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-titlebar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="modal-filename" id="modal-filename">bash</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-cmd-name" id="modal-cmd"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-section-label">SYNTAX</div>
+      <div class="syntax-block"><span class="prompt">$</span><span id="modal-syntax"></span></div>
+      <div class="modal-section-label">EXAMPLES</div>
+      <div class="examples-list" id="modal-examples"></div>
+      <div class="modal-section-label">FLAGS & OPTIONS</div>
+      <div class="syntax-block" id="modal-flags" style="white-space:pre-wrap;font-size:11px;color:var(--text-muted)"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="copyModalCmd()">📋 Copy Command</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('modal').classList.remove('show')">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+<div class="back-to-top" id="back-to-top" title="Go to top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</div>
+
+<script>
+const CATEGORIES = [
+  {
+    id: 'navigation', label: '📂 Navigation', color: '#0969da',
+    bg: 'rgba(9,105,218,0.1)', icon: '📂',
+    commands: [
+      { cmd: 'pwd', desc: 'Print working directory — shows your current location', example: 'pwd', syntax: 'pwd', flags: '-L  follow symbolic links (default)\n-P  use physical path, resolve symlinks', difficulty: 'beginner', examples: ['pwd', 'pwd -P'] },
+      { cmd: 'ls', desc: 'List directory contents with various display options', example: 'ls -la /var/log', syntax: 'ls [OPTIONS] [PATH]', flags: '-l  long listing format\n-a  show hidden files\n-h  human-readable sizes\n-R  recursive listing\n-t  sort by modification time\n-S  sort by file size\n--color  colorize output', difficulty: 'beginner', examples: ['ls -la', 'ls -lhS /home', 'ls -lt --color'] },
+      { cmd: 'cd', desc: 'Change directory — navigate the filesystem tree', example: 'cd /var/www/html', syntax: 'cd [DIRECTORY]', flags: 'cd ~      go to home directory\ncd -      go to previous directory\ncd ..     go up one level\ncd ../..  go up two levels', difficulty: 'beginner', examples: ['cd /etc', 'cd ~', 'cd -', 'cd ../projects'] },
+      { cmd: 'tree', desc: 'Display directory structure as a visual tree', example: 'tree -L 2 /var', syntax: 'tree [OPTIONS] [PATH]', flags: '-L n   limit depth to n levels\n-a     show hidden files\n-d     directories only\n-h     human-readable sizes\n-I     ignore pattern', difficulty: 'beginner', examples: ['tree', 'tree -L 2', 'tree -d -L 3 /etc'] },
+      { cmd: 'pushd / popd', desc: 'Directory stack — push/pop directories for quick navigation', example: 'pushd /var/log', syntax: 'pushd [DIR] | popd', flags: 'pushd +n   rotate stack n positions\npopd +n    remove nth entry\ndirs       list directory stack', difficulty: 'intermediate', examples: ['pushd /etc', 'popd', 'dirs -v'] },
+      { cmd: 'realpath', desc: 'Resolve symlinks and print the absolute path', example: 'realpath ./mylink', syntax: 'realpath [OPTIONS] FILE', flags: '--relative-to=DIR  show path relative to DIR\n-m    no path existence check\n-s    don\'t expand symlinks', difficulty: 'intermediate', examples: ['realpath myfile.txt', 'realpath --relative-to=/etc ./passwd'] },
+    ]
+  },
+  {
+    id: 'files', label: '📁 File Mgmt', color: '#1a7f37',
+    bg: 'rgba(26,127,55,0.1)', icon: '📁',
+    commands: [
+      { cmd: 'mkdir', desc: 'Create new directories, including nested ones', example: 'mkdir -p projects/web/src', syntax: 'mkdir [OPTIONS] DIR', flags: '-p  create parent dirs as needed\n-m  set permissions (e.g. 755)\n-v  verbose output', difficulty: 'beginner', examples: ['mkdir mydir', 'mkdir -p a/b/c/d', 'mkdir -m 700 private'] },
+      { cmd: 'touch', desc: 'Create empty files or update timestamps', example: 'touch index.html app.css', syntax: 'touch [OPTIONS] FILE', flags: '-a  change access time only\n-m  change modification time only\n-t  use specific timestamp', difficulty: 'beginner', examples: ['touch file.txt', 'touch -t 202401010000 file', 'touch file{1..5}.txt'] },
+      { cmd: 'cp', desc: 'Copy files and directories preserving structure', example: 'cp -r src/ backup/', syntax: 'cp [OPTIONS] SRC DEST', flags: '-r  recursive (for directories)\n-p  preserve permissions/timestamps\n-u  update (copy only if newer)\n-i  interactive (prompt overwrite)\n-v  verbose', difficulty: 'beginner', examples: ['cp file.txt /tmp/', 'cp -rp /src /dest', 'cp -u *.log /backup/'] },
+      { cmd: 'mv', desc: 'Move or rename files and directories', example: 'mv oldname.txt newname.txt', syntax: 'mv [OPTIONS] SRC DEST', flags: '-i  interactive (prompt overwrite)\n-u  move only if newer\n-v  verbose\n-n  no overwrite', difficulty: 'beginner', examples: ['mv file.txt /tmp/', 'mv -i old.txt new.txt', 'mv *.jpg images/'] },
+      { cmd: 'rm', desc: 'Remove files and directories permanently', example: 'rm -rf /tmp/cache/', syntax: 'rm [OPTIONS] FILE', flags: '-r  recursive (remove directories)\n-f  force (no prompt)\n-i  interactive\n-v  verbose\n--preserve-root  (safety)', difficulty: 'beginner', examples: ['rm file.txt', 'rm -ri directory/', 'rm -f *.tmp'] },
+      { cmd: 'ln', desc: 'Create hard or symbolic links between files', example: 'ln -s /etc/nginx nginx-conf', syntax: 'ln [OPTIONS] TARGET LINK', flags: '-s  symbolic link (symlink)\n-f  force (remove existing)\n-v  verbose\n-r  relative symlink', difficulty: 'intermediate', examples: ['ln -s /var/www/html public', 'ln -sf new.conf current.conf'] },
+      { cmd: 'rsync', desc: 'Efficient remote/local file syncing with delta transfers', example: 'rsync -avz src/ user@host:/dest/', syntax: 'rsync [OPTIONS] SRC DEST', flags: '-a  archive (recursive + preserve)\n-v  verbose\n-z  compress during transfer\n--delete  remove extra files in dest\n--exclude  exclude pattern\n--progress  show progress\n-n  dry run', difficulty: 'advanced', examples: ['rsync -av src/ dest/', 'rsync -avz --delete /local/ user@remote:/backup/', 'rsync -av --exclude=".git" . server:/app'] },
+      { cmd: 'stat', desc: 'Display detailed file or filesystem status', example: 'stat /etc/passwd', syntax: 'stat [OPTIONS] FILE', flags: '-f  filesystem info\n-c  custom format\n--printf  format output', difficulty: 'intermediate', examples: ['stat file.txt', 'stat -f /dev/sda', 'stat -c "%n %s %Y" file'] },
+      { cmd: 'file', desc: 'Determine file type using magic number analysis', example: 'file unknown.bin', syntax: 'file [OPTIONS] FILE', flags: '-b  brief (no filename)\n-i  MIME type\n-z  inside compressed files', difficulty: 'beginner', examples: ['file image.png', 'file -i document', 'file *'] },
+    ]
+  },
+  {
+    id: 'viewing', label: '📖 Viewing', color: '#9a6700',
+    bg: 'rgba(154,103,0,0.1)', icon: '📖',
+    commands: [
+      { cmd: 'cat', desc: 'Concatenate and display file contents', example: 'cat -n /etc/hosts', syntax: 'cat [OPTIONS] FILE', flags: '-n  number all lines\n-b  number non-blank lines\n-A  show special chars\n-s  squeeze blank lines', difficulty: 'beginner', examples: ['cat file.txt', 'cat -n app.log', 'cat file1 file2 > combined'] },
+      { cmd: 'less', desc: 'Pager for viewing large files with search capability', example: 'less +F /var/log/syslog', syntax: 'less [OPTIONS] FILE', flags: '+F  follow mode (like tail -f)\n+/  start at pattern\n-N  line numbers\n-S  no line wrap\n-i  case-insensitive search', difficulty: 'beginner', examples: ['less large.log', 'less +F /var/log/auth.log', 'less -N file.txt'] },
+      { cmd: 'head', desc: 'Output the first N lines of a file', example: 'head -n 50 server.log', syntax: 'head [OPTIONS] FILE', flags: '-n N  first N lines (default 10)\n-c N  first N bytes\n-q    quiet (suppress headers)', difficulty: 'beginner', examples: ['head file.txt', 'head -n 20 app.log', 'head -c 512 binary'] },
+      { cmd: 'tail', desc: 'Output last N lines; follow live log updates', example: 'tail -f /var/log/nginx/access.log', syntax: 'tail [OPTIONS] FILE', flags: '-n N  last N lines\n-f    follow file updates\n-F    follow & retry if file rotates\n-c N  last N bytes', difficulty: 'beginner', examples: ['tail -n 100 error.log', 'tail -f app.log', 'tail -F /var/log/syslog'] },
+      { cmd: 'wc', desc: 'Count lines, words, characters, and bytes in files', example: 'wc -l access.log', syntax: 'wc [OPTIONS] FILE', flags: '-l  line count\n-w  word count\n-c  byte count\n-m  character count\n-L  length of longest line', difficulty: 'beginner', examples: ['wc -l file.txt', 'wc -wlc report.txt', 'cat file | wc -l'] },
+      { cmd: 'diff', desc: 'Compare files line by line showing differences', example: 'diff -u old.conf new.conf', syntax: 'diff [OPTIONS] FILE1 FILE2', flags: '-u  unified diff format\n-c  context diff\n-i  ignore case\n-r  recursive for directories\n--color  colorized output', difficulty: 'intermediate', examples: ['diff a.txt b.txt', 'diff -u old new', 'diff -r dir1/ dir2/'] },
+      { cmd: 'od', desc: 'Dump file contents in octal, hex, or other formats', example: 'od -A x -t x1z file.bin', syntax: 'od [OPTIONS] FILE', flags: '-t x1  hex bytes\n-t a   named chars\n-A x   hex addresses\n-c     C-style chars', difficulty: 'advanced', examples: ['od -x file.bin', 'od -c file', 'hexdump -C file.bin'] },
+      { cmd: 'xxd', desc: 'Make hex dump of file or reverse a hex dump', example: 'xxd -l 256 /dev/urandom', syntax: 'xxd [OPTIONS] FILE', flags: '-l N   read N bytes\n-s N   start at byte N\n-r     reverse hex to binary\n-c N   N bytes per row', difficulty: 'advanced', examples: ['xxd binary.dat', 'xxd -l 16 file', 'xxd -r hex.txt binary.bin'] },
+    ]
+  },
+  {
+    id: 'permissions', label: '🔐 Permissions', color: '#cf222e',
+    bg: 'rgba(207,34,46,0.1)', icon: '🔐',
+    commands: [
+      { cmd: 'chmod', desc: 'Change file/directory permissions using octal or symbolic mode', example: 'chmod 755 deploy.sh', syntax: 'chmod [OPTIONS] MODE FILE', flags: '-R  recursive\n-v  verbose\n755 = rwxr-xr-x\n644 = rw-r--r--\n600 = rw-------\n777 = rwxrwxrwx', difficulty: 'beginner', examples: ['chmod +x script.sh', 'chmod 644 config', 'chmod -R 755 /var/www'] },
+      { cmd: 'chown', desc: 'Change file ownership (user and/or group)', example: 'chown -R www-data:www-data /var/www', syntax: 'chown [OPTIONS] USER[:GROUP] FILE', flags: '-R  recursive\n-v  verbose\n--from  change only if current owner matches', difficulty: 'beginner', examples: ['chown user:group file', 'chown -R ubuntu /home/ubuntu', 'chown :developers shared/'] },
+      { cmd: 'chgrp', desc: 'Change the group ownership of files', example: 'chgrp -R developers /srv/app', syntax: 'chgrp [OPTIONS] GROUP FILE', flags: '-R  recursive\n-v  verbose\n-c  report changes only', difficulty: 'intermediate', examples: ['chgrp staff file.txt', 'chgrp -R www-data /var/www'] },
+      { cmd: 'umask', desc: 'Set default permissions mask for new files', example: 'umask 027', syntax: 'umask [MODE]', flags: 'umask        show current mask\numask 022    files: 644, dirs: 755\numask 027    files: 640, dirs: 750\numask -S     symbolic output', difficulty: 'intermediate', examples: ['umask', 'umask 022', 'umask -S'] },
+      { cmd: 'getfacl / setfacl', desc: 'Get/Set POSIX Access Control Lists for fine-grained permissions', example: 'setfacl -m u:john:rw file.txt', syntax: 'setfacl [OPTIONS] ACL FILE', flags: '-m  modify ACL\n-x  remove ACL\n-R  recursive\n-b  remove all ACLs\n-d  default ACL (for dirs)', difficulty: 'advanced', examples: ['getfacl file.txt', 'setfacl -m u:bob:rwx file', 'setfacl -m g:devs:rx dir/'] },
+      { cmd: 'sudo', desc: 'Execute commands as superuser or another user', example: 'sudo systemctl restart nginx', syntax: 'sudo [OPTIONS] COMMAND', flags: '-u  run as different user\n-i  simulate root login shell\n-s  open a shell\n-l  list allowed commands\n-k  invalidate session', difficulty: 'beginner', examples: ['sudo apt update', 'sudo -u postgres psql', 'sudo -i'] },
+      { cmd: 'passwd', desc: 'Change user password or account properties', example: 'passwd username', syntax: 'passwd [OPTIONS] [USER]', flags: '-l  lock account\n-u  unlock account\n-e  expire password (force change)\n-d  delete password', difficulty: 'beginner', examples: ['passwd', 'sudo passwd john', 'sudo passwd -l baduser'] },
+    ]
+  },
+  {
+    id: 'search', label: '🔍 Search', color: '#8250df',
+    bg: 'rgba(130,80,223,0.1)', icon: '🔍',
+    commands: [
+      { cmd: 'find', desc: 'Recursively search for files by name, size, date, type, and more', example: 'find /var -name "*.log" -mtime +7 -delete', syntax: 'find [PATH] [CONDITIONS]', flags: '-name     filename pattern\n-type     f=file, d=dir, l=symlink\n-mtime +N  modified N+ days ago\n-size +NM  larger than N megabytes\n-perm      permission bits\n-exec      run command on results\n-maxdepth  limit depth', difficulty: 'intermediate', examples: ['find . -name "*.py"', 'find /tmp -size +100M -delete', 'find . -type f -newer ref.txt'] },
+      { cmd: 'grep', desc: 'Search text using regex patterns in files or streams', example: 'grep -rn "TODO" --include="*.js" .', syntax: 'grep [OPTIONS] PATTERN [FILE]', flags: '-r  recursive\n-i  case-insensitive\n-n  show line numbers\n-v  invert match\n-E  extended regex\n-l  show filenames only\n-c  count matches\n-A/-B/-C  context lines', difficulty: 'beginner', examples: ['grep "error" app.log', 'grep -rni "password" .', 'grep -E "^[0-9]+" data.txt'] },
+      { cmd: 'awk', desc: 'Powerful text processing and data extraction language', example: "awk '{print $1, $3}' access.log", syntax: "awk 'PATTERN {ACTION}' FILE", flags: '-F  field separator\n-v  variable assignment\n-f  read program from file\nNR  current record number\nNF  number of fields\n$0  full line, $1..$N fields', difficulty: 'advanced', examples: ["awk -F: '{print $1}' /etc/passwd", "awk 'NR>5' file.txt", "awk '{sum+=$2} END{print sum}' data"] },
+      { cmd: 'sed', desc: 'Stream editor for filtering and transforming text', example: "sed -i 's/foo/bar/g' config.conf", syntax: 'sed [OPTIONS] SCRIPT [FILE]', flags: "-i   edit file in-place\n-n   suppress output\n-e   add expression\ns/   substitute command\nd    delete lines\np    print lines\n/^/  beginning of line", difficulty: 'advanced', examples: ["sed 's/old/new/g' file", "sed -n '5,10p' file", "sed '/^#/d' config.conf"] },
+      { cmd: 'locate', desc: 'Quickly find files using an indexed database (updatedb)', example: 'locate -i nginx.conf', syntax: 'locate [OPTIONS] PATTERN', flags: '-i  case-insensitive\n-c  count results only\n-n N  limit to N results\n-e  verify file exists\n--regex  use regex', difficulty: 'beginner', examples: ['locate nginx.conf', 'locate -i "*.jpg"', 'locate -c python'] },
+      { cmd: 'which / whereis', desc: 'Locate executables and manual pages on PATH', example: 'which python3', syntax: 'which COMMAND | whereis COMMAND', flags: 'which -a    show all matches\nwhereis -b  binary only\nwhereis -m  manual only\nwhereis -s  source only', difficulty: 'beginner', examples: ['which node', 'which -a python', 'whereis nginx'] },
+      { cmd: 'xargs', desc: 'Build and execute command lines from standard input', example: 'find . -name "*.log" | xargs rm', syntax: 'xargs [OPTIONS] [COMMAND]', flags: '-n N  N args per command\n-P N  run N processes in parallel\n-I{}  placeholder\n-0   null-delimited input\n-p   prompt before each run', difficulty: 'advanced', examples: ['ls | xargs echo', 'find . -name "*.tmp" | xargs -P4 rm', 'cat urls.txt | xargs -I{} curl {}'] },
+      { cmd: 'cut', desc: 'Extract specific columns or characters from text', example: "cut -d: -f1,7 /etc/passwd", syntax: 'cut [OPTIONS] FILE', flags: '-d  delimiter character\n-f  field numbers\n-c  character positions\n-b  byte positions', difficulty: 'intermediate', examples: ['cut -d, -f2 data.csv', 'cut -c1-10 file.txt', "echo 'a:b:c' | cut -d: -f2"] },
+    ]
+  },
+  {
+    id: 'system', label: '📊 System', color: '#bc4e00',
+    bg: 'rgba(188,78,0,0.1)', icon: '📊',
+    commands: [
+      { cmd: 'top', desc: 'Interactive real-time process monitor', example: 'top -u www-data', syntax: 'top [OPTIONS]', flags: '-u USER  filter by user\n-p PID  monitor specific PIDs\n-n N    update N times then exit\n-b      batch mode\nInteractive: k=kill, r=renice, q=quit', difficulty: 'beginner', examples: ['top', 'top -u nginx', 'top -n 1 -b | head -20'] },
+      { cmd: 'htop', desc: 'Enhanced interactive process viewer with color UI', example: 'htop -u deploy', syntax: 'htop [OPTIONS]', flags: '-u  filter user\n-p  comma-separated PIDs\n-d  update delay (tenths of second)\n-t  show tree view', difficulty: 'beginner', examples: ['htop', 'htop -u postgres', 'htop -t'] },
+      { cmd: 'df', desc: 'Report filesystem disk space usage', example: 'df -hT', syntax: 'df [OPTIONS] [FILE]', flags: '-h  human-readable\n-T  show filesystem type\n-i  inode info\n-l  local filesystems only', difficulty: 'beginner', examples: ['df -h', 'df -hT', 'df -i /dev/sda1'] },
+      { cmd: 'du', desc: 'Estimate file and directory disk usage', example: 'du -sh /* | sort -rh | head -10', syntax: 'du [OPTIONS] [FILE]', flags: '-s  summary total\n-h  human-readable\n-c  grand total\n--max-depth=N  depth limit\n-a  all files (not just dirs)', difficulty: 'beginner', examples: ['du -sh /var/log', 'du -sh * | sort -rh', 'du --max-depth=2 /home'] },
+      { cmd: 'free', desc: 'Display amount of free and used memory in the system', example: 'free -h -s 2', syntax: 'free [OPTIONS]', flags: '-h  human-readable\n-b/k/m/g  units\n-s N  continuous update every N sec\n-t  total row\n-w  wide columns', difficulty: 'beginner', examples: ['free -h', 'free -m', 'watch -n 2 free -h'] },
+      { cmd: 'uptime', desc: 'Show how long system has been running and load average', example: 'uptime -p', syntax: 'uptime [OPTIONS]', flags: '-p  pretty format\n-s  since when (boot time)\n-V  version', difficulty: 'beginner', examples: ['uptime', 'uptime -p', 'uptime -s'] },
+      { cmd: 'vmstat', desc: 'Report virtual memory, CPU, I/O statistics', example: 'vmstat 2 5', syntax: 'vmstat [OPTIONS] [DELAY [COUNT]]', flags: '-a  active/inactive memory\n-d  disk statistics\n-s  memory statistics table\n-w  wide output', difficulty: 'intermediate', examples: ['vmstat', 'vmstat 1 10', 'vmstat -s'] },
+      { cmd: 'iostat', desc: 'I/O statistics for devices and partitions', example: 'iostat -xz 1 5', syntax: 'iostat [OPTIONS] [INTERVAL [COUNT]]', flags: '-x  extended stats\n-z  hide idle devices\n-d  disk only\n-c  CPU only\n-k/-m  kB/MB units', difficulty: 'advanced', examples: ['iostat -x 1', 'iostat -xz 2 5', 'iostat -d /dev/sda'] },
+      { cmd: 'lsof', desc: 'List open files, sockets, and network connections', example: 'lsof -i :80', syntax: 'lsof [OPTIONS]', flags: '-i  list internet files (:port)\n-u  files for user\n-p  files for PID\n-c  files for command\n+D  directory (recursive)\n-t  only PIDs', difficulty: 'advanced', examples: ['lsof -i :443', 'lsof -u www-data', 'lsof +D /var/log'] },
+      { cmd: 'uname', desc: 'Print system information (kernel, architecture, hostname)', example: 'uname -a', syntax: 'uname [OPTIONS]', flags: '-a  all info\n-r  kernel release\n-m  machine hardware\n-n  network hostname\n-s  kernel name\n-v  kernel version', difficulty: 'beginner', examples: ['uname -a', 'uname -r', 'uname -m'] },
+    ]
+  },
+  {
+    id: 'packages', label: '📦 Packages', color: '#0969da',
+    bg: 'rgba(9,105,218,0.1)', icon: '📦',
+    commands: [
+      { cmd: 'apt', desc: 'Advanced Package Tool — primary package manager for Debian/Ubuntu', example: 'sudo apt install -y nginx', syntax: 'apt [COMMAND] [PACKAGE]', flags: 'update   refresh package lists\nupgrade  upgrade all packages\ninstall  install package(s)\nremove   remove package\npurge    remove + config files\nautoremove  remove orphaned deps\nsearch   search packages\nshow     show package details', difficulty: 'beginner', examples: ['sudo apt update && sudo apt upgrade', 'sudo apt install git curl', 'apt search nodejs'] },
+      { cmd: 'dpkg', desc: 'Low-level package manager for .deb files', example: 'dpkg -i package.deb', syntax: 'dpkg [OPTIONS] [PACKAGE]', flags: '-i   install .deb file\n-r   remove package\n-P   purge package\n-l   list installed\n-L   list files in package\n-s   show package status\n--reconfigure  reconfigure package', difficulty: 'intermediate', examples: ['dpkg -i myapp.deb', 'dpkg -l | grep nginx', 'dpkg -L openssh-server'] },
+      { cmd: 'snap', desc: 'Snap package manager for universal Linux packages', example: 'snap install code --classic', syntax: 'snap [COMMAND] [PACKAGE]', flags: 'install  install snap\nremove   remove snap\nlist     list installed snaps\nfind     search snaps\nrefresh  update snaps\ninfo     show snap info', difficulty: 'beginner', examples: ['snap install docker', 'snap list', 'snap refresh'] },
+      { cmd: 'flatpak', desc: 'Flatpak package manager for sandboxed applications', example: 'flatpak install flathub org.gimp.GIMP', syntax: 'flatpak [COMMAND] [OPTIONS]', flags: 'install   install app\nrun       run app\nlist      list installed\nuninstall remove app\nupdate    update all', difficulty: 'intermediate', examples: ['flatpak install flathub com.spotify.Client', 'flatpak update', 'flatpak list'] },
+    ]
+  },
+  {
+    id: 'network', label: '🌐 Network', color: '#116329',
+    bg: 'rgba(17,99,41,0.1)', icon: '🌐',
+    commands: [
+      { cmd: 'ping', desc: 'Send ICMP echo requests to test connectivity', example: 'ping -c 4 -i 0.5 google.com', syntax: 'ping [OPTIONS] HOST', flags: '-c N  send N packets\n-i N  interval N seconds\n-s N  packet size in bytes\n-t N  TTL value\n-q    quiet output', difficulty: 'beginner', examples: ['ping google.com', 'ping -c 5 8.8.8.8', 'ping -i 0.2 -c 100 server'] },
+      { cmd: 'curl', desc: 'Transfer data to/from servers supporting many protocols', example: 'curl -s -o /dev/null -w "%{http_code}" https://api.github.com', syntax: 'curl [OPTIONS] URL', flags: '-X  HTTP method (GET/POST/PUT/DELETE)\n-H  add header\n-d  request body data\n-o  output to file\n-s  silent mode\n-L  follow redirects\n-k  allow insecure SSL\n-u  username:password', difficulty: 'intermediate', examples: ['curl https://api.github.com', 'curl -X POST -H "Content-Type: application/json" -d \'{"key":"val"}\' URL', 'curl -o file.tar.gz URL'] },
+      { cmd: 'wget', desc: 'Non-interactive network downloader supporting HTTP, HTTPS, FTP', example: 'wget -c -q https://example.com/file.iso', syntax: 'wget [OPTIONS] URL', flags: '-c  continue partial download\n-q  quiet mode\n-O  save as filename\n-r  recursive download\n-P  save to directory\n--limit-rate  throttle bandwidth', difficulty: 'beginner', examples: ['wget https://example.com/file.zip', 'wget -c -O out.iso URL', 'wget -r -l2 https://docs.site.com'] },
+      { cmd: 'ssh', desc: 'Secure Shell — encrypted remote login and command execution', example: 'ssh -i ~/.ssh/id_rsa user@192.168.1.10 -p 2222', syntax: 'ssh [OPTIONS] [USER@]HOST [CMD]', flags: '-i  identity file (private key)\n-p  port number\n-L  local port forwarding\n-R  remote port forwarding\n-N  no remote command (tunnel only)\n-v  verbose debugging', difficulty: 'intermediate', examples: ['ssh user@server.com', 'ssh -i key.pem ubuntu@ec2-host', 'ssh -L 8080:localhost:80 user@remote'] },
+      { cmd: 'scp', desc: 'Secure copy files between hosts over SSH', example: 'scp -r ./dist user@server:/var/www/', syntax: 'scp [OPTIONS] SRC DEST', flags: '-r  recursive\n-P  port\n-i  identity file\n-C  compress\n-q  quiet', difficulty: 'intermediate', examples: ['scp file.txt user@host:/tmp/', 'scp -r ./project server:/srv/', 'scp user@host:/var/log/app.log .'] },
+      { cmd: 'ip', desc: 'Show/manage network interfaces, routing, and tunnels', example: 'ip addr show eth0', syntax: 'ip [OPTIONS] OBJECT [COMMAND]', flags: 'ip a / addr show  list interfaces\nip r / route show  routing table\nip link set eth0 up/down\nip addr add X/M dev eth0\nip route add CIDR via GW', difficulty: 'intermediate', examples: ['ip a', 'ip route show', 'ip addr add 10.0.0.1/24 dev eth0'] },
+      { cmd: 'netstat / ss', desc: 'Display network connections, ports, and socket statistics', example: 'ss -tlnp', syntax: 'ss [OPTIONS] | netstat [OPTIONS]', flags: '-t  TCP sockets\n-u  UDP sockets\n-l  listening only\n-n  numeric (no DNS)\n-p  show process\n-r  routing table', difficulty: 'intermediate', examples: ['ss -tlnp', 'ss -anp | grep :80', 'netstat -tulnp'] },
+      { cmd: 'traceroute', desc: 'Trace the network path packets take to a destination', example: 'traceroute -n google.com', syntax: 'traceroute [OPTIONS] HOST', flags: '-n  numeric (no DNS)\n-m N  max hops\n-w N  timeout seconds\n-I  use ICMP\n-T  use TCP', difficulty: 'intermediate', examples: ['traceroute google.com', 'traceroute -n 8.8.8.8', 'traceroute -m 20 server.com'] },
+      { cmd: 'nmap', desc: 'Network exploration and security scanning tool', example: 'nmap -sV -p 1-1000 192.168.1.0/24', syntax: 'nmap [OPTIONS] TARGET', flags: '-sV  version detection\n-p   port range\n-O   OS detection\n-A   aggressive scan\n-sn  ping scan only\n-T4  fast timing', difficulty: 'advanced', examples: ['nmap 192.168.1.1', 'nmap -sV -p 80,443 host', 'nmap -sn 10.0.0.0/24'] },
+      { cmd: 'tcpdump', desc: 'Capture and analyze network packets on an interface', example: 'tcpdump -i eth0 -n port 80', syntax: 'tcpdump [OPTIONS] [FILTER]', flags: '-i  interface\n-n  no DNS resolution\n-w  write to pcap file\n-r  read pcap file\n-c N  capture N packets\n-X  hex+ASCII output', difficulty: 'advanced', examples: ['tcpdump -i eth0', 'tcpdump -i any port 443 -w https.pcap', 'tcpdump -r capture.pcap'] },
+    ]
+  },
+  {
+    id: 'process', label: '⚙️ Process', color: '#d4430d',
+    bg: 'rgba(212,67,13,0.1)', icon: '⚙️',
+    commands: [
+      { cmd: 'ps', desc: 'Report a snapshot of current processes', example: 'ps aux --sort=-%mem | head -10', syntax: 'ps [OPTIONS]', flags: 'aux   all users, all procs\n-ef   every process, full format\n-u    by user\n--sort  sort by column\n-p    by PID', difficulty: 'beginner', examples: ['ps aux', 'ps -ef | grep nginx', 'ps aux --sort=-%cpu | head'] },
+      { cmd: 'kill', desc: 'Send signals to processes by PID', example: 'kill -9 1234', syntax: 'kill [SIGNAL] PID', flags: '-9   SIGKILL (force)\n-15  SIGTERM (graceful, default)\n-1   SIGHUP (reload config)\n-19  SIGSTOP (pause)\n-18  SIGCONT (resume)', difficulty: 'beginner', examples: ['kill 1234', 'kill -9 5678', 'kill -HUP $(pgrep nginx)'] },
+      { cmd: 'killall', desc: 'Kill all processes with a matching name', example: 'killall -9 firefox', syntax: 'killall [OPTIONS] NAME', flags: '-9  force kill\n-u  kill by user\n-v  verbose\n-r  regex name matching\n-w  wait for processes to die', difficulty: 'beginner', examples: ['killall nginx', 'killall -9 zombie-app', 'killall -u deploy'] },
+      { cmd: 'jobs / bg / fg', desc: 'Manage background and foreground shell jobs', example: 'command & ; jobs ; fg %1', syntax: 'jobs | bg [%N] | fg [%N]', flags: 'jobs -l  show PID\nbg %N   resume job N in background\nfg %N   bring job N to foreground\n&       run command in background', difficulty: 'intermediate', examples: ['ping server &', 'jobs -l', 'fg %1'] },
+      { cmd: 'nohup', desc: 'Run command immune to hangups (keeps running after logout)', example: 'nohup ./server.sh > server.log 2>&1 &', syntax: 'nohup COMMAND [ARGS] &', flags: 'Output written to nohup.out by default\nRedirect with > file.log 2>&1\nCombine with & to background', difficulty: 'intermediate', examples: ['nohup python server.py &', 'nohup ./deploy.sh > deploy.log &'] },
+      { cmd: 'nice / renice', desc: 'Run command with modified scheduling priority', example: 'nice -n 10 make -j4', syntax: 'nice -n N COMMAND | renice N -p PID', flags: '-n N  niceness value (-20 to 19)\n  -20 = highest priority\n   19 = lowest priority\n   0  = default', difficulty: 'advanced', examples: ['nice -n 15 backup.sh', 'renice 5 -p 1234', 'nice -n -5 critical-app'] },
+      { cmd: 'systemctl', desc: 'Control systemd services, sockets, and units', example: 'systemctl status nginx', syntax: 'systemctl [COMMAND] [UNIT]', flags: 'start/stop/restart  manage service\nstatus    show status\nenable/disable  start at boot\nreload    reload config\nlist-units  show all units\njournactl -u  view logs', difficulty: 'intermediate', examples: ['systemctl status nginx', 'systemctl restart mysql', 'systemctl enable --now docker'] },
+      { cmd: 'cron / crontab', desc: 'Schedule periodic commands using cron syntax', example: 'crontab -e', syntax: 'crontab -e | crontab -l | crontab -r', flags: 'Format: MIN HR DOM MON DOW CMD\n* * * * *   every minute\n0 2 * * *   daily at 2am\n*/15 * * * * every 15 min\n0 0 * * 0   weekly on Sunday', difficulty: 'intermediate', examples: ['crontab -l', 'crontab -e', 'crontab -u user -l'] },
+      { cmd: 'strace', desc: 'Trace system calls and signals for debugging', example: 'strace -p 1234 -e trace=file', syntax: 'strace [OPTIONS] COMMAND|PID', flags: '-p PID  attach to running process\n-e trace=TYPE  filter call types\n-o FILE  write to file\n-c      summary statistics\n-f      follow child procs', difficulty: 'advanced', examples: ['strace ls', 'strace -p 5678', 'strace -e trace=network curl URL'] },
+    ]
+  },
+  {
+    id: 'archive', label: '🗜️ Archives', color: '#0576b4',
+    bg: 'rgba(5,118,180,0.1)', icon: '🗜️',
+    commands: [
+      { cmd: 'tar', desc: 'Tape archive — pack files into archive with optional compression', example: 'tar -czvf backup.tar.gz /var/www/', syntax: 'tar [OPTIONS] ARCHIVE [FILES]', flags: '-c  create archive\n-x  extract archive\n-v  verbose\n-f  archive file\n-z  gzip compression\n-j  bzip2 compression\n-J  xz compression\n-t  list contents\n-C  extract to directory', difficulty: 'beginner', examples: ['tar -czvf arch.tar.gz dir/', 'tar -xvf archive.tar', 'tar -cJvf out.tar.xz files/'] },
+      { cmd: 'zip / unzip', desc: 'Create and extract ZIP archives', example: 'zip -r site.zip ./public/', syntax: 'zip [OPTIONS] ARCHIVE FILES | unzip ARCHIVE', flags: '-r  recursive\n-9  maximum compression\n-e  encrypt with password\n-d  delete files from zip\nunzip -l  list contents\nunzip -d  extract to directory', difficulty: 'beginner', examples: ['zip -r project.zip ./', 'unzip archive.zip', 'unzip -d /dest archive.zip'] },
+      { cmd: 'gzip / gunzip', desc: 'Compress and decompress files using gzip format', example: 'gzip -k -9 large.log', syntax: 'gzip [OPTIONS] FILE', flags: '-k  keep original file\n-9  best compression\n-1  fastest compression\n-d  decompress (= gunzip)\n-r  recursive\n-l  list compression info', difficulty: 'beginner', examples: ['gzip file.txt', 'gunzip file.txt.gz', 'gzip -k -9 backup.sql'] },
+      { cmd: 'xz', desc: 'High-ratio data compression utility (better than gzip)', example: 'xz -k -T4 large.bin', syntax: 'xz [OPTIONS] FILE', flags: '-k  keep original\n-d  decompress\n-T N  use N threads\n-9  max compression\n-z  compress (default)', difficulty: 'intermediate', examples: ['xz -k file.tar', 'xz -d file.tar.xz', 'xz -9 -T4 big.bin'] },
+    ]
+  },
+  {
+    id: 'git', label: '🔀 Git', color: '#bf3989',
+    bg: 'rgba(191,57,137,0.1)', icon: '🔀',
+    commands: [
+      { cmd: 'git clone', desc: 'Clone a repository into a new directory', example: 'git clone --depth=1 https://github.com/user/repo.git', syntax: 'git clone [OPTIONS] URL [DIR]', flags: '--depth N  shallow clone (N commits)\n--branch   clone specific branch\n--bare     create bare repository\n--recurse-submodules', difficulty: 'beginner', examples: ['git clone https://github.com/repo.git', 'git clone --depth=1 --branch main URL'] },
+      { cmd: 'git log', desc: 'Show commit history with rich formatting options', example: 'git log --oneline --graph --all', syntax: 'git log [OPTIONS] [RANGE]', flags: '--oneline    compact format\n--graph      ASCII graph\n--all        all branches\n--author     filter by author\n--since      time filter\n-p           show diff\n--stat       files changed', difficulty: 'beginner', examples: ['git log --oneline -10', 'git log --graph --all', "git log --author='Name' --since='1 week'"] },
+      { cmd: 'git stash', desc: 'Temporarily shelve changes and restore clean working state', example: 'git stash push -m "WIP feature"', syntax: 'git stash [COMMAND]', flags: 'push -m  stash with message\npop      apply and remove stash\napply    apply without removing\nlist     show stash list\ndrop     delete specific stash\nclear    delete all stashes', difficulty: 'intermediate', examples: ['git stash', 'git stash push -m "feat"', 'git stash pop'] },
+      { cmd: 'git rebase', desc: 'Reapply commits on top of another base commit', example: 'git rebase -i HEAD~5', syntax: 'git rebase [OPTIONS] [BASE]', flags: '-i      interactive mode\n--onto  rebase onto specific commit\n--abort abort failed rebase\n--continue  resume after conflict\n--skip  skip current patch', difficulty: 'advanced', examples: ['git rebase main', 'git rebase -i HEAD~3', 'git rebase --onto newbase oldbase'] },
+      { cmd: 'git bisect', desc: 'Binary search through commits to find a bug', example: 'git bisect start; git bisect bad; git bisect good v1.0', syntax: 'git bisect [start|good|bad|reset]', flags: 'start    begin bisect session\ngood HASH  mark commit as good\nbad HASH   mark commit as bad\nreset    end bisect session\nrun CMD  auto-bisect with test', difficulty: 'advanced', examples: ['git bisect start', 'git bisect bad HEAD', 'git bisect good v2.0'] },
+      { cmd: 'git cherry-pick', desc: 'Apply the changes from specific commits to current branch', example: 'git cherry-pick abc1234', syntax: 'git cherry-pick [OPTIONS] COMMIT', flags: '-n  apply without committing\n-e  edit commit message\n-x  record original commit\n--abort  abort failed pick', difficulty: 'intermediate', examples: ['git cherry-pick a1b2c3', 'git cherry-pick -n HEAD~2', 'git cherry-pick first^..last'] },
+    ]
+  },
+  {
+    id: 'scripting', label: '📜 Scripting', color: '#1a7f37',
+    bg: 'rgba(26,127,55,0.1)', icon: '📜',
+    commands: [
+      { cmd: 'bash', desc: 'Execute shell scripts and start interactive bash sessions', example: 'bash -x deploy.sh', syntax: 'bash [OPTIONS] [SCRIPT]', flags: '-x  debug (trace execution)\n-e  exit on error\n-u  treat unset vars as error\n-o pipefail  catch pipe errors\n-n  syntax check only\n-c  run command string', difficulty: 'beginner', examples: ['bash script.sh', 'bash -x debug.sh', 'bash -n check_syntax.sh'] },
+      { cmd: 'env / export', desc: 'Manage environment variables in shell sessions', example: 'export DATABASE_URL="postgres://..."', syntax: 'env | export VAR=VALUE', flags: 'env        list all variables\nenv -i     empty environment\nexport VAR  make variable exported\nunset VAR   remove variable\nprintenv    print specific var', difficulty: 'beginner', examples: ['env | grep PATH', 'export NODE_ENV=production', 'printenv HOME'] },
+      { cmd: 'source / .', desc: 'Execute commands from a file in current shell', example: 'source ~/.bashrc', syntax: 'source FILE | . FILE', flags: 'source applies changes to current shell\n. is POSIX equivalent\nCommon: source .env files\n        source venv/bin/activate', difficulty: 'beginner', examples: ['source ~/.bashrc', 'source venv/bin/activate', '. .env'] },
+      { cmd: 'tee', desc: 'Read from stdin and write to both stdout and files', example: 'command | tee -a output.log', syntax: 'tee [OPTIONS] [FILE...]', flags: '-a  append instead of overwrite\nUsed in pipelines to save+view output simultaneously', difficulty: 'intermediate', examples: ['ls | tee files.txt', 'make 2>&1 | tee build.log', 'cmd | tee -a daily.log'] },
+      { cmd: 'trap', desc: 'Execute commands when shell receives signals or exits', example: 'trap "rm -f /tmp/lock" EXIT', syntax: 'trap [COMMAND] [SIGNAL...]', flags: 'EXIT   on script exit\nSIGINT Ctrl+C\nSIGTERM kill signal\nERR    on error\nDEBUG  before each command', difficulty: 'advanced', examples: ['trap cleanup EXIT', 'trap "echo Interrupted" INT', 'trap "log_error $?" ERR'] },
+      { cmd: 'printf', desc: 'Format and print data — more powerful than echo', example: 'printf "%-20s %5s\\n" Name Age', syntax: 'printf FORMAT [ARGS]', flags: '%s  string\n%d  integer\n%f  float\n%x  hexadecimal\n%-N  left-align field width N\n\\n  newline, \\t tab', difficulty: 'intermediate', examples: ['printf "Hello %s\\n" World', 'printf "%d\\n" 0xFF', 'printf "%-15s %d\\n" Name 42'] },
+      { cmd: 'read', desc: 'Read a line from stdin into shell variables', example: 'read -p "Enter name: " -t 30 name', syntax: 'read [OPTIONS] [VAR...]', flags: '-p  prompt string\n-t  timeout in seconds\n-s  silent (password input)\n-r  raw (no backslash escape)\n-a  read into array', difficulty: 'intermediate', examples: ['read name', 'read -sp "Password: " pwd', 'read -t 10 -p "Continue? " ans'] },
+    ]
+  },
+];
+
+// State
+let activeCategory = 'all';
+let activeDifficulty = 'all';
+let searchTerm = '';
+let currentModalCmd = null;
+
+// Build category nav
+function buildCategoryNav() {
+  const nav = document.getElementById('cat-nav');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cat-btn active';
+  allBtn.textContent = '🌟 All';
+  allBtn.style.background = 'rgba(9,105,218,0.08)';
+  allBtn.style.borderColor = '#0969da';
+  allBtn.style.color = '#0969da';
+  allBtn.onclick = () => setCategory('all', allBtn);
+  nav.appendChild(allBtn);
+
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.textContent = cat.label;
+    btn.style.setProperty('--cat-color', cat.color);
+    btn.onclick = () => setCategory(cat.id, btn);
+    nav.appendChild(btn);
+  });
+}
+
+function setCategory(id, btn) {
+  activeCategory = id;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.borderColor = '';
+    b.style.color = '';
+  });
+  btn.classList.add('active');
+  const cat = CATEGORIES.find(c => c.id === id);
+  if (cat) {
+    btn.style.background = cat.bg;
+    btn.style.borderColor = cat.color;
+    btn.style.color = cat.color;
+  } else {
+    btn.style.background = 'rgba(9,105,218,0.08)';
+    btn.style.borderColor = '#0969da';
+    btn.style.color = '#0969da';
+  }
+  render();
+}
+
+function filterDifficulty(btn, diff) {
+  activeDifficulty = diff;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// Color map for cmd cards hover
+const catColorMap = {};
+CATEGORIES.forEach(c => catColorMap[c.id] = c.color);
+
+function render() {
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+
+  let totalShown = 0;
+  const query = searchTerm.toLowerCase();
+
+  CATEGORIES.forEach((cat, si) => {
+    if (activeCategory !== 'all' && activeCategory !== cat.id) return;
+
+    const filtered = cat.commands.filter(cmd => {
+      const matchSearch = !query ||
+        cmd.cmd.toLowerCase().includes(query) ||
+        cmd.desc.toLowerCase().includes(query) ||
+        (cmd.example || '').toLowerCase().includes(query) ||
+        (cmd.flags || '').toLowerCase().includes(query);
+      const matchDiff = activeDifficulty === 'all' || cmd.difficulty === activeDifficulty;
+      return matchSearch && matchDiff;
+    });
+
+    if (filtered.length === 0) return;
+    totalShown += filtered.length;
+
+    const section = document.createElement('div');
+    section.className = 'section';
+    section.style.animationDelay = `${si * 0.05}s`;
+
+    section.innerHTML = `
+      <div class="section-header">
+        <div class="section-icon" style="background:${cat.bg};">${cat.icon}</div>
+        <div class="section-title" style="color:${cat.color}">${cat.label.replace(/^[^\s]+\s/, '')}</div>
+        <div class="section-count">${filtered.length} cmds</div>
+      </div>
+      <div class="cmd-grid" id="grid-${cat.id}"></div>
+    `;
+    content.appendChild(section);
+
+    const grid = section.querySelector('.cmd-grid');
+    filtered.forEach((cmd, i) => {
+      const card = createCard(cmd, cat, i);
+      grid.appendChild(card);
+    });
+  });
+
+  document.getElementById('shown-count').textContent = totalShown;
+
+  if (totalShown === 0) {
+    content.innerHTML = '<div class="cmd-grid"><div class="no-results">No commands found matching your search 🔍</div></div>';
+  }
+}
+
+function createCard(cmd, cat, index) {
+  const card = document.createElement('div');
+  card.className = 'cmd-card';
+  card.style.animationDelay = `${index * 0.03}s`;
+  card.style.setProperty('--hover-bg', `linear-gradient(135deg, ${cat.bg}, transparent)`);
+
+  const diffClass = `diff-${cmd.difficulty}`;
+  const exParts = formatExample(cmd.example);
+
+  card.innerHTML = `
+    <div class="cmd-top">
+      <div class="cmd-name"><span class="dollar">$</span> ${cmd.cmd}</div>
+      <div class="copy-btn" title="Copy command">⎘</div>
+    </div>
+    <div class="cmd-desc">${cmd.desc}</div>
+    <div class="cmd-example">${exParts}</div>
+    <div class="difficulty-tag ${diffClass}">${cmd.difficulty}</div>
+  `;
+
+  card.addEventListener('mouseenter', () => {
+    card.style.borderColor = cat.color + '66';
+    card.style.boxShadow = `0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px ${cat.color}22`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.borderColor = '';
+    card.style.boxShadow = '';
+  });
+
+  card.querySelector('.copy-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    copyText(cmd.example || cmd.cmd);
+    card.classList.add('copied');
+    setTimeout(() => card.classList.remove('copied'), 400);
+  });
+
+  card.addEventListener('click', () => openModal(cmd, cat));
+  return card;
+}
+
+function formatExample(example) {
+  if (!example) return '';
+  const parts = example.split(' ');
+  const cmd = `<span class="ex-cmd">${parts[0]}</span>`;
+  const rest = parts.slice(1).map(p => {
+    if (p.startsWith('-')) return `<span class="ex-arg">${p}</span>`;
+    if (p.startsWith('/') || p.includes('.')) return `<span class="ex-path">${p}</span>`;
+    return p;
+  }).join(' ');
+  return `<span class="ex-label">$</span>${cmd} ${rest}`;
+}
+
+function openModal(cmd, cat) {
+  currentModalCmd = cmd.example || cmd.cmd;
+  document.getElementById('modal-filename').textContent = `${cmd.cmd} — manual`;
+  document.getElementById('modal-cmd').textContent = `$ ${cmd.cmd}`;
+  document.getElementById('modal-cmd').style.color = cat.color;
+  document.getElementById('modal-desc').textContent = cmd.desc;
+  document.getElementById('modal-syntax').textContent = cmd.syntax;
+  document.getElementById('modal-flags').textContent = cmd.flags || 'No additional options';
+
+  const exList = document.getElementById('modal-examples');
+  exList.innerHTML = '';
+  (cmd.examples || [cmd.example]).forEach(ex => {
+    const item = document.createElement('div');
+    item.className = 'example-item';
+    item.innerHTML = `<span style="color:var(--blue);font-size:12px">$ ${ex}</span>
+      <span class="ex-comment" onclick="copyText('${ex.replace(/'/g, "\\'")}');showToast()" style="cursor:pointer">copy</span>`;
+    item.onclick = () => copyText(ex);
+    exList.appendChild(item);
+  });
+
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('show');
+  }
+}
+
+function copyModalCmd() {
+  copyText(currentModalCmd);
+  document.getElementById('modal').classList.remove('show');
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  showToast();
+}
+
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// Search
+document.getElementById('search').addEventListener('input', (e) => {
+  searchTerm = e.target.value;
+  render();
+});
+
+// Scroll progress & Back to Top
+window.addEventListener('scroll', () => {
+  const prog = document.getElementById('progress');
+  const btt = document.getElementById('back-to-top');
+  const s = document.documentElement.scrollTop;
+  const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  prog.style.width = (s / h * 100) + '%';
+  
+  if (s > 400) {
+    btt.classList.add('show');
+  } else {
+    btt.classList.remove('show');
+  }
+});
+
+// ESC close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') document.getElementById('modal').classList.remove('show');
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('search').focus();
+  }
+});
+
+// Init
+const totalCmds = CATEGORIES.reduce((a, c) => a + c.commands.length, 0);
+document.getElementById('total-count').textContent = totalCmds;
+
+buildCategoryNav();
+render();
+</script>
+</body>
+</html>
