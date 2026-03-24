@@ -471,6 +471,9 @@
     border-radius: 16px;
     width: 100%;
     max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 24px 80px rgba(31,35,40,0.2);
@@ -488,6 +491,7 @@
     padding: 14px 18px;
     background: var(--surface2);
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
   }
 
   .dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -502,7 +506,11 @@
     color: var(--text-dim);
   }
 
-  .modal-body { padding: 24px; }
+  .modal-body { 
+    padding: 24px; 
+    overflow-y: auto;
+    flex: 1;
+  }
 
   .modal-cmd-name {
     font-family: 'Space Mono', monospace;
@@ -783,7 +791,7 @@ const CATEGORIES = [
     bg: 'rgba(9,105,218,0.1)', icon: '📂',
     commands: [
       { cmd: 'pwd', desc: 'Print working directory — shows your current location', example: 'pwd', syntax: 'pwd', flags: '-L  follow symbolic links (default)\n-P  use physical path, resolve symlinks', difficulty: 'beginner', examples: ['pwd', 'pwd -P'] },
-      { cmd: 'ls', desc: 'List directory contents with various display options', example: 'ls -la /var/log', syntax: 'ls [OPTIONS] [PATH]', flags: '-l  long listing format\n-a  show hidden files\n-h  human-readable sizes\n-R  recursive listing\n-t  sort by modification time\n-S  sort by file size\n--color  colorize output', difficulty: 'beginner', examples: ['ls -la', 'ls -lhS /home', 'ls -lt --color'] },
+      { cmd: 'ls', desc: 'The most common command to see files and folders inside your current location.', example: 'ls -lah', syntax: 'ls [OPTIONS] [PATH]', flags: '✦ BASIC VIEWS:\n-l  Detail view (shows size, owner, and date)\n-a  Show all files (includes hidden ones)\n-h  Easy-to-read sizes (KB, MB, GB)\n\n✦ SORTING:\n-t  Sort by newest files first\n-S  Sort by biggest files first\n-r  Reverse the sorting order\n\n✦ ADVANCED:\n-R  Recursive (look inside all sub-folders)\n-F  Add / after folders to identify them easily\n-i  Show unique ID (inode) for each file\n-1  List files in a single vertical column', difficulty: 'beginner', examples: ['ls -lah', 'ls -lt', 'ls -lS', 'ls -R', 'ls -1'] },
       { cmd: 'cd', desc: 'Change directory — navigate the filesystem tree', example: 'cd /var/www/html', syntax: 'cd [DIRECTORY]', flags: 'cd ~      go to home directory\ncd -      go to previous directory\ncd ..     go up one level\ncd ../..  go up two levels', difficulty: 'beginner', examples: ['cd /etc', 'cd ~', 'cd -', 'cd ../projects'] },
       { cmd: 'tree', desc: 'Display directory structure as a visual tree', example: 'tree -L 2 /var', syntax: 'tree [OPTIONS] [PATH]', flags: '-L n   limit depth to n levels\n-a     show hidden files\n-d     directories only\n-h     human-readable sizes\n-I     ignore pattern', difficulty: 'beginner', examples: ['tree', 'tree -L 2', 'tree -d -L 3 /etc'] },
       { cmd: 'pushd / popd', desc: 'Directory stack — push/pop directories for quick navigation', example: 'pushd /var/log', syntax: 'pushd [DIR] | popd', flags: 'pushd +n   rotate stack n positions\npopd +n    remove nth entry\ndirs       list directory stack', difficulty: 'intermediate', examples: ['pushd /etc', 'popd', 'dirs -v'] },
