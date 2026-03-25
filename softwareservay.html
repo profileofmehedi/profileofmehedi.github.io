@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>সফটওয়্যার অভিজ্ঞতা জরিপ · বাংলাদেশ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.maateen.me">
+    <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #0a0a12;
+            --paper: #f9f7f2;
+            --gold: #e8b84b;
+            --gold-light: #f5d98a;
+            --teal: #1a6b6b;
+            --teal-light: #2a9090;
+            --cream: #fffdf5;
+            --muted: #7a7868;
+            --border: rgba(10,10,18,0.12);
+            --card-bg: #ffffff;
+            --radius: 20px;
+            --shadow: 0 20px 60px rgba(10,10,18,0.1);
+            --font: 'Kalpurush', 'SolaimanLipi', 'Noto Sans Bengali', sans-serif;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--paper); font-family: var(--font); color: var(--ink); min-height: 100vh; overflow-x: hidden; font-size: 17px; line-height: 1.7; }
+
+        /* Background */
+        .bg-canvas { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(232,184,75,0.13) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(26,107,107,0.10) 0%, transparent 60%), var(--paper); }
+        .bg-canvas::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230a0a12' fill-opacity='0.022'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/svg%3E"); }
+
+        /* Layout */
+        .page { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr min(700px,100%) 1fr; padding: 48px 16px 80px; }
+        .page > * { grid-column: 2; }
+
+        /* Header */
+        .site-header { text-align: center; margin-bottom: 40px; animation: fadeDown 0.7s ease both; }
+        .badge-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--gold); font-size: 13px; font-weight: 700; padding: 7px 18px; border-radius: 100px; margin-bottom: 20px; }
+        .badge-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse 2s ease infinite; }
+        .site-header h1 { font-size: clamp(1.9rem,5vw,3rem); font-weight: 900; line-height: 1.25; }
+        .site-header h1 span { color: var(--teal); }
+        .site-header p { color: var(--muted); margin-top: 10px; font-size: 1rem; }
+
+        /* Lottery Banner */
+        .lottery-banner { background: linear-gradient(135deg, var(--ink) 0%, #1a1a2e 100%); border-radius: var(--radius); padding: 26px 28px; margin-bottom: 28px; display: flex; align-items: center; gap: 18px; color: #fff; position: relative; overflow: hidden; animation: fadeUp 0.8s 0.2s ease both; box-shadow: 0 8px 40px rgba(10,10,18,0.22); }
+        .lottery-banner::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg,rgba(232,184,75,0.04) 0px,rgba(232,184,75,0.04) 1px,transparent 1px,transparent 12px); }
+        .lottery-icon { width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg,var(--gold),var(--gold-light)); display: grid; place-items: center; font-size: 28px; flex-shrink: 0; animation: float 3s ease-in-out infinite; }
+        .lottery-text h3 { font-size: 1.1rem; font-weight: 800; }
+        .lottery-text p { font-size: 0.9rem; color: rgba(255,255,255,0.65); margin-top: 4px; line-height: 1.6; }
+        .lottery-counter { margin-left: auto; text-align: center; flex-shrink: 0; }
+        .lottery-counter .num { font-size: 2.2rem; font-weight: 900; color: var(--gold); line-height: 1; }
+        .lottery-counter .label { font-size: 0.72rem; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; margin-top: 2px; }
+
+        /* Progress */
+        .progress-wrap { margin-bottom: 28px; animation: fadeUp 0.8s 0.3s ease both; }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .progress-header span { font-size: 0.85rem; color: var(--muted); }
+        .progress-header strong { font-size: 0.9rem; color: var(--teal); }
+        .progress-track { height: 6px; background: rgba(10,10,18,0.08); border-radius: 100px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg,var(--teal),var(--teal-light)); border-radius: 100px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+
+        /* Card */
+        .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 40px; animation: fadeUp 0.8s 0.4s ease both; border: 1px solid rgba(10,10,18,0.06); }
+
+        /* Steps */
+        .step { display: none; }
+        .step.active { display: block; animation: slideIn 0.4s ease both; }
+        .step-title { font-size: 1.4rem; font-weight: 900; margin-bottom: 5px; }
+        .step-subtitle { color: var(--muted); font-size: 0.92rem; margin-bottom: 28px; }
+
+        /* Fields */
+        .field { margin-bottom: 22px; }
+        .field > label { display: block; font-size: 0.92rem; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+        .field > label .req { color: var(--teal); }
+        .field input[type=text], .field input[type=email], .field textarea { width: 100%; padding: 13px 17px; border: 2px solid var(--border); border-radius: 12px; font-family: var(--font); font-size: 1rem; color: var(--ink); background: var(--cream); outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; }
+        .field input[type=text]:focus, .field input[type=email]:focus, .field textarea:focus { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 4px rgba(26,107,107,0.1); }
+        .field textarea { resize: vertical; min-height: 95px; }
+
+        /* ── Custom Dropdown ── */
+        .cs-wrap { position: relative; }
+
+        .cs-trigger {
+            width: 100%; padding: 13px 44px 13px 17px; min-height: 52px;
+            border: 2px solid var(--border); border-radius: 12px;
+            background: var(--cream); cursor: pointer;
+            font-family: var(--font); font-size: 1rem; color: var(--ink);
+            display: flex; align-items: center;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            user-select: none; position: relative;
+        }
+        .cs-trigger:hover { border-color: rgba(26,107,107,0.35); }
+        .cs-trigger.open { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 4px rgba(26,107,107,0.1); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+        .cs-trigger-label { flex: 1; }
+        .cs-trigger-label.ph { color: rgba(10,10,18,0.38); }
+
+        .cs-chevron { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; transition: transform 0.22s; }
+        .cs-chevron svg { width: 16px; height: 16px; display: block; fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .cs-trigger.open .cs-chevron { transform: translateY(-50%) rotate(180deg); }
+        .cs-trigger.open .cs-chevron svg { stroke: var(--teal); }
+
+        .cs-xbtn { position: absolute; right: 36px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(10,10,18,0.1); cursor: pointer; font-size: 11px; color: var(--muted); display: none; align-items: center; justify-content: center; line-height: 1; transition: background 0.15s; z-index: 2; }
+        .cs-xbtn:hover { background: rgba(10,10,18,0.2); }
+        .cs-xbtn.show { display: flex; }
+
+        .cs-panel { display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 300; background: #fff; border: 2px solid var(--teal); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; box-shadow: 0 16px 40px rgba(10,10,18,0.13); overflow: hidden; }
+        .cs-panel.show { display: block; animation: dropIn 0.18s ease; }
+
+        .cs-search-box { padding: 10px 12px; background: #f5f5f0; border-bottom: 1px solid var(--border); }
+        .cs-search-box input { width: 100%; padding: 9px 14px; border: 2px solid var(--border); border-radius: 8px; font-family: var(--font); font-size: 0.95rem; color: var(--ink); background: #fff; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        .cs-search-box input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,107,107,0.1); }
+
+        .cs-options { max-height: 260px; overflow-y: auto; }
+        .cs-options::-webkit-scrollbar { width: 5px; }
+        .cs-options::-webkit-scrollbar-thumb { background: rgba(26,107,107,0.22); border-radius: 10px; }
+
+        .cs-grp { padding: 8px 16px 3px; font-size: 0.73rem; font-weight: 800; color: var(--muted); background: #f5f5f0; pointer-events: none; letter-spacing: 0.05em; }
+        .cs-opt { padding: 11px 16px; font-size: 0.95rem; font-family: var(--font); color: var(--ink); cursor: pointer; transition: background 0.12s; }
+        .cs-opt:hover { background: rgba(26,107,107,0.08); }
+        .cs-opt.active { background: rgba(26,107,107,0.12); color: var(--teal); font-weight: 700; }
+        .cs-opt.hide { display: none; }
+        .cs-grp.hide { display: none; }
+        .cs-empty { padding: 14px 16px; color: var(--muted); font-size: 0.9rem; text-align: center; display: none; }
+
+        /* field errors */
+        .field.error .cs-trigger { border-color: #d90045 !important; box-shadow: 0 0 0 4px rgba(217,0,69,0.1) !important; }
+        .field.error input[type=text], .field.error input[type=email], .field.error textarea { border-color: #d90045; box-shadow: 0 0 0 4px rgba(217,0,69,0.1); }
+        .err-msg { color: #d90045; font-size: 0.82rem; margin-top: 6px; display: none; }
+        .field.error .err-msg { display: block; }
+
+        /* Pills */
+        .pill-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .pill { padding: 9px 16px; border-radius: 100px; border: 2px solid var(--border); font-size: 0.9rem; cursor: pointer; background: var(--cream); font-family: var(--font); transition: all 0.2s; user-select: none; }
+        .pill:hover { border-color: var(--teal); }
+        .pill.selected { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+        /* Sliders */
+        .rating-item { margin-bottom: 22px; }
+        .rating-item > label { display: flex; justify-content: space-between; align-items: center; font-size: 0.93rem; font-weight: 700; margin-bottom: 9px; }
+        .rating-item .val { font-weight: 900; font-size: 1.05rem; color: var(--teal); min-width: 24px; text-align: right; }
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: rgba(10,10,18,0.08); border-radius: 100px; outline: none; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); border: 3px solid #fff; box-shadow: 0 2px 8px rgba(26,107,107,0.4); cursor: pointer; transition: transform 0.2s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* Stars */
+        .stars { display: flex; gap: 8px; }
+        .star { font-size: 2rem; cursor: pointer; color: rgba(10,10,18,0.15); transition: color 0.15s, transform 0.15s; }
+        .star:hover, .star.lit { color: var(--gold); transform: scale(1.15); }
+
+        /* Buttons */
+        .nav-btns { display: flex; gap: 12px; margin-top: 32px; }
+        .btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-family: var(--font); font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+        .btn-back { background: rgba(10,10,18,0.07); color: var(--muted); flex: 0 0 auto; width: 52px; font-size: 1.1rem; }
+        .btn-back:hover { background: rgba(10,10,18,0.13); }
+        .btn-next { background: var(--teal); color: #fff; box-shadow: 0 4px 20px rgba(26,107,107,0.35); }
+        .btn-next:hover { background: var(--teal-light); transform: translateY(-1px); }
+        .btn-submit { background: linear-gradient(135deg,var(--gold),#d4a520); color: var(--ink); box-shadow: 0 4px 20px rgba(232,184,75,0.4); }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(232,184,75,0.5); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+        /* Success */
+        .success-screen { display: none; text-align: center; padding: 16px 0; }
+        .success-screen.show { display: block; animation: fadeUp 0.6s ease both; }
+        .confetti-wrap { font-size: 3.5rem; margin-bottom: 18px; animation: bounce 1s ease; }
+        .success-screen h2 { font-size: 1.7rem; font-weight: 900; margin-bottom: 10px; }
+        .success-screen p { color: var(--muted); line-height: 1.7; font-size: 0.95rem; }
+        .ticket { margin: 26px auto; background: linear-gradient(135deg,var(--ink) 0%,#1a1a2e 100%); border-radius: 16px; padding: 24px 28px; color: #fff; max-width: 340px; position: relative; overflow: hidden; text-align: left; }
+        .ticket::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg,rgba(232,184,75,0.05) 0px,rgba(232,184,75,0.05) 1px,transparent 1px,transparent 10px); }
+        .ticket-id { font-size: 1.6rem; font-weight: 900; color: var(--gold); letter-spacing: 0.1em; }
+        .ticket-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+        .ticket-draw { margin-top: 16px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.15); font-size: 0.85rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
+        .ticket-draw strong { color: var(--gold-light); }
+
+        .spinner { width: 17px; height: 17px; border: 2px solid rgba(10,10,18,0.25); border-top-color: var(--ink); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 7px; }
+
+        @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeUp   { from{opacity:0;transform:translateY(24px)}  to{opacity:1;transform:translateY(0)} }
+        @keyframes slideIn  { from{opacity:0;transform:translateX(20px)}  to{opacity:1;transform:translateX(0)} }
+        @keyframes dropIn   { from{opacity:0;transform:translateY(-8px)}  to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.35} }
+        @keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+        @keyframes bounce   { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+        @keyframes spin     { to{transform:rotate(360deg)} }
+
+        @media (max-width:600px) {
+            .card { padding: 24px 16px; }
+            .lottery-banner { flex-wrap: wrap; gap: 14px; }
+            .lottery-counter { margin-left: 0; }
+            .page { padding: 24px 10px 60px; }
+            .site-header h1 { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-canvas"></div>
+<div class="page">
+
+    <header class="site-header">
+        <div class="badge-pill"><span class="dot"></span> মাসিক লটারি চলছে</div>
+        <h1>সফটওয়্যার অভিজ্ঞতা<br><span>জরিপ</span></h1>
+        <p>বাংলাদেশের ব্যবসায়িক সফটওয়্যার উন্নত করতে আপনার মতামত দিন</p>
+    </header>
+
+    <div class="lottery-banner">
+        <div class="lottery-icon">🎁</div>
+        <div class="lottery-text">
+            <h3>মাসিক উপহার জিতুন!</h3>
+            <p>প্রতি মাসে <strong style="color:var(--gold)">প্রথম ১০ জন</strong> অংশগ্রহণকারীকে বিশেষ উপহার পাঠানো হবে। জরিপ পূরণ করলেই স্বয়ংক্রিয়ভাবে লটারিতে নাম যুক্ত হবে।</p>
+        </div>
+        <div class="lottery-counter">
+            <div class="num" id="daysLeft">--</div>
+            <div class="label">দিন বাকি</div>
+        </div>
+    </div>
+
+    <div class="progress-wrap">
+        <div class="progress-header">
+            <span>আপনার অগ্রগতি</span>
+            <strong id="stepLabel">ধাপ ১ / ৪</strong>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="card">
+        <div id="formArea">
+
+            <!-- ── ধাপ ১ ── -->
+            <div class="step active" id="step1">
+                <div class="step-title">আপনার পরিচয়</div>
+                <div class="step-subtitle">আপনার পেশাগত পরিচয় সম্পর্কে কিছু জানান।</div>
+
+                <div class="field" id="f-industry">
+                    <label>আপনার শিল্পখাত <span class="req">*</span></label>
+                    <div class="pill-group" id="industryPills">
+                        <div class="pill" data-val="ব্যাংকিং">🏦 ব্যাংকিং</div>
+                        <div class="pill" data-val="পোশাক শিল্প">👗 পোশাক শিল্প</div>
+                        <div class="pill" data-val="খুচরা / দোকান">🛒 খুচরা / দোকান</div>
+                        <div class="pill" data-val="আইটি কোম্পানি">💻 আইটি কোম্পানি</div>
+                        <div class="pill" data-val="স্বাস্থ্যসেবা">🏥 স্বাস্থ্যসেবা</div>
+                        <div class="pill" data-val="টেলিকম">📡 টেলিকম</div>
+                        <div class="pill" data-val="অন্যান্য">⚡ অন্যান্য</div>
+                    </div>
+                    <div class="err-msg">অনুগ্রহ করে আপনার শিল্পখাত বেছে নিন।</div>
+                </div>
+
+                <div class="field" id="f-role">
+                    <label>আপনার পদবি <span class="req">*</span></label>
+                    <div class="cs-wrap">
+                        <div class="cs-trigger" id="role-btn" tabindex="0">
+                            <span class="cs-trigger-label ph" id="role-lbl">পদবি বেছে নিন বা খুঁজুন...</span>
+                            <button type="button" class="cs-xbtn" id="role-x">✕</button>
+                            <span class="cs-chevron"><svg viewBox="0 0 16 16"><polyline points="3,5 8,11 13,5"/></svg></span>
+                        </div>
+                        <div class="cs-panel" id="role-panel">
+                            <div class="cs-search-box"><input type="text" id="role-q" placeholder="🔍 পদবি লিখুন..." autocomplete="off"></div>
+                            <div class="cs-options" id="role-opts">
+                                <div class="cs-grp">ব্যবস্থাপনা</div>
+                                <div class="cs-opt">ব্যবস্থাপনা পরিচালক</div>
+                                <div class="cs-opt">প্রধান নির্বাহী কর্মকর্তা</div>
+                                <div class="cs-opt">প্রধান অপারেশন কর্মকর্তা</div>
+                                <div class="cs-opt">প্রধান আর্থিক কর্মকর্তা</div>
+                                <div class="cs-opt">প্রধান তথ্যপ্রযুক্তি কর্মকর্তা</div>
+                                <div class="cs-opt">মহাব্যবস্থাপক</div>
+                                <div class="cs-opt">উপ-মহাব্যবস্থাপক</div>
+                                <div class="cs-opt">সহকারী মহাব্যবস্থাপক</div>
+                                <div class="cs-opt">বিভাগীয় প্রধান</div>
+                                <div class="cs-opt">টিম লিডার</div>
+                                <div class="cs-grp">হিসাব ও অর্থ</div>
+                                <div class="cs-opt">হিসাবরক্ষক</div>
+                                <div class="cs-opt">সিনিয়র হিসাবরক্ষক</div>
+                                <div class="cs-opt">হিসাব ব্যবস্থাপক</div>
+                                <div class="cs-opt">আর্থিক কর্মকর্তা</div>
+                                <div class="cs-opt">নিরীক্ষক</div>
+                                <div class="cs-opt">কর পরামর্শদাতা</div>
+                                <div class="cs-opt">ক্যাশিয়ার</div>
+                                <div class="cs-opt">বাজেট বিশ্লেষক</div>
+                                <div class="cs-grp">তথ্যপ্রযুক্তি</div>
+                                <div class="cs-opt">আইটি ব্যবস্থাপক</div>
+                                <div class="cs-opt">সফটওয়্যার ডেভেলপার</div>
+                                <div class="cs-opt">সিস্টেম প্রশাসক</div>
+                                <div class="cs-opt">নেটওয়ার্ক প্রকৌশলী</div>
+                                <div class="cs-opt">ডেটাবেজ প্রশাসক</div>
+                                <div class="cs-opt">আইটি সহায়তা কর্মকর্তা</div>
+                                <div class="cs-opt">তথ্য নিরাপত্তা বিশ্লেষক</div>
+                                <div class="cs-grp">মানবসম্পদ ও প্রশাসন</div>
+                                <div class="cs-opt">মানবসম্পদ ব্যবস্থাপক</div>
+                                <div class="cs-opt">মানবসম্পদ কর্মকর্তা</div>
+                                <div class="cs-opt">প্রশাসনিক কর্মকর্তা</div>
+                                <div class="cs-opt">বেতন কর্মকর্তা</div>
+                                <div class="cs-opt">নিয়োগ বিশেষজ্ঞ</div>
+                                <div class="cs-opt">প্রশিক্ষণ কর্মকর্তা</div>
+                                <div class="cs-grp">বিক্রয় ও বিপণন</div>
+                                <div class="cs-opt">বিক্রয় ব্যবস্থাপক</div>
+                                <div class="cs-opt">বিক্রয় কর্মকর্তা</div>
+                                <div class="cs-opt">বিপণন ব্যবস্থাপক</div>
+                                <div class="cs-opt">বিপণন কর্মকর্তা</div>
+                                <div class="cs-opt">ব্যবসায়িক উন্নয়ন ব্যবস্থাপক</div>
+                                <div class="cs-opt">ডিজিটাল বিপণনকারী</div>
+                                <div class="cs-grp">সাপ্লাই চেইন ও গুদাম</div>
+                                <div class="cs-opt">সাপ্লাই চেইন ব্যবস্থাপক</div>
+                                <div class="cs-opt">লজিস্টিক্স কর্মকর্তা</div>
+                                <div class="cs-opt">গুদামরক্ষক</div>
+                                <div class="cs-opt">ক্রয় কর্মকর্তা</div>
+                                <div class="cs-opt">মজুদ নিয়ন্ত্রণকারী</div>
+                                <div class="cs-grp">উৎপাদন ও কারখানা</div>
+                                <div class="cs-opt">উৎপাদন ব্যবস্থাপক</div>
+                                <div class="cs-opt">মান নিয়ন্ত্রণ কর্মকর্তা</div>
+                                <div class="cs-opt">ফ্লোর ইন-চার্জ</div>
+                                <div class="cs-opt">রক্ষণাবেক্ষণ প্রকৌশলী</div>
+                                <div class="cs-grp">অন্যান্য</div>
+                                <div class="cs-opt">ব্যবসার মালিক</div>
+                                <div class="cs-opt">উদ্যোক্তা</div>
+                                <div class="cs-opt">পরামর্শদাতা</div>
+                                <div class="cs-opt">শিক্ষক</div>
+                                <div class="cs-opt">গবেষক</div>
+                                <div class="cs-opt">শিক্ষার্থী</div>
+                                <div class="cs-opt">অন্যান্য</div>
+                            </div>
+                            <div class="cs-empty" id="role-empty">কোনো ফলাফল পাওয়া যায়নি</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="role-val">
+                    <div class="err-msg">অনুগ্রহ করে আপনার পদবি বেছে নিন।</div>
+                </div>
+
+                <div class="field">
+                    <label>প্রতিষ্ঠানের আকার</label>
+                    <div class="cs-wrap">
+                        <div class="cs-trigger" id="size-btn" tabindex="0">
+                            <span class="cs-trigger-label ph" id="size-lbl">বেছে নিন</span>
+                            <button type="button" class="cs-xbtn" id="size-x">✕</button>
+                            <span class="cs-chevron"><svg viewBox="0 0 16 16"><polyline points="3,5 8,11 13,5"/></svg></span>
+                        </div>
+                        <div class="cs-panel" id="size-panel">
+                            <div class="cs-options" id="size-opts" style="max-height:220px">
+                                <div class="cs-opt">১–১০ জন কর্মী</div>
+                                <div class="cs-opt">১১–৫০ জন কর্মী</div>
+                                <div class="cs-opt">৫১–২০০ জন কর্মী</div>
+                                <div class="cs-opt">২০১–৫০০ জন কর্মী</div>
+                                <div class="cs-opt">৫০০+ জন কর্মী</div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="size-val">
+                </div>
+
+                <div class="nav-btns">
+                    <button class="btn btn-next" onclick="next(1)">পরবর্তী →</button>
+                </div>
+            </div>
+
+            <!-- ── ধাপ ২ ── -->
+            <div class="step" id="step2">
+                <div class="step-title">আপনার সফটওয়্যার</div>
+                <div class="step-subtitle">প্রতিদিন কোন ধরনের সফটওয়্যার ব্যবহার করেন সেটি জানান।</div>
+
+                <div class="field" id="f-software">
+                    <label>কোন ধরনের সফটওয়্যার ব্যবহার করেন? <span class="req">*</span></label>
+                    <div class="cs-wrap">
+                        <div class="cs-trigger" id="sw-btn" tabindex="0">
+                            <span class="cs-trigger-label ph" id="sw-lbl">সফটওয়্যার বেছে নিন বা খুঁজুন...</span>
+                            <button type="button" class="cs-xbtn" id="sw-x">✕</button>
+                            <span class="cs-chevron"><svg viewBox="0 0 16 16"><polyline points="3,5 8,11 13,5"/></svg></span>
+                        </div>
+                        <div class="cs-panel" id="sw-panel">
+                            <div class="cs-search-box"><input type="text" id="sw-q" placeholder="🔍 সফটওয়্যারের ধরন লিখুন..." autocomplete="off"></div>
+                            <div class="cs-options" id="sw-opts">
+                                <div class="cs-grp">📊 হিসাব ও ইআরপি</div>
+                                <div class="cs-opt">হিসাবরক্ষণ সফটওয়্যার</div>
+                                <div class="cs-opt">পূর্ণাঙ্গ ইআরপি সিস্টেম</div>
+                                <div class="cs-opt">ইনভয়েস ও বিলিং সিস্টেম</div>
+                                <div class="cs-opt">ক্যাশ ও লেনদেন ব্যবস্থাপনা</div>
+                                <div class="cs-opt">কর ও ভ্যাট ব্যবস্থাপনা সফটওয়্যার</div>
+                                <div class="cs-opt">আর্থিক প্রতিবেদন সফটওয়্যার</div>
+                                <div class="cs-opt">বাজেট ও পরিকল্পনা সফটওয়্যার</div>
+                                <div class="cs-grp">👗 গার্মেন্টস ও টেক্সটাইল</div>
+                                <div class="cs-opt">গার্মেন্টস উৎপাদন ব্যবস্থাপনা</div>
+                                <div class="cs-opt">বায়ার অর্ডার ট্র্যাকিং সিস্টেম</div>
+                                <div class="cs-opt">কাটিং ও সেলাই পরিকল্পনা সফটওয়্যার</div>
+                                <div class="cs-opt">রপ্তানি কমপ্লায়েন্স সফটওয়্যার</div>
+                                <div class="cs-opt">মান নিয়ন্ত্রণ সফটওয়্যার</div>
+                                <div class="cs-grp">🏦 ব্যাংকিং ও আর্থিক সেবা</div>
+                                <div class="cs-opt">কোর ব্যাংকিং সিস্টেম</div>
+                                <div class="cs-opt">ঋণ ব্যবস্থাপনা সিস্টেম</div>
+                                <div class="cs-opt">আমানত ব্যবস্থাপনা সিস্টেম</div>
+                                <div class="cs-opt">মোবাইল ব্যাংকিং প্ল্যাটফর্ম</div>
+                                <div class="cs-opt">ইন্টারনেট ব্যাংকিং পোর্টাল</div>
+                                <div class="cs-opt">ক্ষুদ্রঋণ তথ্য সিস্টেম</div>
+                                <div class="cs-opt">কমপ্লায়েন্স ও ঝুঁকি ব্যবস্থাপনা</div>
+                                <div class="cs-grp">🛒 রিটেইল ও পয়েন্ট অব সেল</div>
+                                <div class="cs-opt">পয়েন্ট অব সেল (পিওএস) সিস্টেম</div>
+                                <div class="cs-opt">ই-কমার্স ব্যবস্থাপনা প্ল্যাটফর্ম</div>
+                                <div class="cs-opt">গ্রাহক আনুগত্য সিস্টেম</div>
+                                <div class="cs-opt">অনলাইন শপ ব্যাকএন্ড</div>
+                                <div class="cs-grp">👥 মানবসম্পদ ও বেতন</div>
+                                <div class="cs-opt">কর্মী ব্যবস্থাপনা সিস্টেম</div>
+                                <div class="cs-opt">বেতন প্রস্তুত ও বিতরণ সফটওয়্যার</div>
+                                <div class="cs-opt">হাজিরা ও ছুটি ব্যবস্থাপনা</div>
+                                <div class="cs-opt">কর্মী প্রশিক্ষণ সিস্টেম</div>
+                                <div class="cs-opt">কর্মী মূল্যায়ন সফটওয়্যার</div>
+                                <div class="cs-grp">📦 মজুদ ও সাপ্লাই চেইন</div>
+                                <div class="cs-opt">মজুদ ব্যবস্থাপনা সফটওয়্যার</div>
+                                <div class="cs-opt">গুদাম ব্যবস্থাপনা সিস্টেম</div>
+                                <div class="cs-opt">সাপ্লায়ার ব্যবস্থাপনা সিস্টেম</div>
+                                <div class="cs-opt">ডেলিভারি ট্র্যাকিং সিস্টেম</div>
+                                <div class="cs-opt">ক্রয় আদেশ ব্যবস্থাপনা</div>
+                                <div class="cs-grp">🏥 স্বাস্থ্যসেবা</div>
+                                <div class="cs-opt">হাসপাতাল ব্যবস্থাপনা সিস্টেম</div>
+                                <div class="cs-opt">রোগী তথ্য ব্যবস্থাপনা</div>
+                                <div class="cs-opt">ফার্মেসি ব্যবস্থাপনা সফটওয়্যার</div>
+                                <div class="cs-opt">ডায়াগনস্টিক ও ল্যাব সফটওয়্যার</div>
+                                <div class="cs-opt">ইলেকট্রনিক স্বাস্থ্য রেকর্ড</div>
+                                <div class="cs-grp">💻 প্রজেক্ট ও সহযোগিতা</div>
+                                <div class="cs-opt">প্রজেক্ট ব্যবস্থাপনা টুল</div>
+                                <div class="cs-opt">দলগত যোগাযোগ প্ল্যাটফর্ম</div>
+                                <div class="cs-opt">ভিডিও কনফারেন্সিং সফটওয়্যার</div>
+                                <div class="cs-opt">ডকুমেন্ট শেয়ারিং ও সহকর্মীতা</div>
+                                <div class="cs-opt">টাস্ক ও ওয়ার্কফ্লো ব্যবস্থাপনা</div>
+                                <div class="cs-grp">🔧 অন্যান্য</div>
+                                <div class="cs-opt">স্প্রেডশিটভিত্তিক সিস্টেম</div>
+                                <div class="cs-opt">ইন-হাউস তৈরি কাস্টম সফটওয়্যার</div>
+                                <div class="cs-opt">একাধিক সফটওয়্যারের সমন্বয়</div>
+                                <div class="cs-opt">অন্যান্য</div>
+                            </div>
+                            <div class="cs-empty" id="sw-empty">কোনো ফলাফল পাওয়া যায়নি</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="sw-val">
+                    <div class="err-msg">অনুগ্রহ করে সফটওয়্যারের ধরন বেছে নিন।</div>
+                </div>
+
+                <div class="field">
+                    <label>সন্তুষ্টির মাত্রা <span class="req">*</span></label>
+                    <div class="stars" id="starRating">
+                        <span class="star" data-v="1">★</span>
+                        <span class="star" data-v="2">★</span>
+                        <span class="star" data-v="3">★</span>
+                        <span class="star" data-v="4">★</span>
+                        <span class="star" data-v="5">★</span>
+                    </div>
+                    <div class="err-msg" id="starErr">অনুগ্রহ করে একটি রেটিং দিন।</div>
+                </div>
+
+                <div class="field" id="f-problems">
+                    <label>কী কী সমস্যার মুখোমুখি হন? <span class="req">*</span></label>
+                    <textarea id="problems" placeholder="বর্তমান সফটওয়্যারের সবচেয়ে বড় সমস্যাগুলো বর্ণনা করুন..."></textarea>
+                    <div class="err-msg">অনুগ্রহ করে কমপক্ষে একটি সমস্যা উল্লেখ করুন।</div>
+                </div>
+
+                <div class="field">
+                    <label>কোন ফিচারগুলো নেই বলে মনে হয়?</label>
+                    <textarea id="missing" placeholder="আপনার সফটওয়্যারে যে ফিচার থাকলে ভালো হতো..."></textarea>
+                </div>
+
+                <div class="nav-btns">
+                    <button class="btn btn-back" onclick="go(1)">←</button>
+                    <button class="btn btn-next" onclick="next(2)">পরবর্তী →</button>
+                </div>
+            </div>
+
+            <!-- ── ধাপ ৩ ── -->
+            <div class="step" id="step3">
+                <div class="step-title">সফটওয়্যার মূল্যায়ন করুন</div>
+                <div class="step-subtitle">স্লাইডার টেনে প্রতিটি বিষয়ে রেটিং দিন।</div>
+                <div class="rating-item">
+                    <label><span>🎨 ইন্টারফেস / ব্যবহারযোগ্যতা</span><span class="val" id="v1">৫</span></label>
+                    <input type="range" min="1" max="10" value="5" oninput="setVal('v1',this)">
+                </div>
+                <div class="rating-item">
+                    <label><span>⚡ গতি ও কার্যকারিতা</span><span class="val" id="v2">৫</span></label>
+                    <input type="range" min="1" max="10" value="5" oninput="setVal('v2',this)">
+                </div>
+                <div class="rating-item">
+                    <label><span>🤖 স্বয়ংক্রিয় সুবিধা</span><span class="val" id="v3">৫</span></label>
+                    <input type="range" min="1" max="10" value="5" oninput="setVal('v3',this)">
+                </div>
+                <div class="rating-item">
+                    <label><span>🔒 তথ্য সুরক্ষা</span><span class="val" id="v4">৫</span></label>
+                    <input type="range" min="1" max="10" value="5" oninput="setVal('v4',this)">
+                </div>
+                <div class="rating-item">
+                    <label><span>🛠️ গ্রাহক সহায়তা</span><span class="val" id="v5">৫</span></label>
+                    <input type="range" min="1" max="10" value="5" oninput="setVal('v5',this)">
+                </div>
+                <div class="nav-btns">
+                    <button class="btn btn-back" onclick="go(2)">←</button>
+                    <button class="btn btn-next" onclick="next(3)">পরবর্তী →</button>
+                </div>
+            </div>
+
+            <!-- ── ধাপ ৪ ── -->
+            <div class="step" id="step4">
+                <div class="step-title">🎁 লটারিতে অংশ নিন</div>
+                <div class="step-subtitle">আপনার ইমেইল দিন — প্রতি মাসে প্রথম ১০ জন বিজয়ীকে বিশেষ উপহার পাঠানো হবে!</div>
+                <div class="field" id="f-email">
+                    <label>ইমেইল ঠিকানা <span class="req">*</span></label>
+                    <input type="email" id="email" placeholder="আপনার@ইমেইল.com">
+                    <div class="err-msg">অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।</div>
+                </div>
+                <div class="field">
+                    <label>আপনার পূর্ণ নাম (বিজয়ী ঘোষণার জন্য)</label>
+                    <input type="text" id="fullname" placeholder="আপনার পুরো নাম">
+                </div>
+                <div class="field">
+                    <label>শেষ কথা বা পরামর্শ</label>
+                    <textarea id="final" placeholder="আর কিছু জানাতে চাইলে লিখুন..."></textarea>
+                </div>
+                <div class="nav-btns">
+                    <button class="btn btn-back" onclick="go(3)">←</button>
+                    <button class="btn btn-submit" id="submitBtn" onclick="submitForm()">জমা দিন ও লটারিতে যোগ দিন 🎉</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-screen" id="successScreen">
+            <div class="confetti-wrap">🎊</div>
+            <h2>লটারিতে আপনার নাম নথিভুক্ত হয়েছে!</h2>
+            <p>আপনার মূল্যবান মতামতের জন্য ধন্যবাদ।<br>আপনার লটারি টিকেট নিশ্চিত করা হয়েছে।</p>
+            <div class="ticket">
+                <div class="ticket-label">লটারি টিকেট</div>
+                <div class="ticket-id" id="ticketId">–</div>
+                <div class="ticket-draw">ড্র তারিখ: <strong id="drawDate">–</strong><br><span style="margin-top:4px;display:block;">১০ জন বিজয়ীকে ইমেইলে জানানো হবে 🎁</span></div>
+            </div>
+            <p style="margin-top:8px;">বন্ধু ও সহকর্মীদের সাথে শেয়ার করুন — বেশি মতামত = বাংলাদেশে আরও ভালো সফটওয়্যার 🇧🇩</p>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ─── Custom Dropdown Factory ─── */
+function makeDropdown(cfg) {
+    // cfg: { btnId, lblId, panelId, optsId, qId?, emptyId?, xId, hiddenId, fieldId?, placeholder }
+    const btn    = document.getElementById(cfg.btnId);
+    const lbl    = document.getElementById(cfg.lblId);
+    const panel  = document.getElementById(cfg.panelId);
+    const opts   = document.getElementById(cfg.optsId);
+    const xBtn   = document.getElementById(cfg.xId);
+    const hidden = document.getElementById(cfg.hiddenId);
+    const qEl    = cfg.qId ? document.getElementById(cfg.qId) : null;
+    const emEl   = cfg.emptyId ? document.getElementById(cfg.emptyId) : null;
+    const allOpts = opts.querySelectorAll('.cs-opt');
+    const allGrps = opts.querySelectorAll('.cs-grp');
+
+    function openDD() {
+        // close all other panels first
+        document.querySelectorAll('.cs-panel.show').forEach(p => { if (p !== panel) { p.classList.remove('show'); p.previousElementSibling.classList.remove('open'); } });
+        btn.classList.add('open');
+        panel.classList.add('show');
+        if (qEl) { qEl.value = ''; filter(''); qEl.focus(); }
+    }
+    function closeDD() { btn.classList.remove('open'); panel.classList.remove('show'); }
+    function toggleDD() { panel.classList.contains('show') ? closeDD() : openDD(); }
+
+    function pick(text) {
+        lbl.textContent = text;
+        lbl.classList.remove('ph');
+        hidden.value = text;
+        xBtn.classList.add('show');
+        allOpts.forEach(o => o.classList.toggle('active', o.textContent.trim() === text));
+        closeDD();
+        if (cfg.fieldId) document.getElementById(cfg.fieldId).classList.remove('error');
+    }
+
+    function clear(e) {
+        e.stopPropagation();
+        lbl.textContent = cfg.placeholder;
+        lbl.classList.add('ph');
+        hidden.value = '';
+        xBtn.classList.remove('show');
+        allOpts.forEach(o => o.classList.remove('active'));
+    }
+
+    function filter(q) {
+        const term = q.trim().toLowerCase();
+        let anyVis = false;
+        allOpts.forEach(o => {
+            const vis = !term || o.textContent.toLowerCase().includes(term);
+            o.classList.toggle('hide', !vis);
+            if (vis) anyVis = true;
+        });
+        allGrps.forEach(g => {
+            let sib = g.nextElementSibling, has = false;
+            while (sib && !sib.classList.contains('cs-grp')) {
+                if (!sib.classList.contains('hide')) has = true;
+                sib = sib.nextElementSibling;
+            }
+            g.classList.toggle('hide', !has);
+        });
+        if (emEl) emEl.style.display = anyVis ? 'none' : 'block';
+    }
+
+    // Events
+    btn.addEventListener('click', toggleDD);
+    btn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDD(); } if (e.key === 'Escape') closeDD(); });
+    xBtn.addEventListener('click', clear);
+    allOpts.forEach(o => o.addEventListener('click', () => pick(o.textContent.trim())));
+    if (qEl) qEl.addEventListener('input', e => filter(e.target.value));
+
+    return { getValue: () => hidden.value };
+}
+
+// Init dropdowns
+document.addEventListener('DOMContentLoaded', () => {
+    makeDropdown({ btnId:'role-btn', lblId:'role-lbl', panelId:'role-panel', optsId:'role-opts', qId:'role-q', emptyId:'role-empty', xId:'role-x', hiddenId:'role-val', fieldId:'f-role', placeholder:'পদবি বেছে নিন বা খুঁজুন...' });
+    makeDropdown({ btnId:'size-btn', lblId:'size-lbl', panelId:'size-panel', optsId:'size-opts', qId:null,     emptyId:null,         xId:'size-x', hiddenId:'size-val', fieldId:null,       placeholder:'বেছে নিন' });
+    makeDropdown({ btnId:'sw-btn',   lblId:'sw-lbl',   panelId:'sw-panel',   optsId:'sw-opts',   qId:'sw-q',   emptyId:'sw-empty',   xId:'sw-x',   hiddenId:'sw-val',   fieldId:'f-software', placeholder:'সফটওয়্যার বেছে নিন বা খুঁজুন...' });
+});
+
+// Close on outside click
+document.addEventListener('click', e => {
+    if (!e.target.closest('.cs-wrap')) {
+        document.querySelectorAll('.cs-panel.show').forEach(p => { p.classList.remove('show'); p.previousElementSibling.classList.remove('open'); });
+    }
+});
+
+/* ─── Core ─── */
+let currentStep = 1;
+const totalSteps = 4;
+let selectedIndustry = '';
+let starValue = 0;
+const bn = n => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+
+(function() {
+    const now = new Date(), end = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    document.getElementById('daysLeft').textContent = bn(end.getDate() - now.getDate());
+})();
+
+function updateProgress(step) {
+    document.getElementById('progressFill').style.width = (((step-1)/totalSteps)*100)+'%';
+    document.getElementById('stepLabel').textContent = 'ধাপ '+bn(step)+' / '+bn(totalSteps);
+}
+updateProgress(1);
+
+document.querySelectorAll('#industryPills .pill').forEach(p => {
+    p.addEventListener('click', () => {
+        document.querySelectorAll('#industryPills .pill').forEach(x => x.classList.remove('selected'));
+        p.classList.add('selected'); selectedIndustry = p.dataset.val;
+        document.getElementById('f-industry').classList.remove('error');
+    });
+});
+
+const stars = document.querySelectorAll('.star');
+stars.forEach(s => {
+    s.addEventListener('click', () => {
+        starValue = +s.dataset.v;
+        stars.forEach(x => x.classList.toggle('lit', +x.dataset.v <= starValue));
+        document.getElementById('starErr').style.display = 'none';
+    });
+    s.addEventListener('mouseenter', () => stars.forEach(x => x.style.color = +x.dataset.v <= +s.dataset.v ? 'var(--gold)' : ''));
+    s.addEventListener('mouseleave', () => { stars.forEach(x => x.style.color=''); stars.forEach(x => x.classList.toggle('lit', +x.dataset.v<=starValue)); });
+});
+
+function setVal(id,el) { document.getElementById(id).textContent = bn(el.value); updateTrack(el); }
+function updateTrack(el) { const p=((el.value-el.min)/(el.max-el.min))*100; el.style.background=`linear-gradient(to right,var(--teal) ${p}%,rgba(10,10,18,0.08) ${p}%)`; }
+document.querySelectorAll('input[type=range]').forEach(r => updateTrack(r));
+
+function validate(step) {
+    let ok = true;
+    if (step===1) {
+        if (!selectedIndustry) { document.getElementById('f-industry').classList.add('error'); ok=false; }
+        if (!document.getElementById('role-val').value) { document.getElementById('f-role').classList.add('error'); ok=false; }
+        else document.getElementById('f-role').classList.remove('error');
+    }
+    if (step===2) {
+        if (!document.getElementById('sw-val').value) { document.getElementById('f-software').classList.add('error'); ok=false; }
+        else document.getElementById('f-software').classList.remove('error');
+        if (!starValue) { document.getElementById('starErr').style.display='block'; ok=false; }
+        if (!document.getElementById('problems').value.trim()) { document.getElementById('f-problems').classList.add('error'); ok=false; }
+        else document.getElementById('f-problems').classList.remove('error');
+    }
+    if (step===4) {
+        const em = document.getElementById('email').value.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { document.getElementById('f-email').classList.add('error'); ok=false; }
+        else document.getElementById('f-email').classList.remove('error');
+    }
+    return ok;
+}
+
+function go(n) {
+    document.getElementById('step'+currentStep).classList.remove('active');
+    currentStep = n;
+    document.getElementById('step'+n).classList.add('active');
+    updateProgress(n);
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+function next(from) { if (!validate(from)) return; go(from+1); }
+
+function genTicket() { const a='ABCDEFGHJKLMNPQRSTUVWXYZ', n=()=>Math.floor(Math.random()*10), l=()=>a[Math.floor(Math.random()*a.length)]; return `BD-${l()}${l()}${n()}${n()}${n()}-${n()}${l()}${l()}`; }
+
+function bnDate(d) {
+    const m=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+    return bn(d.getDate())+' '+m[d.getMonth()]+' '+bn(d.getFullYear());
+}
+
+function submitForm() {
+    if (!validate(4)) return;
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = '<span class="spinner"></span> জমা হচ্ছে...';
+    btn.disabled = true;
+    setTimeout(() => {
+        document.getElementById('formArea').style.display='none';
+        document.getElementById('successScreen').classList.add('show');
+        document.getElementById('ticketId').textContent = genTicket();
+        const draw = new Date(new Date().getFullYear(), new Date().getMonth()+2, 0);
+        document.getElementById('drawDate').textContent = bnDate(draw);
+        document.querySelector('.progress-wrap').style.opacity='0.3';
+        const e=['🎊','🎉','🎁','⭐','🏆','🥇'];
+        for(let i=0;i<20;i++){const el=document.createElement('span');el.textContent=e[Math.floor(Math.random()*e.length)];el.style.cssText=`position:fixed;top:${Math.random()*30}vh;left:${Math.random()*100}vw;font-size:${Math.random()*1.4+0.8}rem;animation:fadeUp ${Math.random()*1+0.8}s ease forwards;opacity:0;pointer-events:none;z-index:999;`;document.body.appendChild(el);setTimeout(()=>el.remove(),2500);}
+    }, 1400);
+}
+</script>
+</body>
+</html>
