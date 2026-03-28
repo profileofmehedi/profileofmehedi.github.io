@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইসলামিক কুইজ | আপনার জ্ঞান যাচাই করুন</title>
+    <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --emerald-dark: #064e3b; --gold: #d97706; --emerald-light: #ecfdf5; }
+        body { font-family: 'Kalpurush', sans-serif; background-color: var(--emerald-light); color: #111827; }
+        .hero-section { background: var(--emerald-dark); color: #fff; padding: 60px 0; text-align: center; border-bottom: 8px solid var(--gold); }
+        .quiz-container { background: white; border-radius: 25px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); margin-top: -40px; position: relative; z-index: 10; border-top: 8px solid var(--gold); }
+        .option-btn { width: 100%; text-align: left; padding: 18px 25px; margin-bottom: 12px; border: 2px solid #e2e8f0; border-radius: 15px; background: transparent; transition: 0.3s; font-size: 1.1rem; font-weight: 500; }
+        .option-btn:hover:not([disabled]) { border-color: var(--gold); background: #fffbeb; transform: translateX(5px); }
+        .option-btn.correct { background: #dcfce7; border-color: #22c55e; color: #166534; box-shadow: 0 5px 15px rgba(34, 197, 94, 0.2); }
+        .option-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+        #next-btn { display: none; }
+        .progress { height: 8px; border-radius: 10px; margin-bottom: 30px; }
+        .progress-bar { background-color: var(--emerald-dark); }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="fw-bold mb-3">ইসলামিক কুইজ</h1>
+            <p class="lead mb-4">কিয়ামত ও ইসলাম সম্পর্কে আপনার জানাশোনা কতটুকু?</p>
+            <a href="../index.html" class="btn btn-outline-light rounded-pill px-4"><i class="fas fa-home me-2"></i> হোমে ফিরুন</a>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="quiz-container">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%" id="quiz-progress"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold text-muted">প্রশ্ন: <span id="q-num">১</span>/১০</span>
+                        <span class="fw-bold text-gold">স্কোর: <span id="score">০</span></span>
+                    </div>
+
+                    <h4 class="fw-bold mb-4" id="question-text" style="line-height: 1.5;">প্রশ্ন লোড হচ্ছে...</h4>
+                    
+                    <div id="options-container">
+                        <!-- Options injected by JS -->
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button class="btn btn-warning btn-lg rounded-pill px-5 fw-bold shadow" id="next-btn" onclick="nextQuestion()">পরবর্তী প্রশ্ন <i class="fas fa-arrow-right ms-2"></i></button>
+                    </div>
+
+                    <div id="result-box" class="text-center mt-2 d-none">
+                        <i class="fas fa-trophy text-gold mb-3" style="font-size: 4rem;"></i>
+                        <h2 class="fw-bold text-emerald-dark">কুইজ সমাপ্ত!</h2>
+                        <p class="lead mt-2">আপনার মোট স্কোর: <span id="final-score" class="text-gold fw-bold" style="font-size: 2rem;"></span></p>
+                        <p id="performance-msg" class="text-muted mb-4"></p>
+                        <button class="btn btn-emerald-dark text-white rounded-pill px-5 py-2" onclick="location.reload()">পুনরায় চেষ্টা করুন</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "দাজ্জাল থেকে বাঁচার জন্য কোন সুরার প্রথম ১০ আয়াত মুখস্থ করা সুন্নাত?", options: ["সূরা ইয়াসিন", "সূরা কাহাফ", "সূরা মুলক", "সূরা আর-রাহমান"], ans: 1 },
+            { q: "ঈসা (আ.) যখন আসমান থেকে নামবেন, তখন তিনি কোন শহরে অবতরণ করবেন?", options: ["মক্কা", "মদীনা", "দামেস্ক", "জেরুজালেম"], ans: 2 },
+            { q: "কিয়ামতের বড় আলামতগুলোর মধ্যে সর্বপ্রথম কোনটি প্রকাশিত হবে?", options: ["দাজ্জালের আগমন", "সূর্যের পশ্চিম দিক থেকে উদয়", "ইমাম মাহদীর আগমন", "ইয়াজুজ-মাজুজের বের হওয়া"], ans: 2 },
+            { q: "কোন নদীর পানি শুকিয়ে যাওয়ার কথা হাদিসে কিয়ামতের লক্ষণ হিসেবে বর্ণিত হয়েছে?", options: ["নীলনদ", "দজলা", "ফোরাত", "সিন্ধু নদ"], ans: 2 },
+            { q: "ইয়াজুজ ও মাজুজকে একটি পাহাড়ের প্রাচীরের পেছনে কে বন্দী করেছিলেন?", options: ["সুলায়মান (আ.)", "যুলকারনাইন বাদশাহ", "মুসা (আ.)", "ইব্রাহিম (আ.)"], ans: 1 },
+            { q: "দাজ্জালকে কোন শহরে হত্যা করা হবে?", options: ["মক্কা", "মদীনা", "লুদ (ইসরায়েল)", "দামেস্ক"], ans: 2 },
+            { q: "কিয়ামতের আগে মাটি খুঁড়ে বের হওয়া সেই বিস্ময়কর প্রাণীর নাম কী?", options: ["বোরাক", "দাব্বাতুল আরদ", "আবাবিল", "হুদহুদ"], ans: 1 },
+            { q: "সূর্য পশ্চিম দিক থেকে ওঠার পর কোনটি ঘটবে?", options: ["দাজ্জালের মৃত্যু", "তাওবার দরজা বন্ধ হয়ে যাবে", "সব মানুষ মারা যাবে", "ঈসা (আ.) আসবেন"], ans: 1 },
+            { q: "দাজ্জালের কপালে কোন শব্দটি লেখা থাকবে যা কেবল মুমিনরা পড়তে পারবে?", options: ["কাফের (كفر)", "মুনাফিক", "ফাসেক", "জালেম"], ans: 0 },
+            { q: "ইমাম মাহদী (আ.) কত বছর পৃথিবী শাসন করবেন?", options: ["৪০ বছর", "৪০ দিন", "৭ বা ৯ বছর", "১০০ বছর"], ans: 2 }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('q-num').innerText = currentQ + 1;
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('quiz-progress').style.width = ((currentQ) / questions.length * 100) + "%";
+            
+            let optionsHtml = '';
+            q.options.forEach((opt, idx) => {
+                optionsHtml += `<button class="option-btn" onclick="checkAnswer(${idx}, this)">${opt}</button>`;
+            });
+            document.getElementById('options-container').innerHTML = optionsHtml;
+            document.getElementById('next-btn').style.display = 'none';
+        }
+
+        function checkAnswer(selectedIdx, btn) {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(b => b.disabled = true);
+
+            if(selectedIdx === questions[currentQ].ans) {
+                btn.classList.add('correct');
+                score += 10;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('wrong');
+                btns[questions[currentQ].ans].classList.add('correct');
+            }
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-progress').style.width = "100%";
+            document.getElementById('question-text').style.display = 'none';
+            document.getElementById('options-container').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('result-box').classList.remove('d-none');
+            document.getElementById('final-score').innerText = score + " / 100";
+            
+            let msg = "";
+            if(score >= 80) msg = "মাশাআল্লাহ! কিয়ামতের আলামত সম্পর্কে আপনার জ্ঞান অসাধারণ।";
+            else if(score >= 50) msg = "বেশ ভালো! তবে আরও পড়াশোনা করে জ্ঞান বৃদ্ধি করুন।";
+            else msg = "চেষ্টা চালিয়ে যান। আমাদের সাইটের আর্টিকেলগুলো পড়লে আরও অনেক কিছু জানতে পারবেন।";
+            document.getElementById('performance-msg').innerText = msg;
+        }
+
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
