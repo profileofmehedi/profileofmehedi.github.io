@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant | FCommerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div id="wrapper">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h4 class="m-0 fw-bold text-primary">FCommerce</h4>
+                <button type="button" id="sidebarCollapse" class="btn btn-link text-dark p-0"><i class="fas fa-align-left"></i></button>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> <span>Orders</span></a></li>
+                <li><a href="chat.html"><i class="fas fa-comment-alt"></i> <span>Chat</span></a></li>
+                <li><a href="customers.html"><i class="fas fa-users"></i> <span>Customers</span></a></li>
+                <li><a href="inventory.html"><i class="fas fa-boxes"></i> <span>Inventory</span></a></li>
+                <li><a href="ads.html"><i class="fas fa-ad"></i> <span>Ads Manager</span></a></li>
+                <li><a href="ai.html"><i class="fas fa-robot"></i> <span>AI Assistant</span></a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
+                <li class="mt-4"><a href="settings.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="#" onclick="StorageManager.logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+        </nav>
+        <div id="content">
+            <div class="p-4">
+                <div class="card p-0 overflow-hidden" style="height: calc(100vh - 120px)">
+                    <div class="bg-primary p-3 text-white d-flex align-items-center"><i class="fas fa-robot fs-4 me-3"></i><h5 class="mb-0">AI Business Assistant</h5></div>
+                    <div class="chat-messages bg-light" id="aiMessages" style="height: 100%; overflow-y: auto; padding: 1.5rem;">
+                        <div class="message received"><div class="message-content shadow-sm">Hello! I am your AI assistant. How can I help you manage your store today?</div></div>
+                    </div>
+                    <div class="p-3 bg-white border-top">
+                        <form id="aiForm" class="d-flex">
+                            <input type="text" class="form-control me-2" placeholder="Ask me about your sales or stock..." id="aiInput">
+                            <button type="submit" class="btn btn-primary">Ask AI</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#aiForm').on('submit', function(e) {
+                e.preventDefault();
+                const val = $('#aiInput').val();
+                if(!val) return;
+                $('#aiMessages').append(`<div class="message sent"><div class="message-content shadow-sm">${val}</div></div>`);
+                $('#aiInput').val('');
+                setTimeout(() => {
+                    let response = "I've analyzed your data. Your sales are up by 15% this week! Would you like me to suggest a new campaign?";
+                    if(val.toLowerCase().includes('stock')) response = "Your iPhone 15 stock is running low (8 units left). Should I prepare a reorder?";
+                    $('#aiMessages').append(`<div class="message received"><div class="message-content shadow-sm">${response}</div></div>`);
+                    const objDiv = document.getElementById("aiMessages");
+                    objDiv.scrollTop = objDiv.scrollHeight;
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

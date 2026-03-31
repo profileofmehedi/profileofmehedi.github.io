@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox | FCommerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div id="wrapper">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h4 class="m-0 fw-bold text-primary"><i class="fas fa-shopping-bag me-2"></i>FCommerce</h4>
+                <button type="button" id="sidebarCollapse" class="btn btn-link text-dark p-0"><i class="fas fa-align-left"></i></button>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> <span>Orders</span></a></li>
+                <li><a href="chat.html"><i class="fas fa-comment-alt"></i> <span>Chat</span></a></li>
+                <li><a href="customers.html"><i class="fas fa-users"></i> <span>Customers</span></a></li>
+                <li><a href="inventory.html"><i class="fas fa-boxes"></i> <span>Inventory</span></a></li>
+                <li><a href="ads.html"><i class="fas fa-ad"></i> <span>Ads Manager</span></a></li>
+                <li><a href="ai.html"><i class="fas fa-robot"></i> <span>AI Assistant</span></a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
+                <li class="mt-4"><a href="settings.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="#" onclick="StorageManager.logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+        </nav>
+
+        <div id="content">
+            <div class="p-4">
+                <div class="chat-container">
+                    <div class="chat-list">
+                        <div class="p-3 border-bottom"><input type="text" class="form-control form-control-sm" placeholder="Search chats..."></div>
+                        <div id="chatContacts"></div>
+                    </div>
+                    <div class="chat-window">
+                        <div class="p-3 border-bottom d-flex align-items-center bg-white">
+                            <img src="https://i.pravatar.cc/150?u=1" class="rounded-circle me-3" width="40" height="40">
+                            <div><h6 class="mb-0 fw-bold" id="activeChatName">Alex Rivera</h6><span class="text-success" style="font-size: 0.75rem;">Online</span></div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="p-3 bg-white border-top">
+                            <form id="chatInputForm" class="d-flex">
+                                <input type="text" class="form-control me-2" placeholder="Type a message..." id="messageInput">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        $(document).ready(function() {
+            const chats = StorageManager.getCollection('chats');
+            let activeChatId = 1;
+
+            function renderContacts() {
+                let html = '';
+                chats.forEach(c => {
+                    html += `<div class="p-3 border-bottom chat-contact ${c.id === activeChatId ? 'bg-light' : ''}" style="cursor: pointer" onclick="selectChat(${c.id})"><div class="d-flex align-items-center"><img src="https://i.pravatar.cc/150?u=${c.id}" class="rounded-circle me-3" width="40" height="40"><div class="flex-grow-1 overflow-hidden"><div class="d-flex justify-content-between"><h6 class="mb-0 small fw-bold">${c.customerName}</h6><span class="text-muted" style="font-size: 0.7rem;">${c.time}</span></div><p class="mb-0 text-muted text-truncate" style="font-size: 0.75rem;">${c.lastMessage}</p></div></div></div>`;
+                });
+                $('#chatContacts').html(html);
+            }
+
+            window.selectChat = (id) => {
+                activeChatId = id;
+                const chat = chats.find(c => c.id === id);
+                $('#activeChatName').text(chat.customerName);
+                renderMessages(chat.messages);
+                renderContacts();
+            };
+
+            function renderMessages(messages) {
+                let html = '';
+                messages.forEach(m => {
+                    html += `<div class="message ${m.sender === 'bot' ? 'sent' : 'received'}"><div class="message-content shadow-sm"><p class="mb-1">${m.text}</p><span class="opacity-75 d-block text-end" style="font-size: 0.65rem;">${m.time}</span></div></div>`;
+                });
+                $('#chatMessages').html(html);
+                const objDiv = document.getElementById("chatMessages");
+                objDiv.scrollTop = objDiv.scrollHeight;
+            }
+
+            renderContacts();
+            selectChat(1);
+
+            $('#chatInputForm').on('submit', function(e) {
+                e.preventDefault();
+                const text = $('#messageInput').val();
+                if (!text) return;
+                const msg = { sender: 'bot', text: text, time: 'Now' };
+                const chatIndex = chats.findIndex(c => c.id === activeChatId);
+                chats[chatIndex].messages.push(msg);
+                chats[chatIndex].lastMessage = text;
+                StorageManager.updateInCollection('chats', activeChatId, chats[chatIndex]);
+                renderMessages(chats[chatIndex].messages);
+                $('#messageInput').val('');
+                setTimeout(() => {
+                    const reply = { sender: 'customer', text: 'Thanks for the quick response!', time: 'Now' };
+                    chats[chatIndex].messages.push(reply);
+                    StorageManager.updateInCollection('chats', activeChatId, chats[chatIndex]);
+                    renderMessages(chats[chatIndex].messages);
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>
