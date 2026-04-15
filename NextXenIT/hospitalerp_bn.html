@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEAL-ERP – স্বাস্থ্যসেবার আগামীর ভবিষ্যৎ</title>
+<link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #070d1a;
+    --deep: #0b1528;
+    --panel: #0f1e35;
+    --card: #132240;
+    --accent: #00c6a2;
+    --accent2: #0084ff;
+    --accent3: #ff6b35;
+    --gold: #f0b429;
+    --text: #e8eef8;
+    --muted: #7a8fa8;
+    --border: rgba(0,198,162,0.18);
+    --glass: rgba(15,30,53,0.72);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Kalpurush', sans-serif;
+  }
+
+  /* ── HORIZONTAL SLIDE CONTAINER ── */
+  #slides-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    scroll-snap-type: x mandatory;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  #slides-container::-webkit-scrollbar { display: none; }
+
+  .slide {
+    height: 100vh;
+    width: 100vw;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: start;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .slide.visible { opacity: 1; transform: scale(1); }
+
+  /* ── BACKGROUNDS ── */
+  .grid-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(0,198,162,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0,198,162,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .glow-orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; opacity: 0.3; }
+  .orb-teal { background: radial-gradient(circle, #00c6a2, transparent 70%); }
+  .orb-blue { background: radial-gradient(circle, #0084ff, transparent 70%); }
+
+  /* ── NAVIGATION ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    padding: 16px 40px; display: flex; align-items: center; justify-content: space-between;
+    background: rgba(7,13,26,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--accent); }
+  .nav-dots { display: flex; gap: 10px; }
+  .nav-dot {
+    width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--border);
+    cursor: pointer; transition: 0.3s;
+  }
+  .nav-dot.active { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
+
+  .nav-btn {
+    position: fixed; top: 50%; transform: translateY(-50%); width: 60px; height: 60px; border-radius: 50%;
+    background: var(--glass); border: 1px solid var(--border); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    z-index: 1000; transition: 0.3s; backdrop-filter: blur(8px); font-size: 1.8rem;
+  }
+  .nav-btn:hover { background: var(--accent); color: var(--navy); transform: translateY(-50%) scale(1.1); }
+  .nav-btn.prev { left: 30px; }
+  .nav-btn.next { right: 30px; }
+
+  /* ── TYPOGRAPHY ── */
+  .hero-title {
+    font-size: clamp(3.5rem, 8vw, 6.5rem); font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, #fff, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .slide-title { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 700; margin-bottom: 10px; text-align: center;}
+  .slide-title span { color: var(--accent); }
+  .slide-num { color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8rem; margin-bottom: 10px; display: block; text-align: center;}
+
+  /* ── COMPONENTS ── */
+  .content-grid { max-width: 1100px; width: 100%; z-index: 1; }
+  .info-card {
+    background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 24px;
+    transition: 0.3s; backdrop-filter: blur(10px);
+  }
+  .card-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 10px; color: var(--text); }
+  .card-body { font-size: 1rem; color: var(--muted); line-height: 1.6; }
+
+  .big-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 32px; width: 100%; }
+  .stat-number { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 3rem; color: var(--accent); display: block; }
+  
+  .progress-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; margin: 12px 0; }
+  .progress-fill { height: 100%; width: 0; transition: width 1.5s ease; }
+  .progress-fill.teal { background: var(--accent); }
+  .progress-fill.blue { background: var(--accent2); }
+
+  .phase { opacity: 0; transform: translateX(-20px); transition: 0.5s; display: flex; gap: 15px; margin-bottom: 15px; }
+  .phase.visible { opacity: 1; transform: translateX(0); }
+  .phase-dot { width: 36px; height: 36px; border-radius: 50%; background: var(--panel); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ HEAL-ERP</div>
+  <div class="nav-dots" id="navDots"></div>
+  <div class="slide-counter" id="slideCounter">০১ / ১৩</div>
+</nav>
+
+<div class="nav-btn prev" id="prevBtn">❮</div>
+<div class="nav-btn next" id="nextBtn">❯</div>
+
+<div id="slides-container">
+  
+  <!-- SLIDE 0: HERO -->
+  <section class="slide" id="slide-0">
+    <div class="grid-bg"></div>
+    <div class="glow-orb orb-teal" style="width:600px;height:600px;top:-100px;left:-100px;"></div>
+    
+    <div style="background:rgba(0,198,162,0.1); border:1px solid var(--border); border-radius:100px; padding:8px 20px; font-size:0.8rem; color:var(--accent); margin-bottom:20px;">
+      টিয়ার-১ এক্সিকিউটিভ প্রেজেন্টেশন · পরিচালনা পর্ষদ
+    </div>
+    <h1 class="hero-title">HEAL-ERP</h1>
+    <p style="font-size:2rem; font-weight:500; color:var(--muted); margin-top:10px;">স্বাস্থ্যসেবার এন্টারপ্রাইজ ভবিষ্যৎ</p>
+    <p style="font-size:1.1rem; color:var(--accent); margin-top:10px;">একটি সমন্বিত, এআই-প্রস্তুত স্বাস্থ্য তথ্য ব্যবস্থাপনা সিস্টেম (HIMS)</p>
+
+    <div style="display:flex; gap:12px; margin-top:40px; flex-wrap:wrap; justify-content:center;">
+      <span style="background:rgba(0,132,255,0.1); border:1px solid rgba(0,132,255,0.3); padding:8px 16px; border-radius:8px; font-size:0.9rem;">⚙ .NET 8 কোর মাইক্রোসার্ভিসেস</span>
+      <span style="background:rgba(0,132,255,0.1); border:1px solid rgba(0,132,255,0.3); padding:8px 16px; border-radius:8px; font-size:0.9rem;">🗄 PostgreSQL / SQL সার্ভার</span>
+      <span style="background:rgba(0,132,255,0.1); border:1px solid rgba(0,132,255,0.3); padding:8px 16px; border-radius:8px; font-size:0.9rem;">🔗 HL7 FHIR ইন্টারঅপারেবিলিটি</span>
+    </div>
+
+    <div style="margin-top:60px; text-align:center;">
+      <div style="width:60px; height:2px; background:var(--accent); margin:0 auto 15px;"></div>
+      <div style="font-size:1.3rem; font-weight:700;">মেহেদী হাসান</div>
+      <div style="font-size:0.9rem; color:var(--muted);">প্রতিষ্ঠাতা এবং প্রধান স্থপতি</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 1: CHALLENGE -->
+  <section class="slide" id="slide-1">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০১ — চ্যালেঞ্জ</span>
+      <h2 class="slide-title">স্বাস্থ্যসেবায় <span>বৈপ্লবিক পরিবর্তন</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+        <div class="info-card">
+          <div class="card-title" style="color:#ff6b35;">বিচ্ছিন্ন পুরনো পদ্ধতি</div>
+          <div class="card-body">বিচ্ছিন্ন মডিউলগুলি কর্মীদের বারবার ডেটা এন্ট্রি করতে বাধ্য করে, যা ভুল বাড়ায় এবং চিকিৎসকদের সময় নষ্ট করে।</div>
+        </div>
+        <div class="info-card">
+          <div class="card-title" style="color:var(--gold);">লুকানো রাজস্ব ক্ষতি</div>
+          <div class="card-body">ট্র্যাক না করা সরঞ্জাম এবং অবিলকৃত সেবা প্রতি মাসে মোট রাজস্বের ১০-১৫% নীরবে নষ্ট করে।</div>
+        </div>
+        <div class="info-card">
+          <div class="card-title" style="color:var(--accent2);">জটিল ডেটা সাইলো</div>
+          <div class="card-body">ল্যাব, রেডিওলজি এবং ফিন্যান্স আলাদাভাবে কাজ করে — যা দ্রুত সিদ্ধান্ত গ্রহণ অসম্ভব করে তোলে।</div>
+        </div>
+      </div>
+      <div class="big-card" style="margin-top:30px; text-align:center;">
+        <p style="font-size:1.5rem; line-height:1.4;">
+          রিঅ্যাকটিভ ম্যানেজমেন্ট থেকে <span style="color:var(--accent); font-style:italic;">প্রোঅ্যাকটিভ ইন্টেলিজেন্সে</span> উত্তরণ — একটি সমন্বিত ERP ইকোসিস্টেম যা ডেটাকে একটি একক <span style="color:var(--gold);">"সত্যের উৎস"</span>-এ রূপান্তরিত করে।
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: TECH -->
+  <section class="slide" id="slide-2">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০২ — প্রযুক্তি</span>
+      <h2 class="slide-title">এন্টারপ্রাইজ টেকনিক্যাল <span>আর্কিটেকচার</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+        <div class="big-card">
+          <div class="card-title">⚡ হাই-কনকারেন্সি ইঞ্জিন</div>
+          <p class="card-body">৫,০০০+ যুগপত ব্যবহারকারীর জন্য তৈরি। প্রতিটি মডিউল স্বাধীনভাবে স্কেল করা সম্ভব — রেডিওলজি স্কেল করলে ফার্মাসিতে প্রভাব পড়বে না।</p>
+        </div>
+        <div class="big-card">
+          <div class="card-title">🛡️ এন্টারপ্রাইজ সিকিউরিটি</div>
+          <p class="card-body">AES-256 বিট এনক্রিপশন এবং রো-লেভেল সিকিউরিটি (RLS)। এমনকি আইটি অ্যাডমিনরাও অনুমতি ছাড়া রোগীর রেকর্ড দেখতে পারবেন না।</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: CLINICAL -->
+  <section class="slide" id="slide-3">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০৩ — ক্লিনিকাল</span>
+      <h2 class="slide-title">৩৬০° পেশেন্ট <span>রেকর্ড (EMR)</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:30px;">
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="info-card">
+            <div class="card-title">লঙ্গিটুডিনাল টাইমলাইন</div>
+            <div class="card-body">ভাইটালস, সার্জিকাল হিস্ট্রি, অ্যালার্জি এবং প্রেসক্রিপশন — সবকিছু একটি ফিজিশিয়ান ড্যাশবোর্ডে। কাগজের ফাইল খোঁজার দিন শেষ।</div>
+          </div>
+          <div class="info-card">
+            <div class="card-title">স্মার্ট ই-প্রেসক্রাইবিং (CPOE)</div>
+            <div class="card-body">ড্রাগ-টু-ড্রাগ (DDI) ইন্টারঅ্যাকশন অ্যালার্ট যা ভুল ওষুধ প্রয়োগ থেকে রোগীকে রক্ষা করে।</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="info-card" style="text-align:center;">
+            <span class="stat-number">৬০%</span>
+            <div style="font-size:0.9rem; color:var(--muted);">ক্লিনিকাল ওষুধের ভুল হ্রাস</div>
+          </div>
+          <div class="info-card" style="text-align:center;">
+            <span class="stat-number">৩০০%</span>
+            <div style="font-size:0.9rem; color:var(--muted);">ডেটা অ্যাক্সেসের গতি বৃদ্ধি</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: DIAGNOSTICS -->
+  <section class="slide" id="slide-4">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০৪ — ডায়াগনস্টিকস</span>
+      <h2 class="slide-title">LIS এবং <span>RIS/PACS ইন্টিগ্রেশন</span></h2>
+    </div>
+    <div class="content-grid">
+      <div class="big-card">
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; text-align:center;">
+          <div><div style="font-size:2.5rem;">🔬</div><div class="card-title">অটো-ইন্টারফেসিং</div></div>
+          <div><div style="font-size:2.5rem;">📷</div><div class="card-title">ক্লাউড PACS</div></div>
+          <div><div style="font-size:2.5rem;">⚠️</div><div class="card-title">ক্রিটিক্যাল অ্যালার্ট</div></div>
+        </div>
+        <div style="margin-top:40px;">
+          <div style="display:flex; justify-content:space-between;"><span>স্যাম্পল ট্র্যাকিং (বারকোড)</span><span>১০০%</span></div>
+          <div class="progress-track"><div class="progress-fill teal" data-w="100"></div></div>
+          <div style="display:flex; justify-content:space-between;"><span>মেশিন অটো-আপলোড</span><span>৯৫%</span></div>
+          <div class="progress-track"><div class="progress-fill blue" data-w="95"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: FINANCE -->
+  <section class="slide" id="slide-5">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০৫ — অর্থায়ন</span>
+      <h2 class="slide-title">রাজস্ব ব্যবস্থাপনা <span>এবং কন্ট্রোল</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;">
+        <div class="info-card">
+          <div class="card-title">সমন্বিত বিলিং</div>
+          <div class="card-body">ফার্মাসি, ল্যাব এবং ওটি চার্জ স্বয়ংক্রিয়ভাবে একটি ইনভয়েসে যোগ হয়।</div>
+        </div>
+        <div class="info-card">
+          <div class="card-title">রাজস্ব সুরক্ষা</div>
+          <div class="card-body">এআই অডিট ট্রেইল যা প্রতিটি আনবিল্ড সার্ভিস খুঁজে বের করে।</div>
+        </div>
+        <div class="info-card">
+          <div class="card-title">NBR কমপ্লায়েন্স</div>
+          <div class="card-body">EFD এবং ভ্যাট রিপোর্টিং-এর জন্য সম্পূর্ণ প্রস্তুত।</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: PHARMACY -->
+  <section class="slide" id="slide-6">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০৬ — ফার্মাসি</span>
+      <h2 class="slide-title">সাপ্লাই চেইন <span>অটোমেশন</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+        <div class="big-card">
+          <div class="card-title">📦 স্মার্ট ইনভেন্টরি</div>
+          <p class="card-body">স্টক ফুরিয়ে যাওয়ার আগেই স্বয়ংক্রিয় রিকুইজিশন। প্রতিটি ট্যাবলেট বা ভায়াল ট্র্যাক করা সম্ভব।</p>
+        </div>
+        <div class="big-card">
+          <div class="card-title">🌡️ কোল্ড চেইন</div>
+          <p class="card-body">আইওটি সেন্সর দিয়ে ফ্রিজের তাপমাত্রা রিয়েল-টাইমে পর্যবেক্ষণ এবং অ্যালার্ট।</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: OT -->
+  <section class="slide" id="slide-7">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০৭ — ওটি</span>
+      <h2 class="slide-title">অপারেশন থিয়েটার <span>শিডিউলিং</span></h2>
+    </div>
+    <div class="content-grid">
+      <div class="big-card">
+        <table style="width:100%; border-collapse:collapse; text-align:left;">
+          <tr style="color:var(--accent); border-bottom:1px solid var(--border);">
+            <th style="padding:15px;">সময়</th><th style="padding:15px;">ওটি-১</th><th style="padding:15px;">ওটি-২</th>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:15px;">০৮:০০</td><td style="padding:15px; color:var(--accent2);">কার্ডিয়াক সার্জারি</td><td style="padding:15px; color:var(--gold);">অর্থোপেডিক</td>
+          </tr>
+          <tr>
+            <td style="padding:15px;">১০:৩০</td><td style="padding:15px; color:var(--accent);">ইএনটি</td><td style="padding:15px; color:var(--muted);">ফাঁকা</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: HR -->
+  <section class="slide" id="slide-8">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০৮ — এইচআর</span>
+      <h2 class="slide-title">রোস্টার এবং <span>পেরোল ম্যানেজমেন্ট</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+        <div class="info-card">
+          <div class="card-title">বায়োমেট্রিক এটেনডেন্স</div>
+          <div class="card-body">আঙুলের ছাপ থেকে সরাসরি উপস্থিতি এবং বেতন গণনা। ভুল হওয়ার সুযোগ নেই।</div>
+        </div>
+        <div class="info-card">
+          <div class="card-title">কমিশন ম্যানেজমেন্ট</div>
+          <div class="card-body">সার্জারি এবং পেশেন্ট সংখ্যার ওপর ভিত্তি করে চিকিৎসকদের স্বয়ংক্রিয় পে-স্লিপ।</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: BI -->
+  <section class="slide" id="slide-9">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">০৯ — ইন্টেলিজেন্স</span>
+      <h2 class="slide-title">বিজনেস <span>ইন্টেলিজেন্স (BI)</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:15px; text-align:center;">
+        <div class="info-card"><h3>ARPOB</h3><p>বেড আয়</p></div>
+        <div class="info-card"><h3>OCC%</h3><p>অকুপেন্সি</p></div>
+        <div class="info-card"><h3>REVENUE</h3><p>কালেকশন</p></div>
+        <div class="info-card"><h3>AI</h3><p>পূর্বাভাস</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: ROLLOUT -->
+  <section class="slide" id="slide-10">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">১০ — রোলআউট</span>
+      <h2 class="slide-title">বাস্তবায়ন <span>প্রক্রিয়া</span></h2>
+    </div>
+    <div class="content-grid">
+      <div class="phase"><div class="phase-dot">১</div><div><div class="phase-title">ডিসকভারি</div><p class="phase-desc">প্রক্রিয়া ম্যাপিং এবং SOP তৈরি।</p></div></div>
+      <div class="phase"><div class="phase-dot">২</div><div><div class="phase-title">কনফিগারেশন</div><p class="phase-desc">ডেটা মাইগ্রেশন এবং কাস্টমাইজেশন।</p></div></div>
+      <div class="phase"><div class="phase-dot">৩</div><div><div class="phase-title">ট্রেনিং</div><p class="phase-desc">ব্যবহারকারীদের বাস্তব প্রশিক্ষণ।</p></div></div>
+      <div class="phase"><div class="phase-dot">৪</div><div><div class="phase-title">গো-লাইভ</div><p class="phase-desc">সরাসরি কাজ শুরু এবং সাপোর্ট।</p></div></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: VALUE -->
+  <section class="slide" id="slide-11">
+    <div class="grid-bg"></div>
+    <div class="slide-header">
+      <span class="slide-num">১১ — ভ্যালু</span>
+      <h2 class="slide-title">সাফল্যের <span>নিশ্চয়তা</span></h2>
+    </div>
+    <div class="content-grid">
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; text-align:center;">
+        <div class="info-card"><span class="stat-number">৪৫%</span><p>দক্ষতা বৃদ্ধি</p></div>
+        <div class="info-card"><span class="stat-number">১৫%</span><p>রাজস্ব বৃদ্ধি</p></div>
+        <div class="info-card"><span class="stat-number">১০০%</span><p>নিরাপত্তা</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12: CLOSING -->
+  <section class="slide" id="slide-12">
+    <div class="grid-bg"></div>
+    <div class="glow-orb orb-teal" style="width:800px;height:800px;"></div>
+    <p style="font-size:3rem; text-align:center; line-height:1.2;">
+      <span style="color:var(--accent);">প্রযুক্তির ছোঁয়ায়</span> উন্নত চিকিৎসা।<br>
+      <span style="color:var(--gold);">ডেটার শক্তিতে</span> জীবন রক্ষা।
+    </p>
+    <div style="margin-top:60px; display:flex; gap:20px;">
+      <div class="info-card" style="display:flex; align-items:center; gap:15px;">
+        <div style="font-size:2rem;">👤</div><div><div style="font-weight:700;">মেহেদী হাসান</div></div>
+      </div>
+      <div class="info-card" style="display:flex; align-items:center; gap:15px;">
+        <div style="font-size:2rem;">⬡</div><div><div style="font-weight:700;">HEAL-ERP</div></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const container = document.getElementById('slides-container');
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('navDots');
+  const counter = document.getElementById('slideCounter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  let currentIdx = 0;
+
+  const bnNums = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  const toBn = (n) => String(n).split('').map(d => bnNums[d] || d).join('');
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => scrollToSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+  const dots = document.querySelectorAll('.nav-dot');
+
+  function scrollToSlide(i) {
+    if (i < 0 || i >= slides.length) return;
+    slides[i].scrollIntoView({ behavior: 'smooth' });
+    currentIdx = i;
+  }
+
+  prevBtn.addEventListener('click', () => scrollToSlide(currentIdx - 1));
+  nextBtn.addEventListener('click', () => scrollToSlide(currentIdx + 1));
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        const idx = Array.from(slides).indexOf(entry.target);
+        currentIdx = idx;
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        counter.textContent = toBn(String(idx + 1).padStart(2, '0')) + ' / ' + toBn(String(slides.length).padStart(2, '0'));
+        entry.target.querySelectorAll('.progress-fill').forEach(bar => {
+          bar.style.width = bar.getAttribute('data-w') + '%';
+        });
+        entry.target.querySelectorAll('.phase').forEach((p, i) => {
+          setTimeout(() => p.classList.add('visible'), i * 150);
+        });
+      } else {
+        entry.target.classList.remove('visible');
+      }
+    });
+  }, { threshold: 0.6 });
+
+  slides.forEach(s => observer.observe(s));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') scrollToSlide(currentIdx + 1);
+    if (e.key === 'ArrowLeft') scrollToSlide(currentIdx - 1);
+  });
+</script>
+</body>
+</html>
