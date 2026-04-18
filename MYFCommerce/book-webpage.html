@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>এআই: জাদুর চেরাগ এখন আপনার হাতে</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Tiro+Bangla&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g1: #00FF88;
+  --g2: #00CC66;
+  --g3: #008844;
+  --gold: #FFD700;
+  --gold2: #FFE566;
+  --dark: #010D06;
+  --dark2: #021A0C;
+  --dark3: #031F0E;
+  --text: #c8f0d8;
+  --text2: rgba(200,240,216,0.65);
+  --card: rgba(0,40,20,0.6);
+  --border: rgba(0,255,136,0.18);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Hind Siliguri', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar-thumb { background: var(--g3); border-radius: 3px; }
+
+/* ─── BG TEXTURE ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    radial-gradient(circle, rgba(0,255,100,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(1,13,6,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-size: 15px; font-weight: 700; color: var(--g1);
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0,255,136,0.5);
+  font-family: 'Courier New', monospace;
+}
+.nav-links { display: flex; gap: 6px; }
+.nav-btn {
+  padding: 7px 14px; font-size: 12px;
+  font-family: 'Hind Siliguri', sans-serif;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer; transition: all .25s;
+  border-radius: 2px;
+}
+.nav-btn:hover { border-color: var(--g1); color: var(--g1); background: rgba(0,255,136,0.06); }
+.nav-btn.cta {
+  background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(255,215,0,0.08));
+  border-color: rgba(255,215,0,0.5);
+  color: var(--gold);
+}
+.nav-btn.cta:hover { background: linear-gradient(135deg, rgba(255,215,0,0.28), rgba(255,215,0,0.14)); box-shadow: 0 0 16px rgba(255,215,0,0.25); }
+
+/* ─── HERO ─── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 100px 24px 60px;
+  overflow: hidden;
+}
+
+.hero-bg-glow {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 60%, rgba(0,80,35,0.4) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 20% 30%, rgba(0,40,20,0.35) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* Floating particles */
+.particles {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.p {
+  position: absolute;
+  border-radius: 50%;
+  animation: float-p linear infinite;
+}
+@keyframes float-p {
+  0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-20px) scale(1); opacity: 0; }
+}
+
+.hero-inner {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 60px;
+  max-width: 1100px; width: 100%;
+}
+
+/* Book cover 3D mockup */
+.book-mockup {
+  flex-shrink: 0;
+  width: 200px;
+  filter: drop-shadow(0 30px 60px rgba(0,255,136,0.2)) drop-shadow(0 0 40px rgba(255,215,0,0.15));
+  animation: book-float 4s ease-in-out infinite;
+  cursor: pointer;
+  transition: transform .3s;
+}
+.book-mockup:hover { transform: scale(1.04) rotate(-1deg); }
+@keyframes book-float {
+  0%,100% { transform: translateY(0px) rotate(-2deg); }
+  50%      { transform: translateY(-12px) rotate(-2deg); }
+}
+
+.book-cover-svg { width: 100%; }
+
+.hero-text { flex: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; margin-bottom: 20px;
+  border: 1px solid rgba(0,255,136,0.3);
+  background: rgba(0,255,136,0.06);
+  font-size: 11px; letter-spacing: 2px; color: rgba(0,255,136,0.8);
+  font-family: 'Courier New', monospace; text-transform: uppercase;
+  animation: fadeUp .6s ease both;
+}
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g1); box-shadow: 0 0 6px var(--g1); animation: blink 2s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.hero-title-ai {
+  font-size: clamp(40px, 7vw, 68px); font-weight: 700;
+  color: var(--g1); letter-spacing: 5px;
+  text-shadow: 0 0 8px rgba(0,255,136,0.9), 0 0 25px rgba(0,255,136,0.4), 0 0 50px rgba(0,255,136,0.2);
+  animation: fadeUp .7s .1s ease both;
+  line-height: 1;
+}
+.hero-sep {
+  width: 100px; height: 2px;
+  background: linear-gradient(90deg, var(--gold), rgba(0,255,136,0.4), transparent);
+  margin: 10px 0; box-shadow: 0 0 8px rgba(255,215,0,0.3);
+  animation: fadeUp .7s .2s ease both;
+}
+.hero-title-main {
+  font-size: clamp(26px, 4.5vw, 44px); font-weight: 700;
+  color: var(--gold); line-height: 1.25;
+  text-shadow: 0 0 10px rgba(255,215,0,0.7), 0 0 28px rgba(255,215,0,0.3);
+  margin-bottom: 16px;
+  animation: fadeUp .7s .3s ease both;
+}
+.hero-subtitle {
+  font-size: 15px; color: var(--text2); line-height: 1.6;
+  padding: 10px 16px; border-left: 2px solid rgba(0,255,136,0.35);
+  background: rgba(0,50,25,0.3); margin-bottom: 28px;
+  animation: fadeUp .7s .4s ease both;
+}
+.hero-stats {
+  display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;
+  animation: fadeUp .7s .5s ease both;
+}
+.stat { text-align: center; }
+.stat-num { font-size: 24px; font-weight: 700; color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); display: block; }
+.stat-label { font-size: 10px; color: var(--text2); letter-spacing: 1px; }
+.stat-div { width: 1px; background: var(--border); align-self: stretch; }
+
+.hero-cta-row {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  animation: fadeUp .7s .6s ease both;
+}
+.btn-primary {
+  padding: 13px 28px; font-size: 15px; font-weight: 600;
+  font-family: 'Hind Siliguri', sans-serif;
+  background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,180,80,0.15));
+  border: 1.5px solid var(--g1); color: var(--g1);
+  cursor: pointer; transition: all .25s; border-radius: 3px;
+  box-shadow: 0 0 20px rgba(0,255,136,0.15);
+}
+.btn-primary:hover { background: rgba(0,255,136,0.18); box-shadow: 0 0 30px rgba(0,255,136,0.3); transform: translateY(-2px); }
+.btn-order {
+  padding: 13px 28px; font-size: 15px; font-weight: 700;
+  font-family: 'Hind Siliguri', sans-serif;
+  background: linear-gradient(135deg, rgba(255,215,0,0.22), rgba(200,150,0,0.12));
+  border: 1.5px solid var(--gold); color: var(--gold);
+  cursor: pointer; transition: all .25s; border-radius: 3px;
+  box-shadow: 0 0 20px rgba(255,215,0,0.15);
+}
+.btn-order:hover { box-shadow: 0 0 30px rgba(255,215,0,0.35); transform: translateY(-2px); }
+.price-tag {
+  align-self: center;
+  font-size: 28px; font-weight: 700; color: var(--gold);
+  text-shadow: 0 0 12px rgba(255,215,0,0.6);
+}
+.price-tag span { font-size: 14px; color: var(--text2); font-weight: 400; display: block; text-align: center; }
+
+/* ─── SECTION BASE ─── */
+section { position: relative; z-index: 1; padding: 80px 24px; }
+.section-inner { max-width: 1000px; margin: 0 auto; }
+.section-label {
+  font-size: 10px; letter-spacing: 3px; color: var(--g1); opacity: .7;
+  text-transform: uppercase; font-family: 'Courier New', monospace;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.section-label::after { content:''; flex:1; height:1px; background: linear-gradient(90deg, var(--border), transparent); }
+.section-title {
+  font-size: clamp(22px, 4vw, 34px); font-weight: 700;
+  color: var(--gold); margin-bottom: 40px;
+  text-shadow: 0 0 20px rgba(255,215,0,0.25);
+}
+
+/* ─── WHAT'S INSIDE ─── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.feat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 22px 20px;
+  transition: all .3s;
+  position: relative; overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--g1), transparent);
+  transform: scaleX(0); transition: transform .3s;
+}
+.feat-card:hover { border-color: rgba(0,255,136,0.4); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,255,136,0.1); }
+.feat-card:hover::before { transform: scaleX(1); }
+.feat-icon { font-size: 26px; margin-bottom: 12px; display: block; }
+.feat-title { font-size: 15px; font-weight: 600; color: var(--g1); margin-bottom: 6px; }
+.feat-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* ─── BOOK PREVIEW READER ─── */
+#preview { background: rgba(0,15,8,0.5); }
+.reader-wrap {
+  background: rgba(0,20,10,0.8);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,255,136,0.05);
+}
+.reader-toolbar {
+  background: rgba(0,30,15,0.9);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.reader-title-bar {
+  font-size: 12px; color: var(--text2); letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+}
+.reader-title-bar b { color: var(--g1); }
+.page-controls {
+  display: flex; align-items: center; gap: 10px;
+}
+.pg-btn {
+  width: 34px; height: 34px; border: 1px solid var(--border);
+  background: rgba(0,40,20,0.5); color: var(--g1); font-size: 16px;
+  cursor: pointer; transition: all .2s; border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pg-btn:hover:not(:disabled) { border-color: var(--g1); background: rgba(0,255,136,0.1); }
+.pg-btn:disabled { opacity: 0.3; cursor: default; }
+.page-indicator {
+  font-size: 12px; color: var(--text2); white-space: nowrap;
+  font-family: 'Courier New', monospace;
+}
+.page-dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.pg-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(0,255,136,0.2); border: 1px solid var(--border);
+  cursor: pointer; transition: all .2s;
+}
+.pg-dot.active { background: var(--g1); box-shadow: 0 0 8px var(--g1); }
+
+.reader-content {
+  padding: 36px 44px;
+  min-height: 480px;
+  font-family: 'Tiro Bangla', 'Hind Siliguri', serif;
+  position: relative;
+}
+.book-page { display: none; animation: page-in .35s ease; }
+.book-page.active { display: block; }
+@keyframes page-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+.page-chapter {
+  font-size: 10px; letter-spacing: 3px; color: var(--g1); opacity: .65;
+  text-transform: uppercase; font-family: 'Courier New', monospace;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+}
+.page-chapter::after { content:''; flex:1; height:1px; background: linear-gradient(90deg, var(--border), transparent); max-width: 100px; }
+.page-h1 {
+  font-size: clamp(20px, 3.5vw, 28px); font-weight: 700;
+  color: var(--gold); margin-bottom: 6px; line-height: 1.3;
+  text-shadow: 0 0 15px rgba(255,215,0,0.3);
+}
+.page-h2 {
+  font-size: clamp(16px, 2.5vw, 20px); font-weight: 600;
+  color: var(--g1); margin: 24px 0 10px;
+  text-shadow: 0 0 8px rgba(0,255,136,0.3);
+}
+.page-p {
+  font-size: clamp(14px, 1.6vw, 16px); color: var(--text);
+  line-height: 1.85; margin-bottom: 16px;
+  font-family: 'Hind Siliguri', sans-serif;
+}
+.page-p b { color: var(--gold2); }
+.page-quote {
+  margin: 20px 0; padding: 16px 20px;
+  border-left: 3px solid var(--g1);
+  background: rgba(0,50,25,0.35);
+  font-size: 15px; color: var(--text2); line-height: 1.7;
+  font-style: italic;
+}
+.page-list { margin: 12px 0 16px 0; }
+.page-list li {
+  font-size: clamp(14px, 1.6vw, 15px); color: var(--text);
+  line-height: 1.7; padding: 5px 0 5px 26px; position: relative;
+  list-style: none; font-family: 'Hind Siliguri', sans-serif;
+}
+.page-list li::before {
+  content: '▸';
+  position: absolute; left: 6px; color: var(--g1);
+  text-shadow: 0 0 6px var(--g1);
+}
+.page-num-label {
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: var(--text2); font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+/* Blur overlay for locked pages */
+.locked-overlay {
+  position: absolute; inset: 0;
+  backdrop-filter: blur(5px);
+  background: rgba(1,13,6,0.5);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  z-index: 10;
+}
+.lock-icon { font-size: 36px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.5)); }
+.lock-text { font-size: 16px; color: var(--gold); font-weight: 600; text-align: center; }
+.lock-sub { font-size: 13px; color: var(--text2); text-align: center; }
+.btn-unlock {
+  padding: 11px 24px; font-size: 14px; font-weight: 600;
+  font-family: 'Hind Siliguri', sans-serif;
+  background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(200,150,0,0.1));
+  border: 1.5px solid var(--gold); color: var(--gold);
+  cursor: pointer; transition: all .25s; border-radius: 3px;
+}
+.btn-unlock:hover { box-shadow: 0 0 25px rgba(255,215,0,0.3); transform: translateY(-2px); }
+
+.preview-footer {
+  background: rgba(0,25,12,0.8);
+  border-top: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  flex-wrap: wrap;
+}
+.pf-text { font-size: 13px; color: var(--text2); }
+.pf-text b { color: var(--gold); }
+
+/* ─── TESTIMONIALS ─── */
+.testi-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+}
+.testi-card {
+  background: var(--card); border: 1px solid var(--border); padding: 22px 20px;
+  transition: all .3s;
+}
+.testi-card:hover { border-color: rgba(0,255,136,0.3); transform: translateY(-2px); }
+.testi-stars { color: var(--gold); font-size: 14px; margin-bottom: 10px; letter-spacing: 2px; }
+.testi-text { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 14px; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 10px; }
+.testi-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--g3), var(--dark2));
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: var(--g1);
+}
+.testi-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.testi-loc { font-size: 11px; color: var(--text2); }
+
+/* ─── ORDER SECTION ─── */
+#order { background: rgba(0,15,8,0.5); }
+.order-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+}
+.order-left {}
+.order-price-big {
+  font-size: 72px; font-weight: 700; color: var(--gold); line-height: 1;
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+.order-price-big sup { font-size: 32px; vertical-align: super; }
+.order-price-label { font-size: 12px; color: var(--text2); letter-spacing: 1.5px; margin-bottom: 24px; }
+.order-includes { margin-bottom: 28px; }
+.inc-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid rgba(0,255,136,0.08);
+  font-size: 14px; color: var(--text);
+}
+.inc-item:last-child { border-bottom: none; }
+.inc-check { color: var(--g1); font-size: 16px; text-shadow: 0 0 6px var(--g1); flex-shrink: 0; }
+
+/* Order form card */
+.order-form-card {
+  background: rgba(0,25,12,0.8);
+  border: 1px solid rgba(0,255,136,0.2);
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(0,255,136,0.04);
+}
+.form-title {
+  font-size: 18px; font-weight: 700; color: var(--g1); margin-bottom: 6px;
+}
+.form-sub { font-size: 12px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
+
+/* bKash instruction box */
+.bkash-box {
+  background: linear-gradient(135deg, rgba(226,19,110,0.12), rgba(180,10,80,0.08));
+  border: 1px solid rgba(226,19,110,0.35);
+  padding: 16px 18px; margin-bottom: 20px;
+  box-shadow: 0 0 20px rgba(226,19,110,0.08);
+}
+.bkash-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.bkash-logo {
+  background: linear-gradient(135deg, #E2136E, #C0105A);
+  padding: 4px 12px; font-size: 13px; font-weight: 700;
+  color: white; letter-spacing: 1px; font-family: 'Courier New', monospace;
+  box-shadow: 0 0 12px rgba(226,19,110,0.4);
+}
+.bkash-type { font-size: 11px; color: rgba(255,150,200,0.7); letter-spacing: 1.5px; font-family: 'Courier New', monospace; }
+.bkash-num-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,0,0,0.3); padding: 10px 14px; margin-bottom: 10px;
+}
+.bkash-num { font-size: 20px; font-weight: 700; color: white; letter-spacing: 2px; font-family: 'Courier New', monospace; }
+.copy-btn {
+  font-size: 11px; padding: 5px 12px; background: rgba(226,19,110,0.2);
+  border: 1px solid rgba(226,19,110,0.4); color: rgba(255,150,200,0.8);
+  cursor: pointer; transition: all .2s; font-family: 'Courier New', monospace;
+}
+.copy-btn:hover { background: rgba(226,19,110,0.35); }
+.copy-btn.copied { color: var(--g1); border-color: var(--g1); background: rgba(0,255,136,0.1); }
+.bkash-steps { display: flex; flex-direction: column; gap: 7px; }
+.bk-step {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 12.5px; color: rgba(220,200,215,0.85); line-height: 1.5;
+}
+.bk-num {
+  width: 20px; height: 20px; flex-shrink: 0;
+  background: rgba(226,19,110,0.25); border: 1px solid rgba(226,19,110,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: rgba(255,150,200,0.9);
+  font-family: 'Courier New', monospace;
+}
+.bk-step b { color: white; }
+.bk-step span { color: rgba(255,200,230,0.8); }
+
+/* Form fields */
+.form-group { margin-bottom: 16px; }
+.form-label {
+  font-size: 12px; letter-spacing: 1.5px; color: var(--text2);
+  text-transform: uppercase; font-family: 'Courier New', monospace;
+  display: block; margin-bottom: 7px;
+}
+.form-input, .form-textarea {
+  width: 100%; padding: 11px 14px;
+  background: rgba(0,30,15,0.7); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; font-family: 'Hind Siliguri', sans-serif;
+  transition: all .25s; border-radius: 2px;
+  outline: none;
+}
+.form-input:focus, .form-textarea:focus {
+  border-color: rgba(0,255,136,0.5);
+  background: rgba(0,40,20,0.8);
+  box-shadow: 0 0 15px rgba(0,255,136,0.08);
+}
+.form-input::placeholder, .form-textarea::placeholder { color: rgba(200,240,216,0.3); }
+.form-textarea { height: 80px; resize: vertical; }
+
+.submit-btn {
+  width: 100%; padding: 15px;
+  font-size: 17px; font-weight: 700;
+  font-family: 'Hind Siliguri', sans-serif;
+  background: linear-gradient(135deg, rgba(255,215,0,0.22), rgba(200,150,0,0.12));
+  border: 2px solid var(--gold); color: var(--gold);
+  cursor: pointer; transition: all .3s; border-radius: 3px;
+  box-shadow: 0 0 20px rgba(255,215,0,0.12);
+  letter-spacing: .5px;
+}
+.submit-btn:hover { box-shadow: 0 0 35px rgba(255,215,0,0.3); transform: translateY(-2px); }
+.submit-btn:active { transform: translateY(0); }
+
+/* Success message */
+.success-msg {
+  display: none;
+  text-align: center; padding: 20px;
+  background: rgba(0,255,136,0.06);
+  border: 1px solid rgba(0,255,136,0.3);
+  margin-top: 14px;
+}
+.success-msg.show { display: block; animation: fadeUp .4s ease; }
+.success-icon { font-size: 32px; display: block; margin-bottom: 8px; }
+.success-text { font-size: 15px; color: var(--g1); font-weight: 600; }
+.success-sub { font-size: 12px; color: var(--text2); margin-top: 6px; line-height: 1.5; }
+
+/* ─── FAQ ─── */
+.faq-list { display: flex; flex-direction: column; gap: 8px; }
+.faq-item {
+  border: 1px solid var(--border);
+  background: var(--card);
+  overflow: hidden; transition: border-color .25s;
+}
+.faq-item:hover { border-color: rgba(0,255,136,0.3); }
+.faq-q {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; font-size: 15px; color: var(--text); font-weight: 500;
+  gap: 12px;
+}
+.faq-icon { color: var(--g1); font-size: 18px; flex-shrink: 0; transition: transform .25s; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-a {
+  max-height: 0; overflow: hidden; transition: max-height .35s ease;
+  font-size: 13.5px; color: var(--text2); line-height: 1.7;
+  border-top: 0px solid transparent;
+}
+.faq-item.open .faq-a {
+  max-height: 200px;
+  border-top: 1px solid var(--border);
+}
+.faq-a-inner { padding: 14px 20px; }
+
+/* ─── FOOTER ─── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  background: rgba(0,10,5,0.95);
+  padding: 36px 24px;
+  text-align: center;
+}
+.footer-logo { font-size: 18px; font-weight: 700; color: var(--g1); letter-spacing: 3px; font-family: 'Courier New', monospace; margin-bottom: 8px; text-shadow: 0 0 10px rgba(0,255,136,0.4); }
+.footer-text { font-size: 12px; color: var(--text2); letter-spacing: .5px; }
+.footer-sep { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 14px auto; }
+
+/* ─── FLOATING ORDER BTN (mobile) ─── */
+.floating-cta {
+  position: fixed; bottom: 20px; right: 20px; z-index: 99;
+  display: none;
+}
+.float-btn {
+  padding: 14px 22px; font-size: 15px; font-weight: 700;
+  font-family: 'Hind Siliguri', sans-serif;
+  background: linear-gradient(135deg, #FFD700, #E6B800);
+  color: #000; border: none; cursor: pointer;
+  border-radius: 50px; box-shadow: 0 8px 30px rgba(255,215,0,0.4);
+  transition: all .25s; animation: pulse-btn 2.5s ease infinite;
+}
+.float-btn:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(255,215,0,0.5); }
+@keyframes pulse-btn {
+  0%,100%{ box-shadow: 0 8px 30px rgba(255,215,0,0.4); }
+  50%    { box-shadow: 0 8px 40px rgba(255,215,0,0.65), 0 0 0 8px rgba(255,215,0,0.08); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width: 768px) {
+  nav { padding: 12px 16px; }
+  .nav-links .nav-btn:not(.cta) { display: none; }
+  .hero { padding: 90px 18px 50px; }
+  .hero-inner { flex-direction: column; align-items: flex-start; gap: 30px; }
+  .book-mockup { width: 140px; align-self: center; }
+  .hero-stats { gap: 14px; }
+  .reader-content { padding: 24px 20px; }
+  .order-wrap { grid-template-columns: 1fr; gap: 30px; }
+  .floating-cta { display: block; }
+  section { padding: 60px 18px; }
+}
+@media(max-width: 480px) {
+  .hero-cta-row { flex-direction: column; }
+  .btn-primary, .btn-order { width: 100%; text-align: center; }
+  .bkash-num { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AI PATHSHALA</div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="scrollTo('#features')">বইয়ে কী আছে</button>
+    <button class="nav-btn" onclick="scrollTo('#preview')">পড়ে দেখুন</button>
+    <button class="nav-btn cta" onclick="scrollTo('#order')">অর্ডার করুন ৳৯৯</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg-glow"></div>
+  <div class="hero-inner">
+
+    <!-- Book mockup -->
+    <div class="book-mockup" onclick="scrollTo('#preview')">
+      <svg class="book-cover-svg" viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"  stop-color="#010D06"/>
+            <stop offset="50%" stop-color="#021A0C"/>
+            <stop offset="100%" stop-color="#010805"/>
+          </linearGradient>
+          <linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"  stop-color="#F0D060"/>
+            <stop offset="40%" stop-color="#FFD700"/>
+            <stop offset="100%" stop-color="#8B6014"/>
+          </linearGradient>
+          <filter id="gf"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="gf2"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- Cover -->
+        <rect width="200" height="280" rx="4" fill="url(#cg)"/>
+        <!-- Hex pattern -->
+        <rect width="200" height="280" rx="4" fill="url(#cg)" opacity=".8"/>
+        <!-- Grid -->
+        <line x1="0" y1="28" x2="200" y2="28" stroke="rgba(0,255,120,0.06)" stroke-width=".7"/>
+        <line x1="0" y1="56" x2="200" y2="56" stroke="rgba(0,255,120,0.06)" stroke-width=".7"/>
+        <line x1="0" y1="84" x2="200" y2="84" stroke="rgba(0,255,120,0.04)" stroke-width=".7"/>
+        <line x1="40" y1="0" x2="40" y2="280" stroke="rgba(0,255,120,0.04)" stroke-width=".7"/>
+        <line x1="100" y1="0" x2="100" y2="280" stroke="rgba(0,255,120,0.04)" stroke-width=".7"/>
+        <line x1="160" y1="0" x2="160" y2="280" stroke="rgba(0,255,120,0.04)" stroke-width=".7"/>
+        <!-- Borders -->
+        <rect x="1" y="1" width="198" height="278" rx="3.5" fill="none" stroke="rgba(0,255,120,0.35)" stroke-width=".8"/>
+        <line x1="0" y1="2" x2="200" y2="2" stroke="rgba(0,255,120,0.7)" stroke-width="1.5"/>
+        <line x1="0" y1="278" x2="200" y2="278" stroke="rgba(255,215,0,0.7)" stroke-width="1.5"/>
+        <!-- Data streams -->
+        <line x1="100" y1="165" x2="100" y2="10" stroke="rgba(0,255,120,0.55)" stroke-width="1.5"/>
+        <line x1="93" y1="168" x2="72" y2="8"   stroke="rgba(0,255,120,0.35)" stroke-width="1"/>
+        <line x1="107" y1="168" x2="128" y2="8"  stroke="rgba(255,215,0,0.38)" stroke-width="1"/>
+        <line x1="84" y1="172" x2="48" y2="18"   stroke="rgba(0,200,100,0.22)" stroke-width=".8"/>
+        <line x1="116" y1="172" x2="152" y2="18" stroke="rgba(255,215,0,0.22)" stroke-width=".8"/>
+        <!-- Nodes -->
+        <circle cx="100" cy="35" r="2.5" fill="rgba(0,255,120,0.85)" filter="url(#gf)"/>
+        <circle cx="88"  cy="52" r="2"   fill="rgba(255,215,0,0.8)"  filter="url(#gf)"/>
+        <circle cx="113" cy="50" r="2"   fill="rgba(0,255,120,0.75)" filter="url(#gf)"/>
+        <!-- Lamp -->
+        <ellipse cx="100" cy="200" rx="55" ry="34" fill="url(#lg2)" filter="url(#gf2)" stroke="rgba(255,240,160,0.4)" stroke-width=".8"/>
+        <ellipse cx="88"  cy="190" rx="22" ry="12" fill="rgba(255,255,220,0.2)"/>
+        <path d="M148 196 Q165 188 170 182 Q174 176 170 172 Q166 168 158 172 Q152 176 148 184 Z" fill="url(#lg2)"/>
+        <path d="M65 196 Q48 196 46 206 Q44 216 60 218 L66 215" stroke="url(#lg2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="100" cy="168" rx="18" ry="7" fill="url(#lg2)" stroke="rgba(255,240,140,0.3)" stroke-width=".7"/>
+        <ellipse cx="100" cy="164" rx="8"  ry="3.5" fill="url(#lg2)"/>
+        <ellipse cx="100" cy="163" rx="6"  ry="3.5" fill="rgba(0,255,120,0.6)" filter="url(#gf)"/>
+        <rect x="84" y="227" width="32" height="8" rx="3" fill="url(#lg2)"/>
+        <!-- Title text AI -->
+        <text x="100" y="106" text-anchor="middle" font-family="Hind Siliguri,sans-serif" font-size="18" font-weight="700" fill="#00FF88" letter-spacing="4"
+          style="text-shadow: 0 0 8px rgba(0,255,136,0.9)">এআই</text>
+        <!-- Separator -->
+        <line x1="60" y1="113" x2="140" y2="113" stroke="rgba(255,215,0,0.5)" stroke-width=".8"/>
+        <!-- Book title small -->
+        <text x="100" y="127" text-anchor="middle" font-family="Hind Siliguri,sans-serif" font-size="9" font-weight="700" fill="#FFD700">জাদুর চেরাগ</text>
+        <text x="100" y="140" text-anchor="middle" font-family="Hind Siliguri,sans-serif" font-size="8" font-weight="600" fill="#FFD700">এখন আপনার হাতে</text>
+        <!-- Bottom badge -->
+        <rect x="30" y="252" width="140" height="20" rx="2" fill="rgba(0,30,15,0.7)" stroke="rgba(0,255,120,0.2)" stroke-width=".6"/>
+        <text x="100" y="264" text-anchor="middle" font-family="Courier New,monospace" font-size="7" fill="rgba(0,255,120,0.65)" letter-spacing="1.5">AI PATHSHALA</text>
+      </svg>
+    </div>
+
+    <!-- Hero text -->
+    <div class="hero-text">
+      <div class="hero-badge"><div class="badge-dot"></div>নতুন বই প্রকাশিত হয়েছে</div>
+      <div class="hero-title-ai">এআই</div>
+      <div class="hero-sep"></div>
+      <div class="hero-title-main">জাদুর চেরাগ<br>এখন আপনার হাতে</div>
+      <div class="hero-subtitle">সহজ বাংলায় কৃত্রিম বুদ্ধিমত্তা শেখার কমপ্লিট গাইড — শিক্ষার্থী থেকে পেশাদার, সবার জন্য।</div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">১৩</span><span class="stat-label">অধ্যায়</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">১০০%</span><span class="stat-label">বাংলায়</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">PDF</span><span class="stat-label">তাৎক্ষণিক ডেলিভারি</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">৳৯৯</span><span class="stat-label">মাত্র</span></div>
+      </div>
+      <div class="hero-cta-row">
+        <button class="btn-primary" onclick="scrollTo('#preview')">📖 বিনামূল্যে পড়ে দেখুন</button>
+        <button class="btn-order" onclick="scrollTo('#order')">এখনই কিনুন</button>
+        <div class="price-tag">৳৯৯ <span>মাত্র</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-label">বইয়ের বিষয়বস্তু</div>
+    <div class="section-title">এই বইয়ে যা পাবেন</div>
+    <div class="features-grid">
+      <div class="feat-card">
+        <span class="feat-icon">🤖</span>
+        <div class="feat-title">যন্ত্র যখন কথা বলে</div>
+        <div class="feat-desc">এআই কী, কীভাবে কাজ করে — Narrow, General ও Super AI-এর পার্থক্য একদম সহজ গল্পের ছলে।</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🕰️</span>
+        <div class="feat-title">ইতিহাসের সেই পাগলাটে বিজ্ঞানী</div>
+        <div class="feat-desc">অ্যালান টুরিং থেকে Deep Blue — AI-এর জন্মের রোমাঞ্চকর ইতিহাস যা আপনাকে অবাক করবে।</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🧠</span>
+        <div class="feat-title">ডিজিটাল মস্তিষ্কের ভেতরে</div>
+        <div class="feat-desc">Neural Network, Machine Learning, Deep Learning — জটিল বিষয়গুলো গল্পের মাধ্যমে বোঝানো।</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">✨</span>
+        <div class="feat-title">প্রম্পট ইঞ্জিনিয়ারিং: FRAME ফর্মুলা</div>
+        <div class="feat-desc">ChatGPT দিয়ে সেরা কাজ করিয়ে নেওয়ার গোপন সূত্র — সরাসরি ব্যবহারের জন্য ৫টি Golden Prompt।</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">⚠️</span>
+        <div class="feat-title">আয়নার ওপাশে অন্ধকার</div>
+        <div class="feat-desc">Deepfake, Algorithmic Bias, সাইবার যুদ্ধ — AI-এর ভয়ঙ্কর দিকগুলো সম্পর্কে সচেতন হন।</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">💼</span>
+        <div class="feat-title">উদ্যোক্তা ও AI: পকেটে ডিজিটাল সাম্রাজ্য</div>
+        <div class="feat-desc">কোডিং ছাড়াই অ্যাপ, ২৪ ঘণ্টা অটোমেটেড মার্কেটিং — ছোট বিনিয়োগে বড় ব্যবসার রোডম্যাপ।</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🇧🇩</span>
+        <div class="feat-title">এআই ও বাংলাদেশ</div>
+        <div class="feat-desc">কৃষি থেকে স্বাস্থ্যসেবা — বাংলাদেশে AI বিপ্লব এবং আমাদের তরুণ প্রজন্মের সুযোগ।</div>
+      </div>
+      <div class="feat-card">
+        <span class="feat-icon">🛠️</span>
+        <div class="feat-title">AI Toolbox: সেরা ১৫টি টুল</div>
+        <div class="feat-desc">ChatGPT, Midjourney, Gamma, ElevenLabs সহ ১৫টি টুলের রেডি রেফারেন্স গাইড — সঙ্গে ৫টি Golden Prompt।</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK PREVIEW READER -->
+<section id="preview">
+  <div class="section-inner">
+    <div class="section-label">বিনামূল্যে পড়ুন</div>
+    <div class="section-title">বইয়ের কিছু অংশ পড়ে দেখুন</div>
+    <div class="reader-wrap">
+      <!-- Toolbar -->
+      <div class="reader-toolbar">
+        <div class="reader-title-bar">📗 <b>এআই: জাদুর চেরাগ</b> — Preview</div>
+        <div class="page-controls">
+          <button class="pg-btn" id="prevBtn" onclick="changePage(-1)" disabled>◀</button>
+          <div class="page-dots" id="pageDots"></div>
+          <button class="pg-btn" id="nextBtn" onclick="changePage(1)">▶</button>
+        </div>
+        <div class="page-indicator" id="pageIndicator">পৃষ্ঠা ১ / ৫</div>
+      </div>
+
+      <!-- Pages -->
+      <div class="reader-content" id="readerContent">
+
+        <!-- PAGE 1 — অধ্যায় ১: একটি কাল্পনিক সকালের গল্প -->
+        <div class="book-page active" id="page-1">
+          <div class="page-chapter">অধ্যায় ১ · যন্ত্র যখন কথা বলে</div>
+          <div class="page-h1">একটি কাল্পনিক সকালের গল্প</div>
+          <div class="page-p">কল্পনা করুন ২০৩০ সালের একটি সাধারণ সকাল। নীলগিরির পাহাড়ের চূড়ায় একটি ক্যাফেতে বসে আছেন সুমিত। তার কানে একটি ছোট্ট ডিভাইস লাগানো। সুমিত বিড়বিড় করে বললেন, "আজকের আবহাওয়া আর আমার মুড অনুযায়ী একটা মিউজিক প্লে করো তো।"</div>
+          <div class="page-p">মুহূর্তের মধ্যেই তার কানে ভেসে এল এক অদ্ভুত মায়াবী সুর। এই সুরটি আগে কখনো কেউ শোনেননি। কারণ, সুমিতের কানের ওই ছোট্ট AI সহকারীটি ঠিক সেই মুহূর্তেই সুমিতের হার্টরেট, রক্তচাপ এবং বাইরের বাতাসের আর্দ্রতা মেপে সুরটি কম্পোজ করেছে।</div>
+          <div class="page-quote">এই যে সুমিতের জীবন — যেখানে প্রতিটি পদক্ষেপে একটি অদৃশ্য মস্তিষ্ক তাকে সাহায্য করছে — এটাই হলো <b>কৃত্রিম বুদ্ধিমত্তা বা এআই।</b></div>
+          <div class="page-p">কিন্তু এই জাদুকরী পৃথিবীটা আসলে একদিনে তৈরি হয়নি। এর পেছনে রয়েছে হাজার বছরের মানুষের কল্পনা আর কয়েক দশকের কঠোর পরিশ্রম।</div>
+          <div class="page-num-label">পৃষ্ঠা ১ · মেহেদী হাসান</div>
+        </div>
+
+        <!-- PAGE 2 — এআই কী? তিন ভাই-বোনের গল্প -->
+        <div class="book-page" id="page-2">
+          <div class="page-chapter">অধ্যায় ১ · এআই-এর প্রকারভেদ</div>
+          <div class="page-h1">তিন ভাই-বোনের গল্প</div>
+          <div class="page-p">সহজভাবে বলতে গেলে, এআই হলো মানুষের তৈরি এমন এক 'মস্তিষ্ক', যা রক্ত-মাংসের নয়, বরং সিলিকন চিপ আর জটিল গাণিতিক কোডিং দিয়ে তৈরি। পার্থক্য শুধু একটাই — <b>মানুষ শেখে কয়েক বছরে, আর এআই শেখে কয়েক সেকেন্ডে।</b></div>
+          <div class="page-h2">এআই-এর তিনটি ধরন:</div>
+          <ul class="page-list">
+            <li><b>ছোট ভাই — Narrow AI:</b> শুধু একটি নির্দিষ্ট কাজ পারে। Google Maps, Facebook-এর নিউজফিড, ক্যামেরার ফেস ডিটেকশন — সবই এই Narrow AI।</li>
+            <li><b>মেজো ভাই — General AI:</b> ঠিক মানুষের মতো। দাবা খেলতে পারবে, গানও গাইতে পারবে। তবে এটি এখনো বৈজ্ঞানিক গবেষণার পর্যায়ে আছে।</li>
+            <li><b>বড় ভাই — Super AI:</b> সায়েন্স ফিকশন সিনেমার সেই অতি-মানবিক চরিত্র। পৃথিবীর সব মানুষের মিলিত বুদ্ধির চেয়েও কোটি গুণ বেশি।</li>
+          </ul>
+          <div class="page-p">একটি সাধারণ ক্যালকুলেটরকে আপনি যা নির্দেশ দেবেন সে কেবল তাই করবে। কিন্তু এআই হলো এমন এক ছাত্র, <b>যে ভুল করতে করতে নিজেকে শুধরে নেয়।</b></div>
+          <div class="page-num-label">পৃষ্ঠা ২ · মেহেদী হাসান</div>
+        </div>
+
+        <!-- PAGE 3 — অধ্যায় ৫: প্রম্পট ইঞ্জিনিয়ারিং -->
+        <div class="book-page" id="page-3">
+          <div class="page-chapter">অধ্যায় ৫ · জাদুর চেরাগের মন্ত্র</div>
+          <div class="page-h1">প্রম্পট ইঞ্জিনিয়ারিং: FRAME ফর্মুলা</div>
+          <div class="page-p">এআই বা ChatGPT হলো ঠিক আলাদিনের সেই দৈত্যের মতো। আপনি তাকে যত স্পষ্ট করে নির্দেশ দেবেন, সে তত নিখুঁত ফলাফল দেবে। আর এই সঠিকভাবে নির্দেশ দেওয়ার কৌশলকেই বলা হয় <b>'প্রম্পট ইঞ্জিনিয়ারিং'।</b></div>
+          <div class="page-h2">সফল প্রম্পট লেখার গোপন সূত্র: FRAME</div>
+          <ul class="page-list">
+            <li><b>F — Format (ফরম্যাট):</b> উত্তরটি কেমন হবে? ইমেইল, টেবিল, নাকি পয়েন্ট আকারে?</li>
+            <li><b>R — Role (ভূমিকা):</b> এআই-কে একটি চরিত্র দিন। "তুমি একজন অভিজ্ঞ ডাক্তার হিসেবে কথা বলো।"</li>
+            <li><b>A — Audience (শ্রোতা):</b> উত্তরটি কার জন্য? ৫ বছরের বাচ্চার জন্য, নাকি কোম্পানির CEO-র জন্য?</li>
+            <li><b>M — Mission (মিশন):</b> মূল কাজটি কী? "আমাকে একটি ১০ দিনের ট্যুর প্ল্যান লিখে দাও।"</li>
+            <li><b>E — Examples (উদাহরণ):</b> সম্ভব হলে একটি উদাহরণ দিন, ঠিক কেমন আউটপুট চাইছেন।</li>
+          </ul>
+          <div class="page-quote">"ধাপে ধাপে চিন্তা করো" (Let's think step by step) — এই একটি বাক্য যোগ করলে এআই-এর ভুলের মাত্রা প্রায় <b>৮০% কমে যায়।</b></div>
+          <div class="page-num-label">পৃষ্ঠা ৩ · মেহেদী হাসান</div>
+        </div>
+
+        <!-- PAGE 4 — LOCKED: অধ্যায় ৭ চাকরি ও ভবিষ্যৎ -->
+        <div class="book-page" id="page-4">
+          <div class="page-chapter">অধ্যায় ৭ · এআই বনাম মানুষ</div>
+          <div class="page-h1">চাকরি কি সত্যিই চলে যাবে?</div>
+          <div class="page-p">কল্পনা করুন আশিক নামের একজন দক্ষ গ্রাফিক ডিজাইনারের কথা। গত ১০ বছর ধরে তিনি খুব সুন্দর লোগো আর পোস্টার বানিয়ে জীবন চালিয়েছেন। কিন্তু একদিন তিনি দেখলেন, একটি এআই টুল মাত্র ১০ সেকেন্ডে এমন সব লোগো বানিয়ে দিল যা করতে তার দুই দিন সময় লাগত...</div>
+          <div class="locked-overlay">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-text">বাকি অংশ পড়তে বইটি কিনুন</div>
+            <div class="lock-sub">১৩টি অধ্যায় — সম্পূর্ণ বইটি PDF আকারে মাত্র ৳৯৯</div>
+            <button class="btn-unlock" onclick="scrollTo('#order')">এখনই কিনুন — ৳৯৯</button>
+          </div>
+          <div class="page-num-label">পৃষ্ঠা ৪ · মেহেদী হাসান</div>
+        </div>
+
+        <!-- PAGE 5 — LOCKED: অধ্যায় ১৩ বাংলাদেশ -->
+        <div class="book-page" id="page-5">
+          <div class="page-chapter">অধ্যায় ১৩ · এআই ও বাংলাদেশ</div>
+          <div class="page-h1">আমাদের অবস্থান ও সম্ভাবনা</div>
+          <div class="page-p">কল্পনা করুন কুড়িগ্রামের একজন প্রান্তিক কৃষক রহমত মিয়ার কথা। তার ধানের খেতে এক ধরনের পোকা ধরেছে যা তিনি আগে কখনো দেখেননি। তিনি তার স্মার্টফোনটি বের করে খেতের একটি ছবি তুললেন। একটি এআই অ্যাপ মুহূর্তের মধ্যে পোকাটি শনাক্ত করল এবং তাকে বাংলা ভাষায় জানিয়ে দিল কোন ওষুধ কতটুকু দিতে হবে...</div>
+          <div class="locked-overlay">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-text">সম্পূর্ণ বইটি পড়ুন</div>
+            <div class="lock-sub">বাংলাদেশে AI বিপ্লব + ১৩টি অধ্যায় + AI Toolbox — মাত্র ৳৯৯</div>
+            <button class="btn-unlock" onclick="scrollTo('#order')">অর্ডার করুন</button>
+          </div>
+          <div class="page-num-label">পৃষ্ঠা ৫ · মেহেদী হাসান</div>
+        </div>
+
+      </div><!-- reader-content -->
+
+      <div class="preview-footer">
+        <span class="pf-text">৩টি অধ্যায় বিনামূল্যে পড়লেন —</span>
+        <span class="pf-text">১৩টি অধ্যায় + AI Toolbox পেতে <b>মাত্র ৳৯৯</b></span>
+        <button class="btn-order" style="padding:8px 20px;font-size:13px;" onclick="scrollTo('#order')">এখনই কিনুন →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="reviews">
+  <div class="section-inner">
+    <div class="section-label">পাঠকদের মতামত</div>
+    <div class="section-title">তারা কী বলছেন</div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"বইটা পড়ে মাত্র এক সপ্তাহে ChatGPT দিয়ে কাজ শুরু করেছি। অনেক সহজ ভাষায় লেখা — মনে হচ্ছিল বন্ধু শেখাচ্ছে।"</div>
+        <div class="testi-author">
+          <div class="testi-avatar">র</div>
+          <div>
+            <div class="testi-name">রাহেলা বেগম</div>
+            <div class="testi-loc">গৃহিণী, রাজশাহী</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"Freelancing শুরু করার জন্য AI অধ্যায়টা অসাধারণ। মাত্র ৯৯ টাকায় এত তথ্য — সত্যিই অবিশ্বাস্য।"</div>
+        <div class="testi-author">
+          <div class="testi-avatar">স</div>
+          <div>
+            <div class="testi-name">সাইফুল ইসলাম</div>
+            <div class="testi-loc">শিক্ষার্থী, চট্টগ্রাম</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"আমি একজন শিক্ষক। এই বইটা আমার ছাত্রছাত্রীদেরও recommend করেছি। AI সম্পর্কে বাংলায় এত ভালো বই আগে দেখিনি।"</div>
+        <div class="testi-author">
+          <div class="testi-avatar">ম</div>
+          <div>
+            <div class="testi-name">মাহমুদুল হাসান</div>
+            <div class="testi-loc">শিক্ষক, ঢাকা</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER SECTION -->
+<section id="order">
+  <div class="section-inner">
+    <div class="section-label">অর্ডার করুন</div>
+    <div class="section-title">আজই আপনার কপি নিন</div>
+    <div class="order-wrap">
+
+      <!-- Left: what you get -->
+      <div class="order-left">
+        <div class="order-price-big"><sup>৳</sup>৯৯</div>
+        <div class="order-price-label">একবার পেমেন্ট • আজীবন ব্যবহার</div>
+        <div class="order-includes">
+          <div class="inc-item"><span class="inc-check">✦</span> সম্পূর্ণ PDF বই (১৩টি অধ্যায়)</div>
+          <div class="inc-item"><span class="inc-check">✦</span> AI Toolbox — সেরা ১৫টি টুলের গাইড</div>
+          <div class="inc-item"><span class="inc-check">✦</span> ৫টি Golden Prompt সরাসরি ব্যবহারের জন্য</div>
+          <div class="inc-item"><span class="inc-check">✦</span> তাৎক্ষণিক Email ডেলিভারি</div>
+          <div class="inc-item"><span class="inc-check">✦</span> মোবাইল ও কম্পিউটারে পড়া যাবে</div>
+          <div class="inc-item"><span class="inc-check">✦</span> লেখক: মেহেদী হাসান</div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>বই কীভাবে পাব?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">Payment করার পর আপনার Email-এ PDF বইটি পাঠিয়ে দেওয়া হবে — সাধারণত ৩০ মিনিট থেকে ২ ঘণ্টার মধ্যে।</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>শুধু bKash-এ পেমেন্ট করা যাবে?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">এই মুহূর্তে শুধু bKash Personal-এ পেমেন্ট গ্রহণ করা হচ্ছে। নম্বর: 01763-108284</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>প্রযুক্তি না বুঝলেও কি পড়তে পারব?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">অবশ্যই! এই বইটি একদম শুরু থেকে লেখা হয়েছে। কোনো পূর্ব জ্ঞান ছাড়াই বুঝতে পারবেন।</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: order form -->
+      <div class="order-form-card">
+        <div class="form-title">অর্ডার ফর্ম</div>
+        <div class="form-sub">নিচের ধাপগুলো অনুসরণ করে অর্ডার করুন। Payment confirm হলেই বই পাঠিয়ে দেওয়া হবে।</div>
+
+        <!-- bKash instruction -->
+        <div class="bkash-box">
+          <div class="bkash-header">
+            <div class="bkash-logo">bKash</div>
+            <div class="bkash-type">SEND MONEY • PERSONAL</div>
+          </div>
+          <div class="bkash-num-row">
+            <div class="bkash-num" id="bkashNum">01763-108284</div>
+            <button class="copy-btn" onclick="copyNumber(this)" id="copyBtn">কপি করুন</button>
+          </div>
+          <div class="bkash-steps">
+            <div class="bk-step"><div class="bk-num">১</div><span>bKash App খুলুন → <b>Send Money</b> → নম্বর লিখুন: <b>01763108284</b> → Amount: <b>99</b></span></div>
+            <div class="bk-step"><div class="bk-num">২</div><span>Reference-এ <b>আপনার Email Address</b> লিখুন</span></div>
+            <div class="bk-step"><div class="bk-num">৩</div><span>Payment সম্পন্ন হলে <b>Trxn ID</b> নিচের ফর্মে দিন</span></div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div id="orderForm">
+          <div class="form-group">
+            <label class="form-label">আপনার নাম</label>
+            <input type="text" class="form-input" id="nameInput" placeholder="আপনার পূর্ণ নাম লিখুন">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address ✱</label>
+            <input type="email" class="form-input" id="emailInput" placeholder="যে Email-এ বই পাঠাব">
+          </div>
+          <div class="form-group">
+            <label class="form-label">bKash Transaction ID ✱</label>
+            <input type="text" class="form-input" id="trxnInput" placeholder="যেমন: 8AB12CD3EF">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ফোন নম্বর (ঐচ্ছিক)</label>
+            <input type="tel" class="form-input" id="phoneInput" placeholder="01XXXXXXXXX">
+          </div>
+          <button class="submit-btn" onclick="submitOrder()">✅ অর্ডার সাবমিট করুন</button>
+        </div>
+
+        <div class="success-msg" id="successMsg">
+          <span class="success-icon">🎉</span>
+          <div class="success-text">অর্ডার সফলভাবে জমা হয়েছে!</div>
+          <div class="success-sub">আপনার Transaction ID যাচাই করা হচ্ছে।<br>কিছুক্ষণের মধ্যে বইটি আপনার Email-এ পাঠিয়ে দেওয়া হবে।<br><b>ধন্যবাদ! 💚</b></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AI PATHSHALA</div>
+  <div class="footer-sep"></div>
+  <div class="footer-text">© ২০২৫ AI Pathshala • শেখো · বুঝো · এগিয়ে যাও</div>
+</footer>
+
+<!-- Floating CTA -->
+<div class="floating-cta">
+  <button class="float-btn" onclick="scrollTo('#order')">৳৯৯ — এখনই কিনুন 🚀</button>
+</div>
+
+<script>
+// ─── PARTICLES ───
+const pc = document.getElementById('particles');
+for(let i=0;i<22;i++){
+  const p = document.createElement('div');
+  p.className='p';
+  const size = Math.random()*4+1.5;
+  const green = Math.random()>.45;
+  p.style.cssText=`
+    width:${size}px;height:${size}px;
+    left:${Math.random()*100}%;
+    background:${green?'rgba(0,255,136,'+(.15+Math.random()*.35)+')':'rgba(255,215,0,'+(.1+Math.random()*.25)+')'};
+    animation-duration:${8+Math.random()*14}s;
+    animation-delay:${Math.random()*12}s;
+    box-shadow:0 0 ${size*2}px ${green?'rgba(0,255,136,0.4)':'rgba(255,215,0,0.3)'};
+  `;
+  pc.appendChild(p);
+}
+
+// ─── NAV SCROLL ───
+function scrollTo(sel){
+  document.querySelector(sel)?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─── PAGE READER ───
+let currentPage = 1;
+const totalPages = 5;
+
+function buildDots(){
+  const d = document.getElementById('pageDots');
+  d.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    const dot=document.createElement('div');
+    dot.className='pg-dot'+(i===currentPage?' active':'');
+    dot.onclick=(()=>{const n=i;return()=>goToPage(n);})();
+    d.appendChild(dot);
+  }
+}
+
+function goToPage(n){
+  document.getElementById('page-'+currentPage)?.classList.remove('active');
+  currentPage=n;
+  document.getElementById('page-'+currentPage)?.classList.add('active');
+  document.getElementById('prevBtn').disabled=currentPage===1;
+  document.getElementById('nextBtn').disabled=currentPage===totalPages;
+  document.getElementById('pageIndicator').textContent=`পৃষ্ঠা ${currentPage} / ${totalPages}`;
+  buildDots();
+  document.getElementById('readerContent')?.scrollTo({top:0,behavior:'smooth'});
+}
+
+function changePage(dir){
+  const next=currentPage+dir;
+  if(next<1||next>totalPages)return;
+  goToPage(next);
+}
+
+buildDots();
+
+// ─── FAQ ───
+function toggleFaq(el){
+  const item=el.parentElement;
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+  if(!isOpen)item.classList.add('open');
+}
+
+// ─── COPY NUMBER ───
+function copyNumber(btn){
+  navigator.clipboard?.writeText('01763108284').then(()=>{
+    btn.textContent='✓ কপি হয়েছে!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='কপি করুন';btn.classList.remove('copied');},2500);
+  }).catch(()=>{
+    // fallback
+    const t=document.createElement('textarea');
+    t.value='01763108284'; document.body.appendChild(t);
+    t.select(); document.execCommand('copy'); document.body.removeChild(t);
+    btn.textContent='✓ কপি হয়েছে!'; btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='কপি করুন';btn.classList.remove('copied');},2500);
+  });
+}
+
+// ─── ORDER SUBMIT ───
+function submitOrder(){
+  const email=document.getElementById('emailInput').value.trim();
+  const trxn=document.getElementById('trxnInput').value.trim();
+  if(!email){alert('অনুগ্রহ করে আপনার Email দিন');return;}
+  if(!trxn){alert('অনুগ্রহ করে Transaction ID দিন');return;}
+  if(!email.includes('@')){alert('সঠিক Email Address দিন');return;}
+  document.getElementById('orderForm').style.display='none';
+  document.getElementById('successMsg').classList.add('show');
+}
+
+// ─── FLOATING BTN SHOW ON SCROLL ───
+window.addEventListener('scroll',()=>{
+  const hero=document.getElementById('home');
+  const heroH=hero?.offsetHeight||600;
+  document.querySelector('.floating-cta').style.display=
+    window.scrollY>heroH*0.7?'block':'none';
+},{passive:true});
+
+// ─── INTERSECTION OBSERVER for cards ───
+const cards=[...document.querySelectorAll('.feat-card,.testi-card')];
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}
+  });
+},{threshold:.1});
+cards.forEach(c=>{c.style.opacity='0';c.style.transform='translateY(24px)';c.style.transition='opacity .5s ease, transform .5s ease';obs.observe(c);});
+</script>
+</body>
+</html>

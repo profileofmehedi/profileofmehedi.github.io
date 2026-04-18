@@ -3,17 +3,27 @@ const mapData = [
         id: 1,
         name: "হযরত আদম (আঃ)",
         era: 1,
-        description: "প্রথম মানব এবং নবী। বিশ্বাস করা হয় যে তিনি কাবার আদি ভিত্তি স্থাপনে নির্দেশিত হয়েছিলেন।",
-        birthplace: { name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "অবতরণ এবং প্রথম পবিত্র ঘর প্রতিষ্ঠার স্থান।" },
-        migrations: []
+        description: "প্রথম মানব এবং নবী। মানবজাতির আদি পিতা।",
+        birthplace: { name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "পৃথিবীতে অবতরণের পর মক্কায় কাবার ভিত্তি স্থাপন করেন।" },
+        migrations: [],
+        miracles: ["জান্নাতে সৃষ্টি", "সকল বস্তুর নাম শিক্ষা লাভ"],
+        books: ["১০টি সহীফা"],
+        familyParent: null,
+        quranRefs: "সূরা বাকারা: ৩০-৩৭",
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 2,
         name: "হযরত শীস (আঃ)",
         era: 1,
-        description: "হযরত আদম (আঃ)-এর পুত্র এবং তাঁর পরবর্তী স্থলাভিষিক্ত নবী।",
+        description: "হযরত আদম (আঃ)-এর পুত্র এবং তাঁর পরবর্তী নবী।",
         birthplace: { name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "মক্কায় জন্মগ্রহণ করেন এবং পিতার দ্বীন প্রচার করেন।" },
-        migrations: []
+        migrations: [],
+        miracles: ["একত্ববাদের প্রচার", "আদি কাবার রক্ষণাবেক্ষণ"],
+        books: ["৫০টি সহীফা"],
+        familyParent: 1,
+        quranRefs: "হাদীস ও ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 3,
@@ -21,49 +31,67 @@ const mapData = [
         era: 1,
         description: "প্রথম নবী যিনি কলম দিয়ে লিখেছিলেন এবং জ্যোতির্বিজ্ঞান জানতেন।",
         birthplace: { name: "ব্যাবিলন", lat: 32.4625, lng: 44.4208, desc: "প্রাচীন ইরাকের ব্যাবিলন অঞ্চলে জন্ম।" },
-        migrations: [
-            { name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "পরবর্তীতে মিশরে হিজরত করেন এবং নীল নদের তীরে বসবাস করেন।" }
-        ]
+        migrations: [{ name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "পরবর্তীতে মিশরে হিজরত করেন।" }],
+        miracles: ["লিখন পদ্ধতি আবিষ্কার", "আকাশে আরোহণ"],
+        books: ["৩০টি সহীফা"],
+        familyParent: null,
+        quranRefs: "সূরা মারইয়াম: ৫৬-৫৭",
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 4,
         name: "হযরত নূহ (আঃ)",
         era: 2,
-        description: "তিনি ৯৫০ বছর ধরে তাঁর কওমকে দাওয়াত দিয়েছিলেন এবং মহাপ্লাবন থেকে বাঁচতে নৌকা তৈরি করেছিলেন।",
-        birthplace: { name: "মেসোপটেমিয়া", lat: 32.0283, lng: 44.3853, desc: "ইরাক অঞ্চলে তাঁর কওমের মাঝে দাওয়াত দিতেন।" },
-        migrations: [
-            { name: "জুদি পর্বত", lat: 37.3703, lng: 42.4367, desc: "প্লাবনের পানি কমার পর নৌকাটি এখানে স্থির হয়েছিল।" }
-        ]
+        description: "উলুল আযম নবীদের একজন। মহাপ্লাবনের সময় কিস্তি নির্মাণ করেন।",
+        birthplace: { name: "মেসোপটেমিয়া", lat: 32.0283, lng: 44.3853, desc: "প্রাচীন ইরাক অঞ্চলে ৯৫০ বছর দাওয়াত দেন।" },
+        migrations: [{ name: "জুদি পর্বত", lat: 37.3703, lng: 42.4367, desc: "প্লাবনের পর নৌকাটি এখানে স্থির হয়।" }],
+        miracles: ["বিশাল কিস্তি নির্মাণ", "মহাপ্লাবন থেকে রক্ষা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা নূহ, সূরা হূদ",
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 5,
         name: "হযরত হুদ (আঃ)",
         era: 2,
-        description: "আদ জাতির কাছে প্রেরিত নবী। তাঁরা সুউচ্চ অট্টালিকা তৈরির জন্য বিখ্যাত ছিল।",
+        description: "আদ জাতির কাছে প্রেরিত নবী।",
         birthplace: { name: "আহকাফ", lat: 16.0, lng: 50.0, desc: "ইয়েমেন এবং ওমানের মধ্যবর্তী মরুভূমি অঞ্চল।" },
-        migrations: [
-            { name: "হাজরামাউত", lat: 15.5, lng: 48.5, desc: "কওমের বিনাশের পর অনুসারীদের নিয়ে এখানে বসবাস শুরু করেন।" }
-        ]
+        migrations: [{ name: "হাজরামাউত", lat: 15.5, lng: 48.5, desc: "কওমের বিনাশের পর এখানে বসবাস শুরু করেন।" }],
+        miracles: ["শক্তিশালী বাতাসের হাত থেকে রক্ষা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা হুদ",
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 6,
         name: "হযরত সালেহ (আঃ)",
         era: 2,
-        description: "সামুদ জাতির নবী। পাহাড় কেটে ঘর বানানোর মোজেজা এবং উষ্ট্রী তাঁর সাথে জড়িত।",
-        birthplace: { name: "আল-হিজর", lat: 26.7917, lng: 37.9528, desc: "মাদাইন সালেহ, বর্তমান সৌদি আরবের উত্তরাঞ্চল।" },
-        migrations: []
+        description: "সামুদ জাতির নবী। পাহাড় কেটে ঘর বানানোর জন্য তাঁরা বিখ্যাত ছিল।",
+        birthplace: { name: "আল-হিজর", lat: 26.7917, lng: 37.9528, desc: "মাদাইন সালেহ, বর্তমান সৌদি আরব।" },
+        migrations: [],
+        miracles: ["পাহাড় থেকে উষ্ট্রী বের করা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা শামস, সূরা আরাফ",
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 7,
         name: "হযরত ইব্রাহিম (আঃ)",
         era: 3,
-        description: "একত্ববাদের জনক। নমরুদের আগুন থেকে রক্ষা পাওয়া তাঁর অন্যতম মোজেজা।",
-        birthplace: { name: "উর", lat: 30.9631, lng: 46.1031, desc: "ইরাকের প্রাচীন উর নগরীতে জন্ম।" },
+        description: "একত্ববাদের জনক এবং আল্লাহর বন্ধু (খলিলুল্লাহ)।",
+        birthplace: { name: "উর", lat: 30.9631, lng: 46.1031, desc: "প্রাচীন ইরাকের উর নগরীতে জন্ম।" },
         migrations: [
-            { name: "হাররান", lat: 36.8614, lng: 39.0324, desc: "পরিবারসহ সিরিয়ার হাররানে আসেন।" },
-            { name: "ফিলিস্তিন", lat: 31.5326, lng: 35.0998, desc: "কেনানে থিতু হন এবং এখানে তাঁর মাজার অবস্থিত।" },
-            { name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "মক্কায় এসে স্ত্রী হাজেরা ও পুত্র ইসমাইলকে রেখে যান এবং কাবা নির্মাণ করেন।" }
-        ]
+            { name: "হাররান", lat: 36.8614, lng: 39.0324, desc: "সিরিয়ায় আগমন।" },
+            { name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "কাবা পুনর্নির্মাণ করেন।" }
+        ],
+        miracles: ["নমরুদের আগুন শীতল হওয়া", "মৃত পাখিকে জীবিত করা"],
+        books: ["১০টি সহীফা"],
+        familyParent: null,
+        quranRefs: "সূরা ইব্রাহিম, সূরা বাকারা",
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 8,
@@ -71,19 +99,25 @@ const mapData = [
         era: 3,
         description: "সাদুম জাতির নবী এবং ইব্রাহিম (আঃ)-এর ভ্রাতুষ্পুত্র।",
         birthplace: { name: "উর", lat: 30.9631, lng: 46.1031, desc: "ইরাকে জন্ম, চাচার সাথে হিজরত করেন।" },
-        migrations: [
-            { name: "সাদুম", lat: 31.3333, lng: 35.3333, desc: "মৃত সাগরের (ডেড সী) নিকটবর্তী পাপাচারী জাতির কাছে প্রেরিত হন।" }
-        ]
+        migrations: [{ name: "সাদুম", lat: 31.3333, lng: 35.3333, desc: "মৃত সাগরের নিকটবর্তী পাপাচারী জাতির কাছে প্রেরিত হন।" }],
+        miracles: ["ফেরেশতাদের আগমন", "আযাব থেকে রক্ষা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা হিজর, সূরা হুদ",
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 9,
         name: "হযরত ইসমাইল (আঃ)",
         era: 3,
-        description: "ইব্রাহিম (আঃ)-এর জ্যেষ্ঠ পুত্র. যমজম কূয়া তাঁর মাধ্যমেই সৃষ্টি হয়েছিল।",
+        description: "ইব্রাহিম (আঃ)-এর জ্যেষ্ঠ পুত্র। যমজম কূয়া তাঁর মাধ্যমেই সৃষ্টি হয়েছিল।",
         birthplace: { name: "ফিলিস্তিন", lat: 31.5326, lng: 35.0998, desc: "ফিলিস্তিন অঞ্চলে জন্ম।" },
-        migrations: [
-            { name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "পিতার সাথে মক্কায় আসেন এবং এখানেই সারাজীবন অতিবাহিত করেন।" }
-        ]
+        migrations: [{ name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "পিতার সাথে মক্কায় বসবাস শুরু করেন।" }],
+        miracles: ["যমজম কূয়া লাভ", "কুরবানি থেকে রক্ষা"],
+        books: [],
+        familyParent: 7,
+        quranRefs: "সূরা সাফফাত, সূরা বাকারা",
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 10,
@@ -91,17 +125,25 @@ const mapData = [
         era: 3,
         description: "ইব্রাহিম (আঃ)-এর কনিষ্ঠ পুত্র এবং বনী ইসরাঈল বংশের উৎস।",
         birthplace: { name: "কেনান", lat: 31.5326, lng: 35.0998, desc: "ফিলিস্তিন অঞ্চলে জন্ম ও নবুওয়াত লাভ।" },
-        migrations: []
+        migrations: [],
+        miracles: ["বার্ধক্যে অলৌকিক জন্ম"],
+        books: [],
+        familyParent: 7,
+        quranRefs: "সূরা আম্বিয়া, সূরা সাদ",
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 11,
         name: "হযরত ইয়াকুব (আঃ)",
         era: 4,
-        description: "হযরত ইসহাক (আঃ)-এর পুত্র। তাঁরই অন্য নাম ছিল 'ইসরাঈল'।" ,
+        description: "হযরত ইসহাক (আঃ)-এর পুত্র। তাঁরই অন্য নাম ছিল 'ইসরাঈল'।",
         birthplace: { name: "ফিলিস্তিন", lat: 31.5326, lng: 35.0998, desc: "ফিলিস্তিনেই জন্ম এবং জীবন অতিবাহিত করেন।" },
-        migrations: [
-            { name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "শেষ বয়সে পুত্র ইউসুফের কাছে মিশরে হিজরত করেন।" }
-        ]
+        migrations: [{ name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "শেষ বয়সে পুত্র ইউসুফের কাছে মিশরে হিজরত করেন।" }],
+        miracles: ["দৃষ্টিশক্তি ফিরে পাওয়া"],
+        books: [],
+        familyParent: 10,
+        quranRefs: "সূরা ইউসুফ",
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 12,
@@ -109,9 +151,12 @@ const mapData = [
         era: 4,
         description: "সৌন্দর্য ও ধৈর্য্যশীলতার প্রতীক। তিনি স্বপ্নের সঠিক ব্যাখ্যা দিতে পারতেন।",
         birthplace: { name: "ফিলিস্তিন", lat: 31.5326, lng: 35.0998, desc: "কেনানে জন্ম, ভাইদের ষড়যন্ত্রে কূয়ায় নিক্ষিপ্ত হন।" },
-        migrations: [
-            { name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "মিশরে দাস হিসেবে নীত হন এবং পরবর্তীতে রাজকোষের প্রধান হন।" }
-        ]
+        migrations: [{ name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "মিশরে দাস হিসেবে নীত হন এবং পরবর্তীতে রাজকোষের প্রধান হন।" }],
+        miracles: ["স্বপ্নের ব্যাখ্যা প্রদান", "অপূর্ব রূপ"],
+        books: [],
+        familyParent: 11,
+        quranRefs: "সূরা ইউসুফ",
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 13,
@@ -119,7 +164,12 @@ const mapData = [
         era: 4,
         description: "মাদইয়ান বাসীদের নবী। তিনি সুবক্তা হওয়ার কারণে 'খতিবুল আম্বিয়া' নামে পরিচিত।",
         birthplace: { name: "মাদইয়ান", lat: 28.5, lng: 34.8, desc: "বর্তমান জর্দান ও সৌদি আরবের মধ্যবর্তী অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["সুস্পষ্ট দাওয়াত ও বক্তব্য"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা শুয়ারা, সূরা হুদ",
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 14,
@@ -127,7 +177,12 @@ const mapData = [
         era: 4,
         description: "ধৈর্য্যশীলতার চূড়ান্ত উদাহরণ। কঠিন রোগভোগের পর আল্লাহ তাকে সুস্থতা দেন।",
         birthplace: { name: "হাওরান", lat: 32.8, lng: 36.3, desc: "সিরিয়া ও জর্দান সীমান্ত অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["মাটি থেকে ঝর্ণা বের হওয়া", "শারীরিক সুস্থতা ফিরে পাওয়া"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা আম্বিয়া, সূরা সাদ",
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 15,
@@ -136,104 +191,157 @@ const mapData = [
         description: "বনী ইসরাঈলকে ফেরাউনের হাত থেকে মুক্ত করেন এবং তাওরাত কিতাব পান।",
         birthplace: { name: "মিশর", lat: 30.8, lng: 31.8, desc: "মিশরে জন্ম, নীল নদে ভাসিয়ে দেওয়া হয়।" },
         migrations: [
-            { name: "মাদইয়ান", lat: 28.5, lng: 34.8, desc: "ফেরাউনের ভয়ে মাদইয়ানে ১০ বছর অবস্থান করেন।" },
-            { name: "সিনাই", lat: 28.5394, lng: 33.9750, desc: "তূর পাহাড়ে আল্লাহর সাথে কথা বলেন এবং নবুওয়াত পান।" }
-        ]
+            { name: "মাদইয়ান", lat: 28.5, lng: 34.8, desc: "১০ বছর প্রবাস জীবন।" },
+            { name: "সিনাই", lat: 28.5394, lng: 33.9750, desc: "তূর পাহাড়ে আল্লাহর সাথে কথা বলা।" }
+        ],
+        miracles: ["লাঠি অজগর হওয়া", "সমুদ্র দ্বিখণ্ডিত করা"],
+        books: ["তাওরাত"],
+        familyParent: null,
+        quranRefs: "সূরা কাসাস, সূরা তাহা",
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 16,
         name: "হযরত হারুন (আঃ)",
         era: 5,
-        description: "হযরত মুসা (আঃ)-এর সহোদর ভাই এবং সুবক্তা হওয়ার কারণে তাঁর সহযোগী হন।",
-        birthplace: { name: "মিশর", lat: 30.8, lng: 31.8, desc: "মিশরে মুসা (আঃ)-এর সহযোগী হিসেবে কাজ করেন।" },
-        migrations: []
+        description: "হযরত মুসা (আঃ)-এর ভাই এবং তাঁর নবুওয়াতের সহযোগী।",
+        birthplace: { name: "মিশর", lat: 30.8, lng: 31.8, desc: "মিশরে জন্মগ্রহণ করেন এবং মুসা (আঃ)-এর সাথে কাজ করেন।" },
+        migrations: [],
+        miracles: ["বাগ্মীতা ও সুবক্তা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা তাহা, সূরা মারইয়াম",
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 17,
         name: "হযরত ইউশা বিন নুন (আঃ)",
         era: 5,
-        description: "মুসা (আঃ)-এর পরবর্তী বনী ইসরাঈলের নেতা, যিনি বায়তুল মুকাদ্দাস জয় করেন।",
-        birthplace: { name: "মিশর", lat: 30.8, lng: 31.8, desc: "মিশরে মুসা (আঃ)-এর সেবক হিসেবে ছিলেন।" },
-        migrations: [
-            { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "বনী ইসরাঈলদের নিয়ে ফিলিস্তিন বিজয় করেন।" }
-        ]
+        description: "হযরত মুসা (আঃ)-এর ছাত্র এবং পরবর্তীতে বনী ইসরাঈলের নেতা।",
+        birthplace: { name: "মিশর", lat: 30.8, lng: 31.8, desc: "মিশরে জন্ম, বনী ইসরাঈলদের নেতা হিসেবে জেরুজালেম বিজয় করেন।" },
+        migrations: [{ name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "বায়তুল মুকাদ্দাস বিজয়।" }],
+        miracles: ["সূর্যের গতি স্তব্ধ হওয়া"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা কাহাফ (ইশারা)",
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 18,
         name: "হযরত যুল-কিফল (আঃ)",
         era: 5,
-        description: "অত্যন্ত নীতিনিষ্ঠ নবী। তিনি সর্বদা রোজা রাখতেন এবং রাতে ইবাদত করতেন।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4625, lng: 44.4208, desc: "ইরাক অঞ্চলে জন্ম ও ধর্মপ্রচার।" },
-        migrations: []
+        description: "অত্যন্ত ধৈর্যশীল এবং ইবাদতগুজার নবী।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4625, lng: 44.4208, desc: "প্রাচীন মেসোপটেমিয়া অঞ্চল।" },
+        migrations: [],
+        miracles: ["অটল ধৈর্য ও আমানতদারি"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা আম্বিয়া, সূরা সাদ",
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 19,
         name: "হযরত দাউদ (আঃ)",
         era: 6,
-        description: "জালুতকে হত্যা করে রাজত্ব পান এবং তাঁর ওপর যবুর কিতাব নাজিল হয়।",
-        birthplace: { name: "বেথলেহেম", lat: 31.7054, lng: 35.2024, desc: "ফিলিস্তিনের বেথলেহেমে জন্ম।" },
-        migrations: [
-            { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "এখানে তাঁর রাজত্ব ও রাজধানী ছিল।" }
-        ]
+        description: "জালুতকে হত্যা করে রাজত্ব লাভ করেন এবং যবুর কিতাব পান।",
+        birthplace: { name: "বেথলেহেম", lat: 31.7054, lng: 35.2024, desc: "ফিলিস্তিনের পবিত্র ভূমি।" },
+        migrations: [{ name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "এখানে তাঁর রাজধানী ছিল।" }],
+        miracles: ["লোহা গলানো", "পাখিদের তাসবীহ"],
+        books: ["যাবুর"],
+        familyParent: null,
+        quranRefs: "সূরা সাবা, সূরা সাদ",
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 20,
         name: "হযরত সুলাইমান (আঃ)",
         era: 6,
-        description: "পশুপাখির ভাষা বুঝতেন এবং জ্বিন-ইনসান সবার ওপর তাঁর রাজত্ব ছিল।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "জেরুজালেমে জন্ম এবং বিশাল রাজত্বের অধিপতি।" },
-        migrations: []
+        description: "হযরত দাউদ (আঃ)-এর পুত্র এবং প্রজ্ঞাবান শাসক।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "পিতার রাজত্বের উত্তরাধিকারী হন।" },
+        migrations: [],
+        miracles: ["পশুপাখির ভাষা বুঝা", "জ্বিন-বাতাসের ওপর নিয়ন্ত্রণ"],
+        books: [],
+        familyParent: 19,
+        quranRefs: "সূরা নামল, সূরা সাবা",
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 21,
         name: "হযরত ইউনুস (আঃ)",
         era: 6,
         description: "মাছের পেটে আল্লাহর জিকির করে জীবন ফিরে পেয়েছিলেন।",
-        birthplace: { name: "নিনেভা", lat: 36.3633, lng: 43.15, desc: "প্রাচীন ইরাকের নিনেভা শহর (বর্তমান মসুল)।" },
-        migrations: []
+        birthplace: { name: "নিনেভা", lat: 36.3633, lng: 43.15, desc: "বর্তমান ইরাকের মসুল অঞ্চল।" },
+        migrations: [],
+        miracles: ["মাছের পেটে জীবিত থাকা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা ইউনুস, সূরা সাফফাত",
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 22,
         name: "হযরত ইলিয়াস (আঃ)",
         era: 6,
-        description: "সিরিয়া অঞ্চলে মূর্তিপূজা বন্ধ করে আল্লাহর দ্বীন কায়েম করেন।",
-        birthplace: { name: "বালবেক", lat: 34.0069, lng: 36.2069, desc: "বর্তমান লেবাননের বালবেক অঞ্চল।" },
-        migrations: []
+        description: "বালবেক অঞ্চলের মূর্তিপূজকদের বিরুদ্ধে দাওয়াত দেন।",
+        birthplace: { name: "বালবেক", lat: 34.0069, lng: 36.2069, desc: "বর্তমান লেবানন অঞ্চল।" },
+        migrations: [],
+        miracles: ["মূর্তিপূজা বন্ধ করে একত্ববাদ প্রতিষ্ঠা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা সাফফাত",
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 23,
         name: "হযরত আল-ইয়াসা (আঃ)",
         era: 6,
-        description: "হযরত ইলিয়াস (আঃ)-এর পরবর্তী নবী হিসেবে বনী ইসরাঈলে প্রেরিত হন।",
-        birthplace: { name: "ফিলিস্তিন", lat: 31.7683, lng: 35.2137, desc: "ফিলিস্তিন ও জর্দান উপত্যকায় ধর্মপ্রচার করেন।" },
-        migrations: []
+        description: "হযরত ইলিয়াস (আঃ)-এর পরবর্তী বনী ইসরাঈলের নবী।",
+        birthplace: { name: "ফিলিস্তিন", lat: 31.7683, lng: 35.2137, desc: "ফিলিস্তিন অঞ্চলে ধর্মপ্রচার করেন।" },
+        migrations: [],
+        miracles: ["অন্ধকে দৃষ্টিদান (বর্ণিত)"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা আম্বিয়া, সূরা সাদ",
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 24,
         name: "হযরত জাকারিয়া (আঃ)",
         era: 7,
-        description: "বৃদ্ধ বয়সে অলৌকিকভাবে হযরত ইয়াহইয়া (আঃ) কে পুত্র হিসেবে লাভ করেন।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "বায়তুল মুকাদ্দাসের ইমাম ও সেবক ছিলেন।" },
-        migrations: []
+        description: "বায়তুল মুকাদ্দাসের ইমাম এবং বিবি মরিয়মের অভিভাবক।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "জেরুজালেমে ধর্মপ্রচার ও ইবাদতে মগ্ন ছিলেন।" },
+        migrations: [],
+        miracles: ["বৃদ্ধ বয়সে সন্তান লাভ"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা মারইয়াম, সূরা আলে ইমরান",
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 25,
         name: "হযরত ইয়াহইয়া (আঃ)",
         era: 7,
-        description: "হযরত জাকারিয়া (আঃ)-এর পুত্র। তিনি সত্য ন্যায়ের পথে অত্যন্ত কঠোর ছিলেন।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "পিতার স্থলাভিষিক্ত হয়ে নবুওয়াত পালন করেন।" },
-        migrations: []
+        description: "হযরত জাকারিয়া (আঃ)-এর পুত্র এবং কঠোর পরহেজগার নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "জেরুজালেমে জন্মগ্রহণ করেন।" },
+        migrations: [],
+        miracles: ["শৈশবে প্রজ্ঞা লাভ"],
+        books: [],
+        familyParent: 24,
+        quranRefs: "সূরা মারইয়াম, সূরা আম্বিয়া",
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 26,
         name: "হযরত ঈসা (আঃ)",
         era: 7,
-        description: "পিতা ছাড়া বিবি মরিয়মের গর্ভে অলৌকিকভাবে জন্ম এবং ইঞ্জিল লাভ।",
-        birthplace: { name: "বেথলেহেম", lat: 31.7054, lng: 35.2024, desc: "বেথলেহেমের খেজুর গাছের নিচে জন্ম।" },
-        migrations: [
-            { name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "শৈশবে ফেরাউনের বংশধরদের হাত থেকে বাঁচতে মিশরে যান।" },
-            { name: "নাজারেথ", lat: 32.7019, lng: 35.3033, desc: "পরবর্তীতে নাজারেথ ফিরে আসেন।" }
-        ]
+        description: "পিতা ছাড়া অলৌকিক জন্ম লাভকারী মহান নবী।",
+        birthplace: { name: "বেথলেহেম", lat: 31.7054, lng: 35.2024, desc: "ফিলিস্তিনের বেথলেহেমে জন্ম।" },
+        migrations: [{ name: "মিশর", lat: 30.0444, lng: 31.2357, desc: "শৈশবে ফেরাউনের বংশধরদের ভয়ে হিজরত।" }],
+        miracles: ["মৃতকে জীবিত করা", "দোলনায় কথা বলা"],
+        books: ["ইঞ্জিল"],
+        familyParent: null,
+        quranRefs: "সূরা মারইয়াম, সূরা আলে ইমরান",
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 27,
@@ -241,18 +349,25 @@ const mapData = [
         era: 7,
         description: "১০০ বছর মৃত থাকার পর আল্লাহ তাকে পুনরায় জীবিত করেন।",
         birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "জেরুজালেমের ধ্বংসস্তূপ দেখে বিস্ময় প্রকাশ করেছিলেন।" },
-        migrations: []
+        migrations: [],
+        miracles: ["পুনর্জীবন লাভ", "গাধার পুনরুত্থান"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা বাকারা: ২৫৯",
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 28,
         name: "হযরত মুহাম্মদ (সাঃ)",
         era: 8,
-        description: "সর্বশেষ নবী ও রাসূল (খাতামুন্নাবীয়ীন), যাঁর ওপর কুরআন নাজিল হয়েছে।",
+        description: "সর্বশেষ নবী ও রাসূল (খাতামুন্নাবীয়ীন)।",
         birthplace: { name: "মক্কা", lat: 21.4225, lng: 39.8262, desc: "৫৭০ খ্রিস্টাব্দে আরবের পবিত্র মক্কা নগরীতে জন্ম।" },
-        migrations: [
-            { name: "তায়েফ", lat: 21.2703, lng: 40.4158, desc: "ইসলামের দাওয়াত নিয়ে সফর করেন।" },
-            { name: "মদিনা", lat: 24.4672, lng: 39.6112, desc: "৬২২ খ্রিস্টাব্দে ঐতিহাসিক হিজরত করে ইসলামী রাষ্ট্র গড়েন।" }
-        ]
+        migrations: [{ name: "মদিনা", lat: 24.4672, lng: 39.6112, desc: "৬২২ খ্রিস্টাব্দে ঐতিহাসিক হিজরত।" }],
+        miracles: ["পবিত্র কুরআন", "মেরাজ ভ্রমণ", "চাঁদ দ্বিখণ্ডিত করা"],
+        books: ["কুরআন মাজীদ"],
+        familyParent: null,
+        quranRefs: "সমগ্র কুরআন",
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 29,
@@ -260,344 +375,524 @@ const mapData = [
         era: 6,
         description: "একজন প্রজ্ঞাবান মহাপুরুষ, যাঁর নামে কুরআনে একটি সূরা রয়েছে।",
         birthplace: { name: "নুবিয়া", lat: 15.0, lng: 32.0, desc: "বর্তমান সুদান বা দক্ষিণ মিশর অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["অপূর্ব হিকমত ও প্রজ্ঞা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা লোকমান",
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 30,
         name: "হযরত খিজির (আঃ)",
         era: 5,
-        description: "অপূর্ব জ্ঞানের অধিকারী এক মহাপুরুষ, যাঁর সাথে মুসা (আঃ) সাক্ষাৎ করেছিলেন।",
-        birthplace: { name: "সিনাই অঞ্চল", lat: 28.0, lng: 34.0, desc: "দুই সমুদ্রের সঙ্গমস্থলের নিকটবর্তী অঞ্চল।" },
-        migrations: []
+        description: "অপূর্ব জ্ঞানের অধিকারী মহাপুরুষ, যাঁর সাথে মুসা (আঃ) সাক্ষাৎ করেছিলেন।",
+        birthplace: { name: "সিনাই", lat: 28.0, lng: 34.0, desc: "দুই সমুদ্রের সঙ্গমস্থল।" },
+        migrations: [],
+        miracles: ["ভবিষ্যৎ জ্ঞান লাভ"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা কাহাফ",
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 31,
         name: "হযরত যুল-কারনাইন (আঃ)",
         era: 3,
-        description: "একজন ন্যায়পরায়ণ বিশ্বজয়ী শাসক, যিনি ইয়াজুজ-মাজুজ থেকে রক্ষায় প্রাচীর নির্মাণ করেছিলেন।",
-        birthplace: { name: "মেসিডোনিয়া", lat: 40.0, lng: 22.0, desc: "প্রাচীন গ্রিস বা মেসিডোনিয়া অঞ্চল।" },
-        migrations: [
-            { name: "মাগরিব (পশ্চিম)", lat: 35.0, lng: -5.0, desc: "সূর্যাস্ত যাওয়ার স্থান পর্যন্ত সফর।" },
-            { name: "মাশরিক (পূর্ব)", lat: 25.0, lng: 70.0, desc: "সূর্যোদয় হওয়ার স্থান পর্যন্ত সফর।" },
-            { name: "ককেশাস", lat: 42.0, lng: 44.0, desc: "দুই পাহাড়ের মাঝখানে লৌহ প্রাচীর নির্মাণ করেন।" }
-        ]
+        description: "ন্যায়পরায়ণ বিশ্বজয়ী শাসক।",
+        birthplace: { name: "মেসিডোনিয়া", lat: 40.0, lng: 22.0, desc: "প্রাচীন মেসিডোনিয়া অঞ্চল।" },
+        migrations: [{ name: "ককেশাস", lat: 42.0, lng: 44.0, desc: "এখানে লৌহ প্রাচীর নির্মাণ করেন।" }],
+        miracles: ["প্রাচীর নির্মাণ", "সূর্যাস্ত ও সূর্যোদয় সফর"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা কাহাফ",
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 32,
         name: "হযরত সামুইল (আঃ)",
         era: 6,
         description: "বনী ইসরাঈলের নবী, যিনি তালুতকে রাজা হিসেবে অভিষিক্ত করেছিলেন।",
-        birthplace: { name: "রামা", lat: 31.9, lng: 35.2, desc: "ফিলিস্তিনের রামা অঞ্চল।" },
-        migrations: []
+        birthplace: { name: "রামা", lat: 31.9, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
+        migrations: [],
+        miracles: ["তালুতকে রাজা হিসেবে মনোনয়ন"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা বাকারা (ইশারা)",
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 33,
         name: "হযরত হিজকীল (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের অন্যতম নবী, যিনি ব্যবিলনে বন্দীদশা থেকে মুক্তিতে ভূমিকা রাখেন।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাকের প্রাচীন ব্যাবিলন অঞ্চল।" },
-        migrations: []
+        description: "বনী ইসরাঈলের নবী, যিনি ব্যবিলনে বন্দীদের পথ দেখাতেন।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "প্রাচীন ইরাক অঞ্চল।" },
+        migrations: [],
+        miracles: ["হাজারো মৃত মানুষকে জীবিত করা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা বাকারা (ইশারা)",
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 34,
         name: "হযরত ইয়ারমিয়া (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের নবী, যিনি বায়তুল মুকাদ্দাস ধ্বংস হওয়ার সময় বেঁচে ছিলেন।",
-        birthplace: { name: "আনাতোথ", lat: 31.8, lng: 35.2, desc: "জেরুজালেমের নিকটবর্তী অঞ্চল।" },
-        migrations: [
-            { name: "মিশর", lat: 30.0, lng: 31.2, desc: "শেষ জীবনে মিশরে হিজরত করেন।" }
-        ]
+        description: "জেরুজালেম ধ্বংসের সময়কার নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.8, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
+        migrations: [{ name: "মিশর", lat: 30.0, lng: 31.2, desc: "শেষ জীবনে মিশরে যান।" }],
+        miracles: ["জেরুজালেম পতনের ভবিষ্যৎবাণী"],
+        books: [],
+        familyParent: null,
+        quranRefs: "তাফসীরে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 35,
         name: "হযরত দানিয়াল (আঃ)",
         era: 6,
-        description: "পারস্য অঞ্চলের বিখ্যাত নবী, যিনি স্বপ্নের ব্যাখ্যার জন্য পরিচিত ছিলেন।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক অঞ্চল।" },
-        migrations: [
-            { name: "সুসা", lat: 32.1, lng: 48.2, desc: "বর্তমান ইরান বা পারস্য অঞ্চলে ধর্মপ্রচার করেন।" }
-        ]
+        description: "পারস্য অঞ্চলের বিখ্যাত নবী।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক থেকে পারস্যে যান।" },
+        migrations: [{ name: "সুসা", lat: 32.1, lng: 48.2, desc: "বর্তমান ইরান অঞ্চল।" }],
+        miracles: ["স্বপ্নের ব্যাখ্যা", "সিংহ থেকে রক্ষা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 36,
         name: "হযরত আশয়া (আঃ)",
         era: 6,
-        description: "ফিলিস্তিন ও সিরিয়া অঞ্চলে বনী ইসরাঈলকে সুসংবাদ প্রদানকারী নবী।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        description: "বনী ইসরাঈলকে সুসংবাদ প্রদানকারী নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "জেরুজালেম অঞ্চল।" },
+        migrations: [],
+        miracles: ["আগমনী বার্তা প্রদান"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 37,
         name: "হযরত হাবকুক (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যাঁর সমাধি ইরানে অবস্থিত বলে মনে করা হয়।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        description: "বনী ইসরাঈলের নবী যাঁর সমাধি ইরানে অবস্থিত।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "জেরুজালেম অঞ্চল।" },
+        migrations: [{ name: "হামাদান", lat: 34.8, lng: 48.5, desc: "পারস্য অঞ্চলে ধর্মপ্রচার।" }],
+        miracles: ["ধর্মীয় শাস্ত্র রক্ষা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 38,
-        name: "হযরত hুনযালা বিন সাফওয়ান (আঃ)",
+        name: "হযরত হুনযালা (আঃ)",
         era: 2,
-        description: "আসহাবে রাস বা কূয়াবাসীদের কাছে প্রেরিত নবী।",
-        birthplace: { name: "রাস", lat: 15.0, lng: 45.0, desc: "ইয়েমেন বা মেসোপটেমিয়ার নিকটবর্তী অঞ্চল।" },
-        migrations: []
+        description: "আসহাবে রাস বা কূয়াবাসীদের নবী।",
+        birthplace: { name: "রাস", lat: 15.0, lng: 45.0, desc: "ইয়েমেন অঞ্চল।" },
+        migrations: [],
+        miracles: ["কূয়াবাসীদের দাওয়াত"],
+        books: [],
+        familyParent: null,
+        quranRefs: "সূরা ক্বাফ (ইশারা)",
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 39,
         name: "হযরত ইউয়েল (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি লোকদের তওবা করার আহ্বান জানিয়েছিলেন।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7683, lng: 35.2137, desc: "ফিলিস্তিনের পবিত্র নগরী জেরুজালেমে ধর্মপ্রচার করেন।" },
-        migrations: []
+        description: "বনী ইসরাঈলকে তওবার আহ্বান জানানো নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
+        migrations: [],
+        miracles: ["তওবার সুফল বর্ণনা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 40,
         name: "হযরত আমোস (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের নবী। তিনি মূলত একজন মেষপালক ছিলেন এবং অন্যায়ের বিরুদ্ধে কথা বলতেন।",
-        birthplace: { name: "টেকোয়া", lat: 31.6, lng: 35.2, desc: "জেরুজালেমের দক্ষিণের একটি অঞ্চল।" },
-        migrations: []
+        description: "অন্যায়ের বিরুদ্ধে সোচ্চার মেষপালক নবী।",
+        birthplace: { name: "টেকোয়া", lat: 31.6, lng: 35.2, desc: "জেরুজালেমের দক্ষিণ দিক।" },
+        migrations: [],
+        miracles: ["সামাজিক ন্যায়বিচার প্রতিষ্ঠা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 41,
         name: "হযরত মিখা (আঃ)",
         era: 6,
-        description: "তিনি বনী ইসরাঈলের শাসকদের দুর্নীতির বিরুদ্ধে সোচ্চার ছিলেন।",
-        birthplace: { name: "মোরে শেথ", lat: 31.6, lng: 34.9, desc: "ফিলিস্তিনের কেনান অঞ্চল।" },
-        migrations: []
+        description: "শাসকদের দুর্নীতির বিরুদ্ধে সোচ্চার নবী।",
+        birthplace: { name: "কেনান", lat: 31.6, lng: 34.9, desc: "ফিলিস্তিন অঞ্চল।" },
+        migrations: [],
+        miracles: ["ভবিষ্যৎবাণী প্রদান"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 42,
         name: "হযরত ওবাদিয়া (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি ইদুমীয়দের পতনের ভবিষ্যৎবাণী করেছিলেন।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        description: "ইদুমীয়দের পতনের ভবিষ্যৎবাণী করেছিলেন।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "জেরুজালেম অঞ্চল।" },
+        migrations: [],
+        miracles: ["ঐশ্বরিক সতর্কবার্তা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 43,
         name: "হযরত নাউম (আঃ)",
         era: 6,
-        description: "নিনেভা নগরীর (বর্তমান মসুল) ধ্বংসের খবর দিয়েছিলেন।",
-        birthplace: { name: "নিনেভা", lat: 36.7, lng: 43.1, desc: "প্রাচীন ইরাক অঞ্চল।" },
-        migrations: []
+        description: "নিনেভা ধ্বংসের খবর দিয়েছিলেন।",
+        birthplace: { name: "নিনেভা", lat: 36.7, lng: 43.1, desc: "ইরাক অঞ্চল।" },
+        migrations: [],
+        miracles: ["ঐতিহাসিক ঘোষণা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 44,
         name: "হযরত সফনিয়া (আঃ)",
         era: 6,
-        description: "মূর্তিপূজা এবং বিজাতীয় সংস্কৃতির বিরুদ্ধে বনী ইসরাঈলকে হুঁশিয়ার করেছিলেন।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        description: "মূর্তিপূজা বন্ধে কাজ করেন।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "জেরুজালেম অঞ্চল।" },
+        migrations: [],
+        miracles: ["ধর্মীয় সংস্কার"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 45,
         name: "হযরত হগয় (আঃ)",
         era: 6,
-        description: "দ্বিতীয়বার বায়তুল মুকাদ্দাস নির্মাণে বনী ইসরাঈলকে উৎসাহ দিয়েছিলেন।",
+        description: "দ্বিতীয়বার মন্দির নির্মাণে কাজ করেন।",
         birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["বায়তুল মুকাদ্দাস পুনর্নির্মাণ"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 46,
         name: "হযরত মালাকি (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের শেষ দিকের একজন নবী, যিনি ধর্মীয় সংস্কারে কাজ করেন।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        description: "বনী ইসরাঈলের শেষ দিকের একজন নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "জেরুজালেম অঞ্চল।" },
+        migrations: [],
+        miracles: ["ধর্মীয় অনুশাসন পুনঃপ্রতিষ্ঠা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 47,
         name: "হযরত খালদ বিন সিনান (আঃ)",
         era: 7,
-        description: "আরব উপদ্বীপের একজন নবী, যিনি অগ্নিপূজা বন্ধে বিশেষ ভূমিকা রাখেন।",
-        birthplace: { name: "নজদ", lat: 24.0, lng: 45.0, desc: "সৌদি আরবের মধ্যাঞ্চল।" },
-        migrations: []
+        description: "আরব উপদ্বীপের নবী যিনি আগুন নির্বাপণ করেন।",
+        birthplace: { name: "নজদ", lat: 24.0, lng: 45.0, desc: "সৌদি আরব অঞ্চল।" },
+        migrations: [],
+        miracles: ["বিশাল আগ্নেয়গিরির আগুন নেভানো"],
+        books: [],
+        familyParent: null,
+        quranRefs: "হাদীসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 48,
         name: "হযরত শামাউন (আঃ)",
         era: 7,
-        description: "হযরত ঈসা (আঃ)-এর হাওয়ারীদের মধ্যে প্রধান এবং তাঁর পরবর্তী দ্বীন প্রচারক।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন ও আনতাকিয়া অঞ্চলে ধর্মপ্রচার করেন।" },
-        migrations: [
-            { name: "আনতাকিয়া", lat: 36.2, lng: 36.1, desc: "বর্তমান তুরস্কের দক্ষিণাঞ্চল।" }
-        ]
+        description: "হযরত ঈসা (আঃ)-এর প্রধান শিষ্য।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
+        migrations: [{ name: "আনতাকিয়া", lat: 36.2, lng: 36.1, desc: "তুরস্ক অঞ্চল।" }],
+        miracles: ["অদম্য ধর্মপ্রচার"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 49,
         name: "হযরত বারিয়া (আঃ)",
         era: 6,
-        description: "হযরত ইয়ারমিয়া (আঃ)-এর অত্যন্ত বিশ্বস্ত লেখক, সহযোগী এবং নবী।",
+        description: "হযরত ইয়ারমিয়া (আঃ)-এর সহযোগী।",
         birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["আসমানী কিতাব সংরক্ষণ"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 50,
         name: "হযরত মোরদেকায় (আঃ)",
         era: 6,
-        description: "পারস্য (বর্তমান ইরান) অঞ্চলে বসবাসকারী একজন নবী, যিনি বনী ইসরাঈলদের রক্ষা করেছিলেন।",
-        birthplace: { name: "হামাদান", lat: 34.8, lng: 48.5, desc: "বর্তমান ইরান বা পারস্য অঞ্চল।" },
-        migrations: []
+        description: "পারস্যে বনী ইসরাঈলদের রক্ষা করেন।",
+        birthplace: { name: "হামাদান", lat: 34.8, lng: 48.5, desc: "ইরান অঞ্চল।" },
+        migrations: [],
+        miracles: ["জাতিকে ধ্বংস থেকে রক্ষা"],
+        books: [],
+        familyParent: null,
+        quranRefs: "ইতিহাসে বর্ণিত",
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 51,
-        name: "হযরত কানান বিন আনুশ (আঃ)",
+        name: "হযরত কানান (আঃ)",
         era: 1,
-        description: "হযরত আদম (আঃ)-এর প্রপৌত্র এবং প্রাচীন যুগের একজন ন্যায়পরায়ণ শাসক ও নবী।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4625, lng: 44.4208, desc: "প্রাচীন মেসোপটেমিয়া অঞ্চলে জন্মগ্রহণ করেন।" },
-        migrations: []
+        description: "হযরত আদম (আঃ)-এর প্রপৌত্র ও ন্যায়পরায়ণ নবী।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক অঞ্চল।" },
+        migrations: [],
+        miracles: ["ন্যায়বিচার প্রতিষ্ঠা"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 52,
-        name: "হযরত মাহলাইল বিন কানান (আঃ)",
+        name: "হযরত মাহলাইল (আঃ)",
         era: 1,
-        description: "প্রাচীন বিশ্বের একজন পুণ্যবান নবী, যিনি ব্যাবিলন শহর প্রতিষ্ঠা করেছিলেন বলে বর্ণিত আছে।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4625, lng: 44.4208, desc: "ইরাকের ব্যাবিলন অঞ্চলে জন্ম ও ধর্মপ্রচার।" },
-        migrations: []
+        description: "ব্যাবিলন শহর প্রতিষ্ঠাতা ও প্রাচীন নবী।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক অঞ্চল।" },
+        migrations: [],
+        miracles: ["প্রথম শহর স্থাপন"],
+        books: [],
+        familyParent: 51,
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 53,
-        name: "হযরত ইয়ারিদ বিন মাহলাইল (আঃ)",
+        name: "হযরত ইয়ারিদ (আঃ)",
         era: 1,
-        description: "প্লাবনপূর্ব যুগের একজন মহান নবী এবং ইদ্রিস (আঃ)-এর পিতা।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4625, lng: 44.4208, desc: "মেসোপটেমিয়া অঞ্চলে বসবাস করতেন।" },
-        migrations: []
+        description: "হযরত ইদ্রিস (আঃ)-এর পিতা ও পুণ্যবান নবী।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক অঞ্চল।" },
+        migrations: [],
+        miracles: ["ধর্মীয় অনুশাসন প্রচার"],
+        books: [],
+        familyParent: 52,
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 54,
-        name: "হযরত মুতওয়াসলাখ বিন ইদ্রিস (আঃ)",
+        name: "হযরত মুতওয়াসলাখ (আঃ)",
         era: 1,
-        description: "হযরত ইদ্রিস (আঃ)-এর পুত্র এবং অত্যন্ত দীর্ঘায়ু লাভকারী একজন পুণ্যবান ব্যক্তিত্ব।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4625, lng: 44.4208, desc: "ইরাক অঞ্চলে ধর্মপ্রচার করেন।" },
-        migrations: []
+        description: "হযরত নূহ (আঃ)-এর দাদা ও দীর্ঘজীবী নবী।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "মেসোপটেমিয়া অঞ্চল।" },
+        migrations: [],
+        miracles: ["দীর্ঘ জীবন ও জ্ঞান"],
+        books: [],
+        familyParent: 3,
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 55,
-        name: "হযরত লামাক বিন মুতওয়াসলাখ (আঃ)",
+        name: "হযরত লামাক (আঃ)",
         era: 2,
-        description: "হযরত নূহ (আঃ)-এর পিতা এবং প্লাবনপূর্ব বিশ্বের শেষ দিককার একজন নবী।",
-        birthplace: { name: "মেসোপটেমিয়া", lat: 32.0, lng: 44.0, desc: "প্রাচীন ইরাক অঞ্চল।" },
-        migrations: []
+        description: "হযরত নূহ (আঃ)-এর পিতা।",
+        birthplace: { name: "মেসোপটেমিয়া", lat: 32.0, lng: 44.0, desc: "ইরাক অঞ্চল।" },
+        migrations: [],
+        miracles: ["নূহ (আঃ)-এর অভিভাবক"],
+        books: [],
+        familyParent: 54,
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 56,
         name: "হযরত আবিদ (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি লোকদের একনিষ্ঠ ইবাদতের দিকে ডাকতেন।",
+        description: "বনী ইসরাঈলের নবী।",
         birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["একনিষ্ঠ ইবাদত"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 57,
         name: "হযরত আজরিয়া (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের রাজাদের সঠিক পথে পরিচালনার জন্য প্রেরিত একজন নবী।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন ও জর্দান অঞ্চল।" },
-        migrations: []
+        description: "বনী ইসরাঈলের রাজাদের উপদেষ্টা নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
+        migrations: [],
+        miracles: ["সঠিক পথে পরিচালনা"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 58,
         name: "হযরত গাদ (আঃ)",
         era: 6,
-        description: "হযরত দাউদ (আঃ)-এর সমসাময়িক একজন নবী ও উপদেষ্টা।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        description: "হযরত দাউদ (আঃ)-এর উপদেষ্টা নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "জেরুজালেম অঞ্চল।" },
+        migrations: [],
+        miracles: ["ঐশ্বরিক পরামর্শ"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 59,
         name: "হযরত নাতান (আঃ)",
         era: 6,
-        description: "হযরত দাউদ ও সুলাইমান (আঃ)-এর সময়কার একজন প্রভাবশালী নবী।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "বায়তুল মুকাদ্দাস ও এর আশপাশ অঞ্চলে ধর্মপ্রচার করেন।" },
-        migrations: []
+        description: "দাউদ ও সুলাইমান (আঃ)-এর সময়কার নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
+        migrations: [],
+        miracles: ["রাজকীয় হিকমত"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 60,
         name: "হযরত আহিয়াহ (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি শিলো অঞ্চলে বসবাস করতেন।",
-        birthplace: { name: "শিলো", lat: 32.0, lng: 35.3, desc: "ফিলিস্তিনের একটি প্রাচীন শহর।" },
-        migrations: []
+        description: "বনী ইসরাঈলের নবী।",
+        birthplace: { name: "শিলো", lat: 32.0, lng: 35.3, desc: "ফিলিস্তিনের শহর।" },
+        migrations: [],
+        miracles: ["ঐশ্বরিক জ্ঞান"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 61,
         name: "হযরত ইয়াহু (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের অত্যাচারী রাজাদের বিরুদ্ধে কথা বলার জন্য পরিচিত একজন নবী।",
+        description: "অত্যাচারী রাজাদের বিরুদ্ধে সোচ্চার নবী।",
         birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["সাহসী বক্তব্য"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 62,
         name: "হযরত ওদ্রেদ (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি বন্দীদের প্রতি দয়া দেখানোর আহ্বান জানিয়েছিলেন।",
-        birthplace: { name: "সামারিয়া", lat: 32.2, lng: 35.1, desc: "ফিলিস্তিনের সামারিয়া অঞ্চল।" },
-        migrations: []
+        description: "বনী ইসরাঈলের দয়ালু নবী।",
+        birthplace: { name: "সামারিয়া", lat: 32.2, lng: 35.1, desc: "সামারিয়া অঞ্চল।" },
+        migrations: [],
+        miracles: ["বন্দীদের মুক্তি"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 63,
         name: "হযরত জাদ (আঃ)",
         era: 6,
-        description: "ব্যাবিলন ও পারস্য অঞ্চলে বনী ইসরাঈলদের মধ্যে ধর্মপ্রচারকারী একজন নবী।",
+        description: "ব্যাবিলন ও পারস্যের নবী।",
         birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["প্রবাসী বনী ইসরাঈলদের দাওয়াত"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 64,
         name: "হযরত ইলিয়াকিম (আঃ)",
         era: 6,
-        description: "জেরুজালেম ও ইয়াহুদা অঞ্চলের একজন নবী।",
+        description: "জেরুজালেম অঞ্চলের নবী।",
         birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["ধর্মীয় প্রচারণা"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1548013146-72479768bbf4?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 65,
         name: "হযরত ইদ্দো (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি সঠিক ধর্মীয় আচার পালনের ওপর জোর দিতেন।",
+        description: "বনী ইসরাঈলের নবী ও লেখক।",
         birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["শাস্ত্র লিখন ও সংরক্ষণ"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1618245472861-b2b4e88431ed?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 66,
         name: "হযরত হানানি (আঃ)",
         era: 6,
-        description: "একজন সাহসী নবী, যিনি রাজাদের অন্যায়ের প্রতিবাদ করে কারাবরণ করেছিলেন।",
-        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        description: "সাহসী সত্যবাদী নবী।",
+        birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "জেরুজালেম অঞ্চল।" },
+        migrations: [],
+        miracles: ["অন্যায়ের প্রতিবাদ"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 67,
-        name: "হযরত মিকা বিন ইমলাহ (আঃ)",
+        name: "হযরত মিকা (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি সত্য কথা বলার জন্য পরিচিত ছিলেন।",
+        description: "বনী ইসরাঈলের নবী।",
         birthplace: { name: "সামারিয়া", lat: 32.2, lng: 35.1, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["সুস্পষ্ট সত্য প্রকাশ"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 68,
         name: "হযরত ইলাইজা (আঃ)",
         era: 6,
-        description: "হযরত ইলিয়াস (আঃ)-এরই অন্য রূপ বা কোনো বর্ণনায় ভিন্ন একজন নবী।",
-        birthplace: { name: "তিশবে", lat: 32.4, lng: 35.6, desc: "জর্দান উপত্যকার একটি অঞ্চল।" },
-        migrations: []
+        description: "আল্লাহর প্রেরিত নবী।",
+        birthplace: { name: "তিশবে", lat: 32.4, lng: 35.6, desc: "জর্দান অঞ্চল।" },
+        migrations: [],
+        miracles: ["একত্ববাদ প্রতিষ্ঠা"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1564121211835-e88c852648ad?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 69,
         name: "হযরত ওশেয়া (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলকে আল্লাহর ভালোবাসার দিকে ফিরে আসার আহ্বান জানানো নবী।",
+        description: "বনী ইসরাঈলের নবী।",
         birthplace: { name: "জেরুজালেম", lat: 31.7, lng: 35.2, desc: "ফিলিস্তিন অঞ্চল।" },
-        migrations: []
+        migrations: [],
+        miracles: ["আল্লাহর ভালোবাসার দাওয়াত"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?q=80&w=1000&auto=format&fit=crop"
     },
     {
         id: 70,
         name: "হযরত আজরার (আঃ)",
         era: 6,
-        description: "বনী ইসরাঈলের একজন নবী, যিনি ধর্মীয় জ্ঞান ও শাস্ত্র রক্ষায় কাজ করেছিলেন।",
-        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক ও পারস্য অঞ্চল।" },
-        migrations: []
+        description: "ধর্মীয় শাস্ত্র রক্ষায় নিয়োজিত নবী।",
+        birthplace: { name: "ব্যাবিলন", lat: 32.4, lng: 44.4, desc: "ইরাক অঞ্চল।" },
+        migrations: [],
+        miracles: ["শাস্ত্রীয় জ্ঞান সংরক্ষণ"],
+        books: [],
+        familyParent: null,
+        image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000&auto=format&fit=crop"
     }
 ];
