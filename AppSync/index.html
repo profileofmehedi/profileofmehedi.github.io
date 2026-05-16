@@ -1,212 +1,535 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppSync | Application Portal</title>
+    <title>AppSync | Professional Application Portal</title>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Bangladeshi Flag Colors */
         :root {
-            --bd-green: #006a4e;
-            --bd-red: #f42a41;
-            --bg-light: #f4f8f7;
-            --text-dark: #333333;
+            /* Light Theme Variables */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent-primary: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --card-hover-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-hover: #60a5fa;
+            --border-color: #334155;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+            --card-hover-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5);
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Navbar Styling */
+        /* Navbar */
         .navbar {
-            background-color: var(--bd-green);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
         }
         .navbar-brand {
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-weight: 800;
             font-size: 1.5rem;
+            color: var(--text-primary) !important;
+            letter-spacing: -0.025em;
         }
         .navbar-brand span {
-            color: var(--bd-red);
+            color: var(--accent-primary);
         }
 
-        /* Hero Section */
-        .hero-section {
-            background: #ffffff;
-            padding: 60px 0;
-            text-align: center;
-            border-bottom: 3px solid var(--bd-red);
+        /* Dashboard Header */
+        .dashboard-header {
+            padding: 3rem 0;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
         }
-        .hero-title {
-            color: var(--bd-green);
+        .greeting-text {
             font-weight: 700;
+            font-size: 2.25rem;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--accent-primary);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
         }
 
-        /* Application Cards */
+        /* Search & Controls */
+        .search-container {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .control-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.6rem 0.8rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .control-btn:hover {
+            background-color: var(--bg-primary);
+            border-color: var(--text-secondary);
+        }
+        .control-btn.active {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        /* App Cards Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding-bottom: 4rem;
+        }
+
         .app-card {
-            background: #ffffff;
-            border: none;
-            border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            height: 100%;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--card-shadow);
         }
         .app-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,106,78,0.15);
-            border-bottom: 4px solid var(--bd-green);
-        }
-        .icon-box {
-            font-size: 3.5rem;
-            color: var(--bd-green);
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
-        .app-card:hover .icon-box {
-            color: var(--bd-red);
-            transform: scale(1.1);
-        }
-        .app-title {
-            font-weight: 600;
-            font-size: 1.25rem;
-            margin-bottom: 15px;
+            transform: translateY(-4px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: var(--accent-primary);
         }
         
-        /* Custom Button */
-        .btn-launch {
-            background-color: var(--bd-red);
+        .app-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            background-color: rgba(37, 99, 235, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 1.25rem;
+            transition: all 0.3s;
+        }
+        .app-card:hover .app-icon-wrapper {
+            background-color: var(--accent-primary);
             color: #ffffff;
+        }
+
+        .app-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .app-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .btn-launch {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
             font-weight: 600;
-            border-radius: 30px;
-            padding: 8px 25px;
-            border: 2px solid var(--bd-red);
-            transition: 0.3s;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
         }
         .btn-launch:hover {
-            background-color: transparent;
-            color: var(--bd-red);
+            background-color: var(--accent-hover);
+            color: #ffffff;
+            transform: scale(1.02);
+        }
+
+        /* List View Overrides */
+        .app-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+        .app-grid.list-view .app-card {
+            flex-direction: row;
+            align-items: center;
+            padding: 1rem 1.5rem;
+        }
+        .app-grid.list-view .app-icon-wrapper {
+            margin-bottom: 0;
+            margin-right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+        .app-grid.list-view .app-title {
+            margin-bottom: 0;
+            margin-right: 1.5rem;
+            min-width: 180px;
+        }
+        .app-grid.list-view .app-desc {
+            margin-bottom: 0;
+            margin-right: 1.5rem;
+        }
+        .app-grid.list-view .btn-launch {
+            flex-shrink: 0;
         }
 
         /* Footer */
         footer {
-            background-color: var(--bd-green);
-            color: white;
-            padding: 20px 0;
+            margin-top: auto;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
             text-align: center;
-            margin-top: 50px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .app-grid.list-view .app-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .app-grid.list-view .app-icon-wrapper {
+                margin-bottom: 1rem;
+            }
+            .app-grid.list-view .app-title {
+                margin-bottom: 0.5rem;
+            }
+            .app-grid.list-view .app-desc {
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-dark navbar-expand-lg">
-        <div class="container">
+    <nav class="navbar">
+        <div class="container d-flex justify-content-between align-items-center">
             <a class="navbar-brand" href="#">App<span>Sync</span>.icu</a>
-            <div class="ms-auto text-white">
-                <i class="fas fa-user-circle fs-4"></i>
+            
+            <div class="d-flex gap-2">
+                <div class="search-container d-none d-md-block">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search applications...">
+                </div>
+                
+                <button id="themeToggle" class="control-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
         <div class="container">
-            <h1 class="hero-title">Welcome to AppSync Portal</h1>
-            <p class="text-muted mt-2">Your central hub to navigate and manage all your enterprise software applications.</p>
-        </div>
-    </section>
-
-    <!-- Applications Grid -->
-    <div class="container mt-5">
-        <div class="row g-4 justify-content-center">
+            <div class="row align-items-end">
+                <div class="col-lg-8">
+                    <div id="currentTime" class="text-secondary small mb-2 fw-medium"></div>
+                    <h1 id="greeting" class="greeting-text">Good Morning</h1>
+                    <p class="text-secondary mb-0">Welcome to your unified application workspace. Select a tool to begin.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <div class="d-flex justify-content-lg-end align-items-center gap-3">
+                        <span class="status-pill">
+                            <i class="fas fa-layer-group me-2"></i> <span id="appCount">0</span> Apps Ready
+                        </span>
+                        <div class="d-flex border rounded-3 p-1 bg-light-subtle">
+                            <button id="gridViewBtn" class="control-btn active border-0" title="Grid View">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button id="listViewBtn" class="control-btn border-0" title="List View">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <!-- App 1: HR & Payroll -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="app-card">
-                    <div class="icon-box">
-                        <i class="fas fa-users-cog"></i>
-                    </div>
-                    <h3 class="app-title">HR & Payroll</h3>
-                    <p class="text-muted small">Manage employee records, attendance, salaries, and HR activities.</p>
-                    <a href="https://hr.nextxenit.com" class="btn btn-launch mt-2" target="_blank">Launch App <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
+            <!-- Mobile Search -->
+            <div class="search-container d-md-none mt-4">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="mobileSearchInput" class="search-input" placeholder="Search applications...">
             </div>
-
-            <!-- App 2: Appointment -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="app-card">
-                    <div class="icon-box">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <h3 class="app-title">Appointment</h3>
-                    <p class="text-muted small">Schedule, track, and manage client or patient appointments seamlessly.</p>
-                    <a href="https://dr-hour.nextxenit.com" class="btn btn-launch mt-2" target="_blank">Launch App <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-            </div>
-
-            <!-- App 3: Pharmacy -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="app-card">
-                    <div class="icon-box">
-                        <i class="fas fa-pills"></i>
-                    </div>
-                    <h3 class="app-title">Pharmacy</h3>
-                    <p class="text-muted small">Inventory control, billing, and complete pharmacy management system.</p>
-                    <a href="https://pharmacy.nextxenit.com" class="btn btn-launch mt-2" target="_blank">Launch App <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-            </div>
-
-            <!-- App 4: School Management -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="app-card">
-                    <div class="icon-box">
-                        <i class="fas fa-school"></i>
-                    </div>
-                    <h3 class="app-title">School Management</h3>
-                    <p class="text-muted small">Manage students, teachers, exams, fees, and academic records.</p>
-                    <a href="https://school.nextxenit.com" class="btn btn-launch mt-2" target="_blank">Launch App <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-            </div>
-
-            <!-- App 5: Microfinance -->
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="app-card">
-                    <div class="icon-box">
-                        <i class="fas fa-hand-holding-usd"></i>
-                    </div>
-                    <h3 class="app-title">Microfinance</h3>
-                    <p class="text-muted small">Loan tracking, savings management, and financial reporting.</p>
-                    <a href="https://microfinance.nextxenit.com" class="btn btn-launch mt-2" target="_blank">Launch App <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-            </div>
-
         </div>
-    </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div id="appGrid" class="app-grid">
+            <!-- App 1 -->
+            <div class="app-card" data-name="HR & Payroll" data-desc="Manage employee records, attendance, salaries, and HR activities.">
+                <div class="app-icon-wrapper">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <h3 class="app-title">HR & Payroll</h3>
+                <p class="app-desc">Manage employee records, attendance, salaries, and HR activities.</p>
+                <a href="https://hr.nextxenit.com" class="btn-launch" target="_blank">
+                    Launch App <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+
+            <!-- App 2 -->
+            <div class="app-card" data-name="Appointment" data-desc="Schedule, track, and manage client or patient appointments seamlessly.">
+                <div class="app-icon-wrapper">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3 class="app-title">Appointment</h3>
+                <p class="app-desc">Schedule, track, and manage client or patient appointments seamlessly.</p>
+                <a href="https://dr-hour.nextxenit.com" class="btn-launch" target="_blank">
+                    Launch App <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+
+            <!-- App 3 -->
+            <div class="app-card" data-name="Pharmacy" data-desc="Inventory control, billing, and complete pharmacy management system.">
+                <div class="app-icon-wrapper">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <h3 class="app-title">Pharmacy</h3>
+                <p class="app-desc">Inventory control, billing, and complete pharmacy management system.</p>
+                <a href="https://pharmacy.nextxenit.com" class="btn-launch" target="_blank">
+                    Launch App <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+
+            <!-- App 4 -->
+            <div class="app-card" data-name="School Management" data-desc="Manage students, teachers, exams, fees, and academic records.">
+                <div class="app-icon-wrapper">
+                    <i class="fas fa-school"></i>
+                </div>
+                <h3 class="app-title">School Management</h3>
+                <p class="app-desc">Manage students, teachers, exams, fees, and academic records.</p>
+                <a href="https://school.nextxenit.com" class="btn-launch" target="_blank">
+                    Launch App <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+
+            <!-- App 5 -->
+            <div class="app-card" data-name="Microfinance" data-desc="Loan tracking, savings management, and financial reporting.">
+                <div class="app-icon-wrapper">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <h3 class="app-title">Microfinance</h3>
+                <p class="app-desc">Loan tracking, savings management, and financial reporting.</p>
+                <a href="https://microfinance.nextxenit.com" class="btn-launch" target="_blank">
+                    Launch App <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+            
+            <!-- No Results Message -->
+            <div id="noResults" class="text-center py-5 d-none w-100">
+                <i class="fas fa-search fa-3x text-secondary mb-3"></i>
+                <h4 class="text-secondary">No applications found</h4>
+                <p class="text-muted">Try adjusting your search terms.</p>
+            </div>
+        </div>
+    </main>
 
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p class="mb-0">&copy; 2024 AppSync.icu | All Rights Reserved.</p>
+            <p class="mb-0">&copy; <span id="currentYear"></span> AppSync.icu | Unified Enterprise Solutions</p>
         </div>
     </footer>
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // State
+            const state = {
+                theme: localStorage.getItem('theme') || 'light',
+                view: 'grid',
+                searchQuery: ''
+            };
+
+            // Elements
+            const html = document.documentElement;
+            const themeToggle = document.getElementById('themeToggle');
+            const searchInput = document.getElementById('searchInput');
+            const mobileSearchInput = document.getElementById('mobileSearchInput');
+            const gridViewBtn = document.getElementById('gridViewBtn');
+            const listViewBtn = document.getElementById('listViewBtn');
+            const appGrid = document.getElementById('appGrid');
+            const appCards = document.querySelectorAll('.app-card');
+            const noResults = document.getElementById('noResults');
+            const greeting = document.getElementById('greeting');
+            const currentTime = document.getElementById('currentTime');
+            const appCountDisplay = document.getElementById('appCount');
+            const currentYearDisplay = document.getElementById('currentYear');
+
+            // Initialize
+            const init = () => {
+                applyTheme();
+                updateClock();
+                updateGreeting();
+                setInterval(updateClock, 1000);
+                appCountDisplay.textContent = appCards.length;
+                currentYearDisplay.textContent = new Date().getFullYear();
+            };
+
+            // Theme Logic
+            const applyTheme = () => {
+                html.setAttribute('data-theme', state.theme);
+                const icon = themeToggle.querySelector('i');
+                if (state.theme === 'dark') {
+                    icon.className = 'fas fa-sun';
+                } else {
+                    icon.className = 'fas fa-moon';
+                }
+            };
+
+            themeToggle.addEventListener('click', () => {
+                state.theme = state.theme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('theme', state.theme);
+                applyTheme();
+            });
+
+            // View Toggle Logic
+            const setView = (viewType) => {
+                state.view = viewType;
+                if (viewType === 'grid') {
+                    appGrid.classList.remove('list-view');
+                    gridViewBtn.classList.add('active');
+                    listViewBtn.classList.remove('active');
+                } else {
+                    appGrid.classList.add('list-view');
+                    gridViewBtn.classList.remove('active');
+                    listViewBtn.classList.add('active');
+                }
+            };
+
+            gridViewBtn.addEventListener('click', () => setView('grid'));
+            listViewBtn.addEventListener('click', () => setView('list'));
+
+            // Search Logic
+            const handleSearch = (e) => {
+                const query = e.target.value.toLowerCase();
+                let visibleCount = 0;
+
+                appCards.forEach(card => {
+                    const name = card.getAttribute('data-name').toLowerCase();
+                    const desc = card.getAttribute('data-desc').toLowerCase();
+                    
+                    if (name.includes(query) || desc.includes(query)) {
+                        card.classList.remove('d-none');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('d-none');
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    noResults.classList.remove('d-none');
+                } else {
+                    noResults.classList.add('d-none');
+                }
+                
+                appCountDisplay.textContent = visibleCount;
+            };
+
+            searchInput.addEventListener('input', handleSearch);
+            mobileSearchInput.addEventListener('input', handleSearch);
+
+            // Dashboard Logic
+            function updateClock() {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                currentTime.textContent = now.toLocaleDateString('en-US', options);
+            }
+
+            function updateGreeting() {
+                const hour = new Date().getHours();
+                if (hour < 12) greeting.textContent = 'Good Morning';
+                else if (hour < 18) greeting.textContent = 'Good Afternoon';
+                else greeting.textContent = 'Good Evening';
+            }
+
+            init();
+        });
+    </script>
 </body>
 </html>
