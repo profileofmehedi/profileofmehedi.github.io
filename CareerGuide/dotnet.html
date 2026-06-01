@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.NET & C# Expert Series | CareerGuide</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Prism.js Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" id="prism-theme" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .toc-sticky {
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            font-size: 0.85rem;
+            border-left: 1px solid var(--border-color);
+            padding-left: 1rem;
+        }
+        .toc-item {
+            padding: 4px 0;
+            display: block;
+            color: var(--nav-link-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .toc-item:hover { color: var(--primary-color); }
+        .toc-item.active { color: var(--primary-color); font-weight: 600; }
+        .section-anchor { scroll-margin-top: 80px; }
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .badge-senior {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div id="scrollProgress" class="scroll-progress"></div>
+    
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <button id="sidebarToggle" class="btn btn-link me-2 text-decoration-none text-theme">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-rocket me-2 text-primary"></i>CareerGuide
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <button id="themeToggle" class="btn btn-theme-toggle" title="Toggle Light/Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="wrapper d-flex">
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header px-4 py-3">
+                <span class="text-uppercase small fw-bold text-muted">Interview Topics</span>
+            </div>
+            <ul class="nav flex-column sidebar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-3"></i>Welcome</a></li>
+                <li class="nav-item"><a class="nav-link active" href="dotnet.html"><i class="fab fa-microsoft me-3"></i>.NET & C#</a></li>
+                <li class="nav-item"><a class="nav-link" href="cloud.html"><i class="fas fa-cloud me-3"></i>Cloud & Azure</a></li>
+                <li class="nav-item"><a class="nav-link" href="system-design.html"><i class="fas fa-project-diagram me-3"></i>System Design</a></li>
+                <li class="nav-item"><a class="nav-link" href="patterns.html"><i class="fas fa-cubes me-3"></i>Design Patterns</a></li>
+            </ul>
+        </nav>
+
+        <main class="content-pane w-100">
+            <div class="container-fluid py-4">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="topic-header mb-4">
+                            <span class="badge badge-senior px-2 py-1 mb-2">Senior Level Mastery</span>
+                            <h1 class="fw-bold">.NET & C# Expert Deep Dive</h1>
+                            <p class="lead text-muted">Comprehensive technical coverage from CLR internals to modern architectural patterns. Designed for Senior and Lead roles.</p>
+                        </div>
+
+                        <!-- 1. CLR & Memory Management -->
+                        <div id="clr-memory" class="content-card section-anchor">
+                            <h2 class="h3 fw-bold mb-4">1. CLR Internals & Memory Management</h2>
+                            <div class="section-content">
+                                <h5>The Execution Lifecycle</h5>
+                                <p>Understanding <strong>MSIL (Common Intermediate Language)</strong> and <strong>JIT (Just-In-Time) compilation</strong>. .NET Core now supports <strong>Tiered Compilation</strong>, which optimizes hot paths during runtime.</p>
+                                
+                                <h5>Advanced Memory Architecture</h5>
+                                <ul>
+                                    <li><strong>Garbage Collection (GC)</strong>: Generations 0, 1, 2. The <strong>Large Object Heap (LOH)</strong> is for objects > 85KB. The new <strong>Pinned Object Heap (POH)</strong> in .NET 5+ reduces fragmentation for pinned buffers.</li>
+                                    <li><strong>Compaction vs. Sweeping</strong>: Gen 0 and 1 are always compacted; Gen 2 is traditionally swept (though it can be compacted).</li>
+                                    <li><strong>Stack vs. Heap</strong>: Value types on stack (fixed size, scope-based), Reference types on heap (managed by GC).</li>
+                                </ul>
+
+                                <pre class="language-csharp"><code>// Senior Question: How to avoid LOH fragmentation?
+// Answer: Use ArrayPool&lt;T&gt; to reuse large buffers instead of frequent allocations.
+var pool = ArrayPool&lt;byte&gt;.Shared;
+var buffer = pool.Rent(100_000); // Rented from LOH if necessary
+try { /* Use buffer */ } finally { pool.Return(buffer); }</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- 2. Advanced C# Features -->
+                        <div id="csharp-advanced" class="content-card section-anchor">
+                            <h2 class="h3 fw-bold mb-4">2. Advanced C# (10 - 13.0)</h2>
+                            <div class="section-content">
+                                <h5>Performance-Oriented Types</h5>
+                                <ul>
+                                    <li><strong>Span&lt;T&gt; & Memory&lt;T&gt;</strong>: Type-safe views into contiguous memory. Crucial for zero-allocation parsing and string manipulation.</li>
+                                    <li><strong>ref struct</strong>: Guaranteed stack-only types that cannot be boxed or captured by async lambdas.</li>
+                                </ul>
+
+                                <h5>Modern Language Syntax</h5>
+                                <ul>
+                                    <li><strong>Records</strong>: Immutable data types with built-in value-based equality.</li>
+                                    <li><strong>Pattern Matching</strong>: Recursive patterns, property patterns, and relational patterns in switch expressions.</li>
+                                    <li><strong>Interpolated Strings</strong>: Optimized in C# 10+ using handlers to avoid allocations.</li>
+                                </ul>
+
+                                <pre class="language-csharp"><code>// Pattern Matching with Property access
+public string GetRoleInfo(Employee e) => e switch {
+    { Role: "Lead", Seniority: > 5 } => "Principal Engineer",
+    { Role: "Lead" } => "Senior Lead",
+    _ => "Engineer"
+};</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- 3. Asynchronous Programming (TPL) -->
+                        <div id="async-tpl" class="content-card section-anchor">
+                            <h2 class="h3 fw-bold mb-4">3. Asynchronous Programming & TPL</h2>
+                            <div class="section-content">
+                                <h5>The Async State Machine</h5>
+                                <p>The compiler transforms <code>async</code> methods into a state machine. Every <code>await</code> is a potential suspension point where the thread is released back to the pool.</p>
+                                
+                                <h5>Advanced Patterns</h5>
+                                <ul>
+                                    <li><strong>ValueTask&lt;T&gt;</strong>: Use when a method might complete synchronously to avoid heap-allocating a <code>Task</code> object.</li>
+                                    <li><strong>ConfigureAwait(false)</strong>: Crucial for library code to avoid capturing the SynchronizationContext, preventing potential deadlocks.</li>
+                                    <li><strong>Task.Run vs Task.Yield</strong>: Offloading work to the thread pool vs. yielding the current thread to the scheduler.</li>
+                                </ul>
+
+                                <pre class="language-csharp"><code>// Advanced: Handling multiple tasks efficiently
+public async Task ProcessInParallel(IEnumerable&lt;string&gt; urls) {
+    var tasks = urls.Select(url => DownloadAsync(url));
+    await Task.WhenAll(tasks); // Optimized for multiple waits
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- 4. ASP.NET Core & Middleware -->
+                        <div id="aspnet-middleware" class="content-card section-anchor">
+                            <h2 class="h3 fw-bold mb-4">4. ASP.NET Core Architecture</h2>
+                            <div class="section-content">
+                                <h5>The Request Pipeline</h5>
+                                <p>The pipeline consists of <strong>Middleware</strong>. Each component can process the request, pass it to <code>next()</code>, or short-circuit the pipeline.</p>
+                                
+                                <h5>Dependency Injection (DI) Internals</h5>
+                                <ul>
+                                    <li><strong>Lifetimes</strong>: Transient (new each time), Scoped (once per request), Singleton (once per app).</li>
+                                    <li><strong>Captive Dependency</strong>: A serious bug where a Singleton service depends on a Scoped service, effectively keeping the Scoped service alive forever.</li>
+                                </ul>
+
+                                <h5>Filters vs. Middleware</h5>
+                                <p>Filters run after the Routing middleware and have access to the MVC context (ActionContext). Middleware is lower-level and operates on the raw <code>HttpContext</code>.</p>
+                            </div>
+                        </div>
+
+                        <!-- 5. Entity Framework Core -->
+                        <div id="ef-core" class="content-card section-anchor">
+                            <h2 class="h3 fw-bold mb-4">5. Entity Framework Core (EF Core)</h2>
+                            <div class="section-content">
+                                <h5>Performance Tuning</h5>
+                                <ul>
+                                    <li><strong>AsNoTracking()</strong>: Disables change tracking for read-only queries, significantly reducing memory and CPU usage.</li>
+                                    <li><strong>Eager vs. Explicit vs. Lazy Loading</strong>: Seniors must explain the <strong>N+1 problem</strong> and how to avoid it using <code>.Include()</code>.</li>
+                                    <li><strong>Compiled Queries</strong>: Pre-compiling LINQ queries for high-frequency execution.</li>
+                                </ul>
+
+                                <h5>Advanced Features</h5>
+                                <ul>
+                                    <li><strong>Global Query Filters</strong>: Perfect for Soft-Delete or Multi-tenancy (e.g., <code>HasQueryFilter(e => !e.IsDeleted)</code>).</li>
+                                    <li><strong>Interceptors</strong>: Intercepting DB operations for logging, auditing, or performance monitoring.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 6. Testing & Quality -->
+                        <div id="testing-quality" class="content-card section-anchor">
+                            <h2 class="h3 fw-bold mb-4">6. Unit & Integration Testing</h2>
+                            <div class="section-content">
+                                <h5>The Testing Pyramid</h5>
+                                <p>Senior engineers prioritize Unit tests for logic, Integration tests for DB/External APIs, and End-to-End tests for critical paths.</p>
+                                
+                                <h5>Modern Tooling</h5>
+                                <ul>
+                                    <li><strong>xUnit / NUnit</strong>: Standard frameworks.</li>
+                                    <li><strong>Moq / NSubstitute</strong>: Mocking abstractions.</li>
+                                    <li><strong>WebApplicationFactory</strong>: The professional way to run integration tests for ASP.NET Core in-memory.</li>
+                                    <li><strong>TestContainers</strong>: Running real databases (SQL Server, Redis) in Docker for integration tests.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 7. Architecture & Scalability -->
+                        <div id="architecture" class="content-card section-anchor">
+                            <h2 class="h3 fw-bold mb-4">7. Microservices & Distributed .NET</h2>
+                            <div class="section-content">
+                                <h5>Communication Styles</h5>
+                                <ul>
+                                    <li><strong>gRPC</strong>: Contract-first, high-performance binary communication over HTTP/2.</li>
+                                    <li><strong>MassTransit / NServiceBus</strong>: Service bus abstractions for event-driven architecture (RabbitMQ, Azure Service Bus).</li>
+                                    <li><strong>SignalR</strong>: Real-time, bi-directional communication.</li>
+                                </ul>
+                                <h5>Resiliency</h5>
+                                <p>Using <strong>Polly</strong> for Retry, Circuit Breaker, and Bulkhead patterns in microservices communication.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar ToC -->
+                    <div class="col-lg-3 d-none d-lg-block">
+                        <div class="toc-sticky">
+                            <h6 class="fw-bold text-uppercase small mb-3">Quick Navigation</h6>
+                            <a href="#clr-memory" class="toc-item">CLR & Memory</a>
+                            <a href="#csharp-advanced" class="toc-item">Advanced C#</a>
+                            <a href="#async-tpl" class="toc-item">Asynchronous TPL</a>
+                            <a href="#aspnet-middleware" class="toc-item">ASP.NET Core</a>
+                            <a href="#ef-core" class="toc-item">EF Core</a>
+                            <a href="#testing-quality" class="toc-item">Testing & Quality</a>
+                            <a href="#architecture" class="toc-item">Architecture</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Simple scroll spy for ToC
+        $(window).on('scroll', function() {
+            const scrollPos = $(window).scrollTop() + 100;
+            $('.section-anchor').each(function() {
+                const top = $(this).offset().top;
+                const bottom = top + $(this).outerHeight();
+                if (scrollPos >= top && scrollPos <= bottom) {
+                    const id = $(this).attr('id');
+                    $('.toc-item').removeClass('active');
+                    $(`.toc-item[href="#${id}"]`).addClass('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
