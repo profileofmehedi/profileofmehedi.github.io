@@ -347,31 +347,115 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================
     const affiliateForm = document.getElementById('affiliateForm');
     if (affiliateForm) {
-        affiliateForm.addEventListener('submit', (e) => {
+        affiliateForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = affiliateForm.querySelector('button');
             const originalContent = btn.innerHTML;
+            
+            const formData = {
+                name: document.getElementById('affName').value,
+                email: document.getElementById('affEmail').value,
+                phone: document.getElementById('affPhone').value,
+                details: document.getElementById('affExp').value
+            };
             
             // Show loading state
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
             
-            // Simulate API call
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> আবেদন সফল হয়েছে!';
-                btn.style.background = '#16a34a'; // Success color
+            try {
+                const response = await fetch('https://master.nextxenit.com/api/NextXenAffiliate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
                 
-                alert('ধন্যবাদ! আপনার অ্যাফিলিয়েট আবেদনটি সফলভাবে জমা হয়েছে। আমাদের টিম খুব শীঘ্রই আপনার সাথে যোগাযোগ করবে।');
+                const result = await response.json();
                 
-                affiliateForm.reset();
-                
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> আবেদন সফল হয়েছে!';
+                    btn.style.background = '#16a34a'; // Success color
+                    
+                    alert('ধন্যবাদ! ' + (result.message || 'আপনার অ্যাফিলিয়েট আবেদনটি সফলভাবে জমা হয়েছে।') + ' আমাদের টিম খুব শীঘ্রই আপনার সাথে যোগাযোগ করবে।');
+                    
+                    affiliateForm.reset();
+                } else {
+                    throw new Error(result.message || 'Error occurred');
+                }
+            } catch (error) {
+                console.error('Affiliate submission error:', error);
+                btn.innerHTML = '<i class="fas fa-times"></i> ত্রুটি হয়েছে!';
+                btn.style.background = '#ef4444'; // Error color
+                alert('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।');
+            } finally {
                 // Reset button after 3 seconds
                 setTimeout(() => {
                     btn.disabled = false;
                     btn.innerHTML = originalContent;
                     btn.style.background = ''; // Reset to default
                 }, 3000);
-            }, 1500);
+            }
+        });
+    }
+
+    // =========================================
+    // 9. PROJECT REQUEST FORM SUBMISSION
+    // =========================================
+    const projectForm = document.getElementById('projectForm');
+    if (projectForm) {
+        projectForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = projectForm.querySelector('button');
+            const originalContent = btn.innerHTML;
+            
+            const formData = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                mobile: document.getElementById('contactMobile').value,
+                projectName: document.getElementById('projectSelect').options[document.getElementById('projectSelect').selectedIndex].text,
+                body: document.getElementById('contactMessage').value
+            };
+            
+            // Show loading state
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
+            
+            try {
+                const response = await fetch('https://master.nextxenit.com/api/ProjectRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> বার্তা সফলভাবে পাঠানো হয়েছে!';
+                    btn.style.background = '#16a34a'; // Success color
+                    
+                    alert('ধন্যবাদ! ' + (result.message || 'আপনার প্রজেক্ট রিকোয়েস্টটি সফলভাবে জমা হয়েছে।') + ' আমাদের টিম খুব শীঘ্রই আপনার সাথে যোগাযোগ করবে।');
+                    
+                    projectForm.reset();
+                } else {
+                    throw new Error(result.message || 'Error occurred');
+                }
+            } catch (error) {
+                console.error('Project request error:', error);
+                btn.innerHTML = '<i class="fas fa-times"></i> ত্রুটি হয়েছে!';
+                btn.style.background = '#ef4444'; // Error color
+                alert('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।');
+            } finally {
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    btn.style.background = ''; // Reset to default
+                }, 3000);
+            }
         });
     }
 });
