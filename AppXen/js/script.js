@@ -458,4 +458,175 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // =========================================
+    // 10. FEEDBACK POPUP LOGIC
+    // =========================================
+    function initFeedbackPopup() {
+        // Inject HTML if not present
+        if (!document.getElementById('feedbackModal')) {
+            const feedbackHtml = `
+                <div id="feedbackModal" class="feedback-modal">
+                    <div class="feedback-overlay"></div>
+                    <div class="feedback-container">
+                        <div class="feedback-close"><i class="fas fa-times"></i></div>
+                        <div class="feedback-header">
+                            <h2>আপনার মতামত আমাদের শক্তি</h2>
+                            <p>আমাদের উন্নত করতে সাহায্য করুন।</p>
+                        </div>
+                        <form id="feedbackForm">
+                            <div class="feedback-form-group">
+                                <div class="rating-group" id="starRating">
+                                    <i class="fas fa-star" data-rating="5"></i>
+                                    <i class="fas fa-star" data-rating="4"></i>
+                                    <i class="fas fa-star" data-rating="3"></i>
+                                    <i class="fas fa-star" data-rating="2"></i>
+                                    <i class="fas fa-star" data-rating="1"></i>
+                                </div>
+                                <input type="hidden" id="ratingValue" name="rating" value="0">
+                            </div>
+
+                            <div class="feedback-grid">
+                                <div class="feedback-form-group full-width">
+                                    <label>সফটওয়্যার দিয়ে সমাধানযোগ্য কোনো সমস্যা?</label>
+                                    <textarea id="fbProblem" rows="1" placeholder="সংক্ষেপে লিখুন..."></textarea>
+                                </div>
+                                <div class="feedback-form-group">
+                                    <label>কি সফটওয়্যার খুঁজছেন?</label>
+                                    <input type="text" id="fbSoftware" placeholder="যেমন: ইনভেন্টরি">
+                                </div>
+                                <div class="feedback-form-group">
+                                    <label>আপনার বাজেট কত?</label>
+                                    <input type="text" id="fbBudget" placeholder="যেমন: ২০,০০০/-">
+                                </div>
+                                <div class="feedback-form-group full-width">
+                                    <label>আমাদের জন্য কোনো পরামর্শ?</label>
+                                    <textarea id="fbAdvice" rows="1" placeholder="আপনার মূল্যবান পরামর্শ..."></textarea>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary feedback-btn">
+                                জমা দিন <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', feedbackHtml);
+        }
+
+        const feedbackModal = document.getElementById('feedbackModal');
+        const feedbackClose = feedbackModal.querySelector('.feedback-close');
+        const feedbackOverlay = feedbackModal.querySelector('.feedback-overlay');
+        const feedbackForm = document.getElementById('feedbackForm');
+        const starRating = document.getElementById('starRating');
+        const ratingValue = document.getElementById('ratingValue');
+        const stars = starRating?.querySelectorAll('i');
+
+        function showFeedbackModal() {
+            // Don't show if already submitted
+            if (localStorage.getItem('feedbackSubmitted') === 'true') return;
+            
+            feedbackModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideFeedbackModal() {
+            feedbackModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Star Rating
+        if (stars) {
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const rating = star.getAttribute('data-rating');
+                    ratingValue.value = rating;
+                    stars.forEach(s => {
+                        if (parseInt(s.getAttribute('data-rating')) <= parseInt(rating)) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Close events
+        feedbackClose.addEventListener('click', hideFeedbackModal);
+        feedbackOverlay.addEventListener('click', hideFeedbackModal);
+
+        // Form Submission
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = feedbackForm.querySelector('button');
+                const originalContent = btn.innerHTML;
+                
+                if (ratingValue.value === "0") {
+                    alert('দয়া করে একটি রেটিং দিন।');
+                    return;
+                }
+                
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
+                
+            const formData = {
+                rating: ratingValue.value + ".0",
+                problem: document.getElementById('fbProblem').value,
+                software: document.getElementById('fbSoftware').value,
+                budget: document.getElementById('fbBudget').value,
+                advice: document.getElementById('fbAdvice').value
+            };
+
+            try {
+                const response = await fetch('https://master.nextxenit.com/api/NextXenFeedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Set flag in localStorage so it doesn't show again
+                    localStorage.setItem('feedbackSubmitted', 'true');
+
+                    btn.innerHTML = '<i class="fas fa-check"></i> মতামত সফলভাবে জমা হয়েছে!';
+                    btn.style.background = '#16a34a';
+                    alert('ধন্যবাদ! ' + (result.message || 'আপনার মূল্যবান মতামতের জন্য ধন্যবাদ।'));
+                    
+                    feedbackForm.reset();
+                    stars.forEach(s => s.classList.remove('active'));
+                    ratingValue.value = "0";
+                    setTimeout(hideFeedbackModal, 1000);
+                } else {
+                    throw new Error(result.message || 'Error occurred');
+                }
+            } catch (error) {
+                console.error('Feedback submission error:', error);
+                btn.innerHTML = '<i class="fas fa-times"></i> ত্রুটি হয়েছে!';
+                btn.style.background = '#ef4444';
+                alert('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।');
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    btn.style.background = '';
+                }, 3000);
+            }
+            });
+        }
+
+        // Show on load
+        setTimeout(showFeedbackModal, 2000);
+
+        // Show every 5 mins
+        setInterval(showFeedbackModal, 300000);
+    }
+
+    initFeedbackPopup();
 });
