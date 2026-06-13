@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image SEO & Portfolio Optimizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay d-none">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 id="loadingText" class="text-white">Analyzing...</h4>
+            <div class="progress mt-3 mx-auto" style="width: 300px; height: 10px;">
+                <div id="loadingProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg glass-nav sticky-top mb-4">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <div class="logo-icon me-2"><i class="fas fa-bolt text-primary"></i></div>
+                <span class="fw-bold h4 mb-0">AI Image SEO</span>
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-3">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <div class="row g-4">
+            <!-- Left Side: Action Center (Input) -->
+            <div class="col-lg-5 col-xl-4">
+                <!-- API Settings -->
+                <div class="card glass-card mb-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-key me-2 text-warning"></i>API Settings</h6>
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="password" class="form-control" id="apiKey" placeholder="OpenAI API Key">
+                            <button class="btn btn-outline-secondary" type="button" id="toggleApiKey"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-primary px-3" id="saveApiKey">Save</button>
+                        </div>
+                        <p class="extra-small text-muted mb-0">Stored locally in your browser.</p>
+                    </div>
+                </div>
+
+                <!-- Project Info -->
+                <div class="card glass-card mb-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-pen-nib me-2 text-primary"></i>Project Context</h6>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Project Title</label>
+                            <input type="text" class="form-control form-control-sm" id="projectTitle" placeholder="e.g. Modern E-commerce Dashboard">
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label small fw-bold">Additional Context</label>
+                            <textarea class="form-control form-control-sm" id="projectContext" rows="2" placeholder="Technologies, target audience..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Zone -->
+                <div class="card glass-card mb-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-cloud-arrow-up me-2 text-info"></i>Upload Center</h6>
+                        <div id="dropZone" class="upload-zone py-4 mb-3">
+                            <input type="file" id="fileInput" multiple accept="image/*" class="d-none">
+                            <div class="text-center">
+                                <i class="fas fa-images fa-2x text-muted mb-2"></i>
+                                <p class="small mb-1">Drag images or <span class="text-primary cursor-pointer" onclick="document.getElementById('fileInput').click()">browse</span></p>
+                                <p class="extra-small text-muted">JPG, PNG, WEBP</p>
+                            </div>
+                        </div>
+
+                        <!-- Queue Info -->
+                        <div id="queueSection" class="d-none animate-fade-in">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small fw-bold">Queue (<span id="queueCount">0</span>)</span>
+                                <div class="btn-group btn-group-sm">
+                                    <button id="prevImg" class="btn btn-outline-secondary py-0"><i class="fas fa-chevron-left small"></i></button>
+                                    <button id="nextImg" class="btn btn-outline-secondary py-0"><i class="fas fa-chevron-right small"></i></button>
+                                </div>
+                            </div>
+                            <div class="progress mb-3" style="height: 4px;">
+                                <div id="queueProgress" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                            <div id="imageGallery" class="row row-cols-3 g-2 mb-3">
+                                <!-- Previews -->
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <button id="generateBtn" class="btn btn-primary w-100 py-2 fw-bold rounded-pill">
+                                    <i class="fas fa-sparkles me-2"></i>Generate Current
+                                </button>
+                            </div>
+                            <div class="col-12">
+                                <button id="generateAllBtn" class="btn btn-outline-primary w-100 py-2 fw-bold rounded-pill">
+                                    <i class="fas fa-layer-group me-2"></i>Process Bulk
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools -->
+                <div class="card glass-card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-toolbox me-2 text-secondary"></i>Preferences</h6>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="removeExif">
+                            <label class="form-check-label small" for="removeExif">Clear old metadata</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="embedSeo" checked>
+                            <label class="form-check-label small" for="embedSeo">Inject SEO into Properties</label>
+                        </div>
+                        <select class="form-select form-select-sm" id="convertFormatSelect">
+                            <option value="original">Format: Original</option>
+                            <option value="image/jpeg">Format: JPG (Best for Windows)</option>
+                            <option value="image/png">Format: PNG</option>
+                            <option value="image/webp">Format: WEBP</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Result Center (Output) -->
+            <div class="col-lg-7 col-xl-8">
+                <div id="resultsArea" class="d-none animate-fade-in">
+                    <div class="card glass-card border-0 shadow-sm h-100">
+                        <div class="card-header bg-transparent border-0 p-4 pb-0">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Optimization Results</h5>
+                                <button id="dl_zip" class="btn btn-success btn-sm rounded-pill px-4">
+                                    <i class="fas fa-file-zipper me-2"></i>Download All (ZIP)
+                                </button>
+                            </div>
+                            <ul class="nav nav-pills glass-pills p-1 mb-3" id="resultTabs" role="tablist">
+                                <li class="nav-item flex-fill"><button class="nav-link active w-100" data-bs-toggle="pill" data-bs-target="#seo-content">SEO Content</button></li>
+                                <li class="nav-item flex-fill"><button class="nav-link w-100" data-bs-toggle="pill" data-bs-target="#portfolio-content">Portfolio</button></li>
+                                <li class="nav-item flex-fill"><button class="nav-link w-100" data-bs-toggle="pill" data-bs-target="#social-content">Social Posts</button></li>
+                                <li class="nav-item flex-fill"><button class="nav-link w-100" data-bs-toggle="pill" data-bs-target="#download-content">Single Downloads</button></li>
+                            </ul>
+                        </div>
+                        <div class="card-body p-4 pt-2">
+                            <div class="tab-content mt-2">
+                                <!-- SEO Content -->
+                                <div class="tab-pane fade show active" id="seo-content">
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label class="small fw-bold text-muted mb-1">ALT TEXT</label>
+                                            <div class="input-group input-group-sm">
+                                                <textarea class="form-control bg-light border-0" id="res_altText" rows="2" readonly></textarea>
+                                                <button class="btn btn-light copy-btn-text"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">SEO FILENAME</label>
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control bg-light border-0" id="res_seoFilename" readonly>
+                                                <button class="btn btn-light copy-btn"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">SEO TITLE</label>
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control bg-light border-0" id="res_seoTitle" readonly>
+                                                <button class="btn btn-light copy-btn"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="small fw-bold text-muted mb-1">META DESCRIPTION</label>
+                                            <div class="input-group input-group-sm">
+                                                <textarea class="form-control bg-light border-0" id="res_metaDescription" rows="2" readonly></textarea>
+                                                <button class="btn btn-light copy-btn-text"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="small fw-bold text-muted mb-1">KEYWORDS (CSV)</label>
+                                            <textarea class="form-control bg-light border-0 form-control-sm" id="res_keywords" rows="3" readonly></textarea>
+                                            <button class="btn btn-link btn-sm copy-btn-text w-100 text-decoration-none mt-1">Copy Keywords</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Portfolio -->
+                                <div class="tab-pane fade" id="portfolio-content">
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="small fw-bold text-muted">UPWORK PORTFOLIO</span>
+                                                <button class="btn btn-sm btn-link copy-btn-text p-0 text-decoration-none">Copy</button>
+                                            </div>
+                                            <textarea class="form-control bg-light border-0" id="res_upworkDesc" rows="12" readonly></textarea>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="small fw-bold text-muted">FIVERR GIG</span>
+                                                <button class="btn btn-sm btn-link copy-btn-text p-0 text-decoration-none">Copy</button>
+                                            </div>
+                                            <textarea class="form-control bg-light border-0" id="res_fiverrDesc" rows="12" readonly></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Social -->
+                                <div class="tab-pane fade" id="social-content">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <h6 class="extra-small fw-bold mb-2">LINKEDIN</h6>
+                                            <textarea class="form-control bg-light border-0 mb-2" id="res_linkedin" rows="6" readonly></textarea>
+                                            <button class="btn btn-sm btn-outline-primary copy-btn-text w-100">Copy Post</button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="extra-small fw-bold mb-2">INSTAGRAM</h6>
+                                            <textarea class="form-control bg-light border-0 mb-2" id="res_instagram" rows="6" readonly></textarea>
+                                            <button class="btn btn-sm btn-outline-primary copy-btn-text w-100">Copy Caption</button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="extra-small fw-bold mb-2">FACEBOOK</h6>
+                                            <textarea class="form-control bg-light border-0 mb-2" id="res_facebook" rows="6" readonly></textarea>
+                                            <button class="btn btn-sm btn-outline-primary copy-btn-text w-100">Copy Post</button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="extra-small fw-bold mb-2">TWITTER / X</h6>
+                                            <textarea class="form-control bg-light border-0 mb-2" id="res_x" rows="6" readonly></textarea>
+                                            <button class="btn btn-sm btn-outline-primary copy-btn-text w-100">Copy Post</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Downloads -->
+                                <div class="tab-pane fade" id="download-content">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <button id="dl_image" class="btn btn-outline-secondary w-100 mb-2"><i class="fas fa-image me-2"></i>Renamed Image</button>
+                                            <button id="dl_json" class="btn btn-outline-secondary w-100 mb-2"><i class="fas fa-file-code me-2"></i>SEO JSON</button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button id="dl_csv" class="btn btn-outline-secondary w-100 mb-2"><i class="fas fa-file-csv me-2"></i>SEO CSV</button>
+                                            <button id="dl_txt_all" class="btn btn-outline-secondary w-100 mb-2"><i class="fas fa-file-lines me-2"></i>Content TXT</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="text-center py-5 mt-5">
+                    <div class="mb-3"><i class="fas fa-wand-sparkles fa-4x text-muted opacity-25"></i></div>
+                    <h5 class="text-muted">Upload an image to start optimizing</h5>
+                    <p class="text-muted small">AI generated SEO metadata and portfolio content will appear here.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="row mt-5 mb-5">
+            <div class="col-12">
+                <div class="card glass-card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                            <h6 class="fw-bold mb-0">Generation History</h6>
+                            <button id="clearHistory" class="btn btn-link btn-sm text-danger text-decoration-none p-0">Clear All</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="historyTable">
+                                <tbody class="small"></tbody>
+                            </table>
+                        </div>
+                        <div id="noHistory" class="text-center py-3 d-none">
+                            <p class="text-muted extra-small">No recent activity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
