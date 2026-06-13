@@ -19,7 +19,7 @@ const state = {
     currentIndex: -1,
     currentResults: null,
     history: [],
-    apiKey: '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',
+    apiKey: '',
     isProcessing: false
 };
 
