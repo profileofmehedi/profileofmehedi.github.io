@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mehedi & Sultana Story | Realistic Book</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --book-width: 320px;
+            --book-height: 480px;
+            --primary-color: #ff6b6b;
+            --paper-color: #fffdfa;
+            --cover-bg: #8d6e63;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+
+        body {
+            background: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            perspective: 2000px;
+            overflow: hidden;
+            background-image: radial-gradient(circle, #f5f5f5 0%, #dcdcdc 100%);
+            padding: 20px;
+        }
+
+        .book-wrapper {
+            position: relative;
+            width: var(--book-width);
+            height: var(--book-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .book-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: left;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            z-index: 1;
+        }
+
+        .page-side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            backface-visibility: hidden;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+            background-color: var(--paper-color);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 0 15px 15px 0;
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            border-radius: 15px 0 0 15px;
+            background: linear-gradient(to left, #f5f5f5 0%, #fffdfa 10%, #fffdfa 100%);
+        }
+
+        .page.flipped {
+            transform: rotateY(-180deg);
+        }
+
+        .cover {
+            background: linear-gradient(135deg, #8d6e63 0%, #5d4037 100%) !important;
+            color: white !important;
+            border: none !important;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cover h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .cover .heart {
+            font-size: 50px;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .page-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-side h2 {
+            font-size: 18px;
+            color: #443322;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 3px;
+            display: inline-block;
+        }
+
+        .page-side p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #5d4037;
+        }
+
+        .page-num {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .nav-controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .btn {
+            background: #5d4037;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+
+        .btn:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            margin-bottom: 15px;
+            color: #777;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        @media screen and (max-width: 767px) {
+            :root {
+                --book-width: 280px;
+                --book-height: 420px;
+            }
+            .page {
+                transform-origin: center;
+            }
+            .page-side {
+                border-radius: 15px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hint">Swipe or use buttons to flip pages</div>
+
+<div class="book-wrapper">
+    <div class="book-container" id="book">
+        <!-- Page 1: Cover -->
+        <div class="page" data-id="1">
+            <div class="page-side front cover">
+                <div class="heart">❤️</div>
+                <h1>Mehedi & Sultana</h1>
+                <p>আমাদের ভালোবাসার গল্প</p>
+                <div class="page-num">1</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <!-- Page 2: Intro -->
+        <div class="page" data-id="2">
+            <div class="page-side front">
+                <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+                    <h2>গল্পের শুরু...</h2>
+                    <p>প্রতিটি পাতা আমাদের স্মৃতির সাক্ষী। প্রতিটি মুহূর্ত আমাদের ভালোবাসার প্রমাণ।</p>
+                </div>
+                <div class="page-num">2</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <!-- Photos -->
+        <div class="page" data-id="3">
+            <div class="page-side front">
+                <img src="../images/r11.png" class="page-img">
+                <h2>নতুন অধ্যায়, নতুন স্বপ্ন</h2>
+                <p>উচ্চ মাধ্যমিক শেষ। নতুন স্বপ্নের শুরু। আমরা দুজনই নতুন পথে হাঁটা শুরু করলাম।</p>
+                <div class="page-num">3</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="4">
+            <div class="page-side front">
+                <img src="../images/r12.png" class="page-img">
+                <h2>৩০০ কিলোমিটার দূরে</h2>
+                <p>সে প্রথমবারের মতো এত দূরে পড়তে গেল। আমি শুধু দূর থেকে প্রার্থনা করছিলাম।</p>
+                <div class="page-num">4</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="5">
+            <div class="page-side front">
+                <img src="../images/r13.png" class="page-img">
+                <h2>দূরত্ব বেড়েছে, ভালোবাসাও</h2>
+                <p>প্রতিটি রাত শেষ হতো একটি ফোনকলে। দূরত্ব বেড়েছিল, কিন্তু ভালোবাসা আরও গভীর হলো।</p>
+                <div class="page-num">5</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="6">
+            <div class="page-side front">
+                <img src="../images/r14.png" class="page-img">
+                <h2>প্রতিদিনের অপেক্ষা</h2>
+                <p>সারাদিনের ক্লান্তি ভুলিয়ে দিত একটি ফোনকল। অপেক্ষাটুকুই ছিল দিনের সবচেয়ে সুন্দর মুহূর্ত।</p>
+                <div class="page-num">6</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="7">
+            <div class="page-side front">
+                <img src="../images/r15.png" class="page-img">
+                <h2>প্রথম বর্ষ শেষ</h2>
+                <p>প্রথম বর্ষ শেষ হলো। ফলাফল শুধু পরীক্ষার ছিল না, ধৈর্য, বিশ্বাস আর ভালোবাসারও ছিল।</p>
+                <div class="page-num">7</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="8">
+            <div class="page-side front">
+                <img src="../images/r16.png" class="page-img">
+                <h2>আবার দেখা করার পরিকল্পনা</h2>
+                <p>অনেক দিনের অপেক্ষার পর আবার সাহস করে ঠিক করলাম—দেখা হবে। রাজশাহী।</p>
+                <div class="page-num">8</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="9">
+            <div class="page-side front">
+                <img src="../images/r17.png" class="page-img">
+                <h2>আবার রাজশাহী</h2>
+                <p>সময়ের অনেক আগেই পৌঁছে গিয়েছিলাম। প্রতিটি ট্রেন আসছিল, আর আমি ভাবছিলাম সে কি এতে?</p>
+                <div class="page-num">9</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="10">
+            <div class="page-side front">
+                <img src="../images/r18.png" class="page-img">
+                <h2>দ্বিতীয় দেখা</h2>
+                <p>ট্রেন থামতেই চোখে চোখ পড়ল। এক মুহূর্তেই চিনে ফেললাম। অপেক্ষা আবারও সার্থক হলো।</p>
+                <div class="page-num">10</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="11">
+            <div class="page-side front">
+                <img src="../images/r19.png" class="page-img">
+                <h2>অল্প সময়, অনেক কথা</h2>
+                <p>এক কাপ চা, কিছু হালকা নাস্তা আর অগণিত গল্প। স্মৃতি হয়ে রইল অনেক বড়।</p>
+                <div class="page-num">11</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="12">
+            <div class="page-side front">
+                <img src="../images/r20.png" class="page-img">
+                <h2>আবার বিদায়</h2>
+                <p>বিদায় সবসময় কষ্টের। তবু জানতাম, এই বিদায়ই আবার নতুন একটি দেখার অপেক্ষা তৈরি করবে।</p>
+                <div class="page-num">12</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="13">
+            <div class="page-side front">
+                <img src="../images/r21.png" class="page-img">
+                <h2>নতুন বাস্তবতা</h2>
+                <p>বিশ্ববিদ্যালয়ের পড়াশোনা, নতুন পরিবেশ আর নতুন দায়িত্ব—তবুও আমরা দুজনই ছিলাম।</p>
+                <div class="page-num">13</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="14">
+            <div class="page-side front">
+                <img src="../images/r22.png" class="page-img">
+                <h2>দূরত্বের দিনগুলো</h2>
+                <p>কিলোমিটারের হিসাব বাড়ছিল, কিন্তু আমাদের সম্পর্কের দূরত্ব একটুও বাড়েনি।</p>
+                <div class="page-num">14</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="15">
+            <div class="page-side front">
+                <img src="../images/r23.png" class="page-img">
+                <h2>পড়াশোনা আর অপেক্ষা</h2>
+                <p>দিনে পড়াশোনা, রাতে গল্প। এই ছিল আমাদের প্রতিদিনের ছোট্ট সুখ।</p>
+                <div class="page-num">15</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="16">
+            <div class="page-side front">
+                <img src="../images/r24.png" class="page-img">
+                <h2>সময়ের সাথে</h2>
+                <p>ক্যালেন্ডারের পাতা বদলেছে, ঋতু বদলেছে, কিন্তু আমাদের অনুভূতি একই রয়ে গেছে।</p>
+                <div class="page-num">16</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="17">
+            <div class="page-side front">
+                <img src="../images/r25.png" class="page-img">
+                <h2>আরেকটি অর্জন</h2>
+                <p>প্রতিটি ছোট অর্জন আমরা একসাথে উদযাপন করতাম। দূরে থেকেও সুখ ভাগাভাগি করা যায়।</p>
+                <div class="page-num">17</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="18">
+            <div class="page-side front">
+                <img src="../images/r26.png" class="page-img">
+                <h2>প্রতিদিনের গল্প</h2>
+                <p>এমন কোনো দিন ছিল না, যেদিন কথা হয়নি। একে অপরের কণ্ঠই ছিল দিনের শেষ শান্তি।</p>
+                <div class="page-num">18</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="19">
+            <div class="page-side front">
+                <img src="../images/r27.png" class="page-img">
+                <h2>আবার সেই সিদ্ধান্ত</h2>
+                <p>আবার দেখা হবে। হয়তো অল্প সময়ের জন্য, কিন্তু সেই সময়ই ছিল সবচেয়ে মূল্যবান।</p>
+                <div class="page-num">19</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="20">
+            <div class="page-side front">
+                <img src="../images/r28.png" class="page-img">
+                <h2>অপেক্ষার স্টেশন</h2>
+                <p>রাজশাহী স্টেশন যেন আমাদের গল্পের সাক্ষী। প্রতিটি অপেক্ষা এখানেই নতুন অর্থ পেত।</p>
+                <div class="page-num">20</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="21">
+            <div class="page-side front">
+                <img src="../images/r29.png" class="page-img">
+                <h2>কিছু মুহূর্ত, সারাজীবনের স্মৃতি</h2>
+                <p>হাসি, লজ্জা, গল্প আর চায়ের কাপ—কিছু মুহূর্ত সময়ের চেয়েও দীর্ঘ হয়ে থাকে।</p>
+                <div class="page-num">21</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+
+        <div class="page" data-id="22">
+            <div class="page-side front cover">
+                <h2>চলবে...</h2>
+                <p>আমাদের গল্প চলতেই থাকবে... ❤️</p>
+                <div class="page-num">22</div>
+            </div>
+            <div class="page-side back"></div>
+        </div>
+    </div>
+</div>
+
+<div class="nav-controls">
+    <button class="btn" id="prev-btn" disabled>◀ Previous</button>
+    <button class="btn" id="next-btn">Next ▶</button>
+</div>
+
+<script>
+    const pages = document.querySelectorAll('.page');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    let currentIdx = 0;
+    const totalPages = pages.length;
+
+    function updateZIndices() {
+        pages.forEach((page, index) => {
+            if (index < currentIdx) {
+                page.style.zIndex = index + 1;
+                page.style.visibility = 'hidden';
+            } else {
+                page.style.zIndex = totalPages - index + 1;
+                page.style.visibility = 'visible';
+            }
+        });
+    }
+
+    function flipNext() {
+        if (currentIdx < totalPages) {
+            const page = pages[currentIdx];
+            page.classList.add('flipped');
+            currentIdx++;
+            
+            setTimeout(() => {
+                updateZIndices();
+            }, 600);
+            updateButtons();
+        }
+    }
+
+    function flipPrev() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            const page = pages[currentIdx];
+            page.style.visibility = 'visible';
+            page.classList.remove('flipped');
+            
+            updateZIndices();
+            updateButtons();
+        }
+    }
+
+    function updateButtons() {
+        prevBtn.disabled = currentIdx === 0;
+        nextBtn.disabled = currentIdx === totalPages;
+    }
+
+    nextBtn.addEventListener('click', flipNext);
+    prevBtn.addEventListener('click', flipPrev);
+
+    updateZIndices();
+
+    let startX = 0;
+    document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+    document.addEventListener('touchend', e => {
+        const endX = e.changedTouches[0].clientX;
+        if (startX - endX > 50) flipNext();
+        if (endX - startX > 50) flipPrev();
+    });
+</script>
+
+</body>
+</html>

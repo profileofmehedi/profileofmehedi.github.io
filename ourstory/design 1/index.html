@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mehedi & Sultana Story | Design 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 800px;
+        }
+
+        .progress-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .story-header {
+            padding: 30px 20px 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, #fff5f5, #ffffff);
+        }
+
+        .story-header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .story-header p {
+            font-size: 14px;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .pages-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            padding: 0;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .image-wrapper {
+            width: 100%;
+            height: 60%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .zoom-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: 0.3s;
+            z-index: 5;
+        }
+
+        .zoom-btn:hover {
+            background: #fff;
+            transform: scale(1.1);
+        }
+
+        .content-wrapper {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .content-wrapper h2 {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .content-wrapper p {
+            font-size: 17px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #fff;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-prev {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-next {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-counter {
+            text-align: center;
+            padding-bottom: 15px;
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        /* Cover Page Styles */
+        .cover-page {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .cover-page h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cover-page p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .heart-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            animation: zoomIn 0.3s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2001;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="pages-container" id="pagesContainer">
+        <!-- Cover -->
+        <div class="page active cover-page">
+            <div class="heart-icon">❤️</div>
+            <h1>Mehedi & Sultana</h1>
+            <p>আমাদের ভালোবাসার গল্প</p>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r11.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r11.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>নতুন অধ্যায়, নতুন স্বপ্ন</h2>
+                <p>উচ্চ মাধ্যমিক শেষ। নতুন স্বপ্নের শুরু। আমরা দুজনই নতুন পথে হাঁটা শুরু করলাম, কিন্তু সেই পথ আমাদের আরও দূরে নিয়ে গেল।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r12.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r12.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>৩০০ কিলোমিটার দূরে</h2>
+                <p>সে প্রথমবারের মতো এত দূরে পড়তে গেল। আমি শুধু দূর থেকে প্রার্থনা করছিলাম—পথটা যেন তার জন্য সহজ হয়।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r13.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r13.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>দূরত্ব বেড়েছে, ভালোবাসাও</h2>
+                <p>প্রতিটি রাত শেষ হতো একটি ফোনকলে। দূরত্ব বেড়েছিল, কিন্তু ভালোবাসা আরও গভীর হয়ে উঠছিল।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r14.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r14.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>প্রতিদিনের অপেক্ষা</h2>
+                <p>সারাদিনের ক্লান্তি ভুলিয়ে দিত একটি ফোনকল। অপেক্ষাটুকুই ছিল দিনের সবচেয়ে সুন্দর মুহূর্ত।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r15.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r15.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>প্রথম বর্ষ শেষ</h2>
+                <p>প্রথম বর্ষ শেষ হলো। ফলাফল শুধু পরীক্ষার ছিল না, ধৈর্য, বিশ্বাস আর ভালোবাসারও ছিল।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r16.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r16.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>আবার দেখা করার পরিকল্পনা</h2>
+                <p>অনেক দিনের অপেক্ষার পর আবার সাহস করে ঠিক করলাম—দেখা হবে। জায়গাটা আগের মতোই, রাজশাহী।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r17.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r17.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>আবার রাজশাহী</h2>
+                <p>সময়ের অনেক আগেই পৌঁছে গিয়েছিলাম। প্রতিটি ট্রেন আসছিল, আর আমি ভাবছিলাম—এই ট্রেনেই কি সে?</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r18.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r18.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>দ্বিতীয় দেখা</h2>
+                <p>ট্রেন থামতেই চোখে চোখ পড়ল। এক মুহূর্তেই চিনে ফেললাম। মনে হলো, এতদিনের অপেক্ষা আবারও সার্থক হলো।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r19.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r19.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>অল্প সময়, অনেক কথা</h2>
+                <p>এক কাপ চা, কিছু হালকা নাস্তা আর অগণিত গল্প। সময় ছিল খুব কম, কিন্তু স্মৃতি হয়ে রইল অনেক বড়।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r20.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r20.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>আবার বিদায়</h2>
+                <p>বিদায় সবসময় কষ্টের। তবু জানতাম, এই বিদায়ই আবার নতুন একটি দেখার অপেক্ষা তৈরি করবে।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r21.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r21.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>নতুন বাস্তবতা</h2>
+                <p>বিশ্ববিদ্যালয়ের পড়াশোনা, নতুন পরিবেশ আর নতুন দায়িত্ব—তবুও প্রতিদিনের গল্পে আমরা দুজনই ছিলাম।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r22.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r22.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>দূরত্বের দিনগুলো</h2>
+                <p>কিলোমিটারের হিসাব বাড়ছিল, কিন্তু আমাদের সম্পর্কের দূরত্ব একটুও বাড়েনি।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r23.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r23.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>পড়াশোনা আর অপেক্ষা</h2>
+                <p>দিনে পড়াশোনা, রাতে গল্প। এই ছিল আমাদের প্রতিদিনের ছোট্ট সুখ।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r24.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r24.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>সময়ের সাথে</h2>
+                <p>ক্যালেন্ডারের পাতা বদলেছে, ঋতু বদলেছে, কিন্তু আমাদের অনুভূতি একই রয়ে গেছে।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r25.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r25.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>আরেকটি অর্জন</h2>
+                <p>প্রতিটি ছোট অর্জন আমরা একসাথে উদযাপন করতাম। দূরে থেকেও সুখ ভাগাভাগি করা যায়।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r26.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r26.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>প্রতিদিনের গল্প</h2>
+                <p>এমন কোনো দিন ছিল না, যেদিন কথা হয়নি। একে অপরের কণ্ঠই ছিল দিনের শেষ শান্তি।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r27.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r27.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>আবার সেই সিদ্ধান্ত</h2>
+                <p>আবার দেখা হবে। হয়তো অল্প সময়ের জন্য, কিন্তু সেই অল্প সময়ই আমাদের কাছে ছিল সবচেয়ে মূল্যবান।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r28.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r28.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>অপেক্ষার স্টেশন</h2>
+                <p>রাজশাহী স্টেশন যেন আমাদের গল্পের সাক্ষী। প্রতিটি অপেক্ষা এখানেই নতুন অর্থ পেত।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r29.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r29.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>কিছু মুহূর্ত, সারাজীবনের স্মৃতি</h2>
+                <p>হাসি, লজ্জা, গল্প আর চায়ের কাপ—কিছু মুহূর্ত সময়ের চেয়েও দীর্ঘ হয়ে থাকে।</p>
+            </div>
+        </div>
+
+        <!-- Photo -->
+        <div class="page">
+            <div class="image-wrapper">
+                <img src="../images/r30.png" alt="Photo" onclick="openModal(this.src)">
+                <button class="zoom-btn" onclick="openModal('../images/r30.png')">🔍</button>
+            </div>
+            <div class="content-wrapper">
+                <h2>আবারও বিদায়</h2>
+                <p>ট্রেনটি ধীরে ধীরে চোখের আড়াল হয়ে গেল। ভালোবাসি—কথাটা আজও বলা হলো না। তবুও মন জানত, আমাদের গল্প এখানেই শেষ নয়।</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="btn btn-prev" id="prevBtn" onclick="changePage(-1)">
+            <span>◀</span> আগের
+        </button>
+        <button class="btn btn-next" id="nextBtn" onclick="changePage(1)">
+            পরের <span>▶</span>
+        </button>
+    </div>
+
+    <div class="page-counter">
+        পৃষ্ঠা <span id="currentPage">1</span> / <span id="totalPages">21</span>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+
+<script>
+    const pages = document.querySelectorAll('.page');
+    const progressBar = document.getElementById('progressBar');
+    const currentPageSpan = document.getElementById('currentPage');
+    const totalPagesSpan = document.getElementById('totalPages');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    let currentIndex = 0;
+    const totalPages = pages.length;
+
+    totalPagesSpan.textContent = totalPages;
+
+    function updateDisplay() {
+        pages.forEach((page, index) => {
+            page.classList.toggle('active', index === currentIndex);
+        });
+
+        const progress = ((currentIndex + 1) / totalPages) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        currentPageSpan.textContent = currentIndex + 1;
+
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.textContent = currentIndex === totalPages - 1 ? 'চলবে...' : 'পরের ▶';
+        
+        if (currentIndex === totalPages - 1) {
+            nextBtn.onclick = () => alert('আমাদের গল্প চলতেই থাকবে... ❤️');
+        } else {
+            nextBtn.onclick = () => changePage(1);
+        }
+    }
+
+    function changePage(step) {
+        currentIndex += step;
+        if (currentIndex < 0) currentIndex = 0;
+        if (currentIndex >= totalPages) currentIndex = totalPages - 1;
+        updateDisplay();
+    }
+
+    // Modal functions
+    function openModal(src) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        modal.style.display = "flex";
+        modalImg.src = src;
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').style.display = "none";
+    }
+
+    updateDisplay();
+
+    // Touch support
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.getElementById('pagesContainer').addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    document.getElementById('pagesContainer').addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        if (touchStartX - touchEndX > 50) {
+            changePage(1);
+        } else if (touchEndX - touchStartX > 50) {
+            changePage(-1);
+        }
+    }
+</script>
+
+</body>
+</html>
