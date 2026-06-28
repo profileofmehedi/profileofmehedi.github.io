@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NID Generator</title>
+    <!-- html2canvas for downloading the image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      /* Base Reset */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Siyam Rupali", "Kalpurush", "Arial", sans-serif;
+        background-color: #e9ecef;
+      }
+
+      /* Application Layout */
+      .app-container {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 20px;
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      /* Form Controls Panel */
+      .controls-panel {
+        flex: 1;
+        min-width: 350px;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+      }
+      .controls-panel h2 {
+        margin-bottom: 15px;
+        color: #333;
+        text-align: center;
+        font-family: Arial, sans-serif;
+      }
+      .form-group {
+        margin-bottom: 12px;
+      }
+      .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 13px;
+        font-family: Arial, sans-serif;
+      }
+      .form-group input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .form-group input[type="file"] {
+        width: 100%;
+        padding: 5px;
+        background: #f8f9fa;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+      }
+      .btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+        transition: 0.2s;
+        color: white;
+      }
+      .btn-download {
+        background: #28a745;
+      }
+      .btn-download:hover {
+        background: #218838;
+      }
+
+      /* Preview Panel */
+      .preview-panel {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        overflow-x: auto;
+        padding-bottom: 20px;
+      }
+
+      /* =========================================
+           CARD STYLING (Pixel-Perfect to Reference)
+           ========================================= */
+      .card {
+        width: 500px;
+        height: 315px;
+        background-color: #ffffff;
+        border: 2px solid #000000;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* FRONT CARD SPECIFIC */
+      .card.front {
+        /* Plain white front; the emblem (bg.png) is shown as the centered watermark below */
+        background-color: #ffffff;
+      }
+
+      /* Center Watermark using exactly logo.png */
+      .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%; /* centered, then nudged down */
+        transform: translate(
+          -50%,
+          calc(-50% + 40px)
+        ); /* margin-top before the emblem */
+        width: 200px;
+        height: 200px;
+        background-image: url("bg.png"); /* the emblem image, shown as-is */
+        background-size: contain; /* full image, correct proportions, no crop/stretch */
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0.5; /* requested opacity */
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* Front Header */
+      .front-header {
+        display: flex;
+        align-items: center;
+        padding: 8px 15px;
+        border-bottom: 2px solid #000000;
+        height: 95px;
+        z-index: 2;
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.85
+        ); /* Slight white fill to ensure text readability over bg */
+      }
+
+      .front-logo-container {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        border: 1px solid #000;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .front-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      .front-header-text {
+        flex-grow: 1;
+        text-align: center;
+        padding-right: 20px;
+      }
+      .gov-bd-bn {
+        font-size: 22px;
+        font-weight: bold;
+        color: #000000;
+        margin-bottom: 1px;
+        letter-spacing: 0.5px;
+      }
+      .gov-bd-en {
+        font-size: 15px;
+        color: #008000;
+        margin-bottom: 3px;
+        font-family: Arial, sans-serif;
+      }
+      .nid-title {
+        font-size: 13.5px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+      }
+      .nid-title .en {
+        color: #ff0000;
+      }
+      .nid-title .bn {
+        color: #000000;
+        font-family: "Siyam Rupali", sans-serif;
+      }
+
+      /* Front Body */
+      .front-body {
+        display: flex;
+        padding: 8px 15px;
+        flex-grow: 1;
+        position: relative;
+        z-index: 2;
+      }
+
+      .photo-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 105px;
+        margin-right: 15px;
+      }
+      .profile-photo {
+        width: 105px;
+        height: 125px;
+        background-color: #ddd;
+        border: 1px solid #999;
+        object-fit: cover;
+      }
+
+      /* Cardholder Signature (Front) */
+      .signature-front {
+        margin-top: 5px;
+        height: 25px;
+        width: 100%;
+        object-fit: contain;
+      }
+      .signature-text {
+        font-family: "Brush Script MT", cursive, sans-serif;
+        font-size: 16px;
+        text-align: center;
+        width: 100%;
+        margin-top: 5px;
+      }
+
+      .info-column {
+        flex-grow: 1;
+      }
+      .info-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .info-table td {
+        padding: 1px 0;
+        font-size: 16px;
+        vertical-align: middle;
+      }
+      .info-table td.label {
+        width: 85px;
+        font-weight: normal;
+        white-space: nowrap;
+      }
+      .info-table td.value {
+        font-weight: bold;
+        color: #000;
+      }
+
+      .val-red {
+        color: #ff0000 !important;
+      }
+      .val-en {
+        font-family: "Arial", sans-serif;
+        font-weight: normal !important;
+        font-size: 16px;
+      }
+
+      .nid-row td {
+        padding-top: 2px;
+      }
+      .nid-value {
+        font-size: 21px !important;
+        font-weight: normal !important;
+        font-family: "Arial", sans-serif;
+      }
+
+      /* BACK SIDE SPECIFIC */
+      .card.back {
+        background-image: none;
+        background-color: #ffffff;
+      }
+      .back-instruction {
+        font-size: 13.5px;
+        padding: 8px 12px;
+        border-bottom: 2px solid #000000;
+        line-height: 1.4;
+      }
+      .back-address {
+        font-size: 14px;
+        padding: 8px 12px;
+        border-bottom: 2px solid #000000;
+        line-height: 1.4;
+        min-height: 60px;
+      }
+
+      .back-middle {
+        display: flex;
+        padding: 6px 12px;
+        border-bottom: 2px solid #000000;
+        font-size: 14px;
+        position: relative;
+      }
+      .blood-group {
+        width: 50%;
+      }
+      .birth-place {
+        width: 50%;
+        text-align: right;
+        padding-right: 80px;
+      }
+
+      .print-badge {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-color: #000;
+        color: #fff;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+        border-left: 2px solid #000;
+      }
+
+      .back-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px 5px 12px;
+        font-size: 14px;
+      }
+
+      /* Authority Signature (Back) */
+      .auth-signature-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+      .auth-signature {
+        height: 35px;
+        width: 140px;
+        margin-bottom: -5px;
+        object-fit: contain;
+      }
+
+      .issue-date {
+        align-self: flex-end;
+        margin-bottom: 5px;
+        font-family: "Siyam Rupali", sans-serif;
+      }
+
+      /* ============================================
+           SAMPLE WATERMARK (anti-misuse, non-removable)
+           Repeating diagonal text across the whole card.
+           ============================================ */
+      .sample-overlay {
+        position: absolute;
+        top: -25%;
+        left: -25%;
+        width: 150%;
+        height: 150%;
+        z-index: 50; /* sits above all card content */
+        pointer-events: none; /* never blocks the form/preview */
+        transform: rotate(-30deg);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+        overflow: hidden;
+      }
+      .sample-overlay .sample-line {
+        white-space: nowrap;
+        font-family: Arial, sans-serif;
+        font-weight: 900;
+        font-size: 30px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(220, 0, 0, 0.3);
+        text-shadow: 0 0 1px rgba(255, 255, 255, 0.4);
+      }
+
+      /* CSS Barcode implementation for clean code */
+      .barcode-container {
+        padding: 0 12px 10px 12px;
+        width: 100%;
+        height: 60px;
+        margin-top: auto;
+      }
+      .barcode-img {
+        width: 100%;
+        height: 100%;
+        border: 1px solid #ccc;
+        background: repeating-linear-gradient(
+          90deg,
+          #000,
+          #000 2px,
+          #fff 2px,
+          #fff 4px,
+          #000 4px,
+          #000 7px,
+          #fff 7px,
+          #fff 10px,
+          #000 10px,
+          #000 11px,
+          #fff 11px,
+          #fff 14px,
+          #000 14px,
+          #000 16px,
+          #fff 16px,
+          #fff 19px
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Controls Panel -->
+      <div class="controls-panel">
+        <h2>Enter Card Details</h2>
+
+        <div class="form-group">
+          <label>Profile Photo</label>
+          <input type="file" id="inp-photo" accept="image/*" />
+        </div>
+        <div class="form-group">
+          <label>Name (Bangla)</label>
+          <input type="text" id="inp-name-bn" value="মোঃ মেহেদী হাসান" />
+        </div>
+        <div class="form-group">
+          <label>Name (English)</label>
+          <input type="text" id="inp-name-en" value="Md. Mehedi Hasan" />
+        </div>
+        <div class="form-group">
+          <label>Father's Name</label>
+          <input type="text" id="inp-father" value="মোঃ জয়নাল আবেদীন" />
+        </div>
+        <div class="form-group">
+          <label>Mother's Name</label>
+          <input type="text" id="inp-mother" value="ফাতেমা খাতুন" />
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="text" id="inp-dob" value="12 Jun 1995" />
+        </div>
+        <div class="form-group">
+          <label>NID No</label>
+          <input type="text" id="inp-nid" value="8252958080" />
+        </div>
+
+        <hr style="margin: 15px 0; border: 0.5px solid #ddd" />
+
+        <div class="form-group">
+          <label>Front Signature (Cardholder)</label>
+          <input type="file" id="inp-sign-front" accept="image/*" />
+        </div>
+        <div class="form-group">
+          <label>Back Signature (Authority)</label>
+          <input type="file" id="inp-sign-back" accept="image/*" />
+        </div>
+
+        <hr style="margin: 15px 0; border: 0.5px solid #ddd" />
+
+        <div class="form-group">
+          <label>Address (Back)</label>
+          <input
+            type="text"
+            id="inp-address"
+            value="গ্রাম/রাস্তা: উথলীয়া, উথলী, ডাকঘর: মহিষ বাথান - ৭০২১, খোকসা, কুষ্টিয়া"
+          />
+        </div>
+        <div class="form-group">
+          <label>Blood Group</label>
+          <input type="text" id="inp-blood" value="O+" />
+        </div>
+        <div class="form-group">
+          <label>Birth Place</label>
+          <input type="text" id="inp-birthplace" value="কুষ্টিয়া" />
+        </div>
+        <div class="form-group">
+          <label>Issue Date (প্রদানের তারিখ)</label>
+          <input type="text" id="inp-issue" value="১২/০১/২০২১" />
+        </div>
+
+        <div class="action-buttons">
+          <button
+            class="btn btn-download"
+            onclick="downloadCard('card-front', 'NID_Front')"
+          >
+            Download Front
+          </button>
+          <button
+            class="btn btn-download"
+            onclick="downloadCard('card-back', 'NID_Back')"
+          >
+            Download Back
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Preview Panel -->
+      <div class="preview-panel">
+        <!-- FRONT CARD -->
+        <div class="card front" id="card-front">
+          <!-- Uses logo.png -->
+          <div class="watermark"></div>
+
+          <div class="front-header">
+            <div class="front-logo-container">
+              <!-- Top-left logo uses logo.png -->
+              <img src="logo.png" class="front-logo" alt="Logo" />
+            </div>
+
+            <div class="front-header-text">
+              <div class="gov-bd-bn">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</div>
+              <div class="gov-bd-en">
+                Government of the People's Republic of Bangladesh
+              </div>
+              <div class="nid-title">
+                <span class="en">National ID Card</span> /
+                <span class="bn">জাতীয় পরিচয় পত্র</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="front-body">
+            <div class="photo-column">
+              <img
+                class="profile-photo"
+                id="out-photo"
+                src="https://via.placeholder.com/105x125.png?text=Photo"
+                alt="Profile"
+              />
+
+              <!-- Front Signature Output -->
+              <img
+                class="signature-front"
+                id="out-sign-front-img"
+                style="display: none"
+                src=""
+              />
+              <div class="signature-text" id="out-sign-front-text"></div>
+            </div>
+
+            <div class="info-column">
+              <table class="info-table">
+                <tr>
+                  <td class="label">নাম:</td>
+                  <td class="value">
+                    <span id="out-name-bn">মোঃ মেহেদী হাসান</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="label">Name:</td>
+                  <td class="value val-en">
+                    <span id="out-name-en">Md. Mehedi Hasan</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="label">পিতা:</td>
+                  <td class="value">
+                    <span id="out-father">মোঃ জয়নাল আবেদীন</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="label">মাতা:</td>
+                  <td class="value">
+                    <span id="out-mother">ফাতেমা খাতুন</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="label">Date of Birth:</td>
+                  <td class="value val-en val-red">
+                    <span id="out-dob">12 Jun 1995</span>
+                  </td>
+                </tr>
+                <tr class="nid-row">
+                  <td class="label">ID NO:</td>
+                  <td class="value val-en val-red nid-value">
+                    <span id="out-nid">8252958080</span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- BACK CARD -->
+        <div class="card back" id="card-back">
+          <div class="back-instruction">
+            এই কার্ডটি গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের সম্পত্তি। কার্ডটি
+            ব্যবহারকারী ব্যতীত অন্য কোথাও পাওয়া গেলে নিকটস্থ পোষ্ট অফিসে জমা
+            দেবার জন্য অনুরোধ করা হলো।
+          </div>
+          <div class="back-address">
+            ঠিকানা:
+            <span id="out-address"
+              >গ্রাম/রাস্তা: উথলীয়া, উথলী, ডাকঘর: মহিষ বাথান - ৭০২১, খোকসা,
+              কুষ্টিয়া</span
+            >
+          </div>
+          <div class="back-middle">
+            <div class="blood-group">
+              রক্তের গ্রুপ / Blood Group:
+              <span id="out-blood" style="font-weight: bold">O+</span>
+            </div>
+            <div class="birth-place">
+              জন্মস্থান: <span id="out-birthplace">কুষ্টিয়া</span>
+            </div>
+            <div class="print-badge">মুদ্রণ: ০১</div>
+          </div>
+          <div class="back-footer">
+            <div class="auth-signature-container">
+              <!-- Back Signature Output -->
+              <img
+                class="auth-signature"
+                id="out-sign-back-img"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Stylized_signature_placeholder.svg/200px-Stylized_signature_placeholder.svg.png"
+                alt="Signature"
+              />
+              <div>প্রদানকারী কর্তৃপক্ষের স্বাক্ষর</div>
+            </div>
+            <div class="issue-date">
+              প্রদানের তারিখ: <span id="out-issue">১২/০১/২০২১</span>
+            </div>
+          </div>
+          <div class="barcode-container">
+            <div class="barcode-img"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Data Binding logic
+      function bindInput(inputId, outputId) {
+        const inputEl = document.getElementById(inputId);
+        const outputEl = document.getElementById(outputId);
+        outputEl.innerText = inputEl.value;
+        inputEl.addEventListener("input", function (e) {
+          outputEl.innerText = e.target.value;
+        });
+      }
+
+      window.onload = function () {
+        bindInput("inp-name-bn", "out-name-bn");
+        bindInput("inp-name-en", "out-name-en");
+        bindInput("inp-father", "out-father");
+        bindInput("inp-mother", "out-mother");
+        bindInput("inp-dob", "out-dob");
+        bindInput("inp-nid", "out-nid");
+        bindInput("inp-address", "out-address");
+        bindInput("inp-blood", "out-blood");
+        bindInput("inp-birthplace", "out-birthplace");
+        bindInput("inp-issue", "out-issue");
+      };
+
+      // Handle Photo Upload
+      document
+        .getElementById("inp-photo")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              document.getElementById("out-photo").src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Handle Front Signature Upload
+      document
+        .getElementById("inp-sign-front")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              document.getElementById("out-sign-front-img").src =
+                event.target.result;
+              document.getElementById("out-sign-front-img").style.display =
+                "block";
+              document.getElementById("out-sign-front-text").style.display =
+                "none";
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Handle Back Signature Upload
+      document
+        .getElementById("inp-sign-back")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              document.getElementById("out-sign-back-img").src =
+                event.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Image Download Function
+      function downloadCard(elementId, filename) {
+        const element = document.getElementById(elementId);
+
+        html2canvas(element, {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: null,
+        }).then((canvas) => {
+          let link = document.createElement("a");
+          link.download = filename + ".png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        });
+      }
+    </script>
+  </body>
+</html>
