@@ -27,6 +27,24 @@ window.NotesView = class NotesView {
     const pinned = allNotes.filter(n => n.pinned);
     const unpinned = allNotes.filter(n => !n.pinned);
 
+    const allStorageNotes = window.storageService.get('notes') || [];
+    const activeCount = allStorageNotes.filter(n => !n.archived).length;
+    const archivedCount = allStorageNotes.filter(n => n.archived).length;
+    const pinnedCount = allStorageNotes.filter(n => n.pinned && !n.archived).length;
+    
+    let totalCheckItems = 0;
+    let completedCheckItems = 0;
+    allStorageNotes.forEach(note => {
+      if (note.content) {
+        const totalMatches = note.content.match(/- \[[ xX]\]/g);
+        const completedMatches = note.content.match(/- \[[xX]\]/g);
+        if (totalMatches) totalCheckItems += totalMatches.length;
+        if (completedMatches) completedCheckItems += completedMatches.length;
+      }
+    });
+    
+    const checklistProgress = totalCheckItems > 0 ? Math.round((completedCheckItems / totalCheckItems) * 100) : 100;
+
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Header -->
@@ -43,6 +61,79 @@ window.NotesView = class NotesView {
               <i class="bi bi-plus-lg"></i> Add Note
             </button>
           </div>
+        </div>
+
+        <!-- Stats Summary Bar -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+                <i class="bi bi-sticky"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Active Notes</div>
+                <div class="h4 font-bold mb-0 text-main">${activeCount}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; flex-shrink: 0;">
+                <i class="bi bi-pin-angle"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Pinned Notes</div>
+                <div class="h4 font-bold mb-0 text-warning">${pinnedCount}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+                <i class="bi bi-check2-all"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Checklist Tasks</div>
+                <div class="h4 font-bold mb-0 text-main">${completedCheckItems}/${totalCheckItems} <span class="text-muted text-xs font-semibold">(${checklistProgress}%)</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(108, 117, 125, 0.1); color: #6c757d; flex-shrink: 0;">
+                <i class="bi bi-archive"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Archived Notes</div>
+                <div class="h4 font-bold mb-0 text-main">${archivedCount}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Note Creation Card -->
+        <div class="premium-card p-3 mb-4">
+          <h6 class="font-bold text-xs text-uppercase text-muted mb-2"><i class="bi bi-lightning-charge"></i> Quick Note Creator</h6>
+          <form id="quick-note-form" class="row g-2 align-items-center">
+            <div class="col-md-4">
+              <input type="text" id="quick-note-title" class="form-control form-control-sm text-sm" placeholder="Note Title (e.g. Shopping List, Idea)..." required>
+            </div>
+            <div class="col-md-5">
+              <input type="text" id="quick-note-content" class="form-control form-control-sm text-sm" placeholder="Write content note (markdown supported)..." required>
+            </div>
+            <div class="col-md-2">
+              <select id="quick-note-color" class="form-select form-select-sm text-xs">
+                <option value="#fef3c7" selected>🟡 Yellow</option>
+                <option value="#dbeafe">🔵 Blue</option>
+                <option value="#d1fae5">🟢 Green</option>
+                <option value="#f3e8ff">🟣 Purple</option>
+                <option value="#fee2e2">🔴 Red</option>
+              </select>
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-sm font-semibold w-100 py-1"><i class="bi bi-plus-lg"></i> Add</button>
+            </div>
+          </form>
         </div>
 
         <!-- Search Bar -->
@@ -71,6 +162,34 @@ window.NotesView = class NotesView {
   }
 
   init(container) {
+    // Quick Note Submission
+    const quickForm = container.querySelector('#quick-note-form');
+    if (quickForm) {
+      quickForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = container.querySelector('#quick-note-title').value.trim();
+        const content = container.querySelector('#quick-note-content').value.trim();
+        const color = container.querySelector('#quick-note-color').value;
+
+        const list = window.storageService.get('notes') || [];
+        list.push({
+          id: 'note_' + Date.now(),
+          title,
+          content,
+          color,
+          pinned: false,
+          archived: false,
+          updatedAt: new Date().toISOString()
+        });
+
+        window.storageService.set('notes', list);
+        window.notificationService.showToast('Quick note card added!', 'success');
+
+        this.render(container);
+        this.init(container);
+      });
+    }
+
     container.querySelectorAll('.note-sticky-card').forEach(card => {
       card.addEventListener('dblclick', () => {
         this.openNoteEditDrawer(card.getAttribute('data-id'));
@@ -145,7 +264,7 @@ window.NotesView = class NotesView {
 
       return `
         <div class="col-md-6 col-lg-4">
-          <div class="note-card note-sticky-card cursor-pointer" data-id="${note.id}" style="background-color:${note.color || '#fff3cd'}; min-height: 200px;">
+          <div class="note-card note-sticky-card cursor-pointer h-100 d-flex flex-column" data-id="${note.id}" style="background-color:${note.color || '#fff3cd'}; min-height: 200px;">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h6 class="font-bold ${textColor} mb-0" style="max-width:80%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${note.title}</h6>
               <i class="bi bi-pin-angle-fill pin-note-quick ${note.pinned ? 'text-primary' : 'text-muted'}" data-id="${note.id}" style="font-size: 1.1rem; cursor:pointer;" title="Pin Note"></i>
@@ -154,7 +273,7 @@ window.NotesView = class NotesView {
             <div class="text-xs flex-grow-1 note-markdown-content overflow-y-auto mb-3 ${textColor}" style="max-height:140px; line-height:1.4;">
               ${renderedMarkdown}
             </div>
-
+ 
             <div class="d-flex justify-content-between align-items-center note-actions mt-auto border-top pt-2">
               <span class="text-2xs text-muted font-semibold">${new Date(note.updatedAt).toLocaleDateString()}</span>
               <div class="d-flex gap-2">

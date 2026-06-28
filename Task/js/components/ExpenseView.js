@@ -26,31 +26,83 @@ window.ExpenseView = class ExpenseView {
         </div>
 
         <!-- Ledger balance sheet cards -->
-        <div class="row g-4 mb-4">
-          <div class="col-md-3">
-            <div class="premium-card text-center border-top border-4 border-success">
-              <span class="text-xs text-muted font-semibold d-block mb-1">Total Income Flow</span>
-              <h3 class="font-bold text-success mb-0">$${summary.income}</h3>
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Total Income Flow</div>
+                <div class="h4 font-bold mb-0 text-success">$${summary.income}</div>
+              </div>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="premium-card text-center border-top border-4 border-danger">
-              <span class="text-xs text-muted font-semibold d-block mb-1">Total Spending</span>
-              <h3 class="font-bold text-danger mb-0">$${summary.expense}</h3>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; flex-shrink: 0;">
+                <i class="bi bi-graph-down-arrow"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Total Spending</div>
+                <div class="h4 font-bold mb-0 text-danger">$${summary.expense}</div>
+              </div>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="premium-card text-center border-top border-4 border-primary">
-              <span class="text-xs text-muted font-semibold d-block mb-1">Net Savings Balance</span>
-              <h3 class="font-bold text-primary mb-0">$${summary.savings}</h3>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+                <i class="bi bi-wallet2"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Net Savings Balance</div>
+                <div class="h4 font-bold mb-0 text-primary">$${summary.savings}</div>
+              </div>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="premium-card text-center border-top border-4 border-info">
-              <span class="text-xs text-muted font-semibold d-block mb-1">Savings Rate Percentage</span>
-              <h3 class="font-bold text-info mb-0">${summary.savingsRate}%</h3>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; flex-shrink: 0;">
+                <i class="bi bi-percent"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Savings Rate</div>
+                <div class="h4 font-bold mb-0 text-main">${summary.savingsRate}%</div>
+              </div>
             </div>
           </div>
+        </div>
+
+        <!-- Quick Transaction Creator Card -->
+        <div class="premium-card p-3 mb-4">
+          <h6 class="font-bold text-xs text-uppercase text-muted mb-2"><i class="bi bi-lightning-charge"></i> Quick Transaction Logger</h6>
+          <form id="quick-tx-form" class="row g-2 align-items-center">
+            <div class="col-md-4">
+              <input type="text" id="quick-tx-desc" class="form-control form-control-sm text-sm" placeholder="Description (e.g. Groceries, Coffee)..." required>
+            </div>
+            <div class="col-md-2">
+              <input type="number" id="quick-tx-amount" class="form-control form-control-sm text-sm font-semibold" step="0.01" min="0.01" placeholder="Amount ($)..." required>
+            </div>
+            <div class="col-md-2">
+              <select id="quick-tx-category" class="form-select form-select-sm text-xs">
+                <option value="Groceries" selected>Groceries</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Transport">Transport</option>
+                <option value="Housing">Housing</option>
+                <option value="Salary">Salary (Income)</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select id="quick-tx-type" class="form-select form-select-sm text-xs">
+                <option value="expense" selected>Expense Debit</option>
+                <option value="income">Income Credit</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary btn-sm font-semibold w-100 py-1"><i class="bi bi-plus-lg"></i> Log Entry</button>
+            </div>
+          </form>
         </div>
 
         <div class="row g-4">
@@ -125,6 +177,31 @@ window.ExpenseView = class ExpenseView {
         }
       });
     });
+
+    // Quick Transaction Logger form submission
+    const quickForm = container.querySelector('#quick-tx-form');
+    if (quickForm) {
+      quickForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const description = container.querySelector('#quick-tx-desc').value.trim();
+        const amount = parseFloat(container.querySelector('#quick-tx-amount').value);
+        const category = container.querySelector('#quick-tx-category').value;
+        const type = container.querySelector('#quick-tx-type').value;
+        const date = new Date().toISOString().split('T')[0];
+
+        window.expenseService.addTransaction({
+          type,
+          amount,
+          category,
+          description,
+          date
+        });
+
+        window.notificationService.showToast('Ledger sheet updated', 'success');
+        this.render(container);
+        this.init(container);
+      });
+    }
 
     this.renderSpendingChart(container);
   }

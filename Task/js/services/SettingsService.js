@@ -38,7 +38,7 @@ class SettingsService {
   exportBackup() {
     const collections = [
       'profile', 'settings', 'tasks', 'reminders', 'notes',
-      'habits', 'expenses', 'journal', 'screenshots', 'activities'
+      'habits', 'expenses', 'journal', 'activities'
     ];
     
     const backup = {};

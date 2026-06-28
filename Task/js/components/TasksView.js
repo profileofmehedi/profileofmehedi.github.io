@@ -19,7 +19,12 @@ window.TasksView = class TasksView {
 
   render(container) {
     const list = window.taskService.getFilteredTasks(this.filters);
-    
+    const allTasks = window.taskService.getTasks();
+    const completedCount = allTasks.filter(t => t.status === 'completed').length;
+    const highPriorityCount = allTasks.filter(t => t.priority === 'high' && t.status !== 'completed').length;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const overdueCount = allTasks.filter(t => t.dueDate && t.dueDate < todayStr && t.status !== 'completed').length;
+
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Dashboard title area -->
@@ -42,6 +47,54 @@ window.TasksView = class TasksView {
             <button class="btn btn-primary btn-sm font-semibold px-3" id="task-add-new-btn">
               <i class="bi bi-plus-lg"></i> New Task
             </button>
+          </div>
+        </div>
+
+        <!-- Stats Summary Bar -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+                <i class="bi bi-list-task"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Total Tasks</div>
+                <div class="h4 font-bold mb-0 text-main">${allTasks.length}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+                <i class="bi bi-check2-circle"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Completed</div>
+                <div class="h4 font-bold mb-0 text-main">${completedCount} <span class="text-muted text-xs font-semibold">(${allTasks.length > 0 ? Math.round((completedCount/allTasks.length)*100) : 0}%)</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; flex-shrink: 0;">
+                <i class="bi bi-exclamation-triangle"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">High Priority</div>
+                <div class="h4 font-bold mb-0 text-warning">${highPriorityCount} <span class="text-muted text-xs font-semibold">pending</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; flex-shrink: 0;">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Overdue</div>
+                <div class="h4 font-bold mb-0 text-danger">${overdueCount}</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -113,6 +166,14 @@ window.TasksView = class TasksView {
   }
 
   init(container) {
+    // Check URL parameters for quick-add actions from other pages
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'add-task') {
+      const date = urlParams.get('date');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setTimeout(() => this.openTaskEditDrawer(null, { dueDate: date }), 100);
+    }
+
     // 1. Hook Subviews buttons clicks
     container.querySelectorAll('.active-tab-btn').forEach(btn => {
       const subview = btn.getAttribute('data-subview');
@@ -276,9 +337,19 @@ window.TasksView = class TasksView {
                     <span class="badge bg-light text-dark text-capitalize border">${t.category}</span>
                   </div>
                   <h5 class="font-bold text-main mb-2">${t.title}</h5>
-                  <p class="text-muted text-xs flex-grow-1" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${t.description || 'No description.'}</p>
+                  <p class="text-muted text-xs flex-grow-1 mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${t.description || 'No description.'}</p>
                   
-                  <div class="d-flex align-items-center justify-content-between mt-3 pt-2 border-top text-xs text-muted">
+                  <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between text-2xs text-muted mb-1 font-semibold">
+                      <span>Progress</span>
+                      <span>${t.progress || 0}%</span>
+                    </div>
+                    <div class="progress" style="height: 4px; border-radius: 2px;">
+                      <div class="progress-bar ${t.status === 'completed' ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${t.progress || 0}%;"></div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top text-xs text-muted">
                     <span><i class="bi bi-calendar-event"></i> ${t.dueDate || 'No Date'}</span>
                     <span><i class="bi bi-diagram-3"></i> ${t.checklist.length} items</span>
                   </div>
@@ -297,12 +368,12 @@ window.TasksView = class TasksView {
           ${cols.map(col => {
             const cards = list.filter(t => t.status === col);
             return `
-              <div class="kanban-col">
-                <div class="kanban-col-header">
+              <div class="kanban-col d-flex flex-column h-100">
+                <div class="kanban-col-header mb-3">
                   <span class="kanban-col-title">${getColTitle(col)}</span>
                   <span class="kanban-count">${cards.length}</span>
                 </div>
-                <div class="kanban-cards" data-status="${col}">
+                <div class="kanban-cards flex-grow-1" data-status="${col}" style="min-height: 250px;">
                   ${cards.map(t => `
                     <div class="kanban-card" data-id="${t.id}">
                       <div class="d-flex justify-content-between mb-2">
@@ -311,7 +382,7 @@ window.TasksView = class TasksView {
                       </div>
                       <div class="kanban-card-title text-main">${t.title}</div>
                       ${t.dueDate ? `<div class="text-2xs text-muted"><i class="bi bi-calendar-event"></i> ${t.dueDate}</div>` : ''}
-                      <div class="kanban-card-meta">
+                      <div class="kanban-card-meta mt-2">
                         <span><i class="bi bi-check2-all"></i> ${t.checklist.filter(i => i.checked).length}/${t.checklist.length}</span>
                         <div class="progress" style="width: 60px; height: 4px; border-radius:2px;">
                           <div class="progress-bar bg-success" style="width:${t.progress}%"></div>
@@ -320,6 +391,9 @@ window.TasksView = class TasksView {
                     </div>
                   `).join('')}
                 </div>
+                <button class="btn btn-sm btn-link text-muted font-semibold text-xs mt-2 w-100 text-start px-2 py-2 border border-dashed rounded-3 kanban-quick-add-btn" data-status="${col}">
+                  <i class="bi bi-plus-lg"></i> Add Task
+                </button>
               </div>
             `;
           }).join('')}
@@ -441,18 +515,28 @@ window.TasksView = class TasksView {
       });
     });
 
-    if (this.activeSubView === 'kanban' && window.Sortable) {
-      container.querySelectorAll('.kanban-cards').forEach(el => {
-        new Sortable(el, {
-          group: 'kanban',
-          animation: 150,
-          ghostClass: 'kanban-ghost-card',
-          onEnd: (evt) => {
-            const taskId = evt.item.getAttribute('data-id');
-            const newStatus = evt.to.getAttribute('data-status');
-            window.taskService.updateTask(taskId, { status: newStatus });
-            this.refreshBoard(container);
-          }
+    if (this.activeSubView === 'kanban') {
+      if (window.Sortable) {
+        container.querySelectorAll('.kanban-cards').forEach(el => {
+          new Sortable(el, {
+            group: 'kanban',
+            animation: 150,
+            ghostClass: 'kanban-ghost-card',
+            onEnd: (evt) => {
+              const taskId = evt.item.getAttribute('data-id');
+              const newStatus = evt.to.getAttribute('data-status');
+              window.taskService.updateTask(taskId, { status: newStatus });
+              this.refreshBoard(container);
+            }
+          });
+        });
+      }
+
+      container.querySelectorAll('.kanban-quick-add-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const status = btn.getAttribute('data-status');
+          this.openTaskEditDrawer(null, { status });
         });
       });
     }
@@ -535,7 +619,7 @@ window.TasksView = class TasksView {
   openTaskEditDrawer(taskId, prefilledFields = {}) {
     const isNew = !taskId;
     const task = isNew ? {
-      title: '', description: '', priority: 'medium', status: 'todo', category: 'work',
+      title: '', description: '', priority: 'medium', status: prefilledFields.status || 'todo', category: 'work',
       tags: [], estimatedTime: '', dueDate: prefilledFields.dueDate || '', dueTime: '', progress: 0,
       checklist: [], subtasks: [], attachments: [], color: '#3b82f6', repeat: 'none', notes: '', history: []
     } : window.taskService.getTaskById(taskId);

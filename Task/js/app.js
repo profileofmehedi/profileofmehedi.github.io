@@ -19,7 +19,6 @@ class App {
       expense: window.ExpenseView,
       analytics: window.AnalyticsView,
       journal: window.JournalView,
-      screenshots: window.ScreenshotsView,
       settings: window.SettingsView
     };
 
@@ -45,11 +44,22 @@ class App {
     // 1. Storage Seeding
     window.storageService.initialize(window.demoData);
 
-    // 2. Authentication Router Check
+    // 2. Authentication Router Check for Multi-page Application
+    const path = window.location.pathname;
+    const isAuthPage = path.endsWith('index.html') || path.endsWith('/') || path === '';
+    
     if (window.authService.isAuthenticated()) {
-      this.launchApp();
+      if (isAuthPage) {
+        window.location.href = 'dashboard.html';
+      } else {
+        this.launchApp();
+      }
     } else {
-      this.showAuth();
+      if (!isAuthPage) {
+        window.location.href = 'index.html';
+      } else {
+        this.showAuth();
+      }
     }
 
     // 3. Register Global Event Handlers
@@ -67,6 +77,18 @@ class App {
     this.loginForm = newForm;
 
     this.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+
+    // Bind password visibility toggler
+    const toggleBtn = this.loginForm.querySelector('#toggle-password-btn');
+    const passInput = this.loginForm.querySelector('#login-password');
+    if (toggleBtn && passInput) {
+      toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isPass = passInput.type === 'password';
+        passInput.type = isPass ? 'text' : 'password';
+        toggleBtn.innerHTML = `<i class="bi ${isPass ? 'bi-eye-slash' : 'bi-eye'}"></i>`;
+      });
+    }
   }
 
   handleLogin(e) {
@@ -78,7 +100,7 @@ class App {
     const res = window.authService.login(u, p, remember);
     if (res.success) {
       window.notificationService.showToast('Login successful! Welcome back.', 'success');
-      this.launchApp();
+      window.location.href = 'dashboard.html';
     } else {
       window.notificationService.showToast(res.message, 'danger');
     }
@@ -99,9 +121,10 @@ class App {
     this.syncProfileUI();
     this.refreshNotificationDropdown();
 
-    // Default View Selection
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialView = urlParams.get('view') || 'dashboard';
+    // Default View Selection from the current file name (MPA)
+    const path = window.location.pathname;
+    const filename = path.split('/').pop().replace('.html', '') || 'dashboard';
+    const initialView = this.viewMap[filename] ? filename : 'dashboard';
     this.switchView(initialView);
 
     // Launch Reminders Check Loop (Checks alarms every 5 seconds)
@@ -172,6 +195,8 @@ class App {
 
     // Close mobile offcanvas if open
     document.getElementById('sidebar-panel').classList.remove('show-mobile');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    if (sidebarBackdrop) sidebarBackdrop.classList.remove('show');
 
     // Mount Skeleton Loader to look professional
     this.viewFrame.innerHTML = `
@@ -214,25 +239,30 @@ class App {
   registerGlobalEvents() {
     // 1. Sidebar Toggle Button
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
         const sidebar = document.getElementById('sidebar-panel');
         // Desktop collapse vs mobile sliding drawer
         if (window.innerWidth <= 768) {
           sidebar.classList.toggle('show-mobile');
+          if (sidebarBackdrop) {
+            sidebarBackdrop.classList.toggle('show', sidebar.classList.contains('show-mobile'));
+          }
         } else {
           sidebar.classList.toggle('collapsed');
         }
       });
     }
 
-    // 2. Sidebar Navigation clicks
-    document.querySelectorAll('.sidebar-menu-item, .mobile-nav-item').forEach(el => {
-      el.addEventListener('click', () => {
-        const view = el.getAttribute('data-view');
-        if (view) this.switchView(view);
+    if (sidebarBackdrop) {
+      sidebarBackdrop.addEventListener('click', () => {
+        document.getElementById('sidebar-panel').classList.remove('show-mobile');
+        sidebarBackdrop.classList.remove('show');
       });
-    });
+    }
+
+    // 2. Sidebar Navigation clicks are handled natively via <a> href links to separate HTML files.
 
     // Mobile FAB Click -> Opens Quick Add Task modal
     const mobileFab = document.getElementById('mobile-fab-trigger');
@@ -243,19 +273,15 @@ class App {
     if (mobileFab) mobileFab.addEventListener('click', quickAddTrigger);
     if (mobileAdd) mobileAdd.addEventListener('click', quickAddTrigger);
 
-    // 3. User Menu Logouts and Profile navs
+    // 3. User Menu Logouts
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
         window.authService.logout();
         window.notificationService.showToast('Logged out successfully.', 'info');
-        this.showAuth();
+        window.location.href = 'index.html';
       });
     }
-
-    document.querySelectorAll('[data-action="go-settings"]').forEach(el => {
-      el.addEventListener('click', () => this.switchView('settings'));
-    });
 
     // 4. Color Theme selector dropdown buttons
     document.querySelectorAll('.color-theme-btn').forEach(btn => {
@@ -313,7 +339,7 @@ class App {
       // Alt + P (Switch Pomodoro)
       if (e.altKey && e.key.toLowerCase() === 'p') {
         e.preventDefault();
-        this.switchView('pomodoro');
+        window.location.href = 'pomodoro.html';
       }
     });
 
@@ -390,11 +416,11 @@ class App {
       </div>
     `).join('');
 
-    // Bind clicks to switch views
+    // Bind clicks to navigate to views
     this.searchResults.querySelectorAll('.search-result-item').forEach(el => {
       el.addEventListener('click', () => {
         const view = el.getAttribute('data-view');
-        this.switchView(view);
+        window.location.href = view + '.html';
         this.closeSearch();
       });
     });

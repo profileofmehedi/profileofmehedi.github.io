@@ -11,6 +11,13 @@ window.RemindersView = class RemindersView {
 
   render(container) {
     const list = this.getFilteredReminders();
+    const allReminders = window.reminderService.getReminders();
+    const activeReminders = allReminders.filter(r => !r.completed);
+    const completedReminders = allReminders.filter(r => r.completed);
+    
+    const now = new Date();
+    const missedReminders = allReminders.filter(r => !r.completed && new Date(r.dateTime) < now);
+    const upcomingCount = activeReminders.length - missedReminders.length;
 
     container.innerHTML = `
       <div class="container-fluid py-4">
@@ -23,6 +30,83 @@ window.RemindersView = class RemindersView {
           <button class="btn btn-primary btn-sm font-semibold" id="reminder-add-btn">
             <i class="bi bi-plus-lg"></i> Set Alarm
           </button>
+        </div>
+
+        <!-- Stats Summary Bar -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+                <i class="bi bi-bell"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Total Alarms</div>
+                <div class="h4 font-bold mb-0 text-main">${allReminders.length}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Upcoming</div>
+                <div class="h4 font-bold mb-0 text-main">${upcomingCount}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; flex-shrink: 0;">
+                <i class="bi bi-exclamation-octagon"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Missed</div>
+                <div class="h4 font-bold mb-0 text-danger">${missedReminders.length}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; flex-shrink: 0;">
+                <i class="bi bi-check-circle"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Completed</div>
+                <div class="h4 font-bold mb-0 text-main">${completedReminders.length}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Alarm Creation Card -->
+        <div class="premium-card p-3 mb-4">
+          <h6 class="font-bold text-xs text-uppercase text-muted mb-2"><i class="bi bi-lightning-charge"></i> Quick Alarm Scheduler</h6>
+          <form id="quick-reminder-form" class="row g-2 align-items-center">
+            <div class="col-md-5">
+              <input type="text" id="quick-rem-title" class="form-control form-control-sm text-sm" placeholder="Quick alert name (e.g. Drink water, stretch)..." required>
+            </div>
+            <div class="col-md-3">
+              <select id="quick-rem-time-offset" class="form-select form-select-sm text-xs">
+                <option value="15">In 15 minutes</option>
+                <option value="30">In 30 minutes</option>
+                <option value="60" selected>In 1 hour</option>
+                <option value="120">In 2 hours</option>
+                <option value="morning">Tomorrow morning (9 AM)</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select id="quick-rem-category" class="form-select form-select-sm text-xs">
+                <option value="health">Health</option>
+                <option value="work">Work</option>
+                <option value="finance">Finance</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary btn-sm font-semibold w-100 py-1"><i class="bi bi-plus-lg"></i> Add Alarm</button>
+            </div>
+          </form>
         </div>
 
         <!-- Filter tabs & summary -->
@@ -51,6 +135,57 @@ window.RemindersView = class RemindersView {
   }
 
   init(container) {
+    // Check URL parameters for quick-add actions from other pages
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'add-reminder') {
+      const date = urlParams.get('date');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setTimeout(() => {
+        this.openAddReminderDrawer();
+        const dateInput = document.getElementById('rem-datetime');
+        if (dateInput) {
+          dateInput.value = `${date}T09:00`;
+        }
+      }, 100);
+    }
+
+    // Quick Alarm Scheduler Submit
+    const quickForm = container.querySelector('#quick-reminder-form');
+    if (quickForm) {
+      quickForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = container.querySelector('#quick-rem-title').value.trim();
+        const offsetVal = container.querySelector('#quick-rem-time-offset').value;
+        const category = container.querySelector('#quick-rem-category').value;
+        
+        let targetDate = new Date();
+        if (offsetVal === 'morning') {
+          targetDate.setDate(targetDate.getDate() + 1);
+          targetDate.setHours(9, 0, 0, 0);
+        } else {
+          const minutes = parseInt(offsetVal, 10);
+          targetDate.setMinutes(targetDate.getMinutes() + minutes);
+        }
+
+        const pad = (n) => n.toString().padStart(2, '0');
+        const localDateTimeStr = `${targetDate.getFullYear()}-${pad(targetDate.getMonth()+1)}-${pad(targetDate.getDate())}T${pad(targetDate.getHours())}:${pad(targetDate.getMinutes())}`;
+
+        window.reminderService.addReminder({
+          title,
+          dateTime: localDateTimeStr,
+          category,
+          type: 'one-time',
+          repeat: 'none',
+          completed: false
+        });
+
+        window.notificationService.showToast('Quick reminder scheduled!', 'success');
+        this.app.refreshNotificationDropdown();
+        this.render(container);
+        this.init(container);
+      });
+    }
+
     container.querySelector('#reminder-add-btn').addEventListener('click', () => {
       this.openAddReminderDrawer();
     });

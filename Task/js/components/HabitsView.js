@@ -25,6 +25,19 @@ window.HabitsView = class HabitsView {
     const list = window.habitService.getHabits();
     const lastWeek = this.getLastWeekDays();
 
+    let totalCheckins = 0;
+    let highestStreak = 0;
+    let activeStreakCount = 0;
+    list.forEach(h => {
+      const streaks = window.habitService.getHabitStreaks(h);
+      if (streaks.current > 0) activeStreakCount++;
+      if (streaks.current > highestStreak) highestStreak = streaks.current;
+      
+      Object.values(h.history).forEach(v => {
+        if (v === true) totalCheckins++;
+      });
+    });
+
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Header -->
@@ -36,6 +49,74 @@ window.HabitsView = class HabitsView {
           <button class="btn btn-primary btn-sm font-semibold" id="habit-add-btn">
             <i class="bi bi-plus-lg"></i> Add Habit
           </button>
+        </div>
+
+        <!-- Stats Summary Bar -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+                <i class="bi bi-lightning"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Total Habits</div>
+                <div class="h4 font-bold mb-0 text-main">${list.length}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; flex-shrink: 0;">
+                <i class="bi bi-fire"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Active Streaks</div>
+                <div class="h4 font-bold mb-0 text-danger">${activeStreakCount}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; flex-shrink: 0;">
+                <i class="bi bi-trophy"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Best Streak</div>
+                <div class="h4 font-bold mb-0 text-warning">${highestStreak}d</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Total Check-ins</div>
+                <div class="h4 font-bold mb-0 text-main">${totalCheckins}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Habit Creation Card -->
+        <div class="premium-card p-3 mb-4">
+          <h6 class="font-bold text-xs text-uppercase text-muted mb-2"><i class="bi bi-lightning-charge"></i> Quick Habit Creator</h6>
+          <form id="quick-habit-form" class="row g-2 align-items-center">
+            <div class="col-md-7">
+              <input type="text" id="quick-habit-title" class="form-control form-control-sm text-sm" placeholder="Habit Routine name (e.g. Read 30m, Drink water)..." required>
+            </div>
+            <div class="col-md-3">
+              <select id="quick-habit-freq" class="form-select form-select-sm text-xs">
+                <option value="daily" selected>Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary btn-sm font-semibold w-100 py-1"><i class="bi bi-plus-lg"></i> Add Habit</button>
+            </div>
+          </form>
         </div>
 
         <!-- Habits Table Card Grid -->
@@ -111,6 +192,22 @@ window.HabitsView = class HabitsView {
   }
 
   init(container) {
+    // Quick Habit Submission
+    const quickForm = container.querySelector('#quick-habit-form');
+    if (quickForm) {
+      quickForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = container.querySelector('#quick-habit-title').value.trim();
+        const freq = container.querySelector('#quick-habit-freq').value;
+
+        window.habitService.addHabit(title, freq);
+        window.notificationService.showToast(`Habit "${title}" created!`, 'success');
+
+        this.render(container);
+        this.init(container);
+      });
+    }
+
     container.querySelectorAll('.habit-matrix-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');

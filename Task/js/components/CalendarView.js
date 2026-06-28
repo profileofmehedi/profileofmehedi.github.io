@@ -10,6 +10,28 @@ window.CalendarView = class CalendarView {
   }
 
   render(container) {
+    const allTasks = window.taskService.getTasks();
+    const allReminders = window.reminderService.getReminders();
+    const totalEvents = allTasks.length + allReminders.length;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayTasks = allTasks.filter(t => t.dueDate === todayStr).length;
+    const todayReminders = allReminders.filter(r => r.dateTime.startsWith(todayStr)).length;
+    const todayEvents = todayTasks + todayReminders;
+
+    const selectedYear = this.currentDate.getFullYear();
+    const selectedMonth = this.currentDate.getMonth() + 1;
+    const selectedMonthStr = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+    
+    const monthTasks = allTasks.filter(t => t.dueDate && t.dueDate.startsWith(selectedMonthStr)).length;
+    const monthReminders = allReminders.filter(r => r.dateTime && r.dateTime.startsWith(selectedMonthStr)).length;
+    const monthEvents = monthTasks + monthReminders;
+
+    const workTasks = allTasks.filter(t => t.category === 'work').length;
+    const workReminders = allReminders.filter(r => r.category === 'work').length;
+    const totalWork = workTasks + workReminders;
+    const balancePct = totalEvents > 0 ? Math.round((totalWork / totalEvents) * 100) : 0;
+
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Header Controls -->
@@ -35,10 +57,86 @@ window.CalendarView = class CalendarView {
           </div>
         </div>
 
+        <!-- Stats Summary Bar -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Total Events</div>
+                <div class="h4 font-bold mb-0 text-main">${totalEvents}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+                <i class="bi bi-calendar-month"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Selected Month</div>
+                <div class="h4 font-bold mb-0 text-main">${monthEvents}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; flex-shrink: 0;">
+                <i class="bi bi-calendar-day"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Today's Load</div>
+                <div class="h4 font-bold mb-0 text-warning">${todayEvents}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; flex-shrink: 0;">
+                <i class="bi bi-briefcase"></i>
+              </div>
+              <div>
+                <div class="text-2xs text-muted font-bold text-uppercase">Work Load Ratio</div>
+                <div class="h4 font-bold mb-0 text-main">${balancePct}% <span class="text-muted text-xs font-semibold">work</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Event Scheduler Card -->
+        <div class="premium-card p-3 mb-4">
+          <h6 class="font-bold text-xs text-uppercase text-muted mb-2"><i class="bi bi-lightning-charge"></i> Quick Event Scheduler</h6>
+          <form id="quick-event-form" class="row g-2 align-items-center">
+            <div class="col-md-5">
+              <input type="text" id="quick-ev-title" class="form-control form-control-sm text-sm" placeholder="Quick event/task name (e.g. Code review, gym)..." required>
+            </div>
+            <div class="col-md-3">
+              <input type="date" id="quick-ev-date" class="form-control form-control-sm text-xs" required>
+            </div>
+            <div class="col-md-2">
+              <select id="quick-ev-type" class="form-select form-select-sm text-xs">
+                <option value="task" selected>Task Target</option>
+                <option value="reminder">Alarm Reminder</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary btn-sm font-semibold w-100 py-1"><i class="bi bi-plus-lg"></i> Schedule</button>
+            </div>
+          </form>
+        </div>
+
         <!-- Render Mount Target -->
         <div id="calendar-view-viewport"></div>
       </div>
     `;
+
+    // Prefill date input with today
+    const dateInput = container.querySelector('#quick-ev-date');
+    if (dateInput) {
+      dateInput.value = todayStr;
+    }
 
     this.renderActiveGrid(container);
   }
@@ -67,6 +165,56 @@ window.CalendarView = class CalendarView {
         this.renderActiveGrid(container);
       });
     });
+
+    // Quick Event Scheduler Submission
+    const quickForm = container.querySelector('#quick-event-form');
+    if (quickForm) {
+      quickForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = container.querySelector('#quick-ev-title').value.trim();
+        const dateVal = container.querySelector('#quick-ev-date').value;
+        const type = container.querySelector('#quick-ev-type').value;
+
+        if (type === 'task') {
+          window.taskService.addTask({
+            title,
+            description: 'Quick scheduled task from Calendar Board.',
+            priority: 'medium',
+            status: 'todo',
+            category: 'work',
+            tags: ['scheduled', 'calendar'],
+            estimatedTime: '1h',
+            dueDate: dateVal,
+            dueTime: '09:00',
+            progress: 0,
+            checklist: [],
+            subtasks: [],
+            attachments: [],
+            color: '#3b82f6',
+            repeat: 'none',
+            notes: '',
+            history: []
+          });
+          window.notificationService.showToast('New task scheduled in calendar!', 'success');
+        } else {
+          window.reminderService.addReminder({
+            title,
+            dateTime: `${dateVal}T09:00:00`,
+            category: 'work',
+            type: 'one-time',
+            repeat: 'none',
+            completed: false
+          });
+          window.notificationService.showToast('New alarm scheduled in calendar!', 'success');
+          this.app.refreshNotificationDropdown();
+        }
+
+        // Reset title and reload view
+        container.querySelector('#quick-ev-title').value = '';
+        this.render(container);
+        this.init(container);
+      });
+    }
   }
 
   navigateDate(direction) {
@@ -107,8 +255,9 @@ window.CalendarView = class CalendarView {
     const totalDays = new Date(year, month + 1, 0).getDate();
     
     let html = `
-      <div class="premium-card p-0 overflow-hidden">
-        <div class="row g-0 text-center py-2 border-bottom font-semibold text-xs text-muted" style="background-color: var(--bg-hover);">
+      <div class="calendar-responsive-wrapper">
+        <div class="premium-card p-0 overflow-hidden">
+          <div class="row g-0 text-center py-2 border-bottom font-semibold text-xs text-muted" style="background-color: var(--bg-hover);">
           <div class="col" style="width:14%">Sun</div><div class="col" style="width:14%">Mon</div>
           <div class="col" style="width:14%">Tue</div><div class="col" style="width:14%">Wed</div>
           <div class="col" style="width:14%">Thu</div><div class="col" style="width:14%">Fri</div>
@@ -157,7 +306,7 @@ window.CalendarView = class CalendarView {
       }
     }
 
-    html += `</div></div>`;
+    html += `</div></div></div>`;
     viewport.innerHTML = html;
 
     viewport.querySelectorAll('.cal-day-cell').forEach(cell => {
@@ -322,28 +471,12 @@ window.CalendarView = class CalendarView {
     this.app.openDrawer('Day Agenda & Schedulers', html, (content) => {
       content.querySelector('.add-task-quick').addEventListener('click', () => {
         this.app.closeDrawer();
-        this.app.switchView('tasks');
-        
-        setTimeout(() => {
-          if (this.app.currentViewInstance instanceof window.TasksView) {
-            this.app.currentViewInstance.openTaskEditDrawer(null, { dueDate: dateStr });
-          }
-        }, 300);
+        window.location.href = `tasks.html?action=add-task&date=${dateStr}`;
       });
 
       content.querySelector('.add-rem-quick').addEventListener('click', () => {
         this.app.closeDrawer();
-        this.app.switchView('reminders');
-        
-        setTimeout(() => {
-          if (this.app.currentViewInstance instanceof window.RemindersView) {
-            this.app.currentViewInstance.openAddReminderDrawer();
-            const dateInput = document.getElementById('rem-datetime');
-            if (dateInput) {
-              dateInput.value = `${dateStr}T09:00`;
-            }
-          }
-        }, 300);
+        window.location.href = `reminders.html?action=add-reminder&date=${dateStr}`;
       });
     });
   }

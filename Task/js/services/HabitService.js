@@ -106,7 +106,7 @@ class HabitService {
         const dateCursorStr = dateCursor.toISOString().split('T')[0];
         if (history[dateCursorStr] === true) {
           current++;
-          dateCursor.setDate(dateCursor.setDate(dateCursor.getDate() - 1));
+          dateCursor.setDate(dateCursor.getDate() - 1);
         } else {
           break;
         }
