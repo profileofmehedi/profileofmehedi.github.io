@@ -28,7 +28,7 @@ window.TasksView = class TasksView {
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Dashboard title area -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
           <div>
             <h2 class="font-bold mb-1">Task Board</h2>
             <p class="text-muted text-sm mb-0">Organize and manage your targets using advanced boards.</p>
@@ -259,7 +259,8 @@ window.TasksView = class TasksView {
 
     if (this.activeSubView === 'list') {
       viewport.innerHTML = `
-        <div class="premium-card p-0 overflow-hidden">
+        <!-- Desktop Table View -->
+        <div class="d-none d-md-block premium-card p-0 overflow-hidden">
           <table class="table table-hover align-middle mb-0 text-sm">
             <thead class="table-light">
               <tr>
@@ -317,6 +318,55 @@ window.TasksView = class TasksView {
             </tbody>
           </table>
         </div>
+
+        <!-- Mobile Stacked Card View -->
+        <div class="d-block d-md-none">
+          ${list.map(t => {
+            const checked = this.selectedTasks.has(t.id) ? 'checked' : '';
+            const progressClass = t.status === 'completed' ? 'bg-success' : 'bg-primary';
+            const statusBadge = {
+              todo: '<span class="badge bg-secondary text-capitalize">To-do</span>',
+              'in-progress': '<span class="badge bg-primary text-capitalize">In Progress</span>',
+              review: '<span class="badge bg-warning text-capitalize">In Review</span>',
+              completed: '<span class="badge bg-success text-capitalize">Completed</span>'
+            }[t.status] || `<span class="badge bg-secondary">${t.status}</span>`;
+
+            return `
+              <div class="premium-card p-3 mb-3 task-card cursor-pointer" data-id="${t.id}">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="d-flex align-items-center gap-2 select-cell" onclick="event.stopPropagation()">
+                    <input type="checkbox" class="task-select-chk form-check-input" data-id="${t.id}" ${checked}>
+                    <span class="badge bg-light text-dark text-capitalize border">${t.category}</span>
+                  </div>
+                  <span class="badge badge-priority-${t.priority} text-capitalize">${t.priority}</span>
+                </div>
+                
+                <h5 class="font-bold text-main mb-1 fs-6">${t.title}</h5>
+                <p class="text-muted text-xs mb-3 text-truncate">${t.description || 'No description added'}</p>
+                
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between text-2xs text-muted mb-1 font-semibold">
+                    <span>Progress</span>
+                    <span>${t.progress || 0}%</span>
+                  </div>
+                  <div class="progress" style="height: 5px; border-radius: 2.5px;">
+                    <div class="progress-bar ${progressClass}" style="width: ${t.progress || 0}%;"></div>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                  <div class="text-xs text-muted"><i class="bi bi-calendar-event"></i> ${t.dueDate ? t.dueDate : 'No Date'}</div>
+                  <div class="d-flex align-items-center gap-2">
+                    <div>${statusBadge}</div>
+                    <div class="action-cell" onclick="event.stopPropagation()">
+                      <button class="btn btn-sm btn-outline-danger p-1 py-0 px-2 task-row-delete" data-id="${t.id}"><i class="bi bi-trash"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
       `;
     } else if (this.activeSubView === 'grid') {
       viewport.innerHTML = `
@@ -330,7 +380,7 @@ window.TasksView = class TasksView {
             }[t.status] || 'border-light';
 
             return `
-              <div class="col-md-4">
+              <div class="col-12 col-md-6 col-lg-4">
                 <div class="premium-card h-100 d-flex flex-column task-card border-top border-4 ${statusClass}" data-id="${t.id}" style="cursor:pointer;">
                   <div class="d-flex justify-content-between align-items-start mb-2">
                     <span class="badge text-capitalize badge-priority-${t.priority}">${t.priority}</span>
@@ -418,7 +468,7 @@ window.TasksView = class TasksView {
                 
                 <div class="row g-3">
                   ${grouped[dateKey].map(t => `
-                    <div class="col-md-6">
+                    <div class="col-12 col-lg-6">
                       <div class="premium-card p-3 task-row" data-id="${t.id}" style="cursor:pointer;">
                         <div class="d-flex justify-content-between mb-2">
                           <span class="badge badge-priority-${t.priority}">${t.priority}</span>
@@ -575,19 +625,22 @@ window.TasksView = class TasksView {
         <h5 class="font-bold text-primary mb-0">${today.toLocaleString('default', { month: 'long' })} ${currentYear}</h5>
       </div>
       <div class="col-12">
-        <div class="row g-1 text-muted text-xs mb-2">
-          <div class="col" style="width:14%">Sun</div><div class="col" style="width:14%">Mon</div>
-          <div class="col" style="width:14%">Tue</div><div class="col" style="width:14%">Wed</div>
-          <div class="col" style="width:14%">Thu</div><div class="col" style="width:14%">Fri</div>
-          <div class="col" style="width:14%">Sat</div>
+        <div class="row g-1 text-muted text-xs mb-2 justify-content-center">
+          <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Sun</div>
+          <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Mon</div>
+          <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Tue</div>
+          <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Wed</div>
+          <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Thu</div>
+          <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Fri</div>
+          <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Sat</div>
         </div>
       </div>
     `;
 
-    gridHtml += '<div class="col-12"><div class="row g-1">';
+    gridHtml += '<div class="col-12"><div class="row g-1 justify-content-center">';
     
     for (let i = 0; i < firstDay; i++) {
-      gridHtml += `<div class="col p-2 text-muted text-2xs" style="width:14%; min-height:80px; background-color:var(--bg-hover); opacity:0.3;"></div>`;
+      gridHtml += `<div class="mini-cal-cell text-muted text-2xs" style="background-color:var(--bg-hover); opacity:0.3;"></div>`;
     }
 
     for (let day = 1; day <= totalDays; day++) {
@@ -598,7 +651,7 @@ window.TasksView = class TasksView {
       const dotHtml = dayTasks.map(t => `<div style="width:5px; height:5px; border-radius:50%; background-color:${t.color || '#3b82f6'}; margin: 1px auto 0;"></div>`).join('');
 
       gridHtml += `
-        <div class="col p-2 border-end border-bottom mini-cal-day cursor-pointer ${isToday}" data-date="${dateStr}" style="width:14%; min-height:80px; background-color:var(--bg-card);">
+        <div class="border-end border-bottom mini-cal-day cursor-pointer mini-cal-cell ${isToday}" data-date="${dateStr}" style="background-color:var(--bg-card);">
           <div class="font-bold text-xs">${day}</div>
           <div class="mt-1">${dotHtml}</div>
         </div>

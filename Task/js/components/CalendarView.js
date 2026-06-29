@@ -35,13 +35,13 @@ window.CalendarView = class CalendarView {
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Header Controls -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
           <div>
             <h2 class="font-bold mb-1" id="cal-title-header">Planner Calendar</h2>
             <p class="text-muted text-sm mb-0">Consolidated schedule of your tasks, milestones, and reflections.</p>
           </div>
 
-          <div class="d-flex gap-2 align-items-center">
+          <div class="d-flex gap-2 align-items-center flex-wrap">
             <div class="btn-group">
               <button class="btn btn-outline-secondary btn-sm" id="cal-prev-btn"><i class="bi bi-chevron-left"></i></button>
               <button class="btn btn-outline-secondary btn-sm font-semibold text-xs px-3" id="cal-today-btn">Today</button>
@@ -58,48 +58,48 @@ window.CalendarView = class CalendarView {
         </div>
 
         <!-- Stats Summary Bar -->
-        <div class="row g-3 mb-4">
+        <div class="row g-2 g-sm-3 mb-4">
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
                 <i class="bi bi-calendar-check"></i>
               </div>
-              <div>
+              <div class="text-center text-sm-start">
                 <div class="text-2xs text-muted font-bold text-uppercase">Total Events</div>
                 <div class="h4 font-bold mb-0 text-main">${totalEvents}</div>
               </div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
                 <i class="bi bi-calendar-month"></i>
               </div>
-              <div>
+              <div class="text-center text-sm-start">
                 <div class="text-2xs text-muted font-bold text-uppercase">Selected Month</div>
                 <div class="h4 font-bold mb-0 text-main">${monthEvents}</div>
               </div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; flex-shrink: 0;">
                 <i class="bi bi-calendar-day"></i>
               </div>
-              <div>
+              <div class="text-center text-sm-start">
                 <div class="text-2xs text-muted font-bold text-uppercase">Today's Load</div>
                 <div class="h4 font-bold mb-0 text-warning">${todayEvents}</div>
               </div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; flex-shrink: 0;">
                 <i class="bi bi-briefcase"></i>
               </div>
-              <div>
-                <div class="text-2xs text-muted font-bold text-uppercase">Work Load Ratio</div>
-                <div class="h4 font-bold mb-0 text-main">${balancePct}% <span class="text-muted text-xs font-semibold">work</span></div>
+              <div class="text-center text-sm-start">
+                <div class="text-2xs text-muted font-bold text-uppercase">Work Ratio</div>
+                <div class="h4 font-bold mb-0 text-main">${balancePct}%</div>
               </div>
             </div>
           </div>
@@ -108,20 +108,20 @@ window.CalendarView = class CalendarView {
         <!-- Quick Event Scheduler Card -->
         <div class="premium-card p-3 mb-4">
           <h6 class="font-bold text-xs text-uppercase text-muted mb-2"><i class="bi bi-lightning-charge"></i> Quick Event Scheduler</h6>
-          <form id="quick-event-form" class="row g-2 align-items-center">
-            <div class="col-md-5">
+          <form id="quick-event-form" class="row g-3 align-items-center">
+            <div class="col-12 col-md-5">
               <input type="text" id="quick-ev-title" class="form-control form-control-sm text-sm" placeholder="Quick event/task name (e.g. Code review, gym)..." required>
             </div>
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
               <input type="date" id="quick-ev-date" class="form-control form-control-sm text-xs" required>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
               <select id="quick-ev-type" class="form-select form-select-sm text-xs">
                 <option value="task" selected>Task Target</option>
                 <option value="reminder">Alarm Reminder</option>
               </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
               <button type="submit" class="btn btn-primary btn-sm font-semibold w-100 py-1"><i class="bi bi-plus-lg"></i> Schedule</button>
             </div>
           </form>
@@ -257,17 +257,20 @@ window.CalendarView = class CalendarView {
     let html = `
       <div class="calendar-responsive-wrapper">
         <div class="premium-card p-0 overflow-hidden">
-          <div class="row g-0 text-center py-2 border-bottom font-semibold text-xs text-muted" style="background-color: var(--bg-hover);">
-          <div class="col" style="width:14%">Sun</div><div class="col" style="width:14%">Mon</div>
-          <div class="col" style="width:14%">Tue</div><div class="col" style="width:14%">Wed</div>
-          <div class="col" style="width:14%">Thu</div><div class="col" style="width:14%">Fri</div>
-          <div class="col" style="width:14%">Sat</div>
-        </div>
-        <div class="row g-0">
+          <div class="row g-0 text-center py-2 border-bottom font-semibold text-xs text-muted justify-content-center" style="background-color: var(--bg-hover);">
+            <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Sun</div>
+            <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Mon</div>
+            <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Tue</div>
+            <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Wed</div>
+            <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Thu</div>
+            <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Fri</div>
+            <div style="flex:0 0 14.285%; max-width:14.285%; text-align:center;">Sat</div>
+          </div>
+          <div class="row g-0">
     `;
 
     for (let i = 0; i < firstDay; i++) {
-      html += `<div class="col p-2 text-muted border-end border-bottom text-2xs" style="width:14.28%; min-height:110px; background-color:var(--bg-app); opacity:0.3;"></div>`;
+      html += `<div class="border-end border-bottom text-muted text-2xs cal-month-cell" style="background-color:var(--bg-app); opacity:0.3;"></div>`;
     }
 
     const todayStr = new Date().toISOString().split('T')[0];
@@ -288,7 +291,7 @@ window.CalendarView = class CalendarView {
       const overflowCount = dayEvents.length > 3 ? `<div class="text-2xs text-muted text-center font-bold">+${dayEvents.length - 3} more</div>` : '';
 
       html += `
-        <div class="col p-2 border-end border-bottom cal-day-cell cursor-pointer ${isToday}" data-date="${dateStr}" style="width:14.28%; min-height:110px; background-color:${cellBg}; overflow:hidden;">
+        <div class="border-end border-bottom cal-day-cell cursor-pointer cal-month-cell ${isToday}" data-date="${dateStr}" style="background-color:${cellBg}; overflow:hidden;">
           <div class="d-flex justify-content-between mb-1">
             <span class="font-bold text-xs text-main">${day}</span>
             ${dayEvents.length > 0 ? `<span class="badge rounded-pill bg-secondary text-2xs px-1 py-0">${dayEvents.length}</span>` : ''}
@@ -302,7 +305,7 @@ window.CalendarView = class CalendarView {
     const remainingDays = 7 - ((firstDay + totalDays) % 7);
     if (remainingDays < 7) {
       for (let i = 0; i < remainingDays; i++) {
-        html += `<div class="col p-2 border-bottom border-end text-muted text-2xs" style="width:14.28%; min-height:110px; background-color:var(--bg-app); opacity:0.3;"></div>`;
+        html += `<div class="border-bottom border-end text-muted text-2xs cal-month-cell" style="background-color:var(--bg-app); opacity:0.3;"></div>`;
       }
     }
 
@@ -336,7 +339,7 @@ window.CalendarView = class CalendarView {
       
       html += `
         <div class="col-md">
-          <div class="premium-card h-100 p-2" style="min-height:350px;">
+          <div class="premium-card h-100 week-day-card p-2">
             <div class="text-center border-bottom pb-2 mb-3">
               <div class="text-xs text-muted font-semibold text-uppercase">${activeDayName}</div>
               <div class="h4 font-bold text-main mb-0">${activeDayNum}</div>
@@ -349,7 +352,7 @@ window.CalendarView = class CalendarView {
                   <div class="text-2xs text-muted mt-1"><i class="bi bi-clock"></i> ${new Date(ev.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
               `).join('')}
-              ${dayEvents.length === 0 ? '<p class="text-muted text-center text-2xs py-4">No events</p>' : ''}
+              ${dayEvents.length === 0 ? '<p class="text-muted text-center text-2xs my-2">No events</p>' : ''}
             </div>
           </div>
         </div>
@@ -416,7 +419,8 @@ window.CalendarView = class CalendarView {
     }
 
     viewport.innerHTML = `
-      <div class="premium-card p-0 overflow-hidden">
+      <!-- Desktop Table View -->
+      <div class="d-none d-md-block premium-card p-0 overflow-hidden">
         <table class="table table-hover align-middle mb-0 text-sm">
           <thead class="table-light">
             <tr>
@@ -430,13 +434,27 @@ window.CalendarView = class CalendarView {
             ${events.map(ev => `
               <tr>
                 <td class="font-semibold">${new Date(ev.start).toLocaleString()}</td>
-                <td><span class="badge" style="background-color:${ev.color}">${ev.type.toUpperCase()}</span></td>
+                <td><span class="badge text-white" style="background-color:${ev.color}">${ev.type.toUpperCase()}</span></td>
                 <td class="text-main">${ev.title}</td>
                 <td><span class="badge bg-light text-dark border">${ev.completed ? 'COMPLETED' : 'PENDING'}</span></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Stacked Card View -->
+      <div class="d-block d-md-none">
+        ${events.map(ev => `
+          <div class="premium-card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge text-white text-xs" style="background-color:${ev.color}">${ev.type.toUpperCase()}</span>
+              <span class="badge bg-light text-dark text-xs border">${ev.completed ? 'Completed' : 'Pending'}</span>
+            </div>
+            <h5 class="font-bold text-main mb-2 fs-6">${ev.title}</h5>
+            <div class="text-xs text-muted"><i class="bi bi-clock"></i> ${new Date(ev.start).toLocaleString()}</div>
+          </div>
+        `).join('')}
       </div>
     `;
   }

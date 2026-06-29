@@ -100,6 +100,48 @@ class NotificationService {
     }
   }
 
+  // Synthesize an alarm beep sound (4 rapid beeps) using Web Audio API
+  playAlarmSound() {
+    const settings = window.storageService.get('settings') || {};
+    if (settings.soundEnabled === false) return;
+
+    const volume = settings.soundVolume !== undefined ? settings.soundVolume : 0.5;
+
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      
+      const audioCtx = new AudioContext();
+      
+      const playBeep = (freq, startTime, duration) => {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+        
+        gainNode.gain.setValueAtTime(0.001, startTime);
+        gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+
+      const now = audioCtx.currentTime;
+      playBeep(880, now, 0.12);
+      playBeep(880, now + 0.20, 0.12);
+      playBeep(880, now + 0.40, 0.12);
+      playBeep(880, now + 0.60, 0.25);
+      
+    } catch (e) {
+      console.warn("NotificationService: Web Audio alarm sound generation failed", e);
+    }
+  }
+
   // Trigger browser push notifications and alarms
   triggerNotification(title, body = '') {
     // 1. Play synthesized chime sound

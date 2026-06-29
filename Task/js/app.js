@@ -70,6 +70,10 @@ class App {
     this.appContainer.style.display = 'none';
     this.authContainer.style.display = 'flex';
     
+    // Apply theme settings on the login screen
+    const settings = window.settingsService.getSettings();
+    window.settingsService.applyTheme(settings.themeColor, settings.themeMode);
+    
     // Clean old event listeners by replacing form node
     const oldForm = this.loginForm;
     const newForm = oldForm.cloneNode(true);

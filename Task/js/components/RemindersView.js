@@ -22,57 +22,57 @@ window.RemindersView = class RemindersView {
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
           <div>
             <h2 class="font-bold mb-1">Alert Reminders</h2>
             <p class="text-muted text-sm mb-0">Schedule one-time or recurring alarms with audio synthesized ringers.</p>
           </div>
-          <button class="btn btn-primary btn-sm font-semibold" id="reminder-add-btn">
+          <button class="btn btn-primary btn-sm font-semibold flex-shrink-0" id="reminder-add-btn">
             <i class="bi bi-plus-lg"></i> Set Alarm
           </button>
         </div>
 
         <!-- Stats Summary Bar -->
-        <div class="row g-3 mb-4">
+        <div class="row g-2 g-sm-3 mb-4">
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; flex-shrink: 0;">
                 <i class="bi bi-bell"></i>
               </div>
-              <div>
+              <div class="text-center text-sm-start">
                 <div class="text-2xs text-muted font-bold text-uppercase">Total Alarms</div>
                 <div class="h4 font-bold mb-0 text-main">${allReminders.length}</div>
               </div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(16, 185, 129, 0.1); color: #10b981; flex-shrink: 0;">
                 <i class="bi bi-clock-history"></i>
               </div>
-              <div>
+              <div class="text-center text-sm-start">
                 <div class="text-2xs text-muted font-bold text-uppercase">Upcoming</div>
                 <div class="h4 font-bold mb-0 text-main">${upcomingCount}</div>
               </div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; flex-shrink: 0;">
                 <i class="bi bi-exclamation-octagon"></i>
               </div>
-              <div>
+              <div class="text-center text-sm-start">
                 <div class="text-2xs text-muted font-bold text-uppercase">Missed</div>
                 <div class="h4 font-bold mb-0 text-danger">${missedReminders.length}</div>
               </div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
-            <div class="premium-card p-3 d-flex align-items-center gap-3 h-100">
-              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; flex-shrink: 0;">
+            <div class="premium-card p-2 p-sm-3 d-flex align-items-center justify-content-center justify-content-sm-start gap-2 gap-sm-3 h-100">
+              <div class="rounded-circle d-none d-sm-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem; background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; flex-shrink: 0;">
                 <i class="bi bi-check-circle"></i>
               </div>
-              <div>
+              <div class="text-center text-sm-start">
                 <div class="text-2xs text-muted font-bold text-uppercase">Completed</div>
                 <div class="h4 font-bold mb-0 text-main">${completedReminders.length}</div>
               </div>
@@ -84,10 +84,10 @@ window.RemindersView = class RemindersView {
         <div class="premium-card p-3 mb-4">
           <h6 class="font-bold text-xs text-uppercase text-muted mb-2"><i class="bi bi-lightning-charge"></i> Quick Alarm Scheduler</h6>
           <form id="quick-reminder-form" class="row g-2 align-items-center">
-            <div class="col-md-5">
+            <div class="col-12 col-md-5">
               <input type="text" id="quick-rem-title" class="form-control form-control-sm text-sm" placeholder="Quick alert name (e.g. Drink water, stretch)..." required>
             </div>
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
               <select id="quick-rem-time-offset" class="form-select form-select-sm text-xs">
                 <option value="15">In 15 minutes</option>
                 <option value="30">In 30 minutes</option>
@@ -96,21 +96,21 @@ window.RemindersView = class RemindersView {
                 <option value="morning">Tomorrow morning (9 AM)</option>
               </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
               <select id="quick-rem-category" class="form-select form-select-sm text-xs">
                 <option value="health">Health</option>
                 <option value="work">Work</option>
                 <option value="finance">Finance</option>
               </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
               <button type="submit" class="btn btn-primary btn-sm font-semibold w-100 py-1"><i class="bi bi-plus-lg"></i> Add Alarm</button>
             </div>
           </form>
         </div>
 
         <!-- Filter tabs & summary -->
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-4 border-bottom pb-2">
           <ul class="nav nav-pills gap-1">
             <li class="nav-item">
               <button class="nav-link py-1 px-3 text-sm rem-filter-btn ${this.filterTab === 'upcoming' ? 'active' : ''}" data-filter="upcoming">Upcoming</button>
@@ -123,7 +123,7 @@ window.RemindersView = class RemindersView {
             </li>
           </ul>
           
-          <span class="text-xs text-muted font-semibold">Active timers: ${list.filter(r => !r.completed).length} pending</span>
+          <span class="text-xs text-muted font-semibold mb-2 mb-sm-0">Active timers: ${list.filter(r => !r.completed).length} pending</span>
         </div>
 
         <!-- Cards View List -->

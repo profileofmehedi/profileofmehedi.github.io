@@ -51,7 +51,7 @@ window.DashboardView = class DashboardView {
     container.innerHTML = `
       <div class="container-fluid py-4">
         <!-- Dashboard Toolbar -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
           <div>
             <h2 class="font-bold mb-1">Your Dashboard</h2>
             <p class="text-muted text-sm mb-0">Overview of your goals, tasks, and progress.</p>
@@ -218,7 +218,7 @@ window.DashboardView = class DashboardView {
 
       case 'weather':
         return `
-          <div class="d-flex align-items-center justify-content-around py-2">
+          <div class="d-flex align-items-center justify-content-around gap-2 flex-wrap py-2">
             <div class="text-center">
               <i class="bi bi-cloud-sun text-warning" style="font-size: 2.5rem;"></i>
               <div class="text-xs text-muted mt-1">Partly Cloudy</div>
@@ -258,14 +258,14 @@ window.DashboardView = class DashboardView {
         return `
           <div class="list-group list-group-flush pt-1">
             ${focusTasks.map(t => `
-              <div class="list-group-item px-0 py-2 d-flex align-items-center justify-content-between border-0">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="custom-checkbox dash-task-chk ${t.status === 'completed' ? 'checked' : ''}" data-id="${t.id}">
+              <div class="list-group-item px-0 py-2 d-flex align-items-center justify-content-between border-0 gap-2">
+                <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0; flex: 1;">
+                  <div class="custom-checkbox dash-task-chk flex-shrink-0 ${t.status === 'completed' ? 'checked' : ''}" data-id="${t.id}">
                     <i class="bi bi-check-lg"></i>
                   </div>
-                  <span class="text-sm ${t.status === 'completed' ? 'text-decoration-line-through text-muted' : 'text-main'}" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.title}</span>
+                  <span class="text-sm text-truncate ${t.status === 'completed' ? 'text-decoration-line-through text-muted' : 'text-main'}" style="flex: 1; min-width: 0;">${t.title}</span>
                 </div>
-                <span class="badge text-xs badge-priority-${t.priority}">${t.priority}</span>
+                <span class="badge text-xs badge-priority-${t.priority} flex-shrink-0">${t.priority}</span>
               </div>
             `).join('')}
           </div>
@@ -273,7 +273,7 @@ window.DashboardView = class DashboardView {
 
       case 'pomodoro':
         return `
-          <div class="d-flex align-items-center justify-content-around py-2">
+          <div class="d-flex align-items-center justify-content-around gap-3 flex-wrap py-2">
             <div class="text-center">
               <div class="font-bold text-main" id="dash-pomo-clock" style="font-size: 2.25rem;">25:00</div>
               <div class="text-xs text-muted text-uppercase" id="dash-pomo-status">Focus Session</div>
@@ -334,14 +334,14 @@ window.DashboardView = class DashboardView {
               const checked = h.history[todayStr] === true;
               const streak = window.habitService.getHabitStreaks(h).current;
               return `
-                <div class="list-group-item px-0 py-2 d-flex align-items-center justify-content-between border-0">
-                  <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-xs ${checked ? 'btn-success' : 'btn-outline-secondary'} py-0 px-2 text-xs dash-habit-chk-btn" data-id="${h.id}">
+                <div class="list-group-item px-0 py-2 d-flex align-items-center justify-content-between border-0 gap-2">
+                  <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0; flex: 1;">
+                    <button class="btn btn-xs ${checked ? 'btn-success' : 'btn-outline-secondary'} py-0 px-2 text-xs dash-habit-chk-btn flex-shrink-0" data-id="${h.id}">
                       <i class="bi ${checked ? 'bi-check-lg' : 'bi-plus-lg'}"></i>
                     </button>
-                    <span class="text-sm text-main" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${h.title}</span>
+                    <span class="text-sm text-main text-truncate" style="flex: 1; min-width: 0;">${h.title}</span>
                   </div>
-                  <span class="text-xs text-muted font-semibold"><i class="bi bi-fire text-danger"></i> ${streak}d streak</span>
+                  <span class="text-xs text-muted font-semibold flex-shrink-0"><i class="bi bi-fire text-danger"></i> ${streak}d streak</span>
                 </div>
               `;
             }).join('')}
@@ -391,9 +391,9 @@ window.DashboardView = class DashboardView {
             ${logs.slice(0, 4).map(log => {
               const time = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
               return `
-                <div class="text-xs py-1 border-bottom d-flex justify-content-between">
-                  <span class="text-main" style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${log.text}</span>
-                  <span class="text-muted text-2xs">${time}</span>
+                <div class="text-xs py-1 border-bottom d-flex justify-content-between align-items-center gap-2">
+                  <span class="text-main text-truncate" style="flex: 1; min-width: 0;">${log.text}</span>
+                  <span class="text-muted text-2xs flex-shrink-0">${time}</span>
                 </div>
               `;
             }).join('')}
