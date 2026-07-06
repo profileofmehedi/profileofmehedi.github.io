@@ -55,6 +55,22 @@ function renderFeaturedPost() {
     const catInfo = CATEGORIES[featured.category] || CATEGORIES.all;
     const container = document.getElementById('featured-post');
 
+    const catColorMap = {
+        architecture: '#58e6c8', performance: '#fb923c', frontend: '#38bdf8',
+        backend: '#a78bfa', database: '#4ade80', devops: '#f472b6',
+    };
+    const catColor = catColorMap[featured.category] || '#58e6c8';
+
+    const rightPanel = featured.thumbnail
+        ? `<div class="featured-illustration" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);background:none;border:1px solid var(--border);position:relative;">
+               <img src="${featured.thumbnail}" alt="${featured.title}"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--radius-lg);">
+           </div>`
+        : `<div class="featured-illustration bg-${featured.category}">
+               <i class="${featured.featuredIcon || featured.icon} fi-icon"></i>
+               <span class="fi-label">// featured_post.${featured.category}</span>
+           </div>`;
+
     container.innerHTML = `
         <div class="featured-post-left">
             <span class="featured-badge"><i class="fas fa-star"></i> Featured Article</span>
@@ -63,18 +79,16 @@ function renderFeaturedPost() {
             <div class="featured-meta">
                 <span><i class="fas fa-calendar-alt"></i> ${featured.date}</span>
                 <span><i class="fas fa-clock"></i> ${featured.readTime} read</span>
-                <span class="${catInfo.colorClass}"><i class="fas fa-tag"></i> ${catInfo.label}</span>
+                <span style="color:${catColor};"><i class="fas fa-tag"></i> ${catInfo.label}</span>
             </div>
             <a href="#" class="read-btn" onclick="openPost(${featured.id}); return false;">
                 Read Article <i class="fas fa-arrow-right"></i>
             </a>
         </div>
-        <div class="featured-illustration bg-${featured.category}">
-            <i class="${featured.featuredIcon || featured.icon} fi-icon"></i>
-            <span class="fi-label">// featured_post.${featured.category}</span>
-        </div>
+        ${rightPanel}
     `;
 }
+
 
 // ============================================================
 //  CATEGORY PILLS
@@ -149,12 +163,31 @@ function renderBlogGrid(posts) {
 function buildCard(post, idx) {
     const catInfo = CATEGORIES[post.category] || CATEGORIES.all;
     const tagsHTML = post.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    
+    const catColorMap = {
+        architecture: '#58e6c8',
+        performance:  '#fb923c',
+        frontend:     '#38bdf8',
+        backend:      '#a78bfa',
+        database:     '#4ade80',
+        devops:       '#f472b6',
+    };
+    const catColor = catColorMap[post.category] || '#58e6c8';
+
+    const cardTop = post.thumbnail
+        ? `<div class="card-top card-top-img" style="background:none;padding:0;overflow:hidden;position:relative;">
+               <img src="${post.thumbnail}" alt="${post.title}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+               <span style="position:absolute;top:12px;left:12px;background:rgba(10,13,20,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.15);border-left:3px solid ${catColor};z-index:2;">
+                   ${catInfo.label}
+               </span>
+           </div>`
+        : `<div class="card-top bg-${post.category}">
+               <i class="${post.icon} card-top-icon ${catInfo.colorClass}"></i>
+           </div>`;
 
     return `
-        <article class="blog-card glass-card" onclick="openPost(${post.id})" tabindex="0" role="button" aria-label="Read: ${post.title}">
-            <div class="card-top bg-${post.category}">
-                <i class="${post.icon} card-top-icon ${catInfo.colorClass}"></i>
-            </div>
+        <article class="blog-card glass-card" onclick="openPost(${post.id})" tabindex="0" role="button" aria-label="Read: ${post.title}" style="position:relative;">
+            ${cardTop}
             <div class="card-body">
                 <span class="card-cat ${catInfo.colorClass}">${catInfo.label}</span>
                 <h3 class="card-title">${post.title}</h3>
@@ -173,6 +206,7 @@ function buildCard(post, idx) {
         </article>
     `;
 }
+
 
 // ============================================================
 //  OPEN POST — Navigate to post details page
