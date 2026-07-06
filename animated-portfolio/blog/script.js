@@ -7,6 +7,8 @@
 // ============================================================
 let activeCategory = 'all';
 let currentPosts = [...POSTS];
+let currentPage = 1;
+const POSTS_PER_PAGE = 6;
 
 // ============================================================
 //  INIT
@@ -64,7 +66,7 @@ function renderFeaturedPost() {
     const rightPanel = featured.thumbnail
         ? `<div class="featured-illustration" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);background:none;border:1px solid var(--border);position:relative;">
                <img src="${featured.thumbnail}" alt="${featured.title}"
-                    style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--radius-lg);">
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;border-radius:var(--radius-lg);">
            </div>`
         : `<div class="featured-illustration bg-${featured.category}">
                <i class="${featured.featuredIcon || featured.icon} fi-icon"></i>
@@ -81,7 +83,7 @@ function renderFeaturedPost() {
                 <span><i class="fas fa-clock"></i> ${featured.readTime} read</span>
                 <span style="color:${catColor};"><i class="fas fa-tag"></i> ${catInfo.label}</span>
             </div>
-            <a href="#" class="read-btn" onclick="openPost(${featured.id}); return false;">
+            <a href="#" class="read-btn" onclick="openPost('${featured.slug}'); return false;">
                 Read Article <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -118,6 +120,7 @@ function renderCategoryPills() {
 // ============================================================
 function filterByCategory(cat) {
     activeCategory = cat;
+    currentPage = 1; // Reset to page 1 on filter change
 
     // Update pills
     document.querySelectorAll('.pill').forEach(p => {
@@ -139,44 +142,93 @@ function renderBlogGrid(posts) {
     const grid = document.getElementById('blog-grid');
     const empty = document.getElementById('empty-state');
     const info = document.getElementById('results-count');
+    const pagination = document.getElementById('pagination-container');
 
     if (posts.length === 0) {
         grid.innerHTML = '';
         empty.style.display = 'block';
         info.innerHTML = `<strong>0</strong> articles found`;
+        pagination.innerHTML = '';
         return;
     }
 
     empty.style.display = 'none';
-    const label = activeCategory === 'all' ? 'total' : `in <strong>${CATEGORIES[activeCategory]?.label}</strong>`;
-    info.innerHTML = `Showing <strong>${posts.length}</strong> article${posts.length !== 1 ? 's' : ''} ${label}`;
 
-    grid.innerHTML = posts.map((post, idx) => buildCard(post, idx)).join('');
+    // Calculate pagination values
+    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+    const paginatedPosts = posts.slice(startIndex, startIndex + POSTS_PER_PAGE);
+
+    const label = activeCategory === 'all' ? 'total' : `in <strong>${CATEGORIES[activeCategory]?.label}</strong>`;
+    info.innerHTML = `Showing <strong>${startIndex + 1} - ${Math.min(startIndex + paginatedPosts.length, posts.length)}</strong> of <strong>${posts.length}</strong> article${posts.length !== 1 ? 's' : ''} ${label}`;
+
+    grid.innerHTML = paginatedPosts.map((post, idx) => buildCard(post, idx)).join('');
 
     // Stagger animation
     const cards = grid.querySelectorAll('.blog-card');
     cards.forEach((card, i) => {
         card.style.animationDelay = `${i * 0.06}s`;
     });
+
+    // Render controls
+    renderPaginationControls(posts.length, totalPages);
+}
+
+function renderPaginationControls(totalItems, totalPages) {
+    const container = document.getElementById('pagination-container');
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+
+    // Prev
+    html += `<button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})"><i class="fas fa-chevron-left"></i> Prev</button>`;
+
+    // Page Numbers
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="pagination-btn pagination-number ${currentPage === i ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+    }
+
+    // Next
+    html += `<button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next <i class="fas fa-chevron-right"></i></button>`;
+
+    container.innerHTML = html;
+}
+
+function changePage(page) {
+    currentPage = page;
+    const filtered = activeCategory === 'all' ? POSTS : POSTS.filter(p => p.category === activeCategory);
+    renderBlogGrid(filtered);
+
+    // Smooth scroll to blog filter/content area
+    const filterBar = document.querySelector('.filters-bar');
+    if (filterBar) {
+        filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function buildCard(post, idx) {
     const catInfo = CATEGORIES[post.category] || CATEGORIES.all;
     const tagsHTML = post.tags.map(t => `<span class="tag">${t}</span>`).join('');
-    
+
     const catColorMap = {
         architecture: '#58e6c8',
-        performance:  '#fb923c',
-        frontend:     '#38bdf8',
-        backend:      '#a78bfa',
-        database:     '#4ade80',
-        devops:       '#f472b6',
+        performance: '#fb923c',
+        frontend: '#38bdf8',
+        backend: '#a78bfa',
+        database: '#4ade80',
+        devops: '#f472b6',
     };
     const catColor = catColorMap[post.category] || '#58e6c8';
 
     const cardTop = post.thumbnail
         ? `<div class="card-top card-top-img" style="background:none;padding:0;overflow:hidden;position:relative;">
-               <img src="${post.thumbnail}" alt="${post.title}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+               <img src="${post.thumbnail}" alt="${post.title}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;">
                <span style="position:absolute;top:12px;left:12px;background:rgba(10,13,20,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.15);border-left:3px solid ${catColor};z-index:2;">
                    ${catInfo.label}
                </span>
@@ -186,7 +238,7 @@ function buildCard(post, idx) {
            </div>`;
 
     return `
-        <article class="blog-card glass-card" onclick="openPost(${post.id})" tabindex="0" role="button" aria-label="Read: ${post.title}" style="position:relative;">
+        <article class="blog-card glass-card" onclick="openPost('${post.slug}')" tabindex="0" role="button" aria-label="Read: ${post.title}" style="position:relative;">
             ${cardTop}
             <div class="card-body">
                 <span class="card-cat ${catInfo.colorClass}">${catInfo.label}</span>
@@ -211,8 +263,8 @@ function buildCard(post, idx) {
 // ============================================================
 //  OPEN POST — Navigate to post details page
 // ============================================================
-function openPost(id) {
-    window.location.href = `post.html?id=${id}`;
+function openPost(slug) {
+    window.location.href = `post.html?slug=${slug}`;
 }
 
 // ============================================================
@@ -306,7 +358,7 @@ function initSearch() {
         }
 
         results.innerHTML = matches.map(p => `
-            <div class="search-result-item" onclick="closeSearch(); openPost(${p.id})">
+            <div class="search-result-item" onclick="closeSearch(); openPost('${p.slug}')">
                 <span class="sri-cat">${CATEGORIES[p.category]?.label || p.category}</span>
                 <div>
                     <h4>${highlightMatch(p.title, q)}</h4>

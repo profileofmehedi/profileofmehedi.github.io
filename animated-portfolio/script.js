@@ -737,4 +737,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1800);
         });
     }
+    // ---------------------------------------------------------
+    // Dynamic Homepage Blog Section
+    // Reads from global POSTS array (blog/data.js) and renders 2 random picks
+    // ---------------------------------------------------------
+    const homepageBlogGrid = document.getElementById('homepage-blog-grid');
+    if (homepageBlogGrid && typeof POSTS !== 'undefined' && POSTS.length > 0) {
+
+        // Pick 2 unique random posts
+        const shuffled = [...POSTS].sort(() => Math.random() - 0.5);
+        const picks = shuffled.slice(0, 2);
+
+        // Map category key to readable label using CATEGORIES if available
+        function getCategoryLabel(cat) {
+            if (typeof CATEGORIES !== 'undefined' && CATEGORIES[cat]) {
+                return CATEGORIES[cat].label;
+            }
+            return cat.charAt(0).toUpperCase() + cat.slice(1);
+        }
+
+        // Render cards
+        homepageBlogGrid.innerHTML = picks.map((post, i) => `
+            <article class="blog-card glass-card reveal" style="transition-delay:${i * 0.15}s; cursor:pointer;"
+                     onclick="window.location.href='blog/post.html?slug=${post.slug}'"
+                     role="button" tabindex="0"
+                     aria-label="Read: ${post.title}">
+                <span class="blog-card-meta">
+                    <i class="${post.icon || 'fas fa-pen-nib'}" style="margin-right:6px;opacity:0.8;"></i>
+                    ${getCategoryLabel(post.category)}
+                </span>
+                <h3 class="blog-card-title">${post.title}</h3>
+                <p class="blog-card-desc">${post.excerpt}</p>
+                <span class="project-more-btn" style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;">
+                    Read Article <i class="fas fa-arrow-right"></i>
+                </span>
+            </article>
+        `).join('');
+
+        // Trigger reveal animation on the newly inserted cards
+        const newCards = homepageBlogGrid.querySelectorAll('.reveal');
+        newCards.forEach(el => {
+            // Small delay so CSS transition fires after paint
+            requestAnimationFrame(() => el.classList.add('revealed'));
+        });
+    }
 });

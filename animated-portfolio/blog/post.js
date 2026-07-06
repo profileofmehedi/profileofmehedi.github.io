@@ -33,29 +33,44 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 function loadPost() {
     const params = new URLSearchParams(window.location.search);
-    const id = parseInt(params.get('id'));
+    const slug = params.get('slug');
 
-    if (!id || isNaN(id)) {
+    if (!slug) {
         showNotFound();
         return;
     }
 
-    const post = POSTS.find(p => p.id === id);
+    const post = POSTS.find(p => p.slug === slug);
     if (!post) {
         showNotFound();
         return;
     }
 
-    currentPostId = id;
+    currentPostId = post.id;
     currentPost = post;
 
-    renderPost(post);
-    incrementViewCount(id);
-    initRating(id);
-    initComments(id);
-    renderRelatedPosts(post);
-    renderMoreArticles(post);
-    updateShareLinks(post);
+    // Fetch dynamic content on-demand from separate JSON file
+    fetch(`posts/${slug}/post.json`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to load content for slug: ${slug}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            post.content = data.content;
+            renderPost(post);
+            incrementViewCount(post.id);
+            initRating(post.id);
+            initComments(post.id);
+            renderRelatedPosts(post);
+            renderMoreArticles(post);
+            updateShareLinks(post);
+        })
+        .catch(err => {
+            console.error('Error loading post content:', err);
+            showNotFound();
+        });
 }
 
 function showNotFound() {
@@ -72,6 +87,52 @@ function renderPost(post) {
     // Meta tags
     document.getElementById('page-title').textContent = `${post.title} | CodingDrop`;
     document.getElementById('page-desc').setAttribute('content', post.excerpt);
+
+    // SEO, Open Graph & Canonical
+    const url = window.location.href;
+    const imageUrl = new URL(post.thumbnail, window.location.href).href;
+    
+    document.getElementById('page-canonical').href = url;
+    document.getElementById('og-title').setAttribute('content', post.title);
+    document.getElementById('og-desc').setAttribute('content', post.excerpt);
+    document.getElementById('og-url').setAttribute('content', url);
+    document.getElementById('og-image').setAttribute('content', imageUrl);
+    
+    document.getElementById('tw-title').setAttribute('content', post.title);
+    document.getElementById('tw-desc').setAttribute('content', post.excerpt);
+    document.getElementById('tw-image').setAttribute('content', imageUrl);
+
+    // Inject JSON-LD Schema
+    const schema = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": post.title,
+        "image": imageUrl,
+        "datePublished": new Date(post.date).toISOString(),
+        "author": {
+            "@type": "Person",
+            "name": "Mehedi Hasan",
+            "url": "https://linkedin.com/in/mehedi9339"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "CodingDrop",
+            "logo": {
+                "@type": "ImageObject",
+                "url": new URL("../mehedi.png", window.location.href).href
+            }
+        },
+        "description": post.excerpt
+    };
+
+    let script = document.getElementById('schema-jsonld');
+    if (!script) {
+        script = document.createElement('script');
+        script.id = 'schema-jsonld';
+        script.type = 'application/ld+json';
+        document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(schema);
 
     // Hero
     document.getElementById('bc-category').textContent = cat.label;
@@ -363,7 +424,7 @@ function renderRelatedPosts(post) {
     container.innerHTML = all.map(p => {
         const cat = CATEGORIES[p.category] || CATEGORIES.all;
         return `
-            <div class="related-item" onclick="goToPost(${p.id})">
+            <div class="related-item" onclick="goToPost('${p.slug}')">
                 <div class="related-icon bg-${p.category}">
                     <i class="${p.icon} ${cat.colorClass}"></i>
                 </div>
@@ -387,14 +448,35 @@ function renderMoreArticles(post) {
 
     const grid = document.getElementById('more-articles-grid');
 
+    const catColorMap = {
+        all: '#58e6c8',
+        architecture: '#58e6c8',
+        performance: '#fb923c',
+        frontend: '#38bdf8',
+        backend: '#a78bfa',
+        database: '#4ade80',
+        devops: '#f472b6',
+    };
+
     grid.innerHTML = others.map((p, i) => {
         const cat = CATEGORIES[p.category] || CATEGORIES.all;
         const tagsHTML = p.tags.slice(0, 2).map(t => `<span class="tag">${t}</span>`).join('');
+        const catColor = catColorMap[p.category] || '#58e6c8';
+
+        const cardTop = p.thumbnail
+            ? `<div class="card-top card-top-img" style="background:none;padding:0;overflow:hidden;position:relative;">
+                   <img src="${p.thumbnail}" alt="${p.title}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;">
+                   <span style="position:absolute;top:12px;left:12px;background:rgba(10,13,20,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.15);border-left:3px solid ${catColor};z-index:2;">
+                       ${cat.label}
+                   </span>
+               </div>`
+            : `<div class="card-top bg-${p.category}">
+                   <i class="${p.icon} card-top-icon ${cat.colorClass}"></i>
+               </div>`;
+
         return `
-            <article class="blog-card glass-card" onclick="goToPost(${p.id})" tabindex="0" role="button" style="animation-delay:${i*0.08}s">
-                <div class="card-top bg-${p.category}">
-                    <i class="${p.icon} card-top-icon ${cat.colorClass}"></i>
-                </div>
+            <article class="blog-card glass-card" onclick="goToPost('${p.slug}')" tabindex="0" role="button" style="animation-delay:${i*0.08}s">
+                ${cardTop}
                 <div class="card-body">
                     <span class="card-cat ${cat.colorClass}">${cat.label}</span>
                     <h3 class="card-title">${p.title}</h3>
@@ -432,8 +514,8 @@ function copyLink() {
 // ============================================================
 //  NAVIGATION
 // ============================================================
-function goToPost(id) {
-    window.location.href = `post.html?id=${id}`;
+function goToPost(slug) {
+    window.location.href = `post.html?slug=${slug}`;
 }
 
 // ============================================================
