@@ -6,9 +6,11 @@
 //  STATE
 // ============================================================
 let activeCategory = 'all';
+let activeTag = null;
 let currentPosts = [...POSTS];
 let currentPage = 1;
 const POSTS_PER_PAGE = 6;
+const POPULAR_TAGS_LIMIT = 12;
 
 // ============================================================
 //  INIT
@@ -19,11 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initReadingProgress();
     renderFeaturedPost();
     renderCategoryPills();
-    renderBlogGrid(POSTS);
+    renderPopularTags();
+    renderBlogGrid(getFilteredPosts());
     renderFooterCategories();
     initSearch();
     initScrollTop();
-    updateArticleCount();
+    initHeroGlanceBtn();
+    updateHeroStats();
 });
 
 // ============================================================
@@ -116,23 +120,119 @@ function renderCategoryPills() {
 }
 
 // ============================================================
+//  POPULAR TAG PILLS
+// ============================================================
+function renderPopularTags() {
+    const container = document.getElementById('tag-pills');
+    if (!container) return;
+
+    const tagCounts = {};
+    POSTS.forEach(post => {
+        post.tags.forEach(tag => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        });
+    });
+
+    const popularTags = Object.entries(tagCounts)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, POPULAR_TAGS_LIMIT);
+
+    container.innerHTML = '';
+
+    popularTags.forEach(([tag, count]) => {
+        const btn = document.createElement('button');
+        btn.className = `tag-pill${activeTag === tag ? ' active' : ''}`;
+        btn.dataset.tag = tag;
+        btn.textContent = `${tag} (${count})`;
+        btn.addEventListener('click', () => filterByTag(tag));
+        container.appendChild(btn);
+    });
+}
+
+// ============================================================
+//  HERO GLANCE CTA
+// ============================================================
+function initHeroGlanceBtn() {
+    const btn = document.getElementById('hero-glance-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+        if (typeof closeSearch === 'function') closeSearch();
+        if (typeof openGlanceDrawer === 'function') openGlanceDrawer();
+    });
+}
+
+// ============================================================
+//  FILTER HELPERS
+// ============================================================
+function getFilteredPosts() {
+    let posts = activeCategory === 'all'
+        ? POSTS
+        : POSTS.filter(p => p.category === activeCategory);
+
+    if (activeTag) {
+        posts = posts.filter(p =>
+            p.tags.some(t => t.toLowerCase() === activeTag.toLowerCase())
+        );
+    }
+
+    return posts;
+}
+
+function getResultsLabel() {
+    const parts = [];
+    if (activeCategory !== 'all') {
+        parts.push(`in <strong>${CATEGORIES[activeCategory]?.label || activeCategory}</strong>`);
+    }
+    if (activeTag) {
+        parts.push(`tagged <strong>${activeTag}</strong>`);
+    }
+    return parts.length ? parts.join(' · ') : 'total';
+}
+
+// ============================================================
 //  FILTER
 // ============================================================
 function filterByCategory(cat) {
     activeCategory = cat;
-    currentPage = 1; // Reset to page 1 on filter change
+    currentPage = 1;
 
-    // Update pills
     document.querySelectorAll('.pill').forEach(p => {
         p.classList.toggle('active', p.dataset.cat === cat);
     });
 
-    const filtered = cat === 'all' ? POSTS : POSTS.filter(p => p.category === cat);
-    renderBlogGrid(filtered);
+    renderBlogGrid(getFilteredPosts());
+}
+
+function filterByTag(tag) {
+    activeTag = activeTag === tag ? null : tag;
+    currentPage = 1;
+
+    document.querySelectorAll('.tag-pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.tag === activeTag);
+    });
+
+    renderBlogGrid(getFilteredPosts());
+
+    const filterBar = document.querySelector('.tag-filters-bar') || document.querySelector('.filters-bar');
+    if (filterBar) {
+        filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function resetFilters() {
-    filterByCategory('all');
+    activeCategory = 'all';
+    activeTag = null;
+    currentPage = 1;
+
+    document.querySelectorAll('.pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.cat === 'all');
+    });
+    document.querySelectorAll('.tag-pill').forEach(p => {
+        p.classList.remove('active');
+    });
+
+    renderBlogGrid(getFilteredPosts());
 }
 
 // ============================================================
@@ -162,7 +262,7 @@ function renderBlogGrid(posts) {
     const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
     const paginatedPosts = posts.slice(startIndex, startIndex + POSTS_PER_PAGE);
 
-    const label = activeCategory === 'all' ? 'total' : `in <strong>${CATEGORIES[activeCategory]?.label}</strong>`;
+    const label = getResultsLabel();
     info.innerHTML = `Showing <strong>${startIndex + 1} - ${Math.min(startIndex + paginatedPosts.length, posts.length)}</strong> of <strong>${posts.length}</strong> article${posts.length !== 1 ? 's' : ''} ${label}`;
 
     grid.innerHTML = paginatedPosts.map((post, idx) => buildCard(post, idx)).join('');
@@ -202,10 +302,8 @@ function renderPaginationControls(totalItems, totalPages) {
 
 function changePage(page) {
     currentPage = page;
-    const filtered = activeCategory === 'all' ? POSTS : POSTS.filter(p => p.category === activeCategory);
-    renderBlogGrid(filtered);
+    renderBlogGrid(getFilteredPosts());
 
-    // Smooth scroll to blog filter/content area
     const filterBar = document.querySelector('.filters-bar');
     if (filterBar) {
         filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -214,7 +312,9 @@ function changePage(page) {
 
 function buildCard(post, idx) {
     const catInfo = CATEGORIES[post.category] || CATEGORIES.all;
-    const tagsHTML = post.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    const tagsHTML = post.tags.map(t =>
+        `<span class="tag tag-clickable" role="button" tabindex="0" onclick="event.stopPropagation(); filterByTag('${t.replace(/'/g, "\\'")}');" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();filterByTag('${t.replace(/'/g, "\\'")}');}">${t}</span>`
+    ).join('');
 
     const catColorMap = {
         architecture: '#58e6c8',
@@ -322,6 +422,7 @@ function initSearch() {
     const results = document.getElementById('search-results');
 
     toggleBtn.addEventListener('click', () => {
+        if (typeof closeGlanceDrawer === 'function') closeGlanceDrawer();
         overlay.classList.add('active');
         setTimeout(() => input.focus(), 100);
     });
@@ -336,6 +437,7 @@ function initSearch() {
         if (e.key === 'Escape') closeSearch();
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
+            if (typeof closeGlanceDrawer === 'function') closeGlanceDrawer();
             overlay.classList.add('active');
             setTimeout(() => input.focus(), 100);
         }
@@ -449,17 +551,29 @@ function handleNewsletter(e) {
 }
 
 // ============================================================
-//  ARTICLE COUNT STAT
+//  HERO STATS
 // ============================================================
-function updateArticleCount() {
-    const el = document.getElementById('total-articles');
-    if (!el) return;
-    const target = POSTS.length;
+function updateHeroStats() {
+    const articleEl = document.getElementById('total-articles');
+    const categoryEl = document.getElementById('total-categories');
+    const tagEl = document.getElementById('total-tags');
+    const heroCountEl = document.getElementById('hero-article-count');
+
+    const articleTarget = POSTS.length;
+    const categoryTarget = new Set(POSTS.map(p => p.category)).size;
+    const tagTarget = new Set(POSTS.flatMap(p => p.tags)).size;
+
+    if (heroCountEl) heroCountEl.textContent = articleTarget;
+    if (categoryEl) categoryEl.textContent = categoryTarget;
+    if (tagEl) tagEl.textContent = tagTarget;
+
+    if (!articleEl) return;
+
     let count = 0;
-    const step = Math.ceil(target / 20);
+    const step = Math.max(1, Math.ceil(articleTarget / 20));
     const timer = setInterval(() => {
-        count = Math.min(count + step, target);
-        el.textContent = count;
-        if (count >= target) clearInterval(timer);
+        count = Math.min(count + step, articleTarget);
+        articleEl.textContent = count;
+        if (count >= articleTarget) clearInterval(timer);
     }, 50);
 }
