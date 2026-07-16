@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter View — SOLID Principles</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:      #050505; /* Pitch Black for contrast */
+  --surface: #111111;
+  --border:  rgba(255,255,255,0.08);
+  --cyan:    #06b6d4; /* S */
+  --rose:    #f43f5e; /* O */
+  --amber:   #f59e0b; /* L */
+  --emerald: #10b981; /* I */
+  --violet:  #8b5cf6; /* D */
+  --text:    #f8fafc;
+  --muted:   #94a3b8;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
+
+/* ── top bar ── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.tb-logo { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; }
+.tb-badge {
+  background:linear-gradient(135deg,var(--cyan),var(--violet));
+  color:#fff; padding:3px 9px; border-radius:6px;
+  font-size:0.68rem; font-weight:700; letter-spacing:1px;
+}
+.tb-right { display:flex; align-items:center; gap:22px; }
+
+/* ── timer ── */
+.timer-wrap { display:flex; align-items:center; gap:10px; }
+.timer-display { font-family:'Fira Code',monospace; font-size:1.7rem; font-weight:700; color:var(--cyan); letter-spacing:2px; line-height:1; }
+.timer-display.warn { color:var(--amber); }
+.timer-display.over { color:var(--rose); animation:blink .7s infinite alternate; }
+@keyframes blink { to { opacity:.4; } }
+.timer-btns { display:flex; gap:6px; }
+.tbtn { background:rgba(255,255,255,0.07); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:5px 11px; font-size:0.75rem; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:all .2s; }
+.tbtn:hover { background:rgba(6,182,212,0.1); border-color:var(--cyan); color:var(--cyan); }
+.tbtn.running { color:var(--rose); border-color:rgba(244,63,94,0.3); }
+
+/* ── connection status ── */
+.conn-status { display:flex; align-items:center; gap:7px; font-size:0.75rem; color:var(--muted); }
+.conn-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); transition:background .3s; }
+.conn-dot.live { background:var(--emerald); box-shadow:0 0 8px var(--emerald); animation:pulse .8s infinite alternate; }
+@keyframes pulse { to { opacity:.4; transform:scale(.7); } }
+
+/* ── main grid ── */
+.main { flex:1; display:grid; grid-template-columns:1fr 340px; grid-template-rows:1fr auto; gap:0; overflow:hidden; height:calc(100vh - 66px); }
+
+/* ── script panel ── */
+.script-panel { grid-column:1; grid-row:1; display:flex; flex-direction:column; padding:28px 32px; border-right:1px solid var(--border); overflow:hidden; }
+.cur-slide-label { font-size:0.65rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--cyan); display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.cur-slide-label::before { content:''; width:18px; height:2px; background:var(--cyan); border-radius:1px; }
+.cur-slide-title { font-size:1.5rem; font-weight:800; line-height:1.2; margin-bottom:22px; color:var(--text); }
+.script-box { flex:1; overflow-y:auto; background:rgba(6,182,212,0.03); border:1px solid rgba(6,182,212,0.15); border-radius:14px; padding:24px 28px; position:relative; }
+.script-box::before { content:'📢 SCRIPT'; position:absolute; top:-11px; left:20px; background:var(--bg); padding:0 8px; font-size:0.6rem; font-weight:700; letter-spacing:2px; color:var(--cyan); }
+.script-text { font-size:1.15rem; line-height:2; color:var(--text); font-weight:400; white-space: pre-line; }
+.script-text em { color:var(--cyan); font-style:normal; font-weight:600; }
+.script-box::-webkit-scrollbar { width:4px; }
+.script-box::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+/* ── nav bar ── */
+.nav-bar { grid-column:1; grid-row:2; display:flex; align-items:center; justify-content:space-between; padding:16px 32px; border-top:1px solid var(--border); border-right:1px solid var(--border); background:var(--surface); flex-shrink:0; }
+.nav-arrows { display:flex; gap:10px; }
+.nav-btn { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:10px 20px; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s; font-family:'Outfit',sans-serif; }
+.nav-btn:hover { background:rgba(6,182,212,0.1); border-color:var(--cyan); color:var(--cyan); }
+.nav-btn:disabled { opacity:0.3; cursor:not-allowed; }
+.slide-counter { font-family:'Fira Code',monospace; font-size:1rem; color:var(--muted); font-weight:500; }
+.slide-counter span { color:var(--text); font-weight:700; }
+
+/* ── right panel ── */
+.right-panel { grid-column:2; grid-row:1 / 3; display:flex; flex-direction:column; overflow:hidden; }
+.rp-section { display:flex; flex-direction:column; border-bottom:1px solid var(--border); overflow:hidden; }
+.rp-head { padding:14px 18px 10px; font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); flex-shrink:0; display:flex; align-items:center; gap:7px; }
+.ch-list-p { overflow-y:auto; flex:1; padding:0 10px 10px; display:flex; flex-direction:column; gap:3px; }
+.ch-p { padding:8px 12px; border-radius:8px; font-size:0.78rem; cursor:pointer; display:flex; align-items:center; gap:9px; transition:all .2s; border:1px solid transparent; color:var(--muted); }
+.ch-p:hover { background:rgba(255,255,255,0.04); }
+.ch-p.active { background:rgba(6,182,212,0.08); border-color:rgba(6,182,212,0.25); color:var(--cyan); font-weight:600; }
+.ch-p.done { color:var(--text); }
+.ch-p .cn { width:20px; height:20px; border-radius:5px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:0.62rem; font-weight:700; font-family:'Fira Code',monospace; background:rgba(255,255,255,0.06); color:var(--muted); transition:all .2s; }
+.ch-p.active .cn { background:var(--cyan); color:#000; }
+.ch-p.done .cn { background:rgba(16,185,129,0.15); color:var(--emerald); }
+
+.next-preview { padding:16px 18px; border-top:1px solid var(--border); flex-shrink:0; }
+.np-label { font-size:0.6rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.np-title { font-size:0.85rem; font-weight:700; color:var(--text); line-height:1.3; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:10px 14px; display:flex; align-items:center; gap:9px; }
+.np-title i { color:var(--amber); }
+
+.prog-wrap { padding:14px 18px; border-top:1px solid var(--border); flex-shrink:0; }
+.prog-bar-thin { height:4px; background:rgba(255,255,255,0.07); border-radius:2px; overflow:hidden; margin-top:8px; }
+.prog-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--violet)); border-radius:2px; transition:width .4s ease; }
+.prog-stats { display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:0.7rem; color:var(--muted); }
+.prog-pct { color:var(--cyan); font-weight:700; font-family:'Fira Code',monospace; }
+
+.open-btn { display:flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#fff; border:none; border-radius:10px; padding:10px 16px; font-size:0.8rem; font-weight:700; cursor:pointer; transition:all .2s; margin:14px 18px; text-decoration:none; justify-content:center; }
+.open-btn:hover { transform:scale(1.03); box-shadow:0 0 16px rgba(6,182,212,.3); }
+</style>
+</head>
+<body style="display:flex;flex-direction:column;height:100vh">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-logo">
+    <img src="../Dependency Injection/coding drop logo.png" alt="logo" style="width:32px;height:32px;border-radius:7px;object-fit:cover">
+    <div class="tb-badge">PRESENTER</div>
+    <span>SOLID Masterclass</span>
+  </div>
+  <div class="tb-right">
+    <div class="conn-status"><div class="conn-dot" id="connDot"></div><span id="connLabel">Audience window-এর জন্য অপেক্ষা...</span></div>
+    <div class="timer-wrap">
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="timerBtn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i> শুরু</button>
+        <button class="tbtn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- Script Panel -->
+  <div class="script-panel">
+    <div class="cur-slide-label"><i class="fa-solid fa-tv"></i> বর্তমান স্লাইড</div>
+    <div class="cur-slide-title" id="curTitle">Chapter 1</div>
+    <div class="script-box"><div class="script-text" id="scriptText">লোড হচ্ছে...</div></div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <div class="nav-arrows">
+      <button class="nav-btn" id="btnPrev" onclick="presNav(-1)" disabled><i class="fa-solid fa-arrow-left"></i> আগের</button>
+      <button class="nav-btn" id="btnNext" onclick="presNav(1)">পরের <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">13</span></div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="rp-section" style="flex:1;overflow:hidden">
+      <div class="rp-head"><i class="fa-solid fa-list-ul"></i> Chapter তালিকা</div>
+      <div class="ch-list-p" id="chListP"></div>
+    </div>
+    <div class="next-preview">
+      <div class="np-label"><i class="fa-solid fa-forward"></i> পরের স্লাইড</div>
+      <div class="np-title" id="nextTitle"><i class="fa-solid fa-arrow-right"></i> <span>লোড...</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:var(--muted)">
+        <span><i class="fa-solid fa-chart-line"></i> অগ্রগতি</span><span class="prog-pct" id="progPct">0%</span>
+      </div>
+      <div class="prog-bar-thin"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-stats"><span id="elapsedLabel">অতিবাহিত: 00:00</span><span id="remainLabel">বাকি: ~20:00</span></div>
+    </div>
+    <a class="open-btn" href="main.html" target="_blank" id="openBtn"><i class="fa-solid fa-tv"></i> Audience Window খুলুন</a>
+  </div>
+</div>
+
+<script>
+const SLIDES = [
+  {
+    ch:'পরিচিতি',
+    narration:`হ্যালো সবাইকে! 코ডিং ড্রপ (Coding Drop) চ্যানেলে আপনাদের স্বাগতম।
+
+আজকে আমরা প্রোগ্রামিং এবং সফটওয়্যার আর্কিটেকচারের সবচেয়ে ভাইটাল একটি টপিক নিয়ে আলোচনা করবো— SOLID Principles!
+
+আপনি জুনিয়র ডেভেলপার হন বা সিনিয়র, ইন্টারভিউ বোর্ড থেকে শুরু করে প্রোডাকশন লেভেলের বড় প্রজেক্ট—সব জায়গায় এই ৫টি প্রিন্সিপাল আপনাকে গাইড করবে কীভাবে ক্লিন, স্কেলেবল এবং মেইনটেইনেবল কোড লিখতে হয়।
+
+রবার্ট সি. মার্টিন (যিনি Uncle Bob নামে পরিচিত) এই প্রিন্সিপালগুলো দিয়েছিলেন।
+
+চলুন শুরু করা যাক একে একে এই ৫টি প্রিন্সিপালের গভীরে ডু্ব দেওয়া!`
+  },
+  {
+    ch:'SOLID কী এবং কেন?',
+    narration:`SOLID হলো ৫টি আলাদা ডিজাইন প্রিন্সিপালের নামের আদ্যক্ষর নিয়ে তৈরি একটি অ্যাক্রোনিম।
+
+S - Single Responsibility
+O - Open/Closed
+L - Liskov Substitution
+I - Interface Segregation
+D - Dependency Inversion
+
+কেন আমরা এগুলো শিখবো?
+বড় প্রজেক্টে ব্যাড কোড বা "Spaghetti Code" লিখতে থাকলে একসময় এমন অবস্থা হয় যে, একটা ছোট ফিচার যোগ করতে গেলে পুরো সিস্টেম ভেঙে পড়ে।
+SOLID আমাদের শেখায় কীভাবে কোডকে ডিকাপল (Decouple) করা যায়, যাতে ভবিষ্যতে কোড পরিবর্তন করা, টেস্ট করা এবং মেইনটেইন করা পানির মতো সহজ হয়ে যায়।`
+  },
+  {
+    ch:'S - Single Responsibility (SRP)',
+    narration:`প্রথম প্রিন্সিপাল: Single Responsibility Principle বা SRP।
+
+সহজ ভাষায় এর মানে হলো: "A class should have one, and only one, reason to change."
+অর্থাৎ, একটি ক্লাসের শুধুমাত্র একটিই দায়িত্ব থাকা উচিত।
+
+ধরুন আপনার একটি 'User' ক্লাস আছে। সেই ক্লাসের কাজ হওয়া উচিত শুধু ইউজারের ডেটা (নাম, ইমেইল) ম্যানেজ করা।
+কিন্তু আপনি যদি সেই একই ক্লাসের ভেতর ডাটাবেজে ডেটা সেভ করা বা ইমেইল পাঠানোর কোড লিখে রাখেন, তাহলে সেটি SRP ভায়োলেট করে!
+
+কারণ ইমেইল পাঠানোর সার্ভারে কোনো পরিবর্তন আসলেও আপনার User ক্লাস মডিফাই করতে হবে, আবার ডাটাবেজ পাল্টে গেলেও User ক্লাস মডিফাই করতে হবে। এটি ভুল ডিজাইন।`
+  },
+  {
+    ch:'SRP - Live Code Demo',
+    narration:`চলুন কোডে এর প্র্যাক্টিক্যাল উদাহরণ দেখি।
+
+বামের কোডটি (Bad Practice) দেখুন। ReportManager ক্লাসটি রিপোর্ট জেনারেট করছে, আবার পিডিএফ-এ সেভ করছে, আবার ইমেইলও পাঠাচ্ছে। এই ক্লাসটি অনেক বেশি কাজ করছে! একে বলা হয় "God Class" বা "Fat Class"।
+
+এবার ডানের কোডটি (Good Practice) দেখুন। আমরা দায়িত্বগুলো ভাগ করে দিয়েছি:
+- ReportGenerator: শুধু রিপোর্ট তৈরি করবে।
+- ReportSaver: শুধু ফাইলে সেভ করবে।
+- EmailSender: শুধু ইমেইল পাঠাবে।
+
+এখন ইমেইল সিস্টেমে পরিবর্তন এলে শুধু EmailSender ক্লাস পাল্টাতে হবে, বাকিগুলো একদম সুরক্ষিত! এটাই SRP-এর ম্যাজিক।`
+  },
+  {
+    ch:'O - Open/Closed Principle (OCP)',
+    narration:`দ্বিতীয় প্রিন্সিপাল: Open/Closed Principle (OCP)।
+
+এই নীতির মূল কথা হলো: "Software entities should be open for extension, but closed for modification."
+অর্থাৎ, নতুন কোনো ফিচার যোগ করতে হলে, existing কোড পরিবর্তন (modify) না করে, নতুন কোড যুক্ত (extend) করতে হবে।
+
+কেন? কারণ আগের কোডটি টেস্ট করা এবং প্রোডাকশনে রানিং আছে। সেখানে হাত দিলে নতুন করে বাগ (bug) আসার সম্ভাবনা থাকে।
+
+আমরা সাধারণত Interface বা Abstract class ব্যবহার করে এবং পলিমরফিজমের মাধ্যমে এই প্রিন্সিপালটি ইমপ্লিমেন্ট করে থাকি।`
+  },
+  {
+    ch:'OCP - Live Code Demo',
+    narration:`আসুন কোডের মাধ্যমে বুঝি।
+
+বামের কোডে দেখুন। InvoiceCalculator ক্লাসে if-else দিয়ে Discount চেক করা হচ্ছে। যদি ভবিষ্যতে 'Christmas Discount' নামে নতুন কিছু আসে, তবে আপনাকে এই ক্লাসের ভেতরে ঢুকে নতুন একটি if কন্ডিশন লিখতে হবে। এটি OCP ভায়োলেট করে!
+
+ডানের কোডে সমাধানটি দেখুন। আমরা IDiscount নামে একটি ইন্টারফেস তৈরি করেছি। 
+এখন RegularDiscount এবং VIPDiscount আলাদা ক্লাস। 
+ভবিষ্যতে নতুন ডিসকাউন্ট আসলে, আমরা শুধু নতুন একটি ক্লাস তৈরি করবো যা IDiscount কে ইমপ্লিমেন্ট করবে। InvoiceCalculator ক্লাসে আর জীবনেও হাত দিতে হবে না! 
+Open for extension, closed for modification!`
+  },
+  {
+    ch:'L - Liskov Substitution (LSP)',
+    narration:`তৃতীয় প্রিন্সিপাল: Liskov Substitution Principle (LSP)। (নামটা একটু কঠিন শোনালেও কনসেপ্ট সহজ!)
+
+এর মানে হলো: "Derived classes must be substitutable for their base classes."
+অর্থাৎ, প্যারেন্ট ক্লাসের জায়গায় চাইল্ড ক্লাস বসালে অ্যাপ্লিকেশনের আচরণ পরিবর্তন হওয়া বা ক্র্যাশ করা যাবে না।
+
+ধরুন, Bird (পাখি) নামে একটি প্যারেন্ট ক্লাস আছে, যার একটি মেথড Fly()।
+এখন Penguin (পেঙ্গুইন) যদি Bird-কে ইনহেরিট করে, তখন সে তো উড়তে পারে না! ফলে Fly() কল করলে এরর থ্রো করবে। এটি LSP-এর চরম ভায়োলেশন।`
+  },
+  {
+    ch:'LSP - Live Code Demo',
+    narration:`কোডে এর উদাহরণটি পরিষ্কার হবে।
+
+বামের কোডে (Bad): 
+Ostrich (উটপাখি) Bird কে ইনহেরিট করেছে, কিন্তু সে উড়তে পারে না বলে Fly() মেথডে NotImplementedException থ্রো করছে। 
+এখন যে প্রোগ্রামটি Bird টাইপ এক্সপেক্ট করে কল করবে, সে এই এরর খেয়ে প্রোগ্রাম ক্র্যাশ করাবে!
+
+ডানের কোডে (Good):
+আমরা ফ্যামিলি ট্রি-টা ঠিক করেছি। Bird ক্লাস থেকে Fly() মেথড সরিয়ে দিয়েছি।
+বরং IFlyingBird নামে নতুন ইন্টারফেস করেছি। 
+যে পাখি উড়তে পারে (যেমন Sparrow), সে IFlyingBird ইমপ্লিমেন্ট করবে। আর Ostrich শুধু Bird থাকবে। 
+ফলে আর কোনো ক্র্যাশের সম্ভাবনা থাকলো না!`
+  },
+  {
+    ch:'I - Interface Segregation (ISP)',
+    narration:`চতুর্থ প্রিন্সিপাল: Interface Segregation Principle বা ISP।
+
+নিয়মটি হলো: "Clients should not be forced to depend upon interfaces that they do not use."
+অর্থাৎ, কোনো ক্লাসের উপর এমন কোনো ইন্টারফেস চাপিয়ে দেওয়া উচিত নয়, যার সব মেথড তার দরকার নেই।
+
+একটি বিশাল ইন্টারফেস (Fat Interface) বানানোর চেয়ে, ছোট ছোট স্পেসিফিক ইন্টারফেস বানানো অনেক ভালো।
+ধরুন একটি IWorker ইন্টারফেসে Work() এবং Eat() আছে। এখন একটি RobotWorker যদি এটা ইমপ্লিমেন্ট করে, তবে তাকে বাধ্য হয়ে Eat() মেথডও লিখতে হবে, অথচ রোবট তো খায় না! এটি ISP ভায়োলেশন।`
+  },
+  {
+    ch:'ISP - Live Code Demo',
+    narration:`চলুন কোড থেকে বুঝি।
+
+বামে দেখুন: IMultiFunctionPrinter একটি বিশাল ইন্টারফেস, যার ভেতরে Print, Scan, Fax সব আছে।
+এখন একটি সাধারণ BasicPrinter যদি এটি ইমপ্লিমেন্ট করে, তবে তাকে বাধ্য হয়ে Scan এবং Fax মেথডগুলো ফাঁকা রাখতে হবে বা Exception দিতে হবে।
+
+ডানে সমাধান দেখুন:
+আমরা বিশাল ইন্টারফেসটিকে ভেঙে ছোট ছোট স্পেসিফিক ইন্টারফেসে ভাগ করেছি— IPrinter, IScanner, IFax।
+এখন BasicPrinter শুধু IPrinter ইমপ্লিমেন্ট করবে, আর AdvancedPrinter সবকটি। 
+ক্লায়েন্ট শুধু ততটুকুই পাবে, যতটুকু তার দরকার।`
+  },
+  {
+    ch:'D - Dependency Inversion (DIP)',
+    narration:`পঞ্চম এবং শেষ প্রিন্সিপাল: Dependency Inversion Principle বা DIP।
+
+এর মূল কথা: "High-level modules should not depend on low-level modules. Both should depend on abstractions."
+অর্থাৎ, বড় লজিকের ক্লাসগুলো ছোট কাজের ক্লাসগুলোর উপর সরাসরি নির্ভর করবে না, বরং ইন্টারফেসের উপর নির্ভর করবে।
+
+এটি Dependency Injection (DI)-এর ভিত্তি! 
+আমাদের হাই-লেভেল ক্লাসগুলো যদি সরাসরি ডাটাবেজ ক্লাসের অবজেক্ট তৈরি করে, তাহলে ডাটাবেজ পরিবর্তন হলে পুরোকোড পাল্টাতে হবে। এর বদলে ইন্টারফেস ব্যবহার করলে দুই প্রান্তই সম্পূর্ণ ডিকাপলড হয়ে যায়।`
+  },
+  {
+    ch:'DIP - Live Code Demo',
+    narration:`কোডটি দেখুন। 
+
+বামে (Bad): StoreService সরাসরি SqlDatabase এর উপর নির্ভরশীল (new SqlDatabase())। কাল যদি আপনি MongoDB ব্যবহার করতে চান, StoreService ক্লাসের কোড পাল্টাতে হবে। এটি DIP ভায়োলেট করে!
+
+ডানে (Good): আমরা IDatabase নামে একটি অ্যাবস্ট্রাকশন বা ইন্টারফেস তৈরি করেছি। 
+StoreService এখন IDatabase এর উপর নির্ভর করছে কনস্ট্রাক্টর ইনজেকশনের মাধ্যমে। 
+এখন ডাটাবেজ SQL হোক, Mongo হোক বা Mock হোক—StoreService এর কিছু যায় আসে না! 
+High-level module depends on abstraction. Perfection!`
+  },
+  {
+    ch:'সারাংশ ও বিদায়',
+    narration:`আজকের সেশনে আমরা SOLID প্রিন্সিপালের ৫টি নিয়ম বিস্তারিত ডেমো ও কোডের মাধ্যমে দেখলাম।
+
+S - এক ক্লাসের এক দায়িত্ব।
+O - কোড এক্সটেন্ড হবে, মডিফাই নয়।
+L - চাইল্ড ক্লাস প্যারেন্টের যোগ্য বিকল্প হবে।
+I - বড় ইন্টারফেস ভেঙে ছোট স্পেসিফিক ইন্টারফেস হবে।
+D - ক্লাসগুলো ইন্টারফেসের উপর নির্ভর করবে, কংক্রিট ক্লাসের উপর নয়।
+
+এই প্রিন্সিপালগুলো ফলো করলে আপনার কোড হবে প্রফেশনাল, টেস্টেবল এবং বাগ-ফ্রি!
+
+আশা করি ভিডিওটি আপনাদের কাজে এসেছে। "Coding Drop" চ্যানেলটি সাবস্ক্রাইব করতে ভুলবেন না। আল্লাহ হাফেজ!`
+  }
+];
+
+const total = SLIDES.length;
+let cur = 0;
+const BC = new BroadcastChannel('solid_presentation');
+let audienceConnected = false;
+
+BC.onmessage = (e) => {
+  if(e.data.type === 'nav'){ audienceConnected = true; updateConn(true); cur = e.data.idx; renderSlide(); }
+  if(e.data.type === 'ping'){ audienceConnected = true; updateConn(true); }
+};
+
+function updateConn(live){
+  const dot = document.getElementById('connDot');
+  const lbl = document.getElementById('connLabel');
+  if(live){ dot.classList.add('live'); lbl.textContent = 'Audience window সংযুক্ত ✓'; lbl.style.color = 'var(--emerald)'; }
+  else { dot.classList.remove('live'); lbl.textContent = 'Audience window-এর জন্য অপেক্ষা...'; lbl.style.color = 'var(--muted)'; }
+}
+
+function presNav(dir){
+  const next = cur + dir;
+  if(next < 0 || next >= total) return;
+  cur = next;
+  BC.postMessage({ type: 'nav', idx: cur });
+  renderSlide();
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight') presNav(1);
+  else if(e.key==='ArrowLeft') presNav(-1);
+});
+
+function renderSlide(){
+  const sl = SLIDES[cur];
+  document.getElementById('curTitle').textContent = 'Chapter '+(cur+1)+' — '+sl.ch;
+  document.getElementById('scriptText').innerHTML = sl.narration.replace(/"([^"]+)"/g,'<em>"$1"</em>');
+  document.getElementById('curNum').textContent = cur+1;
+  document.getElementById('totNum').textContent = total;
+
+  const nextSl = SLIDES[cur+1];
+  const ntEl = document.getElementById('nextTitle');
+  if(nextSl) ntEl.innerHTML = `<i class="fa-solid fa-arrow-right"></i> <span>${nextSl.ch}</span>`;
+  else ntEl.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span style="color:var(--emerald)">উপস্থাপনা শেষ!</span>`;
+
+  document.getElementById('btnPrev').disabled = cur === 0;
+  document.getElementById('btnNext').disabled = cur === total-1;
+
+  const pct = Math.round(((cur+1)/total)*100);
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progPct').textContent = pct+'%';
+
+  document.querySelectorAll('.ch-p').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i===cur) el.classList.add('active');
+    else if(i<cur) el.classList.add('done');
+  });
+  const active = document.getElementById('cp-'+cur);
+  if(active) active.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.querySelector('.script-box').scrollTop = 0;
+}
+
+function buildChapters(){
+  const wrap = document.getElementById('chListP');
+  SLIDES.forEach((sl,i)=>{
+    const d = document.createElement('div');
+    d.className = 'ch-p' + (i===0?' active':'');
+    d.id = 'cp-'+i;
+    d.onclick = ()=>{ cur=i; BC.postMessage({type:'nav',idx:cur}); renderSlide(); };
+    d.innerHTML = `<div class="cn">${i+1}</div><span>${sl.ch}</span>`;
+    wrap.appendChild(d);
+  });
+}
+
+let timerSec = 0; let timerRunning = false; let timerIv = null;
+function toggleTimer(){
+  const btn = document.getElementById('timerBtn');
+  if(timerRunning){ clearInterval(timerIv); timerRunning = false; btn.innerHTML = '<i class="fa-solid fa-play"></i> শুরু'; btn.classList.remove('running'); }
+  else { timerIv = setInterval(tickTimer, 1000); timerRunning = true; btn.innerHTML = '<i class="fa-solid fa-pause"></i> বিরতি'; btn.classList.add('running'); }
+}
+function resetTimer(){
+  clearInterval(timerIv); timerRunning = false; timerSec = 0;
+  const btn = document.getElementById('timerBtn');
+  btn.innerHTML = '<i class="fa-solid fa-play"></i> শুরু'; btn.classList.remove('running');
+  updateTimerDisplay();
+}
+function tickTimer(){ timerSec++; updateTimerDisplay(); }
+function updateTimerDisplay(){
+  const m = Math.floor(timerSec/60).toString().padStart(2,'0');
+  const s = (timerSec%60).toString().padStart(2,'0');
+  const el = document.getElementById('timerDisplay');
+  el.textContent = m+':'+s;
+  if(timerSec < 1200) el.className='timer-display';
+  else if(timerSec < 1320) el.className='timer-display warn';
+  else el.className='timer-display over';
+
+  document.getElementById('elapsedLabel').textContent = 'অতিবাহিত: '+m+':'+s;
+  const rem = Math.max(0, 1200-timerSec);
+  const rm = Math.floor(rem/60).toString().padStart(2,'0');
+  const rs = (rem%60).toString().padStart(2,'0');
+  document.getElementById('remainLabel').textContent = 'বাকি: '+rm+':'+rs;
+}
+
+buildChapters(); renderSlide();
+setInterval(()=>{ BC.postMessage({type:'ping_from_presenter'}); }, 3000);
+</script>
+</body>
+</html>

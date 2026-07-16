@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter View — JWT Masterclass</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:      #060810;
+  --surface: #0c0f1e;
+  --border:  rgba(255,255,255,0.07);
+  --cyan:    #00d4f0;
+  --rose:    #e8175d;
+  --lime:    #2ddc6a;
+  --amber:   #f0a500;
+  --text:    #e8edf8;
+  --muted:   #5a6580;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
+
+/* ── top bar ── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.tb-logo { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; }
+.tb-badge {
+  background:linear-gradient(135deg,var(--rose),#7c3aed);
+  color:#fff; padding:3px 9px; border-radius:6px;
+  font-size:0.68rem; font-weight:700; letter-spacing:1px;
+}
+.tb-right { display:flex; align-items:center; gap:22px; }
+
+/* ── timer ── */
+.timer-wrap { display:flex; align-items:center; gap:10px; }
+.timer-display {
+  font-family:'Fira Code',monospace;
+  font-size:1.7rem; font-weight:700;
+  color:var(--cyan);
+  letter-spacing:2px;
+  line-height:1;
+}
+.timer-display.warn { color:var(--amber); }
+.timer-display.over { color:var(--rose); animation:blink .7s infinite alternate; }
+@keyframes blink { to { opacity:.4; } }
+.timer-btns { display:flex; gap:6px; }
+.tbtn {
+  background:rgba(255,255,255,0.07); border:1px solid var(--border);
+  color:var(--text); border-radius:8px; padding:5px 11px;
+  font-size:0.75rem; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; gap:5px;
+  transition:all .2s;
+}
+.tbtn:hover { background:rgba(0,212,240,0.1); border-color:var(--cyan); color:var(--cyan); }
+.tbtn.running { color:var(--rose); border-color:rgba(232,23,93,0.3); }
+
+/* ── connection status ── */
+.conn-status {
+  display:flex; align-items:center; gap:7px;
+  font-size:0.75rem; color:var(--muted);
+}
+.conn-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--muted);
+  transition:background .3s;
+}
+.conn-dot.live { background:var(--lime); box-shadow:0 0 8px rgba(45,220,106,.5); animation:pulse .8s infinite alternate; }
+@keyframes pulse { to { opacity:.4; transform:scale(.7); } }
+
+/* ── main grid ── */
+.main {
+  flex:1; display:grid;
+  grid-template-columns:1fr 340px;
+  grid-template-rows:1fr auto;
+  gap:0; overflow:hidden;
+  height:calc(100vh - 66px);
+}
+
+/* ── script panel ── */
+.script-panel {
+  grid-column:1; grid-row:1;
+  display:flex; flex-direction:column;
+  padding:28px 32px;
+  border-right:1px solid var(--border);
+  overflow:hidden;
+}
+.cur-slide-label {
+  font-size:0.65rem; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--cyan);
+  display:flex; align-items:center; gap:8px; margin-bottom:6px;
+}
+.cur-slide-label::before { content:''; width:18px; height:2px; background:var(--cyan); border-radius:1px; }
+.cur-slide-title {
+  font-size:1.5rem; font-weight:800;
+  line-height:1.2; margin-bottom:22px;
+  color:var(--text);
+}
+
+.script-box {
+  flex:1; overflow-y:auto;
+  background:rgba(0,212,240,0.03);
+  border:1px solid rgba(0,212,240,0.15);
+  border-radius:14px;
+  padding:24px 28px;
+  position:relative;
+}
+.script-box::before {
+  content:'📢 SCRIPT';
+  position:absolute; top:-11px; left:20px;
+  background:var(--bg); padding:0 8px;
+  font-size:0.6rem; font-weight:700; letter-spacing:2px;
+  color:var(--cyan);
+}
+.script-text {
+  font-size:1.15rem; line-height:2;
+  color:var(--text);
+  font-weight:400;
+  white-space: pre-line;
+}
+.script-text em {
+  color:var(--cyan); font-style:normal; font-weight:600;
+}
+
+/* scrollbar */
+.script-box::-webkit-scrollbar { width:4px; }
+.script-box::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+/* ── nav bar (bottom of script) ── */
+.nav-bar {
+  grid-column:1; grid-row:2;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 32px;
+  border-top:1px solid var(--border);
+  border-right:1px solid var(--border);
+  background:var(--surface);
+  flex-shrink:0;
+}
+.nav-arrows { display:flex; gap:10px; }
+.nav-btn {
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  color:var(--text); border-radius:10px;
+  padding:10px 20px; font-size:0.85rem;
+  font-weight:700; cursor:pointer;
+  display:flex; align-items:center; gap:8px;
+  transition:all .2s; font-family:'Outfit',sans-serif;
+}
+.nav-btn:hover { background:rgba(0,212,240,0.1); border-color:var(--cyan); color:var(--cyan); }
+.nav-btn:disabled { opacity:0.3; cursor:not-allowed; }
+.slide-counter {
+  font-family:'Fira Code',monospace; font-size:1rem;
+  color:var(--muted); font-weight:500;
+}
+.slide-counter span { color:var(--text); font-weight:700; }
+
+/* ── right panel ── */
+.right-panel {
+  grid-column:2; grid-row:1 / 3;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+/* chapter list */
+.rp-section {
+  display:flex; flex-direction:column;
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.rp-head {
+  padding:14px 18px 10px;
+  font-size:0.62rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); flex-shrink:0;
+  display:flex; align-items:center; gap:7px;
+}
+.ch-list-p {
+  overflow-y:auto; flex:1;
+  padding:0 10px 10px;
+  display:flex; flex-direction:column; gap:3px;
+}
+.ch-p {
+  padding:8px 12px; border-radius:8px;
+  font-size:0.78rem; cursor:pointer;
+  display:flex; align-items:center; gap:9px;
+  transition:all .2s; border:1px solid transparent;
+  color:var(--muted);
+}
+.ch-p:hover { background:rgba(255,255,255,0.04); }
+.ch-p.active {
+  background:rgba(0,212,240,0.08); border-color:rgba(0,212,240,0.25);
+  color:var(--cyan); font-weight:600;
+}
+.ch-p.done { color:var(--text); }
+.ch-p .cn {
+  width:20px; height:20px; border-radius:5px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.62rem; font-weight:700;
+  font-family:'Fira Code',monospace;
+  background:rgba(255,255,255,0.06); color:var(--muted);
+  transition:all .2s;
+}
+.ch-p.active .cn { background:var(--cyan); color:#000; }
+.ch-p.done .cn { background:rgba(45,220,106,0.15); color:var(--lime); }
+
+/* next slide preview */
+.next-preview {
+  padding:16px 18px;
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.np-label {
+  font-size:0.6rem; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted); margin-bottom:8px;
+  display:flex; align-items:center; gap:6px;
+}
+.np-title {
+  font-size:0.85rem; font-weight:700;
+  color:var(--text); line-height:1.3;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:8px; padding:10px 14px;
+  display:flex; align-items:center; gap:9px;
+}
+.np-title i { color:var(--amber); }
+
+/* progress */
+.prog-wrap {
+  padding:14px 18px;
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.prog-bar-thin {
+  height:4px; background:rgba(255,255,255,0.07);
+  border-radius:2px; overflow:hidden; margin-top:8px;
+}
+.prog-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--rose),var(--cyan));
+  border-radius:2px; transition:width .4s ease;
+}
+.prog-stats {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:6px; font-size:0.7rem; color:var(--muted);
+}
+.prog-pct { color:var(--cyan); font-weight:700; font-family:'Fira Code',monospace; }
+
+/* open audience btn */
+.open-btn {
+  display:flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,var(--rose),#7c3aed);
+  color:#fff; border:none; border-radius:10px;
+  padding:10px 16px; font-size:0.8rem; font-weight:700;
+  cursor:pointer; transition:all .2s;
+  margin:14px 18px; text-decoration:none;
+  justify-content:center;
+}
+.open-btn:hover { transform:scale(1.03); box-shadow:0 0 16px rgba(232,23,93,.3); }
+</style>
+</head>
+<body style="display:flex;flex-direction:column;height:100vh">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-logo">
+    <img src="coding drop logo.png" alt="logo" style="width:32px;height:32px;border-radius:7px;object-fit:cover">
+    <div class="tb-badge">PRESENTER</div>
+    <span>JWT Masterclass</span>
+  </div>
+  <div class="tb-right">
+    <div class="conn-status">
+      <div class="conn-dot" id="connDot"></div>
+      <span id="connLabel">Audience window-এর জন্য অপেক্ষা করছে...</span>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="timerBtn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i> শুরু</button>
+        <button class="tbtn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- Script Panel -->
+  <div class="script-panel">
+    <div class="cur-slide-label"><i class="fa-solid fa-tv"></i> বর্তমান স্লাইড</div>
+    <div class="cur-slide-title" id="curTitle">Chapter 1 — পরিচিতি</div>
+    <div class="script-box">
+      <div class="script-text" id="scriptText">লোড হচ্ছে...</div>
+    </div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <div class="nav-arrows">
+      <button class="nav-btn" id="btnPrev" onclick="presNav(-1)" disabled>
+        <i class="fa-solid fa-arrow-left"></i> আগের
+      </button>
+      <button class="nav-btn" id="btnNext" onclick="presNav(1)">
+        পরের <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">14</span></div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+
+    <div class="rp-section" style="flex:1;overflow:hidden">
+      <div class="rp-head"><i class="fa-solid fa-list-ul"></i> Chapter তালিকা</div>
+      <div class="ch-list-p" id="chListP"></div>
+    </div>
+
+    <div class="next-preview">
+      <div class="np-label"><i class="fa-solid fa-forward"></i> পরের স্লাইড</div>
+      <div class="np-title" id="nextTitle"><i class="fa-solid fa-arrow-right"></i> <span>লোড হচ্ছে...</span></div>
+    </div>
+
+    <div class="prog-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:var(--muted)">
+        <span><i class="fa-solid fa-chart-line"></i> অগ্রগতি</span>
+        <span class="prog-pct" id="progPct">0%</span>
+      </div>
+      <div class="prog-bar-thin"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-stats">
+        <span id="elapsedLabel">অতিবাহিত: 00:00</span>
+        <span id="remainLabel">বাকি: ~20:00</span>
+      </div>
+    </div>
+
+    <a class="open-btn" href="pre1.html" target="_blank" id="openBtn">
+      <i class="fa-solid fa-tv"></i> Audience Window খুলুন
+    </a>
+
+  </div>
+
+</div>
+
+<script>
+/* ─── SLIDES DATA ─── */
+const SLIDES = [
+  {
+    ch:'পরিচিতি',
+    narration:`আসসালামু আলাইকুম সবাইকে! কোডিং ড্রপ (Coding Drop) চ্যানেলে আপনাদের স্বাগতম।
+
+আজকে আমরা শিখব JWT — JSON Web Token। এটা আজকের দিনে যেকোনো ওয়েব অ্যাপ বা মোবাইল অ্যাপের নিরাপত্তার মেরুদণ্ড।
+
+আপনি কি কখনো ভেবেছেন — আপনি যখন Facebook-এ লগইন করেন, তারপর নিউজফিড দেখেন, ছবি আপলোড করেন — প্রতিটি কাজে সার্ভার কীভাবে বুঝছে আপনি আপনি? বারবার তো password চাইছে না!
+
+এর উত্তর হলো JWT। একটা ছোট্ট Token, যেটা আপনার পরিচয় বহন করে। সার্ভার একে দেখেই চিনে নেয়।
+
+আজকের এই টিউটোরিয়ালে আমরা ইন-ডিটেইল দেখব:
+— JWT আসলে কী এবং কেন প্রথাগত সেশনের তুলনায় এটি দরকার
+— এটা কীভাবে কাজ করে ভেতর থেকে (এর ভেতরের অ্যানাটমি বা গঠন)
+— ASP.NET Core-এ বাস্তবে কীভাবে এটি ইমপ্লিমেন্ট করতে হয়
+— এবং নিরাপত্তার কোন কোন বিষয় ও বেস্ট প্র্যাকটিস মাথায় রাখতে হবে।
+
+চলুন শুরু করা যাক!`
+  },
+  {
+    ch:'Authentication বনাম Authorization',
+    narration:`প্রথমে আমাদের দুটি গুরুত্বপূর্ণ সিকিউরিটি শব্দ ভালো করে বুঝতে হবে — Authentication আর Authorization। অনেকে এই দুটো গুলিয়ে ফেলেন।
+
+সহজ উদাহরণ দিয়ে বুঝি। ধরুন আপনি বিমানবন্দরে গেছেন।
+
+সেখানকার সিকিউরিটি চেকিংয়ে আপনি আপনার পাসপোর্ট ও আইডি দেখালেন। তারা চেক করে দেখল — হ্যাঁ, এই মানুষটা সত্যিই আবির, পাসপোর্ট আর ছবির সাথে মিল আছে। এটা হলো Authentication — অর্থাৎ 'আপনি কে?' তার প্রমাণ করা।
+
+এখন ধরুন আপনি বিমানবন্দরের লাউঞ্জে বা প্লেনের Business Class কেবিনে ঢুকতে চাইলেন। সেখানকার গেটে আপনার Boarding Pass চাইলো। দেখা গেলো আপনার Economy Class-এর টিকিট — তাই লাউঞ্জে বা বিজনেস ক্লাসে আপনার ঢোকার অধিকার নেই। এটি হলো Authorization — অর্থাৎ 'সিস্টেমে আপনার কী করার অধিকার আছে?' বা আপনি কোথায় অ্যাক্সেস করতে পারবেন।
+
+JWT এই দুটো কাজই চমৎকারভাবে করতে সাহায্য করে। টোকেনের ভেতরের রোল (Role) বা ক্লেইম দিয়ে বলা যায় ইউজার কী করতে পারবে।
+
+মনে রাখবেন: Authentication আগে হয়, Authorization তারপরে হয়।`
+  },
+  {
+    ch:'Session বনাম Token',
+    narration:`এখন দেখি আগে কীভাবে অথেন্টিকেশন হতো এবং আধুনিক টোকেন মেথড কেন বেশি জনপ্রিয়।
+
+প্রথাগত পদ্ধতিতে — অর্থাৎ Stateful Session-ভিত্তিক অথেন্টিকেশনে — ইউজার লগইন করার পর সার্ভার মেমোরিতে বা ডাটাবেজে একটি সেশন আইডি তৈরি করে রাখত। এরপর ব্রাউজারকে একটি সেশন আইডি কুকি হিসেবে ফেরত পাঠাত। প্রতিবার ইউজার রিকোয়েস্ট করলে সার্ভারকে ডাটাবেজে গিয়ে সেশন আইডি মেলাতে হতো। এতে বিপুল পরিমাণ ডাটাবেজ কোয়েরি বাড়ত। যদি আপনার সার্ভার একাধিক হয় (যেমন মাইক্রোসার্ভিস বা লোড ব্যালেন্সার), তবে সেশন শেয়ারিং বেশ জটিল হয়ে দাঁড়ায়।
+
+আর Stateless Token-ভিত্তিক অথেন্টিকেশনে — সার্ভার লগইন ক্রেডেনশিয়াল একবার যাচাই করে ক্লায়েন্টকে একটি ডিজিটাল সাইনড টোকেন দিয়ে দেয়। এরপর সার্ভার ইউজারের সেশন সম্পর্কিত কোনো তথ্য মনে রাখে না বা স্টোর করে না। ক্লায়েন্ট প্রতিবার রিকোয়েস্টের সাথে এই টোকেনটি পাঠায়, আর সার্ভার শুধু মেমোরিতেই সিগনেচার দিয়ে ভেরিফাই করে।
+
+ডাটাবেজে হিট করার প্রয়োজন না থাকায় এটি সিস্টেমকে অত্যন্ত স্কেলেবল এবং গতিশীল করে তোলে।`
+  },
+  {
+    ch:'JWT কী? — RFC 7519',
+    narration:`JWT হলো একটি ওপেন স্ট্যান্ডার্ড — RFC 7519। এটি অত্যন্ত সুরক্ষিত উপায়ে দুটি পক্ষের মধ্যে তথ্য শেয়ার করার জন্য তৈরি করা হয়েছে।
+
+এর ৩টি মূল বৈশিষ্ট্য সম্পর্কে জানুন:
+
+১. Self-Contained (স্বয়ংসম্পূর্ণ): এর অর্থ হলো ইউজারের প্রয়োজনীয় সব তথ্য (যেমন আইডি, রোল, নাম) এই টোকেনটির ভেতরেই সাজানো থাকে। ভ্যালিডেশনের জন্য কোনো ডাটাবেজ কলের প্রয়োজন হয় না।
+
+২. Tamper-Proof (ট্যাম্পার-প্রুফ): টোকেনটি ডিজিটাল সিগনেচার দিয়ে লক করা থাকে। টোকেনের একটি সাধারণ ক্যারেক্টারও যদি হ্যাকার পরিবর্তন করে, তবে সিগনেচার আর মিলবে না এবং সার্ভার রিকোয়েস্টটি সাথে সাথে বাতিল করে দেবে।
+
+৩. Universal (সার্বজনীন): যেকোনো প্ল্যাটফর্ম বা প্রোগ্রামিং ল্যাঙ্গুয়েজে (যেমন .NET, Node.js, Python, Java) সহজেই JWT হ্যান্ডেল করা যায়।
+
+স্ক্রিনে প্রদর্শিত টোকেনটি খেয়াল করুন। এটি মূলত দুটি ডট (.) দিয়ে পৃথক করা তিনটি কালার কোডেড পার্ট নিয়ে গঠিত।`
+  },
+  {
+    ch:'JWT-এর গঠন (Anatomy)',
+    narration:`জে-ডব্লিউ-টি এর ভেতরের গঠনটা ভালোভাবে বুঝে নেওয়া যাক। আমরা দেখতে পাচ্ছি টোকেনটি তিনটি অংশে বিভক্ত:
+
+১. Header (গোলাপী অংশ): এটি মূলত বেইজ-৬৪ এনকোডেড তথ্য। এতে বলা থাকে টোকেনটি কী টাইপের (JWT) এবং এটি সাইন করার জন্য কোন ক্রিপ্টোগ্রাফিক অ্যালগরিদম (যেমন HS256) ব্যবহার করা হচ্ছে।
+
+২. Payload (নীল অংশ): এখানে থাকে ক্লেইমস (Claims) বা ইউজারের মূল ডেটা। যেমন ইউজারের রোল বা আইডি। মনে রাখবেন, পে-লোড অংশটি এনক্রিপ্টেড নয়, শুধু বেইজ-৬৪ এনকোডেড। তাই এখানে পাসওয়ার্ডের মতো সিক্রেট কিছু রাখা যাবে না।
+
+৩. Signature (সবুজ অংশ): সিগনেচার তৈরি হয় এনকোডেড হেডার, এনকোডেড পে-লোড এবং সার্ভারের নিজস্ব সিক্রেট কী ব্যবহার করে। এটি টোকেনের সত্যতা প্রমাণ করে।
+
+আপনারা বাম পাশের টোকেন বক্সের যেকোনো কালার করা অংশে মাউস কারসর রাখলে ডান পাশে সেটির ডিকোডেড বা বিস্তারিত অংশ দেখতে পাবেন।`
+  },
+  {
+    ch:'Claims বিস্তারিত',
+    narration:`পে-লোড এর ভেতরের কী-ভ্যালু পেয়ারগুলোকে আমরা বলি ক্লেইমস (Claims)। জে-ডব্লিউ-টি স্ট্যান্ডার্ডে কিছু গুরুত্বপূর্ণ রেজিস্টার্ড ক্লেইম আছে:
+
+- sub (Subject): যার জন্য টোকেনটি ইস্যু করা হয়েছে (যেমন ইউজার আইডি)।
+- iss (Issuer): টোকেনটি কে জেনারেট করেছে (যেমন myapp.com)।
+- exp (Expiration Time): টোকেনটির মেয়াদ কখন শেষ হবে। এটি অত্যন্ত গুরুত্বপূর্ণ, মেয়াদহীন টোকেন সিকিউরিটির জন্য অনেক বড় হুমকি।
+- iat (Issued At): কখন টোকেনটি তৈরি হয়েছে।
+- roles: ইউজারের রোল বা অথরাইজেশন লেভেল।
+
+পাশের টেবিলে দেখুন, 'exp' ক্লেইমের ডেটা মূলত ইউনিক্স টাইমস্ট্যাম্প ফরমেটে থাকে।
+
+মনে রাখবেন, এই ক্লেইমগুলো বেইজ-৬৪ ডিকোড করলেই যে কেউ দেখতে পারে, তাই কখনোই কোনো সেনসিটিভ তথ্য পে-লোডে রাখবেন না।`
+  },
+  {
+    ch:'Signature তৈরির রহস্য',
+    narration:`সিগনেচার কীভাবে তৈরি হয় তা জানলে আপনি বুঝবেন কেন JWT এত নিরাপদ।
+
+স্ক্রিনের ডায়াগ্রামে দেখুন, তিনটি উপাদান আমাদের সিগনেচার ফ্যাক্টরিতে প্রবেশ করছে:
+১. এনকোডেড হেডার।
+২. এনকোডেড পে-লোড।
+৩. এবং আমাদের সার্ভারে সুরক্ষিত থাকা সিক্রেট কী (Secret Key)।
+
+এই তিনটি জিনিসকে একসাথে মিলিয়ে ওয়ান-ওয়ে ক্রিপ্টোগ্রাফিক হ্যাশিং অ্যালগরিদম (যেমন HMAC-SHA256) ব্যবহার করে সিগনেচার জেনারেট করা হয়।
+
+সিক্রেট কী-টি যেহেতু শুধুমাত্র আমাদের ব্যাকএন্ড সার্ভার জানে, তাই বাইরের কোনো অ্যাটাকারের পক্ষে পে-লোড ডেটা এডিট করে সঠিক সিগনেচার তৈরি করা কোনোভাবেই সম্ভব নয়। সে যদি রোল 'user' থেকে 'admin' করে দেয়, তবে সিগনেচার ম্যাচিং ফেইল করবে এবং সার্ভার সাথে সাথে অ্যাক্সেস ব্লক করে দেবে।`
+  },
+  {
+    ch:'Authentication Lifecycle',
+    narration:`চলুন এবার পুরো লাইফসাইকেল বা প্রক্রিয়াটা একসাথে দেখে নিই।
+
+১. ইউজার প্রথমে ইউজারনেম এবং পাসওয়ার্ড দিয়ে লগইনের জন্য রিকোয়েস্ট পাঠায়।
+২. সার্ভার ডাটাবেজ থেকে ক্রেডেনশিয়ালস যাচাই করে।
+৩. ভ্যালিডেশন সফল হলে সার্ভার একটি নির্দিষ্ট সিক্রেট কী দিয়ে সাইন করা JWT তৈরি করে।
+৪. সার্ভার এই টোকেনটি ক্লায়েন্ট বা ব্রাউজারের কাছে ফেরত পাঠায়।
+৫. ব্রাউজার সাধারণত লোকাল স্টোরেজ বা কুকিতে এটি সেভ করে রাখে।
+৬. পরবর্তীতে যখনই ইউজার কোনো প্রোটেক্টেড এপিআই অ্যাক্সেস করতে চায়, সে রিকোয়েস্টের অথরাইজেশন হেডারে (Bearer Token হিসেবে) এই JWT-টি পাঠিয়ে দেয়।
+৭. সার্ভার তখন ডাটাবেজে না গিয়েই মেমোরিতে সিগনেচারটি ভেরিফাই করে এবং ইউজারকে অ্যাক্সেস দেয়।`
+  },
+  {
+    ch:'ASP.NET Core Code',
+    narration:`আমরা যদি এটি কোডিংয়ে ইমপ্লিমেন্ট করতে চাই, বিশেষ করে ASP.NET Core-এ, তবে কীভাবে করব?
+
+এখানে তিনটি ধাপে কোডটি সাজানো হয়েছে। প্রথম কোড ব্লকে দেখুন কীভাবে টোকেন জেনারেট করা হচ্ছে: এখানে ক্লাইমস তৈরি করে, SymmetricSecurityKey এবং SigningCredentials ব্যবহার করে টোকেন জেনারেট করা হয়েছে।
+
+দ্বিতীয় কোড ব্লকে Program.cs-এ কীভাবে সার্ভিসটি কনফিগার করতে হয় তা দেখানো হয়েছে। এখানে AddAuthentication এবং AddJwtBearer ব্যবহার করে টোকেন ভ্যালিডেশনের প্যারামিটারগুলো (যেমন ভ্যালিড লাইফটাইম, ভ্যালিড কী) সেট করা হয়েছে।
+
+তৃতীয় কোড ব্লকে কন্ট্রোলারের ওপরে জাস্ট [Authorize] বা রোল বেসড [Authorize(Roles = "Admin")] অ্যাট্রিবিউট ব্যবহার করে এপিআইটি সিকিউর করা হয়েছে।
+
+ASP.NET Core চমৎকারভাবে এই পুরো মেকানিজমটি হ্যান্ডেল করে।`
+  },
+  {
+    ch:'Live Sandbox — টেম্পার টেস্ট',
+    narration:`আসুন এবার প্র্যাক্টিক্যালি ট্যাম্পারিং টেস্ট বা হ্যাকিং ভ্যালিডেশন করে দেখি।
+
+বাম পাশের ইনপুট বক্সে আমাদের অরিজিনাল পে-লোড ডেটা আছে যেখানে 'role' দেওয়া আছে 'user'। ডান পাশে আমাদের অরিজিনাল সিগনেচার এবং ক্যালকুলেটেড সিগনেচার মিলছে।
+
+এখন যদি কোনো অ্যাটাকার বা হ্যাকার ব্রাউজার থেকে এই টোকেনটি নিয়ে ডেটা এডিট করে নিজের রোল পরিবর্তন করে 'admin' করে দেয় (যা আমরা এখানে টাইপ করে করতে পারি), তবে খেয়াল করুন — ক্যালকুলেটেড সিগনেচার এবং অরিজিনাল সিগনেচারের মধ্যে মিল থাকবে না। সাথে সাথে লাল রঙের এরর অ্যালার্ট চলে আসবে।
+
+এর কারণ হলো, হ্যাকার পে-লোড পরিবর্তন করতে পারলেও সার্ভারের সিক্রেট কী ছাড়া সঠিক সিগনেচার জেনারেট করতে পারেনি। আপনি আবার 'user' ফিরে লিখলে দেখবেন সিগনেচার গ্রিন ও ভ্যালিড দেখাচ্ছে।`
+  },
+  {
+    ch:'Refresh Token কৌশল',
+    narration:`সিকিউরিটির খাতিরে আমরা অ্যাক্সেস টোকেন (Access Token)-এর মেয়াদ খুব কম রাখি, যেমন ১৫ মিনিট। এতে যদি টোকেনটি চুরিও হয়ে যায়, হ্যাকার বেশি সময় ক্ষতি করতে পারবে না। কিন্তু প্রতি ১৫ মিনিট পর পর ইউজারকে নতুন করে লগইন করানো তো খারাপ ইউজার এক্সপেরিয়েন্স।
+
+এই সমস্যার সমাধান হলো রিফ্রেশ টোকেন (Refresh Token)। এটি আকারে বড় এবং এর মেয়াদ সাধারণত দীর্ঘ (যেমন ৭ দিন) হয়। এটি ডাটাবেজে স্টোর করা থাকে।
+
+অ্যাক্সেস টোকেন এক্সপায়ার হলে, ক্লায়েন্ট ব্যাকগ্রাউন্ডে রিফ্রেশ টোকেন পাঠিয়ে সার্ভার থেকে নতুন একটি অ্যাক্সেস টোকেন চেয়ে নেয়। এতে ইউজারের বারবার লগইন করতে হয় না, অথচ সিকিউরিটিও বজায় থাকে। লগআউট করার সময় সার্ভার ডাটাবেজ থেকে এই রিফ্রেশ টোকেনটি ইনভ্যালিড করে দেয়।`
+  },
+  {
+    ch:'নিরাপত্তার নিয়মকানুন',
+    narration:`JWT ব্যবহারের সময় এই ৬টি প্র্যাকটিস অবশ্যই মেনে চলতে হবে:
+
+১. সর্বদা HTTPS ব্যবহার করতে হবে যেন নেটওয়ার্ক ট্রাফিকের মাঝে কেউ টোকেন চুরি করতে না পারে।
+২. সিক্রেট কী কখনো সোর্স কোডে হার্ডকোড করা যাবে না, এনভায়রনমেন্ট ভ্যারিয়েবলে রাখতে হবে।
+৩. অ্যাক্সেস টোকেনের লাইফটাইম বা মেয়াদ কম রাখতে হবে।
+৪. পে-লোডে কখনোই পাসওয়ার্ড, ক্রেডিট কার্ডের মতো ব্যক্তিগত ও সংবেদনশীল তথ্য রাখা যাবে না।
+৫. টোকেন ব্রাউজারে স্টোর করার ক্ষেত্রে httpOnly এবং Secure কুকি ব্যবহার করা উত্তম, যা XSS অ্যাটাক প্রতিরোধ করে।
+৬. অ্যালগরিদম ভ্যালিডেশনে নির্দিষ্ট অ্যালগরিদম (যেমন HS256) ফিক্সড করে দিতে হবে, যেন 'none' অ্যালগরিদম অ্যাটাক না হতে পারে।`
+  },
+  {
+    ch:'JWT-এর সুবিধাসমূহ',
+    narration:`সংক্ষেপে JWT ব্যবহারের সুবিধাগুলো আবার মনে করিয়ে দিই:
+
+- এটি স্টেটলেস ও স্কেলেবল: সার্ভারকে কোনো সেশন ডেটা মেমোরিতে রাখতে হয় না, যা মেমোরি কস্ট অনেক বাঁচায়।
+- মাইক্রোসার্ভিস ফ্রেন্ডলি: মাল্টিপল ডোমেইন বা সার্ভার একে অপরের সাথে খুব সহজেই একই টোকেন ভেরিফাই করতে পারে।
+- হাই পারফরম্যান্স: ডেটাবেজ চেক ছাড়াই কেবল ক্রিপ্টোগ্রাফিক ভ্যালিডেশন হওয়ায় এটি অত্যন্ত দ্রুত কাজ করে।
+- মোবাইল এবং মাল্টি-প্ল্যাটফর্ম ফ্রেন্ডলি: কুকিজের ঝামেলা না থাকায় মোবাইল অ্যাপেও এটি খুব সহজে ব্যবহার করা যায়।
+
+আধুনিক স্কেলেবল আর্কিটেকচারের জন্য এটি সেরা পছন্দ।`
+  },
+  {
+    ch:'সারাংশ ও বিদায়',
+    narration:`আজকের সেশনে আমরা JWT-এর একদম শুরু থেকে শেষ পর্যন্ত গুরুত্বপূর্ণ খুঁটিনাটি বিষয়গুলো নিয়ে আলোচনা করলাম।
+
+জে-ডব্লিউ-টি কীভাবে সেশনের বিকল্প হিসেবে কাজ করে, এর নিরাপত্তা কীভাবে কাজ করে এবং কীভাবে ডটনেট কোরে এটি ব্যবহার করা যায় তা আমরা দেখলাম।
+
+আশা করি আপনারা সেশনটি উপভোগ করেছেন। ভিডিওটি ভালো লাগলে লাইক দিন এবং কোডিং ড্রপ (Coding Drop) চ্যানেলে সাবস্ক্রাইব করুন। পরবর্তী ভিডিওতে আমরা ডটনেট কোরে লাইভ কোডিং করে এই অথেন্টিকেশন সিস্টেমটি ডিজাইন করব।
+
+সবাই ভালো থাকবেন, আল্লাহ হাফেজ!`
+  },
+];
+
+const total = SLIDES.length;
+let cur = 0;
+
+/* ─── BroadcastChannel ─── */
+const BC = new BroadcastChannel('jwt_presentation');
+let audienceConnected = false;
+
+BC.onmessage = (e) => {
+  if(e.data.type === 'nav'){
+    audienceConnected = true;
+    updateConn(true);
+    cur = e.data.idx;
+    renderSlide();
+  }
+  if(e.data.type === 'ping'){
+    audienceConnected = true;
+    updateConn(true);
+  }
+};
+
+function updateConn(live){
+  const dot = document.getElementById('connDot');
+  const lbl = document.getElementById('connLabel');
+  if(live){
+    dot.classList.add('live');
+    lbl.textContent = 'Audience window সংযুক্ত ✓';
+    lbl.style.color = 'var(--lime)';
+  } else {
+    dot.classList.remove('live');
+    lbl.textContent = 'Audience window-এর জন্য অপেক্ষা করছে...';
+    lbl.style.color = 'var(--muted)';
+  }
+}
+
+/* navigate from presenter */
+function presNav(dir){
+  const next = cur + dir;
+  if(next < 0 || next >= total) return;
+  cur = next;
+  BC.postMessage({ type: 'nav', idx: cur });
+  renderSlide();
+}
+
+/* keyboard */
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight') presNav(1);
+  else if(e.key==='ArrowLeft') presNav(-1);
+  else if(e.key>='1'&&e.key<='9'){ cur=parseInt(e.key)-1; BC.postMessage({type:'nav',idx:cur}); renderSlide(); }
+});
+
+/* ─── RENDER ─── */
+function renderSlide(){
+  const sl = SLIDES[cur];
+  document.getElementById('curTitle').textContent = 'Chapter '+(cur+1)+' — '+sl.ch;
+  document.getElementById('scriptText').innerHTML = sl.narration.replace(/"/g,'<em>"</em>').replace(/'([^']+)'/g,"<em>'$1'</em>");
+  document.getElementById('curNum').textContent = cur+1;
+
+  // next title
+  const nextSl = SLIDES[cur+1];
+  const ntEl = document.getElementById('nextTitle');
+  if(nextSl) ntEl.innerHTML = `<i class="fa-solid fa-arrow-right"></i> <span>${nextSl.ch}</span>`;
+  else ntEl.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span style="color:var(--lime)">উপস্থাপনা শেষ!</span>`;
+
+  // buttons
+  document.getElementById('btnPrev').disabled = cur === 0;
+  document.getElementById('btnNext').disabled = cur === total-1;
+
+  // progress
+  const pct = Math.round(((cur+1)/total)*100);
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progPct').textContent = pct+'%';
+
+  // chapter list
+  document.querySelectorAll('.ch-p').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i===cur) el.classList.add('active');
+    else if(i<cur) el.classList.add('done');
+  });
+  const active = document.getElementById('cp-'+cur);
+  if(active) active.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // scroll script to top
+  document.querySelector('.script-box').scrollTop = 0;
+}
+
+/* ─── BUILD CHAPTERS ─── */
+function buildChapters(){
+  const wrap = document.getElementById('chListP');
+  SLIDES.forEach((sl,i)=>{
+    const d = document.createElement('div');
+    d.className = 'ch-p' + (i===0?' active':'');
+    d.id = 'cp-'+i;
+    d.onclick = ()=>{ cur=i; BC.postMessage({type:'nav',idx:cur}); renderSlide(); };
+    d.innerHTML = `<div class="cn">${i+1}</div><span>${sl.ch}</span>`;
+    wrap.appendChild(d);
+  });
+}
+
+/* ─── TIMER ─── */
+let timerSec = 0;
+let timerRunning = false;
+let timerIv = null;
+
+function toggleTimer(){
+  const btn = document.getElementById('timerBtn');
+  if(timerRunning){
+    clearInterval(timerIv); timerRunning = false;
+    btn.innerHTML = '<i class="fa-solid fa-play"></i> শুরু';
+    btn.classList.remove('running');
+  } else {
+    timerIv = setInterval(tickTimer, 1000);
+    timerRunning = true;
+    btn.innerHTML = '<i class="fa-solid fa-pause"></i> বিরতি';
+    btn.classList.add('running');
+  }
+}
+
+function resetTimer(){
+  clearInterval(timerIv); timerRunning = false;
+  timerSec = 0;
+  const btn = document.getElementById('timerBtn');
+  btn.innerHTML = '<i class="fa-solid fa-play"></i> শুরু';
+  btn.classList.remove('running');
+  updateTimerDisplay();
+}
+
+function tickTimer(){
+  timerSec++;
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay(){
+  const m = Math.floor(timerSec/60).toString().padStart(2,'0');
+  const s = (timerSec%60).toString().padStart(2,'0');
+  const el = document.getElementById('timerDisplay');
+  el.textContent = m+':'+s;
+  // color coding
+  if(timerSec < 1200) el.className='timer-display';
+  else if(timerSec < 1320) el.className='timer-display warn';
+  else el.className='timer-display over';
+
+  // elapsed & remaining
+  document.getElementById('elapsedLabel').textContent = 'অতিবাহিত: '+m+':'+s;
+  const rem = Math.max(0, 1200-timerSec);
+  const rm = Math.floor(rem/60).toString().padStart(2,'0');
+  const rs = (rem%60).toString().padStart(2,'0');
+  document.getElementById('remainLabel').textContent = 'বাকি: '+rm+':'+rs;
+}
+
+/* ─── INIT ─── */
+buildChapters();
+renderSlide();
+
+// Ping audience window periodically
+setInterval(()=>{
+  BC.postMessage({type:'ping_from_presenter'});
+}, 3000);
+</script>
+</body>
+</html>

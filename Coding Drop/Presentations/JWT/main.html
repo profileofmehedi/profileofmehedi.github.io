@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT Authentication — সম্পূর্ণ গাইড</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:       #06080f;
+  --surface:  #0a0d1c;
+  --surface2: #0f1328;
+  --border:   rgba(255,255,255,0.07);
+  --rose:     #e8175d;
+  --cyan:     #00d4f0;
+  --lime:     #2ddc6a;
+  --amber:    #f0a500;
+  --violet:   #8b5cf6;
+  --blue:     #3b82f6;
+  --text:     #e8edf8;
+  --muted:    #677090;
+  --dim:      #1e2440;
+  --r:        16px;
+  --r-sm:     10px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+
+body {
+  font-family: 'Outfit','Noto Sans Bengali', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width:4px }
+::-webkit-scrollbar-thumb { background:var(--dim); border-radius:4px }
+
+/* ── particle canvas ── */
+#bgCanvas {
+  position:fixed; inset:0; z-index:0;
+  pointer-events:none; opacity:0.35;
+}
+
+/* ── layout ── */
+.layout {
+  flex:1; display:flex; overflow:hidden;
+  position:relative; z-index:1;
+}
+
+/* ─────────── LEFT: SLIDE AREA ─────────── */
+.slide-area {
+  flex:1; position:relative; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+/* ── channel logo ── */
+.ch-logo-wrap {
+  position:absolute; top:20px; left:24px;
+  z-index:50; display:flex; align-items:center; gap:11px;
+  background:rgba(10,13,28,0.7);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:14px;
+  padding:8px 16px 8px 10px;
+  backdrop-filter:blur(16px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,212,240,0.08);
+  transition:all .3s ease;
+}
+.ch-logo-wrap:hover {
+  border-color:rgba(0,212,240,0.25);
+  box-shadow:0 4px 24px rgba(0,0,0,0.4), 0 0 16px rgba(0,212,240,0.1);
+  transform:translateY(-1px);
+}
+.ch-logo-img {
+  width:38px; height:38px; border-radius:9px;
+  object-fit:cover;
+  box-shadow:0 0 10px rgba(0,212,240,0.2);
+}
+.ch-logo-text {
+  display:flex; flex-direction:column; gap:1px;
+}
+.ch-logo-name {
+  font-size:0.82rem; font-weight:800;
+  background:linear-gradient(135deg,#fff,rgba(255,255,255,0.7));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:-0.3px; line-height:1;
+}
+.ch-logo-sub {
+  font-size:0.6rem; color:var(--muted);
+  letter-spacing:0.5px; font-weight:500;
+}
+
+/* ── slide ── */
+.slide {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  padding:80px 70px 130px;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translateY(14px) scale(0.985);
+  transition:opacity .65s cubic-bezier(.4,0,.2,1), transform .65s cubic-bezier(.4,0,.2,1);
+}
+.slide.active {
+  opacity:1; visibility:visible; pointer-events:auto;
+  transform:translateY(0) scale(1);
+}
+.slide.exit {
+  opacity:0; transform:translateY(-12px) scale(0.99);
+}
+
+/* ── bottom narration strip ── */
+.narration {
+  position:absolute; bottom:0; left:0; right:0;
+  padding:16px 70px 20px;
+  background:linear-gradient(transparent, rgba(6,8,15,0.96) 40%);
+  z-index:20; pointer-events:none;
+}
+.narration-inner {
+  background:rgba(10,13,28,0.85);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:12px 22px;
+  font-size:0.95rem; line-height:1.6;
+  color:var(--text);
+  backdrop-filter:blur(12px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* ── slide number indicator ── */
+.slide-indicator {
+  position:absolute; bottom:22px; right:80px;
+  font-size:0.75rem; color:var(--muted);
+  z-index:21; letter-spacing:.5px;
+}
+
+/* ── nav hint ── */
+.nav-hint {
+  position:absolute; bottom:22px; left:70px;
+  font-size:0.72rem; color:var(--muted);
+  z-index:21; display:flex; align-items:center; gap:8px;
+}
+.nav-hint kbd {
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);
+  color:var(--text); padding:2px 7px; border-radius:5px;
+  font-size:0.65rem; font-family:'Fira Code',monospace;
+}
+
+/* ─────────── RIGHT: SIDEBAR ─────────── */
+.sidebar {
+  width:290px;
+  background:rgba(10,13,28,0.9);
+  border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+
+.sb-header {
+  padding:22px 20px 14px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.sb-header-top {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:14px;
+}
+.sb-logo {
+  display:flex; align-items:center; gap:9px;
+  font-weight:800; font-size:1rem;
+}
+.sb-badge {
+  background:linear-gradient(135deg,var(--rose),var(--violet));
+  color:#fff; padding:3px 9px; border-radius:6px;
+  font-size:0.7rem; letter-spacing:1px; font-weight:700;
+}
+.sb-progress-text {
+  font-size:0.72rem; color:var(--muted);
+}
+.progress-bar-thin {
+  height:3px; background:rgba(255,255,255,0.08);
+  border-radius:2px; overflow:hidden;
+}
+.progress-bar-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--rose),var(--cyan));
+  border-radius:2px;
+  transition:width .5s ease;
+}
+
+.sb-title {
+  font-size:0.65rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); padding:14px 20px 8px;
+  display:flex; align-items:center; gap:7px;
+  flex-shrink:0;
+}
+.sb-title i { font-size:0.7rem }
+
+.ch-list {
+  overflow-y:auto; flex:1;
+  padding:0 10px 16px;
+  display:flex; flex-direction:column; gap:4px;
+}
+
+.ch-item {
+  padding:10px 12px; border-radius:9px;
+  cursor:pointer; display:flex;
+  align-items:flex-start; gap:10px;
+  transition:all .2s ease;
+  border:1px solid transparent;
+}
+.ch-item:hover {
+  background:rgba(255,255,255,0.04);
+  border-color:rgba(255,255,255,0.07);
+}
+.ch-item.active {
+  background:rgba(0,212,240,0.07);
+  border-color:rgba(0,212,240,0.25);
+}
+.ch-num {
+  width:24px; height:24px; border-radius:6px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; font-weight:700; font-family:'Fira Code',monospace;
+  background:rgba(255,255,255,0.06); color:var(--muted);
+  transition:all .2s;
+}
+.ch-item.active .ch-num {
+  background:var(--cyan); color:#000; font-weight:800;
+}
+.ch-item.done .ch-num {
+  background:rgba(45,220,106,0.15); color:var(--lime);
+}
+.ch-name {
+  font-size:0.8rem; line-height:1.35; color:var(--muted);
+  transition:color .2s;
+}
+.ch-item.active .ch-name { color:var(--cyan); font-weight:600; }
+.ch-item.done .ch-name { color:var(--text); }
+
+/* ── sidebar footer ── */
+.sb-footer {
+  padding:14px 20px;
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.kb-row {
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.kb-tip {
+  font-size:0.68rem; color:var(--muted);
+  display:flex; align-items:center; gap:5px;
+}
+.kb-tip kbd {
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);
+  color:var(--text); padding:1px 5px; border-radius:4px;
+  font-family:'Fira Code',monospace; font-size:0.62rem;
+}
+
+/* ══════════════════════════════════════════
+   DESIGN COMPONENTS (shared across slides)
+══════════════════════════════════════════ */
+
+/* gradient text */
+.g-rose-violet {
+  background:linear-gradient(135deg,var(--rose),var(--violet));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.g-cyan-lime {
+  background:linear-gradient(135deg,var(--cyan),var(--lime));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.g-rose-cyan {
+  background:linear-gradient(135deg,var(--rose),var(--cyan));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+
+/* section tag */
+.tag {
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:0.68rem; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--cyan);
+  margin-bottom:10px;
+}
+.tag::before { content:''; width:20px; height:2px; background:var(--cyan); border-radius:1px; }
+
+/* glass panel */
+.glass {
+  background:rgba(10,13,28,0.7);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  backdrop-filter:blur(16px);
+}
+
+/* slide main heading */
+.s-title {
+  font-size:1.9rem; font-weight:800;
+  line-height:1.2; text-align:center;
+  margin-bottom:8px;
+}
+.s-desc {
+  font-size:0.9rem; color:var(--muted);
+  text-align:center; line-height:1.55;
+  margin-bottom:22px; max-width:620px;
+}
+
+/* card */
+.card {
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:var(--r-sm);
+  padding:20px;
+  transition:all .3s ease;
+}
+.card:hover { background:rgba(255,255,255,0.04); }
+
+/* card icon */
+.c-icon {
+  width:42px; height:42px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; margin-bottom:14px;
+}
+.ci-rose { background:rgba(232,23,93,0.12); color:var(--rose); }
+.ci-cyan { background:rgba(0,212,240,0.1); color:var(--cyan); }
+.ci-lime { background:rgba(45,220,106,0.1); color:var(--lime); }
+.ci-amber { background:rgba(240,165,0,0.1); color:var(--amber); }
+.ci-violet { background:rgba(139,92,246,0.12); color:var(--violet); }
+.ci-blue { background:rgba(59,130,246,0.1); color:var(--blue); }
+
+.c-title { font-size:0.95rem; font-weight:700; margin-bottom:7px; }
+.c-body { font-size:0.8rem; color:var(--muted); line-height:1.55; }
+
+/* highlight card variants */
+.card.hl-rose { border-color:rgba(232,23,93,0.35); background:rgba(232,23,93,0.04); }
+.card.hl-cyan { border-color:rgba(0,212,240,0.35); background:rgba(0,212,240,0.04); }
+.card.hl-lime { border-color:rgba(45,220,106,0.35); background:rgba(45,220,106,0.04); }
+.card.hl-amber { border-color:rgba(240,165,0,0.3); background:rgba(240,165,0,0.03); }
+.card.hl-violet { border-color:rgba(139,92,246,0.35); background:rgba(139,92,246,0.04); }
+
+/* grids */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; width:100%; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; width:100%; }
+.g32 { display:grid; grid-template-columns:1.1fr 0.9fr; gap:18px; width:100%; }
+
+/* code block */
+.code {
+  background:#020409;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--r-sm);
+  padding:14px 18px;
+  font-family:'Fira Code',monospace;
+  font-size:0.75rem; line-height:1.8;
+  color:#94a3b8; overflow-x:auto;
+}
+.ck { color:#c084fc; }
+.cs { color:#86efac; }
+.cc { color:#475569; font-style:italic; }
+.cf { color:var(--cyan); }
+.cn { color:var(--amber); }
+.cp { color:var(--rose); }
+
+/* ══════════════════════════════════════════
+   SLIDE 1 — HERO
+══════════════════════════════════════════ */
+.hero-wrap {
+  text-align:center; max-width:760px; width:100%;
+}
+.orbs {
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
+}
+.orb {
+  position:absolute; border-radius:50%; filter:blur(90px); opacity:0.12;
+}
+.o1 { width:450px; height:450px; background:var(--rose); top:-150px; left:-100px; }
+.o2 { width:400px; height:400px; background:var(--cyan); top:-100px; right:-80px; }
+.o3 { width:350px; height:350px; background:var(--violet); bottom:-120px; left:25%; }
+
+.jwt-ring {
+  position:relative; width:120px; height:120px;
+  margin:0 auto 26px;
+}
+.ring-outer {
+  position:absolute; inset:0; border-radius:50%;
+  border:2px dashed rgba(0,212,240,0.4);
+  animation:spin 22s linear infinite;
+}
+.ring-inner {
+  position:absolute; inset:14px; border-radius:50%;
+  border:2px solid rgba(232,23,93,0.4);
+  animation:spin 16s linear infinite reverse;
+}
+.ring-dot {
+  position:absolute; width:8px; height:8px; border-radius:50%;
+  background:var(--cyan); top:-4px; left:50%; transform:translateX(-50%);
+  box-shadow:0 0 10px var(--cyan);
+}
+.ring-center {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.7rem; font-weight:900;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.hero-title {
+  font-size:2.8rem; font-weight:900;
+  line-height:1.15; letter-spacing:-1.5px;
+  margin-bottom:12px;
+}
+.hero-sub {
+  font-size:1rem; color:var(--muted);
+  line-height:1.6; margin-bottom:28px;
+  max-width:560px; margin-left:auto; margin-right:auto;
+}
+.hero-tags {
+  display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+}
+.htag {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.09);
+  padding:6px 15px; border-radius:20px;
+  font-size:0.75rem; font-weight:600; color:var(--muted);
+  display:flex; align-items:center; gap:7px;
+}
+.htag.t-r { color:var(--rose); border-color:rgba(232,23,93,0.2); }
+.htag.t-c { color:var(--cyan); border-color:rgba(0,212,240,0.2); }
+.htag.t-l { color:var(--lime); border-color:rgba(45,220,106,0.2); }
+.htag.t-a { color:var(--amber); border-color:rgba(240,165,0,0.2); }
+.htag.t-v { color:#a78bfa; border-color:rgba(139,92,246,0.2); }
+
+/* ══════════════════════════════════════════
+   TOKEN ANATOMY
+══════════════════════════════════════════ */
+.token-box {
+  background:#020409;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--r-sm);
+  padding:14px 20px;
+  font-family:'Fira Code',monospace;
+  font-size:0.88rem; line-height:1.6;
+  word-break:break-all; text-align:center;
+  width:100%;
+}
+.th { color:var(--rose); cursor:pointer; border-radius:4px; padding:2px 4px; transition:background .2s; }
+.tp { color:var(--cyan); cursor:pointer; border-radius:4px; padding:2px 4px; transition:background .2s; }
+.ts { color:var(--lime); cursor:pointer; border-radius:4px; padding:2px 4px; transition:background .2s; }
+.th:hover, .th.hl { background:rgba(232,23,93,0.15); }
+.tp:hover, .tp.hl { background:rgba(0,212,240,0.12); }
+.ts:hover, .ts.hl { background:rgba(45,220,106,0.12); }
+
+.anat-card {
+  border:1px solid rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.02);
+  border-radius:var(--r-sm); padding:14px;
+  transition:all .3s;
+}
+.anat-card.a-rose { border-color:var(--rose); background:rgba(232,23,93,0.04); transform:translateY(-3px); }
+.anat-card.a-cyan { border-color:var(--cyan); background:rgba(0,212,240,0.04); transform:translateY(-3px); }
+.anat-card.a-lime { border-color:var(--lime); background:rgba(45,220,106,0.04); transform:translateY(-3px); }
+.anat-h { font-size:0.82rem; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:7px; }
+.ah-r { color:var(--rose); } .ah-c { color:var(--cyan); } .ah-l { color:var(--lime); }
+.anat-pre {
+  background:#020409; border-radius:6px; padding:9px;
+  font-size:0.66rem; font-family:'Fira Code',monospace;
+  color:#94a3b8; white-space:pre; text-align:left;
+}
+.anat-note { font-size:0.7rem; color:var(--muted); margin-top:8px; line-height:1.4; }
+
+/* ══════════════════════════════════════════
+   FLOW DIAGRAM
+══════════════════════════════════════════ */
+.flow-scene {
+  display:flex; justify-content:space-between; align-items:center;
+  width:100%; position:relative; height:58%;
+}
+.flow-line {
+  position:absolute; top:50%; left:6%; right:6%;
+  height:1px; background:rgba(255,255,255,0.06); z-index:0;
+}
+.fn {
+  z-index:1; width:21%; background:var(--surface);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:14px; padding:16px 10px;
+  text-align:center; transition:all .35s ease;
+  position:relative;
+}
+.fn.on {
+  background:rgba(0,212,240,0.05);
+  border-color:rgba(0,212,240,0.3);
+  box-shadow:0 0 20px rgba(0,212,240,0.12);
+  transform:translateY(-4px);
+}
+.fn.on.db-node {
+  background:rgba(240,165,0,0.05);
+  border-color:rgba(240,165,0,0.3);
+  box-shadow:0 0 20px rgba(240,165,0,0.12);
+}
+.fn i { font-size:1.9rem; margin-bottom:9px; display:block; color:var(--muted); transition:all .3s; }
+.fn.on i { color:var(--cyan); text-shadow:0 0 12px rgba(0,212,240,0.4); }
+.fn.on.db-node i { color:var(--amber); text-shadow:0 0 12px rgba(240,165,0,0.4); }
+.fn-title { font-size:0.78rem; font-weight:700; }
+.fn-sub { font-size:0.62rem; color:var(--muted); margin-top:3px; }
+.packet {
+  position:absolute; width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.72rem; color:#000; font-weight:700;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  opacity:0; z-index:3;
+  transition:left .55s ease, top .55s ease, opacity .3s;
+}
+.flow-caption {
+  text-align:center; font-size:0.88rem; font-weight:600;
+  color:var(--cyan); margin-top:12px; min-height:24px;
+}
+
+/* ══════════════════════════════════════════
+   FACTORY (Signature Engine)
+══════════════════════════════════════════ */
+.factory {
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; gap:14px;
+}
+.f-inputs { display:flex; flex-direction:column; gap:11px; width:30%; }
+.f-input {
+  background:rgba(255,255,255,0.02);
+  border-radius:var(--r-sm); padding:11px 13px;
+  display:flex; align-items:center; gap:11px;
+  border-left:4px solid transparent;
+  border-top:1px solid rgba(255,255,255,0.04);
+  border-right:1px solid rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:transform .5s ease;
+}
+.fi-r { border-left-color:var(--rose); }
+.fi-c { border-left-color:var(--cyan); }
+.fi-a { border-left-color:var(--amber); }
+.fi-r i { color:var(--rose); font-size:1.1rem; }
+.fi-c i { color:var(--cyan); font-size:1.1rem; }
+.fi-a i { color:var(--amber); font-size:1.1rem; }
+.fi-info { display:flex; flex-direction:column; gap:2px; }
+.fi-title { font-size:0.77rem; font-weight:700; }
+.fi-val { font-size:0.63rem; color:var(--muted); font-family:'Fira Code',monospace; }
+
+.f-engine {
+  width:26%; display:flex; flex-direction:column;
+  align-items:center; gap:10px;
+}
+.gear-ring {
+  width:90px; height:90px; border-radius:50%;
+  border:5px dashed rgba(0,212,240,0.25);
+  display:flex; align-items:center; justify-content:center;
+  animation:spin 14s linear infinite;
+}
+.gear-ring i { font-size:2rem; color:rgba(0,212,240,0.4); animation:spin 14s linear infinite reverse; }
+.f-engine.spinning .gear-ring {
+  border-color:rgba(45,220,106,0.5);
+  box-shadow:0 0 26px rgba(45,220,106,0.18);
+  animation-duration:3.5s;
+}
+.f-engine.spinning .gear-ring i { color:var(--lime); animation-duration:3.5s; }
+.gear-label { font-size:0.7rem; font-weight:700; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+
+.f-output { width:30%; opacity:0; transform:scale(0.85); transition:all .5s cubic-bezier(.175,.885,.32,1.3); }
+.f-output.show { opacity:1; transform:scale(1); }
+.out-card {
+  background:rgba(45,220,106,0.04);
+  border:1px solid rgba(45,220,106,0.28);
+  border-radius:var(--r-sm); padding:16px;
+  text-align:center;
+  box-shadow:0 0 20px rgba(45,220,106,0.07);
+}
+.out-card > i { font-size:1.7rem; color:var(--lime); margin-bottom:7px; display:block; text-shadow:0 0 14px rgba(45,220,106,0.35); }
+.out-sig { font-family:'Fira Code',monospace; font-size:0.63rem; color:var(--lime); word-break:break-all; margin-top:5px; }
+
+/* ══════════════════════════════════════════
+   SANDBOX
+══════════════════════════════════════════ */
+.sandbox {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  width:100%; height:calc(100% - 60px);
+}
+.sb-col { display:flex; flex-direction:column; gap:9px; }
+.sb-lbl { font-size:0.7rem; color:var(--muted); display:block; margin-bottom:3px; }
+.sb-ta {
+  background:#020409;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--r-sm); padding:11px;
+  color:var(--cyan); font-family:'Fira Code',monospace;
+  font-size:0.8rem; resize:none; outline:none; width:100%;
+  transition:border-color .3s; line-height:1.7; flex:1;
+}
+.sb-ta:focus { border-color:var(--cyan); box-shadow:0 0 10px rgba(0,212,240,0.08); }
+.sb-help {
+  background:rgba(240,165,0,0.06);
+  border:1px dashed rgba(240,165,0,0.3);
+  border-radius:8px; padding:8px 12px;
+  font-size:0.72rem; color:var(--amber); line-height:1.45;
+}
+.sb-val-box {
+  background:#020409; border:1px solid rgba(255,255,255,0.06);
+  border-radius:7px; padding:7px 10px;
+  font-family:'Fira Code',monospace; font-size:0.7rem;
+  word-break:break-all;
+}
+.sv-orig { color:var(--lime); }
+.sv-calc { color:var(--rose); }
+.sb-status {
+  border-radius:8px; padding:11px 14px;
+  font-weight:700; font-size:0.83rem;
+  display:flex; align-items:center; justify-content:center; gap:9px;
+  transition:all .3s;
+}
+.st-ok { background:rgba(45,220,106,0.06); border:1px solid rgba(45,220,106,0.3); color:var(--lime); }
+.st-err { background:rgba(248,113,113,0.06); border:1px solid rgba(248,113,113,0.3); color:#f87171; animation:blink-border 1s infinite alternate; }
+@keyframes blink-border { 100% { border-color:rgba(248,113,113,0.6); } }
+
+/* ══════════════════════════════════════════
+   COMPARISON (session vs token)
+══════════════════════════════════════════ */
+.cmp-bad { border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.03); border-radius:var(--r-sm); padding:20px; transition:all .3s; }
+.cmp-good { border:1px solid rgba(45,220,106,0.3); background:rgba(45,220,106,0.03); border-radius:var(--r-sm); padding:20px; transition:all .3s; }
+.cmp-bad.shake { animation:sh .35s infinite; }
+@keyframes sh { 0%{transform:translateX(0)} 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} 100%{transform:translateX(0)} }
+.db-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.25);
+  color:#f87171; font-size:0.67rem; padding:3px 8px; border-radius:4px; font-weight:700;
+}
+.ok-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(45,220,106,0.1); border:1px solid rgba(45,220,106,0.25);
+  color:var(--lime); font-size:0.67rem; padding:3px 8px; border-radius:4px; font-weight:700;
+}
+.db-snippet {
+  background:#020409; border:1px solid rgba(248,113,113,0.2);
+  border-radius:6px; padding:8px; font-family:'Fira Code',monospace;
+  font-size:0.67rem; color:#94a3b8; margin:9px 0;
+}
+.load-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:2px; margin-top:12px; overflow:hidden; }
+.load-fill { height:100%; border-radius:2px; width:0%; transition:width .4s, background .4s; }
+.check-anim {
+  font-size:3.2rem; color:var(--lime); text-align:center; display:block;
+  text-shadow:0 0 18px rgba(45,220,106,0.4);
+  animation:bounce 1s ease-in-out infinite alternate;
+}
+@keyframes bounce { to { transform:translateY(-7px); } }
+
+/* ══════════════════════════════════════════
+   REFRESH TOKEN STEPS
+══════════════════════════════════════════ */
+.rf-step {
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:var(--r-sm); padding:12px 15px;
+  display:flex; align-items:flex-start; gap:13px;
+  transition:all .3s;
+}
+.rf-step.on {
+  background:rgba(0,212,240,0.04);
+  border-color:rgba(0,212,240,0.25);
+  transform:translateX(5px);
+}
+.step-n {
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:0.75rem;
+  background:rgba(255,255,255,0.06); color:var(--muted);
+  transition:all .3s;
+}
+.rf-step.on .step-n { background:var(--cyan); color:#000; }
+.step-text { font-size:0.78rem; line-height:1.5; color:var(--muted); }
+.rf-step.on .step-text { color:var(--text); }
+
+/* ══════════════════════════════════════════
+   TIPS
+══════════════════════════════════════════ */
+.tip {
+  display:flex; align-items:flex-start; gap:13px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:var(--r-sm); padding:15px;
+  transition:all .3s;
+}
+.tip.on {
+  background:rgba(0,212,240,0.04);
+  border-color:rgba(0,212,240,0.25);
+  transform:translateY(-2px);
+  box-shadow:0 5px 16px rgba(0,0,0,0.2);
+}
+.tip i { font-size:1.4rem; color:var(--muted); flex-shrink:0; margin-top:2px; transition:color .3s; }
+.tip.on i { color:var(--rose); text-shadow:0 0 8px rgba(232,23,93,0.3); }
+.tip h4 { font-size:0.84rem; font-weight:700; margin-bottom:4px; }
+.tip p { font-size:0.76rem; color:var(--muted); line-height:1.5; }
+
+/* ══════════════════════════════════════════
+   ADVANTAGES
+══════════════════════════════════════════ */
+.adv {
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:var(--r-sm); padding:16px 13px;
+  text-align:center; transition:all .3s;
+}
+.adv.on { background:rgba(0,212,240,0.04); border-color:rgba(0,212,240,0.25); transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+.adv i { font-size:1.7rem; margin-bottom:9px; display:block; }
+.adv p { font-size:0.75rem; color:var(--muted); line-height:1.4; }
+.adv-title { font-size:0.83rem; font-weight:700; margin-bottom:4px; }
+
+/* ══════════════════════════════════════════
+   OUTRO
+══════════════════════════════════════════ */
+.outro-item {
+  display:flex; align-items:flex-start; gap:11px;
+  font-size:0.88rem; line-height:1.5;
+  opacity:0; transform:translateX(-14px);
+  transition:all .5s ease;
+}
+.outro-item.show { opacity:1; transform:translateX(0); }
+.outro-item i { color:var(--lime); font-size:0.95rem; margin-top:3px; flex-shrink:0; }
+.outro-cta {
+  background:rgba(232,23,93,0.04);
+  border:1px solid rgba(232,23,93,0.2);
+  border-radius:var(--r-sm); padding:22px;
+  text-align:center; display:flex; flex-direction:column;
+  align-items:center; gap:13px;
+}
+.outro-cta .fa-youtube { font-size:2.6rem; color:#ff0000; animation:yt 1.5s infinite alternate; }
+@keyframes yt { 100% { transform:scale(1.1); text-shadow:0 0 20px rgba(255,0,0,0.5); } }
+.restart-btn {
+  background:linear-gradient(135deg,var(--rose),var(--cyan));
+  color:#000; border:none; padding:9px 20px;
+  border-radius:50px; font-weight:700; font-size:0.83rem;
+  cursor:pointer; display:flex; align-items:center; gap:7px;
+  transition:all .2s;
+}
+.restart-btn:hover { transform:scale(1.05); box-shadow:0 0 16px rgba(0,212,240,0.35); }
+
+/* claims table */
+.cl-table { width:100%; border-collapse:collapse; font-size:0.76rem; }
+.cl-table th { background:rgba(0,212,240,0.07); color:var(--cyan); padding:7px 10px; text-align:left; font-size:0.7rem; letter-spacing:.4px; border-bottom:1px solid rgba(0,212,240,0.18); }
+.cl-table td { padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--muted); }
+.cl-table td:first-child { color:var(--text); font-family:'Fira Code',monospace; font-size:0.7rem; }
+.cl-table td code { background:rgba(255,255,255,0.06); padding:1px 5px; border-radius:3px; font-family:'Fira Code',monospace; font-size:0.67rem; color:var(--amber); }
+
+/* fade-up animation */
+.fu { opacity:0; transform:translateY(16px); }
+.slide.active .fu { animation:fadeUp .55s ease forwards; }
+.fu.d1 { animation-delay:.12s }
+.fu.d2 { animation-delay:.24s }
+.fu.d3 { animation-delay:.36s }
+.fu.d4 { animation-delay:.48s }
+.fu.d5 { animation-delay:.6s }
+@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="layout">
+
+  <!-- ─────────── SLIDE AREA ─────────── -->
+  <div class="slide-area">
+
+    <!-- Channel Logo -->
+    <div class="ch-logo-wrap">
+      <img class="ch-logo-img" src="coding drop logo.png" alt="Coding Drop Logo">
+      <div class="ch-logo-text">
+        <div class="ch-logo-name">Coding Drop</div>
+        <div class="ch-logo-sub">JWT Masterclass</div>
+      </div>
+    </div>
+
+    <!-- S1: Hero -->
+    <div class="slide active" id="s1">
+      <div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+      <div class="glass hero-wrap fu" style="padding:40px 44px; text-align:center">
+        <div class="jwt-ring fu">
+          <div class="ring-outer"><div class="ring-dot"></div></div>
+          <div class="ring-inner"></div>
+          <div class="ring-center g-rose-cyan">JWT</div>
+        </div>
+        <div class="tag fu d1"><i class="fa-solid fa-graduation-cap"></i> পূর্ণাঙ্গ টিউটোরিয়াল</div>
+        <h1 class="hero-title fu d2">
+          <span class="g-rose-violet">JSON Web Token</span><br>সম্পূর্ণ গাইড
+        </h1>
+        <p class="hero-sub fu d3">
+          আধুনিক ওয়েব অ্যাপ্লিকেশনে ব্যবহারকারীর পরিচয় নিশ্চিত করার সবচেয়ে জনপ্রিয় পদ্ধতি হলো JWT।
+          আজকে এটা কীভাবে কাজ করে, কেন নিরাপদ এবং কীভাবে ব্যবহার করতে হয় — সব কিছু শিখব।
+        </p>
+        <div class="hero-tags fu d4">
+          <div class="htag t-r"><i class="fa-solid fa-shield-halved"></i> Authentication</div>
+          <div class="htag t-c"><i class="fa-solid fa-code"></i> JWT Structure</div>
+          <div class="htag t-l"><i class="fa-solid fa-signature"></i> Cryptography</div>
+          <div class="htag t-a"><i class="fa-solid fa-route"></i> Lifecycle Flow</div>
+          <div class="htag t-v"><i class="fa-solid fa-flask"></i> Live Sandbox</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2: Auth vs Authz -->
+    <div class="slide" id="s2">
+      <div class="s-title fu"><span class="g-rose-cyan">Authentication</span> বনাম Authorization</div>
+      <div class="s-desc fu d1">এই দুটো শব্দ প্রায়ই একই মনে হয়, কিন্তু আসলে এরা সম্পূর্ণ আলাদা কাজ করে</div>
+      <div class="g2 fu d2" style="max-width:760px">
+        <div class="card hl-rose">
+          <div class="c-icon ci-rose"><i class="fa-solid fa-id-card"></i></div>
+          <div class="c-title">Authentication — প্রমাণীকরণ</div>
+          <div class="c-body" style="margin-bottom:12px">
+            <strong style="color:var(--rose)">"আপনি আসলে কে?"</strong><br><br>
+            লগইন করার সময় username এবং password দিয়ে সার্ভারকে প্রমাণ করা যে আপনিই সেই ব্যক্তি।
+            সার্ভার এটা যাচাই করে নিশ্চিত হয়।
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);border-top:1px solid rgba(255,255,255,0.06);padding-top:10px">
+            <strong style="color:var(--text)">উদাহরণ:</strong> ATM-এ কার্ড দিয়ে PIN দিলেন — ব্যাংক নিশ্চিত হলো আপনিই কার্ডের মালিক।
+          </div>
+        </div>
+        <div class="card hl-cyan">
+          <div class="c-icon ci-cyan"><i class="fa-solid fa-key"></i></div>
+          <div class="c-title">Authorization — অনুমোদন</div>
+          <div class="c-body" style="margin-bottom:12px">
+            <strong style="color:var(--cyan)">"আপনি কী কী করতে পারবেন?"</strong><br><br>
+            পরিচয় নিশ্চিত হওয়ার পর আপনার Role অনুযায়ী কোন কোন জিনিসে অ্যাক্সেস পাবেন সেটা ঠিক করা।
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);border-top:1px solid rgba(255,255,255,0.06);padding-top:10px">
+            <strong style="color:var(--text)">উদাহরণ:</strong> PIN দেওয়ার পর শুধু আপনার নিজের অ্যাকাউন্ট দেখতে পাবেন, ব্যাংকের সব অ্যাকাউন্ট নয়।
+          </div>
+        </div>
+      </div>
+      <div class="glass fu d3" style="max-width:760px;width:100%;margin-top:14px;padding:13px 20px">
+        <div style="display:flex;align-items:center;gap:11px;font-size:0.82rem">
+          <i class="fa-solid fa-circle-info" style="color:var(--amber);flex-shrink:0"></i>
+          <span style="color:var(--muted)">JWT-এর কাজ হলো Authentication করার পর সেই পরিচয়ের তথ্য বহন করে Authorization-এ সাহায্য করা।</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3: Session vs Token -->
+    <div class="slide" id="s3">
+      <div class="s-title fu">পুরনো পদ্ধতি <span class="g-rose-cyan">বনাম</span> নতুন পদ্ধতি</div>
+      <div class="s-desc fu d1">কেন Session ছেড়ে Token-এ গেলাম — সেটা বুঝলেই JWT-এর মূল সৌন্দর্য বোঝা যাবে</div>
+      <div class="g2 fu d2" style="max-width:800px">
+        <div class="cmp-bad" id="cmpS">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+            <div class="c-icon ci-amber" style="width:36px;height:36px;font-size:0.95rem;margin:0"><i class="fa-solid fa-server"></i></div>
+            <div><div class="c-title">Session-বেসড (Stateful)</div><div style="font-size:0.68rem;color:var(--muted)">পুরনো পদ্ধতি</div></div>
+          </div>
+          <div class="db-snippet" id="dbSnippet">
+            [Session Store — Database/RAM]<br>
+            <span style="color:#f87171">ID: a1f9 → User: Abir</span><br>
+            <span style="color:#f87171">ID: b2g0 → User: Sifat</span><br>
+            <span style="color:#f87171">ID: c3h1 → User: Rahat</span>
+          </div>
+          <div class="db-pill" id="dbPill" style="opacity:0"><i class="fa-solid fa-triangle-exclamation"></i> Memory Overload!</div>
+          <div class="c-body" style="margin-top:10px">প্রতিটি request-এ সার্ভার DB বা RAM-এ session খুঁজতে যায়। লক্ষ ইউজার হলে চাপ বিশাল।</div>
+        </div>
+        <div class="cmp-good" id="cmpT">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+            <div class="c-icon ci-lime" style="width:36px;height:36px;font-size:0.95rem;margin:0"><i class="fa-solid fa-shield-halved"></i></div>
+            <div><div class="c-title">Token-বেসড (Stateless)</div><div style="font-size:0.68rem;color:var(--muted)">JWT পদ্ধতি</div></div>
+          </div>
+          <div id="checkShow" style="display:none"><i class="fa-solid fa-circle-check check-anim"></i></div>
+          <div id="tokPrev" style="display:none;font-family:'Fira Code',monospace;font-size:0.65rem;word-break:break-all;color:var(--cyan);margin:8px 0;background:#020409;padding:8px;border-radius:6px">
+            <span style="color:var(--rose)">eyJhbGciOi...</span>.<span style="color:var(--cyan)">eyJ1c2Vyf...</span>.<span style="color:var(--lime)">SflKxwRJS...</span>
+          </div>
+          <div class="ok-pill" id="okPill" style="opacity:0"><i class="fa-solid fa-bolt"></i> DB Hit লাগে না!</div>
+          <div class="c-body" style="margin-top:10px">Token নিজেই সব তথ্য বহন করে। সার্ভার Signature দেখেই যাচাই করতে পারে — অত্যন্ত দ্রুত।</div>
+        </div>
+      </div>
+      <div class="load-bar" style="max-width:800px;width:100%"><div class="load-fill" id="loadFill"></div></div>
+    </div>
+
+    <!-- S4: What is JWT -->
+    <div class="slide" id="s4">
+      <div class="s-title fu">JWT মানে কী?</div>
+      <div class="s-desc fu d1">JSON Web Token — একটি open standard (RFC 7519) যা দুই পক্ষের মধ্যে নিরাপদে JSON তথ্য আদান-প্রদান করে</div>
+      <div class="g3 fu d2" style="max-width:840px">
+        <div class="card hl-cyan">
+          <div class="c-icon ci-cyan"><i class="fa-solid fa-box"></i></div>
+          <div class="c-title">Self-Contained</div>
+          <div class="c-body">টোকেনের ভেতরেই ইউজারের সব দরকারি তথ্য থাকে। বাইরে কোথাও খুঁজতে যেতে হয় না।</div>
+        </div>
+        <div class="card hl-lime">
+          <div class="c-icon ci-lime"><i class="fa-solid fa-fingerprint"></i></div>
+          <div class="c-title">Tamper-Proof</div>
+          <div class="c-body">ক্রিপ্টোগ্রাফিক Signature-এর কারণে কেউ টোকেনের ভেতরের তথ্য গোপনে বদলাতে পারবে না।</div>
+        </div>
+        <div class="card hl-violet">
+          <div class="c-icon ci-violet"><i class="fa-solid fa-globe"></i></div>
+          <div class="c-title">সর্বজনীন</div>
+          <div class="c-body">Web, Mobile, Microservices — সব জায়গায় ব্যবহার করা যায়। সব বড় framework-এ native support আছে।</div>
+        </div>
+      </div>
+      <div class="glass fu d3" style="max-width:840px;width:100%;margin-top:14px;padding:16px 20px">
+        <div class="code" style="background:transparent;border:none;padding:0;font-size:0.77rem">
+          <span class="cc">// একটি JWT Token এরকম দেখতে হয়</span><br>
+          <span style="color:var(--rose)">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</span>.<br>
+          <span style="color:var(--cyan)">eyJ1c2VySWQiOiIxMjMiLCJuYW1lIjoiQWJpciIsInJvbGUiOiJ1c2VyIn0</span>.<br>
+          <span style="color:var(--lime)">SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</span><br><br>
+          <span class="cc">// তিন অংশ dot (.) দিয়ে আলাদা: <span style="color:var(--rose)">Header</span> · <span style="color:var(--cyan)">Payload</span> · <span style="color:var(--lime)">Signature</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5: Anatomy -->
+    <div class="slide" id="s5">
+      <div class="s-title fu">JWT-এর ভেতরে <span class="g-rose-cyan">কী থাকে?</span></div>
+      <div class="s-desc fu d1">তিনটি অংশ — প্রতিটির ভূমিকা আলাদা</div>
+      <div style="width:100%;max-width:880px;display:flex;flex-direction:column;gap:13px">
+        <div class="token-box fu d1">
+          <span class="th" id="th" onmouseover="hlA('h')" onmouseout="resetA()">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</span>.<span class="tp" id="tp" onmouseover="hlA('p')" onmouseout="resetA()">eyJ1c2VySWQiOiIxMjMiLCJuYW1lIjoiQWJpciIsInJvbGUiOiJ1c2VyIn0</span>.<span class="ts" id="ts" onmouseover="hlA('s')" onmouseout="resetA()">SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</span>
+        </div>
+        <div class="g3 fu d2">
+          <div class="anat-card" id="ah">
+            <div class="anat-h ah-r"><i class="fa-solid fa-gears"></i> Header</div>
+            <div class="anat-pre">{"alg": "HS256",
+ "typ": "JWT"}</div>
+            <div class="anat-note">কোন algorithm ব্যবহার হলো (HS256) আর এটা যে JWT — এই দুটো তথ্য থাকে।</div>
+          </div>
+          <div class="anat-card" id="ap">
+            <div class="anat-h ah-c"><i class="fa-solid fa-user-tag"></i> Payload</div>
+            <div class="anat-pre">{"userId": "123",
+ "name": "Abir",
+ "role": "user",
+ "exp": 1752680000}</div>
+            <div class="anat-note">ইউজারের তথ্য (Claims)। শুধু Base64 এনকোড — এনক্রিপ্ট নয়! পাসওয়ার্ড এখানে রাখবেন না।</div>
+          </div>
+          <div class="anat-card" id="as">
+            <div class="anat-h ah-l"><i class="fa-solid fa-signature"></i> Signature</div>
+            <div class="anat-pre">HMACSHA256(
+  B64(header)+"."+
+  B64(payload),
+  secretKey
+)</div>
+            <div class="anat-note">সবচেয়ে গুরুত্বপূর্ণ অংশ — টোকেন বদলানো হলেই এটা মিলবে না।</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6: Claims -->
+    <div class="slide" id="s6">
+      <div class="s-title fu">Claims <span class="g-rose-cyan">বিস্তারিত</span></div>
+      <div class="s-desc fu d1">Payload-এর ভেতরে যে তথ্যগুলো থাকে সেগুলোকে Claims বলে — তিন ধরনের</div>
+      <div class="g32 fu d2" style="max-width:880px;align-items:start">
+        <table class="cl-table">
+          <thead><tr><th>Claim Key</th><th>নাম</th><th>মানে কী</th></tr></thead>
+          <tbody>
+            <tr><td>iss</td><td>Issuer</td><td>কে এই টোকেন তৈরি করেছে</td></tr>
+            <tr><td>sub</td><td>Subject</td><td>কার জন্য টোকেন (সাধারণত User ID)</td></tr>
+            <tr><td>aud</td><td>Audience</td><td>কোন সার্ভার এটা গ্রহণ করবে</td></tr>
+            <tr><td>exp</td><td>Expiration</td><td>টোকেন কতক্ষণ কাজ করবে <code>(Unix time)</code></td></tr>
+            <tr><td>iat</td><td>Issued At</td><td>টোকেন তৈরির সময়</td></tr>
+            <tr><td>jti</td><td>JWT ID</td><td>টোকেনের unique পরিচয়</td></tr>
+            <tr><td>role</td><td>Custom</td><td>নিজের তৈরি claim — যা ইচ্ছা যোগ করা যায়</td></tr>
+          </tbody>
+        </table>
+        <div class="glass" style="padding:18px;display:flex;flex-direction:column;gap:12px">
+          <div class="tag"><i class="fa-solid fa-lightbulb"></i> মনে রাখুন</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.65">
+            <strong style="color:var(--amber)">exp</strong> claim সবচেয়ে জরুরি।
+            এটা না থাকলে টোকেন কখনো মেয়াদ শেষ হবে না — যা বড় নিরাপত্তা ঝুঁকি।<br><br>
+            Payload যেকেউ ডিকোড করতে পারে, তাই এখানে শুধু সেই তথ্যই রাখুন যা কেউ দেখলেও সমস্যা নেই।
+          </div>
+          <div class="code" style="font-size:0.7rem;padding:12px">
+<span class="cc">// Payload উদাহরণ</span><br>
+{<br>
+&nbsp;<span class="cp">"sub"</span>: <span class="cs">"user-123"</span>,<br>
+&nbsp;<span class="cp">"role"</span>: <span class="cs">"admin"</span>,<br>
+&nbsp;<span class="cp">"exp"</span>: <span class="cn">1752680000</span><br>
+}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7: Signature Engine -->
+    <div class="slide" id="s7">
+      <div class="s-title fu">Signature কীভাবে <span class="g-rose-cyan">তৈরি হয়?</span></div>
+      <div class="s-desc fu d1">HMAC-SHA256 অ্যালগরিদম তিনটি উপাদান নিয়ে একটি unique fingerprint তৈরি করে</div>
+      <div class="factory fu d1" style="max-width:840px;width:100%">
+        <div class="f-inputs">
+          <div class="f-input fi-r" id="fb1"><i class="fa-solid fa-gears"></i><div class="fi-info"><div class="fi-title">Header (Base64)</div><div class="fi-val">eyJhbGciOiJIUzI1NiJ9</div></div></div>
+          <div class="f-input fi-c" id="fb2"><i class="fa-solid fa-id-card"></i><div class="fi-info"><div class="fi-title">Payload (Base64)</div><div class="fi-val">eyJ1c2VySWQiOiIxMjMifQ</div></div></div>
+          <div class="f-input fi-a" id="fb3"><i class="fa-solid fa-key"></i><div class="fi-info"><div class="fi-title">Secret Key (শুধু সার্ভার জানে)</div><div class="fi-val" id="fSec">my-secret-key-2024</div></div></div>
+        </div>
+        <div class="f-engine" id="fEngine">
+          <div class="gear-ring"><i class="fa-solid fa-gear"></i></div>
+          <div class="gear-label">HMAC-SHA256</div>
+        </div>
+        <div class="f-output" id="fOut">
+          <div class="out-card">
+            <i class="fa-solid fa-signature"></i>
+            <div style="font-size:0.75rem;font-weight:700;color:var(--lime)">Crypto Signature</div>
+            <div class="out-sig" id="fSigVal">SflKxwRJSMeKKF2QT4fwp...</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass fu d3" style="max-width:840px;width:100%;margin-top:12px;padding:12px 18px">
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.8rem">
+          <i class="fa-solid fa-shield-halved" style="color:var(--amber);flex-shrink:0;margin-top:2px"></i>
+          <span style="color:var(--muted)">Secret Key কেবল সার্ভার জানে। কেউ Payload বদলে পাঠালে — সার্ভার নতুন Signature হিসাব করবে এবং পুরনোটার সাথে মিলবে না। তখনই ধরা পড়বে।</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S8: Lifecycle -->
+    <div class="slide" id="s8">
+      <div class="s-title fu">JWT কীভাবে <span class="g-rose-cyan">কাজ করে?</span></div>
+      <div class="s-desc fu d1">Login থেকে শুরু করে Protected API-তে ঢোকা পর্যন্ত ধাপে ধাপে</div>
+      <div class="fu d1" style="width:100%;max-width:870px">
+        <div class="flow-scene">
+          <div class="flow-line"></div>
+          <div class="packet" id="fp"><i class="fa-solid fa-envelope" style="font-size:0.7rem"></i></div>
+          <div class="fn" id="fn1"><i class="fa-solid fa-laptop-code"></i><div class="fn-title">Client</div><div class="fn-sub">Browser / App</div></div>
+          <div class="fn" id="fn2"><i class="fa-solid fa-server"></i><div class="fn-title">API Server</div><div class="fn-sub">Auth Service</div></div>
+          <div class="fn db-node" id="fn3"><i class="fa-solid fa-database"></i><div class="fn-title">Database</div><div class="fn-sub">User Store</div></div>
+          <div class="fn" id="fn4"><i class="fa-solid fa-shield-halved"></i><div class="fn-title">Protected API</div><div class="fn-sub">Resource Server</div></div>
+        </div>
+        <div class="flow-caption" id="fCap">লগইন শুরু হচ্ছে...</div>
+      </div>
+    </div>
+
+    <!-- S9: Code -->
+    <div class="slide" id="s9">
+      <div class="s-title fu">ASP.NET Core-এ <span class="g-rose-cyan">কোড</span> কেমন?</div>
+      <div class="s-desc fu d1">বাস্তব প্রজেক্টে JWT ঠিক এভাবেই ব্যবহার হয়</div>
+      <div class="g2 fu d2" style="max-width:920px;align-items:start;gap:14px">
+        <div>
+          <div class="tag" style="margin-bottom:8px"><i class="fa-solid fa-code"></i> Token তৈরি — Login API</div>
+          <div class="code" style="font-size:0.69rem">
+<span class="ck">public</span> <span class="cf">IActionResult</span> <span class="cf">Login</span>(<span class="ck">LoginDto</span> dto)<br>
+{<br>
+&nbsp;<span class="cc">// ১. ইউজার DB-তে খুঁজে বের করুন</span><br>
+&nbsp;<span class="ck">var</span> user = _db.<span class="cf">Verify</span>(dto);<br>
+&nbsp;<span class="ck">if</span> (user == <span class="ck">null</span>) <span class="ck">return</span> <span class="cf">Unauthorized</span>();<br><br>
+&nbsp;<span class="cc">// ২. Claims তৈরি করুন</span><br>
+&nbsp;<span class="ck">var</span> claims = <span class="ck">new</span>[] {<br>
+&nbsp;&nbsp;<span class="ck">new</span> Claim(<span class="cs">"userId"</span>, user.Id),<br>
+&nbsp;&nbsp;<span class="ck">new</span> Claim(<span class="cs">"role"</span>, user.Role)<br>
+&nbsp;};<br><br>
+&nbsp;<span class="cc">// ৩. Token তৈরি করে পাঠান</span><br>
+&nbsp;<span class="ck">var</span> key = <span class="ck">new</span> <span class="cf">SymmetricSecurityKey</span>(<br>
+&nbsp;&nbsp;Encoding.UTF8.<span class="cf">GetBytes</span>(config[<span class="cs">"Jwt:Key"</span>]));<br>
+&nbsp;<span class="ck">var</span> token = <span class="ck">new</span> <span class="cf">JwtSecurityToken</span>(<br>
+&nbsp;&nbsp;expires: DateTime.Now.<span class="cf">AddMinutes</span>(<span class="cn">15</span>),<br>
+&nbsp;&nbsp;claims: claims,<br>
+&nbsp;&nbsp;signingCredentials: <span class="ck">new</span> <span class="cf">SigningCredentials</span>(<br>
+&nbsp;&nbsp;&nbsp;key, SecurityAlgorithms.<span class="cf">HmacSha256</span>));<br>
+&nbsp;<span class="ck">return</span> <span class="cf">Ok</span>(<span class="ck">new</span> { token });<br>
+}
+          </div>
+        </div>
+        <div>
+          <div class="tag" style="margin-bottom:8px"><i class="fa-solid fa-cog"></i> Program.cs — Middleware</div>
+          <div class="code" style="font-size:0.69rem">
+<span class="cc">// appsettings.json</span><br>
+<span class="cs">"Jwt"</span>: {<br>
+&nbsp;<span class="cs">"Key"</span>: <span class="cs">"super-secret-256bit!"</span>,<br>
+&nbsp;<span class="cs">"Issuer"</span>: <span class="cs">"myapp.com"</span><br>
+}<br><br>
+<span class="cc">// Program.cs</span><br>
+builder.Services.<span class="cf">AddAuthentication</span>(<br>
+&nbsp;JwtBearerDefaults.<span class="cf">AuthScheme</span>)<br>
+.<span class="cf">AddJwtBearer</span>(opt => {<br>
+&nbsp;opt.TokenValidationParameters = <span class="ck">new</span>() {<br>
+&nbsp;&nbsp;ValidateIssuer = <span class="ck">true</span>,<br>
+&nbsp;&nbsp;ValidateLifetime = <span class="ck">true</span>,<br>
+&nbsp;&nbsp;ValidateSignature = <span class="ck">true</span>,<br>
+&nbsp;&nbsp;IssuerSigningKey = <span class="ck">new</span><br>
+&nbsp;&nbsp;&nbsp;<span class="cf">SymmetricSecurityKey</span>(<br>
+&nbsp;&nbsp;&nbsp;Encoding.UTF8.<span class="cf">GetBytes</span>(key))<br>
+&nbsp;};<br>
+});<br><br>
+<span class="cc">// Controller-এ ব্যবহার</span><br>
+[<span class="ck">Authorize</span>]<br>
+<span class="ck">public</span> <span class="cf">IActionResult</span> <span class="cf">Profile</span>() { }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S10: Sandbox -->
+    <div class="slide" id="s10">
+      <div class="s-title fu"><span class="g-rose-cyan">Live Lab</span> — নিজে পরীক্ষা করুন</div>
+      <div class="s-desc fu d1">Payload বদলালে Signature কেন মিলবে না — হাতে-কলমে দেখুন</div>
+      <div class="sandbox fu d2" style="max-width:900px;width:100%">
+        <div class="sb-col">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;font-weight:700;color:var(--rose)">
+            <i class="fa-solid fa-user-ninja"></i> আক্রমণকারীর দৃষ্টিকোণ
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;flex:1">
+            <label class="sb-lbl">JWT Payload এডিট করে দেখুন (Base64 ডিকোড করা অবস্থায়):</label>
+            <textarea class="sb-ta" id="sbTa" rows="5" oninput="runSandbox()">{
+  "userId": "123",
+  "name": "Abir",
+  "role": "user",
+  "exp": 1752680000
+}</textarea>
+            <div class="sb-help">
+              <i class="fa-solid fa-lightbulb"></i>&nbsp;
+              <code style="background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">"role": "user"</code> বদলে <code style="background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">"role": "admin"</code> করুন এবং দেখুন কী হয়
+            </div>
+          </div>
+        </div>
+        <div class="sb-col">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;font-weight:700;color:var(--lime)">
+            <i class="fa-solid fa-shield-halved"></i> সার্ভারের প্রতিক্রিয়া
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+            <div>
+              <label class="sb-lbl">মূল Token Signature (অপরিবর্তিত):</label>
+              <div class="sb-val-box sv-orig" id="sbOrig">SflKxwRJSMeKKF2QT4fwp...</div>
+            </div>
+            <div>
+              <label class="sb-lbl">সার্ভার নতুন Payload দিয়ে যা হিসাব করলো:</label>
+              <div class="sb-val-box sv-calc" id="sbCalc">SflKxwRJSMeKKF2QT4fwp...</div>
+            </div>
+            <div class="sb-status st-ok" id="sbStatus">
+              <i class="fa-solid fa-circle-check" id="sbIcon"></i>
+              <span id="sbText">Signature মিলেছে — Access Granted (200 OK)</span>
+            </div>
+            <div style="font-size:0.7rem;color:var(--muted);line-height:1.5">
+              Secret Key ছাড়া কেউ সঠিক Signature তৈরি করতে পারবে না — এটাই JWT-এর শক্তি।
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11: Refresh Token -->
+    <div class="slide" id="s11">
+      <div class="s-title fu">Refresh Token <span class="g-rose-cyan">কৌশল</span></div>
+      <div class="s-desc fu d1">Access Token ছোট রাখুন — Refresh Token দিয়ে নবায়ন করুন, বারবার লগইন লাগবে না</div>
+      <div class="g32 fu d2" style="max-width:880px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:9px" id="rfWrap">
+          <div class="rf-step" id="rf1"><div class="step-n">১</div><div class="step-text"><strong>Login সফল হলে</strong> সার্ভার দুটো টোকেন দেয়: <span style="color:var(--cyan)">Access Token (১৫ মিনিট)</span> এবং <span style="color:var(--lime)">Refresh Token (৭ দিন)।</span></div></div>
+          <div class="rf-step" id="rf2"><div class="step-n">২</div><div class="step-text"><strong>API Call করতে</strong> Header-এ Access Token পাঠান। সার্ভার validate করে response দেয়।</div></div>
+          <div class="rf-step" id="rf3"><div class="step-n">৩</div><div class="step-text"><strong>Access Token শেষ হলে</strong> Refresh Token পাঠান। সার্ভার নতুন Access Token দেয় — কোনো ঝামেলা নেই।</div></div>
+          <div class="rf-step" id="rf4"><div class="step-n">৪</div><div class="step-text"><strong>Logout করলে</strong> Refresh Token DB থেকে মুছে দিন — সব শেষ, আর কোনো নতুন Token পাওয়া যাবে না।</div></div>
+        </div>
+        <div class="glass" style="padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div class="tag"><i class="fa-solid fa-star"></i> কেন এই পদ্ধতি?</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:flex-start;gap:9px;font-size:0.78rem"><i class="fa-solid fa-shield-halved" style="color:var(--lime);flex-shrink:0;margin-top:2px"></i><span style="color:var(--muted)">Access Token চুরি হলেও মাত্র ১৫ মিনিট ক্ষতি।</span></div>
+            <div style="display:flex;align-items:flex-start;gap:9px;font-size:0.78rem"><i class="fa-solid fa-rotate" style="color:var(--cyan);flex-shrink:0;margin-top:2px"></i><span style="color:var(--muted)">Refresh Token DB-তে থাকায় যেকোনো সময় বাতিল করা যায়।</span></div>
+            <div style="display:flex;align-items:flex-start;gap:9px;font-size:0.78rem"><i class="fa-solid fa-face-smile" style="color:var(--amber);flex-shrink:0;margin-top:2px"></i><span style="color:var(--muted)">ইউজার বারবার লগইন না করেও কাজ করতে পারে।</span></div>
+          </div>
+          <div class="code" style="font-size:0.68rem;padding:11px">
+<span class="cc">// Refresh endpoint</span><br>
+[<span class="cf">HttpPost</span>(<span class="cs">"refresh"</span>)]<br>
+<span class="ck">public</span> <span class="cf">IActionResult</span> <span class="cf">Refresh</span>(RefreshDto dto) {<br>
+&nbsp;<span class="ck">var</span> rt = db.<span class="cf">Find</span>(dto.Token);<br>
+&nbsp;<span class="ck">if</span>(rt == <span class="ck">null</span> || rt.Expired) <span class="ck">return</span> <span class="cf">Unauthorized</span>();<br>
+&nbsp;<span class="ck">return</span> <span class="cf">Ok</span>(<span class="ck">new</span> { token = <span class="cf">NewAccessToken</span>(rt.User) });<br>
+}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S12: Security Tips -->
+    <div class="slide" id="s12">
+      <div class="s-title fu">নিরাপত্তার <span class="g-rose-cyan">নিয়মকানুন</span></div>
+      <div class="s-desc fu d1">এগুলো ঐচ্ছিক নয় — JWT নিরাপদে ব্যবহার করতে হলে এই নিয়মগুলো অবশ্যই মানতে হবে</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:860px;width:100%">
+        <div class="tip fu d1" id="tp1">
+          <i class="fa-solid fa-lock"></i>
+          <div><h4>HTTPS ছাড়া পাঠাবেন না</h4>
+          <p>HTTP-তে Token পাঠালে মাঝপথে কেউ চুরি করতে পারে। সবসময় HTTPS ব্যবহার করুন।</p></div>
+        </div>
+        <div class="tip fu d2" id="tp2">
+          <i class="fa-solid fa-vault"></i>
+          <div><h4>Secret Key সাবধানে রাখুন</h4>
+          <p>কোডের মধ্যে Key লিখবেন না। Environment Variable বা Secrets Manager ব্যবহার করুন।</p></div>
+        </div>
+        <div class="tip fu d3" id="tp3">
+          <i class="fa-solid fa-hourglass-half"></i>
+          <div><h4>মেয়াদ ছোট রাখুন</h4>
+          <p>Access Token ১৫ মিনিটের বেশি রাখার দরকার নেই। Refresh Token দিয়ে নবায়ন করুন।</p></div>
+        </div>
+        <div class="tip fu d4" id="tp4">
+          <i class="fa-solid fa-eye-slash"></i>
+          <div><h4>Payload-এ গোপন তথ্য নয়</h4>
+          <p>Payload যে কেউ ডিকোড করতে পারে। পাসওয়ার্ড, কার্ড নম্বর — কিছুই রাখবেন না।</p></div>
+        </div>
+        <div class="tip fu d1" id="tp5">
+          <i class="fa-solid fa-cookie-bite"></i>
+          <div><h4>httpOnly Cookie ব্যবহার করুন</h4>
+          <p>localStorage-এ রাখলে JavaScript দিয়ে চুরি হওয়ার ঝুঁকি থাকে। httpOnly Cookie নিরাপদ।</p></div>
+        </div>
+        <div class="tip fu d2" id="tp6">
+          <i class="fa-solid fa-ban"></i>
+          <div><h4>Algorithm নির্দিষ্ট করুন</h4>
+          <p>সার্ভারে সবসময় নির্দিষ্ট algorithm বলে দিন। "alg: none" বা অজানা algorithm reject করুন।</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S13: Advantages -->
+    <div class="slide" id="s13">
+      <div class="s-title fu">JWT কেন <span class="g-rose-cyan">এত জনপ্রিয়?</span></div>
+      <div class="s-desc fu d1">আধুনিক আর্কিটেকচারে JWT-এর কদর এত বেশি কেন — কারণগুলো একসাথে দেখি</div>
+      <div class="g3 fu d2" style="max-width:850px;width:100%">
+        <div class="adv" id="av1"><i class="fa-solid fa-server" style="color:var(--cyan)"></i><div class="adv-title">Stateless</div><p>সার্ভারে কিছু রাখতে হয় না — যেকোনো সার্ভার Request সামলাতে পারে।</p></div>
+        <div class="adv" id="av2"><i class="fa-solid fa-bolt" style="color:var(--amber)"></i><div class="adv-title">দ্রুত</div><p>DB lookup নেই — শুধু Signature যাচাই। অত্যন্ত কম সময় লাগে।</p></div>
+        <div class="adv" id="av3"><i class="fa-solid fa-expand" style="color:var(--lime)"></i><div class="adv-title">Scalable</div><p>হাজারটা সার্ভারে ছড়িয়ে দিতে পারবেন — কোনো Shared State লাগবে না।</p></div>
+        <div class="adv" id="av4"><i class="fa-solid fa-network-wired" style="color:#a78bfa"></i><div class="adv-title">Microservices</div><p>একই Token দিয়ে অনেকগুলো service-এ Auth করা যায়।</p></div>
+        <div class="adv" id="av5"><i class="fa-solid fa-mobile-screen" style="color:var(--rose)"></i><div class="adv-title">সব Platform-এ</div><p>Web, Android, iOS, Desktop — সব ক্লায়েন্টে একইভাবে কাজ করে।</p></div>
+        <div class="adv" id="av6"><i class="fa-solid fa-globe" style="color:var(--blue)"></i><div class="adv-title">Open Standard</div><p>RFC 7519 — Node.js, .NET, Python, Java সব জায়গায় ready support।</p></div>
+      </div>
+    </div>
+
+    <!-- S14: Outro -->
+    <div class="slide" id="s14">
+      <div class="s-title fu">আজকে যা <span class="g-rose-cyan">শিখলাম</span></div>
+      <div class="g32 fu d1" style="max-width:880px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div class="outro-item" id="oi1"><i class="fa-solid fa-circle-check"></i><span>JWT মানে JSON Web Token — তিন অংশ: Header, Payload আর Signature।</span></div>
+          <div class="outro-item" id="oi2"><i class="fa-solid fa-circle-check"></i><span>Stateless হওয়ায় সার্ভারে কোনো session রাখতে হয় না — দ্রুত এবং scalable।</span></div>
+          <div class="outro-item" id="oi3"><i class="fa-solid fa-circle-check"></i><span>Signature HMAC-SHA256 দিয়ে তৈরি — Payload পাল্টালে সাথে সাথে ধরা পড়ে।</span></div>
+          <div class="outro-item" id="oi4"><i class="fa-solid fa-circle-check"></i><span>Payload এনক্রিপ্টেড নয় — সংবেদনশীল তথ্য কখনো রাখবেন না।</span></div>
+          <div class="outro-item" id="oi5"><i class="fa-solid fa-circle-check"></i><span>Access Token (ছোট) + Refresh Token — সেরা নিরাপত্তা কৌশল।</span></div>
+          <div class="outro-item" id="oi6"><i class="fa-solid fa-circle-check"></i><span>HTTPS + শক্তিশালী Secret Key + ছোট মেয়াদ = নিরাপদ JWT।</span></div>
+        </div>
+        <div class="outro-cta">
+          <i class="fa-brands fa-youtube"></i>
+          <div style="font-size:0.95rem;font-weight:700">পরের পর্বে</div>
+          <div style="font-size:0.8rem;color:var(--muted);line-height:1.55;text-align:center">
+            ASP.NET Core-এ সম্পূর্ণ JWT Authentication System হাতে-কলমে কোড করে দেখাবো — Registration, Login, Protected Routes সব কিছু!
+          </div>
+          <button class="restart-btn" onclick="goTo(0)">
+            <i class="fa-solid fa-rotate-left"></i> শুরু থেকে দেখুন
+          </button>
+          <div style="font-size:0.72rem;color:var(--muted)">ভালো লাগলে <strong style="color:var(--rose)">Like</strong> ও <strong style="color:var(--cyan)">Subscribe</strong> করুন ✨</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- narration hidden from audience — visible in presenter.html only -->
+    <div id="narration" style="display:none"></div>
+
+    <!-- Bottom indicators -->
+    <div class="slide-indicator" id="slideInd">1 / 14</div>
+
+  </div>
+
+  <!-- ─────────── SIDEBAR ─────────── -->
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-header-top">
+        <div class="sb-logo">
+          <div class="sb-badge">JWT</div>
+          <span>Masterclass</span>
+        </div>
+        <span class="sb-progress-text" id="sbProgText">0 / 14</span>
+      </div>
+      <div class="progress-bar-thin">
+        <div class="progress-bar-fill" id="sbProgress"></div>
+      </div>
+    </div>
+
+    <div class="sb-title"><i class="fa-solid fa-list-ul"></i> অধ্যায়সমূহ</div>
+
+    <div class="ch-list" id="chList">
+      <!-- JS generated -->
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ── particle background ── */
+(function(){
+  const C=document.getElementById('bgCanvas');
+  const X=C.getContext('2d');
+  const COLS=['#e8175d','#00d4f0','#2ddc6a','#8b5cf6','#f0a500'];
+  let P=[];
+  function resize(){ C.width=window.innerWidth; C.height=window.innerHeight; }
+  function Pt(){ this.x=Math.random()*C.width; this.y=Math.random()*C.height; this.r=Math.random()*1.4+.3; this.vx=(Math.random()-.5)*.25; this.vy=(Math.random()-.5)*.25; this.col=COLS[0|Math.random()*COLS.length]; this.a=Math.random()*.45+.1; }
+  function init(){ resize(); P=Array.from({length:110},()=>new Pt()); }
+  function draw(){ X.clearRect(0,0,C.width,C.height); P.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>C.width)p.vx*=-1; if(p.y<0||p.y>C.height)p.vy*=-1; X.beginPath(); X.arc(p.x,p.y,p.r,0,Math.PI*2); X.fillStyle=p.col; X.globalAlpha=p.a; X.fill(); }); X.globalAlpha=1; requestAnimationFrame(draw); }
+  window.addEventListener('resize',resize); init(); draw();
+})();
+
+/* ── slides / chapters data ── */
+const SLIDES = [
+  { id:1, ch:'পরিচিতি', narration:'আজকের JWT টিউটোরিয়ালে আপনাকে স্বাগতম! JWT মানে JSON Web Token — আধুনিক ওয়েব অ্যাপের নিরাপত্তার মেরুদণ্ড। আজ শুরু থেকে শেষ পর্যন্ত সব শিখব।' },
+  { id:2, ch:'Authentication বনাম Authorization', narration:'"Authentication" মানে আপনার পরিচয় প্রমাণ করা — আপনি কে? আর "Authorization" মানে আপনি কী করতে পারবেন। দুটো আলাদা ধারণা, কিন্তু JWT দুটোতেই ভূমিকা রাখে।' },
+  { id:3, ch:'Session বনাম Token', narration:'পুরনো পদ্ধতিতে সার্ভারকে প্রতিটি রিকোয়েস্টে ডাটাবেজে session খুঁজতে হতো। JWT-এ সার্ভার কিছুই মনে রাখে না — Token নিজেই সব তথ্য বহন করে। এটাই Stateless।' },
+  { id:4, ch:'JWT কী? — RFC 7519', narration:'JWT হলো একটি open standard। এটি self-contained — ভেতরেই সব তথ্য আছে। এটি tamper-proof — কেউ গোপনে পরিবর্তন করতে পারবে না। এবং এটি সর্বজনীন — সব platform-এ কাজ করে।' },
+  { id:5, ch:'JWT-এর গঠন (Anatomy)', narration:'JWT-এর তিনটি অংশ: গোলাপী Header-এ থাকে algorithm, নীল Payload-এ থাকে ইউজারের তথ্য, আর সবুজ Signature নিশ্চিত করে কেউ টোকেন পরিবর্তন করেনি। Token-এর অংশে মাউস রাখলে বিস্তারিত দেখবেন।' },
+  { id:6, ch:'Claims বিস্তারিত', narration:'Payload-এর ভেতরের তথ্যগুলোকে Claims বলে। "exp" claim সবচেয়ে জরুরি — এটা না থাকলে টোকেন কখনো expire হবে না। মনে রাখবেন, Payload যে কেউ দেখতে পারে — তাই গোপন তথ্য এখানে রাখবেন না।' },
+  { id:7, ch:'Signature তৈরির রহস্য', narration:'Signature তৈরি হয় তিনটি জিনিস মিলিয়ে: Header, Payload আর Server-এর Secret Key। এই তিনটি HMAC-SHA256 দিয়ে প্রক্রিয়া করলে একটি unique fingerprint তৈরি হয়। Secret Key না জানলে কেউ এটা নকল করতে পারবে না।' },
+  { id:8, ch:'Authentication Lifecycle', narration:'লগইন করলে সার্ভার ডাটাবেজে ইউজার যাচাই করে Token দেয়। Client সেটা রেখে দেয়। পরের Request-এ Header-এ Token পাঠায়। সার্ভার Signature দেখে — মিললে ডেটা দেয়, না মিললে 401 Unauthorized।' },
+  { id:9, ch:'ASP.NET Core Code', narration:'কোডে দেখুন — Login API-তে Claims তৈরি করে SymmetricSecurityKey দিয়ে JwtSecurityToken বানানো হয়। Program.cs-এ Middleware configure করা হয়। Controller-এ [Authorize] লিখলেই JWT ছাড়া কেউ ঢুকতে পারবে না।' },
+  { id:10, ch:'Live Sandbox — টেম্পার টেস্ট', narration:'এখন নিজে পরীক্ষা করুন! বাম দিকে "role": "user" বদলে "admin" করুন। দেখবেন সার্ভারের হিসাব করা Signature আর মূল Signature মিলবে না — কারণ Secret Key ছাড়া সঠিক Signature তৈরি অসম্ভব।' },
+  { id:11, ch:'Refresh Token কৌশল', narration:'Access Token ছোট রাখুন — চুরি হলেও ১৫ মিনিটের বেশি ক্ষতি নেই। Refresh Token (৭ দিন) দিয়ে নতুন Access Token নিন। Logout-এ Refresh Token মুছলেই সব শেষ — ইউজারকে আবার লগইন করতে হবে।' },
+  { id:12, ch:'নিরাপত্তার নিয়মকানুন', narration:'এই ছয়টি নিয়ম মানা বাধ্যতামূলক: HTTPS ব্যবহার, Secret Key Environment Variable-এ রাখা, ছোট মেয়াদ, Payload-এ গোপন তথ্য নয়, httpOnly Cookie আর নির্দিষ্ট algorithm। এগুলো ছাড়া JWT নিরাপদ নয়।' },
+  { id:13, ch:'JWT-এর সুবিধাসমূহ', narration:'JWT এত জনপ্রিয় কারণ এটা Stateless, দ্রুত, scalable, microservices-friendly, সব platform-এ চলে এবং open standard। আধুনিক architecture-এর জন্য এটা একদম সঠিক পছন্দ।' },
+  { id:14, ch:'সারাংশ ও বিদায়', narration:'আজকে JWT-এর A থেকে Z সব শিখলাম। পরের পর্বে ASP.NET Core-এ পুরো JWT Authentication System হাতে-কলমে বানাবো। ভালো লাগলে Like ও Subscribe করুন — ধন্যবাদ!' },
+];
+
+let cur = 0;
+const total = SLIDES.length;
+
+/* ── build chapter list ── */
+function buildChapters(){
+  const wrap = document.getElementById('chList');
+  wrap.innerHTML = '';
+  SLIDES.forEach((sl, i) => {
+    const d = document.createElement('div');
+    d.className = 'ch-item' + (i===0?' active':'');
+    d.id = 'ci-'+i;
+    d.onclick = () => goTo(i);
+    d.innerHTML = `<div class="ch-num">${i+1}</div><div class="ch-name">${sl.ch}</div>`;
+    wrap.appendChild(d);
+  });
+}
+
+/* ── BroadcastChannel — presenter ↔ audience sync ── */
+const BC = new BroadcastChannel('jwt_presentation');
+BC.onmessage = (e) => {
+  if(e.data.type === 'nav') goTo(e.data.idx, true);
+};
+
+/* ── navigate ── */
+function goTo(idx, fromBC=false){
+  if(idx<0 || idx>=total) return;
+  const prev = document.getElementById('s'+(cur+1));
+  if(prev){ prev.classList.remove('active'); }
+  cur = idx;
+  const next = document.getElementById('s'+(cur+1));
+  if(next){ next.classList.add('active'); }
+  syncSidebar();
+  syncNarration();
+  syncIndicator();
+  onSlideEnter(cur+1);
+  // presenter window-এ broadcast করো
+  if(!fromBC) BC.postMessage({ type: 'nav', idx: cur, narration: SLIDES[cur].narration, chapter: SLIDES[cur].ch, next: SLIDES[cur+1]?.ch||'' });
+}
+
+function syncSidebar(){
+  document.querySelectorAll('.ch-item').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i===cur) el.classList.add('active');
+    else if(i<cur) el.classList.add('done');
+  });
+  // Scroll active into view
+  const active = document.getElementById('ci-'+cur);
+  if(active) active.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // Progress
+  const pct = ((cur+1)/total)*100;
+  document.getElementById('sbProgress').style.width = pct+'%';
+  document.getElementById('sbProgText').textContent = (cur+1)+' / '+total;
+}
+
+function syncNarration(){
+  document.getElementById('narration').textContent = SLIDES[cur].narration;
+}
+
+function syncIndicator(){
+  document.getElementById('slideInd').textContent = (cur+1)+' / '+total;
+}
+
+/* ── keyboard — শুধু arrow key দিয়ে navigate হবে ── */
+document.addEventListener('keydown', e => {
+  if(['TEXTAREA','INPUT'].includes(e.target.tagName)) return;
+  if(e.key==='ArrowRight'){ e.preventDefault(); goTo(cur+1); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); goTo(cur-1); }
+  else if(e.key>='1'&&e.key<='9'){ goTo(parseInt(e.key)-1); }
+});
+
+/* ═══════════ ANIMATION ENGINE — প্রতিটি স্লাইডে presenter-style demo ═══════════ */
+let AT = []; // active timers
+function ct(){ AT.forEach(t=>clearTimeout(t)); AT=[]; }
+function aft(fn, ms){ const t=setTimeout(fn,ms); AT.push(t); return t; }
+function pulse(el, cls, ms=600){ if(!el) return; el.classList.add(cls); aft(()=>el.classList.remove(cls), ms); }
+
+function onSlideEnter(id){
+  ct();
+  const fns = {
+    1:animS1, 2:animS2, 3:animS3, 4:animS4,
+    5:animS5, 6:animS6, 7:animS7, 8:animS8,
+    9:animS9, 10:animS10, 11:animS11, 12:animS12,
+    13:animS13, 14:animS14
+  };
+  if(fns[id]) fns[id]();
+}
+
+/* ── SLIDE 1: Hero ── দর্শকদের সাথে পরিচয় */
+function animS1(){
+  const ring = document.querySelector('.jwt-ring');
+  const title = document.querySelector('.hero-title');
+  const sub = document.querySelector('.hero-sub');
+  const tags = document.querySelectorAll('.htag');
+  // Ring glow grows
+  aft(()=>{ if(ring) ring.style.filter='drop-shadow(0 0 20px rgba(0,212,240,0.5))'; }, 300);
+  // Title highlights
+  aft(()=>{ if(title) title.style.textShadow='0 0 40px rgba(0,212,240,0.15)'; }, 700);
+  // Tags appear one by one
+  tags.forEach((t,i)=>{ t.style.opacity='0'; t.style.transform='translateY(10px)'; aft(()=>{ t.style.transition='all .4s ease'; t.style.opacity='1'; t.style.transform='translateY(0)'; }, 900+i*180); });
+}
+
+/* ── SLIDE 2: Auth vs Authz ── দুটো আলাদা ধারণা দেখানো */
+function animS2(){
+  const cards = document.querySelectorAll('#s2 .card');
+  const infoBox = document.querySelector('#s2 .glass');
+  if(cards[0]) cards[0].classList.remove('hl-rose','hl-cyan');
+  if(cards[1]) cards[1].classList.remove('hl-rose','hl-cyan');
+  // প্রথমে Authentication কার্ড হাইলাইট
+  aft(()=>{ if(cards[0]){ cards[0].classList.add('hl-rose'); cards[0].style.transform='scale(1.02)'; } }, 400);
+  // Authentication এর ভেতরে bold text জ্বলে ওঠে
+  aft(()=>{ const el=cards[0]?.querySelector('strong'); if(el){ el.style.transition='all .3s'; el.style.textShadow='0 0 12px rgba(232,23,93,0.6)'; el.style.fontSize='1.05em'; } }, 800);
+  // Authorization কার্ড হাইলাইট
+  aft(()=>{ if(cards[0]) cards[0].style.transform='scale(1)'; if(cards[1]){ cards[1].classList.add('hl-cyan'); cards[1].style.transform='scale(1.02)'; } const el=cards[0]?.querySelector('strong'); if(el){ el.style.textShadow='none'; el.style.fontSize='1em'; } }, 2200);
+  // Authorization bold text
+  aft(()=>{ const el=cards[1]?.querySelector('strong'); if(el){ el.style.transition='all .3s'; el.style.textShadow='0 0 12px rgba(0,212,240,0.6)'; el.style.fontSize='1.05em'; } }, 2600);
+  // দুটো একসাথে, নিচের info box
+  aft(()=>{ if(cards[1]) cards[1].style.transform='scale(1)'; if(infoBox){ infoBox.style.transition='all .4s'; infoBox.style.borderColor='rgba(240,165,0,0.35)'; infoBox.style.boxShadow='0 0 20px rgba(240,165,0,0.1)'; } const el=cards[1]?.querySelector('strong'); if(el){ el.style.textShadow='none'; el.style.fontSize='1em'; } }, 4000);
+}
+
+/* ── SLIDE 3: Session vs Token ── সমস্যা তারপর সমাধান */
+function animS3(){
+  const fill=document.getElementById('loadFill');
+  const pill=document.getElementById('dbPill');
+  const okp=document.getElementById('okPill');
+  const chk=document.getElementById('checkShow');
+  const prev=document.getElementById('tokPrev');
+  const cmpS=document.getElementById('cmpS');
+  const snip=document.getElementById('dbSnippet');
+  // Reset
+  fill.style.transition='none'; fill.style.width='0%'; fill.style.background='#f87171';
+  pill.style.opacity='0'; okp.style.opacity='0';
+  chk.style.display='none'; prev.style.display='none';
+  // Session side — ডাটাবেজ ভরে যাচ্ছে
+  aft(()=>{ fill.style.transition='width 1.5s ease'; fill.style.width='55%'; }, 400);
+  aft(()=>{ cmpS.style.transition='all .3s'; cmpS.style.borderColor='rgba(248,113,113,0.4)'; snip.style.borderColor='rgba(248,113,113,.5)'; }, 1200);
+  aft(()=>{ fill.style.width='88%'; }, 1800);
+  aft(()=>{ pill.style.transition='opacity .3s'; pill.style.opacity='1'; cmpS.classList.add('shake'); }, 2400);
+  aft(()=>{ cmpS.classList.remove('shake'); }, 3200);
+  // Token side — সমাধান দেখানো
+  aft(()=>{ fill.style.transition='all .5s ease'; fill.style.width='12%'; fill.style.background='var(--lime)'; pill.style.opacity='0'; cmpS.style.borderColor='rgba(248,113,113,0.3)'; snip.style.borderColor='rgba(248,113,113,.2)'; }, 3600);
+  aft(()=>{ chk.style.display='block'; prev.style.display='block'; okp.style.transition='opacity .4s'; okp.style.opacity='1'; }, 4200);
+  // Token card glows
+  aft(()=>{ document.getElementById('cmpT')?.style.setProperty('border-color','rgba(45,220,106,0.4)'); }, 4500);
+}
+
+/* ── SLIDE 4: What is JWT ── তিনটি গুণ একে একে */
+function animS4(){
+  const cards = document.querySelectorAll('#s4 .card');
+  const tokenBox = document.querySelector('#s4 .code');
+  cards.forEach(c=>{ c.classList.remove('hl-cyan','hl-lime','hl-violet'); c.style.transform='scale(1)'; });
+  // Token string টাইপ হয়
+  aft(()=>{ if(tokenBox){ tokenBox.style.transition='all .5s'; tokenBox.style.boxShadow='0 0 20px rgba(0,212,240,0.1)'; tokenBox.style.borderColor='rgba(0,212,240,0.25)'; } }, 400);
+  // Self-Contained
+  aft(()=>{ if(cards[0]){ cards[0].classList.add('hl-cyan'); cards[0].style.transform='translateY(-4px) scale(1.02)'; } }, 1200);
+  aft(()=>{ if(cards[0]){ cards[0].style.transform='translateY(0) scale(1)'; } }, 2200);
+  // Tamper-Proof
+  aft(()=>{ if(cards[1]){ cards[1].classList.add('hl-lime'); cards[1].style.transform='translateY(-4px) scale(1.02)'; } }, 2500);
+  aft(()=>{ if(cards[1]){ cards[1].style.transform='translateY(0) scale(1)'; } }, 3500);
+  // Universal
+  aft(()=>{ if(cards[2]){ cards[2].classList.add('hl-violet'); cards[2].style.transform='translateY(-4px) scale(1.02)'; } }, 3800);
+  aft(()=>{ if(cards[2]){ cards[2].style.transform='translateY(0) scale(1)'; } }, 4800);
+}
+
+/* ── SLIDE 5: Anatomy ── তিনটি অংশ ক্রমে ক্রমে */
+function animS5(){
+  resetA();
+  // Header অংশ দেখানো
+  aft(()=>hlA('h'), 500);
+  // Payload অংশ দেখানো
+  aft(()=>hlA('p'), 2500);
+  // Signature অংশ দেখানো
+  aft(()=>hlA('s'), 4500);
+}
+
+/* ── SLIDE 6: Claims ── টেবিলের সারি একে একে আলোকিত */
+function animS6(){
+  const rows = document.querySelectorAll('#s6 .cl-table tbody tr');
+  const panel = document.querySelector('#s6 .glass');
+  rows.forEach(r=>{ r.style.background=''; r.style.transition=''; });
+  // সারিগুলো একে একে হাইলাইট
+  rows.forEach((row,i)=>{
+    aft(()=>{ row.style.transition='background .3s'; row.style.background='rgba(0,212,240,0.06)'; }, 400+i*350);
+    aft(()=>{ row.style.background=''; }, 900+i*350);
+  });
+  // "exp" সারি (index 3) বিশেষভাবে হাইলাইট
+  aft(()=>{ if(rows[3]){ rows[3].style.background='rgba(240,165,0,0.1)'; rows[3].style.outline='1px solid rgba(240,165,0,0.4)'; rows[3].style.borderRadius='4px'; } }, 2800);
+  aft(()=>{ if(panel){ panel.style.transition='all .4s'; panel.style.borderColor='rgba(240,165,0,0.35)'; panel.style.boxShadow='0 0 20px rgba(240,165,0,0.08)'; } }, 3400);
+}
+
+/* ── SLIDE 7: Signature Factory ── উপাদান থেকে Signature তৈরি */
+function animS7(){
+  const eng=document.getElementById('fEngine');
+  const out=document.getElementById('fOut');
+  const fb1=document.getElementById('fb1'),fb2=document.getElementById('fb2'),fb3=document.getElementById('fb3');
+  // Reset
+  [fb1,fb2,fb3].forEach(f=>{ if(f){ f.style.transition='none'; f.style.transform='translateX(0)'; f.style.opacity='0.4'; } });
+  eng.classList.remove('spinning'); out.classList.remove('show');
+  // Header ইনপুট জ্বলে ওঠে
+  aft(()=>{ if(fb1){ fb1.style.transition='all .4s'; fb1.style.opacity='1'; fb1.style.boxShadow='0 0 12px rgba(232,23,93,0.25)'; } }, 400);
+  // Payload জ্বলে ওঠে
+  aft(()=>{ if(fb2){ fb2.style.transition='all .4s'; fb2.style.opacity='1'; fb2.style.boxShadow='0 0 12px rgba(0,212,240,0.2)'; } }, 900);
+  // Secret Key জ্বলে ওঠে
+  aft(()=>{ if(fb3){ fb3.style.transition='all .4s'; fb3.style.opacity='1'; fb3.style.boxShadow='0 0 12px rgba(240,165,0,0.25)'; } }, 1400);
+  // সব একসাথে Engine-এ যায়
+  aft(()=>{ [fb1,fb2,fb3].forEach(f=>{ if(f){ f.style.transition='transform .6s cubic-bezier(.4,0,.2,1)'; f.style.transform='translateX(60px)'; } }); }, 2000);
+  // Engine চালু হয়
+  aft(()=>{ eng.classList.add('spinning'); }, 2700);
+  // Output প্রকাশ
+  aft(()=>{ out.classList.add('show'); }, 3800);
+}
+
+/* ── SLIDE 8: Lifecycle ── ধাপে ধাপে লগইন থেকে API */
+function animS8(){
+  const fns=['fn1','fn2','fn3','fn4'];
+  const fp=document.getElementById('fp');
+  const cap=document.getElementById('fCap');
+  fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  fp.style.opacity='0';
+  const steps=[
+    { nodes:['fn1'], cap:'ধাপ ১: ইউজার login করছে...', pkt:null },
+    { nodes:['fn1','fn2'], cap:'ধাপ ২: Credentials সার্ভারে যাচ্ছে', pkt:{bg:'var(--cyan)',col:'#000',ico:'envelope',l:'30%'} },
+    { nodes:['fn2','fn3'], cap:'ধাপ ৩: সার্ভার ডাটাবেজে ইউজার খুঁজছে', pkt:{bg:'var(--amber)',col:'#000',ico:'database',l:'55%'} },
+    { nodes:['fn2'], cap:'ধাপ ৪: পরিচয় নিশ্চিত — JWT Token তৈরি হচ্ছে', pkt:{bg:'var(--rose)',col:'#fff',ico:'key',l:'45%'} },
+    { nodes:['fn1','fn2'], cap:'ধাপ ৫: Client Token পেলো ও সংরক্ষণ করলো', pkt:{bg:'var(--lime)',col:'#000',ico:'save',l:'12%'} },
+    { nodes:['fn1','fn4'], cap:'ধাপ ৬: Token দিয়ে Protected API-তে Request', pkt:{bg:'var(--violet)',col:'#fff',ico:'shield-halved',l:'75%'} },
+    { nodes:['fn4'], cap:'ধাপ ৭: Signature যাচাই সফল — ডেটা পাঠানো হলো ✓', pkt:{bg:'var(--lime)',col:'#000',ico:'circle-check',l:'90%'} },
+  ];
+  steps.forEach((st,i)=>{
+    aft(()=>{
+      fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+      st.nodes.forEach(id=>document.getElementById(id)?.classList.add('on'));
+      cap.textContent = st.cap;
+      if(st.pkt){
+        fp.style.opacity='1'; fp.style.background=st.pkt.bg; fp.style.color=st.pkt.col;
+        fp.style.boxShadow='0 0 16px '+st.pkt.bg;
+        fp.innerHTML=`<i class="fa-solid fa-${st.pkt.ico}" style="font-size:.7rem"></i>`;
+        fp.style.left=st.pkt.l; fp.style.top='50%';
+      } else fp.style.opacity='0';
+    }, 300+i*1500);
+  });
+}
+
+/* ── SLIDE 9: Code ── কোড লাইন একে একে আসে */
+function animS9(){
+  const codeBlocks = document.querySelectorAll('#s9 .code');
+  codeBlocks.forEach(block=>{
+    const lines = block.innerHTML.split('<br>');
+    block.innerHTML = lines.map(l=>`<span class="cl" style="opacity:0;display:block;transform:translateX(-6px);transition:all .3s ease">${l}</span>`).join('');
+    block.querySelectorAll('.cl').forEach((line,i)=>{
+      aft(()=>{ line.style.opacity='1'; line.style.transform='translateX(0)'; }, 300+i*90);
+    });
+  });
+}
+
+/* ── SLIDE 10: Sandbox ── লাইভ tamper ডেমো */
+function animS10(){
+  const ta=document.getElementById('sbTa');
+  if(!ta) return;
+  // প্রথমে original payload দেখানো
+  const original=`{\n  "userId": "123",\n  "name": "Abir",\n  "role": "user",\n  "exp": 1752680000\n}`;
+  ta.value=original; runSandbox();
+  // তারপর role বদলে দেওয়া
+  aft(()=>{
+    ta.value=`{\n  "userId": "123",\n  "name": "Abir",\n  "role": "admin",\n  "exp": 1752680000\n}`;
+    ta.style.transition='border-color .3s';
+    ta.style.borderColor='rgba(248,113,113,0.6)';
+    runSandbox();
+  }, 2500);
+  // warning shake on status
+  aft(()=>{ const sb=document.getElementById('sbStatus'); if(sb){ sb.style.transform='scale(1.03)'; setTimeout(()=>sb.style.transform='',300); } }, 3000);
+  // reset করে দেওয়া
+  aft(()=>{ ta.value=original; ta.style.borderColor='rgba(255,255,255,.08)'; runSandbox(); }, 5500);
+}
+
+/* ── SLIDE 11: Refresh Token ── ধাপ একে একে */
+function animS11(){
+  const steps=['rf1','rf2','rf3','rf4'];
+  steps.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  steps.forEach((id,i)=>{
+    aft(()=>document.getElementById(id)?.classList.add('on'), 500+i*1200);
+  });
+}
+
+/* ── SLIDE 12: Security Tips ── টিপস একে একে হাইলাইট */
+function animS12(){
+  const tips=['tp1','tp2','tp3','tp4','tp5','tp6'];
+  tips.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  tips.forEach((id,i)=>{
+    aft(()=>document.getElementById(id)?.classList.add('on'), 400+i*800);
+  });
+}
+
+/* ── SLIDE 13: Advantages ── কার্ড একে একে উঠে আসে */
+function animS13(){
+  const avs=['av1','av2','av3','av4','av5','av6'];
+  avs.forEach(id=>{ const el=document.getElementById(id); if(el){ el.classList.remove('on'); el.style.opacity='0'; el.style.transform='translateY(16px)'; } });
+  avs.forEach((id,i)=>{
+    aft(()=>{
+      const el=document.getElementById(id);
+      if(el){ el.style.transition='all .45s ease'; el.style.opacity='1'; el.style.transform='translateY(0)'; el.classList.add('on'); }
+    }, 200+i*280);
+    aft(()=>document.getElementById(id)?.classList.remove('on'), 1400+i*280);
+  });
+}
+
+/* ── SLIDE 14: Summary ── পয়েন্ট একে একে চেক হয় */
+function animS14(){
+  const items=['oi1','oi2','oi3','oi4','oi5','oi6'];
+  items.forEach(id=>document.getElementById(id)?.classList.remove('show'));
+  items.forEach((id,i)=>aft(()=>document.getElementById(id)?.classList.add('show'), 300+i*380));
+}
+
+/* ═══════════ ANATOMY HIGHLIGHT ═══════════ */
+function resetA(){
+  document.querySelectorAll('.anat-card').forEach(c=>c.className='anat-card');
+  document.getElementById('th')?.classList.remove('hl');
+  document.getElementById('tp')?.classList.remove('hl');
+  document.getElementById('ts')?.classList.remove('hl');
+}
+function hlA(p){
+  resetA();
+  if(p==='h'){ document.getElementById('ah')?.classList.add('a-rose'); document.getElementById('th')?.classList.add('hl'); }
+  if(p==='p'){ document.getElementById('ap')?.classList.add('a-cyan'); document.getElementById('tp')?.classList.add('hl'); }
+  if(p==='s'){ document.getElementById('as')?.classList.add('a-lime'); document.getElementById('ts')?.classList.add('hl'); }
+}
+
+/* ═══════════ SANDBOX ═══════════ */
+function b64u(s){ try{ return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }catch(e){ return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); } }
+function hash(h,p,k){ const c=h+'.'+p+'.'+k; let v=0; for(let i=0;i<c.length;i++){ v=((v<<5)-v)+c.charCodeAt(i); v=v&v; } const r=Math.abs(v).toString(16).padEnd(10,'a')+Math.abs(v*31).toString(16).padEnd(10,'b')+Math.abs(v*7).toString(16).padEnd(10,'c'); return b64u(r).substring(0,43); }
+
+const origP={userId:'123',name:'Abir',role:'user',exp:1752680000};
+const SK='my-super-secret-256bit-key-2024';
+const oH=b64u(JSON.stringify({alg:'HS256',typ:'JWT'}));
+const oP=b64u(JSON.stringify(origP));
+const oSig=hash(oH,oP,SK);
+
+function runSandbox(){
+  const ta=document.getElementById('sbTa');
+  const sbO=document.getElementById('sbOrig'),sbC=document.getElementById('sbCalc');
+  const sbSt=document.getElementById('sbStatus'),sbI=document.getElementById('sbIcon'),sbT=document.getElementById('sbText');
+  if(!ta) return;
+  let parsed; try{ parsed=JSON.parse(ta.value); ta.style.borderColor='rgba(255,255,255,.08)'; }
+  catch(e){ ta.style.borderColor='#f87171'; return; }
+  const newP=b64u(JSON.stringify(parsed));
+  const newSig=hash(oH,newP,SK);
+  sbO.textContent=oSig.substring(0,22)+'...';
+  sbC.textContent=newSig.substring(0,22)+'...';
+  document.getElementById('fSigVal').textContent=oSig.substring(0,28)+'...';
+  if(oSig===newSig){
+    sbSt.className='sb-status st-ok';
+    sbI.className='fa-solid fa-circle-check';
+    sbT.textContent='Signature মিলেছে — Access Granted (200 OK) ✓';
+  } else {
+    sbSt.className='sb-status st-err';
+    sbI.className='fa-solid fa-triangle-exclamation';
+    sbT.textContent='Signature মিলেনি — Access Denied (401 Unauthorized) ✗';
+  }
+}
+
+/* ═══════════ INIT ═══════════ */
+buildChapters();
+syncNarration();
+syncIndicator();
+runSandbox();
+// প্রথম স্লাইডের animation শুরু
+aft(()=>onSlideEnter(1), 400);
+
+</script>
+</body>
+</html>

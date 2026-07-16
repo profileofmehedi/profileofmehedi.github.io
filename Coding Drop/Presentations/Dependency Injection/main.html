@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dependency Injection — সম্পূর্ণ গাইড (Interactive)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:       #020617; /* Very Dark Slate */
+  --surface:  #0f172a;
+  --surface2: #1e293b;
+  --border:   rgba(255,255,255,0.08);
+  --teal:     #14b8a6;
+  --coral:    #fb7185;
+  --indigo:   #6366f1;
+  --fuchsia:  #d946ef;
+  --gold:     #fbbf24;
+  --err:      #ef4444;
+  --text:     #f8fafc;
+  --muted:    #94a3b8;
+  --dim:      #1e293b;
+  --r:        16px;
+  --r-sm:     10px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; cursor:none; }
+
+body {
+  font-family: 'Outfit','Noto Sans Bengali', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width:4px }
+::-webkit-scrollbar-thumb { background:var(--dim); border-radius:4px }
+
+/* ── Custom Cursor ── */
+.cursor-dot {
+  position:fixed; top:0; left:0; width:12px; height:12px;
+  background:var(--teal); border-radius:50%;
+  transform:translate(-50%, -50%); z-index:9999;
+  pointer-events:none;
+  box-shadow:0 0 15px var(--teal);
+  transition:width .2s, height .2s, background .2s;
+}
+.cursor-outline {
+  position:fixed; top:0; left:0; width:40px; height:40px;
+  border:2px solid rgba(20,184,166,0.5); border-radius:50%;
+  transform:translate(-50%, -50%); z-index:9998;
+  pointer-events:none;
+  transition:transform 0.1s ease-out, width .2s, height .2s;
+}
+body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
+.hover-target:hover ~ .cursor-dot { width:4px; height:4px; }
+.hover-target:hover ~ .cursor-outline { width:60px; height:60px; border-color:var(--coral); background:rgba(251,113,133,0.05); }
+
+/* ── particle canvas ── */
+#bgCanvas {
+  position:fixed; inset:0; z-index:0;
+  pointer-events:none; opacity:0.35;
+}
+
+/* ── layout ── */
+.layout {
+  flex:1; display:flex; overflow:hidden;
+  position:relative; z-index:1;
+}
+
+/* ─────────── LEFT: SLIDE AREA ─────────── */
+.slide-area {
+  flex:1; position:relative; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+/* ── channel logo ── */
+.ch-logo-wrap {
+  position:absolute; top:20px; left:24px;
+  z-index:50; display:flex; align-items:center; gap:11px;
+  background:rgba(15,23,42,0.7);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:14px;
+  padding:8px 16px 8px 10px;
+  backdrop-filter:blur(16px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(20,184,166,0.08);
+  transition:all .3s ease;
+  cursor:none; /* Let custom cursor handle */
+}
+.ch-logo-wrap:hover {
+  border-color:rgba(20,184,166,0.4);
+  box-shadow:0 4px 24px rgba(0,0,0,0.5), 0 0 16px rgba(20,184,166,0.2);
+  transform:translateY(-2px) scale(1.02);
+}
+.ch-logo-img {
+  width:38px; height:38px; border-radius:9px;
+  object-fit:cover;
+  box-shadow:0 0 10px rgba(20,184,166,0.2);
+}
+.ch-logo-text { display:flex; flex-direction:column; gap:1px; }
+.ch-logo-name {
+  font-size:0.82rem; font-weight:800;
+  background:linear-gradient(135deg,#fff,rgba(255,255,255,0.7));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:-0.3px; line-height:1;
+}
+.ch-logo-sub { font-size:0.6rem; color:var(--muted); letter-spacing:0.5px; font-weight:500; }
+
+/* ── slide ── */
+.slide {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  padding:80px 70px 130px;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:scale(1.05) translateZ(-100px) rotateX(10deg);
+  transition:all .7s cubic-bezier(.23, 1, .32, 1);
+  transform-style:preserve-3d;
+  perspective:1000px;
+}
+.slide.active {
+  opacity:1; visibility:visible; pointer-events:auto;
+  transform:scale(1) translateZ(0) rotateX(0deg);
+}
+.slide.exit {
+  opacity:0; transform:scale(0.95) translateZ(-50px) rotateX(-5deg);
+}
+
+/* ── bottom narration strip ── */
+.narration {
+  position:absolute; bottom:0; left:0; right:0;
+  padding:16px 70px 20px;
+  background:linear-gradient(transparent, rgba(2,6,23,0.96) 40%);
+  z-index:20; pointer-events:none;
+}
+.narration-inner {
+  background:rgba(15,23,42,0.85);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;
+  padding:12px 22px;
+  font-size:0.95rem; line-height:1.6;
+  color:var(--text);
+  backdrop-filter:blur(12px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* ── slide number indicator ── */
+.slide-indicator {
+  position:absolute; bottom:22px; right:80px;
+  font-size:0.75rem; color:var(--muted);
+  z-index:21; letter-spacing:.5px;
+}
+
+/* ── nav hint ── */
+.nav-hint {
+  position:absolute; bottom:22px; left:70px;
+  font-size:0.72rem; color:var(--muted);
+  z-index:21; display:flex; align-items:center; gap:8px;
+}
+.nav-hint kbd {
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);
+  color:var(--text); padding:2px 7px; border-radius:5px;
+  font-size:0.65rem; font-family:'Fira Code',monospace;
+}
+
+/* ══════════════════════════════════════════
+   DESIGN COMPONENTS (shared across slides)
+══════════════════════════════════════════ */
+
+/* gradient text */
+.g-coral-fuchsia { background:linear-gradient(135deg,var(--coral),var(--fuchsia)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.g-teal-indigo { background:linear-gradient(135deg,var(--teal),var(--indigo)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.g-coral-teal { background:linear-gradient(135deg,var(--coral),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.g-gold-coral { background:linear-gradient(135deg,var(--gold),var(--coral)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+/* section tag */
+.tag {
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:0.68rem; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; color:var(--teal);
+  margin-bottom:10px;
+}
+.tag::before { content:''; width:20px; height:2px; background:var(--teal); border-radius:1px; box-shadow:0 0 8px var(--teal); }
+
+/* glass panel */
+.glass {
+  background:rgba(15,23,42,0.6);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--r);
+  backdrop-filter:blur(24px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.05);
+  position:relative; overflow:hidden;
+}
+.glass::before {
+  content:''; position:absolute; top:0; left:-100%; width:50%; height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform:skewX(-20deg);
+  animation:shine 6s infinite;
+}
+@keyframes shine {
+  0% { left:-100%; }
+  20% { left:200%; }
+  100% { left:200%; }
+}
+
+/* slide main heading */
+.s-title {
+  font-size:2.1rem; font-weight:800;
+  line-height:1.2; text-align:center;
+  margin-bottom:8px;
+}
+.s-desc {
+  font-size:0.95rem; color:var(--muted);
+  text-align:center; line-height:1.55;
+  margin-bottom:30px; max-width:650px;
+}
+
+/* interactive card (3d tilt effect setup) */
+.card {
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:var(--r-sm);
+  padding:24px 20px;
+  transition:all .3s ease;
+  transform-style:preserve-3d;
+  cursor:none; /* use custom cursor */
+}
+.card:hover {
+  background:rgba(255,255,255,0.05);
+  box-shadow:0 15px 30px rgba(0,0,0,0.3);
+}
+
+.c-icon {
+  width:46px; height:46px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.3rem; margin-bottom:16px;
+  transition:transform .3s ease;
+}
+.card:hover .c-icon { transform:translateZ(20px) scale(1.1); }
+.ci-coral { background:rgba(251,113,133,0.12); color:var(--coral); }
+.ci-teal { background:rgba(20,184,166,0.1); color:var(--teal); }
+.ci-indigo { background:rgba(99,102,241,0.1); color:var(--indigo); }
+.ci-gold { background:rgba(251,191,36,0.1); color:var(--gold); }
+.ci-fuchsia { background:rgba(217,70,239,0.12); color:var(--fuchsia); }
+
+.c-title { font-size:1.05rem; font-weight:700; margin-bottom:8px; transition:transform .3s ease; }
+.card:hover .c-title { transform:translateZ(10px); }
+.c-body { font-size:0.85rem; color:var(--muted); line-height:1.55; transition:transform .3s ease; }
+.card:hover .c-body { transform:translateZ(5px); }
+
+/* highlight card variants */
+.card.hl-coral { border-color:rgba(251,113,133,0.4); background:rgba(251,113,133,0.05); box-shadow:0 0 30px rgba(251,113,133,0.15); }
+.card.hl-teal { border-color:rgba(20,184,166,0.4); background:rgba(20,184,166,0.05); box-shadow:0 0 30px rgba(20,184,166,0.15); }
+.card.hl-indigo { border-color:rgba(99,102,241,0.4); background:rgba(99,102,241,0.05); box-shadow:0 0 30px rgba(99,102,241,0.15); }
+.card.hl-fuchsia { border-color:rgba(217,70,239,0.4); background:rgba(217,70,239,0.05); box-shadow:0 0 30px rgba(217,70,239,0.15); }
+
+/* grids */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; width:100%; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; width:100%; }
+
+/* interactive code block */
+.code {
+  background:#040812;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--r-sm);
+  padding:20px;
+  font-family:'Fira Code',monospace;
+  font-size:0.8rem; line-height:1.8;
+  color:#94a3b8; overflow-x:auto;
+  position:relative;
+  box-shadow:inset 0 0 20px rgba(0,0,0,0.5);
+}
+.code::after {
+  content:'</>'; position:absolute; top:10px; right:15px;
+  font-size:1.2rem; font-weight:700; color:rgba(255,255,255,0.05);
+}
+.ck { color:#e879f9; }
+.cs { color:#6ee7b7; }
+.cc { color:#475569; font-style:italic; }
+.cf { color:var(--teal); }
+.cn { color:var(--gold); }
+.cp { color:var(--coral); }
+
+/* ══════════════════════════════════════════
+   SLIDE 1 — HERO
+══════════════════════════════════════════ */
+.hero-wrap { text-align:center; max-width:800px; width:100%; }
+.orbs { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.orb { position:absolute; border-radius:50%; filter:blur(90px); opacity:0.12; animation:float 10s ease-in-out infinite alternate; }
+.o1 { width:450px; height:450px; background:var(--coral); top:-150px; left:-100px; }
+.o2 { width:400px; height:400px; background:var(--teal); top:-100px; right:-80px; animation-delay:-3s; }
+.o3 { width:350px; height:350px; background:var(--indigo); bottom:-120px; left:25%; animation-delay:-6s; }
+@keyframes float { 100% { transform:translate(30px, 30px); } }
+
+.hero-visual {
+  position:relative; height:160px; display:flex; justify-content:center; align-items:center; margin-bottom:20px;
+}
+.hv-center {
+  width:80px; height:80px; background:var(--indigo); border-radius:20px;
+  display:flex; justify-content:center; align-items:center; font-size:2.5rem; color:#fff;
+  box-shadow:0 0 30px rgba(99,102,241,0.5); z-index:2;
+  animation:pulse-hv 2s infinite alternate;
+}
+@keyframes pulse-hv { 100% { transform:scale(1.05); box-shadow:0 0 50px rgba(99,102,241,0.8); } }
+.hv-orbit {
+  position:absolute; width:140px; height:140px; border:2px dashed rgba(20,184,166,0.5);
+  border-radius:50%; animation:spin 10s linear infinite;
+}
+.hv-orbit::before {
+  content:''; position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+  width:12px; height:12px; background:var(--teal); border-radius:50%; box-shadow:0 0 15px var(--teal);
+}
+.hv-orbit2 {
+  position:absolute; width:200px; height:200px; border:1px solid rgba(251,113,133,0.3);
+  border-radius:50%; animation:spin 15s linear infinite reverse;
+}
+.hv-orbit2::before, .hv-orbit2::after {
+  content:''; position:absolute; width:10px; height:10px; background:var(--coral);
+  border-radius:50%; box-shadow:0 0 15px var(--coral);
+}
+.hv-orbit2::before { top:20px; left:20px; }
+.hv-orbit2::after { bottom:20px; right:20px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.hero-title { font-size:3.2rem; font-weight:900; line-height:1.15; letter-spacing:-1.5px; margin-bottom:16px; }
+.hero-sub { font-size:1.1rem; color:var(--muted); line-height:1.6; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto; }
+.hero-tags { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+.htag {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
+  padding:8px 18px; border-radius:30px; font-size:0.8rem; font-weight:600; color:var(--muted);
+  display:flex; align-items:center; gap:8px; cursor:none; transition:all .3s;
+}
+.htag:hover { transform:translateY(-3px); background:rgba(255,255,255,0.1); }
+.htag.t-c i { color:var(--coral); }
+.htag.t-t i { color:var(--teal); }
+.htag.t-i i { color:var(--indigo); }
+.htag.t-g i { color:var(--gold); }
+.htag.t-f i { color:var(--fuchsia); }
+
+/* ══════════════════════════════════════════
+   FLOW DIAGRAM (SVG Path Animation)
+══════════════════════════════════════════ */
+.flow-scene {
+  display:flex; justify-content:space-between; align-items:center;
+  width:100%; position:relative; height:65%; padding:0 30px;
+}
+#svg-line {
+  position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;
+}
+.flow-path {
+  fill:none; stroke:rgba(255,255,255,0.1); stroke-width:3;
+}
+.flow-path-anim {
+  fill:none; stroke:var(--teal); stroke-width:4;
+  stroke-dasharray:1000; stroke-dashoffset:1000;
+  transition:stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+  filter:drop-shadow(0 0 8px var(--teal));
+}
+.fn {
+  z-index:1; width:20%; background:var(--surface);
+  border:1px solid rgba(255,255,255,0.06); border-radius:16px;
+  padding:20px 10px; text-align:center; transition:all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position:relative; cursor:none;
+}
+.fn:hover { transform:scale(1.05); border-color:rgba(255,255,255,0.2); }
+.fn.on {
+  background:rgba(20,184,166,0.08); border-color:rgba(20,184,166,0.5);
+  box-shadow:0 10px 30px rgba(20,184,166,0.2); transform:scale(1.1);
+}
+.fn.on.db-node {
+  background:rgba(251,113,133,0.08); border-color:rgba(251,113,133,0.5);
+  box-shadow:0 10px 30px rgba(251,113,133,0.2);
+}
+.fn i { font-size:2.2rem; margin-bottom:12px; display:block; color:var(--muted); transition:all .4s; }
+.fn.on i { color:var(--teal); text-shadow:0 0 15px rgba(20,184,166,0.6); transform:scale(1.2); }
+.fn.on.db-node i { color:var(--coral); text-shadow:0 0 15px rgba(251,113,133,0.6); }
+.fn-title { font-size:0.85rem; font-weight:700; margin-bottom:4px; }
+.fn-sub { font-size:0.65rem; color:var(--muted); }
+.flow-caption {
+  text-align:center; font-size:1rem; font-weight:700; color:var(--teal);
+  margin-top:20px; min-height:28px; transition:opacity .3s;
+}
+
+/* ══════════════════════════════════════════
+   SANDBOX (Lifetime Demo)
+══════════════════════════════════════════ */
+.sandbox {
+  display:flex; flex-direction:column; gap:20px;
+}
+.sb-controls {
+  display:flex; justify-content:center; gap:20px;
+}
+.sb-btn {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  color:var(--text); border-radius:12px; padding:12px 24px;
+  font-size:0.95rem; font-weight:700; cursor:none; display:flex; align-items:center; gap:10px;
+  transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sb-btn:hover { background:rgba(20,184,166,0.1); border-color:var(--teal); color:var(--teal); transform:translateY(-3px); box-shadow:0 10px 20px rgba(20,184,166,0.2); }
+.sb-btn:active { transform:translateY(0); }
+.sb-btn.clr:hover { background:rgba(248,113,113,0.1); border-color:var(--err); color:var(--err); box-shadow:0 10px 20px rgba(248,113,113,0.2); }
+
+.sb-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px;
+}
+.sb-col {
+  background:#040812; border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.sb-col-head {
+  padding:12px; text-align:center; font-weight:800; font-size:0.9rem;
+  border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02);
+}
+.sb-col.transient .sb-col-head { color:var(--teal); border-bottom-color:rgba(20,184,166,0.3); background:rgba(20,184,166,0.05); }
+.sb-col.scoped .sb-col-head { color:var(--coral); border-bottom-color:rgba(251,113,133,0.3); background:rgba(251,113,133,0.05); }
+.sb-col.singleton .sb-col-head { color:var(--indigo); border-bottom-color:rgba(99,102,241,0.3); background:rgba(99,102,241,0.05); }
+
+.sb-logs {
+  padding:15px; flex:1; min-height:220px; max-height:220px; overflow-y:auto;
+  display:flex; flex-direction:column; gap:10px;
+}
+.log-item {
+  background:rgba(255,255,255,0.03); border-radius:6px; padding:10px;
+  font-family:'Fira Code',monospace; font-size:0.7rem; color:var(--muted);
+  animation:popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-left:3px solid transparent;
+}
+@keyframes popIn {
+  0% { opacity:0; transform:scale(0.8) translateY(10px); }
+  100% { opacity:1; transform:scale(1) translateY(0); }
+}
+.log-val { color:#fff; display:block; margin-top:4px; font-weight:500; letter-spacing:0.5px; }
+
+/* Spinner */
+.spinner {
+  display:inline-block; width:16px; height:16px;
+  border:2px solid rgba(255,255,255,0.2); border-top-color:var(--teal);
+  border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px;
+}
+
+/* ══════════════════════════════════════════
+   COMPARISON (Interactive Switch)
+══════════════════════════════════════════ */
+.comp-wrap { display:flex; flex-direction:column; align-items:center; width:100%; }
+.comp-switch {
+  display:flex; background:rgba(255,255,255,0.05); border-radius:30px;
+  padding:5px; margin-bottom:25px; position:relative; cursor:none;
+}
+.comp-slider {
+  position:absolute; top:5px; bottom:5px; width:calc(50% - 5px);
+  background:var(--coral); border-radius:25px; z-index:0;
+  transition:all .4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.comp-switch.good .comp-slider { transform:translateX(100%); background:var(--indigo); }
+.comp-opt {
+  position:relative; z-index:1; padding:8px 30px; font-size:0.9rem; font-weight:700;
+  color:var(--text); transition:color .3s;
+}
+
+.comp-content { position:relative; width:100%; max-width:700px; height:280px; }
+.comp-box {
+  position:absolute; inset:0; border-radius:var(--r); padding:30px;
+  text-align:center; transition:all .5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.box-bad {
+  background:rgba(248,113,113,0.03); border:1px solid rgba(248,113,113,0.3);
+  transform:scale(1); opacity:1; z-index:2;
+}
+.box-good {
+  background:rgba(99,102,241,0.03); border:1px solid rgba(99,102,241,0.3);
+  transform:scale(0.9) translateY(20px); opacity:0; z-index:1; pointer-events:none;
+}
+.comp-switch.good ~ .comp-content .box-bad { transform:scale(0.9) translateY(-20px); opacity:0; pointer-events:none; }
+.comp-switch.good ~ .comp-content .box-good { transform:scale(1) translateY(0); opacity:1; pointer-events:auto; }
+
+/* ══════════════════════════════════════════
+   TIPS / ADV
+══════════════════════════════════════════ */
+.tip {
+  display:flex; align-items:flex-start; gap:16px;
+  background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);
+  border-radius:var(--r-sm); padding:20px; transition:all .3s;
+  cursor:none;
+}
+.tip:hover { background:rgba(255,255,255,0.04); transform:translateY(-3px); box-shadow:0 10px 20px rgba(0,0,0,0.2); border-color:rgba(255,255,255,0.1); }
+.tip.on {
+  background:rgba(251,113,133,0.05); border-color:rgba(251,113,133,0.3);
+  box-shadow:0 10px 30px rgba(251,113,133,0.15); transform:scale(1.02);
+}
+.tip i { font-size:1.6rem; color:var(--muted); flex-shrink:0; margin-top:2px; transition:color .3s; }
+.tip.on i { color:var(--coral); text-shadow:0 0 10px rgba(251,113,133,0.4); }
+.tip h4 { font-size:0.95rem; font-weight:700; margin-bottom:6px; color:var(--text); }
+.tip p { font-size:0.8rem; color:var(--muted); line-height:1.6; }
+
+.adv-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; width:100%; }
+.adv {
+  background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);
+  border-radius:var(--r-sm); padding:20px 16px; text-align:center;
+  transition:all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor:none; transform-style:preserve-3d;
+}
+.adv:hover { background:rgba(20,184,166,0.05); border-color:rgba(20,184,166,0.3); transform:translateY(-8px) scale(1.03); box-shadow:0 15px 30px rgba(0,0,0,0.2); }
+.adv.on { background:rgba(99,102,241,0.06); border-color:rgba(99,102,241,0.4); transform:scale(1.05); box-shadow:0 15px 35px rgba(99,102,241,0.2); }
+.adv i { font-size:2rem; margin-bottom:12px; display:block; color:var(--muted); transition:all .3s;}
+.adv:hover i { color:var(--teal); transform:translateZ(15px); }
+.adv.on i { color:var(--indigo); transform:translateZ(15px); text-shadow:0 0 15px rgba(99,102,241,0.5); }
+.adv-title { font-size:0.9rem; font-weight:800; margin-bottom:6px; transition:transform .3s; }
+.adv:hover .adv-title { transform:translateZ(10px); }
+.adv p { font-size:0.75rem; color:var(--muted); line-height:1.5; transition:transform .3s; }
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════ */
+.fu { opacity:0; transform:translateY(30px) scale(0.97); }
+.slide.active .fu { animation:fadeUpScale .65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.fu.d1 { animation-delay:.15s }
+.fu.d2 { animation-delay:.3s }
+.fu.d3 { animation-delay:.45s }
+.fu.d4 { animation-delay:.6s }
+.fu.d5 { animation-delay:.75s }
+@keyframes fadeUpScale { to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* Typing animation for code lines */
+.type-line { opacity:0; transform:translateX(-10px); display:block; }
+.type-line.show { opacity:1; transform:translateX(0); transition:all .3s ease; }
+</style>
+</head>
+<body class="hover-target">
+
+<div class="cursor-outline"></div>
+<div class="cursor-dot"></div>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="layout">
+
+  <!-- ─────────── SLIDE AREA ─────────── -->
+  <div class="slide-area">
+
+    <div class="ch-logo-wrap hover-target">
+      <img class="ch-logo-img" src="coding drop logo.png" alt="Coding Drop Logo">
+      <div class="ch-logo-text">
+        <div class="ch-logo-name">Coding Drop</div>
+        <div class="ch-logo-sub">DI Masterclass</div>
+      </div>
+    </div>
+
+    <!-- S1: Hero -->
+    <div class="slide active" id="s1">
+      <div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+      <div class="glass hero-wrap fu" style="padding:50px; text-align:center">
+        
+        <div class="hero-visual fu d1">
+          <div class="hv-orbit"></div>
+          <div class="hv-orbit2"></div>
+          <div class="hv-center"><i class="fa-solid fa-plug"></i></div>
+        </div>
+        
+        <div class="tag fu d2"><i class="fa-solid fa-graduation-cap"></i> পূর্ণাঙ্গ টিউটোরিয়াল</div>
+        <h1 class="hero-title fu d3">
+          <span class="g-coral-fuchsia">Dependency Injection</span><br>সম্পূর্ণ গাইড
+        </h1>
+        <p class="hero-sub fu d4">
+          সফটওয়্যার ইঞ্জিনিয়ারিং-এর অন্যতম গুরুত্বপূর্ণ কনসেপ্ট Dependency Injection (DI)।
+          এটি কোডকে মেইনটেইনেবল, টেস্টেবল এবং ফ্লেক্সিবল করার সবচেয়ে জনপ্রিয় ডিজাইন প্যাটার্ন।
+        </p>
+        <div class="hero-tags fu d5">
+          <div class="htag t-c hover-target"><i class="fa-solid fa-link-slash"></i> Loose Coupling</div>
+          <div class="htag t-t hover-target"><i class="fa-solid fa-box-open"></i> IoC Container</div>
+          <div class="htag t-i hover-target"><i class="fa-solid fa-hourglass-half"></i> Lifetimes</div>
+          <div class="htag t-g hover-target"><i class="fa-solid fa-vial"></i> Testability</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2: Tight vs Loose Coupling -->
+    <div class="slide" id="s2">
+      <div class="tag fu"><i class="fa-solid fa-scale-balanced"></i> কনসেপ্ট</div>
+      <h2 class="s-title fu d1">Tight Coupling বনাম Loose Coupling</h2>
+      <p class="s-desc fu d2">ইন্টারেক্টিভ সুইচে ক্লিক করে পার্থক্য দেখুন</p>
+      
+      <div class="comp-wrap fu d3">
+        <div class="comp-switch hover-target" id="cpSwitch" onclick="toggleCoupling()">
+          <div class="comp-slider"></div>
+          <div class="comp-opt">Tight Coupling</div>
+          <div class="comp-opt">Loose Coupling</div>
+        </div>
+        
+        <div class="comp-content">
+          <div class="comp-box box-bad">
+            <div style="background:rgba(248,113,113,0.12); color:#f87171; padding:5px 12px; border-radius:6px; font-weight:700; font-size:0.8rem; margin-bottom:15px; display:inline-block;"><i class="fa-solid fa-lock"></i> সমস্যা</div>
+            <p style="font-size:0.9rem; color:var(--muted); margin-bottom:20px;">ক্লাস সরাসরি 'new' কীওয়ার্ড দিয়ে ডিপেনডেন্সি তৈরি করে। এটি রিজিড এবং টেস্ট করা কঠিন।</p>
+            <div class="code" style="text-align:left; width:100%;">
+              <span class="ck">public class</span> <span class="cn">Car</span><br>
+              {<br>
+              &nbsp;&nbsp;<span class="ck">private</span> <span class="cn">Engine</span> _engine;<br><br>
+              &nbsp;&nbsp;<span class="ck">public</span> <span class="cf">Car</span>()<br>
+              &nbsp;&nbsp;{<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="cc">// ❌ Tight coupling!</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;_engine = <span class="ck">new</span> <span class="cn">Engine</span>();<br>
+              &nbsp;&nbsp;}<br>
+              }
+            </div>
+          </div>
+          
+          <div class="comp-box box-good">
+            <div style="background:rgba(99,102,241,0.12); color:var(--indigo); padding:5px 12px; border-radius:6px; font-weight:700; font-size:0.8rem; margin-bottom:15px; display:inline-block;"><i class="fa-solid fa-link-slash"></i> সমাধান</div>
+            <p style="font-size:0.9rem; color:var(--muted); margin-bottom:20px;">ক্লাস ইন্টারফেস ব্যবহার করে, আর ডিপেনডেন্সি বাইরে থেকে ইনজেক্ট করা হয়।</p>
+            <div class="code" style="text-align:left; width:100%;">
+              <span class="ck">public class</span> <span class="cn">Car</span><br>
+              {<br>
+              &nbsp;&nbsp;<span class="ck">private readonly</span> <span class="cn">IEngine</span> _engine;<br><br>
+              &nbsp;&nbsp;<span class="ck">public</span> <span class="cf">Car</span>(<span class="cn">IEngine</span> engine)<br>
+              &nbsp;&nbsp;{<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="cc">// ✅ Loose coupling!</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;_engine = engine;<br>
+              &nbsp;&nbsp;}<br>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3: What is DI? -->
+    <div class="slide" id="s3">
+      <div class="tag fu"><i class="fa-solid fa-question"></i> মূল ধারণা</div>
+      <h2 class="s-title fu d1">Dependency Injection কী?</h2>
+      <p class="s-desc fu d2">নিজের প্রয়োজনীয় জিনিস নিজে তৈরি না করে, অন্যের কাছ থেকে চেয়ে নেওয়াকেই DI বলে।</p>
+      
+      <div class="glass fu d3" style="padding:40px; margin-top:10px; text-align:center; width:100%; max-width:850px;">
+        <div style="display:flex; justify-content:space-around; align-items:center; margin-bottom:30px;">
+          <div class="hover-target" style="text-align:center; transition:transform .3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            <div style="width:80px;height:80px;background:rgba(20,184,166,0.1);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:2.5rem;color:var(--teal);box-shadow:0 10px 20px rgba(20,184,166,0.2);">
+              <i class="fa-solid fa-car"></i>
+            </div>
+            <div style="font-weight:800; font-size:1.1rem; color:var(--text);">Client</div>
+            <div style="font-size:0.8rem; color:var(--muted);">(Car)</div>
+          </div>
+          
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+            <i class="fa-solid fa-arrow-left-long" style="font-size:2rem; color:var(--muted); animation:slideLeft 1.5s infinite;"></i>
+            <span style="font-size:0.7rem;font-weight:700;color:var(--coral)">INJECTS</span>
+          </div>
+          
+          <div class="hover-target" style="text-align:center; background:rgba(251,113,133,0.05); border:1px dashed rgba(251,113,133,0.5); padding:25px 30px; border-radius:20px; transition:transform .3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="fa-solid fa-box-open" style="font-size:3rem; color:var(--coral); margin-bottom:15px; display:block; filter:drop-shadow(0 0 10px rgba(251,113,133,0.5));"></i>
+            <div style="font-weight:800; font-size:1.1rem; color:var(--text);">Injector</div>
+            <div style="font-size:0.8rem; color:var(--muted);">(IoC Container)</div>
+          </div>
+          
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+            <i class="fa-solid fa-arrow-left-long" style="font-size:2rem; color:var(--muted); animation:slideLeft 1.5s infinite;"></i>
+            <span style="font-size:0.7rem;font-weight:700;color:var(--indigo)">CREATES</span>
+          </div>
+          
+          <div class="hover-target" style="text-align:center; transition:transform .3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+             <div style="width:80px;height:80px;background:rgba(99,102,241,0.1);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:2.5rem;color:var(--indigo);box-shadow:0 10px 20px rgba(99,102,241,0.2);">
+              <i class="fa-solid fa-gears"></i>
+            </div>
+            <div style="font-weight:800; font-size:1.1rem; color:var(--text);">Service</div>
+            <div style="font-size:0.8rem; color:var(--muted);">(Engine)</div>
+          </div>
+        </div>
+        <p style="font-size:0.95rem; color:var(--muted); line-height:1.6; max-width:600px; margin:0 auto;">
+          DI-এর মূল উদ্দেশ্য হলো অবজেক্ট তৈরি করার দায়িত্ব ক্লাসের ভেতর থেকে সরিয়ে বাইরে নিয়ে আসা। 
+          Container প্রয়োজনীয় অবজেক্ট তৈরি করে Client-কে প্রোভাইড করে।
+        </p>
+      </div>
+    </div>
+    <style>@keyframes slideLeft { 0%{transform:translateX(5px);opacity:0.5;} 50%{transform:translateX(-5px);opacity:1;} 100%{transform:translateX(5px);opacity:0.5;} }</style>
+
+    <!-- S4: Types of DI -->
+    <div class="slide" id="s4">
+      <div class="tag fu"><i class="fa-solid fa-sitemap"></i> প্রকারভেদ</div>
+      <h2 class="s-title fu d1">DI এর প্রকারভেদ</h2>
+      <p class="s-desc fu d2">ডিপেনডেন্সি ইনজেকশন মূলত তিনটি উপায়ে করা যায়</p>
+      <div class="g3 fu d3 tilt-wrapper">
+        <div class="card hover-target" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
+          <div class="c-icon ci-coral"><i class="fa-solid fa-cube"></i></div>
+          <div class="c-title">Constructor Injection</div>
+          <div class="c-body">
+            ক্লাসের কনস্ট্রাক্টরের মাধ্যমে ডিপেনডেন্সি প্রোভাইড করা হয়। ASP.NET Core-এ এটিই ডিফল্ট এবং বেস্ট প্র্যাকটিস। 
+            <br><br><span style="color:var(--coral);font-size:0.75rem;font-weight:800;background:rgba(251,113,133,0.1);padding:4px 8px;border-radius:4px;">(সবচেয়ে বেশি ব্যবহৃত)</span>
+          </div>
+        </div>
+        <div class="card hover-target" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
+          <div class="c-icon ci-teal"><i class="fa-solid fa-code"></i></div>
+          <div class="c-title">Method Injection</div>
+          <div class="c-body">
+            যখন কোনো একটি নির্দিষ্ট মেথডের কাজের জন্য ডিপেনডেন্সি দরকার হয়, তখন মেথডের প্যারামিটার হিসেবে সেটি পাঠানো হয়।
+          </div>
+        </div>
+        <div class="card hover-target" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
+          <div class="c-icon ci-fuchsia"><i class="fa-solid fa-pen-to-square"></i></div>
+          <div class="c-title">Property / Setter Injection</div>
+          <div class="c-body">
+            ক্লাসের প্রপার্টি বা সেটার মেথডের মাধ্যমে ডিপেনডেন্সি সেট করা হয়। এটি সাধারণত অপশনাল ডিপেনডেন্সির ক্ষেত্রে ব্যবহৃত হয়।
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5: Lifetimes -->
+    <div class="slide" id="s5">
+      <div class="tag fu"><i class="fa-solid fa-hourglass-half"></i> জীবনকাল</div>
+      <h2 class="s-title fu d1">Service Lifetimes</h2>
+      <p class="s-desc fu d2">IoC Container যখন অবজেক্ট তৈরি করে, তখন সেই অবজেক্টের জীবনকাল কতটা হবে?</p>
+      <div class="g3 fu d3 tilt-wrapper">
+        <div class="card hover-target" id="lt-trans" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
+          <div class="c-icon ci-teal"><i class="fa-solid fa-wind"></i></div>
+          <div class="c-title">Transient (অস্থায়ী)</div>
+          <div class="c-body">
+            যখনই সার্ভিসটি চাওয়া হবে, প্রতিবার একটি সম্পূর্ণ নতুন অবজেক্ট তৈরি হবে। 
+            লাইটওয়েট সার্ভিসের জন্য উপযুক্ত।
+          </div>
+        </div>
+        <div class="card hover-target" id="lt-scoped" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
+          <div class="c-icon ci-coral"><i class="fa-solid fa-arrows-spin"></i></div>
+          <div class="c-title">Scoped (স্কোপড)</div>
+          <div class="c-body">
+            প্রতিটি HTTP রিকোয়েস্টের জন্য একটি মাত্র অবজেক্ট তৈরি করে। ডাটাবেজ কনটেক্সটের জন্য এটি পারফেক্ট।
+          </div>
+        </div>
+        <div class="card hover-target" id="lt-single" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
+          <div class="c-icon ci-indigo"><i class="fa-solid fa-infinity"></i></div>
+          <div class="c-title">Singleton (সিঙ্গেলটন)</div>
+          <div class="c-body">
+            পুরো অ্যাপ্লিকেশনের লাইফটাইমে একবারই অবজেক্ট তৈরি করে এবং সব রিকোয়েস্টে শেয়ার করে।
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6: IoC Container -->
+    <div class="slide" id="s6">
+      <div class="tag fu"><i class="fa-solid fa-box-open"></i> মেকানিজম</div>
+      <h2 class="s-title fu d1">IoC Container (Inversion of Control)</h2>
+      <p class="s-desc fu d2">অবজেক্ট তৈরির নিয়ন্ত্রণ ইউজারের হাত থেকে ফ্রেমওয়ার্কের হাতে।</p>
+      <div class="glass fu d3 hover-target" style="width:100%; max-width:850px; padding:0; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+          <thead>
+            <tr style="background:rgba(20,184,166,0.1);">
+              <th style="color:var(--teal); padding:16px 20px; text-align:left; border-bottom:1px solid rgba(20,184,166,0.2);">পর্যায় (Phase)</th>
+              <th style="color:var(--teal); padding:16px 20px; text-align:left; border-bottom:1px solid rgba(20,184,166,0.2);">কী ঘটে?</th>
+              <th style="color:var(--teal); padding:16px 20px; text-align:left; border-bottom:1px solid rgba(20,184,166,0.2);">উদাহরণ কোড</th>
+            </tr>
+          </thead>
+          <tbody id="tb-ioc">
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background .3s;">
+              <td style="padding:16px 20px; color:var(--text); font-weight:800;">1. Registration</td>
+              <td style="padding:16px 20px; color:var(--muted);">অ্যাপ চালু হওয়ার সময় ইন্টারফেস এবং ক্লাস কন্টেইনারে ম্যাপ করা হয়।</td>
+              <td style="padding:16px 20px; font-family:'Fira Code',monospace; font-size:0.8rem; color:var(--gold);">builder.Services.AddScoped&lt;IEngine, Engine&gt;();</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background .3s;">
+              <td style="padding:16px 20px; color:var(--text); font-weight:800;">2. Resolution</td>
+              <td style="padding:16px 20px; color:var(--muted);">যখন ক্লায়েন্টের সার্ভিস দরকার হয়, কন্টেইনার ম্যাপ দেখে অবজেক্ট তৈরি করে দেয়।</td>
+              <td style="padding:16px 20px; font-family:'Fira Code',monospace; font-size:0.8rem; color:var(--teal);">public Car(IEngine engine) { ... }</td>
+            </tr>
+            <tr style="transition:background .3s;">
+              <td style="padding:16px 20px; color:var(--text); font-weight:800;">3. Disposal</td>
+              <td style="padding:16px 20px; color:var(--muted);">লাইফটাইম শেষ হলে কন্টেইনার নিজ দায়িত্বে অবজেক্ট ধ্বংস করে।</td>
+              <td style="padding:16px 20px; font-family:'Fira Code',monospace; font-size:0.8rem; color:var(--indigo);">(Automatic)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- S7: Flow Diagram -->
+    <div class="slide" id="s7">
+      <div class="tag fu"><i class="fa-solid fa-project-diagram"></i> আর্কিটেকচার</div>
+      <h2 class="s-title fu d1">IoC Resolution Flow</h2>
+      <p class="s-desc fu d2">কন্টেইনার কীভাবে রিকোয়েস্ট প্রসেস করে?</p>
+      
+      <div class="glass fu d3" style="width:100%; max-width:900px; padding:40px 20px; height:320px; display:flex; flex-direction:column; justify-content:center; position:relative;">
+        <svg id="svg-line" preserveAspectRatio="none">
+          <path id="path-bg" class="flow-path" d="M 90,160 L 260,160 L 450,160 L 640,160 L 810,160" />
+          <path id="path-anim" class="flow-path-anim" d="M 90,160 L 260,160 L 450,160 L 640,160 L 810,160" />
+        </svg>
+        <div class="flow-scene">
+          <div class="fn hover-target" id="fn1">
+            <i class="fa-solid fa-laptop-code"></i>
+            <div class="fn-title">UserController</div>
+            <div class="fn-sub">Needs IUserService</div>
+          </div>
+          <div class="fn db-node hover-target" id="fn2">
+            <i class="fa-solid fa-box-open"></i>
+            <div class="fn-title">DI Container</div>
+            <div class="fn-sub">Resolves Deps</div>
+          </div>
+          <div class="fn hover-target" id="fn3">
+            <i class="fa-solid fa-gears"></i>
+            <div class="fn-title">UserService</div>
+            <div class="fn-sub">Needs IRepo</div>
+          </div>
+          <div class="fn hover-target" id="fn4">
+            <i class="fa-solid fa-database"></i>
+            <div class="fn-title">UserRepository</div>
+            <div class="fn-sub">DB Access</div>
+          </div>
+        </div>
+        <div class="flow-caption" id="fCap"></div>
+      </div>
+    </div>
+
+    <!-- S8: Tight Coupling Code -->
+    <div class="slide" id="s8">
+      <div class="tag fu"><i class="fa-solid fa-triangle-exclamation"></i> ব্যাড প্র্যাকটিস</div>
+      <h2 class="s-title fu d1">Tight Coupling Code (সমস্যা)</h2>
+      <p class="s-desc fu d2">এই কোডটি মেইনটেইন করা এবং টেস্ট করা অত্যন্ত কঠিন।</p>
+      
+      <div class="code fu d3 hover-target" id="cb1" style="width:100%; max-width:750px; font-size:1rem; padding:30px;">
+        <span class="ck">public class</span> <span class="cn">UserController</span> : <span class="cn">ControllerBase</span><br>
+        {<br>
+        &nbsp;&nbsp;<span class="ck">private readonly</span> <span class="cn">UserService</span> _userService;<br>
+        <br>
+        &nbsp;&nbsp;<span class="ck">public</span> <span class="cf">UserController</span>()<br>
+        &nbsp;&nbsp;{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="cc">// ❌ Bad: Tight Coupling! Dependency Inversion Principle Violation.</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;_userService = <span class="ck">new</span> <span class="cn">UserService</span>();<br>
+        &nbsp;&nbsp;}<br>
+        }
+      </div>
+    </div>
+
+    <!-- S9: Code with DI -->
+    <div class="slide" id="s9">
+      <div class="tag fu"><i class="fa-solid fa-check-double"></i> বেস্ট প্র্যাকটিস</div>
+      <h2 class="s-title fu d1">DI Code in ASP.NET Core (সমাধান)</h2>
+      <p class="s-desc fu d2">Constructor Injection ব্যবহার করে ক্লাসটিকে Decouple করা হয়েছে।</p>
+      
+      <div class="g2 fu d3">
+        <div class="code hover-target" id="cb2" style="font-size:0.85rem;">
+          <span class="cc">// 1. Program.cs (Registration)</span><br><br>
+          <span class="cp">var</span> builder = <span class="cn">WebApplication</span>.<span class="cf">CreateBuilder</span>(args);<br>
+          <br>
+          <span class="cc">// DI Container-এ সার্ভিস ম্যাপ করা হচ্ছে</span><br>
+          builder.Services.<span class="cf">AddScoped</span>&lt;<span class="cn">IUserService</span>, <span class="cn">UserService</span>&gt;();<br>
+          <br>
+          <span class="cp">var</span> app = builder.<span class="cf">Build</span>();
+        </div>
+        <div class="code hover-target" id="cb3" style="font-size:0.85rem;">
+          <span class="cc">// 2. UserController.cs (Resolution)</span><br><br>
+          <span class="ck">public class</span> <span class="cn">UserController</span><br>
+          {<br>
+          &nbsp;&nbsp;<span class="ck">private readonly</span> <span class="cn">IUserService</span> _userService;<br>
+          <br>
+          &nbsp;&nbsp;<span class="cc">// ✅ Container থেকে Service আসবে</span><br>
+          &nbsp;&nbsp;<span class="ck">public</span> <span class="cf">UserController</span>(<span class="cn">IUserService</span> userService)<br>
+          &nbsp;&nbsp;{<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;_userService = userService;<br>
+          &nbsp;&nbsp;}<br>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- S10: Live Sandbox -->
+    <div class="slide" id="s10">
+      <div class="tag fu"><i class="fa-solid fa-flask"></i> ডেমো</div>
+      <h2 class="s-title fu d1">Live Sandbox — Lifetime Demo</h2>
+      <p class="s-desc fu d2">কীভাবে Lifetimes অবজেক্ট তৈরি নিয়ন্ত্রণ করে তা লাইভ দেখুন।</p>
+      
+      <div class="glass fu d3" style="width:100%; max-width:900px; padding:30px;">
+        <div class="sandbox">
+          <div class="sb-controls">
+            <button class="sb-btn hover-target" id="btnReq1" onclick="makeRequest(1)">
+              <i class="fa-solid fa-paper-plane" style="color:var(--teal)"></i> Send Request 1
+            </button>
+            <button class="sb-btn hover-target" id="btnReq2" onclick="makeRequest(2)">
+              <i class="fa-solid fa-paper-plane" style="color:var(--coral)"></i> Send Request 2
+            </button>
+            <button class="sb-btn clr hover-target" onclick="clearLogs()">
+              <i class="fa-solid fa-trash"></i> Clear
+            </button>
+          </div>
+          
+          <div class="sb-grid hover-target">
+            <div class="sb-col transient">
+              <div class="sb-col-head"><i class="fa-solid fa-wind"></i> Transient</div>
+              <div class="sb-logs" id="log-transient"></div>
+            </div>
+            <div class="sb-col scoped">
+              <div class="sb-col-head"><i class="fa-solid fa-arrows-spin"></i> Scoped</div>
+              <div class="sb-logs" id="log-scoped"></div>
+            </div>
+            <div class="sb-col singleton">
+              <div class="sb-col-head"><i class="fa-solid fa-infinity"></i> Singleton</div>
+              <div class="sb-logs" id="log-singleton"></div>
+            </div>
+          </div>
+          <div style="text-align:center; font-size:0.75rem; color:var(--gold); background:rgba(251,191,36,0.1); padding:8px; border-radius:8px; border:1px dashed rgba(251,191,36,0.3);">
+            <i class="fa-solid fa-circle-info"></i> প্রতিটি Request-এ সার্ভিসটি ২ বার কল করা হয়। Guid আইডিগুলো খেয়াল করুন!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11: Advantages -->
+    <div class="slide" id="s11">
+      <div class="tag fu"><i class="fa-solid fa-star"></i> সুবিধা</div>
+      <h2 class="s-title fu d1">DI এর সুবিধাসমূহ</h2>
+      <p class="s-desc fu d2">কেন সব আধুনিক ফ্রেমওয়ার্কে এটি ব্যবহার করা হয়?</p>
+      <div class="adv-grid fu d3 tilt-wrapper">
+        <div class="adv hover-target" id="ad1" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-link-slash"></i><div class="adv-title">Loose Coupling</div><p>ক্লাসগুলো স্বাধীনভাবে কাজ করে।</p></div>
+        <div class="adv hover-target" id="ad2" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-vial"></i><div class="adv-title">Testability</div><p>Mock অবজেক্ট দিয়ে টেস্টিং সহজ হয়।</p></div>
+        <div class="adv hover-target" id="ad3" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-wrench"></i><div class="adv-title">Maintainability</div><p>কোড পরিষ্কার ও গোছানো থাকে।</p></div>
+        <div class="adv hover-target" id="ad4" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-exchange-alt"></i><div class="adv-title">Flexibility</div><p>সহজেই ইমপ্লিমেন্টেশন পাল্টানো যায়।</p></div>
+        <div class="adv hover-target" id="ad5" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-memory"></i><div class="adv-title">Lifetime Mgmt.</div><p>মেমোরি ম্যানেজমেন্ট কন্টেইনার করে।</p></div>
+        <div class="adv hover-target" id="ad6" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-cubes"></i><div class="adv-title">Modular Design</div><p>অ্যাপ্লিকেশন মডিউলার হয়।</p></div>
+      </div>
+    </div>
+
+    <!-- S12: Warnings -->
+    <div class="slide" id="s12">
+      <div class="tag fu"><i class="fa-solid fa-triangle-exclamation"></i> সতর্কতা</div>
+      <h2 class="s-title fu d1">সতর্কতা ও Anti-patterns</h2>
+      <p class="s-desc fu d2">DI ব্যবহারে যে ভুলগুলো এড়িয়ে চলতে হবে।</p>
+      <div style="display:flex;flex-direction:column;gap:15px;width:100%;max-width:800px;" class="fu d3">
+        <div class="tip hover-target" id="tp1">
+          <i class="fa-solid fa-location-crosshairs"></i>
+          <div><h4>Service Locator Anti-pattern</h4><p>GetService() মেথড সরাসরি কল করবেন না। সবসময় কনস্ট্রাক্টর ইনজেকশন ব্যবহার করুন।</p></div>
+        </div>
+        <div class="tip hover-target" id="tp2">
+          <i class="fa-solid fa-weight-hanging"></i>
+          <div><h4>Over-injection</h4><p>এক ক্লাসে ৫-৬ টার বেশি ডিপেনডেন্সি থাকলে বুঝবেন ক্লাসটি SRP (Single Responsibility Principle) ভঙ্গ করছে।</p></div>
+        </div>
+        <div class="tip hover-target" id="tp3">
+          <i class="fa-solid fa-skull-crossbones"></i>
+          <div><h4>Captive Dependency</h4><p>Singleton সার্ভিসের ভেতরে কখনোই Scoped বা Transient সার্ভিস ইনজেক্ট করবেন না। এতে মেমোরি লিক হতে পারে।</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S13: Outro -->
+    <div class="slide" id="s13">
+      <div class="tag fu"><i class="fa-solid fa-flag-checkered"></i> সমাপ্তি</div>
+      <h2 class="s-title fu d1">সারাংশ ও বিদায়</h2>
+      
+      <div class="glass fu d2 hover-target" style="width:100%; max-width:640px; padding:35px; margin:20px auto; display:flex; flex-direction:column; gap:16px;">
+        <div class="outro-item" id="oi1" style="display:flex;align-items:center;gap:15px;font-size:1rem;font-weight:600;opacity:0;transform:translateX(-20px);transition:all .5s;"><i class="fa-solid fa-circle-check" style="color:var(--teal);font-size:1.4rem;"></i> <span>DI কোডকে Loose Coupling এবং Testable করে।</span></div>
+        <div class="outro-item" id="oi2" style="display:flex;align-items:center;gap:15px;font-size:1rem;font-weight:600;opacity:0;transform:translateX(-20px);transition:all .5s;"><i class="fa-solid fa-circle-check" style="color:var(--teal);font-size:1.4rem;"></i> <span>IoC Container অবজেক্ট তৈরি ও লাইফটাইম ম্যানেজ করে।</span></div>
+        <div class="outro-item" id="oi3" style="display:flex;align-items:center;gap:15px;font-size:1rem;font-weight:600;opacity:0;transform:translateX(-20px);transition:all .5s;"><i class="fa-solid fa-circle-check" style="color:var(--teal);font-size:1.4rem;"></i> <span>Transient, Scoped ও Singleton লাইফটাইম থাকে।</span></div>
+        <div class="outro-item" id="oi4" style="display:flex;align-items:center;gap:15px;font-size:1rem;font-weight:600;opacity:0;transform:translateX(-20px);transition:all .5s;"><i class="fa-solid fa-circle-check" style="color:var(--teal);font-size:1.4rem;"></i> <span>সবসময় Constructor Injection ব্যবহার করা বেস্ট প্র্যাকটিস।</span></div>
+      </div>
+      
+      <div class="fu d3 hover-target" style="background:rgba(251,113,133,0.05); border:1px solid rgba(251,113,133,0.3); border-radius:var(--r); padding:30px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:15px; box-shadow:0 10px 30px rgba(251,113,133,0.1); cursor:none; transition:transform .3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <i class="fa-brands fa-youtube" style="font-size:3.5rem; color:#ff0000; filter:drop-shadow(0 0 15px rgba(255,0,0,0.5)); animation:pulse-yt 2s infinite alternate;"></i>
+        <div style="font-size:1.3rem; font-weight:800; letter-spacing:1px;">সাবস্ক্রাইব করুন <b>Coding Drop</b></div>
+        <button class="sb-btn hover-target" onclick="cur=0; renderSlide();" style="margin-top:10px; background:linear-gradient(135deg,var(--coral),var(--fuchsia)); color:#fff; border:none;"><i class="fa-solid fa-rotate-right"></i> আবার শুরু করুন</button>
+      </div>
+    </div>
+    <style>@keyframes pulse-yt { 100%{transform:scale(1.15);} }</style>
+
+  </div> <!-- slide area -->
+
+  <!-- ─────────── NARRATION STRIP ─────────── -->
+  <div class="narration">
+    <div class="narration-inner" id="narrBox">লোড হচ্ছে...</div>
+  </div>
+
+  <div class="slide-indicator"><span id="slCur">1</span> / 13</div>
+  <div class="nav-hint"><kbd>←</kbd> <kbd>→</kbd> অথবা <kbd>1</kbd>-<kbd>9</kbd> প্রেস করুন</div>
+
+</div>
+
+<script>
+const TOTAL_SLIDES = 13;
+let cur = 0;
+
+/* ─── CUSTOM CURSOR ─── */
+const dot = document.querySelector('.cursor-dot');
+const outline = document.querySelector('.cursor-outline');
+window.addEventListener('mousemove', (e) => {
+  dot.style.left = e.clientX + 'px';
+  dot.style.top = e.clientY + 'px';
+  
+  // slightly delayed for outline
+  setTimeout(() => {
+    outline.style.left = e.clientX + 'px';
+    outline.style.top = e.clientY + 'px';
+  }, 50);
+});
+document.addEventListener('mousedown', () => {
+  outline.style.transform = 'translate(-50%, -50%) scale(0.8)';
+  outline.style.backgroundColor = 'rgba(20,184,166,0.2)';
+});
+document.addEventListener('mouseup', () => {
+  outline.style.transform = 'translate(-50%, -50%) scale(1)';
+  outline.style.backgroundColor = 'transparent';
+});
+
+/* ─── 3D TILT EFFECT ─── */
+function tilt(e, el) {
+  const rect = el.getBoundingClientRect();
+  const x = e.clientX - rect.left; 
+  const y = e.clientY - rect.top;
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const dx = (x - cx) / cx;
+  const dy = (y - cy) / cy;
+  el.style.transform = `perspective(1000px) rotateX(${-dy * 10}deg) rotateY(${dx * 10}deg) scale3d(1.05, 1.05, 1.05)`;
+}
+function untilt(el) {
+  el.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+}
+
+/* ─── BACKGROUND PARTICLES ─── */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let width, height;
+let particles = [];
+let mouse = { x: null, y: null, radius: 150 };
+
+window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+
+function initCanvas() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+  particles = [];
+  for(let i=0; i<80; i++){
+    particles.push({
+      x: Math.random() * width, y: Math.random() * height,
+      r: Math.random() * 2 + 0.5,
+      dx: (Math.random() - 0.5) * 0.8, dy: (Math.random() - 0.5) * 0.8,
+      baseColor: Math.random() > 0.5 ? '20,184,166' : '99,102,241' // teal or indigo
+    });
+  }
+}
+function drawCanvas() {
+  ctx.clearRect(0, 0, width, height);
+  particles.forEach(p => {
+    p.x += p.dx; p.y += p.dy;
+    if(p.x < 0 || p.x > width) p.dx *= -1;
+    if(p.y < 0 || p.y > height) p.dy *= -1;
+    
+    // Mouse interaction
+    let alpha = 0.4;
+    if(mouse.x != null) {
+      let dx = mouse.x - p.x; let dy = mouse.y - p.y;
+      let dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < mouse.radius) {
+        alpha = 1 - (dist/mouse.radius);
+        // connection line
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${p.baseColor}, ${alpha * 0.5})`;
+        ctx.lineWidth = 1;
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(mouse.x, mouse.y);
+        ctx.stroke();
+      }
+    }
+    
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(${p.baseColor}, ${Math.max(0.2, alpha)})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawCanvas);
+}
+initCanvas(); drawCanvas();
+window.addEventListener('resize', initCanvas);
+
+/* ─── ANIMATION ENGINE ─── */
+let AT = []; 
+function ct(){ AT.forEach(t=>clearTimeout(t)); AT=[]; }
+function aft(fn, ms){ const t=setTimeout(fn,ms); AT.push(t); return t; }
+
+// Type effect for code blocks
+function typeCode(selector) {
+  const blocks = document.querySelectorAll(selector);
+  blocks.forEach(block => {
+    const origHtml = block.innerHTML;
+    const lines = origHtml.split('<br>');
+    block.innerHTML = lines.map(l => `<span class="type-line">${l}</span>`).join('');
+    block.querySelectorAll('.type-line').forEach((line, i) => {
+      aft(() => line.classList.add('show'), 300 + i * 150);
+    });
+  });
+}
+
+function onSlideEnter(id){
+  ct();
+  
+  // reset path anim
+  const pathAnim = document.getElementById('path-anim');
+  if(pathAnim) pathAnim.style.strokeDashoffset = '1000';
+
+  const fns = {
+    4:() => {
+      const cards = document.querySelectorAll('#s4 .card');
+      cards.forEach(c=>c.classList.remove('hl-coral','hl-teal','hl-fuchsia'));
+      aft(()=>cards[0]?.classList.add('hl-coral'), 1000);
+      aft(()=>{ cards[0]?.classList.remove('hl-coral'); cards[1]?.classList.add('hl-teal'); }, 2500);
+      aft(()=>{ cards[1]?.classList.remove('hl-teal'); cards[2]?.classList.add('hl-fuchsia'); }, 4000);
+      aft(()=>cards[2]?.classList.remove('hl-fuchsia'), 5500);
+    },
+    5:() => {
+      const cards = document.querySelectorAll('#s5 .card');
+      cards.forEach(c=>c.classList.remove('hl-teal','hl-coral','hl-indigo'));
+      aft(()=>cards[0]?.classList.add('hl-teal'), 1000);
+      aft(()=>{ cards[0]?.classList.remove('hl-teal'); cards[1]?.classList.add('hl-coral'); }, 2500);
+      aft(()=>{ cards[1]?.classList.remove('hl-coral'); cards[2]?.classList.add('hl-indigo'); }, 4000);
+      aft(()=>cards[2]?.classList.remove('hl-indigo'), 5500);
+    },
+    6:() => {
+      const rows = document.querySelectorAll('#tb-ioc tr');
+      rows.forEach(r=>r.style.background='');
+      rows.forEach((r,i) => {
+        aft(()=>{ r.style.background='rgba(20,184,166,0.15)'; }, 600 + i*1500);
+        aft(()=>{ r.style.background=''; }, 1800 + i*1500);
+      });
+    },
+    7:() => {
+      const fns=['fn1','fn2','fn3','fn4'];
+      const cap=document.getElementById('fCap');
+      const pa=document.getElementById('path-anim');
+      fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+      cap.textContent='';
+      
+      const steps=[
+        { nodes:['fn1'], cap:'১. UserController needs IUserService', dash:1000 },
+        { nodes:['fn1','fn2'], cap:'২. DI Container checks registrations', dash:700 },
+        { nodes:['fn2','fn3'], cap:'৩. Container finds UserService', dash:450 },
+        { nodes:['fn3','fn4'], cap:'৪. Resolves UserRepository first', dash:250 },
+        { nodes:['fn1','fn2','fn3','fn4'], cap:'৫. Success! Objects Injected ✓', dash:0 }
+      ];
+      steps.forEach((st,i)=>{
+        aft(()=>{
+          fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+          st.nodes.forEach(id=>document.getElementById(id)?.classList.add('on'));
+          cap.textContent = st.cap;
+          cap.style.opacity = '0';
+          setTimeout(()=>cap.style.opacity='1', 50);
+          if(pa) pa.style.strokeDashoffset = st.dash;
+        }, 800 + i*1800);
+      });
+    },
+    8:() => typeCode('#cb1'),
+    9:() => { typeCode('#cb2'); setTimeout(()=>typeCode('#cb3'), 1000); },
+    11:() => {
+      const avs=['ad1','ad2','ad3','ad4','ad5','ad6'];
+      avs.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+      avs.forEach((id,i)=>{
+        aft(()=>document.getElementById(id)?.classList.add('on'), 500+i*400);
+        aft(()=>document.getElementById(id)?.classList.remove('on'), 1500+i*400);
+      });
+    },
+    12:() => {
+      const tips=['tp1','tp2','tp3'];
+      tips.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+      tips.forEach((id,i)=>{ aft(()=>document.getElementById(id)?.classList.add('on'), 600+i*1200); });
+    },
+    13:() => {
+      const items=['oi1','oi2','oi3','oi4'];
+      items.forEach(id=>document.getElementById(id).style.opacity='0');
+      items.forEach((id,i)=>aft(()=>{
+        const el = document.getElementById(id);
+        el.style.opacity='1'; el.style.transform='translateX(0)';
+      }, 500+i*500));
+    }
+  };
+  if(fns[id]) fns[id]();
+}
+
+/* ─── INTERACTIVE COUPLING SWITCH (S2) ─── */
+function toggleCoupling() {
+  const sw = document.getElementById('cpSwitch');
+  sw.classList.toggle('good');
+}
+
+/* ─── SANDBOX LOGIC (S10) ─── */
+function generateGuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+let singletonId = generateGuid();
+let reqCount = 0;
+
+function makeRequest(reqNum) {
+  const btn = document.getElementById('btnReq'+reqNum);
+  const origHtml = btn.innerHTML;
+  btn.innerHTML = `<div class="spinner"></div> Processing...`;
+  btn.style.pointerEvents = 'none';
+  
+  setTimeout(() => {
+    btn.innerHTML = origHtml;
+    btn.style.pointerEvents = 'auto';
+    
+    reqCount++;
+    const scopedId = generateGuid(); 
+    const t1 = generateGuid(); const t2 = generateGuid();
+    
+    const color = reqNum === 1 ? 'var(--teal)' : 'var(--coral)';
+    
+    const addLog = (elId, v1, v2) => {
+      const el = document.getElementById(elId);
+      el.innerHTML += `
+        <div class="log-item" style="border-left-color:${color}">
+          <span style="color:${color};font-weight:700;">Request ${reqNum}</span>
+          <div>Call 1: <span class="log-val">${v1}</span></div>
+          <div>Call 2: <span class="log-val">${v2}</span></div>
+        </div>`;
+      el.scrollTop = el.scrollHeight;
+    };
+    
+    addLog('log-transient', t1, t2);
+    addLog('log-scoped', scopedId, scopedId);
+    addLog('log-singleton', singletonId, singletonId);
+    
+  }, 600); // simulate network delay
+}
+
+function clearLogs() {
+  document.getElementById('log-transient').innerHTML = '';
+  document.getElementById('log-scoped').innerHTML = '';
+  document.getElementById('log-singleton').innerHTML = '';
+  reqCount = 0;
+  singletonId = generateGuid();
+}
+
+/* ─── NAVIGATION ─── */
+function renderSlide(){
+  document.querySelectorAll('.slide').forEach((s,i)=>{
+    s.classList.remove('active','exit');
+    if(i===cur) s.classList.add('active');
+    else if(i<cur) s.classList.add('exit');
+  });
+  document.getElementById('slCur').textContent = cur+1;
+  onSlideEnter(cur+1);
+}
+
+/* ─── BroadcastChannel for Sync ─── */
+const BC = new BroadcastChannel('di_presentation');
+
+BC.onmessage = (e) => {
+  if(e.data.type === 'nav'){ cur = e.data.idx; renderSlide(); }
+  if(e.data.type === 'ping_from_presenter'){ BC.postMessage({type:'ping'}); }
+};
+
+/* keyboard fallback */
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight'){ if(cur<TOTAL_SLIDES-1) { cur++; renderSlide(); BC.postMessage({type:'nav',idx:cur}); } }
+  else if(e.key==='ArrowLeft'){ if(cur>0) { cur--; renderSlide(); BC.postMessage({type:'nav',idx:cur}); } }
+  else if(e.key>='1'&&e.key<='9'){
+    let n = parseInt(e.key)-1;
+    if(n<TOTAL_SLIDES){ cur=n; renderSlide(); BC.postMessage({type:'nav',idx:cur}); }
+  }
+});
+
+/* INIT */
+renderSlide();
+</script>
+</body>
+</html>
