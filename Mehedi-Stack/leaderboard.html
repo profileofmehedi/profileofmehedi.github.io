@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="কোডেক্স সাপ্তাহিক লিডারবোর্ড। সেরা কোডারদের সাথে প্রতিযোগিতা করুন এবং গোল্ডেন টিয়ারে প্রমোশন পান।">
+    <title>লিডারবোর্ড | Codex</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        /* Leaderboard Podium Styling */
+        .podium-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+            padding-top: 3rem;
+        }
+        .podium-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition-smooth);
+        }
+        .podium-box:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        .podium-box.rank-1 {
+            height: 280px;
+            width: 180px;
+            border-top: 6px solid #fbbf24; /* Gold */
+            z-index: 3;
+        }
+        .podium-box.rank-2 {
+            height: 230px;
+            width: 160px;
+            border-top: 6px solid #94a3b8; /* Silver */
+            z-index: 2;
+        }
+        .podium-box.rank-3 {
+            height: 200px;
+            width: 150px;
+            border-top: 6px solid #b45309; /* Bronze */
+            z-index: 1;
+        }
+        .podium-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .rank-crown {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .gold-crown { color: #fbbf24; }
+        .silver-crown { color: #94a3b8; }
+        .bronze-crown { color: #b45309; }
+
+        @media (max-width: 576px) {
+            .podium-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 2rem;
+            }
+            .podium-box.rank-1, .podium-box.rank-2, .podium-box.rank-3 {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Input -->
+    <input type="checkbox" id="theme-toggle" class="d-none">
+
+    <div class="app-container">
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center fs-3 fw-bold text-primary" href="index.html">
+                    <span style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-code-slash me-2"></i>Codex
+                    </span>
+                </a>
+                <div class="collapse navbar-collapse d-none d-lg-block ms-5">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
+                        <li class="nav-item"><a class="nav-link" href="index.html">হোম</a></li>
+                        <li class="nav-item"><a class="nav-link" href="courses.html">কোর্সসমূহ</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="dashboard.html">ড্যাশবোর্ড</a></li>
+                    </ul>
+                </div>
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <label for="theme-toggle" class="theme-switch-label">
+                        <i class="bi bi-sun"></i>
+                        <i class="bi bi-moon-stars"></i>
+                    </label>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Leaderboard Core Frame -->
+        <main class="container py-5 fade-in-up">
+            
+            <div class="text-center mb-5">
+                <h1 class="fw-extrabold display-5 mb-2">সাপ্তাহিক লিডারবোর্ড</h1>
+                <p class="text-muted fs-5">গোল্ডেন লিগ (Golden League) | সময় বাকি: ২ দিন ৪ ঘণ্টা</p>
+            </div>
+
+            <!-- CSS Tabs Switch for Leaderboard timeframe -->
+            <div class="tab-section max-w-800 mx-auto">
+                <input type="radio" name="lead-tabs" id="tab-ctrl-1" class="d-none" checked>
+                <input type="radio" name="lead-tabs" id="tab-ctrl-2" class="d-none">
+
+                <div class="tab-triggers justify-content-center">
+                    <label for="tab-ctrl-1">সাপ্তাহিক র‍্যাঙ্কিং</label>
+                    <label for="tab-ctrl-2">সর্বমোট র‍্যাঙ্কিং</label>
+                </div>
+
+                <div class="tab-content mt-4">
+                    <!-- Tab Panel 1: Weekly -->
+                    <div id="pane-1" class="tab-pane">
+                        
+                        <!-- Podiums (Top 3 Players) -->
+                        <div class="podium-container">
+                            
+                            <!-- Rank 2: Silver -->
+                            <div class="podium-box rank-2">
+                                <i class="bi bi-trophy-fill rank-crown silver-crown"></i>
+                                <div class="podium-avatar bg-secondary">না</div>
+                                <h6 class="fw-bold text-primary mb-1">নাফিসা আক্তার</h6>
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-8 rounded-pill">৪,১২০ XP</span>
+                            </div>
+
+                            <!-- Rank 1: Gold -->
+                            <div class="podium-box rank-1">
+                                <i class="bi bi-trophy-fill rank-crown gold-crown"></i>
+                                <div class="podium-avatar bg-warning text-dark">রা</div>
+                                <h5 class="fw-bold text-primary mb-1">রাকিবুল ইসলাম</h5>
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-8 rounded-pill">৪,৫০০ XP</span>
+                                <p class="text-success fs-8 fw-semibold mt-3"><i class="bi bi-lightning-fill me-1"></i>৭ দিন স্ট্রিক</p>
+                            </div>
+
+                            <!-- Rank 3: Bronze -->
+                            <div class="podium-box rank-3">
+                                <i class="bi bi-trophy-fill rank-crown bronze-crown"></i>
+                                <div class="podium-avatar" style="background: #b45309;">ফা</div>
+                                <h6 class="fw-bold text-primary mb-1">ফারহান সাজিদ</h6>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-8 rounded-pill">৩,৯৮০ XP</span>
+                            </div>
+
+                        </div>
+
+                        <!-- Leaderboard Listing (Ranks 4-10+) -->
+                        <div class="d-flex flex-column gap-3 max-w-600 mx-auto">
+                            
+                            <!-- Player 4 -->
+                            <div class="d-flex align-items-center justify-content-between p-3 premium-card">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fw-bold text-muted fs-5" style="width: 24px;">৪</span>
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-7" style="width: 36px; height: 36px;">মা</span>
+                                    <span class="fw-semibold text-primary">মারুফ আহমেদ</span>
+                                </div>
+                                <span class="fw-bold text-muted fs-7">৩,৮৫০ XP</span>
+                            </div>
+
+                            <!-- Player 5 -->
+                            <div class="d-flex align-items-center justify-content-between p-3 premium-card">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fw-bold text-muted fs-5" style="width: 24px;">৫</span>
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-7" style="width: 36px; height: 36px;">তা</span>
+                                    <span class="fw-semibold text-primary">তানিয়া সুলতানা</span>
+                                </div>
+                                <span class="fw-bold text-muted fs-7">৩,৭২০ XP</span>
+                            </div>
+
+                            <!-- Player 14: Me (Highlighted) -->
+                            <div class="d-flex align-items-center justify-content-between p-3 premium-card border-primary" style="background: rgba(79, 70, 229, 0.03);">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fw-bold text-primary fs-5" style="width: 24px;">১৪</span>
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-7" style="width: 36px; height: 36px;">মে</span>
+                                    <span class="fw-bold text-primary">মেহেদী হাসান (আপনি)</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fs-8 text-danger fw-bold"><i class="bi bi-arrow-up me-1"></i>৩ ধাপ প্রমোশন</span>
+                                    <span class="fw-bold text-primary fs-7">৩,৪৫০ XP</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Tab Panel 2: All Time (Placeholder data) -->
+                    <div id="pane-2" class="tab-pane text-center py-5">
+                        <i class="bi bi-clock-history display-3 text-muted mb-3 d-block"></i>
+                        <h4 class="fw-bold">অল-টাইম র‍্যাঙ্কিং শীঘ্রই আপডেট করা হবে</h4>
+                        <p class="text-muted fs-7">বর্তমান সপ্তাহের চ্যালেঞ্জ শেষ হলে অল-টাইম র‍্যাঙ্কিং ডেটাবেজ সিঙ্ক করা হবে।</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer mt-auto">
+            <div class="container text-center pt-4 border-top">
+                <p class="text-muted mb-0">&copy; 2026 Codex Ltd. সর্বস্বত্ব সংরক্ষিত।</p>
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+</html>

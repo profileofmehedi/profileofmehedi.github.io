@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="কোডেক্সের ফ্রি টিউটোরিয়াল লাইব্রেরি। সি# (C#), ডটনেট, এসকিউএল ডাটাবেজ সহ প্রোগ্রামিংয়ের প্রয়োজনীয় সব গাইড বাংলায় পড়ুন।">
+    <title>টিউটোরিয়াল লাইব্রেরি | Codex</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        /* CSS-Only Course Filtering */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            cursor: pointer;
+            padding: 10px 24px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: var(--transition-fast);
+        }
+        .filter-label:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .filter-input {
+            display: none;
+        }
+        
+        #cat-all:checked ~ .filter-tabs label[for="cat-all"],
+        #cat-csharp:checked ~ .filter-tabs label[for="cat-csharp"],
+        #cat-dotnet:checked ~ .filter-tabs label[for="cat-dotnet"],
+        #cat-database:checked ~ .filter-tabs label[for="cat-database"] {
+            background: var(--primary-grad);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px var(--glow-color);
+        }
+        
+        #cat-csharp:checked ~ .courses-grid .course-card-col:not(.category-csharp),
+        #cat-dotnet:checked ~ .courses-grid .course-card-col:not(.category-dotnet),
+        #cat-database:checked ~ .courses-grid .course-card-col:not(.category-database) {
+            display: none;
+        }
+
+        /* Course Locked Overlay Style - Updated for upcoming free blog guides */
+        .locked-course-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            opacity: 0;
+            transition: var(--transition-smooth);
+            pointer-events: none;
+        }
+        .course-card:hover .locked-course-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Input -->
+    <input type="checkbox" id="theme-toggle" class="d-none">
+
+    <div class="app-container">
+
+        <!-- Animated Background Blobs -->
+        <div class="animated-blob" style="width: 400px; height: 400px; background: rgba(79, 70, 229, 0.15); top: 15%; left: -100px;"></div>
+        <div class="animated-blob" style="width: 450px; height: 450px; background: rgba(6, 182, 212, 0.15); bottom: 10%; right: -200px;"></div>
+
+        <!-- Sidebar Panel for Mobile -->
+        <input type="checkbox" id="sidebar-toggle" class="sidebar-input">
+        <label for="sidebar-toggle" class="sidebar-overlay"></label>
+        <div class="sidebar-panel">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <span class="fs-4 fw-bold text-primary"><i class="bi bi-code-slash me-2"></i>Codex</span>
+                <label for="sidebar-toggle" class="btn-close cursor-pointer" style="filter: var(--text-primary);"></label>
+            </div>
+            <ul class="nav flex-column gap-3">
+                <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door me-2"></i>হোম</a></li>
+                <li class="nav-item"><a class="nav-link active" href="courses.html"><i class="bi bi-book me-2"></i>টিউটোরিয়ালসমূহ</a></li>
+                <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2 me-2"></i>ড্যাশবোর্ড</a></li>
+                <li class="nav-item"><a class="nav-link" href="leaderboard.html"><i class="bi bi-trophy me-2"></i>লিডারবোর্ড</a></li>
+                <li class="nav-item"><a class="nav-link" href="achievement.html"><i class="bi bi-award me-2"></i>অর্জনসমূহ</a></li>
+                <li class="nav-item"><a class="nav-link" href="pricing.html"><i class="bi bi-gift me-2"></i>ওপেন সোর্স</a></li>
+                <li class="nav-item"><a class="nav-link" href="blog.html"><i class="bi bi-blockquote-left me-2"></i>ব্লগ</a></li>
+            </ul>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
+            <div class="container">
+                <label for="sidebar-toggle" class="btn border-0 d-lg-none text-primary fs-3 p-0 me-3">
+                    <i class="bi bi-list"></i>
+                </label>
+                <a class="navbar-brand d-flex align-items-center fs-3 fw-bold text-primary text-decoration-none" href="index.html">
+                    <span style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-code-slash me-2"></i>Codex
+                    </span>
+                </a>
+                <div class="collapse navbar-collapse d-none d-lg-block ms-5">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
+                        <li class="nav-item"><a class="nav-link" href="index.html">হোম</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="courses.html">টিউটোরিয়ালসমূহ</a></li>
+                        <li class="nav-item"><a class="nav-link" href="dashboard.html">ড্যাশবোর্ড</a></li>
+                        <li class="nav-item"><a class="nav-link" href="pricing.html">ওপেন সোর্স</a></li>
+                        <li class="nav-item"><a class="nav-link" href="blog.html">ব্লগ</a></li>
+                    </ul>
+                </div>
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <label for="theme-toggle" class="theme-switch-label">
+                        <i class="bi bi-sun"></i>
+                        <i class="bi bi-moon-stars"></i>
+                    </label>
+                    <a href="login.html" class="btn btn-premium-outline d-none d-lg-inline-block">লগইন</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Course Header Section -->
+        <section class="py-5 text-center fade-in-up">
+            <div class="container">
+                <h1 class="display-4 fw-extrabold mb-3">কোডেক্স টিউটোরিয়াল লাইব্রেরি</h1>
+                <p class="text-muted fs-5 max-w-600 mx-auto">সম্পূর্ণ ফ্রিতে ও সহজ ভাষায় প্রোগ্রামিং ও ব্যাকএন্ড ডেভেলপমেন্টের বিষয়ভিত্তিক গাইডসমূহ পড়ুন।</p>
+            </div>
+        </section>
+
+        <!-- Course Filter Inputs -->
+        <input type="radio" name="course-filter" id="cat-all" class="filter-input" checked>
+        <input type="radio" name="course-filter" id="cat-csharp" class="filter-input">
+        <input type="radio" name="course-filter" id="cat-dotnet" class="filter-input">
+        <input type="radio" name="course-filter" id="cat-database" class="filter-input">
+
+        <!-- Course Listings Grid Section -->
+        <section class="py-4 pb-5 mb-5 container">
+            
+            <div class="filter-tabs">
+                <label for="cat-all" class="filter-label">সব ক্যাটাগরি</label>
+                <label for="cat-csharp" class="filter-label"><i class="bi bi-hash me-1"></i>সি# (C#) গাইড</label>
+                <label for="cat-dotnet" class="filter-label"><i class="bi bi-gear me-1"></i>ডটনেট / ASP.NET</label>
+                <label for="cat-database" class="filter-label"><i class="bi bi-database me-1"></i>ডাটাবেজসমূহ</label>
+            </div>
+
+            <!-- Courses Grid -->
+            <div class="row g-4 courses-grid">
+                
+                <!-- Course 1: Active C# -->
+                <div class="col-md-6 col-lg-4 course-card-col category-csharp">
+                    <div class="premium-card course-card h-100 d-flex flex-column">
+                        <div class="position-relative">
+                            <div class="bg-primary text-white p-5 d-flex align-items-center justify-content-center" style="height: 180px; background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important;">
+                                <i class="bi bi-code-square display-2 text-white-50"></i>
+                            </div>
+                            <span class="badge bg-success position-absolute top-0 end-0 m-3 fs-7 py-2 px-3">সম্পূর্ণ ফ্রি</span>
+                        </div>
+                        <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7">C# Programming</span>
+                                    <span class="fs-7 text-muted"><i class="bi bi-book me-1"></i>৩০টি গাইড</span>
+                                </div>
+                                <h4 class="fw-bold text-primary mb-3">সি# (C#) সম্পূর্ণ টিউটোরিয়াল সূচি</h4>
+                                <p class="text-muted fs-6 mb-4">ভ্যারিয়েবল, কন্ডিশন, লুপ থেকে শুরু করে অবজেক্ট ওরিয়েন্টেড ডিজাইন ও মেমোরি এলোকেশনের বিস্তারিত আলোচনা।</p>
+                            </div>
+                            <div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between fs-7 mb-1">
+                                        <span class="fw-medium text-muted">আপনার পড়ার অগ্রগতি: ৪০%</span>
+                                        <span class="fw-bold text-primary">১২/৩০ পাঠ</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 40%;"></div>
+                                    </div>
+                                </div>
+                                <a href="course-details.html" class="btn btn-premium w-100 py-2">পড়া শুরু করুন <i class="bi bi-arrow-right-short ms-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course 2: Upcoming .NET -->
+                <div class="col-md-6 col-lg-4 course-card-col category-dotnet">
+                    <div class="premium-card course-card h-100 d-flex flex-column position-relative">
+                        <div class="locked-course-overlay">
+                            <i class="bi bi-clock-history display-4 mb-3"></i>
+                            <h5 class="fw-bold mb-1 text-white">কন্টেন্ট তৈরি হচ্ছে</h5>
+                            <p class="fs-7 text-white-50 text-center px-4">কমিউনিটি ডেভেলপারদের মাধ্যমে এই টপিকের ফ্রি গাইডসমূহ লেখার কাজ চলমান রয়েছে।</p>
+                        </div>
+                        <div class="bg-info text-white p-5 d-flex align-items-center justify-content-center" style="height: 180px; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%) !important;">
+                            <i class="bi bi-gear-fill display-2 text-white-50"></i>
+                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 fs-7 py-2 px-3">আসন্ন গাইড</span>
+                        </div>
+                        <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle fs-7">.NET / Web API</span>
+                                    <span class="fs-7 text-muted"><i class="bi bi-book me-1"></i>১৮টি গাইড</span>
+                                </div>
+                                <h4 class="fw-bold text-primary mb-3">ASP.NET Core ও ব্যাকএন্ড ডেভেলপমেন্ট</h4>
+                                <p class="text-muted fs-6 mb-4">ওয়েব এপিআই (Web API), এমভিসি (MVC) ডিজাইন প্যাটার্ন এবং এন্টারপ্রাইজ গ্রেড ডটনেট ব্যাকএন্ড আর্কিটেকচার।</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-premium-outline w-100 py-2" disabled>শীঘ্রই উন্মুক্ত হবে</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course 3: Upcoming SQL Server -->
+                <div class="col-md-6 col-lg-4 course-card-col category-database">
+                    <div class="premium-card course-card h-100 d-flex flex-column position-relative">
+                        <div class="locked-course-overlay">
+                            <i class="bi bi-clock-history display-4 mb-3"></i>
+                            <h5 class="fw-bold mb-1 text-white">কন্টেন্ট তৈরি হচ্ছে</h5>
+                            <p class="fs-7 text-white-50 text-center px-4">রিলেশনাল ডাটাবেজের ফান্ডামেন্টাল এবং কুয়েরি পারফরম্যান্স নিয়ে ড্রাফট চলছে।</p>
+                        </div>
+                        <div class="bg-dark text-white p-5 d-flex align-items-center justify-content-center" style="height: 180px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;">
+                            <i class="bi bi-database-fill display-2 text-white-50"></i>
+                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 fs-7 py-2 px-3">আসন্ন গাইড</span>
+                        </div>
+                        <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-7">Database</span>
+                                    <span class="fs-7 text-muted"><i class="bi bi-book me-1"></i>১০টি গাইড</span>
+                                </div>
+                                <h4 class="fw-bold text-primary mb-3">SQL Server ডাটাবেজ গাইড</h4>
+                                <p class="text-muted fs-6 mb-4">রিলেশনাল ডাটাবেজ থিওরি, ইডিআর ডায়াগ্রাম রিলেশনশিপ, জটিল জয়েন কোয়েরি অপ্টিমাইজেশন।</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-premium-outline w-100 py-2" disabled>শীঘ্রই উন্মুক্ত হবে</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer mt-auto">
+            <div class="container">
+                <div class="border-top pt-4 text-center">
+                    <p class="text-muted mb-0">&copy; 2026 Codex. সর্বস্বত্ব সংরক্ষিত।</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+</html>

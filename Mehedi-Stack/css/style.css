@@ -1,0 +1,864 @@
+@import url('https://fonts.maateen.me/kalpurush/font.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+/* ==========================================================================
+   CSS Custom Properties & Themes
+   ========================================================================== */
+:root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --primary: #4f46e5;
+    --secondary: #06b6d4;
+    --accent: #f97316;
+    --primary-grad: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    --accent-grad: linear-gradient(135deg, #f97316 0%, #facc15 100%);
+    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --card-shadow-hover: 0 20px 40px -15px rgba(79, 70, 229, 0.12), 0 1px 10px rgba(79, 70, 229, 0.05);
+    --glass-card: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-fast: all 0.2s ease;
+    --font-sans: 'Kalpurush', 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+    --glow-color: rgba(79, 70, 229, 0.15);
+}
+
+/* Dark Mode Theme overrides via the checkbox hack */
+#theme-toggle:checked ~ .app-container {
+    --bg-main: #0b0f19;
+    --bg-card: #151b2c;
+    --border-color: #212c45;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --primary: #6366f1;
+    --secondary: #22d3ee;
+    --accent: #ff7849;
+    --primary-grad: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+    --accent-grad: linear-gradient(135deg, #ff7849 0%, #fbbf24 100%);
+    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --card-shadow-hover: 0 20px 40px -15px rgba(34, 211, 238, 0.25);
+    --glass-card: rgba(21, 27, 44, 0.8);
+    --glass-border: rgba(33, 44, 69, 0.5);
+    --glow-color: rgba(34, 211, 238, 0.15);
+}
+
+/* ==========================================================================
+   Global Reset & Base Styles
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+a:hover {
+    color: var(--secondary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ==========================================================================
+   Layout Wrapper & Structure
+   ========================================================================== */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: var(--bg-main);
+    transition: background-color 0.4s ease;
+}
+
+/* Page animations */
+.fade-in-up {
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==========================================================================
+   Theme Toggle Switch Layout
+   ========================================================================== */
+.theme-switch-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+.theme-switch-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.theme-switch-label i {
+    font-size: 1.25rem;
+    transition: var(--transition-smooth);
+}
+.theme-switch-label .bi-sun {
+    color: var(--accent);
+    transform: scale(1);
+}
+.theme-switch-label .bi-moon-stars {
+    color: #a78bfa;
+    position: absolute;
+    transform: scale(0) translateY(30px);
+}
+
+/* Toggle actions when checked */
+#theme-toggle:checked ~ .app-container .theme-switch-label .bi-sun {
+    transform: scale(0) translateY(-30px);
+}
+#theme-toggle:checked ~ .app-container .theme-switch-label .bi-moon-stars {
+    transform: scale(1) translateY(0);
+}
+
+/* ==========================================================================
+   Aesthetics & Cards (Glassmorphism / Gradients)
+   ========================================================================== */
+.glass-card {
+    background: var(--glass-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 16px;
+    transition: var(--transition-smooth);
+}
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-shadow-hover);
+    border-color: var(--primary);
+}
+
+.premium-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+    overflow: hidden;
+    position: relative;
+}
+.premium-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-grad);
+    opacity: 0;
+    transition: var(--transition-smooth);
+}
+.premium-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--card-shadow-hover);
+}
+.premium-card:hover::before {
+    opacity: 1;
+}
+
+/* Glowing Border Effect (Stripe/Linear inspired) */
+.glow-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    position: relative;
+    z-index: 1;
+}
+.glow-card::after {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px; right: -1px; bottom: -1px;
+    background: var(--primary-grad);
+    border-radius: 16px;
+    z-index: -1;
+    opacity: 0;
+    transition: var(--transition-smooth);
+}
+.glow-card:hover::after {
+    opacity: 0.8;
+}
+
+/* Custom Gradient Button */
+.btn-premium {
+    background: var(--primary-grad);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 30px;
+    border: none;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 15px var(--glow-color);
+}
+.btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--glow-color);
+    color: #ffffff;
+    opacity: 0.95;
+}
+
+.btn-premium-outline {
+    background: transparent;
+    border: 2px solid transparent;
+    background-image: linear-gradient(var(--bg-card), var(--bg-card)), var(--primary-grad);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 30px;
+    transition: var(--transition-smooth);
+}
+.btn-premium-outline:hover {
+    transform: translateY(-2px);
+    background-image: var(--primary-grad);
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   CSS-Only Sidebar Toggle (Drawer)
+   ========================================================================== */
+.sidebar-input {
+    display: none;
+}
+.sidebar-panel {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    z-index: 1050;
+    transition: var(--transition-smooth);
+    padding: 2rem 1.5rem;
+    box-shadow: var(--card-shadow);
+}
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1040;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+
+.sidebar-input:checked ~ .sidebar-panel {
+    left: 0;
+}
+.sidebar-input:checked ~ .sidebar-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ==========================================================================
+   CSS-Only Tabs Interaction
+   ========================================================================== */
+.tab-section {
+    display: flex;
+    flex-direction: column;
+}
+.tab-triggers {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    gap: 1.5rem;
+}
+.tab-triggers label {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 10px 4px;
+    color: var(--text-muted);
+    position: relative;
+    transition: var(--transition-fast);
+}
+.tab-triggers label:hover {
+    color: var(--primary);
+}
+.tab-triggers label::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--primary-grad);
+    transform: scaleX(0);
+    transition: var(--transition-fast);
+}
+
+.tab-pane {
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* Connect inputs to displays */
+#tab-ctrl-1:checked ~ .tab-triggers label[for="tab-ctrl-1"],
+#tab-ctrl-2:checked ~ .tab-triggers label[for="tab-ctrl-2"],
+#tab-ctrl-3:checked ~ .tab-triggers label[for="tab-ctrl-3"],
+#tab-ctrl-4:checked ~ .tab-triggers label[for="tab-ctrl-4"] {
+    color: var(--primary);
+}
+#tab-ctrl-1:checked ~ .tab-triggers label[for="tab-ctrl-1"]::after,
+#tab-ctrl-2:checked ~ .tab-triggers label[for="tab-ctrl-2"]::after,
+#tab-ctrl-3:checked ~ .tab-triggers label[for="tab-ctrl-3"]::after,
+#tab-ctrl-4:checked ~ .tab-triggers label[for="tab-ctrl-4"]::after {
+    transform: scaleX(1);
+}
+
+#tab-ctrl-1:checked ~ .tab-content #pane-1,
+#tab-ctrl-2:checked ~ .tab-content #pane-2,
+#tab-ctrl-3:checked ~ .tab-content #pane-3,
+#tab-ctrl-4:checked ~ .tab-content #pane-4 {
+    display: block;
+}
+
+/* ==========================================================================
+   CSS-Only Accordion (Chapter Lists)
+   ========================================================================== */
+.custom-accordion-item {
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+}
+.accordion-toggle-input {
+    display: none;
+}
+.accordion-header-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--bg-card);
+    user-select: none;
+    transition: var(--transition-fast);
+}
+.accordion-header-label:hover {
+    background: rgba(79, 70, 229, 0.03);
+}
+.accordion-header-label .chevron {
+    transition: transform 0.3s ease;
+}
+.accordion-content-panel {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    border-top: 0px solid var(--border-color);
+    background: rgba(248, 250, 252, 0.5);
+}
+#theme-toggle:checked ~ .app-container .accordion-content-panel {
+    background: rgba(21, 27, 44, 0.3);
+}
+
+/* Trigger Accordion Open */
+.accordion-toggle-input:checked + .accordion-header-label .chevron {
+    transform: rotate(180deg);
+}
+.accordion-toggle-input:checked ~ .accordion-content-panel {
+    max-height: 800px; /* High enough to fit content */
+    opacity: 1;
+    border-top: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+}
+
+/* ==========================================================================
+   CSS-Only Modals (Interactive popups)
+   ========================================================================== */
+.modal-toggle-input {
+    display: none;
+}
+.custom-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(11, 15, 25, 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+.custom-modal-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow-hover);
+    border-radius: 24px;
+    width: 90%;
+    max-width: 550px;
+    padding: 2.5rem;
+    position: relative;
+    transform: translateY(40px) scale(0.95);
+    transition: var(--transition-smooth);
+}
+.modal-close-label {
+    position: absolute;
+    top: 1.25rem; right: 1.25rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: var(--transition-fast);
+}
+.modal-close-label:hover {
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.modal-toggle-input:checked ~ .custom-modal-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-toggle-input:checked ~ .custom-modal-overlay .custom-modal-box {
+    transform: translateY(0) scale(1);
+}
+
+/* ==========================================================================
+   CSS-Only Interactive Quiz
+   ========================================================================== */
+.quiz-option-label {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    background: var(--bg-card);
+    position: relative;
+}
+.quiz-option-label:hover {
+    border-color: var(--primary);
+    background: rgba(79, 70, 229, 0.02);
+}
+
+.quiz-option-input {
+    display: none;
+}
+
+/* Standard states when selected */
+.quiz-option-input:checked + .quiz-option-label {
+    border-color: var(--primary);
+    background: rgba(79, 70, 229, 0.05);
+}
+
+/* Visual verification of correct/incorrect options */
+/* Use wrapper class .quiz-question to scope the checking */
+.show-results-toggle {
+    display: none;
+}
+.btn-submit-quiz {
+    cursor: pointer;
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: 30px;
+    background: var(--primary-grad);
+    color: white;
+    font-weight: 600;
+}
+
+/* When the results toggle checkbox is checked, evaluate inputs */
+.show-results-toggle:checked ~ .quiz-options-container .quiz-option-input[data-correct="true"] + .quiz-option-label {
+    border-color: #10b981 !important; /* Green */
+    background: rgba(16, 185, 129, 0.08) !important;
+}
+.show-results-toggle:checked ~ .quiz-options-container .quiz-option-input[data-correct="true"] + .quiz-option-label::after {
+    content: '\F272'; /* Checkmark icon standard in BS Icons */
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    right: 1.25rem;
+    color: #10b981;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.show-results-toggle:checked ~ .quiz-options-container .quiz-option-input[data-correct="false"]:checked + .quiz-option-label {
+    border-color: #ef4444 !important; /* Red */
+    background: rgba(239, 68, 68, 0.08) !important;
+}
+.show-results-toggle:checked ~ .quiz-options-container .quiz-option-input[data-correct="false"]:checked + .quiz-option-label::after {
+    content: '\F5C2'; /* X icon in BS Icons */
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    right: 1.25rem;
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.feedback-msg {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    animation: fadeIn 0.4s ease forwards;
+}
+.show-results-toggle:checked ~ .feedback-msg {
+    display: block;
+}
+
+/* ==========================================================================
+   CSS-Only Lesson Code Sandbox / Playground Simulator
+   ========================================================================== */
+.code-playground {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+.playground-header {
+    background: #0f172a;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e293b;
+}
+.window-dots {
+    display: flex;
+    gap: 6px;
+}
+.window-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+.window-dot.red { background: #ef4444; }
+.window-dot.yellow { background: #f59e0b; }
+.window-dot.green { background: #10b981; }
+
+.playground-tabs-toggle {
+    display: none;
+}
+.playground-tab-labels {
+    display: flex;
+    gap: 8px;
+}
+.playground-tab-labels label {
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    border-radius: 6px;
+    color: #94a3b8;
+    transition: var(--transition-fast);
+}
+.playground-tab-labels label:hover {
+    color: #ffffff;
+    background: #1e293b;
+}
+
+.playground-body {
+    background: #0f172a;
+    position: relative;
+    min-height: 250px;
+}
+.playground-pane {
+    display: none;
+    padding: 1.5rem;
+    color: #e2e8f0;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+#play-tab-code:checked ~ .playground-header .playground-tab-labels label[for="play-tab-code"],
+#play-tab-output:checked ~ .playground-header .playground-tab-labels label[for="play-tab-output"] {
+    background: #1e293b;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+#play-tab-code:checked ~ .playground-body #pane-code,
+#play-tab-output:checked ~ .playground-body #pane-output {
+    display: block;
+}
+
+/* ==========================================================================
+   Streak UI & Gamified Components
+   ========================================================================== */
+.streak-badge {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1));
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: var(--accent);
+}
+.streak-badge i {
+    animation: flameBurn 1.5s infinite alternate;
+}
+
+.xp-circle-progress {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary) 70%, var(--border-color) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.xp-circle-progress::before {
+    content: '70%';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    transition: background-color 0.4s ease;
+}
+
+.roadmap-tree {
+    position: relative;
+    padding: 2rem 0;
+}
+.roadmap-tree::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    width: 4px;
+    background: var(--border-color);
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.roadmap-node {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 3rem;
+}
+.roadmap-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 4px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+.roadmap-circle:hover {
+    transform: scale(1.1);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.roadmap-node.completed .roadmap-circle {
+    border-color: #10b981;
+    background: #e6f7f0;
+    color: #10b981;
+}
+#theme-toggle:checked ~ .app-container .roadmap-node.completed .roadmap-circle {
+    background: #0f3d2f;
+}
+
+.roadmap-node.active .roadmap-circle {
+    border-color: var(--primary);
+    background: var(--bg-card);
+    color: var(--primary);
+    animation: activePulse 2s infinite;
+}
+
+.roadmap-node.locked .roadmap-circle {
+    border-color: var(--border-color);
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+#theme-toggle:checked ~ .app-container .roadmap-node.locked .roadmap-circle {
+    background: #1e293b;
+}
+
+/* ==========================================================================
+   CSS Keyframe Animations
+   ========================================================================== */
+@keyframes fadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes flameBurn {
+    0% {
+        transform: scale(1) rotate(0deg);
+        filter: drop-shadow(0 0 2px rgba(249, 115, 22, 0.4));
+    }
+    100% {
+        transform: scale(1.15) rotate(3deg) translateY(-2px);
+        filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.8));
+    }
+}
+
+@keyframes activePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(79, 70, 229, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+    }
+}
+
+@keyframes floatingBlob {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(30px, -50px) scale(1.15);
+    }
+    66% {
+        transform: translate(-20px, 20px) scale(0.95);
+    }
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+/* Shimmer Loading Placeholder Effect */
+.shimmer-placeholder {
+    background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-main) 50%, var(--border-color) 75%);
+    background-size: 200% 100%;
+    animation: shimmerLoading 1.5s infinite;
+}
+@keyframes shimmerLoading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Floating Blob shapes */
+.animated-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 0;
+    opacity: 0.15;
+    animation: floatingBlob 12s infinite alternate ease-in-out;
+}
+#theme-toggle:checked ~ .app-container .animated-blob {
+    opacity: 0.25;
+}
+
+/* ==========================================================================
+   Header and Navigation Layout
+   ========================================================================== */
+.custom-navbar {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+    transition: var(--transition-smooth);
+}
+.nav-link {
+    font-weight: 500;
+    color: var(--text-muted) !important;
+    position: relative;
+    padding: 0.5rem 1rem !important;
+    transition: var(--transition-fast);
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--primary) !important;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background: var(--primary-grad);
+    transform: scaleX(0);
+    transition: var(--transition-fast);
+}
+.nav-link.active::after, .nav-link:hover::after {
+    transform: scaleX(1);
+}
+
+/* ==========================================================================
+   Footer Layout
+   ========================================================================== */
+.footer {
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-card);
+    padding: 4rem 0 2rem;
+    transition: var(--transition-smooth);
+}
