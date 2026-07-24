@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter View — Middleware Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#050505;--surface:#111;--border:rgba(255,255,255,0.08);--orange:#fb923c;--amber:#fbbf24;--teal:#2dd4bf;--emerald:#34d399;--rose:#f87171;--text:#f8fafc;--muted:#94a3b8}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 26px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem}
+.tb-badge{background:linear-gradient(135deg,var(--orange),var(--amber));color:#000;padding:3px 9px;border-radius:6px;font-size:0.68rem;font-weight:700;letter-spacing:1px}
+.tb-right{display:flex;align-items:center;gap:20px}
+.timer-display{font-family:'Fira Code',monospace;font-size:1.6rem;font-weight:700;color:var(--orange);letter-spacing:2px}
+.timer-btns{display:flex;gap:6px}
+.tbtn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn:hover{background:rgba(251,146,60,0.1);border-color:var(--orange);color:var(--orange)}
+.conn-status{display:flex;align-items:center;gap:7px;font-size:0.75rem;color:var(--muted)}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s}
+.conn-dot.live{background:var(--orange);box-shadow:0 0 8px var(--orange);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{opacity:.4;transform:scale(.7)}}
+.main{flex:1;display:grid;grid-template-columns:1fr 320px;grid-template-rows:1fr auto;overflow:hidden;height:calc(100vh - 62px)}
+.script-panel{grid-column:1;grid-row:1;display:flex;flex-direction:column;padding:24px 30px;border-right:1px solid var(--border);overflow:hidden}
+.cur-label{font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cur-label::before{content:'';width:16px;height:2px;background:var(--orange);border-radius:1px}
+.cur-title{font-size:1.4rem;font-weight:800;margin-bottom:18px}
+.script-box{flex:1;overflow-y:auto;background:rgba(251,146,60,0.03);border:1px solid rgba(251,146,60,0.15);border-radius:12px;padding:22px 26px;position:relative}
+.script-box::before{content:'📢 SCRIPT';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--orange)}
+.script-text{font-size:1.1rem;line-height:2.1;color:var(--text);white-space:pre-line}
+.script-text em{color:var(--orange);font-style:normal;font-weight:600}
+.script-box::-webkit-scrollbar{width:4px}
+.script-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.nav-bar{grid-column:1;grid-row:2;display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.nav-btn{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;font-family:'Outfit',sans-serif}
+.nav-btn:hover{background:rgba(251,146,60,0.1);border-color:var(--orange);color:var(--orange)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.slide-counter{font-family:'Fira Code',monospace;font-size:0.95rem;color:var(--muted)}
+.slide-counter span{color:var(--text);font-weight:700}
+.right-panel{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;overflow:hidden}
+.rp-head{padding:12px 16px 8px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+.ch-list-p{overflow-y:auto;flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.ch-p{padding:7px 10px;border-radius:7px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-p:hover{background:rgba(255,255,255,0.04)}
+.ch-p.active{background:rgba(251,146,60,0.08);border-color:rgba(251,146,60,0.25);color:var(--orange);font-weight:600}
+.ch-p.done{color:var(--text)}
+.ch-p .cn{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-p.active .cn{background:var(--orange);color:#000}
+.ch-p.done .cn{background:rgba(251,146,60,0.15);color:var(--orange)}
+.next-preview{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.np-label{font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.np-title{font-size:0.82rem;font-weight:700;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.np-title i{color:var(--amber)}
+.prog-wrap{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.prog-label{font-size:0.6rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.prog-bar{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--amber));border-radius:3px;transition:width .4s}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-logo"><i class="fa-solid fa-filter" style="color:var(--orange)"></i> Presenter View <div class="tb-badge">MIDDLEWARE PIPELINE</div></div>
+  <div class="tb-right">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="timer-display" id="timer">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="timerBtn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i></button>
+        <button class="tbtn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+    <div class="conn-status"><div class="conn-dot" id="connDot"></div><span id="connTxt">সংযুক্ত নেই</span></div>
+  </div>
+</div>
+<div class="main">
+  <div class="script-panel">
+    <div class="cur-label" id="curLabel">স্লাইড ১</div>
+    <div class="cur-title" id="curTitle">পরিচয়</div>
+    <div class="script-box"><div class="script-text" id="scriptText"></div></div>
+  </div>
+  <div class="nav-bar">
+    <div style="display:flex;gap:10px">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled><i class="fa-solid fa-arrow-left"></i> পেছনে</button>
+      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">সামনে <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div class="slide-counter">স্লাইড <span id="curNum">1</span> / <span id="totNum">13</span></div>
+  </div>
+  <div class="right-panel">
+    <div class="rp-head"><i class="fa-solid fa-list-ul"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list-p" id="chListP"></div>
+    <div class="next-preview">
+      <div class="np-label"><i class="fa-solid fa-forward"></i> পরবর্তী</div>
+      <div class="np-title" id="nextTitle"><i class="fa-solid fa-arrow-right"></i> <span>—</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label"><span>অগ্রগতি</span><span id="progPct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+</div>
+<script>
+const BC=new BroadcastChannel('middleware_presentation');
+let cur=0,timerInterval=null,seconds=0,running=false;
+const slides=[
+  {title:'পরিচয় — ASP.NET Core Middleware Pipeline',script:`আচ্ছালামুয়ালাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
+
+আজকে আমরা শিখবো <em>ASP.NET Core Middleware Pipeline</em> — যেটাকে বলা হয় ASP.NET Core-এর হৃদয়।
+
+প্রতিটি HTTP Request যখন আসে তখন সেটা এই Pipeline-এর মধ্য দিয়ে যায়। আর Response ফেরার সময় উল্টো পথে আসে।
+
+আজকে একটি <em>লাইভ সিমুলেটর</em>-এ দেখবো Request কীভাবে যায়, কীভাবে ফিরে আসে, এবং Auth fail হলে কীভাবে Short-circuit হয়।`},
+  {title:'বিমানবন্দর অ্যানালজি',script:`Middleware Pipeline বোঝার সবচেয়ে সহজ উপায় হলো বিমানবন্দরের কথা মাথায় রাখা।
+
+আপনি বিমানে উঠতে গেলে একে একে কয়েকটি গেট পার করতে হয় — Check-in, Luggage Scan, Passport Control, Boarding Gate।
+
+একইভাবে HTTP Request যখন আসে তখন সে একে একে <em>Logging, Exception Handler, Routing, Auth, Controller</em> পার করে।
+
+আর Response যখন ফিরে যায় তখন উল্টো পথে পার হয়।
+
+যদি কোনো গেটে আটকে যায় তাহলে বাকি গেট দেখতেই পায় না — এটাই <em>Short-Circuiting</em>।`},
+  {title:'Pipeline সিমুলেটর',script:`এখন লাইভ সিমুলেটর দেখুন।
+
+প্রথমে <em>"Normal Request পাঠাও"</em> বাটনে ক্লিক করুন।
+
+দেখুন নারঞ্জি বল Pipeline-এ প্রবেশ করছে। একে একে Logging, Exception Handler, Routing, Auth পার করছে। Controller-এ পৌঁছালো, Response তৈরি হলো।
+
+এখন নীল বল হিসেবে উল্টো পথে ফিরে আসছে।
+
+এখন <em>"Auth Fail"</em> বাটনে ক্লিক করুন।
+
+দেখুন Auth গেটে এসে বল থামলো, লাল হয়ে গেলো, ৪০১ ফেরত দিলো। Controller কখনো দেখেনি।`},
+  {title:'Short-Circuiting',script:`<em>Short-Circuiting</em> হলো Middleware-এর একটি শক্তিশালী ফিচার।
+
+যখন কোনো Middleware \`next()\` কল করে না, তখন Pipeline সেখানেই থামে।
+
+Auth Middleware-এ যদি Token invalid হয়, সে \`next()\` না ডেকে সরাসরি ৪০১ Response পাঠায়।
+
+এতে করে Controller, DB call কিছুই হয় না। Performance বাড়ে, নিরাপত্তা নিশ্চিত হয়।
+
+একইভাবে Rate Limiting Middleware, CORS Middleware — এরাও Short-circuit করে।`},
+  {title:'Built-in Middleware',script:`ASP.NET Core-এ অনেক Ready-made Middleware আছে।
+
+<em>UseStaticFiles</em> — wwwroot থেকে CSS, JS, Image সার্ভ করে।
+
+<em>UseExceptionHandler</em> — সব Unhandled Exception ধরে Error Page দেখায়।
+
+<em>UseRouting</em> — URL Pattern অনুযায়ী কোন Endpoint সার্ভ করবে match করে।
+
+<em>UseAuthentication</em> — JWT Token বা Cookie থেকে User পরিচয় বের করে।
+
+<em>UseAuthorization</em> — User-এর [Authorize] attribute Permission চেক করে।
+
+<em>UseCors</em> — Cross-Origin Resource Sharing নিয়ন্ত্রণ করে।`},
+  {title:'Middleware ক্রম গুরুত্বপূর্ণ!',script:`এটা অত্যন্ত গুরুত্বপূর্ণ — Middleware-এর ক্রম ভুল হলে অ্যাপ্লিকেশন ঠিকমতো কাজ করবে না।
+
+<em>Bad Version</em>-এ দেখুন — Authorization আগে এসেছে, Authentication পরে। কিন্তু User কে চেনার আগে Permission দেওয়া অর্থহীন!
+
+<em>Good Version</em>-এ সঠিক ক্রম হলো — Exception Handler সবার প্রথমে, তারপর Static Files, তারপর Routing, Authentication, Authorization এবং সবশেষে Controllers।
+
+এই ক্রম Microsoft-এর Recommended Order।`},
+  {title:'Custom Middleware তৈরি',script:`নিজের Middleware বানানো অনেক সহজ।
+
+যেকোনো class যেখানে <em>InvokeAsync</em> method আছে সেটাই Middleware হতে পারে।
+
+এই উদাহরণে আমরা <em>RequestTimingMiddleware</em> বানিয়েছি যেটা প্রতিটি Request-এর সময় মাপে।
+
+Request আসলে Stopwatch শুরু হয়। await next() দিয়ে পরের Middleware-এ যায়। Response ফিরলে Stopwatch থামায় এবং X-Response-Time Header যোগ করে।
+
+Program.cs-এ \`app.UseMiddleware<RequestTimingMiddleware>()\` দিয়ে যোগ করুন।`},
+  {title:'Use vs Run vs Map',script:`তিনটি গুরুত্বপূর্ণ Middleware API আছে।
+
+<em>app.Use()</em> — সাধারণ Middleware। next() কল করে পরের Middleware-এ যায়। Request ও Response দুদিকে কাজ করতে পারে।
+
+<em>app.Run()</em> — Terminal Middleware। পরের কাউকে কল করে না। এখানেই Response পাঠায়। Testing বা Fallback-এর জন্য।
+
+<em>app.Map()</em> — URL Path অনুযায়ী আলাদা Branch Pipeline তৈরি করে। যেমন /api-এর জন্য আলাদা Middleware setup।`},
+  {title:'IMiddleware — DI-Friendly',script:`Convention-based Middleware-এ Scoped Service inject করা কঠিন। Constructor-এ Singleton বা Transient দিতে হয়।
+
+কিন্তু <em>IMiddleware</em> interface implement করলে Scoped Service সহজেই inject করা যায়।
+
+IMiddleware-এ InvokeAsync-এ HttpContext এবং RequestDelegate দুটোই parameter হিসেবে আসে।
+
+এরপর \`services.AddScoped<MyMiddleware>()\` দিয়ে DI Container-এ Register করুন।
+
+এটাই recommended approach যখন Database বা Scoped Service ব্যবহার করতে হবে।`},
+  {title:'Exception Middleware',script:`Global Exception Handling-এর জন্য সবার প্রথমে Exception Middleware রাখুন।
+
+কারণ — Exception ওপরের দিকে bubble করে। সবার উপরে থাকলে সব Exception ধরতে পারবে।
+
+try-catch দিয়ে \`await next(ctx)\` call করুন। NotFoundException হলে 404 পাঠান। অন্য Exception হলে Log করুন এবং 500 পাঠান।
+
+এতে Controller-এ আলাদা try-catch লাগবে না।`},
+  {title:'Pipeline Diagram',script:`এই Diagram-টি মনে রাখুন।
+
+উপর থেকে নিচে — Exception Handler, HTTPS Redirect, Static Files, Routing, Authentication, Authorization, Controller।
+
+Request নিচে যায়, Response উপরে আসে।
+
+সবচেয়ে গুরুত্বপূর্ণ নিয়ম হলো — Exception Handler সবার <em>প্রথমে</em>, Auth সবসময় Routing-এর <em>পরে</em>, Authorization সবসময় Authentication-এর <em>পরে</em>।`},
+  {title:'Response Compression Middleware',script:`Performance optimize করতে Response Compression ব্যবহার করুন।
+
+\`AddResponseCompression()\` দিয়ে Brotli এবং Gzip Compression Provider যোগ করুন। HTTPS-এও enable করুন।
+
+তারপর Pipeline-এ Routing-এর আগে \`app.UseResponseCompression()\` দিন।
+
+ফলে Response Body compress হয়ে Client-এ যাবে। JSON Response ৭০-৮০% ছোট হতে পারে। Bandwidth কমবে, Speed বাড়বে।`},
+  {title:'সারসংক্ষেপ — Middleware Pipeline',script:`আজকে আমরা অনেক কিছু শিখলাম।
+
+<em>Middleware Pipeline</em> হলো ASP.NET Core-এর হৃদয়। প্রতিটি Request এই Pipeline দিয়ে যায়।
+
+<em>Short-Circuiting</em> — next() না ডাকলে Pipeline থামে। Auth fail হলে Controller দেখে না।
+
+<em>ক্রম গুরুত্বপূর্ণ</em> — Exception Handler প্রথমে, তারপর Auth, তারপর Controllers।
+
+<em>Custom Middleware</em> বানাতে IMiddleware ব্যবহার করুন — Scoped DI সহ।
+
+ভিডিওটি ভালো লাগলে লাইক, শেয়ার এবং <em>Coding Drop</em> সাবস্ক্রাইব করুন! আল্লাহ হাফেজ!`}
+];
+const chapters=['পরিচয়','বিমানবন্দর অ্যানালজি','Pipeline সিমুলেটর','Short-Circuiting','Built-in Middleware','ক্রম গুরুত্বপূর্ণ','Custom Middleware','Use vs Run vs Map','IMiddleware DI','Exception Middleware','Pipeline Diagram','Response Compression','সারসংক্ষেপ'];
+const TOTAL=slides.length;document.getElementById('totNum').textContent=TOTAL;
+const chListP=document.getElementById('chListP');
+chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-p'+(i===0?' active':'');el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;el.onclick=()=>navigate(i-cur);chListP.appendChild(el)});
+function updateUI(){const s=slides[cur];document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;document.getElementById('curTitle').textContent=s.title;document.getElementById('scriptText').innerHTML=s.script;document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('prevBtn').disabled=cur===0;document.getElementById('nextBtn').disabled=cur===TOTAL-1;document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});const nt=document.getElementById('nextTitle');nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`}
+function navigate(delta){const next=Math.max(0,Math.min(TOTAL-1,cur+delta));if(next===cur)return;cur=next;BC.postMessage({type:'nav',idx:cur});updateUI()}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1)});
+function toggleTimer(){if(running){clearInterval(timerInterval);running=false;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}else{timerInterval=setInterval(()=>{seconds++;const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s},1000);running=true;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-pause"></i>'}}
+function resetTimer(){clearInterval(timerInterval);running=false;seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
+BC.postMessage({type:'ping_from_presenter'});setInterval(()=>BC.postMessage({type:'ping_from_presenter'}),3000);
+BC.onmessage=e=>{if(e.data.type==='ping'){document.getElementById('connDot').classList.add('live');document.getElementById('connTxt').textContent='সংযুক্ত';setTimeout(()=>{document.getElementById('connDot').classList.remove('live');document.getElementById('connTxt').textContent='সংযুক্ত নেই'},5000)}};
+updateUI();
+</script>
+</body>
+</html>

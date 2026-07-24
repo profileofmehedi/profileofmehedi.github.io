@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter View — Async / Await</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#050505;--surface:#111;--border:rgba(255,255,255,0.08);--sky:#38bdf8;--indigo:#818cf8;--gold:#fbbf24;--emerald:#34d399;--rose:#f87171;--text:#f8fafc;--muted:#94a3b8}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 26px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem}
+.tb-badge{background:linear-gradient(135deg,var(--sky),var(--indigo));color:#fff;padding:3px 9px;border-radius:6px;font-size:0.68rem;font-weight:700;letter-spacing:1px}
+.tb-right{display:flex;align-items:center;gap:20px}
+.timer-display{font-family:'Fira Code',monospace;font-size:1.6rem;font-weight:700;color:var(--sky);letter-spacing:2px}
+.timer-btns{display:flex;gap:6px}
+.tbtn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn:hover{background:rgba(56,189,248,0.1);border-color:var(--sky);color:var(--sky)}
+.conn-status{display:flex;align-items:center;gap:7px;font-size:0.75rem;color:var(--muted)}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s}
+.conn-dot.live{background:var(--sky);box-shadow:0 0 8px var(--sky);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{opacity:.4;transform:scale(.7)}}
+.main{flex:1;display:grid;grid-template-columns:1fr 320px;grid-template-rows:1fr auto;overflow:hidden;height:calc(100vh - 62px)}
+.script-panel{grid-column:1;grid-row:1;display:flex;flex-direction:column;padding:24px 30px;border-right:1px solid var(--border);overflow:hidden}
+.cur-label{font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--sky);display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cur-label::before{content:'';width:16px;height:2px;background:var(--sky);border-radius:1px}
+.cur-title{font-size:1.4rem;font-weight:800;margin-bottom:18px}
+.script-box{flex:1;overflow-y:auto;background:rgba(56,189,248,0.03);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:22px 26px;position:relative}
+.script-box::before{content:'📢 SCRIPT';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--sky)}
+.script-text{font-size:1.1rem;line-height:2.1;color:var(--text);white-space:pre-line}
+.script-text em{color:var(--sky);font-style:normal;font-weight:600}
+.script-box::-webkit-scrollbar{width:4px}
+.script-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.nav-bar{grid-column:1;grid-row:2;display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.nav-arrows{display:flex;gap:10px}
+.nav-btn{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;font-family:'Outfit',sans-serif}
+.nav-btn:hover{background:rgba(56,189,248,0.1);border-color:var(--sky);color:var(--sky)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.slide-counter{font-family:'Fira Code',monospace;font-size:0.95rem;color:var(--muted)}
+.slide-counter span{color:var(--text);font-weight:700}
+.right-panel{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;overflow:hidden}
+.rp-head{padding:12px 16px 8px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+.ch-list-p{overflow-y:auto;flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.ch-p{padding:7px 10px;border-radius:7px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-p:hover{background:rgba(255,255,255,0.04)}
+.ch-p.active{background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.25);color:var(--sky);font-weight:600}
+.ch-p.done{color:var(--text)}
+.ch-p .cn{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-p.active .cn{background:var(--sky);color:#000}
+.ch-p.done .cn{background:rgba(56,189,248,0.15);color:var(--sky)}
+.next-preview{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.np-label{font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.np-title{font-size:0.82rem;font-weight:700;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.np-title i{color:var(--gold)}
+.prog-wrap{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.prog-label{font-size:0.6rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.prog-bar{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--indigo));border-radius:3px;transition:width .4s}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-logo"><i class="fa-solid fa-bolt" style="color:var(--sky)"></i> Presenter View <div class="tb-badge">ASYNC / AWAIT</div></div>
+  <div class="tb-right">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="timer-display" id="timer">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="timerBtn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i></button>
+        <button class="tbtn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+    <div class="conn-status"><div class="conn-dot" id="connDot"></div><span id="connTxt">সংযুক্ত নেই</span></div>
+  </div>
+</div>
+<div class="main">
+  <div class="script-panel">
+    <div class="cur-label" id="curLabel">স্লাইড ১</div>
+    <div class="cur-title" id="curTitle">পরিচয়</div>
+    <div class="script-box"><div class="script-text" id="scriptText"></div></div>
+  </div>
+  <div class="nav-bar">
+    <div class="nav-arrows">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled><i class="fa-solid fa-arrow-left"></i> পেছনে</button>
+      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">সামনে <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div class="slide-counter">স্লাইড <span id="curNum">1</span> / <span id="totNum">14</span></div>
+  </div>
+  <div class="right-panel">
+    <div class="rp-head"><i class="fa-solid fa-list-ul"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list-p" id="chListP"></div>
+    <div class="next-preview">
+      <div class="np-label"><i class="fa-solid fa-forward"></i> পরবর্তী</div>
+      <div class="np-title" id="nextTitle"><i class="fa-solid fa-arrow-right"></i> <span>—</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label"><span>অগ্রগতি</span><span id="progPct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+</div>
+<script>
+const BC = new BroadcastChannel('async_presentation');
+let cur=0,timerInterval=null,seconds=0,running=false;
+const slides=[
+  {title:'পরিচয় — Async / Await & Task',script:`আচ্ছালামুয়ালাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
+
+আজকের বিষয় হলো .NET-এর সবচেয়ে শক্তিশালী ফিচারগুলোর একটি — <em>Async / Await</em> এবং <em>Task Parallel Library</em>।
+
+অনেকেই async/await ব্যবহার করেন কিন্তু ভেতরে কী হচ্ছে জানেন না। আজকে আমরা সেটাই বুঝবো — Thread কীভাবে কাজ করে, Task কী, এবং Deadlock কীভাবে এড়াবেন।
+
+এই প্রেজেন্টেশনে লাইভ <em>Thread Pool Simulator</em>, <em>WhenAll/WhenAny</em> ডেমো, এবং <em>Deadlock</em> সিমুলেশন দেখবো।`},
+  {title:'Synchronous = Thread আটকে থাকে',script:`প্রথমে বুঝি সমস্যাটা কোথায়।
+
+রেস্তোরাঁর একজন বাবুর্চির কথা ভাবুন। সে চুলায় পানি গরম দিয়ে সেই পাশে দাঁড়িয়ে অপেক্ষা করছে। পানি না ফুটলে সে আর কিছু করছে না।
+
+এটাই <em>Synchronous</em> — একটি Thread একটা কাজে আটকে থাকে।
+
+কিন্তু বুদ্ধিমান বাবুর্চি পানি চুলায় দিয়ে ততক্ষণে পেঁয়াজ-গাজর কাটে। পানি গরম হলে সে ফিরে আসে।
+
+এটাই <em>Async / Await</em> — await-এর সময় Thread ছেড়ে দেয়, অন্য কাজ করে, Callback হলে ফিরে আসে।
+
+ASP.NET Core-এ এটা অত্যন্ত গুরুত্বপূর্ণ কারণ একটি Thread Pool আছে।`},
+  {title:'Thread Pool সিমুলেটর',script:`এখন লাইভ সিমুলেটর দেখুন।
+
+Thread Pool-এ ৮টি Thread আছে (নীল রঙ = Idle)।
+
+প্রথমে <em>Sync Request</em> বাটনে ক্লিক করুন। দেখুন একটি Thread ব্লক হয়ে গেলো (লাল রঙ)। ৩ সেকেন্ড এই Thread কোনো কাজ করতে পারবে না।
+
+এভাবে অনেকগুলো Sync Request পাঠান — Thread Pool শেষ হয়ে যাবে!
+
+এখন <em>Async Request</em> বাটনে ক্লিক করুন। Thread কাজ নেয়, await করে, Pool-এ ফিরে আসে, তারপর Continuation-এ আবার কাজ করে।
+
+দেখুন Async-এ Thread Pool-এ Thread থাকে এবং আরো Request নিতে পারে।`},
+  {title:'Task<T> — ভবিষ্যতের প্রতিশ্রুতি',script:`<em>Task</em> হলো একটি প্রতিশ্রুতির মতো।
+
+রেস্তোরাঁয় অর্ডার দিলে একটি টোকেন পান। রান্না হওয়ার পর টোকেন দিয়ে খাবার নিবেন। Task-ও তেমনই — ভবিষ্যতে একটি মান পাবেন।
+
+Task-এর ৪টি অবস্থা আছে। <em>Pending</em> — কাজ শুরু হয়নি। <em>Running</em> — কাজ চলছে। <em>RanToCompletion</em> — সফলভাবে শেষ। <em>Faulted</em> — Exception হয়েছে।
+
+Task ছাড়া await করা যায় না। Task-ই হলো async programming-এর মেরুদণ্ড।`},
+  {title:'async / await কোড ডেমো',script:`এখন Bad vs Good Practice দেখুন।
+
+<em>Sync Version</em>-এ প্রতিটি ডাটাবেজ কল Thread ব্লক করে। দুটো কল মানে দুবার Thread আটকে আছে। এই সময়ে অন্য Request সার্ভ হতে পারছে না।
+
+<em>Async Version</em>-এ প্রতিটি কলে <em>await</em> করা হয়েছে। await-এর সময় Thread মুক্ত হয়ে অন্য Request নিতে পারে। ডাটা আসলে Continuation-এ ফিরে আসে।
+
+Method-এর return type হলো Task&lt;IActionResult&gt; এবং method-এর আগে async keyword।
+
+Switch করে পার্থক্য দেখুন।`},
+  {title:'WhenAll & WhenAny — Parallel Tasks',script:`কখনো কখনো একসাথে অনেক Task চালাতে হয়।
+
+<em>Task.WhenAll()</em> — সব Task একসাথে শুরু হয় এবং সব শেষ হলে continue করে। যেমন একসাথে Email পাঠানো, Report তৈরি করা, Image Process করা।
+
+<em>Task.WhenAny()</em> — সব Task একসাথে শুরু হয়। যে প্রথম শেষ করে তার Result নিয়ে continue করে। Race condition বা Timeout-এর জন্য ব্যবহার করুন।
+
+লাইভ ডেমোতে দেখুন — WhenAll-এ সবাই শেষ হওয়ার পর result আসে। WhenAny-তে প্রথম শেষকারী জয়ী।`},
+  {title:'CancellationToken',script:`Long-running Task চালু করলে এটি বাতিল করার ব্যবস্থাও রাখতে হবে।
+
+<em>CancellationToken</em> হলো একটি সুইচ। আপনি যখন চাইবেন বন্ধ করুন।
+
+ব্যবহার পদ্ধতি — CancellationTokenSource তৈরি করুন। Source.Token দিয়ে Token পাস করুন। যখন বাতিল করতে চান Source.Cancel() কল করুন।
+
+async method-এ Token চেক করুন — token.ThrowIfCancellationRequested()।
+
+লাইভ ডেমোতে Task শুরু করুন, তারপর Cancel করুন।
+
+ASP.NET Core-এ HttpContext.RequestAborted Token দিয়ে User চলে গেলে DB Query বাতিল করা যায়।`},
+  {title:'Deadlock — .Result ব্যবহারের ফাঁদ',script:`এটি সবচেয়ে ভয়ংকর ভুল।
+
+<em>Deadlock</em> হয় যখন দুটো Thread পরস্পরের জন্য অপেক্ষা করে।
+
+UI Thread একটি async Task চালায়। তারপর Task.Result দিয়ে ব্লক করে অপেক্ষা করে। কিন্তু async Task সম্পন্ন হতে UI Thread-এ Continuation চালাতে হবে। UI Thread কিন্তু ব্লক! ফলে Deadlock।
+
+ডেমোতে button ক্লিক করলে দেখুন দুটো Thread পরস্পরের জন্য অপেক্ষায় আটকে গেছে।
+
+সমাধান — সবসময় <em>await</em> করুন। কখনো .Result বা .Wait() ব্যবহার করবেন না।`},
+  {title:'ConfigureAwait(false)',script:`<em>ConfigureAwait(false)</em> Library কোডে খুব গুরুত্বপূর্ণ।
+
+ডিফল্টে await সম্পন্ন হলে মূল SynchronizationContext-এ (যেমন UI Thread) ফিরে আসে। Library কোডে এটা দরকার নেই — এবং এটাই Deadlock-এর কারণ।
+
+Bad Version-এ library code SynchronizationContext ক্যাপচার করে। Caller যদি UI Thread হয় তাহলে Deadlock।
+
+Good Version-এ ConfigureAwait(false) দেওয়া হয়েছে — যেকোনো Thread-এ Continuation চলবে। Deadlock হবে না।
+
+নিয়ম — Library কোডে সবসময় ConfigureAwait(false) দিন। Application কোডে দেওয়ার দরকার নেই।`},
+  {title:'Async Exception Handling',script:`async কোডে Exception handle করা সামান্য ভিন্ন।
+
+await দিয়ে call করলে Exception সরাসরি try/catch-এ ধরা যায়। এটা সবচেয়ে সহজ পদ্ধতি।
+
+Task.WhenAll() ব্যবহার করলে সব Task-এর Exception একসাথে AggregateException-এ আসে। InnerExceptions-এ প্রতিটি Exception পাবেন।
+
+CancellationToken দিয়ে বাতিল হলে OperationCanceledException throw হয়। এটা আলাদা catch করুন।
+
+কোডে দেখুন কীভাবে তিনটি আলাদা catch block দিয়ে প্রতিটি সিচুয়েশন handle করা হয়েছে।`},
+  {title:'ValueTask — অতিরিক্ত Allocation কমান',script:`Hot path-এ performance optimize করতে <em>ValueTask&lt;T&gt;</em> ব্যবহার করুন।
+
+Task সবসময় Heap-এ object তৈরি করে। Cache hit-এ যদি সরাসরি মান ফেরত দিতে পারেন তাহলেও একটি Task object তৈরি হয়।
+
+ValueTask দিয়ে Cache hit-এ কোনো Heap allocation হয় না। শুধুমাত্র সত্যিকারের async হলে Task তৈরি হয়।
+
+কখন ব্যবহার করবেন — যখন method সিংহভাগ সময় synchronously complete হয় (Cache, in-memory lookup)।
+
+কখন ব্যবহার করবেন না — সবসময় async হলে, বা একাধিকবার await করতে হলে।`},
+  {title:'Async Best Practices',script:`মূল নিয়মগুলো মনে রাখুন।
+
+<em>Async All the Way</em> — যদি একটি method async হয় তাহলে তার caller-ও async হতে হবে। মাঝে sync করলে Deadlock।
+
+<em>.Result বা .Wait() নয়</em> — সবসময় await করুন। এই দুটো UI Thread বা ASP.NET Core-এ Deadlock তৈরি করতে পারে।
+
+<em>ConfigureAwait(false)</em> — Library বা NuGet package কোডে সবসময় দিন।
+
+<em>CancellationToken</em> — সব public async method-এ CancellationToken parameter রাখুন। Default value দিন।`},
+  {title:'Async কখন ব্যবহার করবেন না?',script:`Async সবসময় ভালো নয়।
+
+Async-এর overhead আছে — state machine তৈরি হয়, continuation আছে। CPU-bound কাজে এই overhead লাভজনক নয়।
+
+<em>I/O Bound</em> কাজে async দুর্দান্ত — Database call, HTTP request, File I/O, Message Queue। এখানে Thread অপেক্ষায় আটকে থাকত।
+
+<em>CPU Bound</em> কাজে Task.Run() ব্যবহার করুন — Image processing, Heavy calculation, ML inference। Thread Pool-এ Background Thread-এ চলবে।
+
+<em>async void</em> এড়িয়ে চলুন। শুধু Event handler-এ ব্যবহার করুন। Exception ধরা যায় না।`},
+  {title:'সারসংক্ষেপ — Async / Await',script:`আজকে আমরা অনেক কিছু শিখলাম।
+
+<em>await</em> মানে Thread ছেড়ে দাও, কাজ হলে ফিরে আসো।
+
+<em>Task&lt;T&gt;</em> মানে ভবিষ্যতের প্রতিশ্রুতি।
+
+<em>WhenAll</em> — সবার জন্য অপেক্ষা। <em>WhenAny</em> — প্রথমটির জন্য।
+
+<em>CancellationToken</em> দিয়ে Task বাতিল করুন।
+
+কখনো <em>.Result</em> বা <em>.Wait()</em> ব্যবহার করবেন না — Deadlock হবে।
+
+Library কোডে <em>ConfigureAwait(false)</em> দিন।
+
+ভিডিওটি ভালো লাগলে লাইক, কমেন্ট এবং <em>Coding Drop</em> সাবস্ক্রাইব করুন। আল্লাহ হাফেজ!`}
+];
+const chapters=['পরিচয়','Sync সমস্যা','Thread Pool','Task কী?','async/await কোড','WhenAll & WhenAny','CancellationToken','Deadlock','ConfigureAwait','Exception Handling','ValueTask','Best Practices','কখন নয়?','সারসংক্ষেপ'];
+const TOTAL=slides.length;
+document.getElementById('totNum').textContent=TOTAL;
+const chListP=document.getElementById('chListP');
+chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-p'+(i===0?' active':'');el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;el.onclick=()=>navigate(i-cur);chListP.appendChild(el)});
+function updateUI(){const s=slides[cur];document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;document.getElementById('curTitle').textContent=s.title;document.getElementById('scriptText').innerHTML=s.script;document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('prevBtn').disabled=cur===0;document.getElementById('nextBtn').disabled=cur===TOTAL-1;document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});const nt=document.getElementById('nextTitle');nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`}
+function navigate(delta){const next=Math.max(0,Math.min(TOTAL-1,cur+delta));if(next===cur)return;cur=next;BC.postMessage({type:'nav',idx:cur});updateUI()}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1)});
+function toggleTimer(){if(running){clearInterval(timerInterval);running=false;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}else{timerInterval=setInterval(()=>{seconds++;const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s},1000);running=true;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-pause"></i>'}}
+function resetTimer(){clearInterval(timerInterval);running=false;seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
+BC.postMessage({type:'ping_from_presenter'});
+setInterval(()=>BC.postMessage({type:'ping_from_presenter'}),3000);
+BC.onmessage=e=>{if(e.data.type==='ping'){document.getElementById('connDot').classList.add('live');document.getElementById('connTxt').textContent='সংযুক্ত';setTimeout(()=>{document.getElementById('connDot').classList.remove('live');document.getElementById('connTxt').textContent='সংযুক্ত নেই'},5000)}};
+updateUI();
+</script>
+</body>
+</html>

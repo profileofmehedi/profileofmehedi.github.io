@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Async / Await & Task — Coding Drop</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#020810;--surface:#080f1c;--surface2:#0d1628;--border:rgba(255,255,255,0.08);--sky:#38bdf8;--indigo:#818cf8;--gold:#fbbf24;--emerald:#34d399;--rose:#f87171;--violet:#c084fc;--text:#f0f9ff;--muted:#7a9ab8;--r:16px}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;cursor:none}
+body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.cursor-dot{position:fixed;top:0;left:0;width:12px;height:12px;background:var(--sky);border-radius:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;box-shadow:0 0 15px var(--sky)}
+.cursor-outline{position:fixed;top:0;left:0;width:40px;height:40px;border:2px solid rgba(56,189,248,0.5);border-radius:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;transition:transform .1s ease-out}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.25}
+.layout{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
+.slide-area{flex:1;position:relative;overflow:hidden}
+.ch-logo-wrap{position:absolute;top:20px;left:24px;z-index:50;display:flex;align-items:center;gap:11px;background:rgba(8,15,28,0.8);border:1px solid var(--border);border-radius:14px;padding:8px 16px 8px 10px;backdrop-filter:blur(16px);cursor:none}
+.ch-logo-icon{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--sky),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;font-weight:800}
+.ch-logo-name{font-size:0.82rem;font-weight:800;background:linear-gradient(135deg,#fff,rgba(255,255,255,0.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.ch-logo-sub{font-size:0.6rem;color:var(--muted);letter-spacing:0.5px}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px 70px 100px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(20px) scale(0.98);transition:opacity .65s cubic-bezier(.4,0,.2,1),transform .65s cubic-bezier(.4,0,.2,1)}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1)}
+.slide.exit{opacity:0;transform:translateY(-20px) scale(0.98)}
+.fu{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fu.visible{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.25s}.d3{transition-delay:.4s}.d4{transition-delay:.55s}.d5{transition-delay:.7s}
+.tag{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--sky);padding:6px 14px;border-radius:30px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;display:inline-flex;align-items:center;gap:8px}
+.s-title{font-size:2.6rem;font-weight:900;line-height:1.15;margin-bottom:14px;text-align:center}
+.s-desc{font-size:1rem;color:var(--muted);line-height:1.75;text-align:center;max-width:720px}
+.hl{background:linear-gradient(135deg,var(--sky),var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bottom-bar{position:absolute;bottom:0;left:0;right:0;height:60px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:50}
+.slide-num{font-family:'Fira Code',monospace;font-size:0.82rem;color:var(--muted)}
+.slide-num span{color:var(--sky);font-weight:700}
+.progress-bar-thin{width:160px;height:3px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--indigo));border-radius:3px;transition:width .5s ease}
+.sidebar{width:270px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-header{padding:20px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:0.9rem;margin-bottom:12px}
+.sb-logo i{color:var(--sky)}
+.sb-progress-text{font-size:0.68rem;color:var(--muted)}
+.sb-title{padding:12px 18px 8px;font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ch-list{overflow-y:auto;flex:1;padding:0 10px 12px;display:flex;flex-direction:column;gap:3px}
+.ch-item{padding:9px 12px;border-radius:9px;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-item:hover{background:rgba(255,255,255,0.04)}
+.ch-item.active{background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.25);color:var(--sky);font-weight:600}
+.ch-item.done{color:var(--text)}
+.ch-num{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-item.active .ch-num{background:var(--sky);color:#000}
+.ch-item.done .ch-num{background:rgba(56,189,248,0.15);color:var(--sky)}
+
+/* ── Hero Badges ── */
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.hero-badge{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);color:var(--sky);padding:7px 14px;border-radius:30px;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:7px}
+
+/* ── Two col ── */
+.two-col{display:flex;gap:24px;width:100%;max-width:820px}
+.col-box{flex:1;border-radius:14px;padding:20px}
+.sky-box{background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.25)}
+.rose-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25)}
+.gold-box{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25)}
+.emerald-box{background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.25)}
+.col-title{font-weight:800;font-size:0.95rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sky-box .col-title{color:var(--sky)}.rose-box .col-title{color:var(--rose)}
+.gold-box .col-title{color:var(--gold)}.emerald-box .col-title{color:var(--emerald)}
+.mem-frame{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:9px 14px;margin-bottom:6px;font-size:0.78rem;font-family:'Fira Code',monospace}
+.col-note{margin-top:10px;font-size:0.7rem;color:var(--muted)}
+
+/* ── Thread Pool Visual ── */
+.pool-wrap{width:100%;max-width:820px;display:flex;flex-direction:column;gap:20px}
+.pool-area{background:var(--surface2);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px}
+.pool-title{font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);margin-bottom:14px}
+.threads-row{display:flex;flex-wrap:wrap;gap:8px}
+.thread-ball{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;font-family:'Fira Code',monospace;transition:all .4s ease;cursor:default;border:2px solid transparent}
+.thread-ball.idle{background:rgba(56,189,248,0.12);border-color:var(--sky);color:var(--sky)}
+.thread-ball.busy{background:rgba(251,191,36,0.18);border-color:var(--gold);color:var(--gold);animation:busyPulse 1s ease-in-out infinite alternate}
+.thread-ball.blocked{background:rgba(248,113,113,0.18);border-color:var(--rose);color:var(--rose)}
+.thread-ball.done{background:rgba(52,211,153,0.15);border-color:var(--emerald);color:var(--emerald)}
+@keyframes busyPulse{to{box-shadow:0 0 14px rgba(251,191,36,0.5);transform:scale(1.08)}}
+.pool-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.pool-legend-item{display:flex;align-items:center;gap:6px;font-size:0.7rem;color:var(--muted)}
+.pool-legend-dot{width:10px;height:10px;border-radius:50%}
+.pool-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pool-btn{padding:9px 18px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all .2s}
+.btn-sync{background:linear-gradient(135deg,var(--rose),#be123c);color:#fff}
+.btn-sync:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.btn-async{background:linear-gradient(135deg,var(--sky),var(--indigo));color:#fff}
+.btn-async:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.btn-rst{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--muted)}
+.btn-rst:hover{color:var(--text);background:rgba(255,255,255,0.12)}
+.pool-log{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-family:'Fira Code',monospace;font-size:0.72rem;line-height:1.8;max-height:100px;overflow-y:auto;color:var(--muted)}
+.log-sync{color:var(--rose)}.log-async{color:var(--sky)}.log-done{color:var(--emerald)}
+
+/* ── Task Token Visual ── */
+.task-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%;max-width:800px}
+.task-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px 16px;text-align:center;flex:1;min-width:160px}
+.task-card-icon{font-size:2rem;margin-bottom:8px}
+.task-card-title{font-weight:800;font-size:0.88rem;margin-bottom:5px}
+.task-card-desc{font-size:0.7rem;color:var(--muted);line-height:1.5}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:0.65rem;font-weight:700;margin-top:8px}
+.pill-pending{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:var(--gold)}
+.pill-running{background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:var(--sky)}
+.pill-done{background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:var(--emerald)}
+.pill-fail{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--rose)}
+
+/* ── WhenAll / WhenAny visual ── */
+.when-wrap{width:100%;max-width:760px;display:flex;flex-direction:column;gap:16px}
+.when-row{display:flex;gap:10px;justify-content:center}
+.when-task{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;flex:1;transition:all .4s}
+.when-task.running{border-color:var(--sky);background:rgba(56,189,248,0.06)}
+.when-task.done{border-color:var(--emerald);background:rgba(52,211,153,0.06)}
+.when-task-label{font-size:0.72rem;font-weight:700;color:var(--muted);margin-bottom:4px}
+.when-task.done .when-task-label{color:var(--emerald)}
+.when-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:6px}
+.when-bar-fill{height:100%;background:var(--sky);border-radius:3px;width:0%;transition:width .1s linear}
+.when-task.done .when-bar-fill{background:var(--emerald);width:100%}
+.when-controls{display:flex;gap:10px;justify-content:center}
+.when-btn{padding:9px 18px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all .2s}
+.btn-whenall{background:linear-gradient(135deg,var(--sky),var(--indigo));color:#fff}
+.btn-whenall:hover{filter:brightness(1.1)}
+.btn-whenany{background:linear-gradient(135deg,var(--gold),#d97706);color:#000}
+.btn-whenany:hover{filter:brightness(1.1)}
+.when-result{text-align:center;font-size:0.82rem;font-weight:700;height:28px;display:flex;align-items:center;justify-content:center}
+
+/* ── Deadlock Visual ── */
+.deadlock-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:640px}
+.deadlock-box{width:100%;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.3);border-radius:14px;padding:20px;position:relative}
+.deadlock-status{text-align:center;font-size:1rem;font-weight:800;margin-bottom:14px}
+.dl-threads{display:flex;gap:20px;justify-content:center}
+.dl-thread{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 20px;text-align:center;min-width:130px}
+.dl-thread-title{font-size:0.72rem;font-weight:700;color:var(--sky);margin-bottom:8px}
+.dl-thread.blocked-dl .dl-thread-title{color:var(--rose)}
+.dl-badge{padding:4px 10px;border-radius:20px;font-size:0.65rem;font-weight:700;display:inline-block}
+.badge-waiting{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:var(--gold)}
+.badge-blocked{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--rose)}
+.deadlock-btn{padding:9px 22px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--rose);border-radius:10px;cursor:pointer;font-size:0.82rem;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.deadlock-btn:hover{background:rgba(248,113,113,0.2)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shaking{animation:shake .4s ease}
+
+/* ── Cancellation Visual ── */
+.cancel-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:620px}
+.cancel-box{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.cancel-progress{display:flex;flex-direction:column;gap:8px}
+.cancel-bar-bg{height:22px;background:rgba(255,255,255,0.05);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.cancel-bar-fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--indigo));border-radius:8px;transition:width .3s;display:flex;align-items:center;padding-left:10px;font-size:0.65rem;font-weight:700;color:#fff}
+.cancel-label{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-bottom:4px}
+.cancel-controls{display:flex;gap:10px;justify-content:center}
+.cancel-btn{padding:9px 18px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all .2s}
+.btn-start-task{background:linear-gradient(135deg,var(--sky),var(--indigo));color:#fff}
+.btn-cancel{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--rose)}
+.btn-cancel:hover{background:rgba(248,113,113,0.2)}
+.cancel-status{font-size:0.82rem;font-weight:700;text-align:center;height:26px;display:flex;align-items:center;justify-content:center}
+
+/* ── Code switcher ── */
+.comp-switch{display:inline-flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:4px;position:relative;cursor:pointer;user-select:none}
+.comp-slider{position:absolute;top:4px;left:4px;height:calc(100% - 8px);width:calc(50% - 4px);background:linear-gradient(135deg,var(--sky),var(--indigo));border-radius:22px;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:0}
+.comp-opt{position:relative;z-index:1;padding:6px 16px;font-size:0.75rem;font-weight:700;color:var(--muted);transition:color .3s;border-radius:22px}
+.comp-switch.switched .comp-slider{transform:translateX(100%)}
+.comp-switch:not(.switched) .comp-opt:first-of-type{color:#fff}
+.comp-switch.switched .comp-opt:last-of-type{color:#fff}
+.demo-wrap{width:100%;max-width:800px;display:flex;flex-direction:column;gap:14px}
+.demo-hdr{display:flex;align-items:center;justify-content:space-between}
+.demo-title{font-weight:800;font-size:1rem;display:flex;align-items:center;gap:8px}
+.code-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px 26px;overflow:hidden}
+.code{font-family:'Fira Code',monospace;font-size:0.8rem;line-height:1.9;white-space:pre;display:none}
+.code.active{display:block}
+.ck{color:#c792ea}.cs{color:#82aaff}.ci{color:#ffcb6b}.cf{color:var(--sky)}.cm{color:#546e7a;font-style:italic}.cstr{color:var(--emerald)}
+
+/* ── 4-card grid ── */
+.card-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:860px}
+.info-card{border-radius:14px;padding:18px 14px;text-align:center}
+.info-card.sky{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25)}
+.info-card.gold{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25)}
+.info-card.rose{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25)}
+.info-card.emerald{background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25)}
+.ic-icon{font-size:1.8rem;margin-bottom:8px}
+.ic-title{font-weight:800;font-size:0.85rem;margin-bottom:5px}
+.info-card.sky .ic-title{color:var(--sky)}.info-card.gold .ic-title{color:var(--gold)}
+.info-card.rose .ic-title{color:var(--rose)}.info-card.emerald .ic-title{color:var(--emerald)}
+.ic-desc{font-size:0.7rem;color:var(--muted);line-height:1.5}
+
+/* ── Summary ── */
+.sum-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:660px}
+.sum-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+.sum-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.sum-title{font-weight:700;font-size:0.85rem;margin-bottom:2px}
+.sum-sub{font-size:0.7rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="cursor-dot" id="curDot"></div>
+<div class="cursor-outline" id="curOutline"></div>
+<canvas id="bgCanvas"></canvas>
+
+<div class="layout">
+  <div class="slide-area" id="slideArea">
+    <div class="ch-logo-wrap">
+      <div class="ch-logo-icon"><i class="fa-solid fa-bolt"></i></div>
+      <div><div class="ch-logo-name">Coding Drop</div><div class="ch-logo-sub">ASYNC / AWAIT</div></div>
+    </div>
+
+    <!-- S1 Hero -->
+    <div class="slide active" id="s1">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:22px">
+        <div class="tag fu d1"><i class="fa-solid fa-bolt"></i> .NET Async</div>
+        <div style="font-size:3.2rem;font-weight:900;text-align:center;line-height:1.1" class="fu d2">
+          <span class="hl">Async / Await</span><br><span>& Task Parallel Library</span>
+        </div>
+        <p style="font-size:1rem;color:var(--muted);text-align:center;max-width:580px;line-height:1.7" class="fu d3">রেস্তোরাঁর বাবুর্চির মতো — চুলার পানি গরম হতে দাও, ততক্ষণে পেঁয়াজ কাটো। Thread আটকে রাখার দরকার নেই!</p>
+        <div class="hero-badges fu d4">
+          <div class="hero-badge"><i class="fa-solid fa-rotate"></i> Thread Pool</div>
+          <div class="hero-badge"><i class="fa-solid fa-list-check"></i> Task&lt;T&gt;</div>
+          <div class="hero-badge"><i class="fa-solid fa-layer-group"></i> WhenAll/WhenAny</div>
+          <div class="hero-badge"><i class="fa-solid fa-ban"></i> CancellationToken</div>
+          <div class="hero-badge"><i class="fa-solid fa-skull"></i> Deadlock এড়ানো</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 Sync Blocking Problem -->
+    <div class="slide" id="s2">
+      <div class="tag fu d1"><i class="fa-solid fa-hourglass-half"></i> সমস্যা</div>
+      <h2 class="s-title fu d2"><span style="color:var(--rose)">Synchronous</span> = Thread আটকে থাকে</h2>
+      <p class="s-desc fu d3">Synchronous কোডে একটি Thread একটাই কাজ করে — সে কাজ শেষ না হওয়া পর্যন্ত অন্য কিছু করতে পারে না।</p>
+      <div class="two-col fu d4">
+        <div class="col-box rose-box">
+          <div class="col-title"><i class="fa-solid fa-user-clock"></i> বাবুর্চি (Sync)</div>
+          <div class="mem-frame">🍵 পানি চুলায় দিলো</div>
+          <div class="mem-frame" style="color:var(--rose)">⏳ চুলার পাশে দাঁড়িয়ে অপেক্ষা...</div>
+          <div class="mem-frame" style="color:var(--rose)">⏳ পানি গরম না হওয়া পর্যন্ত বন্ধ</div>
+          <div class="mem-frame">✅ পানি গরম হলে বাকি রান্না</div>
+          <div class="col-note">Thread blocked — অন্য request নিতে পারছে না</div>
+        </div>
+        <div class="col-box sky-box">
+          <div class="col-title"><i class="fa-solid fa-user-ninja"></i> বাবুর্চি (Async)</div>
+          <div class="mem-frame">🍵 পানি চুলায় দিলো</div>
+          <div class="mem-frame" style="color:var(--sky)">🧅 ততক্ষণে পেঁয়াজ কাটছে (await)</div>
+          <div class="mem-frame" style="color:var(--sky)">🥕 গাজর কাটছে — Thread মুক্ত</div>
+          <div class="mem-frame">✅ পানি গরম হলে Continuation চলে</div>
+          <div class="col-note" style="color:var(--sky)">Thread free — আরো request নিতে পারে</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 Thread Pool -->
+    <div class="slide" id="s3">
+      <div class="tag fu d1"><i class="fa-solid fa-rotate"></i> Thread Pool</div>
+      <h2 class="s-title fu d2"><span class="hl">Thread Pool</span> সিমুলেটর</h2>
+      <p class="s-desc fu d3" style="margin-bottom:20px">Sync অনুরোধে Thread আটকে যায়। Async অনুরোধে Thread pool-এ ফিরে আসে এবং নতুন কাজ নিতে পারে।</p>
+      <div class="pool-wrap fu d3">
+        <div class="pool-controls">
+          <button class="pool-btn btn-sync" onclick="runSyncDemo()"><i class="fa-solid fa-lock"></i> Sync Request পাঠাও</button>
+          <button class="pool-btn btn-async" onclick="runAsyncDemo()"><i class="fa-solid fa-bolt"></i> Async Request পাঠাও</button>
+          <button class="pool-btn btn-rst" onclick="resetPool()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+        </div>
+        <div class="pool-area">
+          <div class="pool-title">🔵 THREAD POOL (৮টি Thread)</div>
+          <div class="threads-row" id="threadsRow"></div>
+          <div class="pool-legend">
+            <div class="pool-legend-item"><div class="pool-legend-dot" style="background:var(--sky);border-radius:50%"></div> Idle</div>
+            <div class="pool-legend-item"><div class="pool-legend-dot" style="background:var(--gold);border-radius:50%"></div> Busy (Sync)</div>
+            <div class="pool-legend-item"><div class="pool-legend-dot" style="background:var(--rose);border-radius:50%"></div> Blocked</div>
+            <div class="pool-legend-item"><div class="pool-legend-dot" style="background:var(--emerald);border-radius:50%"></div> Done</div>
+          </div>
+        </div>
+        <div class="pool-log" id="poolLog">Thread Pool প্রস্তুত। Request পাঠান...</div>
+      </div>
+    </div>
+
+    <!-- S4 Task Concept -->
+    <div class="slide" id="s4">
+      <div class="tag fu d1"><i class="fa-solid fa-ticket"></i> Task কী?</div>
+      <h2 class="s-title fu d2"><span class="hl">Task&lt;T&gt;</span> — ভবিষ্যতের প্রতিশ্রুতি</h2>
+      <p class="s-desc fu d3">Task হলো রেস্তোরাঁর অর্ডার টোকেনের মতো। আপনি অর্ডার দিলেন এবং টোকেন পেলেন। খাবার তৈরি হলে টোকেন দিয়ে নিয়ে যাবেন।</p>
+      <div class="task-cards fu d4">
+        <div class="task-card">
+          <div class="task-card-icon">📋</div>
+          <div class="task-card-title" style="color:var(--gold)">Task (void)</div>
+          <div class="task-card-desc">কোনো মান ফেরত দেয় না। শুধু কাজ করে।</div>
+          <div class="status-pill pill-pending">⏳ Pending</div>
+        </div>
+        <div class="task-card">
+          <div class="task-card-icon">📦</div>
+          <div class="task-card-title" style="color:var(--sky)">Task&lt;T&gt;</div>
+          <div class="task-card-desc">একটি মান ফেরত দেয়। Result বা await দিয়ে নিন।</div>
+          <div class="status-pill pill-running">▶ Running</div>
+        </div>
+        <div class="task-card">
+          <div class="task-card-icon">✅</div>
+          <div class="task-card-title" style="color:var(--emerald)">Completed</div>
+          <div class="task-card-desc">Task সফলভাবে শেষ। Result পাওয়া যাবে।</div>
+          <div class="status-pill pill-done">✅ RanToCompletion</div>
+        </div>
+        <div class="task-card">
+          <div class="task-card-icon">💥</div>
+          <div class="task-card-title" style="color:var(--rose)">Faulted</div>
+          <div class="task-card-desc">Exception হয়েছে। AggregateException দেখুন।</div>
+          <div class="status-pill pill-fail">❌ Faulted</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 async/await code -->
+    <div class="slide" id="s5">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--sky)"></i> async / await ডেমো</div>
+          <div class="comp-switch" id="sw5" onclick="toggleSw('sw5','bad5','good5')">
+            <div class="comp-slider"></div><div class="comp-opt">Sync (Blocking)</div><div class="comp-opt">Async (Non-Blocking)</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad5"><span class="cm">// ❌ Synchronous — Thread ব্লক হয়ে থাকে</span>
+<span class="ck">public</span> <span class="cs">IActionResult</span> <span class="cf">GetUser</span>(<span class="ck">int</span> id) {
+    <span class="ck">var</span> user = _db.Users.<span class="cf">Find</span>(id); <span class="cm">// Thread আটকে আছে!</span>
+    <span class="ck">var</span> orders = _orderService.<span class="cf">GetOrders</span>(id); <span class="cm">// আবার আটকে আছে!</span>
+    <span class="ck">return</span> <span class="cf">Ok</span>(<span class="ck">new</span> { user, orders });
+} <span class="cm">// এই সময় অন্য request সার্ভ হতে পারছে না</span></pre>
+          <pre class="code" id="good5"><span class="cm">// ✅ Async — Thread মুক্ত থাকে</span>
+<span class="ck">public async</span> <span class="cs">Task</span>&lt;<span class="cs">IActionResult</span>&gt; <span class="cf">GetUser</span>(<span class="ck">int</span> id) {
+    <span class="ck">var</span> user = <span class="ck">await</span> _db.Users.<span class="cf">FindAsync</span>(id);   <span class="cm">// Thread মুক্ত!</span>
+    <span class="ck">var</span> orders = <span class="ck">await</span> _orderService.<span class="cf">GetOrdersAsync</span>(id);
+    <span class="ck">return</span> <span class="cf">Ok</span>(<span class="ck">new</span> { user, orders });
+} <span class="cm">// await-এর সময় Thread অন্য request নিতে পারে</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 WhenAll / WhenAny -->
+    <div class="slide" id="s6">
+      <div class="tag fu d1"><i class="fa-solid fa-layer-group"></i> Parallel Tasks</div>
+      <h2 class="s-title fu d2"><span class="hl">WhenAll</span> & <span style="color:var(--gold)">WhenAny</span></h2>
+      <p class="s-desc fu d3" style="margin-bottom:16px">WhenAll — সবাই শেষ হওয়ার জন্য অপেক্ষা করে। WhenAny — প্রথম যে শেষ করে তার রেজাল্ট নাও।</p>
+      <div class="when-wrap fu d3">
+        <div class="when-controls">
+          <button class="when-btn btn-whenall" onclick="runWhenAll()"><i class="fa-solid fa-layer-group"></i> Task.WhenAll()</button>
+          <button class="when-btn btn-whenany" onclick="runWhenAny()"><i class="fa-solid fa-trophy"></i> Task.WhenAny()</button>
+          <button class="pool-btn btn-rst" onclick="resetWhen()"><i class="fa-solid fa-rotate-left"></i></button>
+        </div>
+        <div class="when-row">
+          <div class="when-task" id="wt1"><div class="when-task-label">📧 Email সেন্ড</div><div class="when-bar"><div class="when-bar-fill" id="wb1"></div></div></div>
+          <div class="when-task" id="wt2"><div class="when-task-label">📊 Report তৈরি</div><div class="when-bar"><div class="when-bar-fill" id="wb2"></div></div></div>
+          <div class="when-task" id="wt3"><div class="when-task-label">🖼️ Image Process</div><div class="when-bar"><div class="when-bar-fill" id="wb3"></div></div></div>
+          <div class="when-task" id="wt4"><div class="when-task-label">💾 DB Backup</div><div class="when-bar"><div class="when-bar-fill" id="wb4"></div></div></div>
+        </div>
+        <div class="when-result" id="whenResult" style="color:var(--muted)">উপরের বাটন ক্লিক করুন...</div>
+      </div>
+    </div>
+
+    <!-- S7 CancellationToken -->
+    <div class="slide" id="s7">
+      <div class="tag fu d1"><i class="fa-solid fa-ban"></i> Cancellation</div>
+      <h2 class="s-title fu d2"><span class="hl">CancellationToken</span></h2>
+      <p class="s-desc fu d3" style="margin-bottom:16px">User চলে গেলে বা Timeout হলে চলমান Task বাতিল করার স্ট্যান্ডার্ড পদ্ধতি।</p>
+      <div class="cancel-wrap fu d3">
+        <div class="cancel-box">
+          <div class="cancel-progress">
+            <div class="cancel-label"><span>📊 Data Processing Task</span><span id="cancelPct">0%</span></div>
+            <div class="cancel-bar-bg"><div class="cancel-bar-fill" id="cancelBar" style="width:0%">0%</div></div>
+          </div>
+        </div>
+        <div class="cancel-controls">
+          <button class="cancel-btn btn-start-task" onclick="startCancelTask()"><i class="fa-solid fa-play"></i> Task শুরু করুন</button>
+          <button class="cancel-btn btn-cancel" onclick="cancelTask()" id="cancelBtn" disabled><i class="fa-solid fa-stop"></i> বাতিল করুন</button>
+        </div>
+        <div class="cancel-status" id="cancelStatus" style="color:var(--muted)">Task শুরু করুন...</div>
+      </div>
+    </div>
+
+    <!-- S8 Deadlock -->
+    <div class="slide" id="s8">
+      <div class="tag fu d1"><i class="fa-solid fa-skull"></i> বিপদজ্জনক ভুল</div>
+      <h2 class="s-title fu d2"><span style="color:var(--rose)">Deadlock</span> — .Result ব্যবহারের ফাঁদ</h2>
+      <p class="s-desc fu d3" style="margin-bottom:16px">Async method-এ .Result বা .Wait() ব্যবহার করলে Deadlock হতে পারে — পুরো অ্যাপ্লিকেশন ফ্রিজ হয়ে যায়!</p>
+      <div class="deadlock-wrap fu d3">
+        <div class="deadlock-box" id="deadlockBox">
+          <div class="deadlock-status" id="dlStatus">🔵 সিস্টেম স্বাভাবিক</div>
+          <div class="dl-threads">
+            <div class="dl-thread" id="dlT1"><div class="dl-thread-title">UI Thread</div><div class="dl-badge badge-waiting" id="dlB1">✅ চলছে</div></div>
+            <div class="dl-thread" id="dlT2"><div class="dl-thread-title">Async Task</div><div class="dl-badge badge-waiting" id="dlB2">⏳ Ready</div></div>
+          </div>
+        </div>
+        <button class="deadlock-btn" onclick="triggerDeadlock()"><i class="fa-solid fa-skull"></i> asyncTask.Result ব্যবহার করুন (বিপদ!)</button>
+      </div>
+    </div>
+
+    <!-- S9 ConfigureAwait -->
+    <div class="slide" id="s9">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--sky)"></i> ConfigureAwait(false)</div>
+          <div class="comp-switch" id="sw9" onclick="toggleSw('sw9','bad9','good9')">
+            <div class="comp-slider"></div><div class="comp-opt">Library (ভুল)</div><div class="comp-opt">Library (সঠিক)</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad9"><span class="cm">// ❌ Library-তে Context ক্যাপচার হয় — Deadlock ঝুঁকি</span>
+<span class="ck">public async</span> <span class="cs">Task</span>&lt;<span class="ck">string</span>&gt; <span class="cf">FetchDataAsync</span>() {
+    <span class="ck">var</span> result = <span class="ck">await</span> httpClient.<span class="cf">GetStringAsync</span>(url);
+    <span class="cm">// SynchronizationContext ক্যাপচার করে</span>
+    <span class="cm">// UI thread-এ ফিরতে চায় — Deadlock!</span>
+    <span class="ck">return</span> result;
+}</pre>
+          <pre class="code" id="good9"><span class="cm">// ✅ Library-তে ConfigureAwait(false) ব্যবহার করুন</span>
+<span class="ck">public async</span> <span class="cs">Task</span>&lt;<span class="ck">string</span>&gt; <span class="cf">FetchDataAsync</span>() {
+    <span class="ck">var</span> result = <span class="ck">await</span> httpClient
+        .<span class="cf">GetStringAsync</span>(url)
+        .<span class="cf">ConfigureAwait</span>(<span class="ck">false</span>); <span class="cm">// Context ক্যাপচার করবে না</span>
+    <span class="cm">// যেকোনো Thread-এ চলবে — নিরাপদ</span>
+    <span class="ck">return</span> result;
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S10 Exception Handling -->
+    <div class="slide" id="s10">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--sky)"></i> Async Exception Handling</div>
+        </div>
+        <div class="code-box">
+          <pre class="code active"><span class="cm">// ✅ try/catch দিয়ে async exception handle করুন</span>
+<span class="ck">public async</span> <span class="cs">Task</span> <span class="cf">ProcessOrdersAsync</span>() {
+    <span class="ck">try</span> {
+        <span class="ck">await</span> <span class="cs">Task</span>.<span class="cf">WhenAll</span>(
+            <span class="cf">SendEmailAsync</span>(),
+            <span class="cf">UpdateInventoryAsync</span>(),
+            <span class="cf">GenerateReportAsync</span>()
+        );
+    }
+    <span class="ck">catch</span> (<span class="cs">AggregateException</span> ex) {
+        <span class="cm">// WhenAll — সব Exception একসাথে ধরা পড়ে</span>
+        <span class="ck">foreach</span> (<span class="ck">var</span> inner <span class="ck">in</span> ex.InnerExceptions)
+            <span class="cf">LogError</span>(inner.Message);
+    }
+    <span class="ck">catch</span> (<span class="cs">OperationCanceledException</span>) {
+        <span class="cm">// CancellationToken দিয়ে বাতিল হলে</span>
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11 ValueTask -->
+    <div class="slide" id="s11">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--sky)"></i> ValueTask — অতিরিক্ত Allocation কমান</div>
+          <div class="comp-switch" id="sw11" onclick="toggleSw('sw11','bad11','good11')">
+            <div class="comp-slider"></div><div class="comp-opt">Task (Heap)</div><div class="comp-opt">ValueTask (Stack)</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad11"><span class="cm">// Task — সবসময় Heap-এ object তৈরি করে</span>
+<span class="ck">public async</span> <span class="cs">Task</span>&lt;<span class="ck">int</span>&gt; <span class="cf">GetCachedValue</span>() {
+    <span class="ck">if</span> (_cache.TryGetValue(<span class="cstr">"key"</span>, <span class="ck">out var</span> val))
+        <span class="ck">return</span> val; <span class="cm">// Cache hit — কিন্তু Task object তৈরি!</span>
+    <span class="ck">return await</span> _db.<span class="cf">GetValueAsync</span>();
+}</pre>
+          <pre class="code" id="good11"><span class="cm">// ValueTask — cache hit-এ কোনো allocation নেই!</span>
+<span class="ck">public</span> <span class="cs">ValueTask</span>&lt;<span class="ck">int</span>&gt; <span class="cf">GetCachedValue</span>() {
+    <span class="ck">if</span> (_cache.TryGetValue(<span class="cstr">"key"</span>, <span class="ck">out var</span> val))
+        <span class="ck">return new</span> <span class="cs">ValueTask</span>&lt;<span class="ck">int</span>&gt;(val); <span class="cm">// ✅ No heap alloc</span>
+    <span class="ck">return new</span> <span class="cs">ValueTask</span>&lt;<span class="ck">int</span>&gt;(_db.<span class="cf">GetValueAsync</span>());
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S12 Best Practices -->
+    <div class="slide" id="s12">
+      <div class="tag fu d1"><i class="fa-solid fa-star"></i> Best Practices</div>
+      <h2 class="s-title fu d2">Async <span class="hl">সেরা অভ্যাস</span></h2>
+      <div class="card-grid-4 fu d3">
+        <div class="info-card sky"><div class="ic-icon">✅</div><div class="ic-title">Async All the Way</div><div class="ic-desc">async method chain ভাঙবেন না। মাঝে sync করলে Deadlock।</div></div>
+        <div class="info-card gold"><div class="ic-icon">🚫</div><div class="ic-title">.Result ব্যবহার নয়</div><div class="ic-desc">.Result বা .Wait() Deadlock তৈরি করে। সবসময় await করুন।</div></div>
+        <div class="info-card rose"><div class="ic-icon">⚡</div><div class="ic-title">ConfigureAwait(false)</div><div class="ic-desc">Library কোডে সবসময় ConfigureAwait(false) লাগান।</div></div>
+        <div class="info-card emerald"><div class="ic-icon">🎟️</div><div class="ic-title">CancellationToken</div><div class="ic-desc">সব async method-এ CancellationToken parameter রাখুন।</div></div>
+      </div>
+    </div>
+
+    <!-- S13 When NOT to use async -->
+    <div class="slide" id="s13">
+      <div class="tag fu d1"><i class="fa-solid fa-triangle-exclamation"></i> সতর্কতা</div>
+      <h2 class="s-title fu d2">Async <span style="color:var(--rose)">কখন ব্যবহার করবেন না?</span></h2>
+      <p class="s-desc fu d3">Async সবসময় ভালো নয়। CPU-bound কাজে async overhead বাড়ায়।</p>
+      <div class="two-col fu d4">
+        <div class="col-box sky-box">
+          <div class="col-title"><i class="fa-solid fa-check"></i> Async ব্যবহার করুন</div>
+          <div class="mem-frame" style="color:var(--sky)">I/O Bound — DB Call</div>
+          <div class="mem-frame" style="color:var(--sky)">I/O Bound — HTTP Request</div>
+          <div class="mem-frame" style="color:var(--sky)">I/O Bound — File Read/Write</div>
+          <div class="mem-frame" style="color:var(--sky)">I/O Bound — Message Queue</div>
+        </div>
+        <div class="col-box rose-box">
+          <div class="col-title"><i class="fa-solid fa-xmark"></i> Async এড়িয়ে চলুন</div>
+          <div class="mem-frame">CPU Bound — Heavy Calculation</div>
+          <div class="mem-frame">CPU Bound — Image Processing</div>
+          <div class="mem-frame">Task.Run() দিয়ে Thread তৈরি করুন</div>
+          <div class="mem-frame" style="color:var(--muted)">async void — Event handler ছাড়া নয়</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S14 Summary -->
+    <div class="slide" id="s14">
+      <div class="tag fu d1"><i class="fa-solid fa-flag-checkered"></i> সারসংক্ষেপ</div>
+      <h2 class="s-title fu d2" style="font-size:2rem">Async / Await — <span class="hl">মূল বিষয়</span></h2>
+      <div class="sum-list fu d3">
+        <div class="sum-item"><div class="sum-icon" style="background:rgba(56,189,248,0.15)">⚡</div><div><div class="sum-title" style="color:var(--sky)">async/await = Non-Blocking</div><div class="sum-sub">Thread আটকে না রেখে অন্য কাজ করতে পারে</div></div></div>
+        <div class="sum-item"><div class="sum-icon" style="background:rgba(251,191,36,0.15)">📋</div><div><div class="sum-title" style="color:var(--gold)">Task = ভবিষ্যতের প্রতিশ্রুতি</div><div class="sum-sub">Pending → Running → RanToCompletion / Faulted</div></div></div>
+        <div class="sum-item"><div class="sum-icon" style="background:rgba(52,211,153,0.15)">🎯</div><div><div class="sum-title" style="color:var(--emerald)">WhenAll / WhenAny</div><div class="sum-sub">একসাথে বা প্রথমটির জন্য অপেক্ষা</div></div></div>
+        <div class="sum-item"><div class="sum-icon" style="background:rgba(248,113,113,0.15)">💀</div><div><div class="sum-title" style="color:var(--rose)">Deadlock এড়ান</div><div class="sum-sub">.Result / .Wait() ব্যবহার করবেন না — সবসময় await করুন</div></div></div>
+      </div>
+    </div>
+
+  </div><!-- /slide-area -->
+
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo"><i class="fa-solid fa-bolt"></i> <span>Async / Await</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span class="sb-progress-text">অগ্রগতি</span><span class="sb-progress-text" id="progPct">0%</span></div>
+      <div class="progress-bar-thin"><div class="progress-bar-fill" id="progFill"></div></div>
+    </div>
+    <div class="sb-title"><i class="fa-solid fa-list"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list" id="chList"></div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="slide-num">স্লাইড <span id="curNum">1</span> / <span id="totNum">14</span></div>
+    <div class="progress-bar-thin" style="width:120px"><div class="progress-bar-fill" id="botFill"></div></div>
+  </div>
+  <div style="font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:7px"><i class="fa-solid fa-circle" style="font-size:0.4rem;color:var(--sky)"></i> Coding Drop</div>
+</div>
+
+<script>
+const BC = new BroadcastChannel('async_presentation');
+let cur = 0;
+const chapters = [
+  {e:'🏠',t:'পরিচয়'},{e:'⏳',t:'Sync সমস্যা'},{e:'🔵',t:'Thread Pool সিমুলেটর'},
+  {e:'🎟️',t:'Task কী?'},{e:'💻',t:'async/await কোড'},{e:'⚡',t:'WhenAll & WhenAny'},
+  {e:'🚫',t:'CancellationToken'},{e:'💀',t:'Deadlock'},{e:'⚙️',t:'ConfigureAwait'},
+  {e:'🛡️',t:'Exception Handling'},{e:'🚀',t:'ValueTask'},{e:'⭐',t:'Best Practices'},
+  {e:'⚠️',t:'কখন নয়?'},{e:'🏆',t:'সারসংক্ষেপ'}
+];
+const chList = document.getElementById('chList');
+chapters.forEach((ch,i)=>{
+  const el=document.createElement('div');
+  el.className='ch-item'+(i===0?' active':'');
+  el.innerHTML=`<div class="ch-num">${i+1}</div><span>${ch.e} ${ch.t}</span>`;
+  el.onclick=()=>{BC.postMessage({type:'nav',idx:i});goTo(i)};
+  chList.appendChild(el);
+});
+const slides=document.querySelectorAll('.slide'),TOTAL=slides.length;
+document.getElementById('totNum').textContent=TOTAL;
+
+function goTo(idx){
+  idx=Math.max(0,Math.min(TOTAL-1,idx));
+  if(idx===cur)return;
+  slides[cur]?.classList.remove('active');slides[cur]?.classList.add('exit');
+  setTimeout(()=>slides[cur]?.classList.remove('exit'),700);
+  cur=idx;slides[cur]?.classList.add('active');
+  setTimeout(()=>slides[cur]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),80);
+  slides.forEach((s,i)=>{if(i!==cur)s.querySelectorAll('.fu').forEach(el=>el.classList.remove('visible'))});
+  updateUI();
+}
+function navigate(delta){
+  const next=Math.max(0,Math.min(TOTAL-1,cur+delta));
+  BC.postMessage({type:'nav',idx:next});
+  goTo(next);
+}
+function updateUI(){
+  document.getElementById('curNum').textContent=cur+1;
+  const pct=Math.round(((cur+1)/TOTAL)*100);
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('botFill').style.width=pct+'%';
+  document.querySelectorAll('.ch-item').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});
+}
+BC.onmessage=e=>{if(e.data.type==='nav')goTo(e.data.idx);if(e.data.type==='ping_from_presenter')BC.postMessage({type:'ping'})};
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();navigate(1);}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navigate(-1);}
+});
+setTimeout(()=>slides[0]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),200);
+updateUI();
+
+// Cursor
+const dot=document.getElementById('curDot'),ol=document.getElementById('curOutline');
+document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';ol.style.left=e.clientX+'px';ol.style.top=e.clientY+'px'});
+
+// BG Canvas (indigo particles)
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+let pts=[];
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.addEventListener('resize',resize);
+for(let i=0;i<60;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.5+.4,c:Math.random()>.5?'rgba(56,189,248,0.6)':'rgba(129,140,248,0.5)'});
+(function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill()});requestAnimationFrame(draw)})();
+
+// Thread Pool Simulator
+let threadStates=new Array(8).fill('idle');
+function renderThreads(){
+  const row=document.getElementById('threadsRow');
+  row.innerHTML=threadStates.map((s,i)=>`<div class="thread-ball ${s}">T${i+1}</div>`).join('');
+}
+renderThreads();
+function addLog(msg,cls){const log=document.getElementById('poolLog');const el=document.createElement('div');el.className=cls;el.textContent='> '+msg;log.appendChild(el);log.scrollTop=log.scrollHeight}
+
+function runSyncDemo(){
+  const idx=threadStates.findIndex(s=>s==='idle');
+  if(idx<0){addLog('❌ Thread Pool শেষ! Request queue-এ অপেক্ষা করছে...','log-sync');return}
+  threadStates[idx]='blocked';renderThreads();
+  addLog(`T${idx+1} Request নিলো — Blocking I/O...`,'log-sync');
+  setTimeout(()=>{threadStates[idx]='done';renderThreads();addLog(`T${idx+1} শেষ হলো (দীর্ঘ অপেক্ষার পর)`,'log-done');setTimeout(()=>{threadStates[idx]='idle';renderThreads()},1500)},3000);
+}
+function runAsyncDemo(){
+  const idx=threadStates.findIndex(s=>s==='idle');
+  if(idx<0){addLog('❌ সব Thread busy...','log-sync');return}
+  threadStates[idx]='busy';renderThreads();
+  addLog(`T${idx+1} Request নিলো → await করছে (মুক্ত)...`,'log-async');
+  setTimeout(()=>{addLog(`T${idx+1} await-এ Thread Pool-এ ফিরলো`,'log-async');threadStates[idx]='idle';renderThreads();
+    setTimeout(()=>{const idx2=threadStates.findIndex(s=>s==='idle');if(idx2>=0){threadStates[idx2]='done';renderThreads();addLog(`T${idx2+1} Continuation সম্পন্ন ✅`,'log-done');setTimeout(()=>{threadStates[idx2]='idle';renderThreads()},1000)}},1500)},800);
+}
+function resetPool(){threadStates=new Array(8).fill('idle');renderThreads();document.getElementById('poolLog').innerHTML='Thread Pool প্রস্তুত। Request পাঠান...'}
+
+// WhenAll / WhenAny
+let whenTimers=[];
+const wbDurations=[2800,1800,3500,2200];
+function clearWhenTimers(){whenTimers.forEach(clearInterval);whenTimers=[];[1,2,3,4].forEach(i=>{document.getElementById(`wt${i}`).className='when-task';document.getElementById(`wb${i}`).style.width='0%';document.querySelector(`#wt${i} .when-task-label`).textContent=['📧 Email সেন্ড','📊 Report তৈরি','🖼️ Image Process','💾 DB Backup'][i-1]})}
+function resetWhen(){clearWhenTimers();document.getElementById('whenResult').textContent='উপরের বাটন ক্লিক করুন...';document.getElementById('whenResult').style.color='var(--muted)'}
+function animateTask(idx,duration,cb){
+  const bar=document.getElementById(`wb${idx}`);const task=document.getElementById(`wt${idx}`);
+  task.classList.add('running');let pct=0;
+  const interval=setInterval(()=>{pct+=100/(duration/100);if(pct>=100){pct=100;clearInterval(interval);task.classList.remove('running');task.classList.add('done');document.querySelector(`#wt${idx} .when-task-label`).textContent='✅ সম্পন্ন';if(cb)cb()};bar.style.width=pct+'%'},100);
+  whenTimers.push(interval);
+}
+function runWhenAll(){clearWhenTimers();const result=document.getElementById('whenResult');result.textContent='⏳ সব Task চলছে...';result.style.color='var(--sky)';let done=0;[1,2,3,4].forEach(i=>animateTask(i,wbDurations[i-1],()=>{done++;if(done===4){result.textContent='✅ Task.WhenAll() — সবাই সম্পন্ন! Result পাওয়া গেছে।';result.style.color='var(--emerald)'}}))}
+function runWhenAny(){clearWhenTimers();const result=document.getElementById('whenResult');result.textContent='⏳ Race চলছে...';result.style.color='var(--sky)';let won=false;[1,2,3,4].forEach(i=>animateTask(i,wbDurations[i-1],()=>{if(!won){won=true;result.textContent=`🏆 Task.WhenAny() — Task ${i} প্রথম জিতলো!`;result.style.color='var(--gold)';}}))}
+
+// CancellationToken
+let cancelInterval=null,cancelPct=0,cancelled=false;
+function startCancelTask(){
+  if(cancelInterval)return;cancelled=false;cancelPct=0;
+  document.getElementById('cancelBtn').disabled=false;
+  document.getElementById('cancelStatus').textContent='▶ Task চলছে...';
+  document.getElementById('cancelStatus').style.color='var(--sky)';
+  cancelInterval=setInterval(()=>{if(cancelled)return;cancelPct+=2;const bar=document.getElementById('cancelBar');bar.style.width=cancelPct+'%';bar.textContent=cancelPct+'%';document.getElementById('cancelPct').textContent=cancelPct+'%';if(cancelPct>=100){clearInterval(cancelInterval);cancelInterval=null;document.getElementById('cancelStatus').textContent='✅ Task সম্পন্ন!';document.getElementById('cancelStatus').style.color='var(--emerald)';document.getElementById('cancelBtn').disabled=true}},100);
+}
+function cancelTask(){if(!cancelInterval)return;cancelled=true;clearInterval(cancelInterval);cancelInterval=null;document.getElementById('cancelStatus').textContent='🚫 OperationCanceledException — Task বাতিল!';document.getElementById('cancelStatus').style.color='var(--rose)';document.getElementById('cancelBtn').disabled=true;const bar=document.getElementById('cancelBar');bar.style.background='var(--rose)';bar.textContent='বাতিল'}
+
+// Deadlock Demo
+let deadlocked=false;
+function triggerDeadlock(){
+  if(deadlocked)return;deadlocked=true;
+  const box=document.getElementById('deadlockBox');
+  const t1=document.getElementById('dlT1'),t2=document.getElementById('dlT2');
+  const b1=document.getElementById('dlB1'),b2=document.getElementById('dlB2');
+  document.getElementById('dlStatus').textContent='🔴 DEADLOCK — সিস্টেম ফ্রিজ!';
+  document.getElementById('dlStatus').style.color='var(--rose)';
+  t1.classList.add('blocked-dl');t2.classList.add('blocked-dl');
+  b1.className='dl-badge badge-blocked';b1.textContent='🔒 অপেক্ষায় (Deadlock)';
+  b2.className='dl-badge badge-blocked';b2.textContent='🔒 Context-এ ফিরতে পারছে না';
+  box.classList.add('shaking');
+  setTimeout(()=>box.classList.remove('shaking'),400);
+}
+
+// Code switches
+function toggleSw(swId,badId,goodId){const sw=document.getElementById(swId);sw.classList.toggle('switched');const bad=sw.classList.contains('switched');document.getElementById(badId).classList.toggle('active',!bad);document.getElementById(goodId).classList.toggle('active',bad)}
+</script>
+</body>
+</html>

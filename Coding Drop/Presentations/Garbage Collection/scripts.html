@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter View — Garbage Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#050505;--surface:#111;--border:rgba(255,255,255,0.08);--lime:#4ade80;--teal:#2dd4bf;--amber:#fbbf24;--rose:#fb7185;--violet:#a78bfa;--text:#f8fafc;--muted:#94a3b8}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 26px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem}
+.tb-badge{background:linear-gradient(135deg,var(--lime),var(--teal));color:#000;padding:3px 9px;border-radius:6px;font-size:0.68rem;font-weight:700;letter-spacing:1px}
+.tb-right{display:flex;align-items:center;gap:20px}
+.timer-display{font-family:'Fira Code',monospace;font-size:1.6rem;font-weight:700;color:var(--lime);letter-spacing:2px}
+.timer-btns{display:flex;gap:6px}
+.tbtn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn:hover{background:rgba(74,222,128,0.1);border-color:var(--lime);color:var(--lime)}
+.conn-status{display:flex;align-items:center;gap:7px;font-size:0.75rem;color:var(--muted)}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s}
+.conn-dot.live{background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{opacity:.4;transform:scale(.7)}}
+.main{flex:1;display:grid;grid-template-columns:1fr 320px;grid-template-rows:1fr auto;overflow:hidden;height:calc(100vh - 62px)}
+.script-panel{grid-column:1;grid-row:1;display:flex;flex-direction:column;padding:24px 30px;border-right:1px solid var(--border);overflow:hidden}
+.cur-label{font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--lime);display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cur-label::before{content:'';width:16px;height:2px;background:var(--lime);border-radius:1px}
+.cur-title{font-size:1.4rem;font-weight:800;margin-bottom:18px}
+.script-box{flex:1;overflow-y:auto;background:rgba(74,222,128,0.03);border:1px solid rgba(74,222,128,0.15);border-radius:12px;padding:22px 26px;position:relative}
+.script-box::before{content:'📢 SCRIPT';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--lime)}
+.script-text{font-size:1.1rem;line-height:2.1;color:var(--text);white-space:pre-line}
+.script-text em{color:var(--lime);font-style:normal;font-weight:600}
+.script-box::-webkit-scrollbar{width:4px}
+.script-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.nav-bar{grid-column:1;grid-row:2;display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.nav-arrows{display:flex;gap:10px}
+.nav-btn{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;font-family:'Outfit',sans-serif}
+.nav-btn:hover{background:rgba(74,222,128,0.1);border-color:var(--lime);color:var(--lime)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.slide-counter{font-family:'Fira Code',monospace;font-size:0.95rem;color:var(--muted)}
+.slide-counter span{color:var(--text);font-weight:700}
+.right-panel{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;overflow:hidden}
+.rp-head{padding:12px 16px 8px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+.ch-list-p{overflow-y:auto;flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.ch-p{padding:7px 10px;border-radius:7px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-p:hover{background:rgba(255,255,255,0.04)}
+.ch-p.active{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.25);color:var(--lime);font-weight:600}
+.ch-p.done{color:var(--text)}
+.ch-p .cn{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-p.active .cn{background:var(--lime);color:#000}
+.ch-p.done .cn{background:rgba(74,222,128,0.15);color:var(--lime)}
+.next-preview{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.np-label{font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.np-title{font-size:0.82rem;font-weight:700;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.np-title i{color:var(--amber)}
+.prog-wrap{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.prog-label{font-size:0.6rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.prog-bar{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--lime),var(--teal));border-radius:3px;transition:width .4s}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-logo"><i class="fa-solid fa-memory" style="color:var(--lime)"></i> Presenter View <div class="tb-badge">GC & MEMORY</div></div>
+  <div class="tb-right">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="timer-display" id="timer">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="timerBtn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i></button>
+        <button class="tbtn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+    <div class="conn-status"><div class="conn-dot" id="connDot"></div><span id="connTxt">সংযুক্ত নেই</span></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="script-panel">
+    <div class="cur-label" id="curLabel">স্লাইড ১</div>
+    <div class="cur-title" id="curTitle">পরিচয়</div>
+    <div class="script-box"><div class="script-text" id="scriptText"></div></div>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-arrows">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled><i class="fa-solid fa-arrow-left"></i> পেছনে</button>
+      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">সামনে <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div class="slide-counter">স্লাইড <span id="curNum">1</span> / <span id="totNum">13</span></div>
+  </div>
+
+  <div class="right-panel">
+    <div class="rp-head"><i class="fa-solid fa-list-ul"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list-p" id="chListP"></div>
+    <div class="next-preview">
+      <div class="np-label"><i class="fa-solid fa-forward"></i> পরবর্তী স্লাইড</div>
+      <div class="np-title" id="nextTitle"><i class="fa-solid fa-arrow-right"></i> <span>—</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label"><span>অগ্রগতি</span><span id="progPct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BC = new BroadcastChannel('gc_presentation');
+let cur = 0, timerInterval = null, seconds = 0, running = false;
+
+const slides = [
+  { title:'পরিচয় — GC & Memory Management', script:`আচ্ছালামুয়ালাইকুম, সবাইকে স্বাগত জানাচ্ছি <em>Coding Drop</em>-এ।
+
+আজকে আমরা কথা বলবো .NET-এর সবচেয়ে গুরুত্বপূর্ণ কিন্তু অনেকের কাছে অজানা একটি বিষয় নিয়ে — <em>Garbage Collection</em> এবং <em>Memory Management</em>।
+
+আমরা প্রতিদিন কোড লিখি, object তৈরি করি, কিন্তু কখনো ভাবি না — এই object গুলো কোথায় থাকে? কখন মুছে যায়? আর যখন ঠিকভাবে মুছে যায় না, তখন কী হয়?
+
+আজকে এই সব প্রশ্নের উত্তর আমরা <em>ভিজ্যুয়াল ও ইন্টারেক্টিভ</em> উপায়ে বুঝবো।` },
+  { title:'Stack vs Heap — মেমোরির দুই ধরন', script:`প্রথমেই বুঝতে হবে — .NET প্রোগ্রামে মেমোরি মূলত দু'জায়গায় থাকে।
+
+প্রথম হলো <em>Stack</em> — এটা অনেকটা আপনার ডেস্কটপের মতো। ছোট জায়গা, কিন্তু খুব দ্রুত কাজ করে। Value Types মানে int, bool, double — এগুলো Stack-এ থাকে এবং method শেষ হলে নিজে নিজে মুছে যায়।
+
+দ্বিতীয় হলো <em>Heap</em> — এটা বড় গুদামের মতো। Reference Types মানে class, object, list — এগুলো Heap-এ থাকে। এখানে রাখা জিনিস নিজে নিজে মুছে যায় না — GC দিয়ে পরিষ্কার করতে হয়।
+
+Stack-এ Garbage Collector লাগে না, কিন্তু Heap-এ লাগে।` },
+  { title:'GC Generations — জেনারেশন কী?', script:`Garbage Collector-এর কাজ হলো Heap থেকে অব্যবহৃত object সরানো।
+
+কিন্তু সব object একসাথে scan করলে performance অনেক কমে যাবে। তাই .NET <em>Generation</em> সিস্টেম ব্যবহার করে।
+
+<em>Gen 0</em> — সবচেয়ে নতুন object এখানে থাকে। GC সবচেয়ে বেশি এখানে কাজ করে। বেশিরভাগ object এখানেই মরে যায়।
+
+<em>Gen 1</em> — Gen 0 GC বেঁচে গেলে এখানে আসে। মাঝারি বয়সের object।
+
+<em>Gen 2</em> — দীর্ঘস্থায়ী object। Static, Singleton, Cache।
+
+<em>LOH</em> — Large Object Heap। 85 KB-এর বেশি object সরাসরি এখানে।` },
+  { title:'মেমোরি সিমুলেটর — লাইভ ডেমো', script:`এখন সবচেয়ে মজার পার্ট — <em>লাইভ মেমোরি সিমুলেটর</em>!
+
+"<em>new Object()</em>" বাটনে ক্লিক করলে নতুন object তৈরি হয় এবং Gen 0-তে যায়। কিছু object alive (সবুজ), কিছু dead (লাল) হয়।
+
+এখন "<em>GC.Collect()</em>" বাটনে ক্লিক করুন।
+
+দেখুন — Dead object গুলো মুছে গেলো। Alive object গুলো Gen 1-তে উঠে গেলো।
+
+আরো কয়েকবার নতুন object তৈরি করুন এবং আবার GC চালান। দেখবেন Alive object ধীরে ধীরে Gen 1 থেকে Gen 2-তে উঠে যাচ্ছে।
+
+এটাই .NET-এর <em>Generational GC</em>-এর আসল কাজ।` },
+  { title:'Finalize vs Dispose — পার্থক্য কী?', script:`GC শুধু Managed Memory পরিষ্কার করে। কিন্তু <em>Unmanaged Resource</em> যেমন File Handle, Database Connection, Network Socket — এগুলো GC পারে না পরিষ্কার করতে।
+
+<em>Finalizer</em> দিয়ে GC নিজে cleanup করতে পারে। কিন্তু কখন করবে জানা নেই। এতে resource দীর্ঘক্ষণ আটকে থাকে।
+
+সঠিক পদ্ধতি হলো <em>IDisposable</em> interface ব্যবহার করা। এখানে আমরা নিজেই Dispose() কল করি। <em>using</em> statement দিয়ে এটি আরও সহজ হয় — block শেষ হলে স্বয়ংক্রিয়ভাবে Dispose() হয়।
+
+সবসময় External Resource-এর জন্য using বা IDisposable ব্যবহার করুন।` },
+  { title:'IDisposable কোড ডেমো', script:`এই স্লাইডে Bad vs Good Practice দেখুন।
+
+<em>Bad Practice</em>-এ আমরা StreamReader তৈরি করে file read করলাম কিন্তু Dispose() কল করলাম না। ফলে File Handle বন্ধ হলো না।
+
+<em>Good Practice</em>-এ <em>using var</em> keyword ব্যবহার করা হয়েছে। Block শেষ হলে StreamReader.Dispose() স্বয়ংক্রিয়ভাবে কল হয়।
+
+C# 8.0 থেকে <em>using var</em> নিজেই সবচেয়ে কমপ্যাক্ট এবং নিরাপদ পদ্ধতি।
+
+Switch করে পার্থক্যটা ভালো করে দেখুন।` },
+  { title:'Memory Leak সিমুলেটর', script:`এখন একটি বিপজ্জনক ভুল দেখবো — <em>Memory Leak</em>।
+
+Static List বা Dictionary-তে রেফারেন্স রাখলে সেই object কখনো GC সংগ্রহ করতে পারে না।
+
+"<em>Cache.Add(new HeavyObject())</em>" বাটনে বারবার ক্লিক করুন।
+
+দেখুন — RAM ব্যবহার বাড়তেই থাকে। GC চাইলেও এই object সরাতে পারছে না কারণ Static List থেকে রেফারেন্স এখনো Active।
+
+এটাই <em>Memory Leak</em>। একটা বড় ASP.NET Core অ্যাপে এরকম ভুল করলে সার্ভার ক্র্যাশ করতে পারে।
+
+সমাধান হলো WeakReference ব্যবহার করা, যা পরের স্লাইডে দেখবো।` },
+  { title:'WeakReference&lt;T&gt; — সমাধান', script:`<em>WeakReference&lt;T&gt;</em> হলো একটি বিশেষ ধরনের রেফারেন্স।
+
+Strong Reference মানে হলো — আপনি object-কে ধরে রেখেছেন। GC এটি মুছতে পারবে না।
+
+Weak Reference মানে হলো — আপনি object রেফার করছেন কিন্তু GC চাইলে মুছতে পারবে।
+
+Cache system বানাতে এটি আদর্শ। মেমোরি চাপে পড়লে GC পুরনো cache entry মুছে দেবে। চাপ না থাকলে এন্ট্রিগুলো টিকে থাকবে।
+
+Cache.TryGetTarget(out var obj) দিয়ে পরীক্ষা করুন object এখনো আছে কিনা।` },
+  { title:'Large Object Heap (LOH)', script:`85 KB-এর বেশি যেকোনো object — বড় Array, বড় String — সরাসরি <em>LOH</em>-এ যায়।
+
+LOH-এর সমস্যা হলো — GC এটি অনেক কম collect করে। আর Compaction ডিফল্টে বন্ধ থাকে। ফলে LOH fragmented হয়ে যায়।
+
+অনেক বড় object বারবার allocate-deallocate করলে শেষমেশ <em>OutOfMemoryException</em> হতে পারে।
+
+সমাধান হলো <em>ArrayPool&lt;T&gt;</em> ব্যবহার করা। Pool থেকে array নিয়ে কাজ শেষে ফেরত দেওয়া — নতুন allocation হয় না।
+
+আরেকটি সমাধান হলো <em>Span&lt;T&gt;</em> এবং <em>Memory&lt;T&gt;</em> ব্যবহার করা।` },
+  { title:'সম্পূর্ণ IDisposable Pattern', script:`এই স্লাইডে সম্পূর্ণ <em>Dispose Pattern</em> দেখুন।
+
+একটি class-এ IDisposable implement করতে হলে দুটি অংশ লাগে।
+
+প্রথমত, <em>public Dispose()</em> — যেটি user বা using statement কল করে। এখানে আমরা GC.SuppressFinalize() কল করি, কারণ Dispose হয়ে গেলে আর Finalizer লাগবে না।
+
+দ্বিতীয়ত, <em>protected virtual Dispose(bool)</em> — আসল cleanup এখানে হয়। disposing true হলে Managed resource মুক্ত করি।
+
+তৃতীয়ত, একটি <em>Finalizer</em> রাখি Fallback হিসেবে — যদি user Dispose() ভুলে যায়।
+
+এটা Microsoft-এর recommended pattern।` },
+  { title:'ArrayPool&lt;T&gt; ডেমো', script:`এখন দেখবো কীভাবে <em>ArrayPool&lt;T&gt;</em> দিয়ে LOH pressure কমানো যায়।
+
+<em>Bad Practice</em>-এ প্রতিবার \`new byte[100_000]\` করা হচ্ছে। এটা প্রতিবার LOH-এ নতুন memory নেয়।
+
+<em>Good Practice</em>-এ \`ArrayPool.Shared.Rent(100_000)\` দিয়ে pool থেকে একটি array নেওয়া হচ্ছে। কাজ শেষে \`Return()\` দিয়ে ফেরত দেওয়া হচ্ছে।
+
+এতে করে একই memory বারবার ব্যবহার করা যাচ্ছে। কোনো নতুন LOH allocation হচ্ছে না।
+
+ASP.NET Core ভেতরে এই কৌশলই ব্যবহার করে।` },
+  { title:'GC Modes — Workstation vs Server', script:`.NET-এ দুটো GC Mode আছে।
+
+<em>Workstation GC</em> — Desktop বা UI অ্যাপের জন্য। Single-threaded GC। Low latency মানে UI freeze হয় না।
+
+<em>Server GC</em> — ASP.NET Core বা high-throughput API-এর জন্য। Multi-threaded GC। প্রতিটি CPU core-এ আলাদা GC thread কাজ করে। Throughput অনেক বেশি।
+
+ASP.NET Core অ্যাপে সবসময় Server GC enable রাখুন। .csproj বা runtimeconfig.json-এ ServerGarbageCollection=true সেট করুন।
+
+এটা production-এ বড় performance পার্থক্য তৈরি করে।` },
+  { title:'সারসংক্ষেপ — Memory Lifecycle', script:`আজকে আমরা অনেক কিছু দেখলাম।
+
+<em>Stack</em> — Value Types, দ্রুত, নিজে পরিষ্কার হয়। <em>Heap</em> — Reference Types, GC দরকার।
+
+GC <em>Gen 0 → Gen 1 → Gen 2</em> ক্রমে object পরিষ্কার করে।
+
+Unmanaged resource-এর জন্য সবসময় <em>IDisposable</em> এবং <em>using</em> ব্যবহার করুন।
+
+<em>Static collection</em>-এ সব রাখবেন না — Memory Leak হবে। <em>WeakReference</em> ব্যবহার করুন Cache-এর জন্য।
+
+বড় Buffer-এর জন্য <em>ArrayPool&lt;T&gt;</em> ব্যবহার করুন LOH fragmentation এড়াতে।
+
+Production ASP.NET Core-এ <em>Server GC</em> enable করুন।
+
+ভিডিওটি ভালো লাগলে লাইক, কমেন্ট এবং <em>Coding Drop</em> চ্যানেল সাবস্ক্রাইব করুন। আল্লাহ হাফেজ!` }
+];
+
+const chapters = ['পরিচয়','Stack vs Heap','GC Generations','মেমোরি সিমুলেটর','Finalize vs Dispose','IDisposable কোড','Memory Leak','WeakReference','LOH','Full Dispose Pattern','ArrayPool','GC Modes','সারসংক্ষেপ'];
+const TOTAL = slides.length;
+document.getElementById('totNum').textContent = TOTAL;
+
+const chListP = document.getElementById('chListP');
+chapters.forEach((ch,i)=>{
+  const el=document.createElement('div');
+  el.className='ch-p'+(i===0?' active':'');
+  el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;
+  el.onclick=()=>navigate(i-cur);
+  chListP.appendChild(el);
+});
+
+function updateUI(){
+  const s=slides[cur];
+  document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;
+  document.getElementById('curTitle').textContent=s.title;
+  document.getElementById('scriptText').innerHTML=s.script;
+  document.getElementById('curNum').textContent=cur+1;
+  const pct=Math.round(((cur+1)/TOTAL)*100);
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('prevBtn').disabled=cur===0;
+  document.getElementById('nextBtn').disabled=cur===TOTAL-1;
+  document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});
+  const nt=document.getElementById('nextTitle');
+  nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`;
+}
+
+function navigate(delta){
+  const next=Math.max(0,Math.min(TOTAL-1,cur+delta));
+  if(next===cur)return;
+  cur=next;
+  BC.postMessage({type:'nav',idx:cur});
+  updateUI();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1);
+});
+
+// Timer
+function toggleTimer(){
+  if(running){clearInterval(timerInterval);running=false;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
+  else{timerInterval=setInterval(()=>{seconds++;const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s},1000);running=true;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-pause"></i>'}
+}
+function resetTimer(){clearInterval(timerInterval);running=false;seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
+
+// Connection
+BC.postMessage({type:'ping_from_presenter'});
+setInterval(()=>BC.postMessage({type:'ping_from_presenter'}),3000);
+BC.onmessage=e=>{if(e.data.type==='ping'){document.getElementById('connDot').classList.add('live');document.getElementById('connTxt').textContent='সংযুক্ত';setTimeout(()=>{document.getElementById('connDot').classList.remove('live');document.getElementById('connTxt').textContent='সংযুক্ত নেই'},5000)}};
+
+updateUI();
+</script>
+</body>
+</html>

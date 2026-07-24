@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOLID Principles — সম্পূর্ণ গাইড</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:          #040209; /* Cyber Obsidian */
+  --surface:     #0d0b14;
+  --surface2:    #161320;
+  --border:      rgba(255, 255, 255, 0.08);
+  --cyan:        #00e5ff; /* S */
+  --rose:        #ff2a5f; /* O */
+  --amber:       #ffb300; /* L */
+  --emerald:     #00e676; /* I */
+  --violet:      #af40ff; /* D */
+  --text:        #f3effa;
+  --muted:       #9e94b0;
+  --dim:         #0c0a15;
+  --r:           16px;
+  --r-sm:        10px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; cursor:none; }
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width:4px }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px }
+
+/* ── Custom Cursor ── */
+.cursor-dot {
+  position:fixed; top:0; left:0; width:12px; height:12px;
+  background:var(--cyan); border-radius:50%;
+  transform:translate(-50%, -50%); z-index:9999;
+  pointer-events:none;
+  box-shadow:0 0 15px var(--cyan);
+  transition:width .2s, height .2s, background .2s;
+}
+.cursor-outline {
+  position:fixed; top:0; left:0; width:40px; height:40px;
+  border:2px solid rgba(0,229,255,0.5); border-radius:50%;
+  transform:translate(-50%, -50%); z-index:9998;
+  pointer-events:none;
+  transition:transform 0.1s ease-out, width .2s, height .2s;
+}
+body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
+.hover-target:hover ~ .cursor-dot { width:4px; height:4px; }
+.hover-target:hover ~ .cursor-outline { width:60px; height:60px; border-color:var(--rose); background:rgba(255,42,95,0.05); }
+
+/* particle canvas */
+#bgCanvas { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.3; }
+
+/* layout */
+.layout { flex:1; display:flex; overflow:hidden; position:relative; z-index:1; }
+
+/* ─────────── LEFT: SLIDE AREA ─────────── */
+.slide-area { flex:1; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+
+/* channel logo */
+.ch-logo-wrap {
+  position:absolute; top:20px; left:24px;
+  z-index:50; display:flex; align-items:center; gap:11px;
+  background:rgba(13,11,20,0.7); border:1px solid var(--border); border-radius:14px;
+  padding:8px 16px 8px 10px; backdrop-filter:blur(16px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.35); transition:all .3s ease; cursor:none;
+}
+.ch-logo-wrap:hover {
+  border-color:rgba(0,229,255,0.4);
+  box-shadow:0 4px 24px rgba(0,0,0,0.5), 0 0 16px rgba(0,229,255,0.2);
+  transform:translateY(-2px) scale(1.02);
+}
+.ch-logo-img { width:38px; height:38px; border-radius:9px; object-fit:cover; }
+.ch-logo-text { display:flex; flex-direction:column; gap:1px; }
+.ch-logo-name {
+  font-size:0.82rem; font-weight:800;
+  background:linear-gradient(135deg,#fff,rgba(255,255,255,0.7));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:-0.3px; line-height:1;
+}
+.ch-logo-sub { font-size:0.6rem; color:var(--muted); letter-spacing:0.5px; font-weight:500; }
+
+/* slide */
+.slide {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  padding:80px 70px 100px;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translateY(20px) scale(0.98);
+  transition:opacity .65s cubic-bezier(.4,0,.2,1), transform .65s cubic-bezier(.4,0,.2,1);
+}
+.slide.active { opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0) scale(1); }
+.slide.exit { opacity:0; transform:translateY(-20px) scale(0.98); }
+
+/* glass panel */
+.glass {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+  backdrop-filter:blur(20px); position:relative; overflow:hidden;
+  transition:all .3s ease; box-shadow:0 20px 40px rgba(0,0,0,0.4);
+}
+
+.tag {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+  color:var(--cyan); padding:6px 14px; border-radius:30px;
+  font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px;
+  margin-bottom:15px; display:inline-flex; align-items:center; gap:8px;
+}
+.s-title {
+  font-size:2.3rem; font-weight:800; line-height:1.2; text-align:center; margin-bottom:8px;
+  background: linear-gradient(135deg, #fff 40%, var(--muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.s-desc { font-size:1rem; color:var(--muted); text-align:center; line-height:1.6; margin-bottom:32px; max-width:650px; }
+
+/* Card */
+.card {
+  background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:var(--r-sm);
+  padding:24px 20px; transition:all .3s ease; transform-style:preserve-3d; cursor:none;
+}
+.card:hover {
+  background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.1);
+  box-shadow:0 15px 30px rgba(0,0,0,0.3); transform:translateY(-4px);
+}
+
+/* Grids */
+.g5 { display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; width:100%; }
+
+/* Code Panel */
+.code {
+  background:#050505; border:1px solid rgba(255,255,255,0.06); border-radius:var(--r-sm);
+  padding:16px 20px; font-family:'Fira Code',monospace; font-size:0.75rem; line-height:1.7;
+  color:#94a3b8; overflow-x:auto; height:100%; display:none; position:relative; box-shadow:inset 0 0 15px rgba(0,0,0,0.6);
+}
+.code.active { display:block; }
+.code::after { content:'</>'; position:absolute; top:10px; right:15px; font-size:1rem; font-weight:700; color:rgba(255,255,255,0.04); }
+.ck { color:#f472b6; }
+.cs { color:#34d399; }
+.cc { color:#64748b; font-style:italic; }
+.cf { color:#22d3ee; }
+.cn { color:#fbbf24; }
+
+/* ── Cinematic Hero ── */
+.hero-wrap { text-align:center; max-width:800px; width:100%; }
+.orbs { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.orb { position:absolute; border-radius:50%; filter:blur(95px); opacity:0.12; animation:float 10s ease-in-out infinite alternate; }
+.o1 { width:450px; height:450px; background:var(--cyan); top:-150px; left:-100px; }
+.o2 { width:400px; height:400px; background:var(--rose); top:-100px; right:-80px; animation-delay:-3s; }
+.o3 { width:350px; height:350px; background:var(--violet); bottom:-120px; left:25%; animation-delay:-6s; }
+@keyframes float { 100% { transform:translate(30px, 30px); } }
+
+.hero-visual { position:relative; height:160px; display:flex; justify-content:center; align-items:center; margin-bottom:20px; }
+.hv-center {
+  width:80px; height:80px; background:linear-gradient(135deg, var(--cyan), var(--violet)); border-radius:22px;
+  display:flex; justify-content:center; align-items:center; font-size:2.5rem; color:#fff;
+  box-shadow:0 0 35px rgba(6,182,212,0.4); z-index:2; animation:pulse-hv 2s infinite alternate;
+}
+@keyframes pulse-hv { 100% { transform:scale(1.04); box-shadow:0 0 50px rgba(6,182,212,0.7); } }
+.hv-orbit {
+  position:absolute; width:140px; height:140px; border:2px dashed rgba(6,182,212,0.4);
+  border-radius:50%; animation:spin 12s linear infinite;
+}
+.hv-orbit::before {
+  content:''; position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+  width:12px; height:12px; background:var(--rose); border-radius:50%; box-shadow:0 0 15px var(--rose);
+}
+.hv-orbit2 {
+  position:absolute; width:200px; height:200px; border:1px solid rgba(255,255,255,0.06);
+  border-radius:50%; animation:spin 18s linear infinite reverse;
+}
+.hv-orbit2::before {
+  content:''; position:absolute; top:20px; left:20px;
+  width:10px; height:10px; background:var(--amber); border-radius:50%; box-shadow:0 0 15px var(--amber);
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.hero-title { font-size:3.5rem; font-weight:900; line-height:1.15; letter-spacing:-1.5px; margin-bottom:16px; }
+.hero-sub { font-size:1.15rem; color:var(--muted); line-height:1.6; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto; }
+
+.hero-tags { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+.htag {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+  padding:8px 18px; border-radius:30px; font-size:0.8rem; font-weight:600; color:var(--muted);
+  display:flex; align-items:center; gap:8px; cursor:none; transition:all .3s;
+}
+.htag:hover { transform:translateY(-3px); background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.15); }
+
+/* ── Interactive Demo Switch Panel ── */
+.demo-wrap { display:flex; flex-direction:column; width:100%; max-width:1100px; margin-top:-10px; }
+.demo-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.demo-title { font-size:1.3rem; font-weight:800; display:flex; align-items:center; gap:8px; }
+
+.comp-switch {
+  display:flex; position:relative; background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08); border-radius:30px;
+  padding:4px; width:280px; height:40px; cursor:none; user-select:none;
+}
+.comp-slider {
+  position:absolute; top:4px; bottom:4px; left:4px; width:calc(50% - 4px);
+  background:var(--rose); border-radius:26px; transition:all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow:0 4px 15px rgba(255,42,95,0.3); z-index:0;
+}
+.comp-switch.good .comp-slider { left:calc(50% + 0px); background:var(--emerald); box-shadow:0 4px 15px rgba(0,230,118,0.3); }
+.comp-opt {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  font-size:0.8rem; font-weight:800; z-index:1; color:var(--muted); transition:color .3s;
+}
+.comp-switch.good .comp-opt:first-of-type { color:var(--muted); }
+.comp-switch.good .comp-opt:last-of-type { color:#fff; }
+.comp-switch:not(.good) .comp-opt:first-of-type { color:#fff; }
+
+.demo-content {
+  display:grid; grid-template-columns:1.1fr 1.9fr; gap:28px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+  padding:28px; min-height:360px; box-shadow:0 25px 50px rgba(0,0,0,0.5);
+}
+.demo-desc-panel { display:flex; flex-direction:column; justify-content:center; }
+.demo-badge {
+  align-self:flex-start; font-size:0.7rem; font-weight:800; letter-spacing:1px;
+  text-transform:uppercase; padding:5px 12px; border-radius:6px; margin-bottom:16px;
+}
+.badge-bad { background:rgba(255,42,95,0.12); color:var(--rose); }
+.badge-good { background:rgba(0,230,118,0.12); color:var(--emerald); }
+.demo-desc-title { font-size:1.15rem; font-weight:800; margin-bottom:10px; }
+.demo-desc-text { font-size:0.9rem; color:var(--muted); line-height:1.6; }
+
+.code-container { position:relative; overflow:hidden; border-radius:var(--r-sm); border:1px solid var(--border); }
+
+/* ─────────── RIGHT: SIDEBAR (Always Open) ─────────── */
+.sidebar {
+  width:290px; background:rgba(13,11,20,0.9); border-left:1px solid var(--border);
+  display:flex; flex-direction:column; overflow:hidden;
+  backdrop-filter:blur(20px); flex-shrink:0;
+}
+.sb-header { padding:22px 20px 14px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.sb-header-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.sb-logo { display:flex; align-items:center; gap:9px; font-weight:800; font-size:1rem; }
+.sb-badge {
+  background:linear-gradient(135deg,var(--cyan),var(--violet));
+  color:#fff; padding:3px 9px; border-radius:6px; font-size:0.7rem; letter-spacing:1px; font-weight:700;
+}
+.sb-progress-text { font-size:0.72rem; color:var(--muted); }
+.progress-bar-thin { height:3px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+.progress-bar-fill {
+  height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--violet));
+  border-radius:2px; transition:width .5s ease;
+}
+.sb-title {
+  font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--muted); padding:14px 20px 8px; display:flex; align-items:center; gap:7px; flex-shrink:0;
+}
+.ch-list { overflow-y:auto; flex:1; padding:0 10px 16px; display:flex; flex-direction:column; gap:4px; }
+.ch-item { padding:10px 12px; border-radius:9px; cursor:pointer; display:flex; align-items:flex-start; gap:10px; transition:all .2s ease; border:1px solid transparent; }
+.ch-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.07); }
+.ch-item.active { background:rgba(0,229,255,0.07); border-color:rgba(0,229,255,0.25); }
+.ch-num {
+  width:24px; height:24px; border-radius:6px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700;
+  font-family:'Fira Code',monospace; background:rgba(255,255,255,0.06); color:var(--muted); transition:all .2s;
+}
+.ch-item.active .ch-num { background:var(--cyan); color:#000; font-weight:800; }
+.ch-item.done .ch-num { background:rgba(16,185,129,0.15); color:var(--emerald); }
+.ch-name { font-size:0.8rem; line-height:1.35; color:var(--muted); transition:color .2s; }
+.ch-item.active .ch-name { color:var(--cyan); font-weight:600; }
+.ch-item.done .ch-name { color:var(--text); }
+
+.sb-footer { padding:14px 20px; border-top:1px solid var(--border); flex-shrink:0; }
+.sb-conn { display:flex; align-items:center; gap:8px; font-size:0.75rem; color:var(--muted); }
+.sb-conn-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); }
+.sb-conn-dot.live { background:var(--emerald); box-shadow:0 0 10px var(--emerald); animation:pulse-dot .8s infinite alternate; }
+
+/* ── GRAPHICAL REAL-WORLD MODEL VISUALIZERS ── */
+.visual-container {
+  display:flex; justify-content:center; align-items:center;
+  background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--r);
+  padding:30px; width:100%; max-width:850px; min-height:280px; margin-top:15px; position:relative; overflow:hidden;
+}
+
+/* Slide 2: Spaghetti Wires vs Modular Board */
+.wire-container { width:100%; height:100%; position:relative; }
+.wire-spaghetti {
+  position:absolute; inset:0;
+  background-image: radial-gradient(circle at 30% 40%, transparent 80%, rgba(255,42,95,0.3) 81%, transparent 83%),
+                    radial-gradient(circle at 70% 60%, transparent 60%, rgba(0,229,255,0.35) 61%, transparent 63%),
+                    radial-gradient(circle at 50% 50%, transparent 70%, rgba(175,64,255,0.3) 71%, transparent 73%);
+  background-size: 80px 80px; opacity:1; transition:opacity 0.6s ease;
+}
+.power-board {
+  position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  width:320px; height:90px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1);
+  border-radius:15px; display:flex; justify-content:space-around; align-items:center;
+  opacity:0; transition:all 0.6s ease;
+  box-shadow: 0 0 30px rgba(0,229,255,0.1);
+}
+.power-socket { width:46px; height:46px; border-radius:50%; background:var(--dim); display:flex; align-items:center; justify-content:center; }
+.power-plug-head {
+  width:28px; height:28px; border-radius:50%; background:var(--cyan);
+  box-shadow:0 0 15px var(--cyan); display:flex; align-items:center; justify-content:center;
+  font-size:0.6rem; font-weight:900; color:#000;
+}
+
+/* Slide 3: Swiss Army Knife (SRP) */
+.swiss-knife-wrap { position:relative; width:220px; height:120px; }
+.swiss-body {
+  width:160px; height:50px; background:linear-gradient(135deg, #ff2a5f, #d9043d);
+  border-radius:25px; position:absolute; top:35px; left:30px; z-index:10;
+  box-shadow:0 10px 30px rgba(255,42,95,0.4); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem;
+}
+.swiss-blade {
+  position:absolute; width:16px; height:70px; background:linear-gradient(90deg, #e2e8f0, #94a3b8);
+  border-radius:8px 8px 0 0; transition:all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1.25); z-index:5; transform-origin: bottom center;
+}
+.blade-knife { left:50px; bottom:60px; transform: rotate(-35deg); }
+.blade-scissors { left:95px; bottom:60px; transform: rotate(15deg); }
+.blade-corkscrew { left:140px; bottom:60px; transform: rotate(45deg); }
+
+/* Slide 5: Wall Socket (OCP) */
+.wall-socket-wrap { display:flex; gap:50px; align-items:center; }
+.wall-outlet {
+  width:130px; height:130px; background:rgba(255,255,255,0.02); border:2px solid var(--border);
+  border-radius:20px; display:flex; align-items:center; justify-content:center; position:relative;
+  box-shadow:inset 0 0 20px rgba(0,0,0,0.6);
+}
+.wall-outlet-ports { display:flex; flex-direction:column; gap:18px; }
+.outlet-hole { width:14px; height:14px; border-radius:50%; background:#000; border:1px solid rgba(255,255,255,0.1); }
+.wall-plug {
+  padding:12px 20px; border-radius:10px; font-size:0.8rem; font-weight:800;
+  display:flex; align-items:center; gap:8px; cursor:none; transition:all 0.3s;
+  border:1px solid transparent;
+}
+.wall-plug.phone { background:rgba(0,229,255,0.08); border-color:var(--cyan); color:var(--cyan); }
+.wall-plug.laptop { background:rgba(175,64,255,0.08); border-color:var(--violet); color:var(--violet); }
+.plug-inserted {
+  position:absolute; width:90px; height:90px; border-radius:14px; background:currentColor;
+  display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#000;
+  animation:plug-snap 0.3s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+@keyframes plug-snap { 0%{transform:scale(0.5);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+
+/* Slide 7: Pond & Ducks (LSP) */
+.pond-wrap { width:100%; height:180px; background:linear-gradient(rgba(0,229,255,0.05), rgba(0,229,255,0.15)); border:1px solid rgba(0,229,255,0.2); border-radius:15px; position:relative; overflow:hidden; }
+.duck-avatar {
+  position:absolute; width:50px; height:50px; font-size:2rem; display:flex; align-items:center; justify-content:center;
+  transition:all 1.5s ease-in-out;
+}
+.duck-bio { left:20%; top:40%; animation:swim-bio 4s infinite alternate ease-in-out; }
+.duck-toy { left:60%; top:45%; }
+@keyframes swim-bio { 0%{transform:translate(0,0) rotate(5deg);} 100%{transform:translate(40px,-10px) rotate(-5deg);} }
+.toy-status-bubble {
+  position:absolute; top:-35px; left:50%; transform:translateX(-50%);
+  background:var(--rose); color:#000; font-size:0.65rem; font-weight:900; padding:4px 10px; border-radius:5px;
+  white-space:nowrap; opacity:0; transition:opacity 0.3s;
+  box-shadow: 0 5px 15px rgba(255,42,95,0.4);
+}
+.toy-status-bubble.show { opacity:1; }
+
+/* Slide 9: Giant Cockpit Remote vs Simple Remote (ISP) */
+.remote-diagram-wrap { display:flex; gap:60px; justify-content:center; align-items:center; width:100%; }
+.giant-console {
+  width:220px; height:180px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:15px;
+  padding:16px; display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;
+}
+.console-btn { width:24px; height:24px; border-radius:4px; background:rgba(255,42,95,0.1); border:1px solid rgba(255,42,95,0.3); }
+.console-btn.flash { animation:flash-btn 1.5s infinite alternate; }
+@keyframes flash-btn { 0%{background:rgba(255,42,95,0.1);} 100%{background:var(--rose);box-shadow:0 0 8px var(--rose);} }
+
+.simple-remote {
+  width:80px; height:160px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px; display:flex; flex-direction:column; align-items:center; justify-content:space-around; padding:15px 0;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.remote-btn { width:30px; height:30px; border-radius:50%; background:rgba(0,230,118,0.2); border:1px solid var(--emerald); display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:var(--emerald); }
+.remote-btn.power { background:rgba(255,42,95,0.2); border-color:var(--rose); color:var(--rose); }
+
+/* Slide 11: Ceiling Lamp Outlet (DIP) */
+.dip-analog-wrap { display:flex; flex-direction:column; align-items:center; gap:20px; position:relative; }
+.ceiling-lamp {
+  width:76px; height:76px; background:rgba(255,255,255,0.02); border:2px solid var(--border); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:2.2rem; color:var(--muted); transition:all 0.4s;
+  z-index:2;
+}
+.ceiling-lamp.on {
+  color:var(--amber); background:rgba(255,179,0,0.12); border-color:var(--amber);
+  box-shadow:0 0 45px rgba(255,179,0,0.4);
+}
+.light-beam {
+  position:absolute; top:75px; width:160px; height:120px;
+  background: linear-gradient(rgba(255,179,0,0.15), transparent);
+  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  opacity:0; transition:opacity 0.4s ease; pointer-events:none; z-index:1;
+}
+.ceiling-lamp.on ~ .light-beam { opacity:1; }
+
+.dip-wire-line { width:2px; height:50px; background:var(--border); }
+.dip-wire-line.live { background:var(--emerald); box-shadow:0 0 10px var(--emerald); }
+
+/* ── PREMIUM NEON BUTTON DESIGN ── */
+.plug-interactive-btn {
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+  color: #fff; border: none; padding: 12px 24px; border-radius: 12px;
+  font-size: 0.85rem; font-weight: 800; cursor: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 25px rgba(175,64,255,0.25);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.plug-interactive-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 30px rgba(175,64,255,0.4), 0 0 15px rgba(6,182,212,0.2);
+}
+.plug-interactive-btn:active {
+  transform: translateY(0) scale(1);
+}
+</style>
+</head>
+<body class="hover-target">
+
+<div class="cursor-outline"></div>
+<div class="cursor-dot"></div>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- Timeline Top -->
+<div class="top-timeline">
+  <div class="timeline-fill" id="timelineFill"></div>
+</div>
+
+<!-- ── SYSTEM CRASH POPUP (LSP VIOLATION) ── -->
+<div id="crashOverlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:9000;">
+  <div style="background:#120509; border:2px solid var(--rose); border-radius:15px; padding:30px; width:460px; text-align:left; box-shadow:0 0 35px rgba(255,42,95,0.4); transform:scale(0.9); transition:transform 0.3s;" id="crashModal">
+    <div style="font-size:1.5rem; font-weight:800; color:var(--rose); margin-bottom:12px; display:flex; align-items:center; gap:10px;">
+      <i class="fa-solid fa-triangle-exclamation"></i> System Crash!
+    </div>
+    <div style="font-family:'Fira Code', monospace; font-size:0.78rem; color:#f8fafc; background:#000; padding:15px; border-radius:8px; border:1px solid rgba(255,42,95,0.25); line-height:1.6; margin-bottom:20px;">
+      <span style="color:var(--rose);font-weight:700;">System.NotImplementedException:</span> Battery Missing! ToyDuck cannot swim without energy.<br>
+      &nbsp;&nbsp;at ToyDuck.Swim() in DuckSimulator.cs:line 45<br>
+      &nbsp;&nbsp;at DuckSimulator.LetDucksSwim(List&lt;Duck&gt; ducks)
+    </div>
+    <button class="plug-interactive-btn hover-target" onclick="closeCrashReport()" style="background:var(--rose);box-shadow:0 8px 25px rgba(255,42,95,0.25);">
+      <i class="fa-solid fa-rotate-left"></i> রি-স্টার্ট করুন (Restart)
+    </button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ─────────── LEFT: SLIDE VIEWPORT ─────────── -->
+  <div class="slide-area">
+
+    <!-- Logo -->
+    <div class="ch-logo-wrap hover-target">
+      <img class="ch-logo-img" src="../Dependency Injection/coding drop logo.png" alt="Coding Drop Logo">
+      <div class="ch-logo-text">
+        <div class="ch-logo-name">Coding Drop</div>
+        <div class="ch-logo-sub">SOLID Masterclass</div>
+      </div>
+    </div>
+
+    <!-- S1: Hero -->
+    <div class="slide active" id="s1">
+      <div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+      <div class="glass hero-wrap fu" style="padding:55px;">
+        <div class="hero-visual fu d1">
+          <div class="hv-orbit"></div>
+          <div class="hv-orbit2"></div>
+          <div class="hv-center"><i class="fa-solid fa-shapes"></i></div>
+        </div>
+        <div class="tag fu d2"><i class="fa-solid fa-graduation-cap"></i> সম্পূর্ণ টিউটোরিয়াল</div>
+        <h1 class="hero-title fu d3">
+          <span style="background: linear-gradient(135deg, var(--cyan), var(--violet)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SOLID Principles</span><br>সম্পূর্ণ গাইড
+        </h1>
+        <p class="hero-sub fu d4">
+          বাস্তব জীবনের ভিজ্যুয়াল উদাহরণের মাধ্যমে সফটওয়্যার আর্কিটেকচারের ৫টি মূলস্তম্ভের চমৎকার গাইড।
+        </p>
+        <div class="hero-tags fu d5">
+          <div class="htag t-s hover-target"><strong>S</strong>ingle Responsibility</div>
+          <div class="htag t-o hover-target"><strong>O</strong>pen/Closed</div>
+          <div class="htag t-l hover-target"><strong>L</strong>iskov Substitution</div>
+          <div class="htag t-i hover-target"><strong>I</strong>nterface Segregation</div>
+          <div class="htag t-d hover-target"><strong>D</strong>ependency Inversion</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2: Overview -->
+    <div class="slide" id="s2">
+      <div class="tag fu"><i class="fa-solid fa-network-wired"></i> পরিচিতি</div>
+      <h2 class="s-title fu d1">SOLID কী এবং কেন?</h2>
+      <p class="s-desc fu d2">স্প্যাগেটি কোডের জটলা বনাম মডুলার আর্কিটেকচার</p>
+      
+      <div class="visual-container fu d3">
+        <div class="wire-container">
+          <div class="wire-spaghetti" id="spaghettiWires" style="opacity: 1;"></div>
+          <div class="power-board" id="powerBoard" style="opacity: 0;">
+            <div class="power-socket"><div class="power-plug-head" style="background:var(--cyan);box-shadow:0 0 15px var(--cyan);">S</div></div>
+            <div class="power-socket"><div class="power-plug-head" style="background:var(--rose);box-shadow:0 0 15px var(--rose);">O</div></div>
+            <div class="power-socket"><div class="power-plug-head" style="background:var(--amber);box-shadow:0 0 15px var(--amber);">L</div></div>
+            <div class="power-socket"><div class="power-plug-head" style="background:var(--emerald);box-shadow:0 0 15px var(--emerald);">I</div></div>
+            <div class="power-socket"><div class="power-plug-head" style="background:var(--violet);box-shadow:0 0 15px var(--violet);">D</div></div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="plug-interactive-btn hover-target fu d4" onclick="toggleSpaghetti()" style="margin-top:20px;">
+        <i class="fa-solid fa-shuffle"></i> আর্কিটেকচার পরিবর্তন করুন
+      </button>
+    </div>
+
+    <!-- S3: SRP Swiss Knife -->
+    <div class="slide" id="s3">
+      <div class="tag fu" style="color:var(--cyan)"><i class="fa-solid fa-utensils"></i> SRP Concept</div>
+      <h2 class="s-title fu d1">Single Responsibility Principle (SRP)</h2>
+      <p class="s-desc fu d2">বাস্তব উদাহরণ: একটি মাল্টি-টুল সুইস আর্মি নাইফ বনাম আলাদা ক্যাটাগরির কুড়াল বা কাঁচি।</p>
+      
+      <div class="visual-container fu d3">
+        <div class="swiss-knife-wrap">
+          <div class="swiss-blade blade-knife" id="blade1"></div>
+          <div class="swiss-blade blade-scissors" id="blade2"></div>
+          <div class="swiss-blade blade-corkscrew" id="blade3"></div>
+          <div class="swiss-body" id="swissBody">Swiss Knife</div>
+        </div>
+      </div>
+      
+      <button class="plug-interactive-btn hover-target fu d4" onclick="splitSwissKnife()" style="margin-top:20px;">
+        <i class="fa-solid fa-scissors"></i> ডেডিকেটেড টুলে রূপান্তর (Refactor)
+      </button>
+    </div>
+
+    <!-- S4: SRP Demo Code -->
+    <div class="slide" id="s4">
+      <div class="demo-wrap fu">
+        <div class="demo-header">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--cyan)"></i> <span>Single Responsibility Demo</span></div>
+          <div class="comp-switch hover-target" id="switch-4" onclick="toggleDemoSwitch(4)">
+            <div class="comp-slider"></div>
+            <div class="comp-opt">Bad Practice</div>
+            <div class="comp-opt">Good Practice</div>
+          </div>
+        </div>
+        <div class="demo-content">
+          <div class="demo-desc-panel">
+            <div class="demo-badge badge-bad" id="badge-4">God Class</div>
+            <div class="demo-desc-title" id="desc-title-4">একাধিক দায়িত্বের ক্লাস্টার</div>
+            <div class="demo-desc-text" id="desc-text-4">ReportManager একই সাথে রিপোর্ট মেকিং, পিডিএফ স্টোরিং ও মেইলিং হ্যান্ডেল করছে। যেকোনো একটি সার্ভিসের কনфিগ বদলে গেলে সম্পূর্ণ ক্লাস এডিট করা লাগবে।</div>
+          </div>
+          <div class="code-container">
+            <pre class="code active" id="code-bad-4"><span class="ck">public class</span> <span class="cs">ReportManager</span>
+{
+    <span class="ck">public void</span> <span class="cf">GenerateReport</span>() { }
+    
+    <span class="cc">// ❌ পিডিএফ কনভার্ট করা (SRP ভায়োলেশন)</span>
+    <span class="ck">public void</span> <span class="cf">SaveToPdf</span>() { }
+    
+    <span class="cc">// ❌ ইমেইল ডেলিভার করা</span>
+    <span class="ck">public void</span> <span class="cf">SendEmail</span>() { }
+}</pre>
+            <pre class="code" id="code-good-4"><span class="cc">// প্রতিটি ক্লাস স্বয়ংসম্পূর্ণ ও নির্দিষ্ট (SRP)</span>
+<span class="ck">public class</span> <span class="cs">ReportGenerator</span> {
+    <span class="ck">public void</span> <span class="cf">Generate</span>() { }
+}
+<span class="ck">public class</span> <span class="cs">ReportSaver</span> {
+    <span class="ck">public void</span> <span class="cf">SaveToPdf</span>() { }
+}
+<span class="ck">public class</span> <span class="cs">EmailSender</span> {
+    <span class="ck">public void</span> <span class="cf">Send</span>() { }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5: OCP Wall Socket -->
+    <div class="slide" id="s5">
+      <div class="tag fu" style="color:var(--rose)"><i class="fa-solid fa-plug"></i> OCP Concept</div>
+      <h2 class="s-title fu d1">Open/Closed Principle (OCP)</h2>
+      <p class="s-desc fu d2">বাস্তব উদাহরণ: দেয়ালের সকেট। বোর্ড না ভেঙেই নতুন চার্জার বা ল্যাপটপ প্লাগ-ইন করতে পারেন।</p>
+      
+      <div class="visual-container fu d3">
+        <div class="wall-socket-wrap">
+          <div class="wall-outlet">
+            <div class="wall-outlet-ports" id="activeOutletPorts" style="opacity: 1;">
+              <div class="outlet-hole"></div>
+              <div class="outlet-hole"></div>
+            </div>
+            <div id="plugAttachedSlot"></div>
+          </div>
+          <div class="ocp-plugs-bank">
+            <button class="wall-plug phone hover-target" onclick="insertPlug('phone')">
+              <i class="fa-solid fa-mobile-screen"></i> Phone Plug
+            </button>
+            <button class="wall-plug laptop hover-target" onclick="insertPlug('laptop')" style="margin-top:10px;">
+              <i class="fa-solid fa-laptop"></i> Laptop Plug
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6: OCP Demo Code -->
+    <div class="slide" id="s6">
+      <div class="demo-wrap fu">
+        <div class="demo-header">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--rose)"></i> <span>Open/Closed Demo</span></div>
+          <div class="comp-switch hover-target" id="switch-6" onclick="toggleDemoSwitch(6)">
+            <div class="comp-slider"></div>
+            <div class="comp-opt">Bad Practice</div>
+            <div class="comp-opt">Good Practice</div>
+          </div>
+        </div>
+        <div class="demo-content">
+          <div class="demo-desc-panel">
+            <div class="demo-badge badge-bad" id="badge-6">If-Else Blocked</div>
+            <div class="demo-desc-title" id="desc-title-6">সরাসরি মডিফিকেশনের ঝুঁকি</div>
+            <div class="demo-desc-text" id="desc-text-6">নতুন কোনো ডিসকাউন্ট লজিক যোগ করতে হলে আপনাকে ক্যালকুলেট ক্লাসে ঢুকে if কন্ডিশন বাড়াতে হবে, যা OCP ভঙ্গ করে।</div>
+          </div>
+          <div class="code-container">
+            <pre class="code active" id="code-bad-6"><span class="ck">public class</span> <span class="cs">InvoiceCalculator</span>
+{
+    <span class="ck">public double</span> <span class="cf">Calculate</span>(<span class="ck">double</span> amt, <span class="ck">string</span> type)
+    {
+        <span class="cc">// ❌ ডিসকাউন্ট যোগ করতে কোড এডিট করতে হচ্ছে</span>
+        <span class="ck">if</span> (type == <span class="ck">"Regular"</span>) <span class="ck">return</span> amt * 0.9;
+        <span class="ck">else if</span> (type == <span class="ck">"VIP"</span>) <span class="ck">return</span> amt * 0.8;
+        <span class="ck">return</span> amt;
+    }
+}</pre>
+            <pre class="code" id="code-good-6"><span class="ck">public interface</span> <span class="ci">IDiscount</span> { <span class="ck">double</span> <span class="cf">Apply</span>(<span class="ck">double</span> amt); }
+
+<span class="ck">public class</span> <span class="cs">RegularDiscount</span> : <span class="ci">IDiscount</span> {
+    <span class="ck">public double</span> <span class="cf">Apply</span>(<span class="ck">double</span> amt) => amt * 0.9;
+}
+<span class="ck">public class</span> <span class="cs">VIPDiscount</span> : <span class="ci">IDiscount</span> {
+    <span class="ck">public double</span> <span class="cf">Apply</span>(<span class="ck">double</span> amt) => amt * 0.8;
+}
+
+<span class="cc">// ✅ ওটিপি ক্যালকুলেটর (নতুন ক্লাস বাড়িয়ে পলিসি এক্সটেন্ড করা সম্ভব)</span>
+<span class="ck">public class</span> <span class="cs">InvoiceCalculator</span> {
+    <span class="ck">public double</span> <span class="cf">Calculate</span>(<span class="ck">double</span> amt, <span class="ci">IDiscount</span> discount) =>
+        discount.<span class="cf">Apply</span>(amt);
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7: Biological Duck vs Toy Duck (LSP) -->
+    <div class="slide" id="s7">
+      <div class="tag fu" style="color:var(--amber)"><i class="fa-solid fa-kiwi-bird"></i> LSP Concept</div>
+      <h2 class="s-title fu d1">Liskov Substitution Principle (LSP)</h2>
+      <p class="s-desc fu d2">বাস্তব উদাহরণ: জীবন্ত হাঁস এবং খেলনা হাঁস। খেলনাকে জীবন্ত হাঁসের বিকল্প ধরলে তা সিস্টেম ক্র্যাশ করাবে।</p>
+      
+      <div class="visual-container fu d3">
+        <div class="pond-wrap">
+          <div class="duck-avatar duck-bio">🦆</div>
+          <div class="duck-avatar duck-toy" id="toyDuckNode">
+            🤖🦆
+            <div class="toy-status-bubble" id="toyStatusBubble">NotImplementedException: Battery Missing!</div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="plug-interactive-btn hover-target fu d4" onclick="triggerLSPCrash()" style="margin-top:20px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> খেলনা হাঁসটিকে পানিতে নামান
+      </button>
+    </div>
+
+    <!-- S8: LSP Demo Code -->
+    <div class="slide" id="s8">
+      <div class="demo-wrap fu">
+        <div class="demo-header">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--amber)"></i> <span>Liskov Substitution Demo</span></div>
+          <div class="comp-switch hover-target" id="switch-8" onclick="toggleDemoSwitch(8)">
+            <div class="comp-slider"></div>
+            <div class="comp-opt">Bad Practice</div>
+            <div class="comp-opt">Good Practice</div>
+          </div>
+        </div>
+        <div class="demo-content">
+          <div class="demo-desc-panel">
+            <div class="demo-badge badge-bad" id="badge-8">Broken Contract</div>
+            <div class="demo-desc-title" id="desc-title-8">অসম্ভব চুক্তির ফাঁদ</div>
+            <div class="demo-desc-text" id="desc-text-8">উটপাখি উড়তে না পেরে Fly মেথডে NotImplementedException ছুড়েছে। প্যারেন্টের যোগ্য বিকল্প চাইল্ড হতে পারলো না।</div>
+          </div>
+          <div class="code-container">
+            <pre class="code active" id="code-bad-8"><span class="ck">public class</span> <span class="cs">Bird</span> {
+    <span class="ck">public virtual void</span> <span class="cf">Fly</span>() { }
+}
+
+<span class="ck">public class</span> <span class="cs">Ostrich</span> : <span class="cs">Bird</span> {
+    <span class="cc">// ❌ LSP ভায়োলেশন! ওস্ট্রিস উড়তে অক্ষম।</span>
+    <span class="ck">public override void</span> <span class="cf">Fly</span>() =>
+        <span class="ck">throw new</span> <span class="cs">NotImplementedException</span>();
+}</pre>
+            <pre class="code" id="code-good-8"><span class="ck">public class</span> <span class="cs">Bird</span> { }
+
+<span class="ck">public interface</span> <span class="ci">IFlyingBird</span> { <span class="ck">void</span> <span class="cf">Fly</span>(); }
+
+<span class="ck">public class</span> <span class="cs">Sparrow</span> : <span class="cs">Bird</span>, <span class="ci">IFlyingBird</span> {
+    <span class="ck">public void</span> <span class="cf">Fly</span>() { }
+}
+
+<span class="ck">public class</span> <span class="cs">Ostrich</span> : <span class="cs">Bird</span> {
+    <span class="cc">// ✅ সেফ ডিজাইন, জোরপূর্বক উড়ার চুক্তি নেই</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S9: Giant cockpit vs Simple TV Remote (ISP) -->
+    <div class="slide" id="s9">
+      <div class="tag fu" style="color:var(--emerald)"><i class="fa-solid fa-gamepad"></i> ISP Concept</div>
+      <h2 class="s-title fu d1">Interface Segregation Principle (ISP)</h2>
+      <p class="s-desc fu d2">বাস্তব উদাহরণ: একটি বিশাল জটিল ককপিট কনসোল প্যানেল বনাম ৩টি বাটন সংবলিত একটি সিম্পল টিভি রিমোট।</p>
+      
+      <div class="visual-container fu d3">
+        <div class="remote-diagram-wrap">
+          <div class="giant-console">
+            <div class="console-btn flash"></div><div class="console-btn"></div><div class="console-btn"></div><div class="console-btn"></div><div class="console-btn flash"></div>
+            <div class="console-btn"></div><div class="console-btn"></div><div class="console-btn flash"></div><div class="console-btn"></div><div class="console-btn"></div>
+            <div class="console-btn flash"></div><div class="console-btn"></div><div class="console-btn"></div><div class="console-btn flash"></div><div class="console-btn"></div>
+          </div>
+          <div style="font-size:1.5rem; color:var(--muted);"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="simple-remote">
+            <div class="remote-btn power"><i class="fa-solid fa-power-off"></i></div>
+            <div class="remote-btn"><i class="fa-solid fa-plus"></i></div>
+            <div class="remote-btn"><i class="fa-solid fa-minus"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S10: ISP Demo Code -->
+    <div class="slide" id="s10">
+      <div class="demo-wrap fu">
+        <div class="demo-header">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--emerald)"></i> <span>Interface Segregation Demo</span></div>
+          <div class="comp-switch hover-target" id="switch-10" onclick="toggleDemoSwitch(10)">
+            <div class="comp-slider"></div>
+            <div class="comp-opt">Bad Practice</div>
+            <div class="comp-opt">Good Practice</div>
+          </div>
+        </div>
+        <div class="demo-content">
+          <div class="demo-desc-panel">
+            <div class="demo-badge badge-bad" id="badge-10">Fat Interface</div>
+            <div class="demo-desc-title" id="desc-title-10">অনাবশ্যক কোডের ভার</div>
+            <div class="demo-desc-text" id="desc-text-10">বেসিক প্রিন্টার শুধুমাত্র প্রিন্ট করতে পারে। কিন্তু ইন্টারফেসে স্ক্যান এবং ফ্যাক্স থাকায় ফালতু মেথডগুলোও ইমপ্লিমেন্ট করতে বাধ্য হচ্ছে।</div>
+          </div>
+          <div class="code-container">
+            <pre class="code active" id="code-bad-10"><span class="ck">public interface</span> <span class="ci">IMultiFunctionPrinter</span> {
+    <span class="ck">void</span> <span class="cf">Print</span>();
+    <span class="ck">void</span> <span class="cf">Scan</span>();
+    <span class="ck">void</span> <span class="cf">Fax</span>();
+}
+
+<span class="ck">public class</span> <span class="cs">BasicPrinter</span> : <span class="ci">IMultiFunctionPrinter</span> {
+    <span class="ck">public void</span> <span class="cf">Print</span>() { }
+    <span class="ck">public void</span> <span class="cf">Scan</span>() => <span class="ck">throw new</span> <span class="cs">NotSupportedException</span>();
+    <span class="ck">public void</span> <span class="cf">Fax</span>() => <span class="ck">throw new</span> <span class="cs">NotSupportedException</span>();
+}</pre>
+            <pre class="code" id="code-good-10"><span class="ck">public interface</span> <span class="ci">IPrinter</span> { <span class="ck">void</span> <span class="cf">Print</span>(); }
+<span class="ck">public interface</span> <span class="ci">IScanner</span> { <span class="ck">void</span> <span class="cf">Scan</span>(); }
+<span class="ck">public interface</span> <span class="ci">IFax</span> { <span class="ck">void</span> <span class="cf">Fax</span>(); }
+
+<span class="ck">public class</span> <span class="cs">BasicPrinter</span> : <span class="ci">IPrinter</span> {
+    <span class="ck">public void</span> <span class="cf">Print</span>() { }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11: Wall Plug-in Ceiling Lamp (DIP) -->
+    <div class="slide" id="s11">
+      <div class="tag fu" style="color:var(--violet)"><i class="fa-solid fa-lightbulb"></i> DIP Concept</div>
+      <h2 class="s-title fu d1">Dependency Inversion Principle (DIP)</h2>
+      <p class="s-desc fu d2">বাস্তব উদাহরণ: একটি সিলিং লাইট সরাসরি পাওয়ার লাইনে সোল্ডারিং না করে সকেটের সাথে যুক্ত করা। সকেট হলো ইন্টারফেস (Abstraction)।</p>
+      
+      <div class="visual-container fu d3">
+        <div class="dip-analog-wrap">
+          <div class="ceiling-lamp" id="ceilingLamp"><i class="fa-regular fa-lightbulb"></i></div>
+          <div class="light-beam"></div>
+          <div class="dip-wire-line" id="dipWireLine" style="height: 50px;"></div>
+          <button class="plug-interactive-btn hover-target" onclick="toggleDIPAnalog()">
+            <i class="fa-solid fa-toggle-on"></i> সকেট সুইচ প্রেস করুন
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- S12: DIP Demo Code -->
+    <div class="slide" id="s12">
+      <div class="demo-wrap fu">
+        <div class="demo-header">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--violet)"></i> <span>Dependency Inversion Demo</span></div>
+          <div class="comp-switch hover-target" id="switch-12" onclick="toggleDemoSwitch(12)">
+            <div class="comp-slider"></div>
+            <div class="comp-opt">Bad Practice</div>
+            <div class="comp-opt">Good Practice</div>
+          </div>
+        </div>
+        <div class="demo-content">
+          <div class="demo-desc-panel">
+            <div class="demo-badge badge-bad" id="badge-12">Tight Coupling</div>
+            <div class="demo-desc-title" id="desc-title-12">কংক্রিট ম্যাপের ঝুঁকি</div>
+            <div class="demo-desc-text" id="desc-text-12">StoreService সরাসরি SqlDatabase কংক্রিট ক্লাসে নির্ভরশীল। ডাটাবেজ বদলালে সার্ভিস রি-বিল্ড করতে হবে।</div>
+          </div>
+          <div class="code-container">
+            <pre class="code active" id="code-bad-12"><span class="ck">public class</span> <span class="cs">SqlDatabase</span> {
+    <span class="ck">public void</span> <span class="cf">Save</span>(<span class="ck">string</span> data) { }
+}
+
+<span class="ck">public class</span> <span class="cs">StoreService</span> {
+    <span class="cc">// ❌ SQL কাস্টমাইজেশন ছাড়া সার্ভিস অচল</span>
+    <span class="ck">private</span> <span class="cs">SqlDatabase</span> _db = <span class="ck">new</span> <span class="cs">SqlDatabase</span>();
+    <span class="ck">public void</span> <span class="cf">SaveData</span>(<span class="ck">string</span> d) => _db.<span class="cf">Save</span>(d);
+}</pre>
+            <pre class="code" id="code-good-12"><span class="ck">public interface</span> <span class="ci">IDatabase</span> { <span class="ck">void</span> <span class="cf">Save</span>(<span class="ck">string</span> data); }
+
+<span class="ck">public class</span> <span class="cs">StoreService</span> {
+    <span class="ck">private readonly</span> <span class="ci">IDatabase</span> _db;
+    <span class="cc">// ✅ ইন্টারফেসের ওপর নির্ভরশীল StoreService</span>
+    <span class="ck">public</span> <span class="cf">StoreService</span>(<span class="ci">IDatabase</span> db) { _db = db; }
+    <span class="ck">public void</span> <span class="cf">SaveData</span>(<span class="ck">string</span> d) => _db.<span class="cf">Save</span>(d);
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S13: Outro -->
+    <div class="slide" id="s13">
+      <div class="tag fu"><i class="fa-solid fa-flag-checkered"></i> ফিনিশিং টাচ</div>
+      <h2 class="s-title fu d1">SOLID Principles সারাংশ</h2>
+      <p class="s-desc fu d2">ক্লিন এবং স্কেলেবল কোড লেখার ৫টি চাবিকাঠি</p>
+      
+      <div class="g5 fu d3" style="margin-bottom:30px;">
+        <div class="card hover-target" style="border-top:3px solid var(--cyan); text-align:center;">
+          <div style="font-size:1.8rem; color:var(--cyan); margin-bottom:10px;"><i class="fa-solid fa-scissors"></i></div>
+          <div style="font-weight:800; font-size:0.95rem; color:var(--cyan); margin-bottom:8px;">S - SRP</div>
+          <div style="font-size:0.75rem; color:var(--muted); line-height:1.4">১টি দায়িত্ব, ১টি ক্লাস।</div>
+        </div>
+        <div class="card hover-target" style="border-top:3px solid var(--rose); text-align:center;">
+          <div style="font-size:1.8rem; color:var(--rose); margin-bottom:10px;"><i class="fa-solid fa-plug"></i></div>
+          <div style="font-weight:800; font-size:0.95rem; color:var(--rose); margin-bottom:8px;">O - OCP</div>
+          <div style="font-size:0.75rem; color:var(--muted); line-height:1.4">এক্সটেন্ড করুন, মডিফাই নয়।</div>
+        </div>
+        <div class="card hover-target" style="border-top:3px solid var(--amber); text-align:center;">
+          <div style="font-size:1.8rem; color:var(--amber); margin-bottom:10px;"><i class="fa-solid fa-kiwi-bird"></i></div>
+          <div style="font-weight:800; font-size:0.95rem; color:var(--amber); margin-bottom:8px;">L - LSP</div>
+          <div style="font-size:0.75rem; color:var(--muted); line-height:1.4">চাইল্ড প্যারেন্টের সঠিক বিকল্প।</div>
+        </div>
+        <div class="card hover-target" style="border-top:3px solid var(--emerald); text-align:center;">
+          <div style="font-size:1.8rem; color:var(--emerald); margin-bottom:10px;"><i class="fa-solid fa-gamepad"></i></div>
+          <div style="font-weight:800; font-size:0.95rem; color:var(--emerald); margin-bottom:8px;">I - ISP</div>
+          <div style="font-size:0.75rem; color:var(--muted); line-height:1.4">ছোট ও নির্দিষ্ট ইন্টারফেস।</div>
+        </div>
+        <div class="card hover-target" style="border-top:3px solid var(--violet); text-align:center;">
+          <div style="font-size:1.8rem; color:var(--violet); margin-bottom:10px;"><i class="fa-solid fa-lightbulb"></i></div>
+          <div style="font-weight:800; font-size:0.95rem; color:var(--violet); margin-bottom:8px;">D - DIP</div>
+          <div style="font-size:0.75rem; color:var(--muted); line-height:1.4">ইন্টারফেসের ওপর নির্ভরতা।</div>
+        </div>
+      </div>
+
+      <div class="glass fu d4" style="padding:28px 45px; text-align:center; width:100%; max-width:600px;">
+        <div style="font-size:1.2rem; font-weight:800; color:#fff; margin-bottom:8px;">ধন্যবাদ সবাইকে!</div>
+        <p style="font-size:0.88rem; color:var(--muted); line-height:1.5;">
+          ভিডিওটি ভালো লাগলে লাইক ও শেয়ার করুন। এবং অবশ্যই <strong>Coding Drop</strong> চ্যানেলটি সাবস্ক্রাইব করে রাখুন!
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─────────── RIGHT: SIDEBAR (Restored & Open) ─────────── -->
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-header-top">
+        <div class="sb-logo">
+          <i class="fa-solid fa-cube" style="color:var(--cyan)"></i>
+          <span>SOLID Principles</span>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span class="sb-progress-text">অগ্রগতি</span>
+        <span class="sb-progress-text" id="progPct">0%</span>
+      </div>
+      <div class="progress-bar-thin">
+        <div class="progress-bar-fill" id="progFill"></div>
+      </div>
+    </div>
+
+    <div class="sb-title">
+      <i class="fa-solid fa-list"></i>
+      <span>অধ্যায়সমূহ</span>
+    </div>
+
+    <div class="ch-list" id="chList">
+      <!-- Generated via JS -->
+    </div>
+
+    <div class="sb-footer">
+      <div class="sb-conn">
+        <div class="sb-conn-dot" id="connDot"></div>
+        <span id="connLabel">Presenter উইন্ডোর জন্য অপেক্ষা...</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TOTAL_SLIDES = 13;
+let cur = 0;
+
+const CHAPTERS = [
+  'পরিচিতি',
+  'SOLID কী এবং কেন?',
+  'S - Single Responsibility (SRP)',
+  'SRP - Live Code Demo',
+  'O - Open/Closed Principle (OCP)',
+  'OCP - Live Code Demo',
+  'L - Liskov Substitution (LSP)',
+  'LSP - Live Code Demo',
+  'I - Interface Segregation (ISP)',
+  'ISP - Live Code Demo',
+  'D - Dependency Inversion (DIP)',
+  'DIP - Live Code Demo',
+  'সারাংশ ও বিদায়'
+];
+
+function renderSlide(){
+  document.querySelectorAll('.slide').forEach((s,i)=>{
+    s.classList.remove('active','exit');
+    if(i===cur) s.classList.add('active');
+    else if(i<cur) s.classList.add('exit');
+  });
+
+  const pct = Math.round(((cur+1)/TOTAL_SLIDES)*100);
+  document.getElementById('progPct').textContent = pct+'%';
+  document.getElementById('progFill').style.width = pct+'%';
+
+  document.querySelectorAll('.ch-item').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i===cur) el.classList.add('active');
+    else if(i<cur) el.classList.add('done');
+  });
+
+  const activeCh = document.getElementById('ch-'+cur);
+  if(activeCh) activeCh.scrollIntoView({behavior:'smooth',block:'nearest'});
+  
+  resetInteractiveDemos(cur);
+}
+
+function buildChapters(){
+  const wrap = document.getElementById('chList');
+  CHAPTERS.forEach((ch,i)=>{
+    const item = document.createElement('div');
+    item.className = 'ch-item' + (i===0?' active':'');
+    item.id = 'ch-'+i;
+    item.onclick = () => {
+      cur = i;
+      renderSlide();
+      BC.postMessage({ type: 'nav', idx: cur });
+    };
+    item.innerHTML = `<div class="ch-num">${i+1}</div><div class="ch-name">${ch}</div>`;
+    wrap.appendChild(item);
+  });
+}
+
+/* BroadcastChannel Sync */
+const BC = new BroadcastChannel('solid_presentation');
+
+BC.onmessage = (e) => {
+  if(e.data.type === 'nav'){
+    cur = e.data.idx;
+    renderSlide();
+    updateConn(true);
+  }
+  if(e.data.type === 'ping_from_presenter'){
+    BC.postMessage({type:'ping'});
+    updateConn(true);
+  }
+};
+
+function updateConn(live){
+  const dot = document.getElementById('connDot');
+  const lbl = document.getElementById('connLabel');
+  if(live){
+    dot.classList.add('live');
+    lbl.textContent = 'Presenter সংযুক্ত ✓';
+    lbl.style.color = 'var(--emerald)';
+  } else {
+    dot.classList.remove('live');
+    lbl.textContent = 'Presenter উইন্ডোর জন্য অপেক্ষা...';
+    lbl.style.color = 'var(--muted)';
+  }
+}
+
+/* keyboard fallbacks */
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight'){
+    if(cur<TOTAL_SLIDES-1) { cur++; renderSlide(); BC.postMessage({type:'nav',idx:cur}); }
+  }
+  else if(e.key==='ArrowLeft'){
+    if(cur>0) { cur--; renderSlide(); BC.postMessage({type:'nav',idx:cur}); }
+  }
+});
+
+/* Toggle Gliding Switcher */
+function toggleDemoSwitch(slideNum) {
+  const sw = document.getElementById(`switch-${slideNum}`);
+  sw.classList.toggle('good');
+  const type = sw.classList.contains('good') ? 'good' : 'bad';
+  
+  // Toggle codes
+  const demoWrap = sw.closest('.demo-wrap');
+  demoWrap.querySelectorAll('.code').forEach(pre => pre.classList.remove('active'));
+  if (type === 'bad') {
+    demoWrap.querySelector(`#code-bad-${slideNum}`).classList.add('active');
+  } else {
+    demoWrap.querySelector(`#code-good-${slideNum}`).classList.add('active');
+  }
+
+  // Update desc panels
+  const badge = document.getElementById(`badge-${slideNum}`);
+  const title = document.getElementById(`desc-title-${slideNum}`);
+  const text = document.getElementById(`desc-text-${slideNum}`);
+
+  if (slideNum === 4) {
+    if (type === 'bad') {
+      badge.className = 'demo-badge badge-bad'; badge.textContent = 'God Class';
+      title.textContent = 'একাধিক দায়িত্বের ক্লাস্টার';
+      text.textContent = 'ReportManager একই সাথে রিপোর্ট মেকিং, পিডিএফ স্টোরিং ও মেইলিং হ্যান্ডেল করছে। যেকোনো একটি সার্ভিসের কনফিগ বদলে গেলে সম্পূর্ণ ক্লাস এডিট করা লাগবে।';
+    } else {
+      badge.className = 'demo-badge badge-good'; badge.textContent = 'Decoupled';
+      title.textContent = 'ক্লিন সেপারেশন (SRP)';
+      text.textContent = 'আমরা কাজগুলোকে আলাদা করে ৩টি আলাদা ক্লাস তৈরি করেছি। প্রতিটির একক পরিবর্তন স্বাধীনভাবে করা সম্ভব।';
+    }
+  } else if (slideNum === 6) {
+    if (type === 'bad') {
+      badge.className = 'demo-badge badge-bad'; badge.textContent = 'If-Else Blocked';
+      title.textContent = 'সরাসরি মডিফিকেশনের ঝুঁকি';
+      text.textContent = 'নতুন কোনো ডিসকাউন্ট লজিক যোগ করতে হলে আপনাকে ক্যালকুলেট ক্লাসে ঢুকে if কন্ডিশন বাড়াতে হবে, যা OCP ভঙ্গ করে।';
+    } else {
+      badge.className = 'demo-badge badge-good'; badge.textContent = 'Open Extensible';
+      title.textContent = 'পলিমরফিক ডিজাইন (OCP)';
+      text.textContent = 'IDiscount ইন্টারফেস দিয়ে আমরা ডিসকাউন্ট যুক্ত করা সহজ করেছি। নতুন ডিসকাউন্ট হলে শুধু নতুন ক্লাস যুক্ত করুন, আগের ক্লাসে হাত দিতে হবে না।';
+    }
+  } else if (slideNum === 8) {
+    if (type === 'bad') {
+      badge.className = 'demo-badge badge-bad'; badge.textContent = 'Broken Contract';
+      title.textContent = 'অসম্ভব চুক্তির ফাঁদ';
+      text.textContent = 'উটপাখি উড়তে না পেরে Fly মেথডে NotImplementedException ছুড়েছে। প্যারেন্টের যোগ্য বিকল্প চাইল্ড হতে পারলো না।';
+    } else {
+      badge.className = 'demo-badge badge-good'; badge.textContent = 'Safe Substitutions';
+      title.textContent = 'নিরাপদ উত্তরাধিকার (LSP)';
+      text.textContent = 'যে পাখি উড়তে পারে তার জন্য আমরা আলাদা ইন্টারফেস IFlyingBird তৈরি করেছি, যার কারণে ওস্ট্রির ক্লাস কোনো এরর ছুড়বে না।';
+    }
+  } else if (slideNum === 10) {
+    if (type === 'bad') {
+      badge.className = 'demo-badge badge-bad'; badge.textContent = 'Fat Interface';
+      title.textContent = 'অনাবশ্যক কোডের ভার';
+      text.textContent = 'বেসিক প্রিন্টার শুধুমাত্র প্রিন্ট করতে পারে। কিন্তু ইন্টারফেসে স্ক্যান এবং ফ্যাক্স থাকায় ফালতু মেথডগুলোও ইমপ্লিমেন্ট করতে বাধ্য হচ্ছে।';
+    } else {
+      badge.className = 'demo-badge badge-good'; badge.textContent = 'Segregated';
+      title.textContent = 'নির্দিষ্ট ইন্টারফেস (ISP)';
+      text.textContent = 'আমরা বড় ইন্টারফেসটিকে ভেঙে IPrinter, IScanner এবং IFax তৈরি করেছি। বেসিক প্রিন্টার এখন শুধু প্রিন্ট ম্যাপ করবে।';
+    }
+  } else if (slideNum === 12) {
+    if (type === 'bad') {
+      badge.className = 'demo-badge badge-bad'; badge.textContent = 'Tight Coupling';
+      title.textContent = 'কংক্রিট ম্যাপের ঝুঁকি';
+      text.textContent = 'StoreService সরাসরি SqlDatabase কংক্রিট ক্লাসে নির্ভরশীল। ডাটাবেজ বদলালে সার্ভিস রি-বিল্ড করতে হবে।';
+    } else {
+      badge.className = 'demo-badge badge-good'; badge.textContent = 'Inverted';
+      title.textContent = 'ইন্টারফেস নির্ভরতা (DIP)';
+      text.textContent = 'StoreService এবং SqlDatabase এর মাঝখানে IDatabase অ্যাবস্ট্রাকশন সেট করে টাইট কাপলিং দূর করেছি।';
+    }
+  }
+}
+
+/* Reset interactive graphics on slide entrance */
+function resetInteractiveDemos(slideIdx) {
+  // S2 Reset
+  const wires = document.getElementById('spaghettiWires');
+  const board = document.getElementById('powerBoard');
+  if(wires && board) {
+    wires.style.opacity = '1';
+    board.style.opacity = '0';
+  }
+
+  // S3 Reset
+  const b1 = document.getElementById('blade1');
+  const b2 = document.getElementById('blade2');
+  const b3 = document.getElementById('blade3');
+  const sBody = document.getElementById('swissBody');
+  if(b1) {
+    b1.style.transform = 'rotate(-35deg)';
+    b2.style.transform = 'rotate(15deg)';
+    b3.style.transform = 'rotate(45deg)';
+    sBody.textContent = 'Swiss Knife';
+  }
+
+  // S5 Reset
+  const plugSlot = document.getElementById('plugAttachedSlot');
+  const ports = document.getElementById('activeOutletPorts');
+  if(plugSlot) {
+    plugSlot.innerHTML = '';
+    ports.style.opacity = '1';
+  }
+
+  // S7 Reset
+  const bubble = document.getElementById('toyStatusBubble');
+  if(bubble) bubble.classList.remove('show');
+  closeCrashReport();
+
+  // S11 Reset
+  const lamp = document.getElementById('ceilingLamp');
+  const wire = document.getElementById('dipWireLine');
+  if(lamp) {
+    lamp.classList.remove('on');
+    wire.classList.remove('live');
+    lamp.innerHTML = '<i class="fa-regular fa-lightbulb"></i>';
+  }
+
+  // Reset all demo switches to 'bad' initially
+  [4, 6, 8, 10, 12].forEach(num => {
+    const sw = document.getElementById(`switch-${num}`);
+    if (sw) {
+      sw.classList.remove('good');
+      const demoWrap = sw.closest('.demo-wrap');
+      demoWrap.querySelectorAll('.code').forEach(pre => pre.classList.remove('active'));
+      demoWrap.querySelector(`#code-bad-${num}`).classList.add('active');
+      
+      const badge = document.getElementById(`badge-${num}`);
+      const title = document.getElementById(`desc-title-${num}`);
+      const text = document.getElementById(`desc-text-${num}`);
+      
+      if (num === 4) {
+        badge.className = 'demo-badge badge-bad'; badge.textContent = 'God Class';
+        title.textContent = 'একাধিক দায়িত্বের ক্লাস্টার';
+        text.textContent = 'ReportManager একই সাথে রিপোর্ট মেকিং, পিডিএফ স্টোরিং ও মেইলিং হ্যান্ডেল করছে। যেকোনো একটি সার্ভিসের কনফিগ বদলে গেলে সম্পূর্ণ ক্লাস এডিট করা লাগবে।';
+      } else if (num === 6) {
+        badge.className = 'demo-badge badge-bad'; badge.textContent = 'If-Else Blocked';
+        title.textContent = 'সরাসরি মডিফিকেশনের ঝুঁকি';
+        text.textContent = 'নতুন কোনো ডিসকাউন্ট লজিক যোগ করতে হলে আপনাকে ক্যালকুলেট ক্লাসে ঢুকে if কন্ডিশন বাড়াতে হবে, যা OCP ভঙ্গ করে।';
+      } else if (num === 8) {
+        badge.className = 'demo-badge badge-bad'; badge.textContent = 'Broken Contract';
+        title.textContent = 'অসম্ভব চুক্তির ফাঁদ';
+        text.textContent = 'উটপাখি উড়তে না পেরে Fly মেথডে NotImplementedException ছুড়েছে। প্যারেন্টের যোগ্য বিকল্প চাইল্ড হতে পারলো না।';
+      } else if (num === 10) {
+        badge.className = 'demo-badge badge-bad'; badge.textContent = 'Fat Interface';
+        title.textContent = 'অনাবশ্যক কোডের ভার';
+        text.textContent = 'বেসিক প্রিন্টার শুধুমাত্র প্রিন্ট করতে পারে। কিন্তু ইন্টারফেসে স্ক্যান এবং ফ্যাক্স থাকায় ফালতু মেথডগুলোও ইমপ্লিমেন্ট করতে বাধ্য হচ্ছে।';
+      } else if (num === 12) {
+        badge.className = 'demo-badge badge-bad'; badge.textContent = 'Tight Coupling';
+        title.textContent = 'কংক্রিট ম্যাপের ঝুঁকি';
+        text.textContent = 'StoreService সরাসরি SqlDatabase কংক্রিট ক্লাসে নির্ভরশীল। ডাটাবেজ বদলালে সার্ভিস রি-বিল্ড করতে হবে।';
+      }
+    }
+  });
+}
+
+function toggleSpaghetti() {
+  const wires = document.getElementById('spaghettiWires');
+  const board = document.getElementById('powerBoard');
+  if (wires.style.opacity === '0') {
+    wires.style.opacity = '1';
+    board.style.opacity = '0';
+  } else {
+    wires.style.opacity = '0';
+    board.style.opacity = '1';
+  }
+}
+
+function splitSwissKnife() {
+  const b1 = document.getElementById('blade1');
+  const b2 = document.getElementById('blade2');
+  const b3 = document.getElementById('blade3');
+  const sBody = document.getElementById('swissBody');
+  
+  if (sBody.textContent === 'Swiss Knife') {
+    b1.style.transform = 'translate(-80px, -20px) rotate(0deg)';
+    b2.style.transform = 'translate(0px, -65px) rotate(0deg)';
+    b3.style.transform = 'translate(80px, -20px) rotate(0deg)';
+    sBody.textContent = 'Decoupled Tools';
+  } else {
+    b1.style.transform = 'rotate(-35deg)';
+    b2.style.transform = 'rotate(15deg)';
+    b3.style.transform = 'rotate(45deg)';
+    sBody.textContent = 'Swiss Knife';
+  }
+}
+
+function insertPlug(type) {
+  const plugSlot = document.getElementById('plugAttachedSlot');
+  const ports = document.getElementById('activeOutletPorts');
+  ports.style.opacity = '0';
+  
+  if(type === 'phone') {
+    plugSlot.innerHTML = `<div class="plug-inserted" style="color:var(--cyan)"><i class="fa-solid fa-mobile-screen"></i></div>`;
+  } else {
+    plugSlot.innerHTML = `<div class="plug-inserted" style="color:var(--violet)"><i class="fa-solid fa-laptop"></i></div>`;
+  }
+}
+
+function triggerLSPCrash() {
+  const overlay = document.getElementById('crashOverlay');
+  const modal = document.getElementById('crashModal');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'auto';
+  modal.style.transform = 'scale(1)';
+  
+  // Shaking effect
+  modal.animate([
+    { transform: 'translate(1px, 1px) rotate(0deg)' },
+    { transform: 'translate(-1px, -2px) rotate(-1deg)' },
+    { transform: 'translate(-3px, 0px) rotate(1deg)' },
+    { transform: 'translate(0px, 2px) rotate(0deg)' },
+    { transform: 'translate(1px, -1px) rotate(1deg)' },
+    { transform: 'translate(-1px, 2px) rotate(-1deg)' },
+    { transform: 'translate(-3px, 1px) rotate(0deg)' },
+    { transform: 'translate(2px, 1px) rotate(-1deg)' },
+    { transform: 'translate(-1px, -1px) rotate(1deg)' },
+    { transform: 'translate(2px, 2px) rotate(0deg)' },
+    { transform: 'translate(1px, -2px) rotate(-1deg)' }
+  ], { duration: 400, iterations: 1 });
+}
+
+function closeCrashReport() {
+  const overlay = document.getElementById('crashOverlay');
+  const modal = document.getElementById('crashModal');
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  modal.style.transform = 'scale(0.9)';
+}
+
+function toggleDIPAnalog() {
+  const lamp = document.getElementById('ceilingLamp');
+  const wire = document.getElementById('dipWireLine');
+  lamp.classList.toggle('on');
+  wire.classList.toggle('live');
+  
+  if(lamp.classList.contains('on')) {
+    lamp.innerHTML = '<i class="fa-solid fa-lightbulb"></i>';
+  } else {
+    lamp.innerHTML = '<i class="fa-regular fa-lightbulb"></i>';
+  }
+}
+
+/* Particles Canvas */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let w, h;
+function resize(){
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+resize();
+window.onresize = resize;
+
+const particles = [];
+for(let i=0; i<35; i++){
+  particles.push({
+    x: Math.random()*w, y: Math.random()*h,
+    vx: (Math.random()-0.5)*0.25, vy: (Math.random()-0.5)*0.25,
+    r: Math.random()*2+1, alpha: Math.random()*0.3+0.05
+  });
+}
+function animate(){
+  ctx.clearRect(0,0,w,h);
+  particles.forEach(p=>{
+    p.x += p.vx; p.y += p.vy;
+    if(p.x<0 || p.x>w) p.vx*=-1;
+    if(p.y<0 || p.y>h) p.vy*=-1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* Custom cursor tracker */
+document.addEventListener('mousemove', e => {
+  const dot = document.querySelector('.cursor-dot');
+  const outline = document.querySelector('.cursor-outline');
+  dot.style.left = e.clientX + 'px';
+  dot.style.top = e.clientY + 'px';
+  outline.animate({ left: e.clientX + 'px', top: e.clientY + 'px' }, { duration: 300, fill: 'forwards' });
+});
+
+/* Hover targets */
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('.hover-target') || e.target.tagName === 'BUTTON' || e.target.closest('.card') || e.target.closest('.ch-item') || e.target.closest('.comp-switch') || e.target.closest('.wall-plug')) {
+    document.body.classList.add('hovering');
+    const outline = document.querySelector('.cursor-outline');
+    const dot = document.querySelector('.cursor-dot');
+    outline.style.width = '54px'; outline.style.height = '54px';
+    outline.style.borderColor = 'var(--rose)'; outline.style.backgroundColor = 'rgba(255,42,95,0.04)';
+    dot.style.width = '4px'; dot.style.height = '4px';
+  } else {
+    document.body.classList.remove('hovering');
+    const outline = document.querySelector('.cursor-outline');
+    const dot = document.querySelector('.cursor-dot');
+    outline.style.width = '36px'; outline.style.height = '36px';
+    outline.style.borderColor = 'rgba(0,229,255,0.5)'; outline.style.backgroundColor = 'transparent';
+    dot.style.width = '10px'; dot.style.height = '10px';
+  }
+});
+
+// Init
+buildChapters();
+renderSlide();
+updateConn(false);
+</script>
+</body>
+</html>

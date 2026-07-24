@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EF Core Performance — Coding Drop</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#07020f;--surface:#0e0518;--surface2:#160822;--border:rgba(255,255,255,0.08);--violet:#c084fc;--purple:#a855f7;--gold:#fbbf24;--emerald:#34d399;--rose:#f87171;--sky:#38bdf8;--text:#faf5ff;--muted:#9d7fbf;--r:16px}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;cursor:none}
+body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.cursor-dot{position:fixed;top:0;left:0;width:12px;height:12px;background:var(--violet);border-radius:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;box-shadow:0 0 15px var(--violet)}
+.cursor-outline{position:fixed;top:0;left:0;width:40px;height:40px;border:2px solid rgba(192,132,252,0.5);border-radius:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;transition:transform .1s ease-out}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.2}
+.layout{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
+.slide-area{flex:1;position:relative;overflow:hidden}
+.ch-logo-wrap{position:absolute;top:20px;left:24px;z-index:50;display:flex;align-items:center;gap:11px;background:rgba(14,5,24,0.8);border:1px solid var(--border);border-radius:14px;padding:8px 16px 8px 10px;backdrop-filter:blur(16px);cursor:none}
+.ch-logo-icon{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--violet),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;font-weight:800}
+.ch-logo-name{font-size:0.82rem;font-weight:800;background:linear-gradient(135deg,#fff,rgba(255,255,255,0.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.ch-logo-sub{font-size:0.6rem;color:var(--muted)}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px 70px 100px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(20px) scale(0.98);transition:opacity .65s cubic-bezier(.4,0,.2,1),transform .65s cubic-bezier(.4,0,.2,1)}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1)}
+.slide.exit{opacity:0;transform:translateY(-20px) scale(0.98)}
+.fu{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fu.visible{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.25s}.d3{transition-delay:.4s}.d4{transition-delay:.55s}.d5{transition-delay:.7s}
+.tag{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--violet);padding:6px 14px;border-radius:30px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;display:inline-flex;align-items:center;gap:8px}
+.s-title{font-size:2.6rem;font-weight:900;line-height:1.15;margin-bottom:14px;text-align:center}
+.s-desc{font-size:1rem;color:var(--muted);line-height:1.75;text-align:center;max-width:720px}
+.hl{background:linear-gradient(135deg,var(--violet),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bottom-bar{position:absolute;bottom:0;left:0;right:0;height:60px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:50}
+.slide-num{font-family:'Fira Code',monospace;font-size:0.82rem;color:var(--muted)}.slide-num span{color:var(--violet);font-weight:700}
+.pb-thin{width:160px;height:3px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--purple));border-radius:3px;transition:width .5s ease}
+.sidebar{width:270px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-header{padding:20px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:0.9rem;margin-bottom:12px}.sb-logo i{color:var(--violet)}
+.sb-pt{font-size:0.68rem;color:var(--muted)}
+.sb-title{padding:12px 18px 8px;font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ch-list{overflow-y:auto;flex:1;padding:0 10px 12px;display:flex;flex-direction:column;gap:3px}
+.ch-item{padding:9px 12px;border-radius:9px;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-item:hover{background:rgba(255,255,255,0.04)}
+.ch-item.active{background:rgba(192,132,252,0.08);border-color:rgba(192,132,252,0.25);color:var(--violet);font-weight:600}
+.ch-item.done{color:var(--text)}
+.ch-num{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-item.active .ch-num{background:var(--violet);color:#000}
+.ch-item.done .ch-num{background:rgba(192,132,252,0.15);color:var(--violet)}
+
+/* hero */
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.hero-badge{background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.2);color:var(--violet);padding:7px 14px;border-radius:30px;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:7px}
+
+/* 2-col */
+.two-col{display:flex;gap:24px;width:100%;max-width:820px}
+.col-box{flex:1;border-radius:14px;padding:20px}
+.v-box{background:rgba(192,132,252,0.06);border:1px solid rgba(192,132,252,0.25)}
+.g-box{background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.25)}
+.r-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.25)}
+.a-box{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25)}
+.col-title{font-weight:800;font-size:0.95rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.v-box .col-title{color:var(--violet)}.g-box .col-title{color:var(--emerald)}.r-box .col-title{color:var(--rose)}.a-box .col-title{color:var(--gold)}
+.mem-frame{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:9px 14px;margin-bottom:6px;font-size:0.78rem;font-family:'Fira Code',monospace}
+
+/* Change Tracker */
+.tracker-wrap{width:100%;max-width:820px;display:flex;flex-direction:column;gap:16px}
+.tracker-table{width:100%;border-collapse:collapse}
+.tracker-table th{padding:10px 14px;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.tracker-table td{padding:10px 14px;font-size:0.82rem;font-family:'Fira Code',monospace;border-bottom:1px solid rgba(255,255,255,0.04)}
+.tracker-table tr:hover td{background:rgba(255,255,255,0.02)}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:0.62rem;font-weight:700}
+.pill-unchanged{background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.3);color:#94a3b8}
+.pill-modified{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:var(--gold)}
+.pill-added{background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:var(--emerald)}
+.pill-deleted{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--rose)}
+.tracker-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.tr-btn{padding:9px 18px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all .2s}
+.btn-mod{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:var(--gold)}
+.btn-mod:hover{background:rgba(251,191,36,0.2)}
+.btn-add{background:linear-gradient(135deg,var(--emerald),#059669);color:#000}
+.btn-add:hover{filter:brightness(1.1)}
+.btn-del{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--rose)}
+.btn-del:hover{background:rgba(248,113,113,0.2)}
+.btn-save{background:linear-gradient(135deg,var(--violet),var(--purple));color:#fff}
+.btn-save:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.btn-nt{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--muted)}
+.btn-nt:hover{color:var(--text)}
+.tracker-status{font-size:0.82rem;font-weight:700;text-align:center;height:26px;display:flex;align-items:center;justify-content:center}
+
+/* N+1 Counter */
+.n1-wrap{width:100%;max-width:700px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.n1-counter-box{display:flex;gap:20px;justify-content:center}
+.n1-counter{text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px 24px}
+.n1-val{font-size:2.5rem;font-weight:800;font-family:'Fira Code',monospace}
+.n1-label{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+.n1-log{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-family:'Fira Code',monospace;font-size:0.7rem;line-height:1.8;max-height:130px;overflow-y:auto;color:var(--muted)}
+.n1-log-bad{color:var(--rose)}.n1-log-good{color:var(--emerald)}
+.n1-controls{display:flex;gap:10px}
+
+/* code switcher */
+.comp-switch{display:inline-flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:4px;position:relative;cursor:pointer;user-select:none}
+.comp-slider{position:absolute;top:4px;left:4px;height:calc(100% - 8px);width:calc(50% - 4px);background:linear-gradient(135deg,var(--violet),var(--purple));border-radius:22px;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:0}
+.comp-opt{position:relative;z-index:1;padding:6px 16px;font-size:0.75rem;font-weight:700;color:var(--muted);transition:color .3s;border-radius:22px}
+.comp-switch.switched .comp-slider{transform:translateX(100%)}
+.comp-switch:not(.switched) .comp-opt:first-of-type{color:#fff}
+.comp-switch.switched .comp-opt:last-of-type{color:#fff}
+.demo-wrap{width:100%;max-width:800px;display:flex;flex-direction:column;gap:14px}
+.demo-hdr{display:flex;align-items:center;justify-content:space-between}
+.demo-title{font-weight:800;font-size:1rem;display:flex;align-items:center;gap:8px}
+.code-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px 26px;overflow:hidden}
+.code{font-family:'Fira Code',monospace;font-size:0.8rem;line-height:1.9;white-space:pre;display:none}
+.code.active{display:block}
+.ck{color:#c792ea}.cs{color:#82aaff}.ci{color:#ffcb6b}.cf{color:var(--violet)}.cm{color:#546e7a;font-style:italic}.cstr{color:var(--emerald)}
+
+/* Performance checklist */
+.chk-list{display:flex;flex-direction:column;gap:8px;width:100%;max-width:720px}
+.chk-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+.chk-mark{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+.chk-title{font-weight:700;font-size:0.82rem;margin-bottom:2px}
+.chk-sub{font-size:0.68rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="cursor-dot" id="curDot"></div>
+<div class="cursor-outline" id="curOutline"></div>
+<canvas id="bgCanvas"></canvas>
+<div class="layout">
+  <div class="slide-area">
+    <div class="ch-logo-wrap">
+      <div class="ch-logo-icon"><i class="fa-solid fa-database"></i></div>
+      <div><div class="ch-logo-name">Coding Drop</div><div class="ch-logo-sub">EF CORE PERFORMANCE</div></div>
+    </div>
+
+    <!-- S1 Hero -->
+    <div class="slide active" id="s1">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:22px">
+        <div class="tag fu d1"><i class="fa-solid fa-database"></i> Entity Framework Core</div>
+        <div style="font-size:3rem;font-weight:900;text-align:center;line-height:1.1" class="fu d2"><span class="hl">EF Core Performance</span><br><span>& Change Tracker</span></div>
+        <p style="font-size:1rem;color:var(--muted);text-align:center;max-width:600px;line-height:1.7" class="fu d3">গোয়েন্দার মতো Change Tracker আপনার প্রতিটি Entity-র পরিবর্তন নজরে রাখে। সঠিকভাবে ব্যবহার করলে অ্যাপ অনেক দ্রুত হয়।</p>
+        <div class="hero-badges fu d4">
+          <div class="hero-badge"><i class="fa-solid fa-eye"></i> Change Tracker</div>
+          <div class="hero-badge"><i class="fa-solid fa-bolt"></i> AsNoTracking</div>
+          <div class="hero-badge"><i class="fa-solid fa-link"></i> N+1 Problem</div>
+          <div class="hero-badge"><i class="fa-solid fa-sitemap"></i> Include / Eager Load</div>
+          <div class="hero-badge"><i class="fa-solid fa-gauge-high"></i> Compiled Query</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 DbContext -->
+    <div class="slide" id="s2">
+      <div class="tag fu d1"><i class="fa-solid fa-book"></i> DbContext কী?</div>
+      <h2 class="s-title fu d2"><span class="hl">DbContext</span> — আপনার DB Gateway</h2>
+      <p class="s-desc fu d3">DbContext হলো একটি ডায়েরির মতো। আপনি কী পড়লেন, কী লিখলেন, কী মুছলেন — সব তথ্য Change Tracker রেখে দেয়।</p>
+      <div class="two-col fu d4">
+        <div class="col-box v-box">
+          <div class="col-title"><i class="fa-solid fa-book-open"></i> DbContext-এ কী আছে?</div>
+          <div class="mem-frame">DbSet&lt;T&gt; — Entity Collection</div>
+          <div class="mem-frame">ChangeTracker — পরিবর্তন ট্র্যাক</div>
+          <div class="mem-frame">Database — Raw SQL চালানো</div>
+          <div class="mem-frame">SaveChangesAsync() — DB-তে পাঠানো</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:8px">📌 Scoped Lifetime ব্যবহার করুন</div>
+        </div>
+        <div class="col-box g-box">
+          <div class="col-title"><i class="fa-solid fa-bolt"></i> DbContext Lifecycle</div>
+          <div class="mem-frame" style="color:var(--emerald)">1. Request আসলে DbContext তৈরি</div>
+          <div class="mem-frame">2. Query করলে Entity Tracked হয়</div>
+          <div class="mem-frame">3. Entity পরিবর্তন করো</div>
+          <div class="mem-frame" style="color:var(--violet)">4. SaveChanges — SQL তৈরি হয়</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:8px">📌 Request শেষে Dispose হয়</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 Change Tracker Interactive -->
+    <div class="slide" id="s3">
+      <div class="tag fu d1"><i class="fa-solid fa-eye"></i> লাইভ ডেমো</div>
+      <h2 class="s-title fu d2" style="font-size:2rem;margin-bottom:8px">Change Tracker <span class="hl">লাইভ ডেমো</span></h2>
+      <div class="tracker-wrap fu d3">
+        <div class="tracker-controls">
+          <button class="tr-btn btn-mod" onclick="modifyEntity()"><i class="fa-solid fa-pen"></i> Name পরিবর্তন করুন</button>
+          <button class="tr-btn btn-add" onclick="addEntity()"><i class="fa-solid fa-plus"></i> নতুন Entity Add</button>
+          <button class="tr-btn btn-del" onclick="deleteEntity()"><i class="fa-solid fa-trash"></i> Entity Delete</button>
+          <button class="tr-btn btn-save" onclick="saveChanges()"><i class="fa-solid fa-floppy-disk"></i> SaveChangesAsync()</button>
+          <button class="tr-btn btn-nt" onclick="resetTracker()"><i class="fa-solid fa-rotate-left"></i></button>
+        </div>
+        <table class="tracker-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>EF Core State</th></tr></thead>
+          <tbody id="trackerBody"></tbody>
+        </table>
+        <div class="tracker-status" id="trackerStatus" style="color:var(--muted)">Entity-র state পরিবর্তন করে দেখুন...</div>
+      </div>
+    </div>
+
+    <!-- S4 AsNoTracking -->
+    <div class="slide" id="s4">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--violet)"></i> AsNoTracking — গোয়েন্দা বন্ধ করুন</div>
+          <div class="comp-switch" id="sw4" onclick="toggleSw('sw4','bad4','good4')">
+            <div class="comp-slider"></div><div class="comp-opt">Tracking (Default)</div><div class="comp-opt">AsNoTracking</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad4"><span class="cm">// ❌ Tracking ON — Read-only কাজে unnecessary overhead</span>
+<span class="ck">public async</span> <span class="cs">Task</span>&lt;<span class="cs">List</span>&lt;<span class="cs">Product</span>&gt;&gt; <span class="cf">GetProductsAsync</span>() {
+    <span class="cm">// Change Tracker সব Product মনে রাখছে!</span>
+    <span class="cm">// Memory বেশি নেয়, Performance কম</span>
+    <span class="ck">return await</span> _db.Products
+        .<span class="cf">Where</span>(p => p.IsActive)
+        .<span class="cf">ToListAsync</span>();
+}</pre>
+          <pre class="code" id="good4"><span class="cm">// ✅ AsNoTracking — Read-only query-তে</span>
+<span class="ck">public async</span> <span class="cs">Task</span>&lt;<span class="cs">List</span>&lt;<span class="cs">Product</span>&gt;&gt; <span class="cf">GetProductsAsync</span>() {
+    <span class="ck">return await</span> _db.Products
+        .<span class="cf">AsNoTracking</span>()     <span class="cm">// ✅ Tracker বন্ধ</span>
+        .<span class="cf">Where</span>(p => p.IsActive)
+        .<span class="cf">ToListAsync</span>();
+    <span class="cm">// ৩০-৫০% দ্রুত! Update করবো না যখন</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 N+1 Problem -->
+    <div class="slide" id="s5">
+      <div class="tag fu d1"><i class="fa-solid fa-triangle-exclamation"></i> কমন সমস্যা</div>
+      <h2 class="s-title fu d2"><span style="color:var(--rose)">N+1</span> Query সমস্যা</h2>
+      <p class="s-desc fu d3" style="margin-bottom:16px">Lazy Loading সক্রিয় থাকলে প্রতিটি Entity-র জন্য আলাদা DB Query হয়। ১০০ Customer মানে ১০১ Query!</p>
+      <div class="n1-wrap fu d3">
+        <div class="n1-counter-box">
+          <div class="n1-counter"><div class="n1-val sv-rose" id="n1Bad" style="color:var(--rose)">0</div><div class="n1-label">Lazy (DB Calls)</div></div>
+          <div class="n1-counter"><div class="n1-val sv-emerald" id="n1Good" style="color:var(--emerald)">0</div><div class="n1-label">Include (DB Calls)</div></div>
+        </div>
+        <div class="n1-controls">
+          <button class="tr-btn btn-del" onclick="runN1Bad()"><i class="fa-solid fa-bug"></i> Lazy Load (N+1 পথ)</button>
+          <button class="tr-btn btn-add" onclick="runN1Good()"><i class="fa-solid fa-bolt"></i> Include() (সঠিক পথ)</button>
+          <button class="tr-btn btn-nt" onclick="resetN1()"><i class="fa-solid fa-rotate-left"></i></button>
+        </div>
+        <div class="n1-log" id="n1Log">উপরের বাটন ক্লিক করুন...</div>
+      </div>
+    </div>
+
+    <!-- S6 Eager vs Lazy Loading -->
+    <div class="slide" id="s6">
+      <div class="tag fu d1"><i class="fa-solid fa-sitemap"></i> Loading Strategies</div>
+      <h2 class="s-title fu d2">Eager vs <span class="hl">Lazy</span> vs Explicit Loading</h2>
+      <div style="display:flex;gap:14px;width:100%;max-width:860px" class="fu d3">
+        <div class="col-box g-box" style="flex:1">
+          <div class="col-title"><i class="fa-solid fa-bolt"></i> Eager (Include)</div>
+          <div class="mem-frame">একটি JOIN Query-তে সব আনে</div>
+          <div class="mem-frame" style="color:var(--emerald)">.Include(o => o.Orders)</div>
+          <div class="mem-frame">N+1 সমস্যা নেই</div>
+          <div style="font-size:0.7rem;color:var(--emerald);margin-top:8px">✅ Default choice হোক এটাই</div>
+        </div>
+        <div class="col-box r-box" style="flex:1">
+          <div class="col-title"><i class="fa-solid fa-clock"></i> Lazy Loading</div>
+          <div class="mem-frame">Navigation access করলে load হয়</div>
+          <div class="mem-frame" style="color:var(--rose)">Virtual property দরকার</div>
+          <div class="mem-frame" style="color:var(--rose)">N+1 Query সমস্যা</div>
+          <div style="font-size:0.7rem;color:var(--rose);margin-top:8px">⚠️ সাবধানে ব্যবহার করুন</div>
+        </div>
+        <div class="col-box a-box" style="flex:1">
+          <div class="col-title"><i class="fa-solid fa-hand-pointer"></i> Explicit Loading</div>
+          <div class="mem-frame">নিজে যখন চাইবেন load করবেন</div>
+          <div class="mem-frame" style="color:var(--gold)">.LoadAsync()</div>
+          <div class="mem-frame">শর্তসাপেক্ষে দরকারি</div>
+          <div style="font-size:0.7rem;color:var(--gold);margin-top:8px">📌 কদাচিৎ ব্যবহার করুন</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7 Include code -->
+    <div class="slide" id="s7">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--violet)"></i> Include — Eager Loading</div>
+          <div class="comp-switch" id="sw7" onclick="toggleSw('sw7','bad7','good7')">
+            <div class="comp-slider"></div><div class="comp-opt">Lazy (N+1)</div><div class="comp-opt">Include (সঠিক)</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad7"><span class="cm">// ❌ Lazy Loading — N+1 Query সমস্যা</span>
+<span class="ck">var</span> customers = <span class="ck">await</span> _db.Customers.<span class="cf">ToListAsync</span>();
+
+<span class="ck">foreach</span> (<span class="ck">var</span> customer <span class="ck">in</span> customers) {
+    <span class="cm">// প্রতিটি customer-এর জন্য আলাদা DB Query!</span>
+    <span class="ck">var</span> orders = customer.Orders; <span class="cm">// ← এখানে DB Hit!</span>
+    <span class="cf">Console</span>.<span class="cf">WriteLine</span>(orders.Count);
+}
+<span class="cm">// ১০০ Customer = ১০১ DB Query 😱</span></pre>
+          <pre class="code" id="good7"><span class="cm">// ✅ Eager Loading — একটি JOIN Query</span>
+<span class="ck">var</span> customers = <span class="ck">await</span> _db.Customers
+    .<span class="cf">Include</span>(c => c.Orders)           <span class="cm">// JOIN করো</span>
+        .<span class="cf">ThenInclude</span>(o => o.OrderItems) <span class="cm">// Nested join</span>
+    .<span class="cf">AsNoTracking</span>()                   <span class="cm">// Read-only</span>
+    .<span class="cf">ToListAsync</span>();
+
+<span class="ck">foreach</span> (<span class="ck">var</span> c <span class="ck">in</span> customers) {
+    <span class="cf">Console</span>.<span class="cf">WriteLine</span>(c.Orders.Count); <span class="cm">// DB Hit নেই!</span>
+}
+<span class="cm">// ১০০ Customer = মাত্র ১ DB Query ✅</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S8 Select Projection -->
+    <div class="slide" id="s8">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--violet)"></i> Select Projection — শুধু দরকারি Column আনুন</div>
+          <div class="comp-switch" id="sw8" onclick="toggleSw('sw8','bad8','good8')">
+            <div class="comp-slider"></div><div class="comp-opt">সব Column (ধীর)</div><div class="comp-opt">Projection (দ্রুত)</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad8"><span class="cm">// ❌ সব Column SELECT — অপ্রয়োজনীয় data transfer</span>
+<span class="ck">var</span> products = <span class="ck">await</span> _db.Products
+    .<span class="cf">ToListAsync</span>(); <span class="cm">// SELECT * FROM Products</span>
+<span class="cm">// হাজার column, কিন্তু শুধু Id এবং Name দরকার ছিলো</span></pre>
+          <pre class="code" id="good8"><span class="cm">// ✅ Select — শুধু দরকারি field আনুন</span>
+<span class="ck">var</span> products = <span class="ck">await</span> _db.Products
+    .<span class="cf">Where</span>(p => p.IsActive)
+    .<span class="cf">Select</span>(p => <span class="ck">new</span> ProductDto {
+        Id = p.Id,
+        Name = p.Name,
+        Price = p.Price  <span class="cm">// শুধু ৩টি field!</span>
+    })
+    .<span class="cf">AsNoTracking</span>()
+    .<span class="cf">ToListAsync</span>(); <span class="cm">// SELECT Id, Name, Price — দ্রুত!</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S9 Compiled Query -->
+    <div class="slide" id="s9">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--violet)"></i> Compiled Queries — Hot Path অপ্টিমাইজ</div>
+        </div>
+        <div class="code-box">
+          <pre class="code active"><span class="cm">// ✅ Compiled Query — LINQ এক্সপ্রেশন cache করে</span>
+<span class="ck">private static readonly</span> <span class="cs">Func</span>&lt;<span class="cs">AppDbContext</span>, <span class="ck">int</span>, <span class="cs">Task</span>&lt;<span class="cs">User</span>?&gt;&gt;
+    _getUserById = <span class="cs">EF</span>.<span class="cf">CompileAsyncQuery</span>(
+        (<span class="cs">AppDbContext</span> db, <span class="ck">int</span> id) =>
+            db.Users.<span class="cf">FirstOrDefault</span>(u => u.Id == id));
+
+<span class="cm">// Usage — Expression Tree compile আর করতে হয় না</span>
+<span class="ck">public async</span> <span class="cs">Task</span>&lt;<span class="cs">User</span>?&gt; <span class="cf">GetUserAsync</span>(<span class="ck">int</span> id) {
+    <span class="ck">return await</span> <span class="cf">_getUserById</span>(_db, id);
+    <span class="cm">// প্রথম call-এর পর compile overhead নেই!</span>
+    <span class="cm">// High-traffic API-তে ব্যবহার করুন</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S10 ExecuteUpdateAsync -->
+    <div class="slide" id="s10">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--violet)"></i> Bulk Operations (.NET 7+)</div>
+          <div class="comp-switch" id="sw10" onclick="toggleSw('sw10','bad10','good10')">
+            <div class="comp-slider"></div><div class="comp-opt">Loop Update (ধীর)</div><div class="comp-opt">ExecuteUpdate (দ্রুত)</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad10"><span class="cm">// ❌ Loop — প্রতিটি Entity Track করে, N UPDATE Query</span>
+<span class="ck">var</span> products = <span class="ck">await</span> _db.Products
+    .<span class="cf">Where</span>(p => p.CategoryId == categoryId)
+    .<span class="cf">ToListAsync</span>();   <span class="cm">// সব DB থেকে আনলো</span>
+
+<span class="ck">foreach</span> (<span class="ck">var</span> p <span class="ck">in</span> products)
+    p.IsActive = <span class="ck">false</span>; <span class="cm">// Change Tracker ট্র্যাক করছে</span>
+
+<span class="ck">await</span> _db.<span class="cf">SaveChangesAsync</span>(); <span class="cm">// N UPDATE Queries!</span></pre>
+          <pre class="code" id="good10"><span class="cm">// ✅ ExecuteUpdateAsync — একটি SQL UPDATE</span>
+<span class="ck">await</span> _db.Products
+    .<span class="cf">Where</span>(p => p.CategoryId == categoryId)
+    .<span class="cf">ExecuteUpdateAsync</span>(s => s
+        .<span class="cf">SetProperty</span>(p => p.IsActive, <span class="ck">false</span>));
+<span class="cm">// UPDATE Products SET IsActive=0 WHERE CategoryId=@id</span>
+<span class="cm">// একটি Query! Memory-তে কিছু আনতে হয়নি!</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11 Raw SQL -->
+    <div class="slide" id="s11">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr"><div class="demo-title"><i class="fa-solid fa-code" style="color:var(--violet)"></i> Raw SQL — Complex Query-এর জন্য</div></div>
+        <div class="code-box">
+          <pre class="code active"><span class="cm">// ✅ FromSqlRaw — Complex Query EF-এ লেখা কঠিন হলে</span>
+<span class="ck">var</span> products = <span class="ck">await</span> _db.Products
+    .<span class="cf">FromSqlRaw</span>(<span class="cstr">@"
+        SELECT p.*, c.Name AS CategoryName
+        FROM Products p
+        INNER JOIN Categories c ON p.CategoryId = c.Id
+        WHERE p.Price > {0} AND p.IsActive = 1"</span>, minPrice)
+    .<span class="cf">AsNoTracking</span>()
+    .<span class="cf">ToListAsync</span>();
+
+<span class="cm">// ✅ ExecuteSqlAsync — DML এর জন্য</span>
+<span class="ck">await</span> _db.Database.<span class="cf">ExecuteSqlAsync</span>(
+    $<span class="cstr">"EXEC UpdateProductStats @categoryId={categoryId}"</span>);
+<span class="cm">// Stored Procedure সরাসরি কল!</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S12 Performance Checklist -->
+    <div class="slide" id="s12">
+      <div class="tag fu d1"><i class="fa-solid fa-list-check"></i> Performance Guide</div>
+      <h2 class="s-title fu d2" style="font-size:2rem">EF Core <span class="hl">Performance Checklist</span></h2>
+      <div class="chk-list fu d3">
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(52,211,153,0.15)">✅</div><div><div class="chk-title" style="color:var(--emerald)">AsNoTracking() — Read-only query-তে সবসময়</div><div class="chk-sub">৩০-৫০% performance boost</div></div></div>
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(192,132,252,0.15)">✅</div><div><div class="chk-title" style="color:var(--violet)">Select() — শুধু দরকারি Column আনুন</div><div class="chk-sub">Network transfer এবং Memory ব্যবহার কমে</div></div></div>
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(251,191,36,0.15)">✅</div><div><div class="chk-title" style="color:var(--gold)">Include() — Lazy Loading এড়ান</div><div class="chk-sub">N+1 Query সমস্যা এড়ানো যায়</div></div></div>
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(56,189,248,0.15)">✅</div><div><div class="chk-title" style="color:var(--sky)">ExecuteUpdateAsync — Bulk Operation-এ</div><div class="chk-sub">.NET 7+ — একটি SQL Query-তে হাজার Row আপডেট</div></div></div>
+      </div>
+    </div>
+
+    <!-- S13 Summary -->
+    <div class="slide" id="s13">
+      <div class="tag fu d1"><i class="fa-solid fa-flag-checkered"></i> সারসংক্ষেপ</div>
+      <h2 class="s-title fu d2" style="font-size:2rem">EF Core — <span class="hl">মূল বিষয়</span></h2>
+      <div class="chk-list fu d3">
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(192,132,252,0.15)">🔍</div><div><div class="chk-title" style="color:var(--violet)">Change Tracker — সব পরিবর্তন মনে রাখে</div><div class="chk-sub">Unchanged → Modified → Deleted → SaveChanges</div></div></div>
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(52,211,153,0.15)">⚡</div><div><div class="chk-title" style="color:var(--emerald)">AsNoTracking = Tracker বন্ধ = দ্রুত</div><div class="chk-sub">Read-only API-তে সবসময় ব্যবহার করুন</div></div></div>
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(248,113,113,0.15)">🐛</div><div><div class="chk-title" style="color:var(--rose)">N+1 = Include() দিয়ে সমাধান করুন</div><div class="chk-sub">Lazy Loading + foreach = বিপদ</div></div></div>
+        <div class="chk-item"><div class="chk-mark" style="background:rgba(251,191,36,0.15)">🚀</div><div><div class="chk-title" style="color:var(--gold)">Select + ExecuteUpdate = উচ্চ Performance</div><div class="chk-sub">শুধু দরকারি data, একটি SQL query</div></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo"><i class="fa-solid fa-database"></i> <span>EF Core</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span class="sb-pt">অগ্রগতি</span><span class="sb-pt" id="progPct">0%</span></div>
+      <div class="pb-thin"><div class="pb-fill" id="progFill"></div></div>
+    </div>
+    <div class="sb-title"><i class="fa-solid fa-list"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list" id="chList"></div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="slide-num">স্লাইড <span id="curNum">1</span> / <span id="totNum">13</span></div>
+    <div class="pb-thin" style="width:120px"><div class="pb-fill" id="botFill"></div></div>
+  </div>
+  <div style="font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:7px"><i class="fa-solid fa-circle" style="font-size:0.4rem;color:var(--violet)"></i> Coding Drop</div>
+</div>
+
+<script>
+const BC=new BroadcastChannel('efcore_presentation');
+let cur=0;
+const chapters=[{e:'🏠',t:'পরিচয়'},{e:'📚',t:'DbContext'},{e:'👁️',t:'Change Tracker Live'},{e:'⚡',t:'AsNoTracking'},{e:'🐛',t:'N+1 সমস্যা'},{e:'🔗',t:'Loading Strategies'},{e:'📦',t:'Include কোড'},{e:'🎯',t:'Select Projection'},{e:'🚀',t:'Compiled Query'},{e:'💥',t:'Bulk Operations'},{e:'🗄️',t:'Raw SQL'},{e:'📋',t:'Performance Checklist'},{e:'🏆',t:'সারসংক্ষেপ'}];
+const chList=document.getElementById('chList');
+chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-item'+(i===0?' active':'');el.innerHTML=`<div class="ch-num">${i+1}</div><span>${ch.e} ${ch.t}</span>`;el.onclick=()=>{BC.postMessage({type:'nav',idx:i});goTo(i)};chList.appendChild(el)});
+const slides=document.querySelectorAll('.slide'),TOTAL=slides.length;document.getElementById('totNum').textContent=TOTAL;
+function goTo(idx){
+  idx=Math.max(0,Math.min(TOTAL-1,idx));
+  if(idx===cur)return;
+  slides[cur]?.classList.remove('active');slides[cur]?.classList.add('exit');setTimeout(()=>slides[cur]?.classList.remove('exit'),700);
+  cur=idx;slides[cur]?.classList.add('active');setTimeout(()=>slides[cur]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),80);
+  slides.forEach((s,i)=>{if(i!==cur)s.querySelectorAll('.fu').forEach(el=>el.classList.remove('visible'))});updateUI();
+}
+function navigate(delta){
+  const next=Math.max(0,Math.min(TOTAL-1,cur+delta));
+  BC.postMessage({type:'nav',idx:next});goTo(next);
+}
+function updateUI(){document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('botFill').style.width=pct+'%';document.querySelectorAll('.ch-item').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)})}
+BC.onmessage=e=>{if(e.data.type==='nav')goTo(e.data.idx);if(e.data.type==='ping_from_presenter')BC.postMessage({type:'ping'})};
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();navigate(1);}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navigate(-1);}
+});
+setTimeout(()=>slides[0]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),200);updateUI();
+const dot=document.getElementById('curDot'),ol=document.getElementById('curOutline');
+document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';ol.style.left=e.clientX+'px';ol.style.top=e.clientY+'px'});
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');let pts=[];
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.addEventListener('resize',resize);
+for(let i=0;i<55;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.4+.4,c:Math.random()>.5?'rgba(192,132,252,0.5)':'rgba(168,85,247,0.4)'});
+(function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill()});requestAnimationFrame(draw)})();
+
+// Change Tracker
+let entities=[{id:1,name:'Alice Rahman',email:'alice@test.com',state:'Unchanged'},{id:2,name:'Bob Islam',email:'bob@test.com',state:'Unchanged'},{id:3,name:'Carol Hossain',email:'carol@test.com',state:'Unchanged'}];
+let nextId=4;
+function getStatePill(s){const map={Unchanged:'pill-unchanged',Modified:'pill-modified',Added:'pill-added',Deleted:'pill-deleted'};const labels={Unchanged:'⚪ Unchanged',Modified:'✏️ Modified',Added:'➕ Added',Deleted:'🗑️ Deleted'};return`<span class="status-pill ${map[s]}">${labels[s]}</span>`}
+function renderTracker(){const body=document.getElementById('trackerBody');body.innerHTML=entities.map(e=>`<tr style="${e.state==='Deleted'?'opacity:0.5;text-decoration:line-through':''}""><td style="font-family:'Fira Code',monospace;color:var(--violet)">${e.id}</td><td>${e.name}</td><td style="color:var(--muted)">${e.email}</td><td>${getStatePill(e.state)}</td></tr>`).join('')}
+function modifyEntity(){const tracked=entities.find(e=>e.state==='Unchanged');if(!tracked)return;tracked.name+=' ✏️';tracked.state='Modified';renderTracker();document.getElementById('trackerStatus').innerHTML='<span style="color:var(--gold)">✏️ Entity Modified — SaveChanges()-এ UPDATE হবে</span>'}
+function addEntity(){entities.push({id:nextId++,name:'নতুন User',email:'new@test.com',state:'Added'});renderTracker();document.getElementById('trackerStatus').innerHTML='<span style="color:var(--emerald)">➕ Entity Added — SaveChanges()-এ INSERT হবে</span>'}
+function deleteEntity(){const e=entities.find(e=>e.state==='Unchanged');if(!e)return;e.state='Deleted';renderTracker();document.getElementById('trackerStatus').innerHTML='<span style="color:var(--rose)">🗑️ Entity Deleted — SaveChanges()-এ DELETE হবে</span>'}
+function saveChanges(){const added=entities.filter(e=>e.state==='Added').length,modified=entities.filter(e=>e.state==='Modified').length,deleted=entities.filter(e=>e.state==='Deleted').length;entities=entities.filter(e=>e.state!=='Deleted').map(e=>({...e,state:'Unchanged'}));renderTracker();document.getElementById('trackerStatus').innerHTML=`<span style="color:var(--violet)">✅ SaveChanges: ${added} INSERT, ${modified} UPDATE, ${deleted} DELETE — সম্পন্ন!</span>`}
+function resetTracker(){entities=[{id:1,name:'Alice Rahman',email:'alice@test.com',state:'Unchanged'},{id:2,name:'Bob Islam',email:'bob@test.com',state:'Unchanged'},{id:3,name:'Carol Hossain',email:'carol@test.com',state:'Unchanged'}];nextId=4;renderTracker();document.getElementById('trackerStatus').textContent='Entity-র state পরিবর্তন করে দেখুন...'}
+renderTracker();
+
+// N+1 Simulator
+let n1BadCount=0,n1GoodCount=0;
+function addN1Log(msg,cls){const log=document.getElementById('n1Log');const el=document.createElement('div');el.className=cls;el.textContent=msg;log.appendChild(el);log.scrollTop=log.scrollHeight}
+function resetN1(){n1BadCount=0;n1GoodCount=0;document.getElementById('n1Bad').textContent=0;document.getElementById('n1Good').textContent=0;document.getElementById('n1Log').innerHTML='উপরের বাটন ক্লিক করুন...'}
+function runN1Bad(){resetN1();addN1Log('SELECT * FROM Customers — (1 Query)','n1Log-bad');n1BadCount=1;const int=setInterval(()=>{n1BadCount++;document.getElementById('n1Bad').textContent=n1BadCount;addN1Log(`SELECT * FROM Orders WHERE CustomerId=${n1BadCount-1}`,'n1-log-bad');if(n1BadCount>10){clearInterval(int);addN1Log(`😱 মোট ${n1BadCount} DB Queries! N+1 সমস্যা!`,'n1-log-bad')}},300)}
+function runN1Good(){document.getElementById('n1Good').textContent=1;addN1Log('SELECT c.*, o.* FROM Customers c LEFT JOIN Orders o ON c.Id=o.CustomerId','n1-log-good');addN1Log('✅ মাত্র ১টি Query! সব Customer এবং Orders একসাথে!','n1-log-good')}
+
+function toggleSw(swId,badId,goodId){const sw=document.getElementById(swId);sw.classList.toggle('switched');const bad=sw.classList.contains('switched');document.getElementById(badId).classList.toggle('active',!bad);document.getElementById(goodId).classList.toggle('active',bad)}
+</script>
+</body>
+</html>

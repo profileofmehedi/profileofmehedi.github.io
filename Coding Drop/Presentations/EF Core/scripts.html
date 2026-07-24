@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter View — EF Core Performance</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#050505;--surface:#111;--border:rgba(255,255,255,0.08);--violet:#c084fc;--purple:#a855f7;--gold:#fbbf24;--emerald:#34d399;--rose:#f87171;--text:#f8fafc;--muted:#94a3b8}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 26px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem}
+.tb-badge{background:linear-gradient(135deg,var(--violet),var(--purple));color:#fff;padding:3px 9px;border-radius:6px;font-size:0.68rem;font-weight:700;letter-spacing:1px}
+.tb-right{display:flex;align-items:center;gap:20px}
+.timer-display{font-family:'Fira Code',monospace;font-size:1.6rem;font-weight:700;color:var(--violet);letter-spacing:2px}
+.timer-btns{display:flex;gap:6px}
+.tbtn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn:hover{background:rgba(192,132,252,0.1);border-color:var(--violet);color:var(--violet)}
+.conn-status{display:flex;align-items:center;gap:7px;font-size:0.75rem;color:var(--muted)}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.conn-dot.live{background:var(--violet);box-shadow:0 0 8px var(--violet);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{opacity:.4;transform:scale(.7)}}
+.main{flex:1;display:grid;grid-template-columns:1fr 320px;grid-template-rows:1fr auto;overflow:hidden;height:calc(100vh - 62px)}
+.script-panel{grid-column:1;grid-row:1;display:flex;flex-direction:column;padding:24px 30px;border-right:1px solid var(--border);overflow:hidden}
+.cur-label{font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--violet);display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cur-label::before{content:'';width:16px;height:2px;background:var(--violet);border-radius:1px}
+.cur-title{font-size:1.4rem;font-weight:800;margin-bottom:18px}
+.script-box{flex:1;overflow-y:auto;background:rgba(192,132,252,0.03);border:1px solid rgba(192,132,252,0.15);border-radius:12px;padding:22px 26px;position:relative}
+.script-box::before{content:'📢 SCRIPT';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--violet)}
+.script-text{font-size:1.1rem;line-height:2.1;color:var(--text);white-space:pre-line}
+.script-text em{color:var(--violet);font-style:normal;font-weight:600}
+.script-box::-webkit-scrollbar{width:4px}
+.script-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.nav-bar{grid-column:1;grid-row:2;display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.nav-btn{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;font-family:'Outfit',sans-serif}
+.nav-btn:hover{background:rgba(192,132,252,0.1);border-color:var(--violet);color:var(--violet)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.slide-counter{font-family:'Fira Code',monospace;font-size:0.95rem;color:var(--muted)}
+.slide-counter span{color:var(--text);font-weight:700}
+.right-panel{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;overflow:hidden}
+.rp-head{padding:12px 16px 8px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+.ch-list-p{overflow-y:auto;flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.ch-p{padding:7px 10px;border-radius:7px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-p:hover{background:rgba(255,255,255,0.04)}
+.ch-p.active{background:rgba(192,132,252,0.08);border-color:rgba(192,132,252,0.25);color:var(--violet);font-weight:600}
+.ch-p.done{color:var(--text)}
+.ch-p .cn{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-p.active .cn{background:var(--violet);color:#000}
+.ch-p.done .cn{background:rgba(192,132,252,0.15);color:var(--violet)}
+.next-preview{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.np-label{font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.np-title{font-size:0.82rem;font-weight:700;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.np-title i{color:var(--gold)}
+.prog-wrap{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.prog-label{font-size:0.6rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.prog-bar{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--purple));border-radius:3px;transition:width .4s}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-logo"><i class="fa-solid fa-database" style="color:var(--violet)"></i> Presenter View <div class="tb-badge">EF CORE</div></div>
+  <div class="tb-right">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="timer-display" id="timer">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="timerBtn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i></button>
+        <button class="tbtn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+    <div class="conn-status"><div class="conn-dot" id="connDot"></div><span id="connTxt">সংযুক্ত নেই</span></div>
+  </div>
+</div>
+<div class="main">
+  <div class="script-panel">
+    <div class="cur-label" id="curLabel">স্লাইড ১</div>
+    <div class="cur-title" id="curTitle">পরিচয়</div>
+    <div class="script-box"><div class="script-text" id="scriptText"></div></div>
+  </div>
+  <div class="nav-bar">
+    <div style="display:flex;gap:10px">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled><i class="fa-solid fa-arrow-left"></i> পেছনে</button>
+      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">সামনে <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div class="slide-counter">স্লাইড <span id="curNum">1</span> / <span id="totNum">13</span></div>
+  </div>
+  <div class="right-panel">
+    <div class="rp-head"><i class="fa-solid fa-list-ul"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list-p" id="chListP"></div>
+    <div class="next-preview">
+      <div class="np-label"><i class="fa-solid fa-forward"></i> পরবর্তী</div>
+      <div class="np-title" id="nextTitle"><i class="fa-solid fa-arrow-right"></i> <span>—</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label"><span>অগ্রগতি</span><span id="progPct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+</div>
+<script>
+const BC=new BroadcastChannel('efcore_presentation');
+let cur=0,timerInterval=null,seconds=0,running=false;
+const slides=[
+  {title:'পরিচয় — EF Core Performance & Change Tracker',script:`আচ্ছালামুয়ালাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
+
+আজকে আমরা শিখবো <em>Entity Framework Core</em>-এর পারফরম্যান্স এবং Change Tracker।
+
+EF Core ব্যবহার না করে অনেক সহজ কিন্তু ভুলভাবে ব্যবহার করলে আপনার অ্যাপ্লিকেশন ধীর হয়ে যাবে।
+
+আজকে একটি <em>লাইভ Change Tracker Demo</em> দেখবো এবং N+1 Query সমস্যা এবং সমাধান শিখবো।`},
+  {title:'DbContext — আপনার DB Gateway',script:`DbContext হলো EF Core-এর কেন্দ্র।
+
+এটাকে ডায়েরির মতো মনে করুন। আপনি কী পড়লেন, কী লিখলেন, কী মুছলেন — সব Change Tracker মনে রাখে।
+
+DbContext-এ তিনটি গুরুত্বপূর্ণ জিনিস আছে।
+
+<em>DbSet&lt;T&gt;</em> — প্রতিটি Entity-র Collection।
+<em>ChangeTracker</em> — সব Entity-র পরিবর্তন ট্র্যাক করে।
+<em>SaveChangesAsync()</em> — সব পরিবর্তন DB-তে পাঠায়।
+
+DbContext সবসময় <em>Scoped Lifetime</em>-এ register করুন — প্রতিটি Request-এ নতুন।`},
+  {title:'Change Tracker — লাইভ ডেমো',script:`এখন লাইভ Change Tracker Demo দেখুন।
+
+তিনটি User Entity টেবিলে দেখছেন — সবাই <em>Unchanged</em> state-এ।
+
+"<em>Name পরিবর্তন করুন</em>" বাটনে ক্লিক করুন। দেখুন একটি Entity-র state <em>Modified</em> হলো।
+
+"<em>নতুন Entity Add</em>" বাটনে ক্লিক করুন। নতুন row <em>Added</em> state-এ এলো।
+
+"<em>Entity Delete</em>" বাটনে ক্লিক করুন। Entity <em>Deleted</em> state-এ গেলো।
+
+এখন "<em>SaveChangesAsync()</em>" বাটনে ক্লিক করুন। দেখুন — EF Core স্বয়ংক্রিয়ভাবে INSERT, UPDATE, DELETE SQL তৈরি করে পাঠালো!`},
+  {title:'AsNoTracking — গোয়েন্দা বন্ধ করুন',script:`Change Tracker-এর কাজ হলো Entity-র পরিবর্তন নজরে রাখা।
+
+কিন্তু যদি আমরা শুধু পড়তে চাই — Update করবো না — তাহলে এই Tracking-এ শুধু Memory এবং CPU নষ্ট হয়।
+
+সমাধান হলো <em>AsNoTracking()</em>।
+
+AsNoTracking দিলে EF Core Entity-র কপি রাখে না। শুধু data আনে।
+
+ফলাফল — ৩০ থেকে ৫০ শতাংশ পারফরম্যান্স বাড়ে।
+
+নিয়ম — যখনই Read-only query করবেন, AsNoTracking() দিন।`},
+  {title:'N+1 Query সমস্যা',script:`এই সমস্যাটা বুঝলে অনেক অ্যাপ্লিকেশনের ধীরগতির কারণ বুঝবেন।
+
+Lazy Loading চালু থাকলে EF Core Navigation Property-তে Access করার সময় আলাদা DB Query করে।
+
+<em>N+1</em> মানে — ১টি Customer List Query + প্রতিটি Customer-এর জন্য ১টি Orders Query।
+
+১০০ Customer মানে ১০১ DB Query!
+
+"<em>Lazy Load</em>" বাটনে ক্লিক করুন এবং দেখুন কতগুলো Query হচ্ছে।
+
+এরপর "<em>Include</em>" বাটনে ক্লিক করুন — মাত্র ১টি Query!`},
+  {title:'Loading Strategies',script:`Loading-এর তিনটি পদ্ধতি আছে।
+
+<em>Eager Loading (Include)</em> — সবচেয়ে ভালো। একটি JOIN Query-তে সব আনে। N+1 নেই।
+
+<em>Lazy Loading</em> — Navigation Access করলে DB Query হয়। Virtual property লাগে। N+1 সমস্যার সম্ভাবনা বেশি। সাবধানে ব্যবহার করুন।
+
+<em>Explicit Loading</em> — নিজে যখন চাইবেন Load করবেন। শর্তসাপেক্ষে দরকারি।
+
+Default choice সবসময় Eager Loading মানে Include() দিয়ে।`},
+  {title:'Include — Eager Loading কোড',script:`Bad Version-এ Lazy Loading দিয়ে foreach করা হচ্ছে।
+
+প্রতিটি customer.Orders access করার সময় DB Query হচ্ছে।
+
+১০০ Customer মানে ১০১ Query — কত ভয়ংকর!
+
+Good Version-এ Include() দিয়ে একটি JOIN করা হয়েছে। ThenInclude() দিয়ে Nested Navigation-ও এক Query-তে।
+
+AsNoTracking() দিয়ে Read-only করা হয়েছে।
+
+ফলে ১০০ Customer হলেও মাত্র ১টি DB Query।
+
+Switch করে পার্থক্য দেখুন।`},
+  {title:'Select Projection — শুধু দরকারি Column',script:`SELECT * করলে DB থেকে সব Column আসে — অনেক ক্ষেত্রে অপ্রয়োজনীয়।
+
+Bad Version-এ ToListAsync() দিয়ে সব Column আনা হচ্ছে — SELECT *।
+
+Good Version-এ Select() দিয়ে শুধু Id, Name, Price আনা হচ্ছে।
+
+ফলে Network transfer কম হয়, Memory কম লাগে, Query দ্রুত হয়।
+
+DTO (Data Transfer Object) দিয়ে Projection করুন — Controller-এ শুধু দরকারি data পৌঁছাবে।`},
+  {title:'Compiled Queries',script:`High-traffic API-তে EF Core প্রতিবার LINQ Expression Tree compile করে SQL বানায়।
+
+এই compile-এর overhead প্রতিটি Request-এ খরচ হয়।
+
+<em>EF.CompileAsyncQuery()</em> দিয়ে এই Expression Tree একবার compile করে রাখা যায়।
+
+Static field-এ রাখুন — Application-এর lifetime-এ একবারই compile হবে।
+
+পরের সব call-এ শুধু Execute হবে।
+
+Hot path API-তে এটা উল্লেখযোগ্য performance উন্নতি করে।`},
+  {title:'Bulk Operations (.NET 7+)',script:`Bad Version-এ Loop দিয়ে প্রতিটি Entity আনা হচ্ছে, পরিবর্তন করা হচ্ছে, SaveChanges করা হচ্ছে।
+
+হাজার Row মানে হাজার UPDATE Query!
+
+.NET 7-এর নতুন <em>ExecuteUpdateAsync()</em> দিয়ে সব একটি SQL-এ।
+
+কোনো Entity DB থেকে আনতে হয় না। Change Tracker-এ রাখতে হয় না।
+
+সরাসরি Database-এ যায় — অনেক দ্রুত।
+
+একইভাবে ExecuteDeleteAsync() দিয়ে Bulk Delete।`},
+  {title:'Raw SQL',script:`Complex Query যেমন Subquery, CTE, Window Function — EF Core LINQ-এ লেখা কঠিন।
+
+এজন্য <em>FromSqlRaw()</em> ব্যবহার করুন। Raw SQL লিখুন এবং EF Core Entity-তে Map করে দেবে।
+
+Parameterized Query দিয়ে SQL Injection থেকে সুরক্ষিত থাকুন।
+
+Stored Procedure কল করতে <em>ExecuteSqlAsync()</em> ব্যবহার করুন।
+
+এটা DML (INSERT, UPDATE, DELETE) এর জন্য।`},
+  {title:'Performance Checklist',script:`মনে রাখার মতো চারটি নিয়ম।
+
+প্রথম — <em>AsNoTracking()</em> সবসময় Read-only query-তে। ৩০-৫০% boost।
+
+দ্বিতীয় — <em>Select()</em> দিয়ে শুধু দরকারি Column আনুন। Network এবং Memory সাশ্রয়।
+
+তৃতীয় — <em>Include()</em> দিয়ে Eager Loading করুন। Lazy Loading এড়ান।
+
+চতুর্থ — Bulk Operation-এ <em>ExecuteUpdateAsync()</em> এবং <em>ExecuteDeleteAsync()</em> ব্যবহার করুন।`},
+  {title:'সারসংক্ষেপ — EF Core Performance',script:`আজকে শিখলাম —
+
+<em>Change Tracker</em> — সব Entity-র State (Unchanged, Modified, Added, Deleted) মনে রাখে।
+
+<em>AsNoTracking()</em> = Tracker বন্ধ = দ্রুত। সবসময় Read-only query-তে।
+
+<em>N+1 সমস্যা</em> = Include() দিয়ে সমাধান। Lazy Loading + foreach = বিপদ।
+
+<em>Select + ExecuteUpdate</em> = উচ্চ Performance। একটি SQL Query।
+
+ভিডিওটি ভালো লাগলে লাইক, শেয়ার এবং <em>Coding Drop</em> সাবস্ক্রাইব করুন! আল্লাহ হাফেজ!`}
+];
+const chapters=['পরিচয়','DbContext','Change Tracker Live','AsNoTracking','N+1 সমস্যা','Loading Strategies','Include কোড','Select Projection','Compiled Query','Bulk Operations','Raw SQL','Performance Checklist','সারসংক্ষেপ'];
+const TOTAL=slides.length;document.getElementById('totNum').textContent=TOTAL;
+const chListP=document.getElementById('chListP');
+chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-p'+(i===0?' active':'');el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;el.onclick=()=>navigate(i-cur);chListP.appendChild(el)});
+function updateUI(){const s=slides[cur];document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;document.getElementById('curTitle').textContent=s.title;document.getElementById('scriptText').innerHTML=s.script;document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('prevBtn').disabled=cur===0;document.getElementById('nextBtn').disabled=cur===TOTAL-1;document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});const nt=document.getElementById('nextTitle');nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`}
+function navigate(delta){const next=Math.max(0,Math.min(TOTAL-1,cur+delta));if(next===cur)return;cur=next;BC.postMessage({type:'nav',idx:cur});updateUI()}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();navigate(1);}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navigate(-1);}
+});
+function toggleTimer(){if(running){clearInterval(timerInterval);running=false;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}else{timerInterval=setInterval(()=>{seconds++;const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s},1000);running=true;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-pause"></i>'}}
+function resetTimer(){clearInterval(timerInterval);running=false;seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
+BC.postMessage({type:'ping_from_presenter'});setInterval(()=>BC.postMessage({type:'ping_from_presenter'}),3000);
+BC.onmessage=e=>{if(e.data.type==='ping'){document.getElementById('connDot').classList.add('live');document.getElementById('connTxt').textContent='সংযুক্ত';setTimeout(()=>{document.getElementById('connDot').classList.remove('live');document.getElementById('connTxt').textContent='সংযুক্ত নেই'},5000)}};
+updateUI();
+</script>
+</body>
+</html>

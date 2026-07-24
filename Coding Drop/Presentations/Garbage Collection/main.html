@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garbage Collection & Memory — Coding Drop</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg:#020c08; --surface:#0a1510; --surface2:#0f1e18;
+  --border:rgba(255,255,255,0.08);
+  --lime:#4ade80; --teal:#2dd4bf; --sky:#38bdf8;
+  --amber:#fbbf24; --rose:#fb7185; --violet:#a78bfa;
+  --text:#f0fdf4; --muted:#86a89a; --r:16px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;cursor:none}
+body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.cursor-dot{position:fixed;top:0;left:0;width:12px;height:12px;background:var(--lime);border-radius:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;box-shadow:0 0 15px var(--lime);transition:width .2s,height .2s}
+.cursor-outline{position:fixed;top:0;left:0;width:40px;height:40px;border:2px solid rgba(74,222,128,0.5);border-radius:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;transition:transform .1s ease-out}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.25}
+.layout{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
+.slide-area{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.ch-logo-wrap{position:absolute;top:20px;left:24px;z-index:50;display:flex;align-items:center;gap:11px;background:rgba(10,21,16,0.75);border:1px solid var(--border);border-radius:14px;padding:8px 16px 8px 10px;backdrop-filter:blur(16px);cursor:none}
+.ch-logo-icon{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--lime),var(--teal));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#000;font-weight:800}
+.ch-logo-name{font-size:0.82rem;font-weight:800;background:linear-gradient(135deg,#fff,rgba(255,255,255,0.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.ch-logo-sub{font-size:0.6rem;color:var(--muted);letter-spacing:0.5px;font-weight:500}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px 70px 100px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(20px) scale(0.98);transition:opacity .65s cubic-bezier(.4,0,.2,1),transform .65s cubic-bezier(.4,0,.2,1)}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1)}
+.slide.exit{opacity:0;transform:translateY(-20px) scale(0.98)}
+.fu{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.fu.visible{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.25s}.d3{transition-delay:.4s}.d4{transition-delay:.55s}.d5{transition-delay:.7s}
+.glass{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(20px);position:relative;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+.tag{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--lime);padding:6px 14px;border-radius:30px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;display:inline-flex;align-items:center;gap:8px}
+.s-title{font-size:2.6rem;font-weight:900;line-height:1.15;margin-bottom:14px;text-align:center}
+.s-desc{font-size:1rem;color:var(--muted);line-height:1.75;text-align:center;max-width:720px}
+.bottom-bar{position:absolute;bottom:0;left:0;right:0;height:60px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:50}
+.slide-num{font-family:'Fira Code',monospace;font-size:0.82rem;color:var(--muted)}
+.slide-num span{color:var(--lime);font-weight:700}
+.progress-bar-thin{width:160px;height:3px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--lime),var(--teal));border-radius:3px;transition:width .5s ease}
+.sidebar{width:270px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-header{padding:20px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:0.9rem;margin-bottom:12px}
+.sb-logo i{color:var(--lime)}
+.sb-progress-text{font-size:0.68rem;color:var(--muted)}
+.sb-title{padding:12px 18px 8px;font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ch-list{overflow-y:auto;flex:1;padding:0 10px 12px;display:flex;flex-direction:column;gap:3px}
+.ch-item{padding:9px 12px;border-radius:9px;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-item:hover{background:rgba(255,255,255,0.04)}
+.ch-item.active{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.25);color:var(--lime);font-weight:600}
+.ch-item.done{color:var(--text)}
+.ch-num{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-item.active .ch-num{background:var(--lime);color:#000}
+.ch-item.done .ch-num{background:rgba(74,222,128,0.15);color:var(--lime)}
+
+/* Hero */
+.hero-title{font-size:3.2rem;font-weight:900;text-align:center;line-height:1.1}
+.hl{background:linear-gradient(135deg,var(--lime),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-subtitle{font-size:1rem;color:var(--muted);text-align:center;max-width:580px;line-height:1.7}
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.hero-badge{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--lime);padding:7px 14px;border-radius:30px;font-size:0.78rem;font-weight:600;display:flex;align-items:center;gap:7px}
+
+/* Stack vs Heap */
+.two-col{display:flex;gap:24px;width:100%;max-width:820px}
+.col-box{flex:1;border-radius:14px;padding:20px}
+.col-box.sky-box{background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.25)}
+.col-box.lime-box{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.25)}
+.col-title{font-weight:800;font-size:0.95rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sky-box .col-title{color:var(--sky)}.lime-box .col-title{color:var(--lime)}
+.mem-frame{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:9px 14px;margin-bottom:6px;font-size:0.78rem;font-family:'Fira Code',monospace;display:flex;align-items:center;gap:8px}
+.mem-frame.active-f{border-color:var(--sky);background:rgba(56,189,248,0.08);color:var(--sky)}
+.ptr{color:var(--lime);font-weight:700;font-size:0.7rem}
+.col-note{margin-top:10px;font-size:0.7rem;color:var(--muted)}
+
+/* Gen cards */
+.gen-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:860px}
+.gen-card{border-radius:14px;padding:20px 16px;text-align:center}
+.gen-card.c0{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25)}
+.gen-card.c1{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25)}
+.gen-card.c2{background:rgba(251,113,133,0.08);border:1px solid rgba(251,113,133,0.25)}
+.gen-card.cloh{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25)}
+.gen-icon{font-size:1.8rem;margin-bottom:8px}
+.gen-title{font-weight:800;font-size:0.9rem;margin-bottom:5px}
+.gen-card.c0 .gen-title{color:var(--lime)}.gen-card.c1 .gen-title{color:var(--amber)}
+.gen-card.c2 .gen-title{color:var(--rose)}.gen-card.cloh .gen-title{color:var(--violet)}
+.gen-desc{font-size:0.7rem;color:var(--muted);line-height:1.5}
+
+/* Memory Simulator */
+.sim-wrap{width:100%;max-width:820px;display:flex;flex-direction:column;gap:16px}
+.sim-stats{display:flex;gap:14px;justify-content:center}
+.sim-stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 18px;text-align:center;min-width:100px}
+.sim-stat-val{font-size:1.5rem;font-weight:800;font-family:'Fira Code',monospace}
+.sv-lime{color:var(--lime)}.sv-amber{color:var(--amber)}.sv-rose{color:var(--rose)}
+.sim-stat-lbl{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.sim-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.sim-btn{padding:9px 20px;border-radius:10px;font-size:0.82rem;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all .2s}
+.btn-alloc{background:linear-gradient(135deg,var(--lime),var(--teal));color:#000}
+.btn-alloc:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.btn-gc{background:linear-gradient(135deg,var(--rose),#be123c);color:#fff}
+.btn-gc:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.btn-rst{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--muted)}
+.btn-rst:hover{color:var(--text);background:rgba(255,255,255,0.12)}
+.gen-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.gen-col{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;min-height:170px}
+.gen-col-lbl{font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.lbl-g0{color:var(--lime)}.lbl-g1{color:var(--amber)}.lbl-g2{color:var(--rose)}
+.objs-wrap{display:flex;flex-wrap:wrap;gap:5px;min-height:90px;align-content:flex-start}
+.mobj{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:700;font-family:'Fira Code',monospace;transition:all .4s}
+.mobj.alive{background:rgba(74,222,128,0.15);border:1px solid var(--lime);color:var(--lime)}
+.mobj.dead{background:rgba(251,113,133,0.15);border:1px solid var(--rose);color:var(--rose);text-decoration:line-through}
+
+/* Finalize vs Dispose */
+.rose-box{background:rgba(251,113,133,0.06);border:1px solid rgba(251,113,133,0.25)}
+.rose-box .col-title{color:var(--rose)}
+
+/* Leak sim */
+.leak-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:680px}
+.leak-box{width:100%;background:var(--surface2);border:1px solid rgba(251,113,133,0.3);border-radius:14px;padding:20px;min-height:160px;position:relative;overflow:hidden}
+.leak-box-lbl{position:absolute;top:10px;right:12px;font-size:0.62rem;font-weight:700;color:var(--rose);letter-spacing:1px;text-transform:uppercase}
+.leak-items{display:flex;flex-wrap:wrap;gap:5px}
+.leak-item{background:rgba(251,113,133,0.12);border:1px solid rgba(251,113,133,0.25);border-radius:6px;padding:5px 9px;font-size:0.62rem;font-family:'Fira Code',monospace;color:var(--rose)}
+.bar-wrap{width:100%}
+.bar-labels{display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.7rem;color:var(--muted)}
+.bar-bg{width:100%;height:20px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--lime),var(--amber),var(--rose));border-radius:6px;transition:width .5s;display:flex;align-items:center;padding-left:8px;font-size:0.62rem;font-weight:700;color:#000}
+.leak-btn{padding:9px 22px;background:rgba(251,113,133,0.1);border:1px solid rgba(251,113,133,0.3);color:var(--rose);border-radius:10px;cursor:pointer;font-size:0.82rem;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.leak-btn:hover{background:rgba(251,113,133,0.2);transform:translateY(-1px)}
+
+/* Code switcher */
+.comp-switch{display:inline-flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:4px;position:relative;cursor:pointer;user-select:none}
+.comp-slider{position:absolute;top:4px;left:4px;height:calc(100% - 8px);width:calc(50% - 4px);background:linear-gradient(135deg,var(--lime),var(--teal));border-radius:22px;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:0}
+.comp-opt{position:relative;z-index:1;padding:6px 16px;font-size:0.75rem;font-weight:700;color:var(--muted);transition:color .3s;border-radius:22px}
+.comp-switch.switched .comp-slider{transform:translateX(100%)}
+.comp-switch:not(.switched) .comp-opt:first-of-type{color:#000}
+.comp-switch.switched .comp-opt:last-of-type{color:#000}
+.demo-wrap{width:100%;max-width:800px;display:flex;flex-direction:column;gap:14px}
+.demo-hdr{display:flex;align-items:center;justify-content:space-between}
+.demo-title{font-weight:800;font-size:1rem;display:flex;align-items:center;gap:8px}
+.code-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px 26px;overflow:hidden}
+.code{font-family:'Fira Code',monospace;font-size:0.8rem;line-height:1.9;white-space:pre;display:none}
+.code.active{display:block}
+.ck{color:#c792ea}.cs{color:#82aaff}.ci{color:#ffcb6b}.cf{color:var(--lime)}.cm{color:#546e7a;font-style:italic}.cstr{color:var(--teal)}
+
+/* WeakRef */
+.wr-wrap{display:flex;gap:24px;width:100%;max-width:740px}
+.wr-col{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+.wr-title{font-weight:800;font-size:0.9rem;margin-bottom:12px}
+.wr-col.str-col .wr-title{color:var(--sky)}.wr-col.wk-col .wr-title{color:var(--violet)}
+.wr-obj{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 10px}
+.wr-obj.str{background:rgba(56,189,248,0.15);border:2px solid var(--sky);box-shadow:0 0 18px rgba(56,189,248,0.2)}
+.wr-obj.wk{background:rgba(167,139,250,0.06);border:2px dashed rgba(167,139,250,0.35);opacity:0.6}
+.wr-desc{font-size:0.75rem;color:var(--muted);line-height:1.5}
+.wr-code{font-family:'Fira Code',monospace;font-size:0.72rem;margin:8px 0;color:var(--sky)}
+.wk-col .wr-code{color:var(--violet)}
+
+/* Lifecycle */
+.lc-wrap{display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:660px}
+.lc-box{display:flex;align-items:center;gap:12px;width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+.lc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.lc-arrow{text-align:center;font-size:1.2rem;color:var(--muted);margin:3px 0;display:block;width:100%}
+.lc-title{font-weight:700;font-size:0.85rem;margin-bottom:2px}
+.lc-sub{font-size:0.68rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="cursor-dot" id="curDot"></div>
+<div class="cursor-outline" id="curOutline"></div>
+<canvas id="bgCanvas"></canvas>
+<div class="layout">
+  <div class="slide-area" id="slideArea">
+    <div class="ch-logo-wrap">
+      <div class="ch-logo-icon"><i class="fa-solid fa-code"></i></div>
+      <div><div class="ch-logo-name">Coding Drop</div><div class="ch-logo-sub">MEMORY MANAGEMENT</div></div>
+    </div>
+
+    <!-- S1 Hero -->
+    <div class="slide active" id="s1">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:22px">
+        <div class="tag fu d1"><i class="fa-solid fa-memory"></i> .NET Runtime</div>
+        <div class="hero-title fu d2"><span class="hl">Garbage Collection</span><br><span>& Memory Management</span></div>
+        <p class="hero-subtitle fu d3">.NET রানটাইম কীভাবে আপনার প্রোগ্রামের মেমোরি পরিচালনা করে — Heap, GC Generations, Dispose এবং Memory Leak সব কিছু ভিজ্যুয়ালভাবে বোঝার সহজ গাইড।</p>
+        <div class="hero-badges fu d4">
+          <div class="hero-badge"><i class="fa-solid fa-layer-group"></i> Gen 0/1/2</div>
+          <div class="hero-badge"><i class="fa-solid fa-recycle"></i> GC Sweep</div>
+          <div class="hero-badge"><i class="fa-solid fa-plug"></i> IDisposable</div>
+          <div class="hero-badge"><i class="fa-solid fa-bug"></i> Memory Leak</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 Stack vs Heap -->
+    <div class="slide" id="s2">
+      <div class="tag fu d1"><i class="fa-solid fa-server"></i> মেমোরির ধরন</div>
+      <h2 class="s-title fu d2">Stack <span style="color:var(--muted)">vs</span> <span class="hl">Heap</span></h2>
+      <p class="s-desc fu d3">Stack হলো ডেস্কটপের ছোট জায়গা — দ্রুত কিন্তু সীমিত। Heap হলো বড় গুদাম — বেশি জায়গা কিন্তু GC দিয়ে পরিষ্কার করতে হয়।</p>
+      <div class="two-col fu d4">
+        <div class="col-box sky-box">
+          <div class="col-title"><i class="fa-solid fa-layer-group"></i> Stack (Value Types)</div>
+          <div class="mem-frame active-f">► Main() — চলছে</div>
+          <div class="mem-frame">  int age = 25</div>
+          <div class="mem-frame">  bool isAlive = true</div>
+          <div class="mem-frame">  double price = 99.5</div>
+          <div class="col-note">⚡ LIFO — নিজে নিজে মুছে যায়। GC লাগে না।</div>
+        </div>
+        <div class="col-box lime-box">
+          <div class="col-title"><i class="fa-solid fa-database"></i> Heap (Reference Types)</div>
+          <div class="mem-frame"><span class="ptr">→</span> Person { name, age }</div>
+          <div class="mem-frame"><span class="ptr">→</span> List&lt;Order&gt; [12 items]</div>
+          <div class="mem-frame"><span class="ptr">→</span> HttpClient instance</div>
+          <div class="mem-frame"><span class="ptr">→</span> StringBuilder sb</div>
+          <div class="col-note" style="color:var(--lime)">♻️ GC দিয়ে পরিষ্কার করতে হয়।</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 GC Generations -->
+    <div class="slide" id="s3">
+      <div class="tag fu d1"><i class="fa-solid fa-boxes-stacked"></i> GC Concept</div>
+      <h2 class="s-title fu d2">GC <span class="hl">Generations</span></h2>
+      <p class="s-desc fu d3">মেমোরিতে অবজেক্ট তিন ধাপে বাস করে। যত বেশি GC বেঁচে থাকে, তত উপরের জেনারেশনে প্রোমোট হয়।</p>
+      <div class="gen-grid-4 fu d4">
+        <div class="gen-card c0"><div class="gen-icon">🌱</div><div class="gen-title">Gen 0</div><div class="gen-desc">নতুন অবজেক্ট। সবচেয়ে বেশি GC এখানে। বেশিরভাগ এখানেই মরে।</div></div>
+        <div class="gen-card c1"><div class="gen-icon">🌿</div><div class="gen-title">Gen 1</div><div class="gen-desc">কিছুটা পুরনো। Gen 0 GC বেঁচে গেলে এখানে আসে।</div></div>
+        <div class="gen-card c2"><div class="gen-icon">🌳</div><div class="gen-title">Gen 2</div><div class="gen-desc">দীর্ঘস্থায়ী। Static, Singleton, Cache। GC কম হয়।</div></div>
+        <div class="gen-card cloh"><div class="gen-icon">🏋️</div><div class="gen-title">LOH</div><div class="gen-desc">85 KB+ অবজেক্ট। সরাসরি Gen 2 এর মতো আচরণ।</div></div>
+      </div>
+    </div>
+
+    <!-- S4 Live Memory Simulator -->
+    <div class="slide" id="s4">
+      <div class="tag fu d1"><i class="fa-solid fa-play-circle"></i> লাইভ ডেমো</div>
+      <h2 class="s-title fu d2" style="font-size:2rem;margin-bottom:10px">মেমোরি <span class="hl">সিমুলেটর</span></h2>
+      <div class="sim-wrap fu d3">
+        <div class="sim-stats">
+          <div class="sim-stat"><div class="sim-stat-val sv-lime" id="statAlive">0</div><div class="sim-stat-lbl">Alive</div></div>
+          <div class="sim-stat"><div class="sim-stat-val sv-amber" id="statDead">0</div><div class="sim-stat-lbl">Dead</div></div>
+          <div class="sim-stat"><div class="sim-stat-val sv-rose" id="statGC">0</div><div class="sim-stat-lbl">GC Runs</div></div>
+        </div>
+        <div class="sim-controls">
+          <button class="sim-btn btn-alloc" onclick="allocObj()"><i class="fa-solid fa-plus"></i> new Object()</button>
+          <button class="sim-btn btn-gc" onclick="runGC()"><i class="fa-solid fa-recycle"></i> GC.Collect()</button>
+          <button class="sim-btn btn-rst" onclick="resetSim()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+        </div>
+        <div class="gen-row">
+          <div class="gen-col"><div class="gen-col-lbl lbl-g0">● Gen 0 — নতুন</div><div class="objs-wrap" id="gen0"></div></div>
+          <div class="gen-col"><div class="gen-col-lbl lbl-g1">● Gen 1 — মাঝারি</div><div class="objs-wrap" id="gen1"></div></div>
+          <div class="gen-col"><div class="gen-col-lbl lbl-g2">● Gen 2 — পুরনো</div><div class="objs-wrap" id="gen2"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 Finalize vs Dispose -->
+    <div class="slide" id="s5">
+      <div class="tag fu d1"><i class="fa-solid fa-plug-circle-xmark"></i> Resource Management</div>
+      <h2 class="s-title fu d2"><span class="hl">Finalize</span> vs <span style="color:var(--teal)">Dispose</span></h2>
+      <p class="s-desc fu d3">GC সব কিছু পরিষ্কার করতে পারে না — বিশেষত File Handle, DB Connection। এজন্য IDisposable প্রয়োজন।</p>
+      <div class="two-col fu d4">
+        <div class="col-box rose-box">
+          <div class="col-title"><i class="fa-solid fa-robot"></i> Finalizer (~Destructor)</div>
+          <div class="mem-frame">GC নিজে কল করে</div>
+          <div class="mem-frame">কখন হবে অনিশ্চিত</div>
+          <div class="mem-frame">~MyClass() { ... }</div>
+          <div class="col-note">⚠️ GC overhead বাড়ায়। দেরিতে পরিষ্কার করে।</div>
+        </div>
+        <div class="col-box lime-box">
+          <div class="col-title"><i class="fa-solid fa-hand-sparkles"></i> IDisposable.Dispose()</div>
+          <div class="mem-frame">আপনি নিজে কল করেন</div>
+          <div class="mem-frame">তাৎক্ষণিক পরিষ্কার</div>
+          <div class="mem-frame">using (var x = new...) { }</div>
+          <div class="col-note" style="color:var(--lime)">✅ সঠিক পদ্ধতি। Resource মুক্ত করে।</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 IDisposable Code -->
+    <div class="slide" id="s6">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--lime)"></i> IDisposable কোড ডেমো</div>
+          <div class="comp-switch" id="sw6" onclick="toggleSw('sw6','bad6','good6')">
+            <div class="comp-slider"></div><div class="comp-opt">Bad Practice</div><div class="comp-opt">Good Practice</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad6"><span class="cm">// ❌ Bad — Resource মুক্ত হয় না</span>
+<span class="ck">public void</span> <span class="cf">ReadFile</span>() {
+    <span class="ck">var</span> reader = <span class="ck">new</span> <span class="cs">StreamReader</span>(<span class="cstr">"data.txt"</span>);
+    <span class="ck">string</span> content = reader.<span class="cf">ReadToEnd</span>();
+    <span class="cm">// Dispose() কখনো হলো না!</span>
+    <span class="cm">// File handle ধরে রইলো চিরকাল...</span>
+}</pre>
+          <pre class="code" id="good6"><span class="cm">// ✅ Good — using দিয়ে auto-dispose</span>
+<span class="ck">public void</span> <span class="cf">ReadFile</span>() {
+    <span class="ck">using var</span> reader = <span class="ck">new</span> <span class="cs">StreamReader</span>(<span class="cstr">"data.txt"</span>);
+    <span class="ck">string</span> content = reader.<span class="cf">ReadToEnd</span>();
+    <span class="cm">// ব্লক শেষে Dispose() স্বয়ংক্রিয়!</span>
+} <span class="cm">// ← এখানে StreamReader.Dispose() হয়</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7 Memory Leak -->
+    <div class="slide" id="s7">
+      <div class="tag fu d1"><i class="fa-solid fa-bug"></i> বিপদজ্জনক ভুল</div>
+      <h2 class="s-title fu d2"><span style="color:var(--rose)">Memory Leak</span> সিমুলেটর</h2>
+      <p class="s-desc fu d3">Static লিস্টে রেফারেন্স রাখলে GC সেই অবজেক্ট কখনো সংগ্রহ করতে পারে না — মেমোরি বাড়তেই থাকে।</p>
+      <div class="leak-wrap fu d4">
+        <div class="leak-box"><div class="leak-box-lbl">📦 _cache (Static List)</div><div class="leak-items" id="leakItems"></div></div>
+        <div class="bar-wrap">
+          <div class="bar-labels"><span>RAM ব্যবহার</span><span id="leakMB">0 MB</span></div>
+          <div class="bar-bg"><div class="bar-fill" id="leakBar" style="width:0%">0%</div></div>
+        </div>
+        <button class="leak-btn" onclick="addLeak()"><i class="fa-solid fa-plus"></i> _cache.Add(new HeavyObject())</button>
+      </div>
+    </div>
+
+    <!-- S8 WeakReference -->
+    <div class="slide" id="s8">
+      <div class="tag fu d1"><i class="fa-solid fa-ghost"></i> Advanced</div>
+      <h2 class="s-title fu d2"><span style="color:var(--violet)">WeakReference&lt;T&gt;</span></h2>
+      <p class="s-desc fu d3">Strong Reference GC থেকে অবজেক্ট রক্ষা করে। Weak Reference GC-কে অনুমতি দেয় অবজেক্ট মুছে ফেলার — Cache-এর জন্য আদর্শ।</p>
+      <div class="wr-wrap fu d4">
+        <div class="wr-col str-col">
+          <div class="wr-title"><i class="fa-solid fa-anchor"></i> Strong Reference</div>
+          <div class="wr-obj str">📦</div>
+          <div class="wr-code">MyClass obj = new();</div>
+          <div class="wr-desc">GC এই অবজেক্ট মুছবে না — Active Strong Reference আছে।</div>
+        </div>
+        <div class="wr-col wk-col">
+          <div class="wr-title"><i class="fa-solid fa-ghost"></i> Weak Reference</div>
+          <div class="wr-obj wk">👻</div>
+          <div class="wr-code">WeakReference&lt;T&gt; wr = new(obj);</div>
+          <div class="wr-desc">মেমোরি চাপে পড়লে GC এটি মুছে দিতে পারবে। Cache হিসেবে নিরাপদ।</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S9 LOH -->
+    <div class="slide" id="s9">
+      <div class="tag fu d1"><i class="fa-solid fa-weight-hanging"></i> Large Object Heap</div>
+      <h2 class="s-title fu d2"><span style="color:var(--violet)">LOH</span> — Large Object Heap</h2>
+      <p class="s-desc fu d3">৮৫ KB-এর বেশি যেকোনো অবজেক্ট সরাসরি LOH-তে যায়। GC এটি খুব কম collect করে এবং fragmentation হয়।</p>
+      <div class="two-col fu d4" style="max-width:740px">
+        <div class="col-box" style="background:rgba(167,139,250,0.07);border-color:rgba(167,139,250,0.25)">
+          <div class="col-title" style="color:var(--violet)"><i class="fa-solid fa-list"></i> LOH-তে কারা যায়?</div>
+          <div class="mem-frame">বড় Array: byte[], int[]</div>
+          <div class="mem-frame">বড় String (85KB+)</div>
+          <div class="mem-frame">বড় Dictionary, List</div>
+          <div class="mem-frame">85,000+ byte-র অবজেক্ট</div>
+        </div>
+        <div class="col-box rose-box">
+          <div class="col-title"><i class="fa-solid fa-triangle-exclamation"></i> সমস্যা ও সমাধান</div>
+          <div class="mem-frame">LOH fragmented হয়</div>
+          <div class="mem-frame">Compaction ডিফল্টে বন্ধ</div>
+          <div class="mem-frame" style="color:var(--lime)">✅ ArrayPool&lt;T&gt; ব্যবহার করুন</div>
+          <div class="mem-frame" style="color:var(--lime)">✅ Span&lt;T&gt; দিয়ে Heap এড়ান</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S10 Full IDisposable Pattern -->
+    <div class="slide" id="s10">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr"><div class="demo-title"><i class="fa-solid fa-code" style="color:var(--lime)"></i> সম্পূর্ণ IDisposable Pattern</div></div>
+        <div class="code-box">
+          <pre class="code active"><span class="ck">public class</span> <span class="cs">DatabaseConnection</span> : <span class="ci">IDisposable</span> {
+    <span class="ck">private</span> <span class="cs">SqlConnection</span> _conn;
+    <span class="ck">private bool</span> _disposed = <span class="ck">false</span>;
+
+    <span class="ck">public void</span> <span class="cf">Dispose</span>() {
+        <span class="cf">Dispose</span>(<span class="ck">true</span>);
+        <span class="cs">GC</span>.<span class="cf">SuppressFinalize</span>(<span class="ck">this</span>); <span class="cm">// Finalizer দরকার নেই</span>
+    }
+
+    <span class="ck">protected virtual void</span> <span class="cf">Dispose</span>(<span class="ck">bool</span> disposing) {
+        <span class="ck">if</span> (!_disposed) {
+            <span class="ck">if</span> (disposing)
+                _conn?.<span class="cf">Dispose</span>(); <span class="cm">// Managed resource মুক্ত</span>
+            _disposed = <span class="ck">true</span>;
+        }
+    }
+    ~<span class="cs">DatabaseConnection</span>() => <span class="cf">Dispose</span>(<span class="ck">false</span>); <span class="cm">// Fallback Finalizer</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11 ArrayPool -->
+    <div class="slide" id="s11">
+      <div class="demo-wrap fu d1">
+        <div class="demo-hdr">
+          <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--lime)"></i> ArrayPool&lt;T&gt; — LOH এড়ানো</div>
+          <div class="comp-switch" id="sw11" onclick="toggleSw('sw11','bad11','good11')">
+            <div class="comp-slider"></div><div class="comp-opt">Bad Practice</div><div class="comp-opt">Good Practice</div>
+          </div>
+        </div>
+        <div class="code-box">
+          <pre class="code active" id="bad11"><span class="cm">// ❌ প্রতিবার নতুন বড় Array — LOH-তে চাপ বাড়ে</span>
+<span class="ck">public void</span> <span class="cf">ProcessRequest</span>() {
+    <span class="ck">byte</span>[] buffer = <span class="ck">new byte</span>[100_000]; <span class="cm">// LOH-তে যাবে!</span>
+    <span class="cm">// ... কাজ করো</span>
+    <span class="cm">// GC কখন collect করবে অজানা...</span>
+}</pre>
+          <pre class="code" id="good11"><span class="cm">// ✅ ArrayPool দিয়ে রিইউজ করুন</span>
+<span class="ck">public void</span> <span class="cf">ProcessRequest</span>() {
+    <span class="ck">byte</span>[] buffer = <span class="cs">ArrayPool</span>&lt;<span class="ck">byte</span>&gt;.Shared.<span class="cf">Rent</span>(100_000);
+    <span class="ck">try</span> {
+        <span class="cm">// ... কাজ করো</span>
+    } <span class="ck">finally</span> {
+        <span class="cs">ArrayPool</span>&lt;<span class="ck">byte</span>&gt;.Shared.<span class="cf">Return</span>(buffer); <span class="cm">// ♻️ Pool-এ ফেরত</span>
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- S12 GC Modes -->
+    <div class="slide" id="s12">
+      <div class="tag fu d1"><i class="fa-solid fa-sliders"></i> Configuration</div>
+      <h2 class="s-title fu d2">GC <span class="hl">Modes</span></h2>
+      <p class="s-desc fu d3">আপনার অ্যাপ্লিকেশনের ধরন অনুযায়ী সঠিক GC Mode বেছে নিন — Latency বনাম Throughput।</p>
+      <div class="two-col fu d4">
+        <div class="col-box sky-box">
+          <div class="col-title"><i class="fa-solid fa-desktop"></i> Workstation GC</div>
+          <div class="mem-frame">Single-threaded GC</div>
+          <div class="mem-frame">Desktop, UI অ্যাপস</div>
+          <div class="mem-frame">Low latency priority</div>
+          <div class="mem-frame" style="font-size:0.7rem">&lt;GCConserveMem&gt;0&lt;/GCConserveMem&gt;</div>
+        </div>
+        <div class="col-box lime-box">
+          <div class="col-title"><i class="fa-solid fa-server"></i> Server GC</div>
+          <div class="mem-frame">Multi-threaded GC</div>
+          <div class="mem-frame">ASP.NET Core, APIs</div>
+          <div class="mem-frame">Throughput priority</div>
+          <div class="mem-frame" style="font-size:0.7rem">&lt;ServerGarbageCollection&gt;true&lt;/&gt;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S13 Summary -->
+    <div class="slide" id="s13">
+      <div class="tag fu d1"><i class="fa-solid fa-flag-checkered"></i> সারসংক্ষেপ</div>
+      <h2 class="s-title fu d2">Memory <span class="hl">Lifecycle</span></h2>
+      <div class="lc-wrap fu d3">
+        <div class="lc-box"><div class="lc-icon" style="background:rgba(74,222,128,0.15)">🌱</div><div><div class="lc-title" style="color:var(--lime)">Object Allocation</div><div class="lc-sub">new করা হলে Gen 0-তে যায়</div></div></div>
+        <div class="lc-arrow">↓</div>
+        <div class="lc-box"><div class="lc-icon" style="background:rgba(251,191,36,0.15)">♻️</div><div><div class="lc-title" style="color:var(--amber)">GC Runs</div><div class="lc-sub">Dead অবজেক্ট মোছে, Alive প্রোমোট করে Gen1 → Gen2</div></div></div>
+        <div class="lc-arrow">↓</div>
+        <div class="lc-box"><div class="lc-icon" style="background:rgba(251,113,133,0.15)">🔌</div><div><div class="lc-title" style="color:var(--rose)">Dispose / using</div><div class="lc-sub">Unmanaged resource তাৎক্ষণিক মুক্ত করুন</div></div></div>
+        <div class="lc-arrow">↓</div>
+        <div class="lc-box"><div class="lc-icon" style="background:rgba(167,139,250,0.15)">🏆</div><div><div class="lc-title" style="color:var(--violet)">Best Practices</div><div class="lc-sub">ArrayPool, WeakReference, AsNoTracking, Span&lt;T&gt;</div></div></div>
+      </div>
+    </div>
+
+  </div><!-- /slide-area -->
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo"><i class="fa-solid fa-memory"></i> <span>GC & Memory</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span class="sb-progress-text">অগ্রগতি</span><span class="sb-progress-text" id="progPct">0%</span></div>
+      <div class="progress-bar-thin"><div class="progress-bar-fill" id="progFill"></div></div>
+    </div>
+    <div class="sb-title"><i class="fa-solid fa-list"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list" id="chList"></div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="slide-num">স্লাইড <span id="curNum">1</span> / <span id="totNum">13</span></div>
+    <div class="progress-bar-thin" style="width:120px"><div class="progress-bar-fill" id="botFill"></div></div>
+  </div>
+  <div style="font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:7px"><i class="fa-solid fa-circle" style="font-size:0.4rem;color:var(--lime)"></i> Coding Drop</div>
+</div>
+
+<script>
+const BC = new BroadcastChannel('gc_presentation');
+let cur = 0;
+const chapters = [
+  {e:'🏠',t:'পরিচয়'},{e:'📚',t:'Stack vs Heap'},{e:'🌿',t:'GC Generations'},
+  {e:'🎮',t:'মেমোরি সিমুলেটর'},{e:'🔌',t:'Finalize vs Dispose'},{e:'💻',t:'IDisposable কোড'},
+  {e:'🐛',t:'Memory Leak'},{e:'👻',t:'WeakReference'},{e:'🏋️',t:'LOH'},
+  {e:'📄',t:'Full Dispose Pattern'},{e:'♻️',t:'ArrayPool'},{e:'⚙️',t:'GC Modes'},{e:'🏆',t:'সারসংক্ষেপ'}
+];
+const chList = document.getElementById('chList');
+chapters.forEach((ch,i)=>{
+  const el=document.createElement('div');
+  el.className='ch-item'+(i===0?' active':'');
+  el.innerHTML=`<div class="ch-num">${i+1}</div><span>${ch.e} ${ch.t}</span>`;
+  el.onclick=()=>{BC.postMessage({type:'nav',idx:i});goTo(i)};
+  chList.appendChild(el);
+});
+const slides=document.querySelectorAll('.slide');
+const TOTAL=slides.length;
+document.getElementById('totNum').textContent=TOTAL;
+
+function goTo(idx){
+  idx=Math.max(0,Math.min(TOTAL-1,idx));
+  if(idx===cur)return;
+  slides[cur]?.classList.remove('active');
+  slides[cur]?.classList.add('exit');
+  setTimeout(()=>slides[cur]?.classList.remove('exit'),700);
+  cur=idx;
+  slides[cur]?.classList.add('active');
+  setTimeout(()=>slides[cur]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),80);
+  slides.forEach((s,i)=>{if(i!==cur)s.querySelectorAll('.fu').forEach(el=>el.classList.remove('visible'))});
+  updateUI();
+}
+function navigate(delta){
+  const next=Math.max(0,Math.min(TOTAL-1,cur+delta));
+  BC.postMessage({type:'nav',idx:next});
+  goTo(next);
+}
+function updateUI(){
+  document.getElementById('curNum').textContent=cur+1;
+  const pct=Math.round(((cur+1)/TOTAL)*100);
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('botFill').style.width=pct+'%';
+  document.querySelectorAll('.ch-item').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});
+}
+BC.onmessage=e=>{if(e.data.type==='nav')goTo(e.data.idx);if(e.data.type==='ping_from_presenter')BC.postMessage({type:'ping'})};
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();navigate(1);}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navigate(-1);}
+});
+setTimeout(()=>slides[0]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),200);
+updateUI();
+
+// Cursor
+const dot=document.getElementById('curDot'),ol=document.getElementById('curOutline');
+document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';ol.style.left=e.clientX+'px';ol.style.top=e.clientY+'px'});
+
+// BG Canvas
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+let pts=[];
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.addEventListener('resize',resize);
+for(let i=0;i<55;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.4+.4});
+(function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(74,222,128,0.6)';ctx.fill()});requestAnimationFrame(draw)})();
+
+// Memory Simulator
+let mem={g0:[],g1:[],g2:[]},objCnt=0,gcRuns=0;
+function allocObj(){objCnt++;const alive=Math.random()>0.38;mem.g0.push({id:'O'+objCnt,alive});if(mem.g0.length>12){runGC();return}renderSim()}
+function runGC(){gcRuns++;['g0','g1','g2'].forEach(g=>{mem[g]=mem[g].filter(o=>o.alive)});const p0=mem.g0.filter(o=>o.alive);const p1=mem.g1.filter(o=>o.alive);mem.g2=[...mem.g2,...p1].slice(-8);mem.g1=p0.slice(-8);mem.g0=[];renderSim()}
+function resetSim(){mem={g0:[],g1:[],g2:[]};objCnt=0;gcRuns=0;renderSim()}
+function renderSim(){['g0','g1','g2'].forEach(g=>{document.getElementById(g).innerHTML=mem[g].map(o=>`<div class="mobj ${o.alive?'alive':'dead'}">${o.id.substring(1)}</div>`).join('')});const a=Object.values(mem).flat().filter(o=>o.alive).length,d=Object.values(mem).flat().filter(o=>!o.alive).length;document.getElementById('statAlive').textContent=a;document.getElementById('statDead').textContent=d;document.getElementById('statGC').textContent=gcRuns}
+
+// Leak Sim
+let leakCnt=0;
+function addLeak(){leakCnt++;const it=document.getElementById('leakItems');const el=document.createElement('div');el.className='leak-item';el.textContent=`HeavyObj#${leakCnt}`;it.appendChild(el);const pct=Math.min(leakCnt*8,100),mb=leakCnt*12;const bar=document.getElementById('leakBar');bar.style.width=pct+'%';bar.textContent=pct>=100?'💥 OutOfMemoryException!':pct+'%';document.getElementById('leakMB').textContent=mb+' MB';if(pct>=100)bar.style.background='var(--rose)'}
+
+// Code switches
+function toggleSw(swId,badId,goodId){const sw=document.getElementById(swId);sw.classList.toggle('switched');const bad=sw.classList.contains('switched');document.getElementById(badId).classList.toggle('active',!bad);document.getElementById(goodId).classList.toggle('active',bad)}
+</script>
+</body>
+</html>
