@@ -103,22 +103,14 @@ html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;backgr
 const BC=new BroadcastChannel('efcore_presentation');
 let cur=0,timerInterval=null,seconds=0,running=false;
 const slides=[
-  {title:'পরিচয় — EF Core Performance & Change Tracker',script:`আচ্ছালামুয়ালাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
+  {title:'পরিচয় — EF Core Performance & Change Tracker',script:`আসসালামু আলাইকুম! Coding Drop-এ স্বাগতম।
 
-আজকে আমরা শিখবো <em>Entity Framework Core</em>-এর পারফরম্যান্স এবং Change Tracker।
+আজ আমরা <em>Entity Framework Core</em>-এর Performance এবং Change Tracker নিয়ে কথা বলব।
 
-EF Core ব্যবহার না করে অনেক সহজ কিন্তু ভুলভাবে ব্যবহার করলে আপনার অ্যাপ্লিকেশন ধীর হয়ে যাবে।
+EF Core ভুলভাবে ব্যবহার করলে অ্যাপ ধীর হয়ে যায় — আজ সেটা ঠিক করার উপায় শিখব।`},
+  {title:'DbContext — আপনার DB Gateway',script:`DbContext হলো EF Core-এর কেন্দ্র — Change Tracker সব Entity-র পরিবর্তন মনে রাখে।
 
-আজকে একটি <em>লাইভ Change Tracker Demo</em> দেখবো এবং N+1 Query সমস্যা এবং সমাধান শিখবো।`},
-  {title:'DbContext — আপনার DB Gateway',script:`DbContext হলো EF Core-এর কেন্দ্র।
-
-এটাকে ডায়েরির মতো মনে করুন। আপনি কী পড়লেন, কী লিখলেন, কী মুছলেন — সব Change Tracker মনে রাখে।
-
-DbContext-এ তিনটি গুরুত্বপূর্ণ জিনিস আছে।
-
-<em>DbSet&lt;T&gt;</em> — প্রতিটি Entity-র Collection।
-<em>ChangeTracker</em> — সব Entity-র পরিবর্তন ট্র্যাক করে।
-<em>SaveChangesAsync()</em> — সব পরিবর্তন DB-তে পাঠায়।
+<em>DbContext Lifecycle দেখুন</em> বাটনে ক্লিক করলে Request থেকে SaveChanges পর্যন্ত পুরো ফ্লো একে একে দেখাবে।
 
 DbContext সবসময় <em>Scoped Lifetime</em>-এ register করুন — প্রতিটি Request-এ নতুন।`},
   {title:'Change Tracker — লাইভ ডেমো',script:`এখন লাইভ Change Tracker Demo দেখুন।
@@ -132,17 +124,11 @@ DbContext সবসময় <em>Scoped Lifetime</em>-এ register করুন 
 "<em>Entity Delete</em>" বাটনে ক্লিক করুন। Entity <em>Deleted</em> state-এ গেলো।
 
 এখন "<em>SaveChangesAsync()</em>" বাটনে ক্লিক করুন। দেখুন — EF Core স্বয়ংক্রিয়ভাবে INSERT, UPDATE, DELETE SQL তৈরি করে পাঠালো!`},
-  {title:'AsNoTracking — গোয়েন্দা বন্ধ করুন',script:`Change Tracker-এর কাজ হলো Entity-র পরিবর্তন নজরে রাখা।
+  {title:'AsNoTracking — গোয়েন্দা বন্ধ করুন',script:`Read-only query-তে Change Tracking শুধু Memory ও CPU নষ্ট করে।
 
-কিন্তু যদি আমরা শুধু পড়তে চাই — Update করবো না — তাহলে এই Tracking-এ শুধু Memory এবং CPU নষ্ট হয়।
+উপরের টগলে <em>Tracking (Default)</em> এবং <em>AsNoTracking</em> পার্থক্য দেখুন।
 
-সমাধান হলো <em>AsNoTracking()</em>।
-
-AsNoTracking দিলে EF Core Entity-র কপি রাখে না। শুধু data আনে।
-
-ফলাফল — ৩০ থেকে ৫০ শতাংশ পারফরম্যান্স বাড়ে।
-
-নিয়ম — যখনই Read-only query করবেন, AsNoTracking() দিন।`},
+<em>AsNoTracking()</em> দিলে ৩০-৫০% performance boost — Read-only API-তে সবসময় ব্যবহার করুন।`},
   {title:'N+1 Query সমস্যা',script:`এই সমস্যাটা বুঝলে অনেক অ্যাপ্লিকেশনের ধীরগতির কারণ বুঝবেন।
 
 Lazy Loading চালু থাকলে EF Core Navigation Property-তে Access করার সময় আলাদা DB Query করে।
@@ -154,37 +140,17 @@ Lazy Loading চালু থাকলে EF Core Navigation Property-তে Acc
 "<em>Lazy Load</em>" বাটনে ক্লিক করুন এবং দেখুন কতগুলো Query হচ্ছে।
 
 এরপর "<em>Include</em>" বাটনে ক্লিক করুন — মাত্র ১টি Query!`},
-  {title:'Loading Strategies',script:`Loading-এর তিনটি পদ্ধতি আছে।
+  {title:'Loading Strategies',script:`Loading-এর তিনটি পদ্ধতি — Eager, Lazy, Explicit।
 
-<em>Eager Loading (Include)</em> — সবচেয়ে ভালো। একটি JOIN Query-তে সব আনে। N+1 নেই।
+<em>Loading Strategies দেখুন</em> বাটনে ক্লিক করলে তিনটি কার্ড একে একে হাইলাইট হবে।
 
-<em>Lazy Loading</em> — Navigation Access করলে DB Query হয়। Virtual property লাগে। N+1 সমস্যার সম্ভাবনা বেশি। সাবধানে ব্যবহার করুন।
+Default choice সবসময় <em>Include()</em> দিয়ে Eager Loading — N+1 এড়ান।`},
+  {title:'Include — Eager Loading কোড',script:`Lazy Loading + foreach = N+1 বিপদ — ১০০ Customer মানে ১০১ Query।
 
-<em>Explicit Loading</em> — নিজে যখন চাইবেন Load করবেন। শর্তসাপেক্ষে দরকারি।
+টগলে <em>Lazy (N+1)</em> এবং <em>Include (সঠিক)</em> কোড পার্থক্য দেখুন — Include + ThenInclude + AsNoTracking = মাত্র ১ Query।`},
+  {title:'Select Projection — শুধু দরকারি Column',script:`SELECT * সব Column আনে — অনেক সময় অপ্রয়োজনীয়।
 
-Default choice সবসময় Eager Loading মানে Include() দিয়ে।`},
-  {title:'Include — Eager Loading কোড',script:`Bad Version-এ Lazy Loading দিয়ে foreach করা হচ্ছে।
-
-প্রতিটি customer.Orders access করার সময় DB Query হচ্ছে।
-
-১০০ Customer মানে ১০১ Query — কত ভয়ংকর!
-
-Good Version-এ Include() দিয়ে একটি JOIN করা হয়েছে। ThenInclude() দিয়ে Nested Navigation-ও এক Query-তে।
-
-AsNoTracking() দিয়ে Read-only করা হয়েছে।
-
-ফলে ১০০ Customer হলেও মাত্র ১টি DB Query।
-
-Switch করে পার্থক্য দেখুন।`},
-  {title:'Select Projection — শুধু দরকারি Column',script:`SELECT * করলে DB থেকে সব Column আসে — অনেক ক্ষেত্রে অপ্রয়োজনীয়।
-
-Bad Version-এ ToListAsync() দিয়ে সব Column আনা হচ্ছে — SELECT *।
-
-Good Version-এ Select() দিয়ে শুধু Id, Name, Price আনা হচ্ছে।
-
-ফলে Network transfer কম হয়, Memory কম লাগে, Query দ্রুত হয়।
-
-DTO (Data Transfer Object) দিয়ে Projection করুন — Controller-এ শুধু দরকারি data পৌঁছাবে।`},
+টগলে <em>সব Column (ধীর)</em> এবং <em>Projection (দ্রুত)</em> পার্থক্য দেখুন — Select() দিয়ে শুধু Id, Name, Price আনুন।`},
   {title:'Compiled Queries',script:`High-traffic API-তে EF Core প্রতিবার LINQ Expression Tree compile করে SQL বানায়।
 
 এই compile-এর overhead প্রতিটি Request-এ খরচ হয়।
@@ -196,17 +162,9 @@ Static field-এ রাখুন — Application-এর lifetime-এ একব�
 পরের সব call-এ শুধু Execute হবে।
 
 Hot path API-তে এটা উল্লেখযোগ্য performance উন্নতি করে।`},
-  {title:'Bulk Operations (.NET 7+)',script:`Bad Version-এ Loop দিয়ে প্রতিটি Entity আনা হচ্ছে, পরিবর্তন করা হচ্ছে, SaveChanges করা হচ্ছে।
+  {title:'Bulk Operations (.NET 7+)',script:`Loop + SaveChanges = হাজার UPDATE Query — অনেক ধীর।
 
-হাজার Row মানে হাজার UPDATE Query!
-
-.NET 7-এর নতুন <em>ExecuteUpdateAsync()</em> দিয়ে সব একটি SQL-এ।
-
-কোনো Entity DB থেকে আনতে হয় না। Change Tracker-এ রাখতে হয় না।
-
-সরাসরি Database-এ যায় — অনেক দ্রুত।
-
-একইভাবে ExecuteDeleteAsync() দিয়ে Bulk Delete।`},
+টগলে <em>Loop Update</em> এবং <em>ExecuteUpdate</em> পার্থক্য দেখুন — ExecuteUpdateAsync() একটি SQL-এ সব আপডেট করে।`},
   {title:'Raw SQL',script:`Complex Query যেমন Subquery, CTE, Window Function — EF Core LINQ-এ লেখা কঠিন।
 
 এজন্য <em>FromSqlRaw()</em> ব্যবহার করুন। Raw SQL লিখুন এবং EF Core Entity-তে Map করে দেবে।
@@ -216,26 +174,14 @@ Parameterized Query দিয়ে SQL Injection থেকে সুরক্�
 Stored Procedure কল করতে <em>ExecuteSqlAsync()</em> ব্যবহার করুন।
 
 এটা DML (INSERT, UPDATE, DELETE) এর জন্য।`},
-  {title:'Performance Checklist',script:`মনে রাখার মতো চারটি নিয়ম।
+  {title:'Performance Checklist',script:`EF Core Performance-এর চারটি সোনালি নিয়ম।
 
-প্রথম — <em>AsNoTracking()</em> সবসময় Read-only query-তে। ৩০-৫০% boost।
+<em>Checklist প্রকাশ করুন</em> বাটনে ক্লিক করলে AsNoTracking, Select, Include, ExecuteUpdate — চারটি পয়েন্ট একে একে দেখাবে।`},
+  {title:'সারসংক্ষেপ — EF Core Performance',script:`আজকে EF Core Performance-এর মূল বিষয়গুলো দেখলাম।
 
-দ্বিতীয় — <em>Select()</em> দিয়ে শুধু দরকারি Column আনুন। Network এবং Memory সাশ্রয়।
+<em>সারসংক্ষেপ প্রকাশ করুন</em> বাটনে ক্লিক করলে Change Tracker, AsNoTracking, N+1 সমাধান, Select + ExecuteUpdate — চারটি পয়েন্ট একে একে দেখাবে।
 
-তৃতীয় — <em>Include()</em> দিয়ে Eager Loading করুন। Lazy Loading এড়ান।
-
-চতুর্থ — Bulk Operation-এ <em>ExecuteUpdateAsync()</em> এবং <em>ExecuteDeleteAsync()</em> ব্যবহার করুন।`},
-  {title:'সারসংক্ষেপ — EF Core Performance',script:`আজকে শিখলাম —
-
-<em>Change Tracker</em> — সব Entity-র State (Unchanged, Modified, Added, Deleted) মনে রাখে।
-
-<em>AsNoTracking()</em> = Tracker বন্ধ = দ্রুত। সবসময় Read-only query-তে।
-
-<em>N+1 সমস্যা</em> = Include() দিয়ে সমাধান। Lazy Loading + foreach = বিপদ।
-
-<em>Select + ExecuteUpdate</em> = উচ্চ Performance। একটি SQL Query।
-
-ভিডিওটি ভালো লাগলে লাইক, শেয়ার এবং <em>Coding Drop</em> সাবস্ক্রাইব করুন! আল্লাহ হাফেজ!`}
+ভিডিওটি ভালো লাগলে লাইক, শেয়ার এবং Coding Drop সাবস্ক্রাইব করুন! আল্লাহ হাফেজ!`}
 ];
 const chapters=['পরিচয়','DbContext','Change Tracker Live','AsNoTracking','N+1 সমস্যা','Loading Strategies','Include কোড','Select Projection','Compiled Query','Bulk Operations','Raw SQL','Performance Checklist','সারসংক্ষেপ'];
 const TOTAL=slides.length;document.getElementById('totNum').textContent=TOTAL;

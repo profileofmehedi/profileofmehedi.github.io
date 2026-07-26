@@ -128,10 +128,65 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
 
 /* ── Checklist ── */
 .chk-list{display:flex;flex-direction:column;gap:9px;width:100%;max-width:700px}
-.chk-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+.chk-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;transform:translateX(-10px);opacity:0;transition:all .55s cubic-bezier(.4,0,.2,1)}
+.chk-item.revealed{transform:translateX(0);opacity:1}
 .chk-mark{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0}
 .chk-title{font-weight:700;font-size:0.82rem;margin-bottom:2px}
 .chk-sub{font-size:0.68rem;color:var(--muted)}
+
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ringSpin{to{transform:rotate(360deg)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 18px rgba(34,211,238,.2)}50%{box-shadow:0 0 36px rgba(99,102,241,.4)}}
+@keyframes peelIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes flowPulse{0%,100%{opacity:.4}50%{opacity:1;transform:scale(1.05)}}
+@keyframes folderIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes depGlow{0%,100%{box-shadow:none}50%{box-shadow:0 0 24px rgba(34,211,238,.2)}}
+
+.hero-orbit-wrap{position:relative;width:110px;height:110px;margin-bottom:6px}
+.hero-orbit-core{width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,var(--cyan),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:glowPulse 2.5s ease-in-out infinite;z-index:2}
+.hero-orbit-ring{position:absolute;inset:0;border:2px dashed rgba(34,211,238,.3);border-radius:50%;animation:ringSpin 14s linear infinite}
+.hero-badge{animation:floatY 3s ease-in-out infinite}
+.hero-badge:nth-child(2){animation-delay:.4s}.hero-badge:nth-child(3){animation-delay:.8s}.hero-badge:nth-child(4){animation-delay:1.2s}.hero-badge:nth-child(5){animation-delay:1.6s}
+
+.demo-play-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(34,211,238,.35);background:rgba(34,211,238,.1);color:var(--cyan);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:all .25s;margin-top:8px}
+.demo-play-btn:hover{background:rgba(34,211,238,.2);transform:translateY(-2px)}
+.demo-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+
+.onion-ring.active-layer{transform:scale(1.04);box-shadow:0 0 30px rgba(34,211,238,.25);z-index:5}
+.onion-ring.ring-1.active-layer{box-shadow:0 0 30px rgba(16,185,129,.35)}
+.onion-ring.ring-2.active-layer{box-shadow:0 0 30px rgba(34,211,238,.35)}
+.onion-ring.ring-3.active-layer{box-shadow:0 0 30px rgba(59,130,246,.35)}
+.onion-ring.ring-4.active-layer{box-shadow:0 0 30px rgba(99,102,241,.35)}
+
+.dep-layer{transition:all .45s ease}
+.dep-layer.lit{animation:depGlow 1.2s ease}
+.dep-arrow i.active-arrow{color:var(--cyan)!important;animation:flowPulse 1s ease infinite}
+
+.compare-card{transition:all .4s ease}
+.compare-card.highlight-bad{border-color:var(--rose)!important;box-shadow:0 0 24px rgba(244,63,94,.2);transform:scale(1.02)}
+.compare-card.highlight-good{border-color:var(--cyan)!important;box-shadow:0 0 24px rgba(34,211,238,.2);transform:scale(1.02)}
+
+.folder-line{opacity:0;transform:translateX(-8px);transition:all .4s ease;display:block}
+.folder-line.show{opacity:1;transform:translateX(0)}
+
+.cqrs-btn{padding:9px 16px;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;display:flex;align-items:center;gap:7px;transition:all .25s}
+.btn-query{background:linear-gradient(135deg,var(--cyan),#0891b2);color:#fff}
+.btn-cmd{background:linear-gradient(135deg,var(--rose),#be123c);color:#fff}
+.cqrs-btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.cqrs-result{text-align:center;font-size:.78rem;font-weight:700;min-height:24px;margin-top:10px;color:var(--muted)}
+.mem-frame.active-item{border-color:var(--cyan);background:rgba(34,211,238,.08);transform:translateX(4px)}
+
+.di-flow-wrap{width:100%;max-width:820px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.di-box{transition:all .45s ease}
+.di-box.lit{border-color:var(--cyan);background:rgba(34,211,238,.08);transform:scale(1.05)}
+.di-arrow{transition:color .3s}
+.di-arrow.lit{color:var(--cyan)!important}
+
+.request-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;width:100%}
+.rf-node{padding:10px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);font-size:.72rem;font-weight:700;text-align:center;min-width:90px;transition:all .45s}
+.rf-node.lit{border-color:var(--cyan);background:rgba(34,211,238,.1);color:var(--cyan)}
+.rf-arrow{color:var(--muted);font-size:1rem;transition:color .3s}
+.rf-arrow.lit{color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -148,7 +203,11 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <!-- S1 Hero -->
     <div class="slide active" id="s1">
       <div style="display:flex;flex-direction:column;align-items:center;gap:22px">
-        <div class="tag fu d1"><i class="fa-solid fa-building-columns"></i> Software Design</div>
+        <div class="hero-orbit-wrap fu d1">
+          <div class="hero-orbit-ring"></div>
+          <div class="hero-orbit-core"><i class="fa-solid fa-building-columns"></i></div>
+        </div>
+        <div class="tag fu d2"><i class="fa-solid fa-building-columns"></i> Software Design</div>
         <div style="font-size:2.8rem;font-weight:900;text-align:center;line-height:1.1" class="fu d2"><span class="hl">Clean Architecture</span><br><span>in ASP.NET Core</span></div>
         <p style="font-size:1rem;color:var(--muted);text-align:center;max-width:600px;line-height:1.7" class="fu d3">পেঁয়াজের মতো স্তরে স্তরে সাজানো — ভেতর থেকে বাইরে নির্ভরশীলতা, কখনো বাইরে থেকে ভেতরে নয়।</p>
         <div class="hero-badges fu d4">
@@ -166,15 +225,16 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div class="tag fu d1"><i class="fa-solid fa-triangle-exclamation"></i> সমস্যা কোথায়?</div>
       <h2 class="s-title fu d2">Traditional <span style="color:var(--rose)">3-Layer</span> Architecture</h2>
       <p class="s-desc fu d3">UI → Service → Repository → Database। দেখতে সহজ কিন্তু সব কিছু একে অপরের উপর নির্ভরশীল।</p>
-      <div style="display:flex;gap:20px;width:100%;max-width:820px" class="fu d4">
-        <div style="flex:1;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.25);border-radius:14px;padding:20px">
+      <button class="demo-play-btn fu d3" onclick="playCompareDemo()"><i class="fa-solid fa-scale-balanced"></i> Traditional vs Clean তুলনা</button>
+      <div style="display:flex;gap:20px;width:100%;max-width:820px;margin-top:12px" class="fu d4">
+        <div id="cmpBad" class="compare-card" style="flex:1;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.25);border-radius:14px;padding:20px">
           <div style="font-weight:800;color:var(--rose);margin-bottom:12px"><i class="fa-solid fa-xmark"></i> সমস্যা</div>
           <div class="mem-frame">UI → Database সরাসরি জড়িত</div>
           <div class="mem-frame">Test করা কঠিন — Real DB দরকার</div>
           <div class="mem-frame">DB পরিবর্তনে পুরো App ভাঙে</div>
           <div class="mem-frame">Business Logic UI/DB-তে ছড়িয়ে</div>
         </div>
-        <div style="flex:1;background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.25);border-radius:14px;padding:20px">
+        <div id="cmpGood" class="compare-card" style="flex:1;background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.25);border-radius:14px;padding:20px">
           <div style="font-weight:800;color:var(--cyan);margin-bottom:12px"><i class="fa-solid fa-check"></i> Clean Architecture সমাধান</div>
           <div class="mem-frame" style="color:var(--cyan)">Domain কারো উপর নির্ভর করে না</div>
           <div class="mem-frame" style="color:var(--cyan)">Unit Test — In-memory DB</div>
@@ -188,18 +248,21 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <div class="slide" id="s3">
       <div class="tag fu d1"><i class="fa-solid fa-circle-nodes"></i> Architecture</div>
       <h2 class="s-title fu d2" style="font-size:2rem;margin-bottom:18px"><span class="hl">Onion</span> — স্তরে স্তরে</h2>
-      <div style="display:flex;align-items:center;gap:30px" class="fu d3">
+      <div class="demo-controls fu d2">
+        <button class="demo-play-btn" onclick="peelOnion()"><i class="fa-solid fa-circle-dot"></i> Layer একে একে দেখুন</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:30px;margin-top:10px" class="fu d3">
         <div class="onion-wrap">
-          <div class="onion-ring ring-4"><div style="padding:14px 14px 14px 200px;font-size:0.7rem;font-weight:700">Infrastructure &amp; Presentation</div></div>
-          <div class="onion-ring ring-3"><div style="padding:14px 14px 14px 140px;font-size:0.7rem;font-weight:700">Application Layer</div></div>
-          <div class="onion-ring ring-2"><div style="padding:14px 14px 14px 90px;font-size:0.7rem;font-weight:700">Domain Layer</div></div>
-          <div class="onion-ring ring-1"><div class="ring-label">🏛️ Domain<br>Entities</div></div>
+          <div class="onion-ring ring-4" id="ring4" onclick="highlightLayer(4)"><div style="padding:14px 14px 14px 200px;font-size:0.7rem;font-weight:700">Infrastructure &amp; Presentation</div></div>
+          <div class="onion-ring ring-3" id="ring3" onclick="highlightLayer(3)"><div style="padding:14px 14px 14px 140px;font-size:0.7rem;font-weight:700">Application Layer</div></div>
+          <div class="onion-ring ring-2" id="ring2" onclick="highlightLayer(2)"><div style="padding:14px 14px 14px 90px;font-size:0.7rem;font-weight:700">Domain Layer</div></div>
+          <div class="onion-ring ring-1" id="ring1" onclick="highlightLayer(1)"><div class="ring-label">🏛️ Domain<br>Entities</div></div>
         </div>
         <div class="onion-detail">
-          <div class="od-item"><div class="od-title">🏛️ Domain Layer</div><div class="od-desc">Entity, Value Object, Domain Event, Interface। কারো উপর নির্ভর করে না।</div></div>
-          <div class="od-item"><div class="od-title">⚙️ Application Layer</div><div class="od-desc">Use Case, Command, Query, Handler। শুধু Domain-এর উপর নির্ভরশীল।</div></div>
-          <div class="od-item"><div class="od-title">🔌 Infrastructure</div><div class="od-desc">EF Core, Email, Storage। Application-এর Interface implement করে।</div></div>
-          <div class="od-item"><div class="od-title">🌐 Presentation</div><div class="od-desc">Controller, API Endpoint। Application Layer-এ Command/Query পাঠায়।</div></div>
+          <div class="od-item" id="od1" onclick="highlightLayer(1)"><div class="od-title">🏛️ Domain Layer</div><div class="od-desc">Entity, Value Object, Domain Event, Interface। কারো উপর নির্ভর করে না।</div></div>
+          <div class="od-item" id="od2" onclick="highlightLayer(2)"><div class="od-title">⚙️ Application Layer</div><div class="od-desc">Use Case, Command, Query, Handler। শুধু Domain-এর উপর নির্ভরশীল।</div></div>
+          <div class="od-item" id="od3" onclick="highlightLayer(3)"><div class="od-title">🔌 Infrastructure</div><div class="od-desc">EF Core, Email, Storage। Application-এর Interface implement করে।</div></div>
+          <div class="od-item" id="od4" onclick="highlightLayer(4)"><div class="od-title">🌐 Presentation</div><div class="od-desc">Controller, API Endpoint। Application Layer-এ Command/Query পাঠায়।</div></div>
         </div>
       </div>
     </div>
@@ -208,15 +271,16 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <div class="slide" id="s4">
       <div class="tag fu d1"><i class="fa-solid fa-arrow-right"></i> মূল নিয়ম</div>
       <h2 class="s-title fu d2">Dependency Rule — <span class="hl">ভেতর থেকে বাইরে</span></h2>
-      <p class="s-desc fu d3" style="margin-bottom:20px">নির্ভরশীলতার তীর সবসময় ভেতরের দিকে। বাইরের layer ভেতরের layer জানে। ভেতরের layer বাইরের layer জানে না।</p>
-      <div class="dep-wrap fu d3">
-        <div class="dep-layer l-present"><div class="dep-title" style="color:var(--indigo)">🌐 Presentation (Web API)</div><div class="dep-sub">Controller → MediatR.Send(Command) → Application</div></div>
-        <div class="dep-arrow"><div class="dep-arrow-line"></div><i class="fa-solid fa-arrow-down" style="color:var(--indigo);font-size:0.8rem"></i><div class="dep-arrow-line"></div></div>
-        <div class="dep-layer l-infra"><div class="dep-title" style="color:var(--blue)">🔌 Infrastructure (EF Core, Email)</div><div class="dep-sub">Application-এর IRepository, IEmailService implement করে</div></div>
-        <div class="dep-arrow"><div class="dep-arrow-line"></div><i class="fa-solid fa-arrow-down" style="color:var(--blue);font-size:0.8rem"></i><div class="dep-arrow-line"></div></div>
-        <div class="dep-layer l-app"><div class="dep-title" style="color:var(--cyan)">⚙️ Application (Use Cases)</div><div class="dep-sub">Command, Query, Handler, Interface Define করে</div></div>
-        <div class="dep-arrow"><div class="dep-arrow-line"></div><i class="fa-solid fa-arrow-down" style="color:var(--cyan);font-size:0.8rem"></i><div class="dep-arrow-line"></div></div>
-        <div class="dep-layer l-domain"><div class="dep-title" style="color:var(--emerald)">🏛️ Domain (Core Business)</div><div class="dep-sub">Entity, Value Object, Business Rule — কারো উপর নির্ভর করে না</div></div>
+      <p class="s-desc fu d3" style="margin-bottom:12px">নির্ভরশীলতার তীর সবসময় ভেতরের দিকে। বাইরের layer ভেতরের layer জানে। ভেতরের layer বাইরের layer জানে না।</p>
+      <button class="demo-play-btn fu d3" onclick="playDepFlow()"><i class="fa-solid fa-arrow-down"></i> Request Flow দেখুন</button>
+      <div class="dep-wrap fu d4" style="margin-top:12px">
+        <div class="dep-layer l-present" id="dep4"><div class="dep-title" style="color:var(--indigo)">🌐 Presentation (Web API)</div><div class="dep-sub">Controller → MediatR.Send(Command) → Application</div></div>
+        <div class="dep-arrow" id="arr4"><div class="dep-arrow-line"></div><i class="fa-solid fa-arrow-down" id="arrI4" style="color:var(--indigo);font-size:0.8rem"></i><div class="dep-arrow-line"></div></div>
+        <div class="dep-layer l-infra" id="dep3"><div class="dep-title" style="color:var(--blue)">🔌 Infrastructure (EF Core, Email)</div><div class="dep-sub">Application-এর IRepository, IEmailService implement করে</div></div>
+        <div class="dep-arrow" id="arr3"><div class="dep-arrow-line"></div><i class="fa-solid fa-arrow-down" id="arrI3" style="color:var(--blue);font-size:0.8rem"></i><div class="dep-arrow-line"></div></div>
+        <div class="dep-layer l-app" id="dep2"><div class="dep-title" style="color:var(--cyan)">⚙️ Application (Use Cases)</div><div class="dep-sub">Command, Query, Handler, Interface Define করে</div></div>
+        <div class="dep-arrow" id="arr2"><div class="dep-arrow-line"></div><i class="fa-solid fa-arrow-down" id="arrI2" style="color:var(--cyan);font-size:0.8rem"></i><div class="dep-arrow-line"></div></div>
+        <div class="dep-layer l-domain" id="dep1"><div class="dep-title" style="color:var(--emerald)">🏛️ Domain (Core Business)</div><div class="dep-sub">Entity, Value Object, Business Rule — কারো উপর নির্ভর করে না</div></div>
       </div>
     </div>
 
@@ -224,24 +288,25 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <div class="slide" id="s5">
       <div class="tag fu d1"><i class="fa-solid fa-folder-tree"></i> Project Structure</div>
       <h2 class="s-title fu d2" style="font-size:2rem;margin-bottom:18px">Folder <span class="hl">Structure</span></h2>
-      <div class="folder-wrap fu d3">
-        <div class="folder-tree">
-<span class="f-dir">📁 src/</span>
-<span class="f-dir">  📁 Domain/</span>
-<span class="f-hl">    📁 Entities/          ← Entity, Value Object</span>
-<span class="f-imp">    📁 Interfaces/        ← IRepository, IUnitOfWork</span>
-<span class="f-file">    📁 Exceptions/        ← Domain Exception</span>
-<span class="f-dir">  📁 Application/</span>
-<span class="f-imp">    📁 Features/Orders/   ← Command, Query, Handler</span>
-<span class="f-file">    📁 DTOs/              ← Data Transfer Objects</span>
-<span class="f-file">    📁 Mappings/          ← AutoMapper Profile</span>
-<span class="f-dir">  📁 Infrastructure/</span>
-<span class="f-hl">    📁 Persistence/       ← EF Core DbContext</span>
-<span class="f-file">    📁 Repositories/      ← IRepository impl</span>
-<span class="f-file">    📁 Services/          ← Email, Storage impl</span>
-<span class="f-dir">  📁 WebApi/</span>
-<span class="f-file">    📁 Controllers/       ← API Endpoints</span>
-<span class="f-file">    📁 Middleware/        ← Exception Handler</span>
+      <button class="demo-play-btn fu d2" onclick="revealFolders()"><i class="fa-solid fa-folder-open"></i> Structure প্রকাশ করুন</button>
+      <div class="folder-wrap fu d3" style="margin-top:12px">
+        <div class="folder-tree" id="folderTree">
+<span class="folder-line f-dir">📁 src/</span>
+<span class="folder-line f-dir">  📁 Domain/</span>
+<span class="folder-line f-hl">    📁 Entities/          ← Entity, Value Object</span>
+<span class="folder-line f-imp">    📁 Interfaces/        ← IRepository, IUnitOfWork</span>
+<span class="folder-line f-file">    📁 Exceptions/        ← Domain Exception</span>
+<span class="folder-line f-dir">  📁 Application/</span>
+<span class="folder-line f-imp">    📁 Features/Orders/   ← Command, Query, Handler</span>
+<span class="folder-line f-file">    📁 DTOs/              ← Data Transfer Objects</span>
+<span class="folder-line f-file">    📁 Mappings/          ← AutoMapper Profile</span>
+<span class="folder-line f-dir">  📁 Infrastructure/</span>
+<span class="folder-line f-hl">    📁 Persistence/       ← EF Core DbContext</span>
+<span class="folder-line f-file">    📁 Repositories/      ← IRepository impl</span>
+<span class="folder-line f-file">    📁 Services/          ← Email, Storage impl</span>
+<span class="folder-line f-dir">  📁 WebApi/</span>
+<span class="folder-line f-file">    📁 Controllers/       ← API Endpoints</span>
+<span class="folder-line f-file">    📁 Middleware/        ← Exception Handler</span>
         </div>
         <div class="folder-info">
           <div class="fi-card"><div class="fi-title" style="color:var(--emerald)">🏛️ Domain</div><div class="fi-desc">সম্পূর্ণ স্বাধীন। কোনো NuGet নেই। Pure C# Class।</div></div>
@@ -284,20 +349,25 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <div class="slide" id="s7">
       <div class="tag fu d1"><i class="fa-solid fa-shuffle"></i> Pattern</div>
       <h2 class="s-title fu d2"><span class="hl">CQRS</span> — Command &amp; Query আলাদা</h2>
-      <p class="s-desc fu d3" style="margin-bottom:16px">Command পরিবর্তন করে, Query পড়ে — এই দুটো আলাদা রাখলে Code পরিষ্কার থাকে।</p>
-      <div class="cqrs-wrap fu d3">
+      <p class="s-desc fu d3" style="margin-bottom:12px">Command পরিবর্তন করে, Query পড়ে — এই দুটো আলাদা রাখলে Code পরিষ্কার থাকে।</p>
+      <div class="demo-controls fu d3">
+        <button class="cqrs-btn btn-query" onclick="runCqrs('query')"><i class="fa-solid fa-magnifying-glass"></i> Query পাঠান</button>
+        <button class="cqrs-btn btn-cmd" onclick="runCqrs('cmd')"><i class="fa-solid fa-pen-to-square"></i> Command পাঠান</button>
+      </div>
+      <div class="cqrs-result fu d3" id="cqrsResult">উপরের বাটন ক্লিক করুন...</div>
+      <div class="cqrs-wrap fu d4" style="margin-top:10px">
         <div class="cqrs-col cqrs-query">
           <div class="cqrs-title"><i class="fa-solid fa-magnifying-glass"></i> Query (Read)</div>
-          <div class="mem-frame">GetOrderByIdQuery</div>
-          <div class="mem-frame">GetOrdersListQuery</div>
-          <div class="mem-frame">SearchProductsQuery</div>
+          <div class="mem-frame" id="q1">GetOrderByIdQuery</div>
+          <div class="mem-frame" id="q2">GetOrdersListQuery</div>
+          <div class="mem-frame" id="q3">SearchProductsQuery</div>
           <div style="font-size:0.7rem;color:var(--cyan);margin-top:10px">শুধু পড়ে, পরিবর্তন করে না। AsNoTracking()।</div>
         </div>
         <div class="cqrs-col cqrs-cmd">
           <div class="cqrs-title"><i class="fa-solid fa-pen-to-square"></i> Command (Write)</div>
-          <div class="mem-frame">CreateOrderCommand</div>
-          <div class="mem-frame">UpdateOrderStatusCommand</div>
-          <div class="mem-frame">CancelOrderCommand</div>
+          <div class="mem-frame" id="c1">CreateOrderCommand</div>
+          <div class="mem-frame" id="c2">UpdateOrderStatusCommand</div>
+          <div class="mem-frame" id="c3">CancelOrderCommand</div>
           <div style="font-size:0.7rem;color:var(--rose);margin-top:10px">পরিবর্তন করে। Domain Rule প্রয়োগ করে।</div>
         </div>
       </div>
@@ -395,7 +465,14 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <div class="slide" id="s11">
       <div class="demo-wrap fu d1">
         <div class="demo-hdr"><div class="demo-title"><i class="fa-solid fa-code" style="color:var(--cyan)"></i> DI Registration — Extension Method</div></div>
-        <div class="code-box">
+        <div class="request-flow fu d2" id="diFlow" style="margin-bottom:12px">
+          <div class="rf-node" id="rf1">Program.cs</div><span class="rf-arrow" id="rfa1">→</span>
+          <div class="rf-node" id="rf2">AddInfrastructure()</div><span class="rf-arrow" id="rfa2">→</span>
+          <div class="rf-node" id="rf3">IOrderRepository</div><span class="rf-arrow" id="rfa3">→</span>
+          <div class="rf-node" id="rf4">OrderRepository</div>
+        </div>
+        <button class="demo-play-btn fu d2" onclick="playDiFlow()"><i class="fa-solid fa-syringe"></i> DI Wiring দেখুন</button>
+        <div class="code-box fu d3" style="margin-top:12px">
           <pre class="code active"><span class="cm">// Infrastructure/DependencyInjection.cs</span>
 <span class="ck">public static class</span> <span class="cs">InfrastructureServiceExtensions</span> {
     <span class="ck">public static</span> <span class="cs">IServiceCollection</span> <span class="cf">AddInfrastructure</span>(
@@ -450,12 +527,13 @@ builder.Services.<span class="cf">AddInfrastructure</span>(builder.Configuration
     <div class="slide" id="s13">
       <div class="tag fu d1"><i class="fa-solid fa-flag-checkered"></i> সারসংক্ষেপ</div>
       <h2 class="s-title fu d2" style="font-size:2rem">Clean Architecture — <span class="hl">মূল বিষয়</span></h2>
-      <div class="chk-list fu d3">
+      <div class="chk-list fu d3" id="sumList">
         <div class="chk-item"><div class="chk-mark" style="background:rgba(16,185,129,0.15)">🏛️</div><div><div class="chk-title" style="color:var(--emerald)">Domain Layer — কোনো নির্ভরশীলতা নেই</div><div class="chk-sub">Pure C# Class। Entity, Interface, Business Rule।</div></div></div>
         <div class="chk-item"><div class="chk-mark" style="background:rgba(34,211,238,0.15)">🔄</div><div><div class="chk-title" style="color:var(--cyan)">Dependency Rule — ভেতর থেকে বাইরে</div><div class="chk-sub">বাইরের layer পরিবর্তনে Domain অক্ষত থাকে।</div></div></div>
         <div class="chk-item"><div class="chk-mark" style="background:rgba(244,63,94,0.15)">⚡</div><div><div class="chk-title" style="color:var(--rose)">CQRS — Command &amp; Query আলাদা</div><div class="chk-sub">MediatR দিয়ে Handler। Controller শুধু পাঠায়।</div></div></div>
         <div class="chk-item"><div class="chk-mark" style="background:rgba(99,102,241,0.15)">🧪</div><div><div class="chk-title" style="color:var(--indigo)">Unit Test সহজ</div><div class="chk-sub">Interface Mock করুন — DB, Email, Storage ছাড়াই Test।</div></div></div>
       </div>
+      <button class="demo-play-btn fu d4" onclick="revealSummary()"><i class="fa-solid fa-list-check"></i> সারসংক্ষেপ প্রকাশ করুন</button>
     </div>
 
   </div>
@@ -492,7 +570,8 @@ function goTo(idx){
   if(idx===cur)return;
   slides[cur]?.classList.remove('active');slides[cur]?.classList.add('exit');setTimeout(()=>slides[cur]?.classList.remove('exit'),700);
   cur=idx;slides[cur]?.classList.add('active');setTimeout(()=>slides[cur]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),80);
-  slides.forEach((s,i)=>{if(i!==cur)s.querySelectorAll('.fu').forEach(el=>el.classList.remove('visible'))});updateUI();
+  slides.forEach((s,i)=>{if(i!==cur)s.querySelectorAll('.fu').forEach(el=>el.classList.remove('visible'))});
+  onSlideEnter(cur);updateUI();
 }
 function navigate(delta){
   const next=Math.max(0,Math.min(TOTAL-1,cur+delta));
@@ -521,6 +600,121 @@ for(let i=0;i<60;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerH
 (function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill()});requestAnimationFrame(draw)})();
 
 function toggleSw(swId,badId,goodId){const sw=document.getElementById(swId);sw.classList.toggle('switched');const bad=sw.classList.contains('switched');document.getElementById(badId).classList.toggle('active',!bad);document.getElementById(goodId).classList.toggle('active',bad)}
+
+let slideTimers=[];
+function clearSlideAuto(){slideTimers.forEach(t=>clearTimeout(t));slideTimers=[]}
+function later(fn,delay){const t=setTimeout(fn,delay);slideTimers.push(t);return t}
+
+function onSlideEnter(idx){
+  clearSlideAuto();
+  if(idx===1)resetCompare();
+  if(idx===2)resetOnion();
+  if(idx===3)resetDepFlow();
+  if(idx===4)resetFolders();
+  if(idx===6)resetCqrs();
+  if(idx===8){
+    const sw=document.getElementById('sw9');
+    sw?.classList.remove('switched');
+    document.getElementById('bad9')?.classList.add('active');
+    document.getElementById('good9')?.classList.remove('active');
+  }
+  if(idx===10)resetDiFlow();
+  if(idx===12)resetSummary();
+}
+
+function resetCompare(){
+  ['cmpBad','cmpGood'].forEach(id=>document.getElementById(id)?.classList.remove('highlight-bad','highlight-good'));
+}
+function playCompareDemo(){
+  resetCompare();
+  const bad=document.getElementById('cmpBad'),good=document.getElementById('cmpGood');
+  later(()=>bad.classList.add('highlight-bad'),100);
+  later(()=>good.classList.add('highlight-good'),1400);
+}
+
+function resetOnion(){
+  for(let i=1;i<=4;i++){
+    document.getElementById('ring'+i)?.classList.remove('active-layer');
+    document.getElementById('od'+i)?.classList.remove('active-layer');
+  }
+}
+function highlightLayer(n){
+  resetOnion();
+  document.getElementById('ring'+n)?.classList.add('active-layer');
+  document.getElementById('od'+n)?.classList.add('active-layer');
+}
+function peelOnion(){
+  resetOnion();
+  [1,2,3,4].forEach((n,i)=>later(()=>highlightLayer(n),i*650));
+}
+
+function resetDepFlow(){
+  for(let i=1;i<=4;i++){
+    document.getElementById('dep'+i)?.classList.remove('lit');
+    document.getElementById('arrI'+i)?.classList.remove('active-arrow');
+  }
+}
+function playDepFlow(){
+  resetDepFlow();
+  const order=[4,3,2,1];
+  order.forEach((n,i)=>{
+    later(()=>{
+      document.getElementById('dep'+n)?.classList.add('lit');
+      if(n>1)document.getElementById('arrI'+n)?.classList.add('active-arrow');
+    },i*750);
+  });
+}
+
+function resetFolders(){
+  document.querySelectorAll('#folderTree .folder-line').forEach(l=>l.classList.remove('show'));
+}
+function revealFolders(){
+  resetFolders();
+  const lines=document.querySelectorAll('#folderTree .folder-line');
+  lines.forEach((l,i)=>later(()=>l.classList.add('show'),i*120));
+}
+
+function resetCqrs(){
+  document.querySelectorAll('#q1,#q2,#q3,#c1,#c2,#c3').forEach(el=>el?.classList.remove('active-item'));
+  const r=document.getElementById('cqrsResult');
+  if(r)r.textContent='উপরের বাটন ক্লিক করুন...';
+}
+function runCqrs(type){
+  resetCqrs();
+  const r=document.getElementById('cqrsResult');
+  if(type==='query'){
+    r.textContent='📖 Query → Handler → Read-only Response';
+    r.style.color='var(--cyan)';
+    ['q1','q2','q3'].forEach((id,i)=>later(()=>document.getElementById(id)?.classList.add('active-item'),i*500));
+  }else{
+    r.textContent='✏️ Command → Handler → Domain Rule → Save';
+    r.style.color='var(--rose)';
+    ['c1','c2','c3'].forEach((id,i)=>later(()=>document.getElementById(id)?.classList.add('active-item'),i*500));
+  }
+}
+
+function resetDiFlow(){
+  ['rf1','rf2','rf3','rf4'].forEach(id=>document.getElementById(id)?.classList.remove('lit'));
+  ['rfa1','rfa2','rfa3'].forEach(id=>document.getElementById(id)?.classList.remove('lit'));
+}
+function playDiFlow(){
+  resetDiFlow();
+  const seq=[['rf1','rfa1'],['rf2','rfa2'],['rf3','rfa3'],['rf4',null]];
+  seq.forEach(([node,arrow],i)=>{
+    later(()=>{
+      document.getElementById(node)?.classList.add('lit');
+      if(arrow)document.getElementById(arrow)?.classList.add('lit');
+    },i*600);
+  });
+}
+
+function resetSummary(){
+  document.querySelectorAll('#sumList .chk-item').forEach(el=>el.classList.remove('revealed'));
+}
+function revealSummary(){
+  resetSummary();
+  document.querySelectorAll('#sumList .chk-item').forEach((el,i)=>later(()=>el.classList.add('revealed'),i*450));
+}
 </script>
 </body>
 </html>

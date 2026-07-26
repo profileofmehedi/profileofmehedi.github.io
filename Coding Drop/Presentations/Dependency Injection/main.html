@@ -115,7 +115,7 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
   position:absolute; inset:0;
   display:flex; flex-direction:column;
   justify-content:center; align-items:center;
-  padding:80px 70px 130px;
+  padding:80px 70px 90px;
   opacity:0; visibility:hidden; pointer-events:none;
   transform:scale(1.05) translateZ(-100px) rotateX(10deg);
   transition:all .7s cubic-bezier(.23, 1, .32, 1);
@@ -530,6 +530,33 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
 /* Typing animation for code lines */
 .type-line { opacity:0; transform:translateX(-10px); display:block; }
 .type-line.show { opacity:1; transform:translateX(0); transition:all .3s ease; }
+
+.demo-play-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(20,184,166,.35);background:rgba(20,184,166,.1);color:var(--teal);font-size:.78rem;font-weight:700;cursor:none;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:all .25s;margin-top:8px}
+.demo-play-btn:hover{background:rgba(20,184,166,.2);transform:translateY(-2px);box-shadow:0 8px 20px rgba(20,184,166,.15)}
+.demo-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+
+.bottom-bar{position:absolute;bottom:0;left:0;right:270px;height:60px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:50}
+.slide-num{font-family:'Fira Code',monospace;font-size:0.82rem;color:var(--muted)}.slide-num span{color:var(--teal);font-weight:700}
+.pb-thin{width:160px;height:3px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--coral),var(--teal));border-radius:3px;transition:width .5s ease}
+
+.sidebar{width:270px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-header{padding:20px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:0.9rem;margin-bottom:12px}.sb-logo i{color:var(--teal)}
+.sb-pt{font-size:0.68rem;color:var(--muted)}
+.sb-title{padding:12px 18px 8px;font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ch-list{overflow-y:auto;flex:1;padding:0 10px 12px;display:flex;flex-direction:column;gap:3px}
+.ch-item{padding:9px 12px;border-radius:9px;font-size:0.78rem;cursor:none;display:flex;align-items:center;gap:9px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-item:hover{background:rgba(255,255,255,0.04)}
+.ch-item.active{background:rgba(20,184,166,0.08);border-color:rgba(20,184,166,0.25);color:var(--teal);font-weight:600}
+.ch-item.done{color:var(--text)}
+.ch-num{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-item.active .ch-num{background:var(--teal);color:#000}
+.ch-item.done .ch-num{background:rgba(20,184,166,0.15);color:var(--teal)}
+
+.outro-item.revealed{opacity:1!important;transform:translateX(0)!important}
+.tip.revealed-on{opacity:1}
+.adv.revealed-on{opacity:1}
 </style>
 </head>
 <body class="hover-target">
@@ -682,6 +709,7 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-sitemap"></i> প্রকারভেদ</div>
       <h2 class="s-title fu d1">DI এর প্রকারভেদ</h2>
       <p class="s-desc fu d2">ডিপেনডেন্সি ইনজেকশন মূলত তিনটি উপায়ে করা যায়</p>
+      <button class="demo-play-btn fu d2" onclick="playDiTypes()"><i class="fa-solid fa-sitemap"></i> প্রকারভেদ দেখুন</button>
       <div class="g3 fu d3 tilt-wrapper">
         <div class="card hover-target" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
           <div class="c-icon ci-coral"><i class="fa-solid fa-cube"></i></div>
@@ -713,6 +741,7 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-hourglass-half"></i> জীবনকাল</div>
       <h2 class="s-title fu d1">Service Lifetimes</h2>
       <p class="s-desc fu d2">IoC Container যখন অবজেক্ট তৈরি করে, তখন সেই অবজেক্টের জীবনকাল কতটা হবে?</p>
+      <button class="demo-play-btn fu d2" onclick="playLifetimes()"><i class="fa-solid fa-hourglass-half"></i> Lifetime তুলনা</button>
       <div class="g3 fu d3 tilt-wrapper">
         <div class="card hover-target" id="lt-trans" onmousemove="tilt(event, this)" onmouseleave="untilt(this)">
           <div class="c-icon ci-teal"><i class="fa-solid fa-wind"></i></div>
@@ -744,7 +773,8 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-box-open"></i> মেকানিজম</div>
       <h2 class="s-title fu d1">IoC Container (Inversion of Control)</h2>
       <p class="s-desc fu d2">অবজেক্ট তৈরির নিয়ন্ত্রণ ইউজারের হাত থেকে ফ্রেমওয়ার্কের হাতে।</p>
-      <div class="glass fu d3 hover-target" style="width:100%; max-width:850px; padding:0; overflow:hidden;">
+      <button class="demo-play-btn fu d2" onclick="playIocPhases()"><i class="fa-solid fa-box-open"></i> IoC Phases দেখুন</button>
+      <div class="glass fu d3 hover-target" style="width:100%; max-width:850px; padding:0; overflow:hidden; margin-top:12px;">
         <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
           <thead>
             <tr style="background:rgba(20,184,166,0.1);">
@@ -779,8 +809,9 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-project-diagram"></i> আর্কিটেকচার</div>
       <h2 class="s-title fu d1">IoC Resolution Flow</h2>
       <p class="s-desc fu d2">কন্টেইনার কীভাবে রিকোয়েস্ট প্রসেস করে?</p>
+      <button class="demo-play-btn fu d2" onclick="playFlowDemo()"><i class="fa-solid fa-play"></i> Resolution Flow চালান</button>
       
-      <div class="glass fu d3" style="width:100%; max-width:900px; padding:40px 20px; height:320px; display:flex; flex-direction:column; justify-content:center; position:relative;">
+      <div class="glass fu d3" style="width:100%; max-width:900px; padding:40px 20px; height:320px; display:flex; flex-direction:column; justify-content:center; position:relative; margin-top:12px;">
         <svg id="svg-line" preserveAspectRatio="none">
           <path id="path-bg" class="flow-path" d="M 90,160 L 260,160 L 450,160 L 640,160 L 810,160" />
           <path id="path-anim" class="flow-path-anim" d="M 90,160 L 260,160 L 450,160 L 640,160 L 810,160" />
@@ -816,8 +847,9 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-triangle-exclamation"></i> ব্যাড প্র্যাকটিস</div>
       <h2 class="s-title fu d1">Tight Coupling Code (সমস্যা)</h2>
       <p class="s-desc fu d2">এই কোডটি মেইনটেইন করা এবং টেস্ট করা অত্যন্ত কঠিন।</p>
+      <button class="demo-play-btn fu d2" onclick="playBadCode()"><i class="fa-solid fa-code"></i> কোড প্রকাশ করুন</button>
       
-      <div class="code fu d3 hover-target" id="cb1" style="width:100%; max-width:750px; font-size:1rem; padding:30px;">
+      <div class="code fu d3 hover-target" id="cb1" style="width:100%; max-width:750px; font-size:1rem; padding:30px; margin-top:12px;">
         <span class="ck">public class</span> <span class="cn">UserController</span> : <span class="cn">ControllerBase</span><br>
         {<br>
         &nbsp;&nbsp;<span class="ck">private readonly</span> <span class="cn">UserService</span> _userService;<br>
@@ -836,8 +868,9 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-check-double"></i> বেস্ট প্র্যাকটিস</div>
       <h2 class="s-title fu d1">DI Code in ASP.NET Core (সমাধান)</h2>
       <p class="s-desc fu d2">Constructor Injection ব্যবহার করে ক্লাসটিকে Decouple করা হয়েছে।</p>
+      <button class="demo-play-btn fu d2" onclick="playDiCode()"><i class="fa-solid fa-check-double"></i> DI কোড দেখুন</button>
       
-      <div class="g2 fu d3">
+      <div class="g2 fu d3" style="margin-top:12px;">
         <div class="code hover-target" id="cb2" style="font-size:0.85rem;">
           <span class="cc">// 1. Program.cs (Registration)</span><br><br>
           <span class="cp">var</span> builder = <span class="cn">WebApplication</span>.<span class="cf">CreateBuilder</span>(args);<br>
@@ -909,7 +942,8 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-star"></i> সুবিধা</div>
       <h2 class="s-title fu d1">DI এর সুবিধাসমূহ</h2>
       <p class="s-desc fu d2">কেন সব আধুনিক ফ্রেমওয়ার্কে এটি ব্যবহার করা হয়?</p>
-      <div class="adv-grid fu d3 tilt-wrapper">
+      <button class="demo-play-btn fu d2" onclick="playAdvantages()"><i class="fa-solid fa-star"></i> সুবিধা প্রকাশ করুন</button>
+      <div class="adv-grid fu d3 tilt-wrapper" style="margin-top:12px;">
         <div class="adv hover-target" id="ad1" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-link-slash"></i><div class="adv-title">Loose Coupling</div><p>ক্লাসগুলো স্বাধীনভাবে কাজ করে।</p></div>
         <div class="adv hover-target" id="ad2" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-vial"></i><div class="adv-title">Testability</div><p>Mock অবজেক্ট দিয়ে টেস্টিং সহজ হয়।</p></div>
         <div class="adv hover-target" id="ad3" onmousemove="tilt(event, this)" onmouseleave="untilt(this)"><i class="fa-solid fa-wrench"></i><div class="adv-title">Maintainability</div><p>কোড পরিষ্কার ও গোছানো থাকে।</p></div>
@@ -924,7 +958,8 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="tag fu"><i class="fa-solid fa-triangle-exclamation"></i> সতর্কতা</div>
       <h2 class="s-title fu d1">সতর্কতা ও Anti-patterns</h2>
       <p class="s-desc fu d2">DI ব্যবহারে যে ভুলগুলো এড়িয়ে চলতে হবে।</p>
-      <div style="display:flex;flex-direction:column;gap:15px;width:100%;max-width:800px;" class="fu d3">
+      <button class="demo-play-btn fu d2" onclick="playWarnings()"><i class="fa-solid fa-triangle-exclamation"></i> সতর্কতা দেখুন</button>
+      <div style="display:flex;flex-direction:column;gap:15px;width:100%;max-width:800px;margin-top:12px;" class="fu d3">
         <div class="tip hover-target" id="tp1">
           <i class="fa-solid fa-location-crosshairs"></i>
           <div><h4>Service Locator Anti-pattern</h4><p>GetService() মেথড সরাসরি কল করবেন না। সবসময় কনস্ট্রাক্টর ইনজেকশন ব্যবহার করুন।</p></div>
@@ -944,6 +979,7 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
     <div class="slide" id="s13">
       <div class="tag fu"><i class="fa-solid fa-flag-checkered"></i> সমাপ্তি</div>
       <h2 class="s-title fu d1">সারাংশ ও বিদায়</h2>
+      <button class="demo-play-btn fu d2" onclick="playOutro()"><i class="fa-solid fa-list-check"></i> সারসংক্ষেপ প্রকাশ করুন</button>
       
       <div class="glass fu d2 hover-target" style="width:100%; max-width:640px; padding:35px; margin:20px auto; display:flex; flex-direction:column; gap:16px;">
         <div class="outro-item" id="oi1" style="display:flex;align-items:center;gap:15px;font-size:1rem;font-weight:600;opacity:0;transform:translateX(-20px);transition:all .5s;"><i class="fa-solid fa-circle-check" style="color:var(--teal);font-size:1.4rem;"></i> <span>DI কোডকে Loose Coupling এবং Testable করে।</span></div>
@@ -955,26 +991,51 @@ body:hover .cursor-dot, body:hover .cursor-outline { opacity:1; }
       <div class="fu d3 hover-target" style="background:rgba(251,113,133,0.05); border:1px solid rgba(251,113,133,0.3); border-radius:var(--r); padding:30px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:15px; box-shadow:0 10px 30px rgba(251,113,133,0.1); cursor:none; transition:transform .3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
         <i class="fa-brands fa-youtube" style="font-size:3.5rem; color:#ff0000; filter:drop-shadow(0 0 15px rgba(255,0,0,0.5)); animation:pulse-yt 2s infinite alternate;"></i>
         <div style="font-size:1.3rem; font-weight:800; letter-spacing:1px;">সাবস্ক্রাইব করুন <b>Coding Drop</b></div>
-        <button class="sb-btn hover-target" onclick="cur=0; renderSlide();" style="margin-top:10px; background:linear-gradient(135deg,var(--coral),var(--fuchsia)); color:#fff; border:none;"><i class="fa-solid fa-rotate-right"></i> আবার শুরু করুন</button>
+        <button class="sb-btn hover-target" onclick="goTo(0)" style="margin-top:10px; background:linear-gradient(135deg,var(--coral),var(--fuchsia)); color:#fff; border:none;"><i class="fa-solid fa-rotate-right"></i> আবার শুরু করুন</button>
       </div>
     </div>
     <style>@keyframes pulse-yt { 100%{transform:scale(1.15);} }</style>
 
   </div> <!-- slide area -->
 
-  <!-- ─────────── NARRATION STRIP ─────────── -->
-  <div class="narration">
-    <div class="narration-inner" id="narrBox">লোড হচ্ছে...</div>
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo"><i class="fa-solid fa-syringe"></i> <span>Dependency Injection</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span class="sb-pt">অগ্রগতি</span><span class="sb-pt" id="progPct">0%</span></div>
+      <div class="pb-thin"><div class="pb-fill" id="progFill"></div></div>
+    </div>
+    <div class="sb-title"><i class="fa-solid fa-list"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list" id="chList"></div>
   </div>
-
-  <div class="slide-indicator"><span id="slCur">1</span> / 13</div>
-  <div class="nav-hint"><kbd>←</kbd> <kbd>→</kbd> অথবা <kbd>1</kbd>-<kbd>9</kbd> প্রেস করুন</div>
 
 </div>
 
+<div class="bottom-bar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="slide-num">স্লাইড <span id="slCur">1</span> / <span id="totNum">13</span></div>
+    <div class="pb-thin" style="width:120px"><div class="pb-fill" id="botFill"></div></div>
+  </div>
+  <div style="font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:7px"><i class="fa-solid fa-circle" style="font-size:0.4rem;color:var(--teal)"></i> Coding Drop</div>
+</div>
+
 <script>
+const BC = new BroadcastChannel('di_presentation');
 const TOTAL_SLIDES = 13;
 let cur = 0;
+const chapters=[
+  {e:'🏠',t:'পরিচিতি'},{e:'⚖️',t:'Coupling'},{e:'❓',t:'DI কী?'},{e:'🔀',t:'DI প্রকারভেদ'},
+  {e:'⏳',t:'Lifetimes'},{e:'📦',t:'IoC Container'},{e:'🔄',t:'Resolution Flow'},{e:'❌',t:'Tight Coupling'},
+  {e:'✅',t:'DI Code'},{e:'🧪',t:'Live Sandbox'},{e:'⭐',t:'সুবিধা'},{e:'⚠️',t:'Anti-patterns'},{e:'🏆',t:'সারসংক্ষেপ'}
+];
+const chList=document.getElementById('chList');
+chapters.forEach((ch,i)=>{
+  const el=document.createElement('div');
+  el.className='ch-item'+(i===0?' active':'');
+  el.innerHTML=`<div class="ch-num">${i+1}</div><span>${ch.e} ${ch.t}</span>`;
+  el.onclick=()=>{BC.postMessage({type:'nav',idx:i});goTo(i)};
+  chList.appendChild(el);
+});
+document.getElementById('totNum').textContent=TOTAL_SLIDES;
 
 /* ─── CUSTOM CURSOR ─── */
 const dot = document.querySelector('.cursor-dot');
@@ -982,12 +1043,7 @@ const outline = document.querySelector('.cursor-outline');
 window.addEventListener('mousemove', (e) => {
   dot.style.left = e.clientX + 'px';
   dot.style.top = e.clientY + 'px';
-  
-  // slightly delayed for outline
-  setTimeout(() => {
-    outline.style.left = e.clientX + 'px';
-    outline.style.top = e.clientY + 'px';
-  }, 50);
+  setTimeout(() => { outline.style.left = e.clientX + 'px'; outline.style.top = e.clientY + 'px'; }, 50);
 });
 document.addEventListener('mousedown', () => {
   outline.style.transform = 'translate(-50%, -50%) scale(0.8)';
@@ -998,269 +1054,214 @@ document.addEventListener('mouseup', () => {
   outline.style.backgroundColor = 'transparent';
 });
 
-/* ─── 3D TILT EFFECT ─── */
 function tilt(e, el) {
   const rect = el.getBoundingClientRect();
-  const x = e.clientX - rect.left; 
-  const y = e.clientY - rect.top;
-  const cx = rect.width / 2;
-  const cy = rect.height / 2;
-  const dx = (x - cx) / cx;
-  const dy = (y - cy) / cy;
-  el.style.transform = `perspective(1000px) rotateX(${-dy * 10}deg) rotateY(${dx * 10}deg) scale3d(1.05, 1.05, 1.05)`;
+  const dx = ((e.clientX - rect.left) - rect.width/2) / (rect.width/2);
+  const dy = ((e.clientY - rect.top) - rect.height/2) / (rect.height/2);
+  el.style.transform = `perspective(1000px) rotateX(${-dy * 10}deg) rotateY(${dx * 10}deg) scale3d(1.05,1.05,1.05)`;
 }
-function untilt(el) {
-  el.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-}
+function untilt(el) { el.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1,1,1)'; }
 
-/* ─── BACKGROUND PARTICLES ─── */
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas.getContext('2d');
-let width, height;
-let particles = [];
-let mouse = { x: null, y: null, radius: 150 };
-
+let width, height, particles = [], mouse = { x:null, y:null, radius:150 };
 window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
 window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
-
 function initCanvas() {
   width = canvas.width = window.innerWidth;
   height = canvas.height = window.innerHeight;
   particles = [];
-  for(let i=0; i<80; i++){
-    particles.push({
-      x: Math.random() * width, y: Math.random() * height,
-      r: Math.random() * 2 + 0.5,
-      dx: (Math.random() - 0.5) * 0.8, dy: (Math.random() - 0.5) * 0.8,
-      baseColor: Math.random() > 0.5 ? '20,184,166' : '99,102,241' // teal or indigo
-    });
-  }
+  for(let i=0;i<80;i++) particles.push({
+    x:Math.random()*width, y:Math.random()*height, r:Math.random()*2+0.5,
+    dx:(Math.random()-0.5)*0.8, dy:(Math.random()-0.5)*0.8,
+    baseColor: Math.random()>0.5?'20,184,166':'99,102,241'
+  });
 }
 function drawCanvas() {
-  ctx.clearRect(0, 0, width, height);
-  particles.forEach(p => {
-    p.x += p.dx; p.y += p.dy;
-    if(p.x < 0 || p.x > width) p.dx *= -1;
-    if(p.y < 0 || p.y > height) p.dy *= -1;
-    
-    // Mouse interaction
-    let alpha = 0.4;
-    if(mouse.x != null) {
-      let dx = mouse.x - p.x; let dy = mouse.y - p.y;
-      let dist = Math.sqrt(dx*dx + dy*dy);
-      if(dist < mouse.radius) {
-        alpha = 1 - (dist/mouse.radius);
-        // connection line
-        ctx.beginPath();
-        ctx.strokeStyle = `rgba(${p.baseColor}, ${alpha * 0.5})`;
-        ctx.lineWidth = 1;
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(mouse.x, mouse.y);
-        ctx.stroke();
+  ctx.clearRect(0,0,width,height);
+  particles.forEach(p=>{
+    p.x+=p.dx; p.y+=p.dy;
+    if(p.x<0||p.x>width)p.dx*=-1; if(p.y<0||p.y>height)p.dy*=-1;
+    let alpha=0.4;
+    if(mouse.x!=null){
+      const dist=Math.hypot(mouse.x-p.x,mouse.y-p.y);
+      if(dist<mouse.radius){ alpha=1-dist/mouse.radius;
+        ctx.beginPath(); ctx.strokeStyle=`rgba(${p.baseColor},${alpha*0.5})`; ctx.lineWidth=1;
+        ctx.moveTo(p.x,p.y); ctx.lineTo(mouse.x,mouse.y); ctx.stroke();
       }
     }
-    
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(${p.baseColor}, ${Math.max(0.2, alpha)})`;
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${p.baseColor},${Math.max(0.2,alpha)})`; ctx.fill();
   });
   requestAnimationFrame(drawCanvas);
 }
-initCanvas(); drawCanvas();
-window.addEventListener('resize', initCanvas);
+initCanvas(); drawCanvas(); window.addEventListener('resize', initCanvas);
 
-/* ─── ANIMATION ENGINE ─── */
-let AT = []; 
+let AT=[];
 function ct(){ AT.forEach(t=>clearTimeout(t)); AT=[]; }
-function aft(fn, ms){ const t=setTimeout(fn,ms); AT.push(t); return t; }
+function aft(fn,ms){ const t=setTimeout(fn,ms); AT.push(t); return t; }
 
-// Type effect for code blocks
-function typeCode(selector) {
-  const blocks = document.querySelectorAll(selector);
-  blocks.forEach(block => {
-    const origHtml = block.innerHTML;
-    const lines = origHtml.split('<br>');
-    block.innerHTML = lines.map(l => `<span class="type-line">${l}</span>`).join('');
-    block.querySelectorAll('.type-line').forEach((line, i) => {
-      aft(() => line.classList.add('show'), 300 + i * 150);
-    });
-  });
+function typeCode(selector, reset=false) {
+  const block = document.querySelector(selector);
+  if(!block) return;
+  if(reset && block.dataset.orig) block.innerHTML = block.dataset.orig;
+  if(!block.dataset.orig) block.dataset.orig = block.innerHTML;
+  const lines = block.dataset.orig.split('<br>');
+  block.innerHTML = lines.map(l=>`<span class="type-line">${l}</span>`).join('');
+  block.querySelectorAll('.type-line').forEach((line,i)=>aft(()=>line.classList.add('show'),300+i*150));
+}
+function resetTypeCode(selector){
+  const block=document.querySelector(selector);
+  if(block?.dataset.orig) block.innerHTML=block.dataset.orig;
 }
 
-function onSlideEnter(id){
+function onSlideEnter(idx){
   ct();
-  
-  // reset path anim
-  const pathAnim = document.getElementById('path-anim');
-  if(pathAnim) pathAnim.style.strokeDashoffset = '1000';
-
-  const fns = {
-    4:() => {
-      const cards = document.querySelectorAll('#s4 .card');
-      cards.forEach(c=>c.classList.remove('hl-coral','hl-teal','hl-fuchsia'));
-      aft(()=>cards[0]?.classList.add('hl-coral'), 1000);
-      aft(()=>{ cards[0]?.classList.remove('hl-coral'); cards[1]?.classList.add('hl-teal'); }, 2500);
-      aft(()=>{ cards[1]?.classList.remove('hl-teal'); cards[2]?.classList.add('hl-fuchsia'); }, 4000);
-      aft(()=>cards[2]?.classList.remove('hl-fuchsia'), 5500);
-    },
-    5:() => {
-      const cards = document.querySelectorAll('#s5 .card');
-      cards.forEach(c=>c.classList.remove('hl-teal','hl-coral','hl-indigo'));
-      aft(()=>cards[0]?.classList.add('hl-teal'), 1000);
-      aft(()=>{ cards[0]?.classList.remove('hl-teal'); cards[1]?.classList.add('hl-coral'); }, 2500);
-      aft(()=>{ cards[1]?.classList.remove('hl-coral'); cards[2]?.classList.add('hl-indigo'); }, 4000);
-      aft(()=>cards[2]?.classList.remove('hl-indigo'), 5500);
-    },
-    6:() => {
-      const rows = document.querySelectorAll('#tb-ioc tr');
-      rows.forEach(r=>r.style.background='');
-      rows.forEach((r,i) => {
-        aft(()=>{ r.style.background='rgba(20,184,166,0.15)'; }, 600 + i*1500);
-        aft(()=>{ r.style.background=''; }, 1800 + i*1500);
-      });
-    },
-    7:() => {
-      const fns=['fn1','fn2','fn3','fn4'];
-      const cap=document.getElementById('fCap');
-      const pa=document.getElementById('path-anim');
-      fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
-      cap.textContent='';
-      
-      const steps=[
-        { nodes:['fn1'], cap:'১. UserController needs IUserService', dash:1000 },
-        { nodes:['fn1','fn2'], cap:'২. DI Container checks registrations', dash:700 },
-        { nodes:['fn2','fn3'], cap:'৩. Container finds UserService', dash:450 },
-        { nodes:['fn3','fn4'], cap:'৪. Resolves UserRepository first', dash:250 },
-        { nodes:['fn1','fn2','fn3','fn4'], cap:'৫. Success! Objects Injected ✓', dash:0 }
-      ];
-      steps.forEach((st,i)=>{
-        aft(()=>{
-          fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
-          st.nodes.forEach(id=>document.getElementById(id)?.classList.add('on'));
-          cap.textContent = st.cap;
-          cap.style.opacity = '0';
-          setTimeout(()=>cap.style.opacity='1', 50);
-          if(pa) pa.style.strokeDashoffset = st.dash;
-        }, 800 + i*1800);
-      });
-    },
-    8:() => typeCode('#cb1'),
-    9:() => { typeCode('#cb2'); setTimeout(()=>typeCode('#cb3'), 1000); },
-    11:() => {
-      const avs=['ad1','ad2','ad3','ad4','ad5','ad6'];
-      avs.forEach(id=>document.getElementById(id)?.classList.remove('on'));
-      avs.forEach((id,i)=>{
-        aft(()=>document.getElementById(id)?.classList.add('on'), 500+i*400);
-        aft(()=>document.getElementById(id)?.classList.remove('on'), 1500+i*400);
-      });
-    },
-    12:() => {
-      const tips=['tp1','tp2','tp3'];
-      tips.forEach(id=>document.getElementById(id)?.classList.remove('on'));
-      tips.forEach((id,i)=>{ aft(()=>document.getElementById(id)?.classList.add('on'), 600+i*1200); });
-    },
-    13:() => {
-      const items=['oi1','oi2','oi3','oi4'];
-      items.forEach(id=>document.getElementById(id).style.opacity='0');
-      items.forEach((id,i)=>aft(()=>{
-        const el = document.getElementById(id);
-        el.style.opacity='1'; el.style.transform='translateX(0)';
-      }, 500+i*500));
-    }
-  };
-  if(fns[id]) fns[id]();
-}
-
-/* ─── INTERACTIVE COUPLING SWITCH (S2) ─── */
-function toggleCoupling() {
-  const sw = document.getElementById('cpSwitch');
-  sw.classList.toggle('good');
-}
-
-/* ─── SANDBOX LOGIC (S10) ─── */
-function generateGuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-let singletonId = generateGuid();
-let reqCount = 0;
-
-function makeRequest(reqNum) {
-  const btn = document.getElementById('btnReq'+reqNum);
-  const origHtml = btn.innerHTML;
-  btn.innerHTML = `<div class="spinner"></div> Processing...`;
-  btn.style.pointerEvents = 'none';
-  
-  setTimeout(() => {
-    btn.innerHTML = origHtml;
-    btn.style.pointerEvents = 'auto';
-    
-    reqCount++;
-    const scopedId = generateGuid(); 
-    const t1 = generateGuid(); const t2 = generateGuid();
-    
-    const color = reqNum === 1 ? 'var(--teal)' : 'var(--coral)';
-    
-    const addLog = (elId, v1, v2) => {
-      const el = document.getElementById(elId);
-      el.innerHTML += `
-        <div class="log-item" style="border-left-color:${color}">
-          <span style="color:${color};font-weight:700;">Request ${reqNum}</span>
-          <div>Call 1: <span class="log-val">${v1}</span></div>
-          <div>Call 2: <span class="log-val">${v2}</span></div>
-        </div>`;
-      el.scrollTop = el.scrollHeight;
-    };
-    
-    addLog('log-transient', t1, t2);
-    addLog('log-scoped', scopedId, scopedId);
-    addLog('log-singleton', singletonId, singletonId);
-    
-  }, 600); // simulate network delay
-}
-
-function clearLogs() {
-  document.getElementById('log-transient').innerHTML = '';
-  document.getElementById('log-scoped').innerHTML = '';
-  document.getElementById('log-singleton').innerHTML = '';
-  reqCount = 0;
-  singletonId = generateGuid();
-}
-
-/* ─── NAVIGATION ─── */
-function renderSlide(){
-  document.querySelectorAll('.slide').forEach((s,i)=>{
-    s.classList.remove('active','exit');
-    if(i===cur) s.classList.add('active');
-    else if(i<cur) s.classList.add('exit');
-  });
-  document.getElementById('slCur').textContent = cur+1;
-  onSlideEnter(cur+1);
-}
-
-/* ─── BroadcastChannel for Sync ─── */
-const BC = new BroadcastChannel('di_presentation');
-
-BC.onmessage = (e) => {
-  if(e.data.type === 'nav'){ cur = e.data.idx; renderSlide(); }
-  if(e.data.type === 'ping_from_presenter'){ BC.postMessage({type:'ping'}); }
-};
-
-/* keyboard fallback */
-document.addEventListener('keydown', e => {
-  if(e.key==='ArrowRight'){ if(cur<TOTAL_SLIDES-1) { cur++; renderSlide(); BC.postMessage({type:'nav',idx:cur}); } }
-  else if(e.key==='ArrowLeft'){ if(cur>0) { cur--; renderSlide(); BC.postMessage({type:'nav',idx:cur}); } }
-  else if(e.key>='1'&&e.key<='9'){
-    let n = parseInt(e.key)-1;
-    if(n<TOTAL_SLIDES){ cur=n; renderSlide(); BC.postMessage({type:'nav',idx:cur}); }
+  const pathAnim=document.getElementById('path-anim');
+  if(pathAnim) pathAnim.style.strokeDashoffset='1000';
+  if(idx===1){ const sw=document.getElementById('cpSwitch'); sw?.classList.remove('good'); }
+  if(idx===3) document.querySelectorAll('#s4 .card').forEach(c=>c.classList.remove('hl-coral','hl-teal','hl-fuchsia'));
+  if(idx===4) document.querySelectorAll('#s5 .card').forEach(c=>c.classList.remove('hl-teal','hl-coral','hl-indigo'));
+  if(idx===5) document.querySelectorAll('#tb-ioc tr').forEach(r=>r.style.background='');
+  if(idx===6){
+    ['fn1','fn2','fn3','fn4'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
+    const cap=document.getElementById('fCap'); if(cap) cap.textContent='';
   }
+  if(idx===7) resetTypeCode('#cb1');
+  if(idx===8){ resetTypeCode('#cb2'); resetTypeCode('#cb3'); }
+  if(idx===9) clearLogs();
+  if(idx===10) ['ad1','ad2','ad3','ad4','ad5','ad6'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  if(idx===11) ['tp1','tp2','tp3'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  if(idx===12) ['oi1','oi2','oi3','oi4'].forEach(id=>{ const el=document.getElementById(id); if(el){el.style.opacity='0';el.style.transform='translateX(-20px)';el.classList.remove('revealed');} });
+}
+
+function toggleCoupling(){ document.getElementById('cpSwitch')?.classList.toggle('good'); }
+
+function playDiTypes(){
+  ct();
+  const cards=document.querySelectorAll('#s4 .card');
+  cards.forEach(c=>c.classList.remove('hl-coral','hl-teal','hl-fuchsia'));
+  aft(()=>cards[0]?.classList.add('hl-coral'),200);
+  aft(()=>{ cards[0]?.classList.remove('hl-coral'); cards[1]?.classList.add('hl-teal'); },1800);
+  aft(()=>{ cards[1]?.classList.remove('hl-teal'); cards[2]?.classList.add('hl-fuchsia'); },3400);
+}
+function playLifetimes(){
+  ct();
+  const cards=document.querySelectorAll('#s5 .card');
+  cards.forEach(c=>c.classList.remove('hl-teal','hl-coral','hl-indigo'));
+  aft(()=>cards[0]?.classList.add('hl-teal'),200);
+  aft(()=>{ cards[0]?.classList.remove('hl-teal'); cards[1]?.classList.add('hl-coral'); },1800);
+  aft(()=>{ cards[1]?.classList.remove('hl-coral'); cards[2]?.classList.add('hl-indigo'); },3400);
+}
+function playIocPhases(){
+  ct();
+  const rows=document.querySelectorAll('#tb-ioc tr');
+  rows.forEach(r=>r.style.background='');
+  rows.forEach((r,i)=>{
+    aft(()=>{ r.style.background='rgba(20,184,166,0.15)'; },400+i*1200);
+    aft(()=>{ r.style.background=''; },1100+i*1200);
+  });
+}
+function playFlowDemo(){
+  ct();
+  const fns=['fn1','fn2','fn3','fn4'];
+  const cap=document.getElementById('fCap');
+  const pa=document.getElementById('path-anim');
+  fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  if(cap) cap.textContent='';
+  if(pa) pa.style.strokeDashoffset='1000';
+  const steps=[
+    { nodes:['fn1'], cap:'১. UserController needs IUserService', dash:1000 },
+    { nodes:['fn1','fn2'], cap:'২. DI Container checks registrations', dash:700 },
+    { nodes:['fn2','fn3'], cap:'৩. Container finds UserService', dash:450 },
+    { nodes:['fn3','fn4'], cap:'৪. Resolves UserRepository first', dash:250 },
+    { nodes:['fn1','fn2','fn3','fn4'], cap:'৫. Success! Objects Injected ✓', dash:0 }
+  ];
+  steps.forEach((st,i)=>aft(()=>{
+    fns.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+    st.nodes.forEach(id=>document.getElementById(id)?.classList.add('on'));
+    if(cap){ cap.textContent=st.cap; cap.style.opacity='0'; setTimeout(()=>cap.style.opacity='1',50); }
+    if(pa) pa.style.strokeDashoffset=st.dash;
+  },300+i*1600));
+}
+function playBadCode(){ resetTypeCode('#cb1'); typeCode('#cb1'); }
+function playDiCode(){ resetTypeCode('#cb2'); resetTypeCode('#cb3'); typeCode('#cb2'); aft(()=>typeCode('#cb3'),900); }
+function playAdvantages(){
+  ct();
+  ['ad1','ad2','ad3','ad4','ad5','ad6'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  ['ad1','ad2','ad3','ad4','ad5','ad6'].forEach((id,i)=>aft(()=>document.getElementById(id)?.classList.add('on'),300+i*450));
+}
+function playWarnings(){
+  ct();
+  ['tp1','tp2','tp3'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  ['tp1','tp2','tp3'].forEach((id,i)=>aft(()=>document.getElementById(id)?.classList.add('on'),300+i*900));
+}
+function playOutro(){
+  ct();
+  ['oi1','oi2','oi3','oi4'].forEach(id=>{ const el=document.getElementById(id); if(el){el.style.opacity='0';el.style.transform='translateX(-20px)';} });
+  ['oi1','oi2','oi3','oi4'].forEach((id,i)=>aft(()=>{ const el=document.getElementById(id); if(el){el.style.opacity='1';el.style.transform='translateX(0)';el.classList.add('revealed');} },300+i*500));
+}
+
+function generateGuid(){
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{
+    const r=Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16);
+  });
+}
+let singletonId=generateGuid();
+function makeRequest(reqNum){
+  const btn=document.getElementById('btnReq'+reqNum);
+  const origHtml=btn.innerHTML;
+  btn.innerHTML='<div class="spinner"></div> Processing...';
+  btn.style.pointerEvents='none';
+  setTimeout(()=>{
+    btn.innerHTML=origHtml; btn.style.pointerEvents='auto';
+    const scopedId=generateGuid(), t1=generateGuid(), t2=generateGuid();
+    const color=reqNum===1?'var(--teal)':'var(--coral)';
+    const addLog=(elId,v1,v2)=>{
+      const el=document.getElementById(elId);
+      el.innerHTML+=`<div class="log-item" style="border-left-color:${color}"><span style="color:${color};font-weight:700;">Request ${reqNum}</span><div>Call 1: <span class="log-val">${v1}</span></div><div>Call 2: <span class="log-val">${v2}</span></div></div>`;
+      el.scrollTop=el.scrollHeight;
+    };
+    addLog('log-transient',t1,t2); addLog('log-scoped',scopedId,scopedId); addLog('log-singleton',singletonId,singletonId);
+  },600);
+}
+function clearLogs(){
+  ['log-transient','log-scoped','log-singleton'].forEach(id=>document.getElementById(id).innerHTML='');
+  singletonId=generateGuid();
+}
+
+const slides=document.querySelectorAll('.slide');
+function goTo(idx){
+  idx=Math.max(0,Math.min(TOTAL_SLIDES-1,idx));
+  if(idx===cur) return;
+  slides[cur]?.classList.remove('active'); slides[cur]?.classList.add('exit');
+  setTimeout(()=>slides[cur]?.classList.remove('exit'),700);
+  cur=idx; slides[cur]?.classList.add('active');
+  onSlideEnter(cur); updateUI();
+}
+function navigate(delta){
+  const next=Math.max(0,Math.min(TOTAL_SLIDES-1,cur+delta));
+  BC.postMessage({type:'nav',idx:next}); goTo(next);
+}
+function updateUI(){
+  document.getElementById('slCur').textContent=cur+1;
+  const pct=Math.round(((cur+1)/TOTAL_SLIDES)*100);
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('botFill').style.width=pct+'%';
+  document.querySelectorAll('.ch-item').forEach((el,i)=>{ el.classList.toggle('active',i===cur); el.classList.toggle('done',i<cur); });
+}
+
+BC.onmessage=e=>{
+  if(e.data.type==='nav') goTo(e.data.idx);
+  if(e.data.type==='ping_from_presenter') BC.postMessage({type:'ping'});
+};
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); navigate(1); }
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); navigate(-1); }
 });
 
-/* INIT */
-renderSlide();
+goTo(0);
 </script>
 </body>
 </html>

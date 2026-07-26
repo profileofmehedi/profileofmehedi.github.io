@@ -31,6 +31,7 @@ html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;backgr
 .script-box::before{content:'📢 SCRIPT';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--sky)}
 .script-text{font-size:1.1rem;line-height:2.1;color:var(--text);white-space:pre-line}
 .script-text em{color:var(--sky);font-style:normal;font-weight:600}
+.script-text code{font-family:'Fira Code',monospace;font-size:0.88rem;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);padding:2px 7px;border-radius:5px;color:#bae6fd;display:inline-block;margin:2px 0}
 .script-box::-webkit-scrollbar{width:4px}
 .script-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 .nav-bar{grid-column:1;grid-row:2;display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:var(--surface);flex-shrink:0}
@@ -104,152 +105,230 @@ html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;backgr
 const BC = new BroadcastChannel('async_presentation');
 let cur=0,timerInterval=null,seconds=0,running=false;
 const slides=[
-  {title:'পরিচয় — Async / Await & Task',script:`আচ্ছালামুয়ালাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
+  {title:'পরিচয় — Async / Await & Task',script:`আসসালামু আলাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
 
-আজকের বিষয় হলো .NET-এর সবচেয়ে শক্তিশালী ফিচারগুলোর একটি — <em>Async / Await</em> এবং <em>Task Parallel Library</em>।
+আজকের বিষয় — .NET-এর অন্যতম গুরুত্বপূর্ণ ফিচার <em>Async / Await</em> এবং <em>Task Parallel Library</em>।
 
-অনেকেই async/await ব্যবহার করেন কিন্তু ভেতরে কী হচ্ছে জানেন না। আজকে আমরা সেটাই বুঝবো — Thread কীভাবে কাজ করে, Task কী, এবং Deadlock কীভাবে এড়াবেন।
+অনেক developer async/await লিখেন, কিন্তু ভেতরে আসলে কী ঘটছে সেটা পরিষ্কার নয়। আজ Thread Pool, Task, WhenAll/WhenAny, CancellationToken — এবং Deadlock কীভাবে এড়াবেন, সব কিছু বাস্তব উদাহরণ দিয়ে বুঝব।
 
-এই প্রেজেন্টেশনে লাইভ <em>Thread Pool Simulator</em>, <em>WhenAll/WhenAny</em> ডেমো, এবং <em>Deadlock</em> সিমুলেশন দেখবো।`},
-  {title:'Synchronous = Thread আটকে থাকে',script:`প্রথমে বুঝি সমস্যাটা কোথায়।
+শুরু করি মূল সমস্যা থেকে — Synchronous কোডে Thread কেন আটকে যায়।`},
+  {title:'Synchronous = Thread আটকে থাকে',script:`একটা সহজ analogy দিয়ে শুরু করি।
 
-রেস্তোরাঁর একজন বাবুর্চির কথা ভাবুন। সে চুলায় পানি গরম দিয়ে সেই পাশে দাঁড়িয়ে অপেক্ষা করছে। পানি না ফুটলে সে আর কিছু করছে না।
+রেস্তোরাঁর একজন বাবুর্চি চুলায় পানি বসিয়ে সেই পাশেই দাঁড়িয়ে অপেক্ষা করছে। পানি না ফুটলে সে অন্য কিছু করছে না — পুরো সময় blocked।
 
-এটাই <em>Synchronous</em> — একটি Thread একটা কাজে আটকে থাকে।
+এটাই <em>Synchronous</em> কোড। একটি Thread একটা I/O কাজ শেষ না হওয়া পর্যন্ত মুক্ত হয় না।
 
-কিন্তু বুদ্ধিমান বাবুর্চি পানি চুলায় দিয়ে ততক্ষণে পেঁয়াজ-গাজর কাটে। পানি গরম হলে সে ফিরে আসে।
+বুদ্ধিমান বাবুর্চি কী করবে? পানি চুলায় দিয়ে ততক্ষণে পেঁয়াজ-গাজর কাটবে। পানি ফুটলে ফিরে এসে বাকি রান্না করবে।
 
-এটাই <em>Async / Await</em> — await-এর সময় Thread ছেড়ে দেয়, অন্য কাজ করে, Callback হলে ফিরে আসে।
+এটাই <em>Async / Await</em> — await-এ Thread সাময়িকভাবে ছেড়ে দেয়, Thread Pool-এ ফিরে যায়, অন্য request সার্ভ করতে পারে। কাজ শেষ হলে continuation চলে।
 
-ASP.NET Core-এ এটা অত্যন্ত গুরুত্বপূর্ণ কারণ একটি Thread Pool আছে।`},
-  {title:'Thread Pool সিমুলেটর',script:`এখন লাইভ সিমুলেটর দেখুন।
+ASP.NET Core-এ Thread Pool সীমিত। Sync কোড বেশি থাকলে throughput কমে যায় — এটাই মূল সমস্যা।
 
-Thread Pool-এ ৮টি Thread আছে (নীল রঙ = Idle)।
+<em>বাবুর্চি ডেমো চালান</em> বাটনে ক্লিক করুন — Sync vs Async পাশাপাশি step-by-step চলবে।`},
+  {title:'Thread Pool — Sync vs Async',script:`Thread Pool-এ সাধারণত সীমিত সংখ্যক Thread থাকে — ধরুন ৮টি, idle অবস্থায়।
 
-প্রথমে <em>Sync Request</em> বাটনে ক্লিক করুন। দেখুন একটি Thread ব্লক হয়ে গেলো (লাল রঙ)। ৩ সেকেন্ড এই Thread কোনো কাজ করতে পারবে না।
+প্রথমে <em>Sync Request পাঠাও</em> বাটনে ক্লিক করুন। Thread blocked — Pool ভরে যেতে আরো চাপুন।
 
-এভাবে অনেকগুলো Sync Request পাঠান — Thread Pool শেষ হয়ে যাবে!
+এবার <em>Async Request পাঠাও</em> চাপুন — Thread Pool-এ ফিরে আসে, অন্য request serve করতে পারে।
 
-এখন <em>Async Request</em> বাটনে ক্লিক করুন। Thread কাজ নেয়, await করে, Pool-এ ফিরে আসে, তারপর Continuation-এ আবার কাজ করে।
+এই পার্থক্যই async-এর মূল লাভ — একই Thread Pool দিয়ে অনেক বেশি concurrent request handle করা যায়।`},
+  {title:'Task<T> — ভবিষ্যতের প্রতিশ্রুতি',script:`<em>Task</em> বুঝতে রেস্তোরাঁর order token-এর কথা মনে করুন।
 
-দেখুন Async-এ Thread Pool-এ Thread থাকে এবং আরো Request নিতে পারে।`},
-  {title:'Task<T> — ভবিষ্যতের প্রতিশ্রুতি',script:`<em>Task</em> হলো একটি প্রতিশ্রুতির মতো।
+অর্ডার দিলেন, টোকেন পেলেন। রান্না চলছে — আপনি অন্য কাজ করতে পারেন। খাবার ready হলে টোকেন দিয়ে নিয়ে যান।
 
-রেস্তোরাঁয় অর্ডার দিলে একটি টোকেন পান। রান্না হওয়ার পর টোকেন দিয়ে খাবার নিবেন। Task-ও তেমনই — ভবিষ্যতে একটি মান পাবেন।
+<em>Task&lt;T&gt;</em> ঠিক তেমন — এখনই result নয়, ভবিষ্যতে result পাবেন এমন একটি promise।
 
-Task-এর ৪টি অবস্থা আছে। <em>Pending</em> — কাজ শুরু হয়নি। <em>Running</em> — কাজ চলছে। <em>RanToCompletion</em> — সফলভাবে শেষ। <em>Faulted</em> — Exception হয়েছে।
+Task-এর চারটি state আছে:
+<em>Pending</em> — এখনো শুরু হয়নি
+<em>Running</em> — চলছে
+<em>RanToCompletion</em> — সফলভাবে শেষ, result পাওয়া যাবে
+<em>Faulted</em> — exception হয়েছে
 
-Task ছাড়া await করা যায় না। Task-ই হলো async programming-এর মেরুদণ্ড।`},
-  {title:'async / await কোড ডেমো',script:`এখন Bad vs Good Practice দেখুন।
+<em>Task</em> (non-generic) শুধু কাজ করে, কোনো value return করে না। <em>Task&lt;T&gt;</em> একটি typed result দেয়।
 
-<em>Sync Version</em>-এ প্রতিটি ডাটাবেজ কল Thread ব্লক করে। দুটো কল মানে দুবার Thread আটকে আছে। এই সময়ে অন্য Request সার্ভ হতে পারছে না।
+await শুধু Task-এর উপর কাজ করে — Task ছাড়া async model সম্পূর্ণ নয়।
 
-<em>Async Version</em>-এ প্রতিটি কলে <em>await</em> করা হয়েছে। await-এর সময় Thread মুক্ত হয়ে অন্য Request নিতে পারে। ডাটা আসলে Continuation-এ ফিরে আসে।
+Task card select করে <em>Lifecycle অ্যানিমেশন চালান</em> বাটনে ক্লিক করুন — Created → Running → Completed flow দেখুন।`},
+  {title:'async / await — কোডে প্রয়োগ',script:`এখন real code-এ যাই।
 
-Method-এর return type হলো Task&lt;IActionResult&gt; এবং method-এর আগে async keyword।
+Sync version-এ:
+<code>var user = _db.Users.Find(id);</code>
+<code>var orders = _orderService.GetOrders(id);</code>
 
-Switch করে পার্থক্য দেখুন।`},
-  {title:'WhenAll & WhenAny — Parallel Tasks',script:`কখনো কখনো একসাথে অনেক Task চালাতে হয়।
+প্রতিটি DB call-এ Thread blocked। দুটো sequential call মানে দুবার অপেক্ষা — এই সময় Thread Pool-এর একটি Thread সম্পূর্ণ idle নয়, blocked।
 
-<em>Task.WhenAll()</em> — সব Task একসাথে শুরু হয় এবং সব শেষ হলে continue করে। যেমন একসাথে Email পাঠানো, Report তৈরি করা, Image Process করা।
+Async version:
+<code>var user = await _db.FindAsync(id);</code>
+<code>var orders = await _orderService.GetOrdersAsync(id);</code>
 
-<em>Task.WhenAny()</em> — সব Task একসাথে শুরু হয়। যে প্রথম শেষ করে তার Result নিয়ে continue করে। Race condition বা Timeout-এর জন্য ব্যবহার করুন।
+প্রথম await-এ I/O wait শুরু — Thread মুক্ত। DB response এলে continuation চলে, orders fetch হয়। দ্বিতীয় await-এ আবার same pattern।
 
-লাইভ ডেমোতে দেখুন — WhenAll-এ সবাই শেষ হওয়ার পর result আসে। WhenAny-তে প্রথম শেষকারী জয়ী।`},
-  {title:'CancellationToken',script:`Long-running Task চালু করলে এটি বাতিল করার ব্যবস্থাও রাখতে হবে।
+Method signature: <em>async Task&lt;IActionResult&gt;</em> — async keyword method-এ, return type Task।
 
-<em>CancellationToken</em> হলো একটি সুইচ। আপনি যখন চাইবেন বন্ধ করুন।
+Controller থেকে Service, Service থেকে Repository — পুরো chain async রাখুন। মাঝে একটু sync হলেই benefit হারায়।
 
-ব্যবহার পদ্ধতি — CancellationTokenSource তৈরি করুন। Source.Token দিয়ে Token পাস করুন। যখন বাতিল করতে চান Source.Cancel() কল করুন।
+উপরের switch দিয়ে Sync vs Async toggle করুন, তারপর <em>Execution Flow দেখুন</em> চাপুন।`},
+  {title:'WhenAll & WhenAny — Parallel Tasks',script:`কখনো একসাথে multiple independent কাজ চালাতে হয়।
 
-async method-এ Token চেক করুন — token.ThrowIfCancellationRequested()।
+<em>Task.WhenAll(tasks)</em> — সব Task parallel শুরু, সব শেষ হওয়ার পর continue। Example: একসাথে email পাঠানো, report generate, image resize — তিনটাই independent।
 
-লাইভ ডেমোতে Task শুরু করুন, তারপর Cancel করুন।
+<em>Task.WhenAny(tasks)</em> — সব parallel শুরু, যেটা <em>প্রথম</em> শেষ করে সেটার result নিয়ে continue। Use case: multiple API থেকে fastest response, বা timeout pattern।
 
-ASP.NET Core-এ HttpContext.RequestAborted Token দিয়ে User চলে গেলে DB Query বাতিল করা যায়।`},
-  {title:'Deadlock — .Result ব্যবহারের ফাঁদ',script:`এটি সবচেয়ে ভয়ংকর ভুল।
+WhenAll-এ একটি Task fail করলে AggregateException-এ সব failure একসাথে পাবেন।
 
-<em>Deadlock</em> হয় যখন দুটো Thread পরস্পরের জন্য অপেক্ষা করে।
+WhenAny-এ first winner-এর result নিন, বাকি Task-গুলো cancel করতে পারেন CancellationToken দিয়ে — resource waste কমায়।
 
-UI Thread একটি async Task চালায়। তারপর Task.Result দিয়ে ব্লক করে অপেক্ষা করে। কিন্তু async Task সম্পন্ন হতে UI Thread-এ Continuation চালাতে হবে। UI Thread কিন্তু ব্লক! ফলে Deadlock।
+<em>Task.WhenAll()</em> এবং <em>Task.WhenAny()</em> বাটনে ক্লিক করে পার্থক্য দেখুন।`},
+  {title:'CancellationToken',script:`Long-running বা background Task-এ cancel করার mechanism দরকার।
 
-ডেমোতে button ক্লিক করলে দেখুন দুটো Thread পরস্পরের জন্য অপেক্ষায় আটকে গেছে।
+<em>CancellationToken</em> হলো cooperative cancellation — Task নিজে check করে, জোর করে kill হয় না।
 
-সমাধান — সবসময় <em>await</em> করুন। কখনো .Result বা .Wait() ব্যবহার করবেন না।`},
-  {title:'ConfigureAwait(false)',script:`<em>ConfigureAwait(false)</em> Library কোডে খুব গুরুত্বপূর্ণ।
+Pattern:
+<code>var cts = new CancellationTokenSource();</code>
+<code>await DoWorkAsync(cts.Token);</code>
+Cancel করতে: <code>cts.Cancel();</code>
 
-ডিফল্টে await সম্পন্ন হলে মূল SynchronizationContext-এ (যেমন UI Thread) ফিরে আসে। Library কোডে এটা দরকার নেই — এবং এটাই Deadlock-এর কারণ।
+Method-এ: <code>token.ThrowIfCancellationRequested();</code> — cancel হলে OperationCanceledException।
 
-Bad Version-এ library code SynchronizationContext ক্যাপচার করে। Caller যদি UI Thread হয় তাহলে Deadlock।
+ASP.NET Core-এ <em>HttpContext.RequestAborted</em> automatically pass করুন — user browser বন্ধ করলে expensive DB query বন্ধ হয়ে যায়।
 
-Good Version-এ ConfigureAwait(false) দেওয়া হয়েছে — যেকোনো Thread-এ Continuation চলবে। Deadlock হবে না।
+<em>Task শুরু করুন</em> চাপুন, কিছুক্ষণ পর <em>বাতিল করুন</em> — OperationCanceledException দেখুন।`},
+  {title:'Deadlock — .Result ব্যবহারের ফাঁদ',script:`Production-এ সবচেয়ে বিপজ্জনক mistake — async method-এ <em>.Result</em> বা <em>.Wait()</em> ব্যবহার।
 
-নিয়ম — Library কোডে সবসময় ConfigureAwait(false) দিন। Application কোডে দেওয়ার দরকার নেই।`},
-  {title:'Async Exception Handling',script:`async কোডে Exception handle করা সামান্য ভিন্ন।
+Scenario: UI Thread (বা ASP.NET sync context) একটি async method call করে, তারপর:
+<code>var result = asyncMethod().Result;</code>
 
-await দিয়ে call করলে Exception সরাসরি try/catch-এ ধরা যায়। এটা সবচেয়ে সহজ পদ্ধতি।
+কী হয়? UI Thread .Result-এ blocked — async work শেষ হতে Continuation চায় same context-এ ফিরতে। কিন্তু UI Thread তো blocked! দুপক্ষই একে অপেক্ষা — <em>Deadlock</em>।
 
-Task.WhenAll() ব্যবহার করলে সব Task-এর Exception একসাথে AggregateException-এ আসে। InnerExceptions-এ প্রতিটি Exception পাবেন।
+Console app-এ sometimes কাজ করে, WinForms/WPF/পুরানো ASP.NET-এ almost guaranteed deadlock।
 
-CancellationToken দিয়ে বাতিল হলে OperationCanceledException throw হয়। এটা আলাদা catch করুন।
+Solution একটাই: <em>async all the way</em> — সবসময় await করুন, .Result/.Wait() কখনো নয়।
 
-কোডে দেখুন কীভাবে তিনটি আলাদা catch block দিয়ে প্রতিটি সিচুয়েশন handle করা হয়েছে।`},
-  {title:'ValueTask — অতিরিক্ত Allocation কমান',script:`Hot path-এ performance optimize করতে <em>ValueTask&lt;T&gt;</em> ব্যবহার করুন।
+<em>asyncTask.Result ব্যবহার করুন (বিপদ!)</em> বাটনে ক্লিক করুন — Deadlock step-by-step দেখুন।`},
+  {title:'ConfigureAwait(false)',script:`Library বা reusable NuGet package লিখলে <em>ConfigureAwait(false)</em> জানা 필수।
 
-Task সবসময় Heap-এ object তৈরি করে। Cache hit-এ যদি সরাসরি মান ফেরত দিতে পারেন তাহলেও একটি Task object তৈরি হয়।
+Default behavior: await-এর পর original <em>SynchronizationContext</em>-এ ফিরে যাওয়ার চেষ্টা — UI app-এ UI thread, ASP.NET-এ request context।
 
-ValueTask দিয়ে Cache hit-এ কোনো Heap allocation হয় না। শুধুমাত্র সত্যিকারের async হলে Task তৈরি হয়।
+Application code-এ (Controller, Page) এটা সাধারণত ঠিক। কিন্তু library code SynchronizationContext capture করলে caller-এর context-এ ফিরতে চায় — UI thread-এ .Result থাকলে Deadlock।
 
-কখন ব্যবহার করবেন — যখন method সিংহভাগ সময় synchronously complete হয় (Cache, in-memory lookup)।
+Fix:
+<code>await httpClient.GetStringAsync(url).ConfigureAwait(false);</code>
 
-কখন ব্যবহার করবেন না — সবসময় async হলে, বা একাধিকবার await করতে হলে।`},
-  {title:'Async Best Practices',script:`মূল নিয়মগুলো মনে রাখুন।
+ConfigureAwait(false) মানে: continuation যেকোনো Thread Pool thread-এ চলবে, caller context capture করবে না।
 
-<em>Async All the Way</em> — যদি একটি method async হয় তাহলে তার caller-ও async হতে হবে। মাঝে sync করলে Deadlock।
+Rule of thumb:
+Application layer → ConfigureAwait(false) লাগে না (ASP.NET Core-এ context নেই anyway)
+Library / Infrastructure layer → সব await-এ ConfigureAwait(false)
 
-<em>.Result বা .Wait() নয়</em> — সবসময় await করুন। এই দুটো UI Thread বা ASP.NET Core-এ Deadlock তৈরি করতে পারে।
+এটা performance-ও ভালো — unnecessary context switch কমায়।`},
+  {title:'Async Exception Handling',script:`Async exception handling sync-এর চেয়ে একটু different — কিন্তু complicated নয়।
 
-<em>ConfigureAwait(false)</em> — Library বা NuGet package কোডে সবসময় দিন।
+Single await:
+<code>try { await SendEmailAsync(); }</code>
+<code>catch (Exception ex) { ... }</code>
+Exception সরাসরি catch block-এ যায় — synchronous try/catch-এর মতোই feel।
 
-<em>CancellationToken</em> — সব public async method-এ CancellationToken parameter রাখুন। Default value দিন।`},
-  {title:'Async কখন ব্যবহার করবেন না?',script:`Async সবসময় ভালো নয়।
+<em>Task.WhenAll</em> — multiple Task, multiple failure:
+<code>catch (AggregateException ex)</code>
+<code>foreach (var inner in ex.InnerExceptions)</code>
+সব failed Task-এর exception InnerExceptions-এ।
 
-Async-এর overhead আছে — state machine তৈরি হয়, continuation আছে। CPU-bound কাজে এই overhead লাভজনক নয়।
+Cancel:
+<code>catch (OperationCanceledException)</code>
+CancellationToken দিয়ে cancel — user-initiated shutdown handle করুন, generic Exception-এ mix করবেন না।
 
-<em>I/O Bound</em> কাজে async দুর্দান্ত — Database call, HTTP request, File I/O, Message Queue। এখানে Thread অপেক্ষায় আটকে থাকত।
+Fire-and-forget (<em>async void</em>) avoid করুন — exception catch করা প্রায় impossible, শুধু event handler exception।`},
+  {title:'ValueTask — অতিরিক্ত Allocation কমান',script:`High-throughput scenario-তে <em>ValueTask&lt;T&gt;</em> consider করুন।
 
-<em>CPU Bound</em> কাজে Task.Run() ব্যবহার করুন — Image processing, Heavy calculation, ML inference। Thread Pool-এ Background Thread-এ চলবে।
+<em>Task&lt;T&gt;</em> — প্রতিবার heap-এ object allocate হয়, state machine সহ। Hot path-এ GC pressure বাড়ায়।
 
-<em>async void</em> এড়িয়ে চলুন। শুধু Event handler-এ ব্যবহার করুন। Exception ধরা যায় না।`},
-  {title:'সারসংক্ষেপ — Async / Await',script:`আজকে আমরা অনেক কিছু শিখলাম।
+Example: cache lookup method — ৯০% সময় cache hit, synchronously value return:
+Task দিয়ে return করলেও heap allocation হয়!
 
-<em>await</em> মানে Thread ছেড়ে দাও, কাজ হলে ফিরে আসো।
+<em>ValueTask&lt;T&gt;</em>:
+Cache hit → <code>return new ValueTask&lt;int&gt;(cachedValue);</code> — stack, no allocation
+Cache miss → <code>return new ValueTask&lt;int&gt;(FetchFromDbAsync());</code>
 
-<em>Task&lt;T&gt;</em> মানে ভবিষ্যতের প্রতিশ্রুতি।
+কখন use করবেন: method প্রায়ই synchronously complete হয় (cache, in-memory)
+কখন avoid: result multiple await, বা consumer Task-কে store/cache করে
 
-<em>WhenAll</em> — সবার জন্য অপেক্ষা। <em>WhenAny</em> — প্রথমটির জন্য।
+.NET 5+ এ IAsyncEnumerable, IAsyncDisposable-ও related patterns — large stream processing-এ useful।`},
+  {title:'Async Best Practices',script:`Production-ready async code-এর golden rules:
 
-<em>CancellationToken</em> দিয়ে Task বাতিল করুন।
+<em>১. Async All the Way</em>
+Controller → Service → Repository — পুরো stack async। এক layer sync = bottleneck + deadlock risk।
 
-কখনো <em>.Result</em> বা <em>.Wait()</em> ব্যবহার করবেন না — Deadlock হবে।
+<em>২. .Result / .Wait() — Never</em>
+Debugging-এও avoid করুন। GetAwaiter().GetResult()-ও same problem।
 
-Library কোডে <em>ConfigureAwait(false)</em> দিন।
+<em>৩. ConfigureAwait(false) in Libraries</em>
+NuGet package, shared infrastructure — সব await-এ।
 
-ভিডিওটি ভালো লাগলে লাইক, কমেন্ট এবং <em>Coding Drop</em> সাবস্ক্রাইব করুন। আল্লাহ হাফেজ!`}
+<em>৪. CancellationToken everywhere</em>
+Public async API-তে parameter রাখুন: <code>CancellationToken cancellationToken = default</code>
+
+<em>৫. Avoid async void</em>
+শুধু event handler। সব method async Task বা async Task&lt;T&gt;।
+
+<em>৬. Don't wrap sync in Task.Run unnecessarily</em>
+<code>await Task.Run(() => heavyCpu())</code> — CPU work-এ intentional, I/O-কে Task.Run দিয়ে fake async করবেন না।`},
+  {title:'Async কখন ব্যবহার করবেন না?',script:`Async magic নয় — wrong place-এ overhead বাড়ায়।
+
+<em>I/O Bound — Async ব্যবহার করুন ✓</em>
+Database queries, HTTP calls, file read/write, message queue, network socket — Thread blocked waiting-এর জায়গায় async perfect।
+
+<em>CPU Bound — Async avoid করুন ✗</em>
+Image processing, encryption, complex calculation, sorting large array — async state machine overhead লাভ নয়।
+
+CPU work-এ: <code>await Task.Run(() => Compute());</code> বা <code>Parallel.For</code> — dedicated thread-এ চালান।
+
+<em>Micro-optimization trap:</em>
+<code>await Task.Delay(1)</code> দিয়ে fake async — meaningless।
+
+<em>async void</em> event handler ছাড়া anywhere — exception unhandled, test করা কঠিন।
+
+Rule: I/O wait আছে? → async। Pure computation? → sync বা Task.Run/Parallel।`},
+  {title:'সারসংক্ষেপ — Async / Await',script:`আজ যা শিখলাম — quick recap:
+
+<em>await</em> = Thread আটকে রাখো না, I/O wait-এ Pool-এ ফিরে যাও, ready হলে continue।
+
+<em>Task / Task&lt;T&gt;</em> = async operation-এর handle, future result।
+
+<em>WhenAll</em> = সব parallel, সব শেষে continue। <em>WhenAny</em> = fastest wins।
+
+<em>CancellationToken</em> = graceful shutdown, HttpContext.RequestAborted use করুন।
+
+<em>.Result / .Wait()</em> = Deadlock trap — কখনো নয়।
+
+<em>ConfigureAwait(false)</em> = library code-এ must।
+
+Async সব জায়গায় নয় — I/O-তে yes, CPU-তে Task.Run বা sync।
+
+Practice করুন — existing sync repository methods-কে FindAsync, GetAsync version-এ refactor করে throughput কত improve হয় measure করুন।
+
+ভিডিও ভালো লাগলে like, comment করুন, <em>Coding Drop</em> subscribe করতে ভুলবেন না। পরবর্তী ভিডিওতে দেখা হবে — আল্লাহ হাফেজ!`}
 ];
 const chapters=['পরিচয়','Sync সমস্যা','Thread Pool','Task কী?','async/await কোড','WhenAll & WhenAny','CancellationToken','Deadlock','ConfigureAwait','Exception Handling','ValueTask','Best Practices','কখন নয়?','সারসংক্ষেপ'];
 const TOTAL=slides.length;
 document.getElementById('totNum').textContent=TOTAL;
 const chListP=document.getElementById('chListP');
-chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-p'+(i===0?' active':'');el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;el.onclick=()=>navigate(i-cur);chListP.appendChild(el)});
+chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-p'+(i===0?' active':'');el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;el.onclick=()=>goToSlide(i);chListP.appendChild(el)});
 function updateUI(){const s=slides[cur];document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;document.getElementById('curTitle').textContent=s.title;document.getElementById('scriptText').innerHTML=s.script;document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('prevBtn').disabled=cur===0;document.getElementById('nextBtn').disabled=cur===TOTAL-1;document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});const nt=document.getElementById('nextTitle');nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`}
-function navigate(delta){const next=Math.max(0,Math.min(TOTAL-1,cur+delta));if(next===cur)return;cur=next;BC.postMessage({type:'nav',idx:cur});updateUI()}
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1)});
+function goToSlide(idx){idx=Math.max(0,Math.min(TOTAL-1,idx));if(idx===cur)return;cur=idx;BC.postMessage({type:'nav',idx:cur});updateUI()}
+function navigate(delta){goToSlide(cur+delta)}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key==='PageDown'||e.key===' '){e.preventDefault();navigate(1)}
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();navigate(-1)}
+});
+document.body.tabIndex=-1;document.body.focus();
 function toggleTimer(){if(running){clearInterval(timerInterval);running=false;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}else{timerInterval=setInterval(()=>{seconds++;const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s},1000);running=true;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-pause"></i>'}}
 function resetTimer(){clearInterval(timerInterval);running=false;seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
 BC.postMessage({type:'ping_from_presenter'});
 setInterval(()=>BC.postMessage({type:'ping_from_presenter'}),3000);
-BC.onmessage=e=>{if(e.data.type==='ping'){document.getElementById('connDot').classList.add('live');document.getElementById('connTxt').textContent='সংযুক্ত';setTimeout(()=>{document.getElementById('connDot').classList.remove('live');document.getElementById('connTxt').textContent='সংযুক্ত নেই'},5000)}};
+BC.onmessage=e=>{
+  if(e.data.type==='nav'){cur=e.data.idx;updateUI()}
+  if(e.data.type==='ping'){document.getElementById('connDot').classList.add('live');document.getElementById('connTxt').textContent='Audience সংযুক্ত ✓';document.getElementById('connTxt').style.color='var(--emerald)';setTimeout(()=>{document.getElementById('connDot').classList.remove('live');document.getElementById('connTxt').textContent='Audience window খুলুন';document.getElementById('connTxt').style.color=''},5000)}
+};
 updateUI();
 </script>
 </body>

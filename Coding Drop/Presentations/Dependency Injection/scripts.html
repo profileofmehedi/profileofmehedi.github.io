@@ -309,7 +309,7 @@ html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; b
         পরের <i class="fa-solid fa-arrow-right"></i>
       </button>
     </div>
-    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">14</span></div>
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">13</span></div>
   </div>
 
   <!-- Right Panel -->
@@ -350,34 +350,21 @@ html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; b
 const SLIDES = [
   {
     ch:'পরিচিতি',
-    narration:`আসসালামু আলাইকুম সবাইকে! কোডিং ড্রপ (Coding Drop) চ্যানেলে আপনাদের স্বাগতম।
+    narration:`আসসালামু আলাইকুম! Coding Drop-এ স্বাগতম।
 
-আজকে আমরা সফটওয়্যার ইঞ্জিনিয়ারিং-এর অন্যতম গুরুত্বপূর্ণ একটি কনসেপ্ট নিয়ে আলোচনা করবো — Dependency Injection বা DI।
+আজ আমরা সফটওয়্যার ইঞ্জিনিয়ারিং-এর অন্যতম গুরুত্বপূর্ণ কনসেপ্ট — <em>Dependency Injection</em> বা DI নিয়ে কথা বলব।
 
-আপনি কি কখনো ভেবেছেন, বড় বড় প্রজেক্টগুলোতে ক্লাসগুলো কীভাবে একে অপরের সাথে যুক্ত থাকে? কেন কোনো একটা কোড পরিবর্তন করতে গেলে পুরো সিস্টেম ভেঙে পড়ে না?
-
-এর পেছনে মূল জাদুকরী কনসেপ্ট হলো ডিপেনডেন্সি ইনজেকশন। এটি কোডকে মেইনটেইনেবল, টেস্টেবল এবং ফ্লেক্সিবল করার সবচেয়ে জনপ্রিয় ডিজাইন প্যাটার্ন।
-
-আজকের এই টিউটোরিয়ালে আমরা ইন-ডিটেইল দেখব:
-— Tight Coupling বনাম Loose Coupling কী?
-— Dependency Injection আসলে কী এবং কেন এটি দরকার?
-— IoC (Inversion of Control) Container কীভাবে কাজ করে?
-— ASP.NET Core-এ DI-এর Service Lifetimes (Transient, Scoped, Singleton)
-— এবং বাস্তবে এর লাইভ ডেমো!
-
-চলুন শুরু করা যাক!`
+DI কোডকে maintainable, testable এবং flexible করার সবচেয়ে জনপ্রিয় ডিজাইন প্যাটার্ন। আজ দেখব Loose Coupling, IoC Container, Service Lifetimes এবং ASP.NET Core-এ বাস্তব ব্যবহার।`
   },
   {
     ch:'Tight Coupling বনাম Loose Coupling',
     narration:`ডিপেনডেন্সি ইনজেকশন বোঝার আগে আমাদের বুঝতে হবে প্রবলেমটা আসলে কোথায়।
 
-যখন একটি ক্লাস সরাসরি 'new' কিওয়ার্ড ব্যবহার করে অন্য একটি ক্লাসের অবজেক্ট তৈরি করে, তখন তাকে বলা হয় 'Tight Coupling' বা শক্তভাবে যুক্ত।
-যেমন, ধরুন আপনার একটি Car ক্লাস আছে, আর তার ভেতরে আপনি 직접 Engine ক্লাসের অবজেক্ট তৈরি করছেন (new Engine())। এর মানে হলো আপনার গাড়িটি ঐ নির্দিষ্ট ইঞ্জিনের ওপর নির্ভরশীল। ভবিষ্যতে ইঞ্জিন পরিবর্তন করতে চাইলে পুরো গাড়ির কোড পরিবর্তন করতে হবে।
+যখন একটি ক্লাস সরাসরি 'new' কিওয়ার্ড ব্যবহার করে অন্য একটি ক্লাসের অবজেক্ট তৈরি করে, তখন তাকে বলা হয় Tight Coupling।
 
-অন্যদিকে, 'Loose Coupling' হলো এমন একটি ব্যবস্থা যেখানে ক্লাসগুলো একে অপরের ওপর সরাসরি নির্ভরশীল থাকে না। বরং তারা ইন্টারফেস (Interface) এর মাধ্যমে যুক্ত থাকে।
-গাড়িটি কেবল একটি IEngine চায়, ইঞ্জিনটি পেট্রোলের না ইলেকট্রিকের — তা তার জানার প্রয়োজন নেই।
+<em>Tight Coupling / Loose Coupling</em> সুইচে ক্লিক করলে দুই পাশের কোডের পার্থক্য দেখতে পাবেন — বামে সমস্যা, ডানে Constructor Injection-এর সমাধান।
 
-Tight Coupling কোডকে রিজিড বা অনমনীয় করে তোলে, আর Loose Coupling কোডকে অনেক ফ্লেক্সিবল করে।`
+Loose Coupling-এ ক্লাস ইন্টারফেস ব্যবহার করে, ডিপেনডেন্সি বাইরে থেকে ইনজেক্ট করা হয়।`
   },
   {
     ch:'Dependency Injection কী?',
@@ -396,129 +383,69 @@ DI-এর মূল উদ্দেশ্য হলো অবজেক্ট ত
   },
   {
     ch:'DI এর প্রকারভেদ',
-    narration:`Dependency Injection মূলত তিনটি উপায়ে করা যায়:
+    narration:`Dependency Injection মূলত তিনটি উপায়ে করা যায়।
 
-১. Constructor Injection (সবচেয়ে বেশি ব্যবহৃত):
-ক্লাসের কনস্ট্রাক্টরের মাধ্যমে ডিপেনডেন্সি প্রোভাইড করা হয়। ASP.NET Core-এ এটিই ডিফল্ট এবং বেস্ট প্র্যাকটিস। এতে নিশ্চিত হওয়া যায় যে, অবজেক্টটি তৈরি হওয়ার সময়ই তার প্রয়োজনীয় সব ডিপেনডেন্সি পেয়ে গেছে।
+<em>প্রকারভেদ দেখুন</em> বাটনে ক্লিক করলে Constructor, Method এবং Property Injection একে একে হাইলাইট হবে।
 
-২. Method Injection:
-যখন কোনো একটি নির্দিষ্ট মেথডের কাজের জন্য ডিপেনডেন্সি দরকার হয়, তখন মেথডের প্যারামিটার হিসেবে সেটি পাঠানো হয়।
-
-৩. Property / Setter Injection:
-ক্লাসের প্রপার্টির মাধ্যমে ডিপেনডেন্সি সেট করা হয়। এটি সাধারণত অপশনাল বা ঐচ্ছিক ডিপেনডেন্সির ক্ষেত্রে ব্যবহৃত হয়।
-
-আমরা আমাদের প্রজেক্টগুলোতে ৯৯% সময় Constructor Injection-ই ব্যবহার করবো।`
+Constructor Injection ASP.NET Core-এ বেস্ট প্র্যাকটিস — অবজেক্ট তৈরি হওয়ার সময়ই সব ডিপেনডেন্সি পেয়ে যায়।`
   },
   {
     ch:'Service Lifetimes (জীবনকাল)',
-    narration:`ASP.NET Core-এ DI কন্টেইনার যখন কোনো সার্ভিসের অবজেক্ট তৈরি করে, তখন সেই অবজেক্টের জীবনকাল (Lifetime) কতটা হবে, তা আমরা ঠিক করে দিতে পারি। এটি তিন ধরনের হয়:
+    narration:`ASP.NET Core-এ DI Container অবজেক্ট তৈরি করার সময় তার জীবনকাল ঠিক করতে পারেন।
 
-১. Transient (অস্থায়ী):
-যখনই কন্টেইনারের কাছে এই সার্ভিসটি চাওয়া হবে, সে প্রতিবার একটি সম্পূর্ণ নতুন অবজেক্ট তৈরি করে দেবে। এটি লাইটওয়েট এবং স্টেটলেস সার্ভিসের জন্য উপযুক্ত।
+<em>Lifetime তুলনা</em> বাটনে ক্লিক করলে Transient, Scoped ও Singleton তিনটি কার্ড হাইলাইট হবে।
 
-২. Scoped (স্কোপড):
-প্রতিটি HTTP রিকোয়েস্টের জন্য কন্টেইনার একটি মাত্র অবজেক্ট তৈরি করে। একই রিকোয়েস্টের ভেতরে যতবারই ওই সার্ভিস চাওয়া হোক না কেন, একই অবজেক্ট দেওয়া হবে। ডাটাবেজ কনটেক্সট (DbContext)-এর ক্ষেত্রে এটি সবচেয়ে বেশি ব্যবহৃত হয়।
-
-৩. Singleton (সিঙ্গেলটন):
-পুরো অ্যাপ্লিকেশনের লাইফটাইমে কন্টেইনার শুধুমাত্র একবারই অবজেক্ট তৈরি করে। প্রথম রিকোয়েস্টে অবজেক্ট তৈরি হয় এবং এরপর সমস্ত রিকোয়েস্টে সেই একই অবজেক্ট শেয়ার করা হয়। ক্যাশিং সার্ভিসের জন্য এটি দারুণ।`
+Transient = প্রতিবার নতুন, Scoped = প্রতি HTTP Request-এ এক, Singleton = পুরো App-এ এক।`
   },
   {
     ch:'IoC Container (Inversion of Control)',
-    narration:`IoC Container বা Inversion of Control Container হলো DI-এর মূল ইঞ্জিন।
+    narration:`IoC Container হলো DI-এর মূল ইঞ্জিন — অবজেক্ট তৈরির নিয়ন্ত্রণ ফ্রেমওয়ার্কের হাতে।
 
-সফটওয়্যার ডিজাইনে 'Inversion of Control' মানে হলো নিয়ন্ত্রণের হাতবদল। অর্থাৎ, অবজেক্ট তৈরি করার নিয়ন্ত্রণ ইউজারের হাত থেকে ফ্রেমওয়ার্ক বা কন্টেইনারের হাতে দিয়ে দেওয়া।
-
-ASP.NET Core-এ একটি বিল্ট-ইন IoC Container থাকে।
-
-এটি কীভাবে কাজ করে?
-প্রথমে আমরা অ্যাপ্লিকেশন চালু হওয়ার সময় কন্টেইনারের কাছে আমাদের সমস্ত ইন্টারফেস এবং তার ইমপ্লিমেন্টেশন ক্লাসগুলো রেজিস্টার বা নিবন্ধন করি। একে বলা হয় Registration Phase।
-
-এরপর যখন কোনো ক্লাসের (যেমন কন্ট্রোলার) ওই সার্ভিসের প্রয়োজন হয়, সে কন্টেইনারের কাছে ইন্টারফেসটি চায়। কন্টেইনার তখন দেখে এই ইন্টারফেসের বিপরীতে কোন ক্লাস রেজিস্টার করা আছে এবং তার লাইফটাইম কী। সেই অনুযায়ী সে অবজেক্ট তৈরি করে ক্লায়েন্টকে দিয়ে দেয় (Resolve Phase)।`
+<em>IoC Phases দেখুন</em> বাটনে ক্লিক করলে Registration → Resolution → Disposal তিনটি ধাপ একে একে দেখাবে।`
   },
   {
     ch:'IoC Resolution Flow',
-    narration:`চলুন একটি ফ্লো ডায়াগ্রামের মাধ্যমে দেখি IoC Container কীভাবে অবজেক্ট রিসলভ করে।
+    narration:`IoC Container কীভাবে অবজেক্ট রিসলভ করে তা ফ্লো ডায়াগ্রামে দেখি।
 
-১. প্রথমে UserController তার কনস্ট্রাক্টরে IUserService দাবি করে।
-২. রিকোয়েস্টটি যায় DI Container-এর কাছে।
-৩. Container তার রেজিস্ট্রেশন টেবিলে বা সার্ভিস কালেকশনে খুঁজে দেখে IUserService-এর জন্য কোন ক্লাসটি ম্যাপ করা আছে (যেমন UserService)।
-৪. এরপর Container চেক করে UserService-এর নিজের কোনো ডিপেনডেন্সি (যেমন IUserRepository) আছে কিনা।
-৫. যদি থাকে, তবে সে সেটিকেও একইভাবে রিসলভ করে এবং UserService-এর অবজেক্ট তৈরি করে UserController-এ ইনজেক্ট করে দেয়।
-
-পুরো প্রসেসটি পর্দার আড়ালে এত সুন্দরভাবে ঘটে যে ডেভেলপারকে 'new' কিওয়ার্ড নিয়ে ভাবতেই হয় fix না।`
+<em>Resolution Flow চালান</em> বাটনে ক্লিক করলে UserController থেকে শুরু করে Repository পর্যন্ত পুরো রিসলিউশন প্রসেস অ্যানিমেট হবে।`
   },
   {
     ch:'Tight Coupling Code (সমস্যা)',
-    narration:`এবার কোডের দিকে তাকাই। এই স্লাইডে আমরা একটি Tight Coupling-এর উদাহরণ দেখছি।
+    narration:`এখানে Tight Coupling-এর একটি বাস্তব উদাহরণ — UserController সরাসরি new UserService() করছে।
 
-এখানে UserController সরাসরি UserService-এর অবজেক্ট তৈরি করছে:
-'var _userService = new UserService();'
-
-এতে সমস্যা কী?
-১. যদি UserService-এর কনস্ট্রাক্টরে কোনো পরিবর্তন আসে, তবে UserController-এ এসেও কোড পরিবর্তন করতে হবে।
-২. আমরা যদি প্রডাকশনের জন্য রিয়েল UserService এবং টেস্টিংয়ের জন্য MockUserService ব্যবহার করতে চাই, তবে কোড না পাল্টে তা করা অসম্ভব।
-৩. Unit Test লেখা অত্যন্ত কঠিন হয়ে যায়।
-
-এটি একটি ব্যাড প্র্যাকটিস এবং সলিড (SOLID) প্রিন্সিপালের 'Dependency Inversion Principle (DIP)'-এর পরিপন্থী।`
+<em>কোড প্রকাশ করুন</em> বাটনে ক্লিক করলে কোড লাইন বাই লাইন দেখাবে। এতে Unit Test এবং মেইনটেন্যান্স কঠিন হয়।`
   },
   {
     ch:'DI Code in ASP.NET Core (সমাধান)',
-    narration:`আর এবার দেখুন ASP.NET Core-এ Dependency Injection ব্যবহার করে কীভাবে সমাধান করা হয়।
+    narration:`ASP.NET Core-এ DI দিয়ে কীভাবে সমাধান করা হয় দেখি।
 
-কোডের ডান পাশে Program.cs-এ আমরা সার্ভিসটি রেজিস্টার করছি:
-'builder.Services.AddScoped<IUserService, UserService>();'
-
-আর বাম পাশে UserController-এর কনস্ট্রাক্টরে আমরা শুধু ইন্টারফেসটি (IUserService) চেয়েছি।
-'public UserController(IUserService userService)'
-
-এখন UserController জানেও না যে UserService ক্লাসটি কীভাবে তৈরি হয়েছে বা এর ব্যাকগ্রাউন্ডে কী আছে। সে শুধু জানে যে তার কাছে একটি সার্ভিস আছে যা IUserService-এর নিয়ম মেনে চলে।
-
-এর ফলে কোড পুরোপুরি ডি-কাপলড (Decoupled) বা আলাদা হয়ে গেছে। টেস্টিং এবং মেইনটেন্যান্স এখন অনেক সহজ।`
+<em>DI কোড দেখুন</em> বাটনে ক্লিক করলে Program.cs-এ Registration এবং Controller-এ Constructor Injection দুটোই প্রকাশ পাবে।`
   },
   {
     ch:'Live Sandbox — Lifetime Demo',
-    narration:`আসুন এবার প্র্যাক্টিক্যালি লাইভ স্যান্ডবক্সে Service Lifetimes-এর পার্থক্য দেখি।
+    narration:`এখন লাইভ স্যান্ডবক্সে Service Lifetimes-এর পার্থক্য দেখি।
 
-আমরা একই HTTP রিকোয়েস্টে একই সার্ভিস দু'বার কল করবো এবং তাদের Instance ID (Guid) চেক করবো।
-
-- Transient-এর ক্ষেত্রে দেখবেন, দুটি সার্ভিসের আইডি সম্পূর্ণ আলাদা। কারণ প্রতিবার নতুন অবজেক্ট তৈরি হয়েছে।
-- Scoped-এর ক্ষেত্রে দেখবেন, একই রিকোয়েস্টের ভেতর দুটি আইডি হুবহু এক। কিন্তু আপনি যদি নতুন রিকোয়েস্ট পাঠান, তখন আইডি পরিবর্তন হয়ে যাবে।
-- Singleton-এর ক্ষেত্রে আইডি একবার যা তৈরি হবে, যতবারই রিকোয়েস্ট পাঠান না কেন, তা আর কখনোই পরিবর্তন হবে fix না। পুরো অ্যাপ্লিকেশনে একটিই ইনস্ট্যান্স!
-
-এই আইডিগুলো দেখেই আপনি পরিষ্কার বুঝতে পারবেন কন্টেইনার কীভাবে অবজেক্ট ম্যানেজ করছে।`
+<em>Send Request 1</em> ও <em>Send Request 2</em> বাটনে ক্লিক করুন — Transient-এ Guid আলাদা, Scoped-এ এক Request-এ একই, Singleton-এ সবসময় একই থাকে।`
   },
   {
     ch:'DI এর সুবিধাসমূহ',
-    narration:`Dependency Injection ব্যবহার করার মূল সুবিধাগুলো একনজরে দেখে নিই:
+    narration:`Dependency Injection-এর মূল সুবিধাগুলো একনজরে।
 
-১. Loose Coupling: ক্লাসগুলো একে অপরের উপর কম নির্ভরশীল থাকে, ফলে একটি পরিবর্তন করলে অন্যটি ভেঙে পড়ে না।
-২. Testability: খুব সহজেই Mock অবজেক্ট ইনজেক্ট করে Unit Test করা যায়।
-৩. Maintainability: কোড অনেক বেশি পরিষ্কার ও গোছানো থাকে।
-৪. Flexibility: যেকোনো সময় একটি ক্লাসের পরিবর্তে অন্য ক্লাস (যেমন Oracle-এর বদলে SQL Server) রিপ্লেস করা যায়, শুধু Program.cs-এ এক লাইন কোড পরিবর্তন করেই!
-৫. Lifetime Management: অবজেক্টের মেমোরি লাইফটাইম (Transient, Scoped, Singleton) কন্টেইনার নিজেই ম্যানেজ করে।`
+<em>সুবিধা প্রকাশ করুন</em> বাটনে ক্লিক করলে Loose Coupling, Testability, Maintainability সহ ছয়টি সুবিধা একে একে হাইলাইট হবে।`
   },
   {
     ch:'সতর্কতা ও Anti-patterns',
-    narration:`DI ব্যবহার করার সময় কিছু ভুল বা Anti-pattern থেকে দূরে থাকতে হবে:
+    narration:`DI ব্যবহারে কিছু ভুল থেকে দূরে থাকতে হবে।
 
-১. Service Locator Anti-pattern: 
-সরাসরি IServiceProvider থেকে 'GetService()' কল করে অবজেক্ট নেওয়া অনুচিত। সবসময় কনস্ট্রাক্টর ইনজেকশন ব্যবহার করা উচিত।
-
-২. Over-injection (Constructor Over-injection):
-একটি ক্লাসের কনস্ট্রাক্টরে যদি ৫-৬ টার বেশি ডিপেনডেন্সি থাকে, তবে বুঝতে হবে ওই ক্লাসটি অনেক বেশি কাজ করছে (Violating Single Responsibility Principle)। তখন ক্লাসটিকে ছোট ছোট ভাগে ভাগ করা উচিত।
-
-৩. Captive Dependency:
-কখনোই Singleton সার্ভিসের ভেতরে Scoped বা Transient সার্ভিস ইনজেক্ট করবেন না। কারণ এতে ওই Scoped সার্ভিসটিও Singleton হয়ে যাবে এবং মেমোরি লিক হতে পারে।`
+<em>সতর্কতা দেখুন</em> বাটনে ক্লিক করলে Service Locator, Over-injection এবং Captive Dependency — তিনটি Anti-pattern দেখাবে।`
   },
   {
     ch:'সারাংশ ও বিদায়',
-    narration:`আজকের সেশনে আমরা Dependency Injection (DI)-এর একদম কোর কনসেপ্ট থেকে শুরু করে ASP.NET Core-এ এর ব্যবহার বিস্তারিত দেখলাম।
+    narration:`আজকের সেশনে DI-এর কোর কনসেপ্ট থেকে ASP.NET Core ব্যবহার পর্যন্ত দেখলাম।
 
-DI কীভাবে আমাদের কোডকে মেইনটেইনেবল, ফ্লেক্সিবল এবং টেস্টেবল করে তোলে তা আমরা বুঝতে পেরেছি। Service Lifetimes এবং IoC Container-এর কাজও আমরা ডেমোর মাধ্যমে ক্লিয়ার করেছি।
+<em>সারসংক্ষেপ প্রকাশ করুন</em> বাটনে ক্লিক করলে চারটি মূল পয়েন্ট একে একে দেখাবে।
 
-আশা করি কনসেপ্টগুলো আপনাদের কাজে আসবে। ভিডিওটি ভালো লাগলে লাইক দিন এবং কোডিং ড্রপ (Coding Drop) চ্যানেলে সাবস্ক্রাইব করে সাথেই থাকুন।
-
-দেখা হবে আগামী পর্বে, নতুন কোনো টপিক নিয়ে। সবাই ভালো থাকবেন, আল্লাহ হাফেজ!`
+ভিডিওটি ভালো লাগলে লাইক দিন এবং Coding Drop চ্যানেলে সাবস্ক্রাইব করুন। আল্লাহ হাফেজ!`
   }
 ];
 
@@ -567,9 +494,9 @@ function presNav(dir){
 
 /* keyboard */
 document.addEventListener('keydown', e => {
-  if(e.key==='ArrowRight') presNav(1);
-  else if(e.key==='ArrowLeft') presNav(-1);
-  else if(e.key>='1'&&e.key<='9'){ cur=parseInt(e.key)-1; BC.postMessage({type:'nav',idx:cur}); renderSlide(); }
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); presNav(1); }
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); presNav(-1); }
+  else if(e.key>='1'&&e.key<='9'){ e.preventDefault(); cur=parseInt(e.key)-1; BC.postMessage({type:'nav',idx:cur}); renderSlide(); }
 });
 
 /* ─── RENDER ─── */
@@ -584,7 +511,7 @@ function renderSlide(){
   const nextSl = SLIDES[cur+1];
   const ntEl = document.getElementById('nextTitle');
   if(nextSl) ntEl.innerHTML = `<i class="fa-solid fa-arrow-right"></i> <span>${nextSl.ch}</span>`;
-  else ntEl.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span style="color:var(--indigo)">উপস্থাপনা শেষ!</span>`;
+  else ntEl.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span style="color:var(--indigo)">শেষ</span>`;
 
   // buttons
   document.getElementById('btnPrev').disabled = cur === 0;

@@ -184,10 +184,126 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
 
 /* ── Summary ── */
 .sum-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:660px}
-.sum-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+.sum-item{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;transform:translateX(-12px);opacity:0;transition:all .55s cubic-bezier(.4,0,.2,1)}
+.sum-item.revealed{transform:translateX(0);opacity:1}
 .sum-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
 .sum-title{font-weight:700;font-size:0.85rem;margin-bottom:2px}
 .sum-sub{font-size:0.7rem;color:var(--muted)}
+
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.85) translateY(10px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes ringSpin{to{transform:rotate(360deg)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 20px rgba(56,189,248,.25)}50%{box-shadow:0 0 40px rgba(129,140,248,.45)}}
+@keyframes dashFlow{to{stroke-dashoffset:0}}
+@keyframes stepGlow{0%,100%{border-color:rgba(255,255,255,.08)}50%{border-color:var(--accent,#38bdf8);box-shadow:0 0 20px rgba(56,189,248,.2)}}
+@keyframes winnerPop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes tokenBlink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes heapDrop{0%{transform:translateY(-20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes barGrow{from{width:0}}
+
+.hero-orbit-wrap{position:relative;width:120px;height:120px;margin-bottom:8px}
+.hero-orbit-core{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--sky),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);animation:glowPulse 2.5s ease-in-out infinite;z-index:2}
+.hero-orbit-ring{position:absolute;inset:0;border:2px dashed rgba(56,189,248,.35);border-radius:50%;animation:ringSpin 12s linear infinite}
+.hero-orbit-ring2{position:absolute;inset:14px;border:1px solid rgba(129,140,248,.25);border-radius:50%;animation:ringSpin 8s linear infinite reverse}
+.hero-badge{animation:popIn .6s ease both,floatY 3s ease-in-out infinite}
+.hero-badge:nth-child(1){animation-delay:0s,.2s}.hero-badge:nth-child(2){animation-delay:.08s,.5s}
+.hero-badge:nth-child(3){animation-delay:.16s,.8s}.hero-badge:nth-child(4){animation-delay:.24s,1.1s}
+.hero-badge:nth-child(5){animation-delay:.32s,1.4s}
+
+.demo-play-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(56,189,248,.35);background:rgba(56,189,248,.1);color:var(--sky);font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:all .25s;margin-top:4px}
+.demo-play-btn:hover{background:rgba(56,189,248,.2);transform:translateY(-2px)}
+.chef-col{position:relative}
+.chef-step{opacity:.35;transform:translateX(-6px);transition:all .45s ease;border-left:3px solid transparent;padding-left:10px;margin-bottom:6px}
+.chef-step.active{opacity:1;transform:translateX(0);border-left-color:var(--step-color,var(--sky));animation:stepGlow 1.2s ease}
+.chef-timeline{height:4px;background:rgba(255,255,255,.06);border-radius:4px;margin-top:14px;overflow:hidden}
+.chef-timeline-fill{height:100%;width:0;border-radius:4px;transition:width .5s ease}
+
+.pool-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
+.pool-stat{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;transition:transform .3s}
+.pool-stat.bump{transform:scale(1.06)}
+.pool-stat-num{font-family:'Fira Code',monospace;font-size:1.4rem;font-weight:800;line-height:1}
+.pool-stat-label{font-size:.62rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.pool-queue{display:flex;gap:8px;flex-wrap:wrap;min-height:36px;align-items:center}
+.queue-chip{padding:6px 12px;border-radius:20px;font-size:.68rem;font-weight:700;font-family:'Fira Code',monospace;animation:popIn .4s ease both}
+.queue-sync{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.35);color:var(--rose)}
+.queue-async{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);color:var(--sky)}
+
+.task-card{cursor:pointer;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
+.task-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.task-card.selected{border-color:var(--sky)!important;box-shadow:0 0 24px rgba(56,189,248,.25)}
+.task-lifecycle-bar{display:flex;gap:6px;margin-top:16px;justify-content:center;flex-wrap:wrap}
+.lifecycle-node{padding:8px 14px;border-radius:10px;font-size:.68rem;font-weight:700;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .4s;position:relative}
+.lifecycle-node.active{color:#fff;border-color:var(--sky);background:rgba(56,189,248,.2);transform:scale(1.05)}
+.lifecycle-node.done-node{color:var(--emerald);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1)}
+.lifecycle-arrow{color:var(--muted);font-size:.75rem;display:flex;align-items:center}
+
+.flow-viz{width:100%;max-width:800px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:4px}
+.flow-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.flow-node{padding:10px 16px;border-radius:12px;font-size:.72rem;font-weight:700;border:2px solid var(--border);background:rgba(255,255,255,.03);transition:all .5s;min-width:90px;text-align:center}
+.flow-node.hot{border-color:var(--gold);background:rgba(251,191,36,.12);color:var(--gold);animation:busyPulse 1s ease-in-out infinite alternate}
+.flow-node.free{border-color:var(--emerald);background:rgba(52,211,153,.12);color:var(--emerald)}
+.flow-node.blocked{border-color:var(--rose);background:rgba(248,113,113,.12);color:var(--rose)}
+.flow-arrow{font-size:1rem;color:var(--muted);transition:color .3s}
+.flow-arrow.live{color:var(--sky);animation:floatY 1s ease-in-out infinite}
+.flow-caption{text-align:center;font-size:.72rem;color:var(--muted);min-height:22px}
+
+.token-visual{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.token-badge{padding:10px 18px;border-radius:12px;font-family:'Fira Code',monospace;font-size:.78rem;font-weight:700;border:2px solid rgba(56,189,248,.4);background:rgba(56,189,248,.1);color:var(--sky);transition:all .4s}
+.token-badge.cancelled{border-color:var(--rose);background:rgba(248,113,113,.15);color:var(--rose);animation:tokenBlink .6s ease 3}
+.token-badge.done-tok{border-color:var(--emerald);background:rgba(52,211,153,.12);color:var(--emerald)}
+
+.dl-step-bar{display:flex;gap:8px;margin-bottom:14px;justify-content:center;flex-wrap:wrap}
+.dl-step{padding:6px 12px;border-radius:8px;font-size:.68rem;font-weight:700;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);transition:all .35s}
+.dl-step.active{background:rgba(56,189,248,.12);border-color:var(--sky);color:var(--sky)}
+.dl-step.danger{background:rgba(248,113,113,.12);border-color:var(--rose);color:var(--rose)}
+.dl-arrow-svg{width:100%;max-width:400px;height:50px;margin:0 auto 8px}
+.dl-arrow-svg line{stroke:rgba(248,113,113,.5);stroke-width:2;stroke-dasharray:8 4;animation:dashFlow 1s linear infinite}
+
+.ctx-viz{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;width:100%;margin-top:12px}
+.ctx-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;transition:all .5s}
+.ctx-box.capture{border-color:var(--rose);background:rgba(248,113,113,.08);box-shadow:0 0 20px rgba(248,113,113,.15)}
+.ctx-box.safe{border-color:var(--emerald);background:rgba(52,211,153,.08);box-shadow:0 0 20px rgba(52,211,153,.15)}
+.ctx-icon{font-size:1.6rem;margin-bottom:8px}
+.ctx-label{font-size:.75rem;font-weight:700;margin-bottom:4px}
+.ctx-sub{font-size:.65rem;color:var(--muted)}
+
+.exc-flow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.exc-task{padding:14px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .3s;text-align:center;min-width:120px}
+.exc-task:hover{transform:translateY(-4px);border-color:var(--sky)}
+.exc-task.fail{border-color:var(--rose);background:rgba(248,113,113,.12);animation:shake .4s ease}
+.exc-task.ok{border-color:var(--emerald);background:rgba(52,211,153,.1)}
+.exc-task-icon{font-size:1.4rem;margin-bottom:6px}
+.exc-task-name{font-size:.72rem;font-weight:700}
+.exc-log{margin-top:12px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:12px;font-family:'Fira Code',monospace;font-size:.68rem;color:var(--muted);min-height:60px;text-align:left;line-height:1.8}
+
+.mem-meter{display:flex;gap:16px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.mem-col{flex:1;min-width:140px;max-width:200px;text-align:center}
+.mem-bar-wrap{height:100px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;padding:8px}
+.mem-bar-fill{width:70%;border-radius:6px 6px 0 0;transition:height .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:.6rem;font-weight:800;color:#fff}
+.mem-bar-fill.heap{background:linear-gradient(180deg,var(--rose),#be123c);height:20%}
+.mem-bar-fill.stack{background:linear-gradient(180deg,var(--emerald),#059669);height:8%}
+.mem-bar-fill.heap.high{height:85%;animation:heapDrop .5s ease}
+.mem-bar-fill.stack.low{height:12%}
+.mem-col-label{font-size:.72rem;font-weight:700;margin-top:8px}
+.mem-col-count{font-family:'Fira Code',monospace;font-size:.65rem;color:var(--muted);margin-top:4px}
+
+.info-card{transition:transform .35s ease,box-shadow .35s ease;cursor:pointer}
+.info-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.info-card.expanded{grid-column:span 2}
+.info-card .ic-tip{display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);font-size:.68rem;color:var(--muted);line-height:1.5;text-align:left}
+.info-card.expanded .ic-tip{display:block}
+
+.io-cpu-demo{width:100%;max-width:760px;display:flex;flex-direction:column;gap:16px}
+.io-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:4px;width:fit-content;margin:0 auto}
+.io-opt{padding:8px 20px;border-radius:24px;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all .3s;border:none;background:transparent;font-family:inherit}
+.io-opt.active{background:linear-gradient(135deg,var(--sky),var(--indigo));color:#fff}
+.perf-bars{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.perf-col{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center}
+.perf-col-title{font-size:.78rem;font-weight:800;margin-bottom:12px}
+.perf-bar-bg{height:12px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden;margin-bottom:8px}
+.perf-bar-fill{height:100%;border-radius:6px;width:0;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.perf-label{font-size:.68rem;color:var(--muted)}
+.when-task.winner{animation:winnerPop .6s ease;border-color:var(--gold)!important;box-shadow:0 0 24px rgba(251,191,36,.3)}
 </style>
 </head>
 <body>
@@ -205,7 +321,12 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <!-- S1 Hero -->
     <div class="slide active" id="s1">
       <div style="display:flex;flex-direction:column;align-items:center;gap:22px">
-        <div class="tag fu d1"><i class="fa-solid fa-bolt"></i> .NET Async</div>
+        <div class="hero-orbit-wrap fu d1">
+          <div class="hero-orbit-ring"></div>
+          <div class="hero-orbit-ring2"></div>
+          <div class="hero-orbit-core"><i class="fa-solid fa-bolt"></i></div>
+        </div>
+        <div class="tag fu d2"><i class="fa-solid fa-bolt"></i> .NET Async</div>
         <div style="font-size:3.2rem;font-weight:900;text-align:center;line-height:1.1" class="fu d2">
           <span class="hl">Async / Await</span><br><span>& Task Parallel Library</span>
         </div>
@@ -225,21 +346,24 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div class="tag fu d1"><i class="fa-solid fa-hourglass-half"></i> সমস্যা</div>
       <h2 class="s-title fu d2"><span style="color:var(--rose)">Synchronous</span> = Thread আটকে থাকে</h2>
       <p class="s-desc fu d3">Synchronous কোডে একটি Thread একটাই কাজ করে — সে কাজ শেষ না হওয়া পর্যন্ত অন্য কিছু করতে পারে না।</p>
-      <div class="two-col fu d4">
-        <div class="col-box rose-box">
+      <button class="demo-play-btn fu d3" onclick="playChefDemo()"><i class="fa-solid fa-play"></i> বাবুর্চি ডেমো চালান</button>
+      <div class="two-col fu d4" style="margin-top:14px">
+        <div class="col-box rose-box chef-col" id="chefSync">
           <div class="col-title"><i class="fa-solid fa-user-clock"></i> বাবুর্চি (Sync)</div>
-          <div class="mem-frame">🍵 পানি চুলায় দিলো</div>
-          <div class="mem-frame" style="color:var(--rose)">⏳ চুলার পাশে দাঁড়িয়ে অপেক্ষা...</div>
-          <div class="mem-frame" style="color:var(--rose)">⏳ পানি গরম না হওয়া পর্যন্ত বন্ধ</div>
-          <div class="mem-frame">✅ পানি গরম হলে বাকি রান্না</div>
+          <div class="chef-step" data-step="0" style="--step-color:var(--rose)">🍵 পানি চুলায় দিলো</div>
+          <div class="chef-step" data-step="1" style="--step-color:var(--rose)">⏳ চুলার পাশে দাঁড়িয়ে অপেক্ষা...</div>
+          <div class="chef-step" data-step="2" style="--step-color:var(--rose)">⏳ পানি গরম না হওয়া পর্যন্ত বন্ধ</div>
+          <div class="chef-step" data-step="3" style="--step-color:var(--rose)">✅ পানি গরম হলে বাকি রান্না</div>
+          <div class="chef-timeline"><div class="chef-timeline-fill" id="chefSyncBar" style="background:var(--rose)"></div></div>
           <div class="col-note">Thread blocked — অন্য request নিতে পারছে না</div>
         </div>
-        <div class="col-box sky-box">
+        <div class="col-box sky-box chef-col" id="chefAsync">
           <div class="col-title"><i class="fa-solid fa-user-ninja"></i> বাবুর্চি (Async)</div>
-          <div class="mem-frame">🍵 পানি চুলায় দিলো</div>
-          <div class="mem-frame" style="color:var(--sky)">🧅 ততক্ষণে পেঁয়াজ কাটছে (await)</div>
-          <div class="mem-frame" style="color:var(--sky)">🥕 গাজর কাটছে — Thread মুক্ত</div>
-          <div class="mem-frame">✅ পানি গরম হলে Continuation চলে</div>
+          <div class="chef-step" data-step="0" style="--step-color:var(--sky)">🍵 পানি চুলায় দিলো</div>
+          <div class="chef-step" data-step="1" style="--step-color:var(--sky)">🧅 ততক্ষণে পেঁয়াজ কাটছে (await)</div>
+          <div class="chef-step" data-step="2" style="--step-color:var(--sky)">🥕 গাজর কাটছে — Thread মুক্ত</div>
+          <div class="chef-step" data-step="3" style="--step-color:var(--sky)">✅ পানি গরম হলে Continuation চলে</div>
+          <div class="chef-timeline"><div class="chef-timeline-fill" id="chefAsyncBar" style="background:var(--sky)"></div></div>
           <div class="col-note" style="color:var(--sky)">Thread free — আরো request নিতে পারে</div>
         </div>
       </div>
@@ -256,6 +380,12 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
           <button class="pool-btn btn-async" onclick="runAsyncDemo()"><i class="fa-solid fa-bolt"></i> Async Request পাঠাও</button>
           <button class="pool-btn btn-rst" onclick="resetPool()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
         </div>
+        <div class="pool-stats" id="poolStats">
+          <div class="pool-stat"><div class="pool-stat-num" id="statIdle" style="color:var(--sky)">8</div><div class="pool-stat-label">Idle</div></div>
+          <div class="pool-stat"><div class="pool-stat-num" id="statBusy" style="color:var(--gold)">0</div><div class="pool-stat-label">Busy</div></div>
+          <div class="pool-stat"><div class="pool-stat-num" id="statBlocked" style="color:var(--rose)">0</div><div class="pool-stat-label">Blocked</div></div>
+          <div class="pool-stat"><div class="pool-stat-num" id="statDone" style="color:var(--emerald)">0</div><div class="pool-stat-label">Completed</div></div>
+        </div>
         <div class="pool-area">
           <div class="pool-title">🔵 THREAD POOL (৮টি Thread)</div>
           <div class="threads-row" id="threadsRow"></div>
@@ -266,6 +396,7 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
             <div class="pool-legend-item"><div class="pool-legend-dot" style="background:var(--emerald);border-radius:50%"></div> Done</div>
           </div>
         </div>
+        <div style="width:100%"><div class="pool-title" style="margin-bottom:8px">📥 Request Queue</div><div class="pool-queue" id="poolQueue"><span style="font-size:.7rem;color:var(--muted)">কোনো request নেই...</span></div></div>
         <div class="pool-log" id="poolLog">Thread Pool প্রস্তুত। Request পাঠান...</div>
       </div>
     </div>
@@ -275,32 +406,39 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div class="tag fu d1"><i class="fa-solid fa-ticket"></i> Task কী?</div>
       <h2 class="s-title fu d2"><span class="hl">Task&lt;T&gt;</span> — ভবিষ্যতের প্রতিশ্রুতি</h2>
       <p class="s-desc fu d3">Task হলো রেস্তোরাঁর অর্ডার টোকেনের মতো। আপনি অর্ডার দিলেন এবং টোকেন পেলেন। খাবার তৈরি হলে টোকেন দিয়ে নিয়ে যাবেন।</p>
-      <div class="task-cards fu d4">
-        <div class="task-card">
+      <div class="task-cards fu d4" id="taskCards">
+        <div class="task-card" onclick="selectTaskCard(0)">
           <div class="task-card-icon">📋</div>
           <div class="task-card-title" style="color:var(--gold)">Task (void)</div>
           <div class="task-card-desc">কোনো মান ফেরত দেয় না। শুধু কাজ করে।</div>
-          <div class="status-pill pill-pending">⏳ Pending</div>
+          <div class="status-pill pill-pending" id="tp0">⏳ Pending</div>
         </div>
-        <div class="task-card">
+        <div class="task-card" onclick="selectTaskCard(1)">
           <div class="task-card-icon">📦</div>
           <div class="task-card-title" style="color:var(--sky)">Task&lt;T&gt;</div>
           <div class="task-card-desc">একটি মান ফেরত দেয়। Result বা await দিয়ে নিন।</div>
-          <div class="status-pill pill-running">▶ Running</div>
+          <div class="status-pill pill-running" id="tp1">▶ Running</div>
         </div>
-        <div class="task-card">
+        <div class="task-card" onclick="selectTaskCard(2)">
           <div class="task-card-icon">✅</div>
           <div class="task-card-title" style="color:var(--emerald)">Completed</div>
           <div class="task-card-desc">Task সফলভাবে শেষ। Result পাওয়া যাবে।</div>
-          <div class="status-pill pill-done">✅ RanToCompletion</div>
+          <div class="status-pill pill-done" id="tp2">✅ RanToCompletion</div>
         </div>
-        <div class="task-card">
+        <div class="task-card" onclick="selectTaskCard(3)">
           <div class="task-card-icon">💥</div>
           <div class="task-card-title" style="color:var(--rose)">Faulted</div>
           <div class="task-card-desc">Exception হয়েছে। AggregateException দেখুন।</div>
-          <div class="status-pill pill-fail">❌ Faulted</div>
+          <div class="status-pill pill-fail" id="tp3">❌ Faulted</div>
         </div>
       </div>
+      <div class="task-lifecycle-bar fu d5" id="taskLifecycle">
+        <div class="lifecycle-node" id="lc0">Created</div><span class="lifecycle-arrow">→</span>
+        <div class="lifecycle-node" id="lc1">Running</div><span class="lifecycle-arrow">→</span>
+        <div class="lifecycle-node" id="lc2">Awaiting</div><span class="lifecycle-arrow">→</span>
+        <div class="lifecycle-node" id="lc3">Completed</div>
+      </div>
+      <button class="demo-play-btn fu d5" onclick="runTaskLifecycle()"><i class="fa-solid fa-forward"></i> Lifecycle অ্যানিমেশন চালান</button>
     </div>
 
     <!-- S5 async/await code -->
@@ -308,7 +446,7 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div class="demo-wrap fu d1">
         <div class="demo-hdr">
           <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--sky)"></i> async / await ডেমো</div>
-          <div class="comp-switch" id="sw5" onclick="toggleSw('sw5','bad5','good5')">
+          <div class="comp-switch" id="sw5" onclick="toggleSw('sw5','bad5','good5');updateFlowViz()">
             <div class="comp-slider"></div><div class="comp-opt">Sync (Blocking)</div><div class="comp-opt">Async (Non-Blocking)</div>
           </div>
         </div>
@@ -326,6 +464,16 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <span class="ck">return</span> <span class="cf">Ok</span>(<span class="ck">new</span> { user, orders });
 } <span class="cm">// await-এর সময় Thread অন্য request নিতে পারে</span></pre>
         </div>
+        <div class="flow-viz" id="flowViz5">
+          <div class="flow-row" id="flowRow5">
+            <div class="flow-node" id="fn1">Thread T1</div><span class="flow-arrow" id="fa1">→</span>
+            <div class="flow-node" id="fn2">DB Query</div><span class="flow-arrow" id="fa2">→</span>
+            <div class="flow-node" id="fn3">Thread Pool</div><span class="flow-arrow" id="fa3">→</span>
+            <div class="flow-node" id="fn4">Response</div>
+          </div>
+          <div class="flow-caption" id="flowCap5">Sync মোড — Thread DB অপেক্ষায় blocked</div>
+        </div>
+        <button class="demo-play-btn" onclick="playFlowAnim()"><i class="fa-solid fa-play"></i> Execution Flow দেখুন</button>
       </div>
     </div>
 
@@ -356,6 +504,10 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <h2 class="s-title fu d2"><span class="hl">CancellationToken</span></h2>
       <p class="s-desc fu d3" style="margin-bottom:16px">User চলে গেলে বা Timeout হলে চলমান Task বাতিল করার স্ট্যান্ডার্ড পদ্ধতি।</p>
       <div class="cancel-wrap fu d3">
+        <div class="token-visual">
+          <div class="token-badge" id="tokenBadge">🎟️ CancellationToken.None</div>
+          <div style="font-size:.72rem;color:var(--muted)">isCancellationRequested: <span id="tokenFlag" style="color:var(--emerald);font-weight:700">false</span></div>
+        </div>
         <div class="cancel-box">
           <div class="cancel-progress">
             <div class="cancel-label"><span>📊 Data Processing Task</span><span id="cancelPct">0%</span></div>
@@ -376,6 +528,13 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <h2 class="s-title fu d2"><span style="color:var(--rose)">Deadlock</span> — .Result ব্যবহারের ফাঁদ</h2>
       <p class="s-desc fu d3" style="margin-bottom:16px">Async method-এ .Result বা .Wait() ব্যবহার করলে Deadlock হতে পারে — পুরো অ্যাপ্লিকেশন ফ্রিজ হয়ে যায়!</p>
       <div class="deadlock-wrap fu d3">
+        <div class="dl-step-bar" id="dlSteps">
+          <div class="dl-step active" id="dls0">১. UI Thread চলছে</div>
+          <div class="dl-step" id="dls1">২. asyncTask.Result()</div>
+          <div class="dl-step" id="dls2">৩. UI blocked</div>
+          <div class="dl-step" id="dls3">৪. DEADLOCK!</div>
+        </div>
+        <svg class="dl-arrow-svg" id="dlSvg" viewBox="0 0 400 50" style="display:none"><line x1="80" y1="25" x2="320" y2="25"/><polygon points="320,25 310,20 310,30" fill="rgba(248,113,113,.5)"/></svg>
         <div class="deadlock-box" id="deadlockBox">
           <div class="deadlock-status" id="dlStatus">🔵 সিস্টেম স্বাভাবিক</div>
           <div class="dl-threads">
@@ -392,7 +551,7 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div class="demo-wrap fu d1">
         <div class="demo-hdr">
           <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--sky)"></i> ConfigureAwait(false)</div>
-          <div class="comp-switch" id="sw9" onclick="toggleSw('sw9','bad9','good9')">
+          <div class="comp-switch" id="sw9" onclick="toggleSw('sw9','bad9','good9');updateCtxViz()">
             <div class="comp-slider"></div><div class="comp-opt">Library (ভুল)</div><div class="comp-opt">Library (সঠিক)</div>
           </div>
         </div>
@@ -412,6 +571,19 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <span class="cm">// যেকোনো Thread-এ চলবে — নিরাপদ</span>
     <span class="ck">return</span> result;
 }</pre>
+        </div>
+        <div class="ctx-viz" id="ctxViz">
+          <div class="ctx-box capture" id="ctxLeft">
+            <div class="ctx-icon">🖥️</div>
+            <div class="ctx-label" style="color:var(--rose)">UI SynchronizationContext</div>
+            <div class="ctx-sub">await পরে এখানে ফিরতে চায়</div>
+          </div>
+          <div style="font-size:1.5rem;color:var(--muted)">⇄</div>
+          <div class="ctx-box" id="ctxRight">
+            <div class="ctx-icon">🌐</div>
+            <div class="ctx-label" style="color:var(--sky)">HTTP Response</div>
+            <div class="ctx-sub">Background Thread-এ সম্পন্ন</div>
+          </div>
         </div>
       </div>
     </div>
@@ -442,6 +614,13 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     }
 }</pre>
         </div>
+        <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:8px">Task-এ ক্লিক করে WhenAll() exception flow দেখুন:</p>
+        <div class="exc-flow">
+          <div class="exc-task" id="ex1" onclick="runExcDemo(1)"><div class="exc-task-icon">📧</div><div class="exc-task-name">SendEmail</div></div>
+          <div class="exc-task" id="ex2" onclick="runExcDemo(2)"><div class="exc-task-icon">📦</div><div class="exc-task-name">UpdateInventory</div></div>
+          <div class="exc-task" id="ex3" onclick="runExcDemo(3)"><div class="exc-task-icon">📊</div><div class="exc-task-name">GenerateReport</div></div>
+        </div>
+        <div class="exc-log" id="excLog">Task.WhenAll() চালাতে উপরে কোনো Task-এ ক্লিক করুন...</div>
       </div>
     </div>
 
@@ -450,7 +629,7 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div class="demo-wrap fu d1">
         <div class="demo-hdr">
           <div class="demo-title"><i class="fa-solid fa-code" style="color:var(--sky)"></i> ValueTask — অতিরিক্ত Allocation কমান</div>
-          <div class="comp-switch" id="sw11" onclick="toggleSw('sw11','bad11','good11')">
+          <div class="comp-switch" id="sw11" onclick="toggleSw('sw11','bad11','good11');updateMemMeter()">
             <div class="comp-slider"></div><div class="comp-opt">Task (Heap)</div><div class="comp-opt">ValueTask (Stack)</div>
           </div>
         </div>
@@ -468,6 +647,19 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <span class="ck">return new</span> <span class="cs">ValueTask</span>&lt;<span class="ck">int</span>&gt;(_db.<span class="cf">GetValueAsync</span>());
 }</pre>
         </div>
+        <div class="mem-meter" id="memMeter">
+          <div class="mem-col">
+            <div class="mem-bar-wrap"><div class="mem-bar-fill heap high" id="heapBar">Task</div></div>
+            <div class="mem-col-label" style="color:var(--rose)">Heap Allocation</div>
+            <div class="mem-col-count" id="heapCount">~96 bytes / call</div>
+          </div>
+          <div class="mem-col">
+            <div class="mem-bar-wrap"><div class="mem-bar-fill stack low" id="stackBar">VT</div></div>
+            <div class="mem-col-label" style="color:var(--emerald)">Stack (ValueTask)</div>
+            <div class="mem-col-count" id="stackCount">~0 bytes (cache hit)</div>
+          </div>
+        </div>
+        <button class="demo-play-btn" onclick="simulateCacheHit()" style="margin:12px auto 0;display:flex"><i class="fa-solid fa-database"></i> Cache Hit সিমুলেট করুন (১০০০ calls)</button>
       </div>
     </div>
 
@@ -475,11 +667,11 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <div class="slide" id="s12">
       <div class="tag fu d1"><i class="fa-solid fa-star"></i> Best Practices</div>
       <h2 class="s-title fu d2">Async <span class="hl">সেরা অভ্যাস</span></h2>
-      <div class="card-grid-4 fu d3">
-        <div class="info-card sky"><div class="ic-icon">✅</div><div class="ic-title">Async All the Way</div><div class="ic-desc">async method chain ভাঙবেন না। মাঝে sync করলে Deadlock।</div></div>
-        <div class="info-card gold"><div class="ic-icon">🚫</div><div class="ic-title">.Result ব্যবহার নয়</div><div class="ic-desc">.Result বা .Wait() Deadlock তৈরি করে। সবসময় await করুন।</div></div>
-        <div class="info-card rose"><div class="ic-icon">⚡</div><div class="ic-title">ConfigureAwait(false)</div><div class="ic-desc">Library কোডে সবসময় ConfigureAwait(false) লাগান।</div></div>
-        <div class="info-card emerald"><div class="ic-icon">🎟️</div><div class="ic-title">CancellationToken</div><div class="ic-desc">সব async method-এ CancellationToken parameter রাখুন।</div></div>
+      <div class="card-grid-4 fu d3" id="bestCards">
+        <div class="info-card sky" onclick="toggleCardTip(this)"><div class="ic-icon">✅</div><div class="ic-title">Async All the Way</div><div class="ic-desc">async method chain ভাঙবেন না। মাঝে sync করলে Deadlock।</div><div class="ic-tip">💡 Controller → Service → Repository — সব layer-এ async রাখুন। একটি layer sync হলে পুরো chain ভেঙে যায়।</div></div>
+        <div class="info-card gold" onclick="toggleCardTip(this)"><div class="ic-icon">🚫</div><div class="ic-title">.Result ব্যবহার নয়</div><div class="ic-desc">.Result বা .Wait() Deadlock তৈরি করে। সবসময় await করুন।</div><div class="ic-tip">💡 ASP.NET Core-এ ConfigureAwait(false) default, কিন্তু .Result এখনও বিপজ্জনক — UI thread capture হলে freeze।</div></div>
+        <div class="info-card rose" onclick="toggleCardTip(this)"><div class="ic-icon">⚡</div><div class="ic-title">ConfigureAwait(false)</div><div class="ic-desc">Library কোডে সবসময় ConfigureAwait(false) লাগান।</div><div class="ic-tip">💡 Application code (Controller) — ConfigureAwait(false) লাগানোর দরকার নেই। Library/NuGet package-এ লাগান।</div></div>
+        <div class="info-card emerald" onclick="toggleCardTip(this)"><div class="ic-icon">🎟️</div><div class="ic-title">CancellationToken</div><div class="ic-desc">সব async method-এ CancellationToken parameter রাখুন।</div><div class="ic-tip">💡 HttpContext.RequestAborted ASP.NET Core-এ automatic cancellation token — long-running task-এ pass করুন।</div></div>
       </div>
     </div>
 
@@ -488,7 +680,25 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div class="tag fu d1"><i class="fa-solid fa-triangle-exclamation"></i> সতর্কতা</div>
       <h2 class="s-title fu d2">Async <span style="color:var(--rose)">কখন ব্যবহার করবেন না?</span></h2>
       <p class="s-desc fu d3">Async সবসময় ভালো নয়। CPU-bound কাজে async overhead বাড়ায়।</p>
-      <div class="two-col fu d4">
+      <div class="io-cpu-demo fu d4">
+        <div class="io-toggle">
+          <button class="io-opt active" id="ioOptIo" onclick="setIoCpuMode('io')">I/O Bound</button>
+          <button class="io-opt" id="ioOptCpu" onclick="setIoCpuMode('cpu')">CPU Bound</button>
+        </div>
+        <div class="perf-bars">
+          <div class="perf-col">
+            <div class="perf-col-title" style="color:var(--sky)">✅ Async দিয়ে</div>
+            <div class="perf-bar-bg"><div class="perf-bar-fill" id="perfAsync" style="background:linear-gradient(90deg,var(--sky),var(--indigo))"></div></div>
+            <div class="perf-label" id="perfAsyncLbl">Throughput: —</div>
+          </div>
+          <div class="perf-col">
+            <div class="perf-col-title" style="color:var(--rose)">❌ Sync / async overhead</div>
+            <div class="perf-bar-bg"><div class="perf-bar-fill" id="perfSync" style="background:linear-gradient(90deg,var(--rose),#be123c)"></div></div>
+            <div class="perf-label" id="perfSyncLbl">Throughput: —</div>
+          </div>
+        </div>
+      </div>
+      <div class="two-col fu d5" style="margin-top:16px;max-width:760px">
         <div class="col-box sky-box">
           <div class="col-title"><i class="fa-solid fa-check"></i> Async ব্যবহার করুন</div>
           <div class="mem-frame" style="color:var(--sky)">I/O Bound — DB Call</div>
@@ -510,12 +720,13 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
     <div class="slide" id="s14">
       <div class="tag fu d1"><i class="fa-solid fa-flag-checkered"></i> সারসংক্ষেপ</div>
       <h2 class="s-title fu d2" style="font-size:2rem">Async / Await — <span class="hl">মূল বিষয়</span></h2>
-      <div class="sum-list fu d3">
+      <div class="sum-list fu d3" id="sumList">
         <div class="sum-item"><div class="sum-icon" style="background:rgba(56,189,248,0.15)">⚡</div><div><div class="sum-title" style="color:var(--sky)">async/await = Non-Blocking</div><div class="sum-sub">Thread আটকে না রেখে অন্য কাজ করতে পারে</div></div></div>
         <div class="sum-item"><div class="sum-icon" style="background:rgba(251,191,36,0.15)">📋</div><div><div class="sum-title" style="color:var(--gold)">Task = ভবিষ্যতের প্রতিশ্রুতি</div><div class="sum-sub">Pending → Running → RanToCompletion / Faulted</div></div></div>
         <div class="sum-item"><div class="sum-icon" style="background:rgba(52,211,153,0.15)">🎯</div><div><div class="sum-title" style="color:var(--emerald)">WhenAll / WhenAny</div><div class="sum-sub">একসাথে বা প্রথমটির জন্য অপেক্ষা</div></div></div>
         <div class="sum-item"><div class="sum-icon" style="background:rgba(248,113,113,0.15)">💀</div><div><div class="sum-title" style="color:var(--rose)">Deadlock এড়ান</div><div class="sum-sub">.Result / .Wait() ব্যবহার করবেন না — সবসময় await করুন</div></div></div>
       </div>
+      <button class="demo-play-btn fu d4" onclick="revealSummary()" style="margin-top:16px"><i class="fa-solid fa-list-check"></i> সারসংক্ষেপ প্রকাশ করুন</button>
     </div>
 
   </div><!-- /slide-area -->
@@ -563,15 +774,18 @@ document.getElementById('totNum').textContent=TOTAL;
 function goTo(idx){
   idx=Math.max(0,Math.min(TOTAL-1,idx));
   if(idx===cur)return;
+  clearSlideAuto();
   slides[cur]?.classList.remove('active');slides[cur]?.classList.add('exit');
   setTimeout(()=>slides[cur]?.classList.remove('exit'),700);
   cur=idx;slides[cur]?.classList.add('active');
   setTimeout(()=>slides[cur]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),80);
   slides.forEach((s,i)=>{if(i!==cur)s.querySelectorAll('.fu').forEach(el=>el.classList.remove('visible'))});
   updateUI();
+  onSlideEnter(cur);
 }
-function navigate(delta){
+function slideNav(delta){
   const next=Math.max(0,Math.min(TOTAL-1,cur+delta));
+  if(next===cur)return;
   BC.postMessage({type:'nav',idx:next});
   goTo(next);
 }
@@ -585,11 +799,252 @@ function updateUI(){
 }
 BC.onmessage=e=>{if(e.data.type==='nav')goTo(e.data.idx);if(e.data.type==='ping_from_presenter')BC.postMessage({type:'ping'})};
 document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();navigate(1);}
-  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navigate(-1);}
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key==='PageDown'||e.key===' '){e.preventDefault();slideNav(1)}
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();slideNav(-1)}
 });
-setTimeout(()=>slides[0]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),200);
+setTimeout(()=>{slides[0]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible'));onSlideEnter(0)},200);
 updateUI();
+
+let slideAutoTimers=[];
+function clearSlideAuto(){
+  slideAutoTimers.forEach(t=>{clearTimeout(t);clearInterval(t)});
+  slideAutoTimers=[];
+  if(chefTimer){clearTimeout(chefTimer);chefTimer=null}
+  if(taskLifeTimer){clearTimeout(taskLifeTimer);taskLifeTimer=null}
+  if(flowTimer){clearInterval(flowTimer);flowTimer=null}
+  if(cancelInterval){clearInterval(cancelInterval);cancelInterval=null}
+  if(dlTimer){clearTimeout(dlTimer);dlTimer=null}
+  whenTimers.forEach(clearInterval);whenTimers=[];
+}
+function sched(fn,ms){slideAutoTimers.push(setTimeout(fn,ms))}
+function schedLoop(fn,ms){slideAutoTimers.push(setInterval(fn,ms))}
+
+function setSw(swId,badId,goodId,useGood){
+  const sw=document.getElementById(swId);
+  sw.classList.toggle('switched',useGood);
+  document.getElementById(badId).classList.toggle('active',!useGood);
+  document.getElementById(goodId).classList.toggle('active',useGood);
+}
+
+function onSlideEnter(idx){
+  clearSlideAuto();
+  if(idx===1)resetChefDemo();
+  if(idx===2)resetPool();
+  if(idx===3){selectTaskCard(1);resetTaskLifecycle()}
+  if(idx===4){setSw('sw5','bad5','good5',false);updateFlowViz()}
+  if(idx===5)resetWhen();
+  if(idx===6)fullResetCancel();
+  if(idx===7)resetDeadlock();
+  if(idx===8){setSw('sw9','bad9','good9',false);updateCtxViz()}
+  if(idx===10){setSw('sw11','bad11','good11',false);updateMemMeter()}
+  if(idx===11)document.querySelectorAll('#bestCards .info-card').forEach(c=>c.classList.remove('expanded'));
+  if(idx===12)setIoCpuMode('io');
+  if(idx===13)document.querySelectorAll('#sumList .sum-item').forEach(el=>el.classList.remove('revealed'));
+}
+
+function fullResetCancel(){
+  if(cancelInterval){clearInterval(cancelInterval);cancelInterval=null}
+  cancelled=false;cancelPct=0;
+  resetCancelUI();
+  document.getElementById('cancelBar').style.width='0%';
+  document.getElementById('cancelBar').textContent='0%';
+  document.getElementById('cancelPct').textContent='0%';
+  document.getElementById('cancelStatus').textContent='▶ Task চলছে...';
+  document.getElementById('cancelStatus').style.color='var(--sky)';
+}
+
+// Chef Demo (S2)
+let chefTimer=null;
+function resetChefDemo(){
+  if(chefTimer)clearTimeout(chefTimer);
+  ['chefSync','chefAsync'].forEach(id=>{
+    document.querySelectorAll(`#${id} .chef-step`).forEach(s=>s.classList.remove('active'));
+  });
+  document.getElementById('chefSyncBar').style.width='0%';
+  document.getElementById('chefAsyncBar').style.width='0%';
+}
+function animateChefCol(colId,barId,delay){
+  const steps=document.querySelectorAll(`#${colId} .chef-step`);
+  steps.forEach((s,i)=>{
+    chefTimer=setTimeout(()=>{
+      steps.forEach(x=>x.classList.remove('active'));
+      s.classList.add('active');
+      document.getElementById(barId).style.width=((i+1)/steps.length*100)+'%';
+    },delay+i*900);
+  });
+}
+function playChefDemo(){
+  resetChefDemo();
+  animateChefCol('chefSync','chefSyncBar',0);
+  animateChefCol('chefAsync','chefAsyncBar',200);
+}
+
+// Task Lifecycle (S4)
+let taskLifeTimer=null,selectedTask=1;
+function selectTaskCard(i){
+  selectedTask=i;
+  document.querySelectorAll('#taskCards .task-card').forEach((c,j)=>c.classList.toggle('selected',j===i));
+}
+function resetTaskLifecycle(){
+  if(taskLifeTimer)clearTimeout(taskLifeTimer);
+  [0,1,2,3].forEach(i=>{
+    const n=document.getElementById('lc'+i);
+    n.className='lifecycle-node';
+    n.style.borderColor='';n.style.color='';
+    if(i===2)n.textContent='Awaiting';
+    if(i===3)n.textContent='Completed';
+  });
+}
+function runTaskLifecycle(){
+  resetTaskLifecycle();
+  const nodes=[0,1,2,3];
+  const isFault=selectedTask===3;
+  nodes.forEach((n,i)=>{
+    taskLifeTimer=setTimeout(()=>{
+      nodes.forEach(x=>{const el=document.getElementById('lc'+x);el.classList.remove('active');if(x<n)el.classList.add('done-node')});
+      const curEl=document.getElementById('lc'+n);
+      curEl.classList.add('active');
+      if(isFault&&n===2){curEl.classList.remove('active');curEl.style.borderColor='var(--rose)';curEl.style.color='var(--rose)';curEl.textContent='Faulted!'}
+    },i*700);
+  });
+}
+
+// Flow Viz (S5)
+let flowTimer=null;
+function updateFlowViz(){
+  const asyncMode=document.getElementById('sw5').classList.contains('switched');
+  const cap=document.getElementById('flowCap5');
+  const fn2=document.getElementById('fn2'),fn3=document.getElementById('fn3');
+  [fn2,fn3,document.getElementById('fn1'),document.getElementById('fn4')].forEach(n=>{n.className='flow-node'});
+  ['fa1','fa2','fa3'].forEach(id=>document.getElementById(id).classList.remove('live'));
+  if(asyncMode){
+    cap.textContent='Async মোড — await-এ Thread Pool-এ ফিরে যায়';
+    fn3.classList.add('free');
+  }else{
+    cap.textContent='Sync মোড — Thread DB অপেক্ষায় blocked';
+    fn2.classList.add('blocked');
+    fn1.classList.add('hot');
+  }
+}
+function playFlowAnim(){
+  if(flowTimer)clearInterval(flowTimer);
+  const asyncMode=document.getElementById('sw5').classList.contains('switched');
+  const nodes=['fn1','fn2','fn3','fn4'];
+  const arrows=['fa1','fa2','fa3'];
+  let step=0;
+  nodes.forEach(id=>{const el=document.getElementById(id);el.className='flow-node';el.style.borderColor='';el.style.color=''});
+  arrows.forEach(id=>document.getElementById(id).classList.remove('live'));
+  flowTimer=setInterval(()=>{
+    if(step>=nodes.length){clearInterval(flowTimer);updateFlowViz();return}
+    nodes.forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.className='flow-node';
+      el.style.borderColor='';el.style.color='';
+      if(i<step){el.style.borderColor='var(--emerald)';el.style.color='var(--emerald)'}
+      if(i===step){
+        if(asyncMode&&(i===1||i===2)){el.classList.add(i===1?'blocked':'free')}
+        else if(!asyncMode&&i===1){el.classList.add('blocked')}
+        else if(i===0){el.classList.add('hot')}
+        else{el.style.borderColor='var(--emerald)';el.style.color='var(--emerald)'}
+      }
+    });
+    if(step>0)document.getElementById(arrows[step-1]).classList.add('live');
+    const cap=document.getElementById('flowCap5');
+    const msgs=asyncMode?['Request শুরু','await → DB Query','Thread Pool-এ ফিরলো ✅','Continuation → Response']:['Request শুরু','Thread blocked on DB ⏳','এখনও blocked...','অবশেষে Response'];
+    cap.textContent=msgs[step]||'';
+    step++;
+  },900);
+}
+
+// ConfigureAwait viz (S9)
+function updateCtxViz(){
+  const safe=document.getElementById('sw9').classList.contains('switched');
+  const left=document.getElementById('ctxLeft'),right=document.getElementById('ctxRight');
+  left.className='ctx-box '+(safe?'':'capture');
+  right.className='ctx-box '+(safe?'safe':'');
+  left.querySelector('.ctx-label').textContent=safe?'UI Context (ignored)':'UI SynchronizationContext';
+  left.querySelector('.ctx-sub').textContent=safe?'ConfigureAwait(false) — capture করে না':'await পরে এখানে ফিরতে চায়';
+  right.querySelector('.ctx-sub').textContent=safe?'যেকোনো Thread-এ continuation':'Background Thread-এ সম্পন্ন';
+}
+
+// Exception demo (S10)
+function runExcDemo(failIdx){
+  const names=['SendEmail','UpdateInventory','GenerateReport'];
+  const log=document.getElementById('excLog');
+  [1,2,3].forEach(i=>{
+    const el=document.getElementById('ex'+i);
+    el.className='exc-task';
+    el.style.opacity='1';
+  });
+  log.innerHTML='';
+  const add=(t,c)=>{log.innerHTML+=`<div style="color:${c}">${t}</div>`};
+  add('▶ Task.WhenAll() started...','var(--sky)');
+  setTimeout(()=>{
+    [1,2,3].forEach(i=>{
+      const el=document.getElementById('ex'+i);
+      if(i===failIdx){el.classList.add('fail');add(`❌ ${names[i-1]}Async() → Exception thrown!`,'var(--rose)')}
+      else{el.classList.add('ok');add(`✅ ${names[i-1]}Async() completed`,'var(--emerald)')}
+    });
+    add('catch (AggregateException ex) { ... }','var(--gold)');
+    add(`→ InnerException: "${names[failIdx-1]} failed — connection timeout"`,'var(--rose)');
+  },600);
+}
+
+// Memory meter (S11)
+function updateMemMeter(){
+  const vt=document.getElementById('sw11').classList.contains('switched');
+  const heap=document.getElementById('heapBar'),stack=document.getElementById('stackBar');
+  document.getElementById('heapCount').textContent=vt?'~0 bytes (cache hit)':'~96 bytes / call';
+  document.getElementById('stackCount').textContent=vt?'~0 bytes (cache hit)':'~96 bytes / call';
+  heap.style.height=vt?'12%':'85%';
+  stack.style.height=vt?'8%':'85%';
+  heap.classList.toggle('high',!vt);
+  stack.classList.toggle('low',vt);
+}
+function simulateCacheHit(){
+  const vt=document.getElementById('sw11').classList.contains('switched');
+  let n=0;
+  const heap=document.getElementById('heapCount'),stack=document.getElementById('stackCount');
+  const iv=setInterval(()=>{
+    n+=100;
+    if(vt){heap.textContent='0 bytes allocated ✅';stack.textContent='ValueTask — stack only, no heap'}
+    else{heap.textContent=`${(n*96).toLocaleString()} bytes allocated ⚠️`;stack.textContent='~0 bytes on stack'}
+    if(n>=1000){clearInterval(iv);if(vt)heap.textContent='0 bytes / 1000 cache hits ✅'}
+  },30);
+}
+
+// Best practices card tips (S12)
+function toggleCardTip(el){
+  document.querySelectorAll('#bestCards .info-card').forEach(c=>{if(c!==el)c.classList.remove('expanded')});
+  el.classList.toggle('expanded');
+}
+
+// I/O vs CPU perf (S13)
+function setIoCpuMode(mode){
+  document.getElementById('ioOptIo').classList.toggle('active',mode==='io');
+  document.getElementById('ioOptCpu').classList.toggle('active',mode==='cpu');
+  const asyncBar=document.getElementById('perfAsync'),syncBar=document.getElementById('perfSync');
+  const asyncLbl=document.getElementById('perfAsyncLbl'),syncLbl=document.getElementById('perfSyncLbl');
+  asyncBar.style.width='0%';syncBar.style.width='0%';
+  setTimeout(()=>{
+    if(mode==='io'){
+      asyncBar.style.width='92%';syncBar.style.width='35%';
+      asyncLbl.textContent='Throughput: 10,000 req/s (Thread reuse)';
+      syncLbl.textContent='Throughput: 200 req/s (Thread blocked)';
+    }else{
+      asyncBar.style.width='40%';syncBar.style.width='85%';
+      asyncLbl.textContent='Throughput: 800 ops/s (async overhead)';
+      syncLbl.textContent='Throughput: 2,400 ops/s (Task.Run / Parallel)';
+    }
+  },100);
+}
+
+// Summary reveal (S14)
+function revealSummary(){
+  document.querySelectorAll('#sumList .sum-item').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('revealed'),i*200);
+  });
+}
 
 // Cursor
 const dot=document.getElementById('curDot'),ol=document.getElementById('curOutline');
@@ -599,34 +1054,62 @@ document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.styl
 const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
 let pts=[];
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.addEventListener('resize',resize);
-for(let i=0;i<60;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.5+.4,c:Math.random()>.5?'rgba(56,189,248,0.6)':'rgba(129,140,248,0.5)'});
+for(let i=0;i<90;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45,r:Math.random()*1.8+.3,c:Math.random()>.5?'rgba(56,189,248,0.55)':'rgba(129,140,248,0.45)'});
 (function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill()});requestAnimationFrame(draw)})();
 
 // Thread Pool Simulator
-let threadStates=new Array(8).fill('idle');
+let threadStates=new Array(8).fill('idle'),poolDoneCount=0,reqCounter=0;
+function countStates(){
+  const c={idle:0,busy:0,blocked:0,done:0};
+  threadStates.forEach(s=>c[s]++);
+  return c;
+}
+function updatePoolStats(){
+  const c=countStates();
+  document.getElementById('statIdle').textContent=c.idle;
+  document.getElementById('statBusy').textContent=c.busy;
+  document.getElementById('statBlocked').textContent=c.blocked;
+  document.getElementById('statDone').textContent=poolDoneCount;
+  document.querySelectorAll('.pool-stat').forEach((el,i)=>{el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),300)});
+}
+function addQueueChip(type,label){
+  const q=document.getElementById('poolQueue');
+  if(q.querySelector('span'))q.innerHTML='';
+  const chip=document.createElement('div');
+  chip.className='queue-chip '+(type==='sync'?'queue-sync':'queue-async');
+  chip.textContent=label;
+  q.appendChild(chip);
+  setTimeout(()=>chip.remove(),4000);
+  if(!q.children.length)q.innerHTML='<span style="font-size:.7rem;color:var(--muted)">কোনো request নেই...</span>';
+}
 function renderThreads(){
   const row=document.getElementById('threadsRow');
   row.innerHTML=threadStates.map((s,i)=>`<div class="thread-ball ${s}">T${i+1}</div>`).join('');
+  updatePoolStats();
 }
 renderThreads();
 function addLog(msg,cls){const log=document.getElementById('poolLog');const el=document.createElement('div');el.className=cls;el.textContent='> '+msg;log.appendChild(el);log.scrollTop=log.scrollHeight}
 
 function runSyncDemo(){
+  reqCounter++;
+  addQueueChip('sync','REQ-'+reqCounter+' SYNC');
   const idx=threadStates.findIndex(s=>s==='idle');
   if(idx<0){addLog('❌ Thread Pool শেষ! Request queue-এ অপেক্ষা করছে...','log-sync');return}
   threadStates[idx]='blocked';renderThreads();
   addLog(`T${idx+1} Request নিলো — Blocking I/O...`,'log-sync');
-  setTimeout(()=>{threadStates[idx]='done';renderThreads();addLog(`T${idx+1} শেষ হলো (দীর্ঘ অপেক্ষার পর)`,'log-done');setTimeout(()=>{threadStates[idx]='idle';renderThreads()},1500)},3000);
+  setTimeout(()=>{threadStates[idx]='done';poolDoneCount++;renderThreads();addLog(`T${idx+1} শেষ হলো (দীর্ঘ অপেক্ষার পর)`,'log-done');setTimeout(()=>{threadStates[idx]='idle';renderThreads()},1500)},3000);
 }
 function runAsyncDemo(){
+  reqCounter++;
+  addQueueChip('async','REQ-'+reqCounter+' ASYNC');
   const idx=threadStates.findIndex(s=>s==='idle');
   if(idx<0){addLog('❌ সব Thread busy...','log-sync');return}
   threadStates[idx]='busy';renderThreads();
   addLog(`T${idx+1} Request নিলো → await করছে (মুক্ত)...`,'log-async');
   setTimeout(()=>{addLog(`T${idx+1} await-এ Thread Pool-এ ফিরলো`,'log-async');threadStates[idx]='idle';renderThreads();
-    setTimeout(()=>{const idx2=threadStates.findIndex(s=>s==='idle');if(idx2>=0){threadStates[idx2]='done';renderThreads();addLog(`T${idx2+1} Continuation সম্পন্ন ✅`,'log-done');setTimeout(()=>{threadStates[idx2]='idle';renderThreads()},1000)}},1500)},800);
+    setTimeout(()=>{const idx2=threadStates.findIndex(s=>s==='idle');if(idx2>=0){threadStates[idx2]='done';poolDoneCount++;renderThreads();addLog(`T${idx2+1} Continuation সম্পন্ন ✅`,'log-done');setTimeout(()=>{threadStates[idx2]='idle';renderThreads()},1000)}},1500)},800);
 }
-function resetPool(){threadStates=new Array(8).fill('idle');renderThreads();document.getElementById('poolLog').innerHTML='Thread Pool প্রস্তুত। Request পাঠান...'}
+function resetPool(){threadStates=new Array(8).fill('idle');poolDoneCount=0;reqCounter=0;renderThreads();document.getElementById('poolQueue').innerHTML='<span style="font-size:.7rem;color:var(--muted)">কোনো request নেই...</span>';document.getElementById('poolLog').innerHTML='Thread Pool প্রস্তুত। Request পাঠান...'}
 
 // WhenAll / WhenAny
 let whenTimers=[];
@@ -640,37 +1123,54 @@ function animateTask(idx,duration,cb){
   whenTimers.push(interval);
 }
 function runWhenAll(){clearWhenTimers();const result=document.getElementById('whenResult');result.textContent='⏳ সব Task চলছে...';result.style.color='var(--sky)';let done=0;[1,2,3,4].forEach(i=>animateTask(i,wbDurations[i-1],()=>{done++;if(done===4){result.textContent='✅ Task.WhenAll() — সবাই সম্পন্ন! Result পাওয়া গেছে।';result.style.color='var(--emerald)'}}))}
-function runWhenAny(){clearWhenTimers();const result=document.getElementById('whenResult');result.textContent='⏳ Race চলছে...';result.style.color='var(--sky)';let won=false;[1,2,3,4].forEach(i=>animateTask(i,wbDurations[i-1],()=>{if(!won){won=true;result.textContent=`🏆 Task.WhenAny() — Task ${i} প্রথম জিতলো!`;result.style.color='var(--gold)';}}))}
+function runWhenAny(){clearWhenTimers();const result=document.getElementById('whenResult');result.textContent='⏳ Race চলছে...';result.style.color='var(--sky)';let won=false;[1,2,3,4].forEach(i=>animateTask(i,wbDurations[i-1],()=>{if(!won){won=true;document.getElementById(`wt${i}`).classList.add('winner');result.textContent=`🏆 Task.WhenAny() — Task ${i} প্রথম জিতলো!`;result.style.color='var(--gold)';}}))}
 
 // CancellationToken
 let cancelInterval=null,cancelPct=0,cancelled=false;
+function resetCancelUI(){
+  const badge=document.getElementById('tokenBadge'),flag=document.getElementById('tokenFlag');
+  badge.className='token-badge';badge.textContent='🎟️ CancellationToken.None';
+  flag.textContent='false';flag.style.color='var(--emerald)';
+  const bar=document.getElementById('cancelBar');bar.style.background='linear-gradient(90deg,var(--sky),var(--indigo))';
+}
 function startCancelTask(){
-  if(cancelInterval)return;cancelled=false;cancelPct=0;
+  if(cancelInterval)return;cancelled=false;cancelPct=0;resetCancelUI();
+  document.getElementById('tokenBadge').textContent='🎟️ CancellationToken (active)';
   document.getElementById('cancelBtn').disabled=false;
   document.getElementById('cancelStatus').textContent='▶ Task চলছে...';
   document.getElementById('cancelStatus').style.color='var(--sky)';
-  cancelInterval=setInterval(()=>{if(cancelled)return;cancelPct+=2;const bar=document.getElementById('cancelBar');bar.style.width=cancelPct+'%';bar.textContent=cancelPct+'%';document.getElementById('cancelPct').textContent=cancelPct+'%';if(cancelPct>=100){clearInterval(cancelInterval);cancelInterval=null;document.getElementById('cancelStatus').textContent='✅ Task সম্পন্ন!';document.getElementById('cancelStatus').style.color='var(--emerald)';document.getElementById('cancelBtn').disabled=true}},100);
+  cancelInterval=setInterval(()=>{if(cancelled)return;cancelPct+=2;const bar=document.getElementById('cancelBar');bar.style.width=cancelPct+'%';bar.textContent=cancelPct+'%';document.getElementById('cancelPct').textContent=cancelPct+'%';if(cancelPct>=100){clearInterval(cancelInterval);cancelInterval=null;document.getElementById('cancelStatus').textContent='✅ Task সম্পন্ন!';document.getElementById('cancelStatus').style.color='var(--emerald)';document.getElementById('tokenBadge').classList.add('done-tok');document.getElementById('tokenBadge').textContent='✅ Token — Completed';document.getElementById('cancelBtn').disabled=true}},100);
 }
-function cancelTask(){if(!cancelInterval)return;cancelled=true;clearInterval(cancelInterval);cancelInterval=null;document.getElementById('cancelStatus').textContent='🚫 OperationCanceledException — Task বাতিল!';document.getElementById('cancelStatus').style.color='var(--rose)';document.getElementById('cancelBtn').disabled=true;const bar=document.getElementById('cancelBar');bar.style.background='var(--rose)';bar.textContent='বাতিল'}
+function cancelTask(){if(!cancelInterval)return;cancelled=true;clearInterval(cancelInterval);cancelInterval=null;document.getElementById('cancelStatus').textContent='🚫 OperationCanceledException — Task বাতিল!';document.getElementById('cancelStatus').style.color='var(--rose)';document.getElementById('cancelBtn').disabled=true;const bar=document.getElementById('cancelBar');bar.style.background='var(--rose)';bar.textContent='বাতিল';document.getElementById('tokenBadge').classList.add('cancelled');document.getElementById('tokenBadge').textContent='🚫 isCancellationRequested = true';document.getElementById('tokenFlag').textContent='true';document.getElementById('tokenFlag').style.color='var(--rose)'}
 
 // Deadlock Demo
-let deadlocked=false;
-function triggerDeadlock(){
-  if(deadlocked)return;deadlocked=true;
+let deadlocked=false,dlTimer=null;
+function resetDeadlock(){
+  deadlocked=false;
+  if(dlTimer)clearTimeout(dlTimer);
   const box=document.getElementById('deadlockBox');
-  const t1=document.getElementById('dlT1'),t2=document.getElementById('dlT2');
-  const b1=document.getElementById('dlB1'),b2=document.getElementById('dlB2');
-  document.getElementById('dlStatus').textContent='🔴 DEADLOCK — সিস্টেম ফ্রিজ!';
-  document.getElementById('dlStatus').style.color='var(--rose)';
-  t1.classList.add('blocked-dl');t2.classList.add('blocked-dl');
-  b1.className='dl-badge badge-blocked';b1.textContent='🔒 অপেক্ষায় (Deadlock)';
-  b2.className='dl-badge badge-blocked';b2.textContent='🔒 Context-এ ফিরতে পারছে না';
-  box.classList.add('shaking');
-  setTimeout(()=>box.classList.remove('shaking'),400);
+  box.classList.remove('shaking');
+  document.getElementById('dlSvg').style.display='none';
+  document.getElementById('dlStatus').textContent='🔵 সিস্টেম স্বাভাবিক';
+  document.getElementById('dlStatus').style.color='';
+  ['dlT1','dlT2'].forEach(id=>document.getElementById(id).classList.remove('blocked-dl'));
+  document.getElementById('dlB1').className='dl-badge badge-waiting';document.getElementById('dlB1').textContent='✅ চলছে';
+  document.getElementById('dlB2').className='dl-badge badge-waiting';document.getElementById('dlB2').textContent='⏳ Ready';
+  [0,1,2,3].forEach(i=>{const s=document.getElementById('dls'+i);s.className='dl-step'+(i===0?' active':'')});
+}
+function triggerDeadlock(){
+  resetDeadlock();
+  const steps=[
+    ()=>{document.getElementById('dls0').classList.add('active')},
+    ()=>{document.getElementById('dls1').classList.add('active');document.getElementById('dlB2').textContent='▶ asyncTask চলছে...';document.getElementById('dlStatus').textContent='⏳ UI Thread .Result() অপেক্ষায়...';document.getElementById('dlStatus').style.color='var(--gold)'},
+    ()=>{document.getElementById('dls2').classList.add('active');document.getElementById('dls2').classList.add('danger');document.getElementById('dlT1').classList.add('blocked-dl');document.getElementById('dlB1').className='dl-badge badge-blocked';document.getElementById('dlB1').textContent='🔒 UI blocked';document.getElementById('dlSvg').style.display='block'},
+    ()=>{deadlocked=true;document.getElementById('dls3').classList.add('active','danger');document.getElementById('dlT2').classList.add('blocked-dl');document.getElementById('dlB2').className='dl-badge badge-blocked';document.getElementById('dlB2').textContent='🔒 Context-এ ফিরতে পারছে না';document.getElementById('dlStatus').textContent='🔴 DEADLOCK — সিস্টেম ফ্রিজ!';document.getElementById('dlStatus').style.color='var(--rose)';document.getElementById('deadlockBox').classList.add('shaking');setTimeout(()=>document.getElementById('deadlockBox').classList.remove('shaking'),400)}
+  ];
+  steps.forEach((fn,i)=>{dlTimer=setTimeout(fn,i*900)});
 }
 
-// Code switches
-function toggleSw(swId,badId,goodId){const sw=document.getElementById(swId);sw.classList.toggle('switched');const bad=sw.classList.contains('switched');document.getElementById(badId).classList.toggle('active',!bad);document.getElementById(goodId).classList.toggle('active',bad)}
+// Code switches (programmatic only — presenter drives slides)
+function toggleSw(swId,badId,goodId){setSw(swId,badId,goodId,!document.getElementById(swId).classList.contains('switched'))}
 </script>
 </body>
 </html>
