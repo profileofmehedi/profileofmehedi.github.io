@@ -9,15 +9,13 @@
 <style>
 :root{--bg:#07020f;--surface:#0e0518;--surface2:#160822;--border:rgba(255,255,255,0.08);--violet:#c084fc;--purple:#a855f7;--gold:#fbbf24;--emerald:#34d399;--rose:#f87171;--sky:#38bdf8;--text:#faf5ff;--muted:#9d7fbf;--r:16px}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;cursor:none}
+html,body{height:100%;overflow:hidden}
 body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.cursor-dot{position:fixed;top:0;left:0;width:12px;height:12px;background:var(--violet);border-radius:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;box-shadow:0 0 15px var(--violet)}
-.cursor-outline{position:fixed;top:0;left:0;width:40px;height:40px;border:2px solid rgba(192,132,252,0.5);border-radius:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;transition:transform .1s ease-out}
 #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.2}
 .layout{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
 .slide-area{flex:1;position:relative;overflow:hidden}
-.ch-logo-wrap{position:absolute;top:20px;left:24px;z-index:50;display:flex;align-items:center;gap:11px;background:rgba(14,5,24,0.8);border:1px solid var(--border);border-radius:14px;padding:8px 16px 8px 10px;backdrop-filter:blur(16px);cursor:none}
+.ch-logo-wrap{position:absolute;top:20px;left:24px;z-index:50;display:flex;align-items:center;gap:11px;background:rgba(14,5,24,0.8);border:1px solid var(--border);border-radius:14px;padding:8px 16px 8px 10px;backdrop-filter:blur(16px)}
 .ch-logo-icon{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--violet),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;font-weight:800}
 .ch-logo-name{font-size:0.82rem;font-weight:800;background:linear-gradient(135deg,#fff,rgba(255,255,255,0.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
 .ch-logo-sub{font-size:0.6rem;color:var(--muted)}
@@ -133,7 +131,7 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
 .hero-badge{animation:floatY 3s ease-in-out infinite}
 .hero-badge:nth-child(2){animation-delay:.4s}.hero-badge:nth-child(3){animation-delay:.8s}.hero-badge:nth-child(4){animation-delay:1.2s}.hero-badge:nth-child(5){animation-delay:1.6s}
 
-.demo-play-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(192,132,252,.35);background:rgba(192,132,252,.1);color:var(--violet);font-size:.78rem;font-weight:700;cursor:none;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:all .25s;margin-top:8px}
+.demo-play-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(192,132,252,.35);background:rgba(192,132,252,.1);color:var(--violet);font-size:.78rem;font-weight:700;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:all .25s;margin-top:8px;cursor:pointer}
 .demo-play-btn:hover{background:rgba(192,132,252,.2);transform:translateY(-2px);box-shadow:0 8px 20px rgba(192,132,252,.15)}
 
 .mem-frame.lit{border-color:var(--violet);background:rgba(192,132,252,.08);transform:translateX(4px)}
@@ -146,8 +144,6 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
 </style>
 </head>
 <body>
-<div class="cursor-dot" id="curDot"></div>
-<div class="cursor-outline" id="curOutline"></div>
 <canvas id="bgCanvas"></canvas>
 <div class="layout">
   <div class="slide-area">
@@ -512,8 +508,6 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navigate(-1);}
 });
 setTimeout(()=>slides[0]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),200);goTo(0);
-const dot=document.getElementById('curDot'),ol=document.getElementById('curOutline');
-document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';ol.style.left=e.clientX+'px';ol.style.top=e.clientY+'px'});
 const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');let pts=[];
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.addEventListener('resize',resize);
 for(let i=0;i<55;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.4+.4,c:Math.random()>.5?'rgba(192,132,252,0.5)':'rgba(168,85,247,0.4)'});

@@ -9,11 +9,9 @@
 <style>
 :root{--bg:#040812;--surface:#0a1020;--surface2:#111828;--border:rgba(255,255,255,0.08);--dotnet:#512bd7;--blue:#0078d4;--cyan:#00bcf2;--emerald:#10b981;--amber:#f59e0b;--rose:#f43f5e;--violet:#8b5cf6;--text:#f0f4ff;--muted:#8b9cc0}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;cursor:none}
+html,body{height:100%;overflow:hidden}
 body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;font-size:18px}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.cursor-dot{position:fixed;top:0;left:0;width:14px;height:14px;background:var(--dotnet);border-radius:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;box-shadow:0 0 18px var(--dotnet)}
-.cursor-outline{position:fixed;top:0;left:0;width:44px;height:44px;border:2px solid rgba(81,43,215,0.45);border-radius:50%;transform:translate(-50%,-50%);z-index:9998;pointer-events:none;transition:transform .1s ease-out}
 #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.22}
 .layout{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
 .slide-area{flex:1;position:relative;overflow:hidden}
@@ -200,11 +198,52 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes pulse{to{opacity:.5}}
 @keyframes cardPop{0%{transform:scale(.85)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+/* Video mode — Mosh-style clean capture */
+body.video-mode .sidebar,
+body.video-mode .bottom-bar,
+body.video-mode .reveal-btn,
+body.video-mode .di-btn,
+body.video-mode .mw-check-btn,
+body.video-mode .val-btn,
+body.video-mode .perf-btn,
+body.video-mode .async-toggle { display:none !important; }
+body.video-mode .comp-switch { visibility:hidden;height:0;margin:0!important;padding:0;overflow:hidden; }
+body.video-mode .hero-orbit-wrap { display:none; }
+body.video-mode #bgCanvas { opacity:0.06; }
+body.video-mode .slide { padding:68px 7% 72px; transform:translateY(14px); transition:opacity .45s ease,transform .45s ease; }
+body.video-mode .slide.active { transform:translateY(0); }
+body.video-mode .ch-logo-wrap { opacity:0.88; padding:6px 12px 6px 8px; background:rgba(10,16,32,0.55); box-shadow:none; }
+body.video-mode .top10-card { pointer-events:none; }
+body.video-mode .mw-slot { pointer-events:none; }
+body.video-mode .sec-badge { pointer-events:none; }
+body.video-mode .health-card { pointer-events:none; }
+
+.beat-list { list-style:none; margin:20px auto 22px; padding:0; max-width:520px; width:100%; }
+.beat-item {
+  opacity:0; transform:translateY(12px);
+  padding:13px 22px; margin-bottom:10px;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px; font-size:1.02rem; font-weight:600; color:var(--muted);
+  display:flex; align-items:center; gap:12px;
+}
+.beat-item i { color:var(--cyan); font-size:0.85rem; }
+.slide.active .beat-item { animation:beatIn .5s cubic-bezier(.2,.8,.2,1) forwards; }
+.slide.active .beat-item:nth-child(1) { animation-delay:.6s; }
+.slide.active .beat-item:nth-child(2) { animation-delay:1.3s; }
+.slide.active .beat-item:nth-child(3) { animation-delay:2s; }
+@keyframes beatIn {
+  to { opacity:1; transform:translateY(0); color:var(--text);
+       border-color:rgba(81,43,215,0.35); background:rgba(81,43,215,0.08); }
+}
+.hero-tags-min { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+.hero-tags-min span {
+  font-size:0.7rem; font-weight:700; padding:6px 14px; border-radius:20px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--muted);
+}
 </style>
 </head>
 <body>
-<div class="cursor-dot" id="curDot"></div>
-<div class="cursor-outline" id="curOutline"></div>
 <canvas id="bgCanvas"></canvas>
 <div class="layout">
   <div class="slide-area">
@@ -213,21 +252,19 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
       <div><div class="ch-logo-name">Coding Drop</div><div class="ch-logo-sub">ASP.NET CORE BEST PRACTICES</div></div>
     </div>
 
-    <!-- S1 Hero -->
+    <!-- S1 Hero — Mosh-style 3 questions -->
     <div class="slide active" id="s1">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
-        <div class="hero-orbit-wrap fu d1">
-          <div class="hero-orbit-ring"></div>
-          <div class="hero-orbit-core"><i class="fa-brands fa-microsoft"></i></div>
-        </div>
-        <div class="tag fu d2"><i class="fa-solid fa-star"></i> ASP.NET Core</div>
-        <div style="font-size:3.6rem;font-weight:900;text-align:center;line-height:1.08" class="fu d3"><span class="hl">Top 10</span><br>Best Practices</div>
-        <p style="font-size:1.25rem;color:var(--muted);text-align:center;max-width:680px;line-height:1.75" class="fu d4">Production-ready .NET API বানাতে যে ১০টি নিয়ম মেনে চললে Performance, Security এবং Maintainability — তিনটাই একসাথে পাবেন।</p>
-        <div class="hero-badges fu d5">
-          <div class="hero-badge"><i class="fa-solid fa-syringe"></i> DI</div>
-          <div class="hero-badge"><i class="fa-solid fa-bolt"></i> Async</div>
-          <div class="hero-badge"><i class="fa-solid fa-shield-halved"></i> Security</div>
-          <div class="hero-badge"><i class="fa-solid fa-gauge-high"></i> Performance</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;max-width:720px;width:100%">
+        <div class="tag fu d1"><i class="fa-brands fa-microsoft"></i> ASP.NET Core</div>
+        <div style="font-size:3.2rem;font-weight:900;text-align:center;line-height:1.1" class="fu d2"><span class="hl">Top 10</span> Best Practices</div>
+        <p style="font-size:1.15rem;color:var(--muted);text-align:center;line-height:1.7" class="fu d3">Developers যে তিন প্রশ্ন করেন — আজ উত্তর দেব</p>
+        <ul class="beat-list">
+          <li class="beat-item"><i class="fa-solid fa-circle-question"></i> Production API-তে কোন rules মানব?</li>
+          <li class="beat-item"><i class="fa-solid fa-fire"></i> কোন mistakes avoid করব?</li>
+          <li class="beat-item"><i class="fa-solid fa-code"></i> ASP.NET Core-এ কীভাবে apply করব?</li>
+        </ul>
+        <div class="hero-tags-min fu d5">
+          <span>DI</span><span>Async</span><span>Security</span><span>Performance</span>
         </div>
       </div>
     </div>
@@ -331,7 +368,7 @@ body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:var(-
           <div class="practice-title">Middleware Order মেনে চলুন</div>
           <div class="practice-sub">Exception → HTTPS → Static → Routing → Auth → Authorization → Endpoints</div>
         </div>
-        <p style="font-size:1.05rem;color:var(--muted);margin-bottom:8px" class="fu d2">ক্লিক করে সঠিক ক্রমে সাজান, তারপর চেক করুন:</p>
+        <p style="font-size:1.05rem;color:var(--muted);margin-bottom:8px" class="fu d2">Microsoft-এর recommended middleware pipeline order</p>
         <div class="mw-puzzle fu d3" id="mwPuzzle"></div>
         <button class="mw-check-btn fu d4" onclick="checkMwOrder()"><i class="fa-solid fa-check-double"></i> ক্রম চেক করুন</button>
       </div>
@@ -426,9 +463,9 @@ _logger.<span class="cf">LogInformation</span>(<span class="cstr">"Order {OrderI
           <div class="practice-sub">Kubernetes, Docker, Load Balancer — সবাই /health endpoint দেখে</div>
         </div>
         <div class="health-dash fu d2" id="healthDash">
-          <div class="health-card" onclick="checkHealth(this,'api')"><div class="health-dot"></div><div class="health-name">API</div><div class="health-status">ক্লিক করুন</div></div>
-          <div class="health-card" onclick="checkHealth(this,'db')"><div class="health-dot"></div><div class="health-name">Database</div><div class="health-status">ক্লিক করুন</div></div>
-          <div class="health-card" onclick="checkHealth(this,'redis')"><div class="health-dot"></div><div class="health-name">Redis Cache</div><div class="health-status">ক্লিক করুন</div></div>
+          <div class="health-card" onclick="checkHealth(this,'api')"><div class="health-dot"></div><div class="health-name">API</div><div class="health-status">—</div></div>
+          <div class="health-card" onclick="checkHealth(this,'db')"><div class="health-dot"></div><div class="health-name">Database</div><div class="health-status">—</div></div>
+          <div class="health-card" onclick="checkHealth(this,'redis')"><div class="health-dot"></div><div class="health-name">Redis Cache</div><div class="health-status">—</div></div>
           <div class="health-card" onclick="checkHealth(this,'all')"><div class="health-dot"></div><div class="health-name">সব চেক</div><div class="health-status">একসাথে</div></div>
         </div>
         <div class="code-box fu d3" style="width:100%;max-width:820px">
@@ -550,7 +587,12 @@ app.<span class="cf">MapHealthChecks</span>(<span class="cstr">"/health"</span>)
 
 <script>
 const BC=new BroadcastChannel('aspnet_best_practices_presentation');
+const VIDEO_MODE=!new URLSearchParams(location.search).has('studio');
+if(VIDEO_MODE)document.body.classList.add('video-mode');
 let cur=0;
+let AT=[];
+function ct(){AT.forEach(t=>clearTimeout(t));AT=[];}
+function aft(fn,ms){const t=setTimeout(fn,ms);AT.push(t);return t;}
 const chapters=[{e:'🏠',t:'পরিচয়'},{e:'📋',t:'Top 10 ওভারভিউ'},{e:'💉',t:'#1 DI'},{e:'⚡',t:'#2 Async/Await'},{e:'🔀',t:'#3 Middleware'},{e:'⚙️',t:'#4 IOptions'},{e:'📝',t:'#5 Logging'},{e:'🛡️',t:'#6 Exception'},{e:'❤️',t:'#7 Health Checks'},{e:'✅',t:'#8 Validation'},{e:'🔒',t:'#9 Security'},{e:'🚀',t:'#10 Performance'},{e:'🏆',t:'সারসংক্ষেপ'}];
 const chList=document.getElementById('chList');
 chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-item'+(i===0?' active':'');el.innerHTML=`<div class="ch-num">${i+1}</div><span>${ch.e} ${ch.t}</span>`;el.onclick=()=>{BC.postMessage({type:'nav',idx:i});goTo(i)};chList.appendChild(el)});
@@ -559,22 +601,22 @@ const slides=document.querySelectorAll('.slide'),TOTAL=slides.length;document.ge
 function goTo(idx){
   idx=Math.max(0,Math.min(TOTAL-1,idx));
   if(idx===cur)return;
+  ct();
   slides[cur]?.classList.remove('active');slides[cur]?.classList.add('exit');setTimeout(()=>slides[cur]?.classList.remove('exit'),700);
   cur=idx;slides[cur]?.classList.add('active');setTimeout(()=>slides[cur]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),80);
   slides.forEach((s,i)=>{if(i!==cur)s.querySelectorAll('.fu').forEach(el=>el.classList.remove('visible'))});
   updateUI();onSlideEnter(cur);
+  runSlideDemo(cur);
 }
 function navigate(delta){const next=Math.max(0,Math.min(TOTAL-1,cur+delta));BC.postMessage({type:'nav',idx:next});goTo(next)}
 function updateUI(){document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('botFill').style.width=pct+'%';document.querySelectorAll('.ch-item').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)})}
 BC.onmessage=e=>{if(e.data.type==='nav')goTo(e.data.idx);if(e.data.type==='ping_from_presenter')BC.postMessage({type:'ping'})};
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();navigate(1)}if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navigate(-1)}});
-setTimeout(()=>slides[0]?.querySelectorAll('.fu').forEach(el=>el.classList.add('visible')),200);updateUI();
 
-const dot=document.getElementById('curDot'),ol=document.getElementById('curOutline');
-document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';ol.style.left=e.clientX+'px';ol.style.top=e.clientY+'px'});
 const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');let pts=[];
-function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.addEventListener('resize',resize);
-for(let i=0;i<60;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.6+.4,c:Math.random()>.5?'rgba(81,43,215,0.5)':'rgba(0,188,242,0.4)'});
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;pts=[];const n=VIDEO_MODE?22:60;
+for(let i=0;i<n;i++)pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.4+.4,c:Math.random()>.5?'rgba(81,43,215,0.4)':'rgba(0,188,242,0.35)'})}
+resize();window.addEventListener('resize',resize);
 (function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill()});requestAnimationFrame(draw)})();
 
 function toggleSw(swId,badId,goodId){const sw=document.getElementById(swId);sw.classList.toggle('good');const isGood=sw.classList.contains('good');document.getElementById(badId).classList.toggle('active',!isGood);document.getElementById(goodId).classList.toggle('active',isGood)}
@@ -616,6 +658,11 @@ function initMwPuzzle(){
 }
 function checkMwOrder(){
   document.querySelectorAll('.mw-slot').forEach((el,i)=>{el.classList.remove('correct','wrong');el.classList.add(mwShuffled[i]===mwCorrect[i]?'correct':'wrong')});
+}
+function setMwCorrectOrder(){
+  mwShuffled=[...mwCorrect];
+  initMwPuzzle();
+  aft(()=>checkMwOrder(),500);
 }
 initMwPuzzle();
 
@@ -672,12 +719,43 @@ function runCompression(){
   pctEl.textContent=pct+'%';arc.style.strokeDashoffset=471-(471*pct/100)},30);
 }
 
+function runValidationDemo(){
+  const email=document.getElementById('valEmail'),age=document.getElementById('valAge');
+  if(email)email.value='not-an-email';if(age)age.value='12';
+  validateForm();
+}
+
+function enableAllSec(){
+  ['secHttps','secHsts','secCsp','secCors'].forEach(id=>{if(!secOn.has(id))toggleSec(id);});
+}
+
 function revealSummary(){document.querySelectorAll('.sum-item').forEach((el,i)=>setTimeout(()=>el.classList.add('revealed'),i*100))}
 
-function onSlideEnter(idx){
-  if(idx===4)initMwPuzzle();
-  if(idx===12)setTimeout(()=>document.querySelectorAll('.sum-item').forEach((el,i)=>setTimeout(()=>el.classList.add('revealed'),i*80)),400);
+function runSlideDemo(idx){
+  if(!VIDEO_MODE)return;
+  switch(idx){
+    case 1: aft(()=>revealAllCards(),2200); break;
+    case 2: aft(()=>runDiFlow(),2200); aft(()=>{if(!document.getElementById('diSw')?.classList.contains('good'))toggleSw('diSw','diBad','diGood');},4500); break;
+    case 3: aft(()=>runAsyncDemo('bad'),2200); aft(()=>runAsyncDemo('good'),6500); break;
+    case 4: aft(()=>setMwCorrectOrder(),2200); break;
+    case 5: aft(()=>runCfgFlow(),2200); break;
+    case 6: aft(()=>streamLogs(),2200); break;
+    case 7: aft(()=>{if(!document.getElementById('exSw')?.classList.contains('good'))toggleSw('exSw','exBad','exGood');},3500); break;
+    case 8: aft(()=>checkHealth(document.querySelector('.health-card'),'all'),2200); break;
+    case 9: aft(()=>runValidationDemo(),2200); break;
+    case 10: aft(()=>enableAllSec(),2200); break;
+    case 11: aft(()=>runCompression(),2200); break;
+    case 12: aft(()=>revealSummary(),2200); break;
+  }
 }
+
+function onSlideEnter(idx){
+  if(idx===4&&!VIDEO_MODE)initMwPuzzle();
+  if(idx===12&&!VIDEO_MODE)setTimeout(()=>document.querySelectorAll('.sum-item').forEach((el,i)=>setTimeout(()=>el.classList.add('revealed'),i*80)),400);
+  if(idx===2){document.getElementById('diSw')?.classList.remove('good');document.getElementById('diBad')?.classList.add('active');document.getElementById('diGood')?.classList.remove('active');}
+  if(idx===7){document.getElementById('exSw')?.classList.remove('good');document.getElementById('exBad')?.classList.add('active');document.getElementById('exGood')?.classList.remove('active');}
+}
+goTo(0);
 </script>
 </body>
 </html>

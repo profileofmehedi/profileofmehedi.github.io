@@ -111,7 +111,7 @@ html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; b
   position:relative;
 }
 .script-box::before {
-  content:'📢 SCRIPT';
+  content:'🎙️ NARRATION';
   position:absolute; top:-11px; left:20px;
   background:var(--bg); padding:0 8px;
   font-size:0.6rem; font-weight:700; letter-spacing:2px;
@@ -125,6 +125,24 @@ html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; b
 }
 .script-text em {
   color:var(--teal); font-style:normal; font-weight:600;
+}
+
+.cue-box {
+  margin-top:14px;
+  padding:12px 16px;
+  background:rgba(251,113,133,0.06);
+  border:1px solid rgba(251,113,133,0.2);
+  border-radius:10px;
+  flex-shrink:0;
+}
+.cue-label {
+  font-size:0.58rem; font-weight:700; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--coral);
+  margin-bottom:6px; display:flex; align-items:center; gap:6px;
+}
+.cue-text {
+  font-size:0.82rem; line-height:1.55;
+  color:var(--muted); font-weight:500;
 }
 
 /* scrollbar */
@@ -297,6 +315,10 @@ html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; b
     <div class="script-box">
       <div class="script-text" id="scriptText">লোড হচ্ছে...</div>
     </div>
+    <div class="cue-box" id="cueBox" style="display:none">
+      <div class="cue-label"><i class="fa-solid fa-clapperboard"></i> প্রোডিউশন cue</div>
+      <div class="cue-text" id="cueText"></div>
+    </div>
   </div>
 
   <!-- Nav Bar -->
@@ -349,103 +371,149 @@ html, body { height:100%; font-family:'Outfit','Noto Sans Bengali',sans-serif; b
 /* ─── SLIDES DATA ─── */
 const SLIDES = [
   {
-    ch:'পরিচিতি',
-    narration:`আসসালামু আলাইকুম! Coding Drop-এ স্বাগতম।
+    ch:'পরিচিতি — ৩ প্রশ্ন',
+    narration:`আসসালামু আলাইকুম! Coding Drop — স্বাগতম।
 
-আজ আমরা সফটওয়্যার ইঞ্জিনিয়ারিং-এর অন্যতম গুরুত্বপূর্ণ কনসেপ্ট — <em>Dependency Injection</em> বা DI নিয়ে কথা বলব।
+Junior থেকে senior — সবাই Dependency Injection সম্পর্কে প্রায় একই তিন প্রশ্ন করেন।
 
-DI কোডকে maintainable, testable এবং flexible করার সবচেয়ে জনপ্রিয় ডিজাইন প্যাটার্ন। আজ দেখব Loose Coupling, IoC Container, Service Lifetimes এবং ASP.NET Core-এ বাস্তব ব্যবহার।`
+<em>DI কী?</em> <em>কেন এত popular?</em> এবং <em>ASP.NET Core-এ কীভাবে apply করব?</em>
+
+আজকের ভিডিওতেই এই তিনটার উত্তর। চলুন শুরু করি।`,
+    cue:'৩ প্রশ্ন screen-এ stagger (~২s) → ~১০s পর Arrow'
   },
   {
     ch:'Tight Coupling বনাম Loose Coupling',
-    narration:`ডিপেনডেন্সি ইনজেকশন বোঝার আগে আমাদের বুঝতে হবে প্রবলেমটা আসলে কোথায়।
+    narration:`প্রথমে problem — <em>Tight Coupling</em>।
 
-যখন একটি ক্লাস সরাসরি 'new' কিওয়ার্ড ব্যবহার করে অন্য একটি ক্লাসের অবজেক্ট তৈরি করে, তখন তাকে বলা হয় Tight Coupling।
+Car ক্লাস নিজে <em>new Engine()</em> করছে। Engine বদলাতে Car edit করতে হবে। Unit test-এ mock Engine বসানো কঠিন।
 
-<em>Tight Coupling / Loose Coupling</em> সুইচে ক্লিক করলে দুই পাশের কোডের পার্থক্য দেখতে পাবেন — বামে সমস্যা, ডানে Constructor Injection-এর সমাধান।
-
-Loose Coupling-এ ক্লাস ইন্টারফেস ব্যবহার করে, ডিপেনডেন্সি বাইরে থেকে ইনজেক্ট করা হয়।`
+<em>Loose Coupling</em>-এ Car শুধু <em>IEngine</em> চায়। Engine বাইরে থেকে constructor-এ আসে — flexible, testable।`,
+    cue:'Tight বলুন → ~৪s-এ Loose auto switch → শেষে Arrow'
   },
   {
     ch:'Dependency Injection কী?',
-    narration:`তাহলে Dependency Injection বা DI আসলে কী?
+    narration:`তাহলে <em>Dependency Injection</em> কী?
 
-খুব সহজ কথায় বলতে গেলে, "নিজের প্রয়োজনীয় জিনিস নিজে তৈরি না করে, অন্যের কাছ থেকে চেয়ে নেওয়াকেই Dependency Injection বলে।"
+সহজ কথায় — নিজের দরকারি জিনিস নিজে বানাবে না, বাইরে থেকে পাবে।
 
-যেমনটা আমরা বলছিলাম, Car ক্লাসটি নিজে new Engine() না করে, যদি কেউ বাইরে থেকে তাকে একটি ইঞ্জিন দিয়ে দেয়, সেটাই হলো ইনজেকশন।
+Car Engine বানায় না। <em>IoC Container</em> Engine বানিয়ে Car-কে দেয়।
 
-এখানে তিনটি মূল চরিত্র কাজ করে:
-১. Client (যে ডিপেনডেন্সি ব্যবহার করবে, যেমন: Car)
-২. Service (যে কাজটা করবে, যেমন: Engine)
-৩. Injector / IoC Container (যে সার্ভিসটি তৈরি করে ক্লায়েন্টকে দিবে)
-
-DI-এর মূল উদ্দেশ্য হলো অবজেক্ট তৈরি করার দায়িত্ব ক্লাসের ভেতর থেকে সরিয়ে বাইরে নিয়ে আসা।`
+তিনটি role — <em>Client</em> (Car), <em>Service</em> (Engine), <em>Injector</em> (Container)।`,
+    cue:'→ Arrow যখন তিন role clear'
   },
   {
     ch:'DI এর প্রকারভেদ',
-    narration:`Dependency Injection মূলত তিনটি উপায়ে করা যায়।
+    narration:`DI তিন উপায়ে করা যায়।
 
-<em>প্রকারভেদ দেখুন</em> বাটনে ক্লিক করলে Constructor, Method এবং Property Injection একে একে হাইলাইট হবে।
+<em>Constructor Injection</em> — সবচেয়ে common, ASP.NET Core default।
 
-Constructor Injection ASP.NET Core-এ বেস্ট প্র্যাকটিস — অবজেক্ট তৈরি হওয়ার সময়ই সব ডিপেনডেন্সি পেয়ে যায়।`
+<em>Method Injection</em> — নির্দিষ্ট method-এর জন্য।
+
+<em>Property Injection</em> — optional dependency-র জন্য।
+
+Production-এ Constructor Injection দেখবেন সবচেয়ে বেশি।`,
+    cue:'~২s-এ কার্ড auto highlight → Arrow'
   },
   {
     ch:'Service Lifetimes (জীবনকাল)',
-    narration:`ASP.NET Core-এ DI Container অবজেক্ট তৈরি করার সময় তার জীবনকাল ঠিক করতে পারেন।
+    narration:`Container object তৈরি করার সময় <em>lifetime</em> ঠিক করেন।
 
-<em>Lifetime তুলনা</em> বাটনে ক্লিক করলে Transient, Scoped ও Singleton তিনটি কার্ড হাইলাইট হবে।
+<em>Transient</em> — প্রতিবার নতুন object।
 
-Transient = প্রতিবার নতুন, Scoped = প্রতি HTTP Request-এ এক, Singleton = পুরো App-এ এক।`
+<em>Scoped</em> — এক HTTP request-এ এক instance। DbContext-এর জন্য perfect।
+
+<em>Singleton</em> — পুরো app-এ এক instance, সব request share করে।`,
+    cue:'~২s-এ lifetime কার্ড auto → Arrow'
   },
   {
     ch:'IoC Container (Inversion of Control)',
-    narration:`IoC Container হলো DI-এর মূল ইঞ্জিন — অবজেক্ট তৈরির নিয়ন্ত্রণ ফ্রেমওয়ার্কের হাতে।
+    narration:`<em>IoC Container</em> হল DI-এর engine।
 
-<em>IoC Phases দেখুন</em> বাটনে ক্লিক করলে Registration → Resolution → Disposal তিনটি ধাপ একে একে দেখাবে।`
+<em>Registration</em> — startup-এ map করা: <em>AddScoped&lt;IEngine, Engine&gt;()</em>।
+
+<em>Resolution</em> — দরকার হলে object তৈরি।
+
+<em>Disposal</em> — lifetime শেষে cleanup।
+
+Control developer-এর হাতে নয় — framework-এর হাতে।`,
+    cue:'~২s-এ phases auto → Arrow'
   },
   {
     ch:'IoC Resolution Flow',
-    narration:`IoC Container কীভাবে অবজেক্ট রিসলভ করে তা ফ্লো ডায়াগ্রামে দেখি।
+    narration:`এক request-এ chain কীভাবে resolve হয়?
 
-<em>Resolution Flow চালান</em> বাটনে ক্লিক করলে UserController থেকে শুরু করে Repository পর্যন্ত পুরো রিসলিউশন প্রসেস অ্যানিমেট হবে।`
+<em>UserController</em> চায় <em>IUserService</em>। Container check করে।
+
+<em>UserRepository</em> resolve → <em>UserService</em> তৈরি → Controller-এ inject।
+
+Nested dependency — স্বয়ংক্রিয়। Developer শুধু interface declare করেন।`,
+    cue:'~২s-এ flow animation auto → Arrow'
   },
   {
     ch:'Tight Coupling Code (সমস্যা)',
-    narration:`এখানে Tight Coupling-এর একটি বাস্তব উদাহরণ — UserController সরাসরি new UserService() করছে।
+    narration:`Bad code example — <em>UserController</em> ভিতরে <em>new UserService()</em>।
 
-<em>কোড প্রকাশ করুন</em> বাটনে ক্লিক করলে কোড লাইন বাই লাইন দেখাবে। এতে Unit Test এবং মেইনটেন্যান্স কঠিন হয়।`
+Concrete class-এ bound। Mock impossible। Unit test practically নেই।
+
+<em>Dependency Inversion Principle</em> ভঙ্গ। Production-এ refactor candidate।`,
+    cue:'~২s-এ code typing auto → Arrow'
   },
   {
     ch:'DI Code in ASP.NET Core (সমাধান)',
-    narration:`ASP.NET Core-এ DI দিয়ে কীভাবে সমাধান করা হয় দেখি।
+    narration:`ASP.NET Core-এ দুই ধাপ।
 
-<em>DI কোড দেখুন</em> বাটনে ক্লিক করলে Program.cs-এ Registration এবং Controller-এ Constructor Injection দুটোই প্রকাশ পাবে।`
+<em>Program.cs</em> — <em>AddScoped&lt;IUserService, UserService&gt;()</em> register।
+
+<em>UserController(IUserService)</em> — container inject করবে।
+
+Controller concrete class জানে না। Implementation swap — config-এ, controller untouched।`,
+    cue:'~২s-এ DI code auto reveal → Arrow'
   },
   {
     ch:'Live Sandbox — Lifetime Demo',
-    narration:`এখন লাইভ স্যান্ডবক্সে Service Lifetimes-এর পার্থক্য দেখি।
+    narration:`Lifetime পার্থক্য live দেখি।
 
-<em>Send Request 1</em> ও <em>Send Request 2</em> বাটনে ক্লিক করুন — Transient-এ Guid আলাদা, Scoped-এ এক Request-এ একই, Singleton-এ সবসময় একই থাকে।`
+প্রথম request — Transient-এ প্রতি call নতুন Guid। Scoped-এ এক request-এ same Guid। Singleton-এ সবসময় same।
+
+দ্বিতীয় request — Scoped নতুন Guid, Singleton same। Guid pattern দেখলেই lifetime clear।`,
+    cue:'Request 1 ~৩s, Request 2 ~৯.৫s auto → Arrow'
   },
   {
     ch:'DI এর সুবিধাসমূহ',
-    narration:`Dependency Injection-এর মূল সুবিধাগুলো একনজরে।
+    narration:`কেন DI popular?
 
-<em>সুবিধা প্রকাশ করুন</em> বাটনে ক্লিক করলে Loose Coupling, Testability, Maintainability সহ ছয়টি সুবিধা একে একে হাইলাইট হবে।`
+<em>Loose Coupling</em> — class independent।
+
+<em>Testability</em> — mock দিয়ে test সহজ।
+
+<em>Maintainability</em> — clean code।
+
+<em>Flexibility</em> — implementation swap।
+
+<em>Lifetime Management</em> — memory safe।
+
+Modern framework-এ DI default — optional নয়, standard।`,
+    cue:'~২s-এ সুবিধা কার্ড auto → Arrow'
   },
   {
     ch:'সতর্কতা ও Anti-patterns',
-    narration:`DI ব্যবহারে কিছু ভুল থেকে দূরে থাকতে হবে।
+    narration:`DI misuse-এ complexity বাড়ে। তিনটি সতর্কতা।
 
-<em>সতর্কতা দেখুন</em> বাটনে ক্লিক করলে Service Locator, Over-injection এবং Captive Dependency — তিনটি Anti-pattern দেখাবে।`
+<em>Service Locator</em> — <em>GetService()</em> avoid করুন।
+
+<em>Over-injection</em> — ৫+ dependency = class too fat, refactor করুন।
+
+<em>Captive Dependency</em> — Singleton-এ Scoped inject = memory leak risk।`,
+    cue:'~২s-এ warnings auto → Arrow'
   },
   {
     ch:'সারাংশ ও বিদায়',
-    narration:`আজকের সেশনে DI-এর কোর কনসেপ্ট থেকে ASP.NET Core ব্যবহার পর্যন্ত দেখলাম।
+    narration:`আজ দেখলাম — DI loose coupling ও testability দেয়। IoC Container lifetime manage করে। Transient, Scoped, Singleton — তিন lifetime। Constructor Injection — best practice।
 
-<em>সারসংক্ষেপ প্রকাশ করুন</em> বাটনে ক্লিক করলে চারটি মূল পয়েন্ট একে একে দেখাবে।
+ভিডিও useful লাগলে like করুন। <em>Coding Drop</em> subscribe করুন — backend ও .NET গভীর টপিক নিয়মিত আসে।
 
-ভিডিওটি ভালো লাগলে লাইক দিন এবং Coding Drop চ্যানেলে সাবস্ক্রাইব করুন। আল্লাহ হাফেজ!`
+পরবর্তী ভিডিওতে দেখা হবে। আল্লাহ হাফেজ!`,
+    cue:'~২s-এ summary points auto'
   }
 ];
 
@@ -503,7 +571,17 @@ document.addEventListener('keydown', e => {
 function renderSlide(){
   const sl = SLIDES[cur];
   document.getElementById('curTitle').textContent = 'Chapter '+(cur+1)+' — '+sl.ch;
-  document.getElementById('scriptText').innerHTML = sl.narration.replace(/"/g,'<em>"</em>').replace(/'([^']+)'/g,"<em>'$1'</em>");
+  document.getElementById('scriptText').innerHTML = sl.narration;
+
+  const cueBox = document.getElementById('cueBox');
+  const cueText = document.getElementById('cueText');
+  if(sl.cue){
+    cueBox.style.display = 'block';
+    cueText.textContent = sl.cue;
+  } else {
+    cueBox.style.display = 'none';
+    cueText.textContent = '';
+  }
   document.getElementById('curNum').textContent = cur+1;
   document.getElementById('totNum').textContent = total;
 

@@ -28,9 +28,11 @@ html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;backgr
 .cur-label::before{content:'';width:16px;height:2px;background:var(--dotnet);border-radius:1px}
 .cur-title{font-size:1.4rem;font-weight:800;margin-bottom:18px}
 .script-box{flex:1;overflow-y:auto;background:rgba(81,43,215,0.04);border:1px solid rgba(81,43,215,0.18);border-radius:12px;padding:22px 26px;position:relative}
-.script-box::before{content:'📢 SCRIPT';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--cyan)}
+.script-box::before{content:'🎙️ NARRATION';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--cyan)}
 .script-text{font-size:1.12rem;line-height:2.1;color:var(--text);white-space:pre-line}
 .script-text em{color:var(--cyan);font-style:normal;font-weight:600}
+.cue-box{margin-top:12px;padding:11px 14px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.2);border-radius:9px;flex-shrink:0}
+.cue-label{font-size:0.56rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);margin-bottom:5px;display:flex;align-items:center;gap:5px}
 .script-box::-webkit-scrollbar{width:4px}
 .script-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 .nav-bar{grid-column:1;grid-row:2;display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:var(--surface);flex-shrink:0}
@@ -78,6 +80,10 @@ html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;backgr
     <div class="cur-label" id="curLabel">স্লাইড ১</div>
     <div class="cur-title" id="curTitle">পরিচয়</div>
     <div class="script-box"><div class="script-text" id="scriptText"></div></div>
+    <div class="cue-box" id="cueBox" style="display:none">
+      <div class="cue-label"><i class="fa-solid fa-clapperboard"></i> প্রোডিউশন cue</div>
+      <div class="cue-text" id="cueText"></div>
+    </div>
   </div>
   <div class="nav-bar">
     <div style="display:flex;gap:10px">
@@ -103,139 +109,85 @@ html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;backgr
 const BC=new BroadcastChannel('aspnet_best_practices_presentation');
 let cur=0,timerInterval=null,seconds=0,running=false;
 const slides=[
-  {title:'পরিচয় — Top 10 ASP.NET Core Best Practices',script:`আচ্ছালামুয়ালাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
+  {title:'পরিচয় — Top 10 ASP.NET Core Best Practices',cue:'৩ প্রশ্ন stagger (~২s) → ~১০s পর Arrow',script:`আসসালামু আলাইকুম! <em>Coding Drop</em> — স্বাগতম।
 
-আজকে আমরা শিখবো <em>Top 10 ASP.NET Core Best Practices</em> — যেগুলো মেনে চললে আপনার API Production-ready, Secure এবং Fast হবে।
+Developers প্রায়ই তিন প্রশ্ন করেন — production API-তে কোন rules? কোন mistakes avoid? ASP.NET Core-এ কীভাবে apply?
 
-Junior থেকে Senior — সবাই এই ১০টি নিয়ম জানা উচিত। Tutorial শেষে আপনি জানবেন কোথায় ভুল করছেন এবং কীভাবে ঠিক করবেন।
+আজকের ভিডিওতে <em>Top 10 ASP.NET Core Best Practices</em> — একে একে দেখব। শুরু করি।`},
+  {title:'Top 10 ওভারভিউ',cue:'~২s-এ ১০ কার্ড auto highlight → Arrow',script:`আজ ১০টি rule কভার করব।
 
-চলুন শুরু করি!`},
-  {title:'Top 10 ওভারভিউ',script:`আজকের ১০টি Best Practice এক নজরে দেখুন।
+<em>DI</em>, <em>Async/Await</em>, <em>Middleware Order</em>, <em>IOptions</em>, <em>Logging</em>, <em>Exception Handling</em>, <em>Health Checks</em>, <em>Validation</em>, <em>HTTPS & Security</em>, <em>Performance</em>।
 
-প্রতিটি কার্ডে ক্লিক করলে highlight হবে। অথবা <em>"সব একসাথে দেখাও"</em> বাটনে ক্লিক করুন।
+একে একে বিস্তারিত।`},
+  {title:'#1 — Dependency Injection',cue:'DI Flow ~২s → Good code ~৪.৫s auto',script:`Rule #1 — <em>Dependency Injection</em>।
 
-১. Dependency Injection
-২. Async/Await
-৩. Middleware Order
-৪. IOptions Pattern
-৫. Structured Logging
-৬. Exception Handling
-৭. Health Checks
-৮. Input Validation
-৯. HTTPS & Security
-১০. Performance Tips
+Bad — Controller-এ <em>new OrderService()</em>। Tight coupling, mock impossible।
 
-এখন একে একে বিস্তারিত দেখবো।`},
-  {title:'#1 — Dependency Injection',script:`প্রথম Best Practice — <em>Dependency Injection</em> ব্যবহার করুন।
+Good — constructor injection, interface + DI Container।
 
-Bad Version-এ দেখুন — Controller-এর ভিতরে \`new OrderService()\` করা হয়েছে। এটা Tight Coupling। Test করা কঠিন, Mock করা অসম্ভব।
+Rule: <em>new()</em> avoid — interface + DI।`},
+  {title:'#2 — Async/Await',cue:'Blocking ~২s → Async ~৬.৫s auto',script:`Rule #2 — <em>Async/Await</em> সঠিকভাবে।
 
-Good Version-এ Constructor Injection — Interface দিয়ে Service নেওয়া হয়েছে। DI Container inject করবে।
+Blocking — <em>.Result</em> / <em>.Wait()</em> thread pool block করে।
 
-<em>"DI Flow চালাও"</em> বাটনে ক্লিক করুন — Program.cs থেকে Container, তারপর Controller-এ inject হওয়া দেখুন।
+Async — thread await করছে, block নয় — অন্য request handle করতে পারছে।
 
-Rule: কখনো Service-এ \`new()\` করবেন না — Interface + DI ব্যবহার করুন।`},
-  {title:'#2 — Async/Await',script:`দ্বিতীয় Best Practice — <em>Async/Await সঠিকভাবে</em> ব্যবহার করুন।
+Rule: DB, HTTP, file I/O — async। <em>.Result</em> never।`},
+  {title:'#3 — Middleware Order',cue:'~২s-এ correct order auto + green',script:`Rule #3 — <em>Middleware Order</em>।
 
-<em>Blocking Mode</em> বাটনে ক্লিক করুন — দেখুন Thread Pool Block হয়ে যাচ্ছে। \`.Result\` বা \`.Wait()\` ব্যবহার করলে এমন হয়।
+Exception → HTTPS → Static → Routing → Auth → Authorization → Endpoints।
 
-<em>Async Mode</em> বাটনে ক্লিক করুন — Thread await করছে, কিন্তু Block করছে না। অন্য Request handle করতে পারছে।
+Auth Routing-এর আগে — user identify হয় না। Interview-এ আসে — মুখস্থ রাখুন।`},
+  {title:'#4 — IOptions Pattern',cue:'~২s-এ Config Flow auto',script:`Rule #4 — <em>IOptions&lt;T&gt;</em> configuration।
 
-Rule: Database call, HTTP call, File I/O — সব async করুন। \`.Result\` কখনো নয়!`},
-  {title:'#3 — Middleware Order',script:`তৃতীয় Best Practice — <em>Middleware Order</em> মেনে চলুন।
+API key কোডে নয় — <em>appsettings.json</em>।
 
-Microsoft-এর Recommended Order:
-Exception Handler → HTTPS → Static Files → Routing → Authentication → Authorization → Endpoints
+<em>Configure&lt;T&gt;()</em> register, <em>IOptions&lt;T&gt;</em> inject।
 
-ক্লিক করে Middleware-গুলো সঠিক ক্রমে সাজান, তারপর <em>"ক্রম চেক করুন"</em> বাটনে ক্লিক করুন।
+Production-এ Key Vault বা env variable।`},
+  {title:'#5 — Structured Logging',cue:'~২s-এ log stream auto',script:`Rule #5 — <em>ILogger</em> structured logging।
 
-ভুল ক্রমে Auth আগে Routing-এর — Permission check করার আগে User চেনা হয় না!
+<em>Console.WriteLine()</em> production-এ নয়।
 
-এই ক্রম মুখস্থ রাখুন — Interview-এও আসে।`},
-  {title:'#4 — IOptions Pattern',script:`চতুর্থ Best Practice — <em>IOptions&lt;T&gt;</em> দিয়ে Configuration।
+<em>LogInformation("Order {OrderId}", orderId)</em> — placeholders।
 
-Hard-coded connection string বা API key কোডে রাখবেন না — appsettings.json-এ রাখুন।
+Serilog / Application Insights production-এ।`},
+  {title:'#6 — Exception Handling',cue:'~৩.৫s-এ ProblemDetails auto',script:`Rule #6 — Global exception + <em>ProblemDetails</em>।
 
-\`Configure&lt;EmailSettings&gt;()\` দিয়ে Register করুন, তারপর Service-এ \`IOptions&lt;EmailSettings&gt;\` inject করুন।
+Stack trace client-এ — security risk।
 
-<em>"Config Flow চালাও"</em> বাটনে ক্লিক করুন — JSON থেকে Runtime-এ কীভাবে config যায় দেখুন।
+RFC 7807 <em>ProblemDetails</em> — clean, secure response।
 
-Production-এ Azure Key Vault বা Environment Variable-ও ব্যবহার করুন।`},
-  {title:'#5 — Structured Logging',script:`পঞ্চম Best Practice — <em>ILogger</em> দিয়ে Structured Logging।
+<em>UseExceptionHandler()</em> middleware-এর প্রথমে।`},
+  {title:'#7 — Health Checks',cue:'~২s-এ health checks auto',script:`Rule #7 — <em>Health Checks</em>।
 
-\`Console.WriteLine()\` Production-এ ব্যবহার করবেন না — Search, Filter, Alert — কিছুই করা যায় না।
+K8s, Docker, Load Balancer — <em>/health</em> দেখে।
 
-<em>"Live Log Stream চালাও"</em> বাটনে ক্লিক করুন — দেখুন Structured Log কেমন দেখায়।
+<em>AddHealthChecks()</em> + <em>MapHealthChecks("/health")</em>।`},
+  {title:'#8 — Input Validation',cue:'~২s-এ validation demo auto',script:`Rule #8 — <em>Input Validation</em>।
 
-Placeholder ব্যবহার করুন: \`LogInformation("Order {OrderId} created", orderId)\`
+User input trust করবেন না।
 
-Serilog বা Application Insights দিয়ে Production-এ log collect করুন।`},
-  {title:'#6 — Exception Handling',script:`ষষ্ঠ Best Practice — <em>Global Exception Handling</em> + ProblemDetails।
+DataAnnotations বা FluentValidation। <em>ModelState.IsValid</em> check।`},
+  {title:'#9 — HTTPS & Security',cue:'~২s-এ security badges auto',script:`Rule #9 — <em>HTTPS</em> + security headers।
 
-Bad Version-এ Stack Trace Client-এ leak হচ্ছে — Security Risk! Hacker আপনার code structure জানতে পারে।
+Production-এ HTTPS mandatory। HSTS, CSP, CORS configure।
 
-Good Version-এ RFC 7807 <em>ProblemDetails</em> — Clean, Consistent, Secure error response।
+<em>UseHttpsRedirection()</em>, <em>UseHsts()</em> সঠিক order-এ।`},
+  {title:'#10 — Performance Optimization',cue:'~২s-এ compression gauge auto',script:`Rule #10 — <em>Performance</em>।
 
-\`app.UseExceptionHandler()\` সব Middleware-এর প্রথমে রাখুন।
+Compression — JSON ছোট। Caching — repeat fast। <em>AsNoTracking()</em> read-only query।
 
-Controller-এ try-catch লাগবে না — Global handler সব ধরবে।`},
-  {title:'#7 — Health Checks',script:`সপ্তম Best Practice — <em>Health Checks</em> যোগ করুন।
+Profiler দিয়ে measure — guess নয়।`},
+  {title:'সারসংক্ষেপ — Top 10 Best Practices',cue:'~২s-এ summary list auto',script:`আজ ১০ rule দেখলাম — DI, Async, Middleware, IOptions, Logging, Exception, Health, Validation, Security, Performance।
 
-Kubernetes, Docker, Azure Load Balancer — সবাই \`/health\` endpoint দেখে App জীবিত কিনা।
-
-প্রতিটি Health Card-এ ক্লিক করুন — API, Database, Redis check simulation দেখুন।
-
-\`AddHealthChecks()\` দিয়ে DB, Redis, External API check যোগ করুন।
-
-\`MapHealthChecks("/health")\` দিয়ে endpoint expose করুন।`},
-  {title:'#8 — Input Validation',script:`অষ্টম Best Practice — <em>Input Validation</em> করুন।
-
-User input-এ কখনো Trust করবেন না — SQL Injection, XSS, Invalid Data — সব আসতে পারে।
-
-Form-এ ভুল email এবং কম age দিন, তারপর <em>"Validate করুন"</em> বাটনে ক্লিক করুন — Error দেখুন।
-
-DataAnnotations (\`[Required], [EmailAddress], [Range]\`) বা FluentValidation ব্যবহার করুন।
-
-ModelState.IsValid check করুন Controller-এ।`},
-  {title:'#9 — HTTPS & Security',script:`নবম Best Practice — <em>HTTPS ও Security Headers</em>।
-
-Production-এ HTTP নয় — HTTPS বাধ্যতামূলক। HSTS, CSP, CORS সঠিকভাবে configure করুন।
-
-চারটি Security Badge চালু করুন — HTTPS, HSTS, CSP, CORS।
-
-সব চালু হলে Shield সবুজ হবে — Production Ready!
-
-\`app.UseHttpsRedirection()\` এবং \`app.UseHsts()\` Middleware Order-এ সঠিক জায়গায় রাখুন।`},
-  {title:'#10 — Performance Optimization',script:`দশম Best Practice — <em>Performance Optimization</em>।
-
-তিনটি সহজ Win:
-১. Response Compression — JSON ৭০-৮০% ছোট হয়
-২. Response Caching — Repeat request cache থেকে
-৩. EF Core \`AsNoTracking()\` — Read-only query-তে tracking বন্ধ
-
-<em>"Compress চালাও"</em> বাটনে ক্লিক করুন — 120KB থেকে 26KB-এ নামার simulation দেখুন।
-
-Performance optimize করতে Profiler দিয়ে measure করুন, guess করবেন না।`},
-  {title:'সারসংক্ষেপ — Top 10 Best Practices',script:`আজকে আমরা ১০টি Best Practice শিখলাম।
-
-<em>DI</em> — Constructor Injection, new() avoid
-<em>Async</em> — .Result/.Wait() নয়
-<em>Middleware Order</em> — Exception প্রথমে, Auth Routing-এর পরে
-<em>IOptions</em> — Strongly-typed config
-<em>Logging</em> — ILogger with placeholders
-<em>Exception</em> — ProblemDetails, Global handler
-<em>Health Checks</em> — /health endpoint
-<em>Validation</em> — Never trust input
-<em>Security</em> — HTTPS, HSTS, CSP
-<em>Performance</em> — Compression, Caching, AsNoTracking
-
-ভিডিওটি ভালো লাগলে লাইক, শেয়ার এবং <em>Coding Drop</em> সাবস্ক্রাইব করুন! আল্লাহ হাফেজ!`}
+ভিডিও useful লাগলে like করুন। <em>Coding Drop</em> subscribe করুন। আল্লাহ হাফেজ!`}
 ];
 const chapters=['পরিচয়','Top 10 ওভারভিউ','#1 DI','#2 Async/Await','#3 Middleware','#4 IOptions','#5 Logging','#6 Exception','#7 Health Checks','#8 Validation','#9 Security','#10 Performance','সারসংক্ষেপ'];
 const TOTAL=slides.length;document.getElementById('totNum').textContent=TOTAL;
 const chListP=document.getElementById('chListP');
 chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-p'+(i===0?' active':'');el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;el.onclick=()=>navigate(i-cur);chListP.appendChild(el)});
-function updateUI(){const s=slides[cur];document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;document.getElementById('curTitle').textContent=s.title;document.getElementById('scriptText').innerHTML=s.script;document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('prevBtn').disabled=cur===0;document.getElementById('nextBtn').disabled=cur===TOTAL-1;document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});const nt=document.getElementById('nextTitle');nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`}
+function updateUI(){const s=slides[cur];document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;document.getElementById('curTitle').textContent=s.title;document.getElementById('scriptText').innerHTML=s.script;const cueBox=document.getElementById('cueBox'),cueText=document.getElementById('cueText');if(s.cue){cueBox.style.display='block';cueText.textContent=s.cue}else{cueBox.style.display='none';cueText.textContent=''}document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('prevBtn').disabled=cur===0;document.getElementById('nextBtn').disabled=cur===TOTAL-1;document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});const nt=document.getElementById('nextTitle');nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`}
 function navigate(delta){const next=Math.max(0,Math.min(TOTAL-1,cur+delta));if(next===cur)return;cur=next;BC.postMessage({type:'nav',idx:cur});updateUI()}
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1)});
 function toggleTimer(){if(running){clearInterval(timerInterval);running=false;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}else{timerInterval=setInterval(()=>{seconds++;const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s},1000);running=true;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-pause"></i>'}}
