@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter View — Top 10 ASP.NET Core Best Practices</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#050508;--surface:#111;--border:rgba(255,255,255,0.08);--dotnet:#512bd7;--blue:#0078d4;--cyan:#00bcf2;--emerald:#10b981;--rose:#f43f5e;--text:#f8fafc;--muted:#94a3b8}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Outfit','Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 26px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem}
+.tb-badge{background:linear-gradient(135deg,var(--dotnet),var(--blue));color:#fff;padding:3px 9px;border-radius:6px;font-size:0.68rem;font-weight:700;letter-spacing:1px}
+.tb-right{display:flex;align-items:center;gap:20px}
+.timer-display{font-family:'Fira Code',monospace;font-size:1.6rem;font-weight:700;color:var(--cyan);letter-spacing:2px}
+.timer-btns{display:flex;gap:6px}
+.tbtn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn:hover{background:rgba(81,43,215,0.15);border-color:var(--dotnet);color:var(--cyan)}
+.conn-status{display:flex;align-items:center;gap:7px;font-size:0.75rem;color:var(--muted)}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s}
+.conn-dot.live{background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{opacity:.4;transform:scale(.7)}}
+.main{flex:1;display:grid;grid-template-columns:1fr 320px;grid-template-rows:1fr auto;overflow:hidden;height:calc(100vh - 62px)}
+.script-panel{grid-column:1;grid-row:1;display:flex;flex-direction:column;padding:24px 30px;border-right:1px solid var(--border);overflow:hidden}
+.cur-label{font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cur-label::before{content:'';width:16px;height:2px;background:var(--dotnet);border-radius:1px}
+.cur-title{font-size:1.4rem;font-weight:800;margin-bottom:18px}
+.script-box{flex:1;overflow-y:auto;background:rgba(81,43,215,0.04);border:1px solid rgba(81,43,215,0.18);border-radius:12px;padding:22px 26px;position:relative}
+.script-box::before{content:'📢 SCRIPT';position:absolute;top:-10px;left:18px;background:var(--bg);padding:0 8px;font-size:0.58rem;font-weight:700;letter-spacing:2px;color:var(--cyan)}
+.script-text{font-size:1.12rem;line-height:2.1;color:var(--text);white-space:pre-line}
+.script-text em{color:var(--cyan);font-style:normal;font-weight:600}
+.script-box::-webkit-scrollbar{width:4px}
+.script-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.nav-bar{grid-column:1;grid-row:2;display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-top:1px solid var(--border);border-right:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.nav-btn{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;font-family:'Outfit',sans-serif}
+.nav-btn:hover{background:rgba(81,43,215,0.12);border-color:var(--dotnet);color:var(--cyan)}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.slide-counter{font-family:'Fira Code',monospace;font-size:0.95rem;color:var(--muted)}
+.slide-counter span{color:var(--text);font-weight:700}
+.right-panel{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;overflow:hidden}
+.rp-head{padding:12px 16px 8px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+.ch-list-p{overflow-y:auto;flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.ch-p{padding:7px 10px;border-radius:7px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;border:1px solid transparent;color:var(--muted)}
+.ch-p:hover{background:rgba(255,255,255,0.04)}
+.ch-p.active{background:rgba(81,43,215,0.1);border-color:rgba(81,43,215,0.28);color:var(--cyan);font-weight:600}
+.ch-p.done{color:var(--text)}
+.ch-p .cn{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:700;font-family:'Fira Code',monospace;background:rgba(255,255,255,0.06);color:var(--muted);transition:all .2s}
+.ch-p.active .cn{background:var(--dotnet);color:#fff}
+.ch-p.done .cn{background:rgba(81,43,215,0.2);color:var(--cyan)}
+.next-preview{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.np-label{font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.np-title{font-size:0.82rem;font-weight:700;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.np-title i{color:var(--blue)}
+.prog-wrap{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.prog-label{font-size:0.6rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.prog-bar{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--dotnet),var(--cyan));border-radius:3px;transition:width .4s}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-logo"><i class="fa-brands fa-microsoft" style="color:var(--dotnet)"></i> Presenter View <div class="tb-badge">TOP 10 BEST PRACTICES</div></div>
+  <div class="tb-right">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="timer-display" id="timer">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="timerBtn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i></button>
+        <button class="tbtn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+    <div class="conn-status"><div class="conn-dot" id="connDot"></div><span id="connTxt">সংযুক্ত নেই</span></div>
+  </div>
+</div>
+<div class="main">
+  <div class="script-panel">
+    <div class="cur-label" id="curLabel">স্লাইড ১</div>
+    <div class="cur-title" id="curTitle">পরিচয়</div>
+    <div class="script-box"><div class="script-text" id="scriptText"></div></div>
+  </div>
+  <div class="nav-bar">
+    <div style="display:flex;gap:10px">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled><i class="fa-solid fa-arrow-left"></i> পেছনে</button>
+      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">সামনে <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div class="slide-counter">স্লাইড <span id="curNum">1</span> / <span id="totNum">13</span></div>
+  </div>
+  <div class="right-panel">
+    <div class="rp-head"><i class="fa-solid fa-list-ul"></i> অধ্যায়সমূহ</div>
+    <div class="ch-list-p" id="chListP"></div>
+    <div class="next-preview">
+      <div class="np-label"><i class="fa-solid fa-forward"></i> পরবর্তী</div>
+      <div class="np-title" id="nextTitle"><i class="fa-solid fa-arrow-right"></i> <span>—</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label"><span>অগ্রগতি</span><span id="progPct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+</div>
+<script>
+const BC=new BroadcastChannel('aspnet_best_practices_presentation');
+let cur=0,timerInterval=null,seconds=0,running=false;
+const slides=[
+  {title:'পরিচয় — Top 10 ASP.NET Core Best Practices',script:`আচ্ছালামুয়ালাইকুম, স্বাগতম <em>Coding Drop</em>-এ।
+
+আজকে আমরা শিখবো <em>Top 10 ASP.NET Core Best Practices</em> — যেগুলো মেনে চললে আপনার API Production-ready, Secure এবং Fast হবে।
+
+Junior থেকে Senior — সবাই এই ১০টি নিয়ম জানা উচিত। Tutorial শেষে আপনি জানবেন কোথায় ভুল করছেন এবং কীভাবে ঠিক করবেন।
+
+চলুন শুরু করি!`},
+  {title:'Top 10 ওভারভিউ',script:`আজকের ১০টি Best Practice এক নজরে দেখুন।
+
+প্রতিটি কার্ডে ক্লিক করলে highlight হবে। অথবা <em>"সব একসাথে দেখাও"</em> বাটনে ক্লিক করুন।
+
+১. Dependency Injection
+২. Async/Await
+৩. Middleware Order
+৪. IOptions Pattern
+৫. Structured Logging
+৬. Exception Handling
+৭. Health Checks
+৮. Input Validation
+৯. HTTPS & Security
+১০. Performance Tips
+
+এখন একে একে বিস্তারিত দেখবো।`},
+  {title:'#1 — Dependency Injection',script:`প্রথম Best Practice — <em>Dependency Injection</em> ব্যবহার করুন।
+
+Bad Version-এ দেখুন — Controller-এর ভিতরে \`new OrderService()\` করা হয়েছে। এটা Tight Coupling। Test করা কঠিন, Mock করা অসম্ভব।
+
+Good Version-এ Constructor Injection — Interface দিয়ে Service নেওয়া হয়েছে। DI Container inject করবে।
+
+<em>"DI Flow চালাও"</em> বাটনে ক্লিক করুন — Program.cs থেকে Container, তারপর Controller-এ inject হওয়া দেখুন।
+
+Rule: কখনো Service-এ \`new()\` করবেন না — Interface + DI ব্যবহার করুন।`},
+  {title:'#2 — Async/Await',script:`দ্বিতীয় Best Practice — <em>Async/Await সঠিকভাবে</em> ব্যবহার করুন।
+
+<em>Blocking Mode</em> বাটনে ক্লিক করুন — দেখুন Thread Pool Block হয়ে যাচ্ছে। \`.Result\` বা \`.Wait()\` ব্যবহার করলে এমন হয়।
+
+<em>Async Mode</em> বাটনে ক্লিক করুন — Thread await করছে, কিন্তু Block করছে না। অন্য Request handle করতে পারছে।
+
+Rule: Database call, HTTP call, File I/O — সব async করুন। \`.Result\` কখনো নয়!`},
+  {title:'#3 — Middleware Order',script:`তৃতীয় Best Practice — <em>Middleware Order</em> মেনে চলুন।
+
+Microsoft-এর Recommended Order:
+Exception Handler → HTTPS → Static Files → Routing → Authentication → Authorization → Endpoints
+
+ক্লিক করে Middleware-গুলো সঠিক ক্রমে সাজান, তারপর <em>"ক্রম চেক করুন"</em> বাটনে ক্লিক করুন।
+
+ভুল ক্রমে Auth আগে Routing-এর — Permission check করার আগে User চেনা হয় না!
+
+এই ক্রম মুখস্থ রাখুন — Interview-এও আসে।`},
+  {title:'#4 — IOptions Pattern',script:`চতুর্থ Best Practice — <em>IOptions&lt;T&gt;</em> দিয়ে Configuration।
+
+Hard-coded connection string বা API key কোডে রাখবেন না — appsettings.json-এ রাখুন।
+
+\`Configure&lt;EmailSettings&gt;()\` দিয়ে Register করুন, তারপর Service-এ \`IOptions&lt;EmailSettings&gt;\` inject করুন।
+
+<em>"Config Flow চালাও"</em> বাটনে ক্লিক করুন — JSON থেকে Runtime-এ কীভাবে config যায় দেখুন।
+
+Production-এ Azure Key Vault বা Environment Variable-ও ব্যবহার করুন।`},
+  {title:'#5 — Structured Logging',script:`পঞ্চম Best Practice — <em>ILogger</em> দিয়ে Structured Logging।
+
+\`Console.WriteLine()\` Production-এ ব্যবহার করবেন না — Search, Filter, Alert — কিছুই করা যায় না।
+
+<em>"Live Log Stream চালাও"</em> বাটনে ক্লিক করুন — দেখুন Structured Log কেমন দেখায়।
+
+Placeholder ব্যবহার করুন: \`LogInformation("Order {OrderId} created", orderId)\`
+
+Serilog বা Application Insights দিয়ে Production-এ log collect করুন।`},
+  {title:'#6 — Exception Handling',script:`ষষ্ঠ Best Practice — <em>Global Exception Handling</em> + ProblemDetails।
+
+Bad Version-এ Stack Trace Client-এ leak হচ্ছে — Security Risk! Hacker আপনার code structure জানতে পারে।
+
+Good Version-এ RFC 7807 <em>ProblemDetails</em> — Clean, Consistent, Secure error response।
+
+\`app.UseExceptionHandler()\` সব Middleware-এর প্রথমে রাখুন।
+
+Controller-এ try-catch লাগবে না — Global handler সব ধরবে।`},
+  {title:'#7 — Health Checks',script:`সপ্তম Best Practice — <em>Health Checks</em> যোগ করুন।
+
+Kubernetes, Docker, Azure Load Balancer — সবাই \`/health\` endpoint দেখে App জীবিত কিনা।
+
+প্রতিটি Health Card-এ ক্লিক করুন — API, Database, Redis check simulation দেখুন।
+
+\`AddHealthChecks()\` দিয়ে DB, Redis, External API check যোগ করুন।
+
+\`MapHealthChecks("/health")\` দিয়ে endpoint expose করুন।`},
+  {title:'#8 — Input Validation',script:`অষ্টম Best Practice — <em>Input Validation</em> করুন।
+
+User input-এ কখনো Trust করবেন না — SQL Injection, XSS, Invalid Data — সব আসতে পারে।
+
+Form-এ ভুল email এবং কম age দিন, তারপর <em>"Validate করুন"</em> বাটনে ক্লিক করুন — Error দেখুন।
+
+DataAnnotations (\`[Required], [EmailAddress], [Range]\`) বা FluentValidation ব্যবহার করুন।
+
+ModelState.IsValid check করুন Controller-এ।`},
+  {title:'#9 — HTTPS & Security',script:`নবম Best Practice — <em>HTTPS ও Security Headers</em>।
+
+Production-এ HTTP নয় — HTTPS বাধ্যতামূলক। HSTS, CSP, CORS সঠিকভাবে configure করুন।
+
+চারটি Security Badge চালু করুন — HTTPS, HSTS, CSP, CORS।
+
+সব চালু হলে Shield সবুজ হবে — Production Ready!
+
+\`app.UseHttpsRedirection()\` এবং \`app.UseHsts()\` Middleware Order-এ সঠিক জায়গায় রাখুন।`},
+  {title:'#10 — Performance Optimization',script:`দশম Best Practice — <em>Performance Optimization</em>।
+
+তিনটি সহজ Win:
+১. Response Compression — JSON ৭০-৮০% ছোট হয়
+২. Response Caching — Repeat request cache থেকে
+৩. EF Core \`AsNoTracking()\` — Read-only query-তে tracking বন্ধ
+
+<em>"Compress চালাও"</em> বাটনে ক্লিক করুন — 120KB থেকে 26KB-এ নামার simulation দেখুন।
+
+Performance optimize করতে Profiler দিয়ে measure করুন, guess করবেন না।`},
+  {title:'সারসংক্ষেপ — Top 10 Best Practices',script:`আজকে আমরা ১০টি Best Practice শিখলাম।
+
+<em>DI</em> — Constructor Injection, new() avoid
+<em>Async</em> — .Result/.Wait() নয়
+<em>Middleware Order</em> — Exception প্রথমে, Auth Routing-এর পরে
+<em>IOptions</em> — Strongly-typed config
+<em>Logging</em> — ILogger with placeholders
+<em>Exception</em> — ProblemDetails, Global handler
+<em>Health Checks</em> — /health endpoint
+<em>Validation</em> — Never trust input
+<em>Security</em> — HTTPS, HSTS, CSP
+<em>Performance</em> — Compression, Caching, AsNoTracking
+
+ভিডিওটি ভালো লাগলে লাইক, শেয়ার এবং <em>Coding Drop</em> সাবস্ক্রাইব করুন! আল্লাহ হাফেজ!`}
+];
+const chapters=['পরিচয়','Top 10 ওভারভিউ','#1 DI','#2 Async/Await','#3 Middleware','#4 IOptions','#5 Logging','#6 Exception','#7 Health Checks','#8 Validation','#9 Security','#10 Performance','সারসংক্ষেপ'];
+const TOTAL=slides.length;document.getElementById('totNum').textContent=TOTAL;
+const chListP=document.getElementById('chListP');
+chapters.forEach((ch,i)=>{const el=document.createElement('div');el.className='ch-p'+(i===0?' active':'');el.innerHTML=`<div class="cn">${i+1}</div>${ch}`;el.onclick=()=>navigate(i-cur);chListP.appendChild(el)});
+function updateUI(){const s=slides[cur];document.getElementById('curLabel').textContent=`স্লাইড ${cur+1}`;document.getElementById('curTitle').textContent=s.title;document.getElementById('scriptText').innerHTML=s.script;document.getElementById('curNum').textContent=cur+1;const pct=Math.round(((cur+1)/TOTAL)*100);document.getElementById('progPct').textContent=pct+'%';document.getElementById('progFill').style.width=pct+'%';document.getElementById('prevBtn').disabled=cur===0;document.getElementById('nextBtn').disabled=cur===TOTAL-1;document.querySelectorAll('.ch-p').forEach((el,i)=>{el.classList.toggle('active',i===cur);el.classList.toggle('done',i<cur)});const nt=document.getElementById('nextTitle');nt.innerHTML=cur<TOTAL-1?`<i class="fa-solid fa-arrow-right"></i> ${chapters[cur+1]}`:`<i class="fa-solid fa-flag-checkered"></i> শেষ`}
+function navigate(delta){const next=Math.max(0,Math.min(TOTAL-1,cur+delta));if(next===cur)return;cur=next;BC.postMessage({type:'nav',idx:cur});updateUI()}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1)});
+function toggleTimer(){if(running){clearInterval(timerInterval);running=false;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}else{timerInterval=setInterval(()=>{seconds++;const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s},1000);running=true;document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-pause"></i>'}}
+function resetTimer(){clearInterval(timerInterval);running=false;seconds=0;document.getElementById('timer').textContent='00:00';document.getElementById('timerBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
+BC.postMessage({type:'ping_from_presenter'});setInterval(()=>BC.postMessage({type:'ping_from_presenter'}),3000);
+BC.onmessage=e=>{if(e.data.type==='ping'){document.getElementById('connDot').classList.add('live');document.getElementById('connTxt').textContent='সংযুক্ত';setTimeout(()=>{document.getElementById('connDot').classList.remove('live');document.getElementById('connTxt').textContent='সংযুক্ত নেই'},5000)}};
+updateUI();
+</script>
+</body>
+</html>
