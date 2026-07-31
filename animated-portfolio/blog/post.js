@@ -7,6 +7,7 @@
 // ============================================================
 let currentPostId = null;
 let currentPost = null;
+let currentLang = localStorage.getItem('blog_lang') || 'bn';
 
 const AVATAR_COLORS = [
     'linear-gradient(135deg,#58e6c8,#a78bfa)',
@@ -25,12 +26,50 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeader();
     initReadingProgress();
     initScrollTop();
+    initLanguage();
     loadPost();
 });
+
+function initLanguage() {
+    updateLangBtnState();
+    const btn = document.getElementById('lang-toggle-btn');
+    if (btn) {
+        btn.addEventListener('click', toggleLanguage);
+    }
+}
+
+function toggleLanguage() {
+    currentLang = currentLang === 'bn' ? 'en' : 'bn';
+    localStorage.setItem('blog_lang', currentLang);
+    updateLangBtnState();
+    if (currentPost) {
+        renderPost(currentPost);
+        renderRelatedPosts(currentPost);
+        renderMoreArticles(currentPost);
+    }
+}
+
+function updateLangBtnState() {
+    const btn = document.getElementById('lang-toggle-btn');
+    if (!btn) return;
+    const optBn = btn.querySelector('.opt-bn');
+    const optEn = btn.querySelector('.opt-en');
+    if (optBn && optEn) {
+        optBn.classList.toggle('active', currentLang === 'bn');
+        optEn.classList.toggle('active', currentLang === 'en');
+    }
+}
 
 // ============================================================
 //  LOAD POST FROM URL PARAM
 // ============================================================
+function getBlogBasePath() {
+    const path = window.location.pathname;
+    if (path.endsWith('/')) return path;
+    const lastSlash = path.lastIndexOf('/');
+    return lastSlash >= 0 ? path.slice(0, lastSlash + 1) : '/';
+}
+
 function loadPost() {
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('slug');
@@ -50,7 +89,7 @@ function loadPost() {
     currentPost = post;
 
     // Fetch dynamic content on-demand from separate JSON file
-    fetch(`posts/${slug}/post.json`)
+    fetch(`${getBlogBasePath()}posts/${slug}/post.json`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Failed to load content for slug: ${slug}`);
@@ -83,30 +122,36 @@ function showNotFound() {
 // ============================================================
 function renderPost(post) {
     const cat = CATEGORIES[post.category] || CATEGORIES.all;
+    const postTitle = getLangText(post.title, currentLang);
+    const postExcerpt = getLangText(post.excerpt, currentLang);
+    const postReadTime = getLangText(post.readTime, currentLang);
+
+    // Document HTML lang attribute
+    document.documentElement.lang = currentLang;
 
     // Meta tags
-    document.getElementById('page-title').textContent = `${post.title} | CodingDrop`;
-    document.getElementById('page-desc').setAttribute('content', post.excerpt);
+    document.getElementById('page-title').textContent = `${postTitle} | CodingDrop`;
+    document.getElementById('page-desc').setAttribute('content', postExcerpt);
 
     // SEO, Open Graph & Canonical
     const url = window.location.href;
     const imageUrl = new URL(post.thumbnail, window.location.href).href;
     
     document.getElementById('page-canonical').href = url;
-    document.getElementById('og-title').setAttribute('content', post.title);
-    document.getElementById('og-desc').setAttribute('content', post.excerpt);
+    document.getElementById('og-title').setAttribute('content', postTitle);
+    document.getElementById('og-desc').setAttribute('content', postExcerpt);
     document.getElementById('og-url').setAttribute('content', url);
     document.getElementById('og-image').setAttribute('content', imageUrl);
     
-    document.getElementById('tw-title').setAttribute('content', post.title);
-    document.getElementById('tw-desc').setAttribute('content', post.excerpt);
+    document.getElementById('tw-title').setAttribute('content', postTitle);
+    document.getElementById('tw-desc').setAttribute('content', postExcerpt);
     document.getElementById('tw-image').setAttribute('content', imageUrl);
 
     // Inject JSON-LD Schema
     const schema = {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": post.title,
+        "headline": postTitle,
         "image": imageUrl,
         "datePublished": new Date(post.date).toISOString(),
         "author": {
@@ -122,7 +167,7 @@ function renderPost(post) {
                 "url": new URL("../mehedi.png", window.location.href).href
             }
         },
-        "description": post.excerpt
+        "description": postExcerpt
     };
 
     let script = document.getElementById('schema-jsonld');
@@ -144,10 +189,10 @@ function renderPost(post) {
     badge.style.borderColor = getCatBorderColor(post.category);
     badge.style.color = getCatTextColor(post.category);
 
-    document.getElementById('post-title').textContent = post.title;
-    document.getElementById('post-excerpt').textContent = post.excerpt;
+    document.getElementById('post-title').textContent = postTitle;
+    document.getElementById('post-excerpt').textContent = postExcerpt;
     document.getElementById('post-date').textContent = post.date;
-    document.getElementById('post-readtime').textContent = post.readTime;
+    document.getElementById('post-readtime').textContent = postReadTime;
 
     // Icon
     const iconEl = document.getElementById('post-icon-el');
@@ -160,7 +205,13 @@ function renderPost(post) {
     document.getElementById('article-footer-tags').innerHTML = tagsHTML;
 
     // Article body
-    document.getElementById('article-body').innerHTML = post.content || '<p>Full article coming soon...</p>';
+    let bodyHTML = '';
+    if (typeof post.content === 'object' && post.content !== null) {
+        bodyHTML = post.content[currentLang] || post.content.bn || post.content.en || '';
+    } else {
+        bodyHTML = post.content || '<p>Full article coming soon...</p>';
+    }
+    document.getElementById('article-body').innerHTML = bodyHTML;
 }
 
 // ============================================================
@@ -423,14 +474,17 @@ function renderRelatedPosts(post) {
 
     container.innerHTML = all.map(p => {
         const cat = CATEGORIES[p.category] || CATEGORIES.all;
+        const titleText = getLangText(p.title, currentLang);
+        const readTimeText = getLangText(p.readTime, currentLang);
+
         return `
             <div class="related-item" onclick="goToPost('${p.slug}')">
                 <div class="related-icon bg-${p.category}">
                     <i class="${p.icon} ${cat.colorClass}"></i>
                 </div>
                 <div class="related-text">
-                    <h4>${p.title}</h4>
-                    <span>${p.readTime} read · ${cat.label}</span>
+                    <h4>${titleText}</h4>
+                    <span>${readTimeText} · ${cat.label}</span>
                 </div>
             </div>
         `;
@@ -460,12 +514,15 @@ function renderMoreArticles(post) {
 
     grid.innerHTML = others.map((p, i) => {
         const cat = CATEGORIES[p.category] || CATEGORIES.all;
+        const titleText = getLangText(p.title, currentLang);
+        const excerptText = getLangText(p.excerpt, currentLang);
+        const readTimeText = getLangText(p.readTime, currentLang);
         const tagsHTML = p.tags.slice(0, 2).map(t => `<span class="tag">${t}</span>`).join('');
         const catColor = catColorMap[p.category] || '#58e6c8';
 
         const cardTop = p.thumbnail
             ? `<div class="card-top card-top-img" style="background:none;padding:0;overflow:hidden;position:relative;">
-                   <img src="${p.thumbnail}" alt="${p.title}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;">
+                   <img src="${p.thumbnail}" alt="${titleText}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;">
                    <span style="position:absolute;top:12px;left:12px;background:rgba(10,13,20,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.15);border-left:3px solid ${catColor};z-index:2;">
                        ${cat.label}
                    </span>
@@ -479,13 +536,13 @@ function renderMoreArticles(post) {
                 ${cardTop}
                 <div class="card-body">
                     <span class="card-cat ${cat.colorClass}">${cat.label}</span>
-                    <h3 class="card-title">${p.title}</h3>
-                    <p class="card-excerpt">${p.excerpt}</p>
+                    <h3 class="card-title">${titleText}</h3>
+                    <p class="card-excerpt">${excerptText}</p>
                     <div class="card-tags">${tagsHTML}</div>
                     <div class="card-footer">
                         <div class="card-meta">
                             <span><i class="fas fa-calendar-alt"></i> ${p.date}</span>
-                            <span><i class="fas fa-clock"></i> ${p.readTime}</span>
+                            <span><i class="fas fa-clock"></i> ${readTimeText}</span>
                         </div>
                         <span class="card-read-btn">Read <i class="fas fa-arrow-right"></i></span>
                     </div>

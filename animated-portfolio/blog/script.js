@@ -11,6 +11,7 @@ let currentPosts = [...POSTS];
 let currentPage = 1;
 const POSTS_PER_PAGE = 6;
 const POPULAR_TAGS_LIMIT = 12;
+let currentLang = localStorage.getItem('blog_lang') || 'bn';
 
 // ============================================================
 //  INIT
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initHeader();
     initReadingProgress();
+    initLanguage();
     renderFeaturedPost();
     renderCategoryPills();
     renderPopularTags();
@@ -29,6 +31,33 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroGlanceBtn();
     updateHeroStats();
 });
+
+function initLanguage() {
+    updateLangBtnState();
+    const btn = document.getElementById('lang-toggle-btn');
+    if (btn) {
+        btn.addEventListener('click', toggleLanguage);
+    }
+}
+
+function toggleLanguage() {
+    currentLang = currentLang === 'bn' ? 'en' : 'bn';
+    localStorage.setItem('blog_lang', currentLang);
+    updateLangBtnState();
+    renderFeaturedPost();
+    renderBlogGrid(getFilteredPosts());
+}
+
+function updateLangBtnState() {
+    const btn = document.getElementById('lang-toggle-btn');
+    if (!btn) return;
+    const optBn = btn.querySelector('.opt-bn');
+    const optEn = btn.querySelector('.opt-en');
+    if (optBn && optEn) {
+        optBn.classList.toggle('active', currentLang === 'bn');
+        optEn.classList.toggle('active', currentLang === 'en');
+    }
+}
 
 // ============================================================
 //  HEADER SCROLL
@@ -60,6 +89,11 @@ function renderFeaturedPost() {
     const featured = POSTS.find(p => p.featured) || POSTS[0];
     const catInfo = CATEGORIES[featured.category] || CATEGORIES.all;
     const container = document.getElementById('featured-post');
+    if (!container) return;
+
+    const titleText = getLangText(featured.title, currentLang);
+    const excerptText = getLangText(featured.excerpt, currentLang);
+    const readTimeText = getLangText(featured.readTime, currentLang);
 
     const catColorMap = {
         architecture: '#58e6c8', performance: '#fb923c', frontend: '#38bdf8',
@@ -69,7 +103,7 @@ function renderFeaturedPost() {
 
     const rightPanel = featured.thumbnail
         ? `<div class="featured-illustration" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);background:none;border:1px solid var(--border);position:relative;">
-               <img src="${featured.thumbnail}" alt="${featured.title}"
+               <img src="${featured.thumbnail}" alt="${titleText}"
                     style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;border-radius:var(--radius-lg);">
            </div>`
         : `<div class="featured-illustration bg-${featured.category}">
@@ -80,11 +114,11 @@ function renderFeaturedPost() {
     container.innerHTML = `
         <div class="featured-post-left">
             <span class="featured-badge"><i class="fas fa-star"></i> Featured Article</span>
-            <h2>${featured.title}</h2>
-            <p>${featured.excerpt}</p>
+            <h2>${titleText}</h2>
+            <p>${excerptText}</p>
             <div class="featured-meta">
                 <span><i class="fas fa-calendar-alt"></i> ${featured.date}</span>
-                <span><i class="fas fa-clock"></i> ${featured.readTime} read</span>
+                <span><i class="fas fa-clock"></i> ${readTimeText}</span>
                 <span style="color:${catColor};"><i class="fas fa-tag"></i> ${catInfo.label}</span>
             </div>
             <a href="#" class="read-btn" onclick="openPost('${featured.slug}'); return false;">
@@ -312,6 +346,10 @@ function changePage(page) {
 
 function buildCard(post, idx) {
     const catInfo = CATEGORIES[post.category] || CATEGORIES.all;
+    const titleText = getLangText(post.title, currentLang);
+    const excerptText = getLangText(post.excerpt, currentLang);
+    const readTimeText = getLangText(post.readTime, currentLang);
+
     const tagsHTML = post.tags.map(t =>
         `<span class="tag tag-clickable" role="button" tabindex="0" onclick="event.stopPropagation(); filterByTag('${t.replace(/'/g, "\\'")}');" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();filterByTag('${t.replace(/'/g, "\\'")}');}">${t}</span>`
     ).join('');
@@ -328,7 +366,7 @@ function buildCard(post, idx) {
 
     const cardTop = post.thumbnail
         ? `<div class="card-top card-top-img" style="background:none;padding:0;overflow:hidden;position:relative;">
-               <img src="${post.thumbnail}" alt="${post.title}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;">
+               <img src="${post.thumbnail}" alt="${titleText}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;">
                <span style="position:absolute;top:12px;left:12px;background:rgba(10,13,20,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.15);border-left:3px solid ${catColor};z-index:2;">
                    ${catInfo.label}
                </span>
@@ -338,17 +376,17 @@ function buildCard(post, idx) {
            </div>`;
 
     return `
-        <article class="blog-card glass-card" onclick="openPost('${post.slug}')" tabindex="0" role="button" aria-label="Read: ${post.title}" style="position:relative;">
+        <article class="blog-card glass-card" onclick="openPost('${post.slug}')" tabindex="0" role="button" aria-label="Read: ${titleText}" style="position:relative;">
             ${cardTop}
             <div class="card-body">
                 <span class="card-cat ${catInfo.colorClass}">${catInfo.label}</span>
-                <h3 class="card-title">${post.title}</h3>
-                <p class="card-excerpt">${post.excerpt}</p>
+                <h3 class="card-title">${titleText}</h3>
+                <p class="card-excerpt">${excerptText}</p>
                 <div class="card-tags">${tagsHTML}</div>
                 <div class="card-footer">
                     <div class="card-meta">
                         <span><i class="fas fa-calendar-alt"></i> ${post.date}</span>
-                        <span><i class="fas fa-clock"></i> ${post.readTime}</span>
+                        <span><i class="fas fa-clock"></i> ${readTimeText}</span>
                     </div>
                     <span class="card-read-btn">
                         Read <i class="fas fa-arrow-right"></i>

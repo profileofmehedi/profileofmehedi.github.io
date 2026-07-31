@@ -1,0 +1,378 @@
+================================================================================
+BANGLA VERSION (বাংলা ভার্সন)
+URL: https://mehedi-net.pages.dev/blog/post?slug=api-security-checklist
+================================================================================
+
+TITLE: REST API Security Checklist: প্রোডাকশন-রেডি এপিআই সিকিউরিটি
+
+প্রোডাকশনে এপিআই রিলিজ করার আগে তার নিরাপত্তা নিশ্চিত করা প্রতিটি হাই-পারফর্মিং ইঞ্জিনিয়ারিং টিমের প্রধান দায়িত্ব। আধুনিক ডিস্ট্রিবিউটেড মাইক্রোসার্ভিস ও ক্লাউড আর্কিটেকচারে একটি ছোট সিকিউরিটি ফল্ট পুরো সিস্টেমকে হ্যাকারদের দখলে নিয়ে যেতে পারে।
+
+> 
+  ** এপিআই সিকিউরিটি রুল নাম্বার ১:**
+  
+"কখনও ক্লায়েন্ট থেকে আসা ইনপুট বা রিকোয়েস্ট ডেটাকে বিশ্বাস করবেন না (Zero Trust Architecture)। প্রতিটি রিকোয়েস্টকে অথেনটিকেট, অথরাইজ এবং ফিল্টার করতে হবে।"
+
+এখানে প্রোডাকশন-রেডি এপিআই সিকিউরিটির ১০টি অতি গুরুত্বপূর্ণ চেকলিস্ট এবং বাস্তব সি-শার্প (.NET 8) কোড এক্সাম্পলসহ বিস্তারিত আলোচনা করা হলো:
+
+---
+
+## ১. HTTPS ও ট্রান্সপোর্ট লেয়ার সিকিউরিটি (TLS 1.3 & HSTS)
+
+কোনো প্রকার ব্যতিক্রম ছাড়া প্রোডাকশনের সব ডেটা আদান-প্রদান HTTPS-এর মাধ্যমে সম্পন্ন হতে হবে। এটি ট্রান্সমিশনের সময় ম্যান-ইন-দ্য-মিডল (MITM) আক্রমণ থেকে রক্ষা করে।
+
+  
+- **TLS 1.3 এনফোর্স করুন:** পুরনো ও দুর্বল TLS 1.0 এবং 1.1 প্রোটোকল ডিজেবল করে দিন।
+  
+- **HSTS (HTTP Strict Transport Security):** হেডার যুক্ত করুন যাতে ব্রাউজার সবসময় HTTPS দিয়েই রিকোয়েস্ট পাঠায়।
+
+`csharp
+// ASP.NET Core Program.cs - HSTS configuration
+app.UseHsts(options => {
+    options.MaxAge(days: 365);
+    options.IncludeSubDomains();
+    options.Preload();
+});
+`
+
+---
+
+## ২. প্রপার অথরাইজেশন ও BOLA/IDOR প্রতিরোধ
+
+**OWASP API1:2023 - Broken Object Level Authorization (BOLA)** বর্তমান এপিআই ওয়ার্ল্ডের সবচেয়ে ভয়ংকর হুমকি। রিকোয়েস্টকারী ইউজার অন্য কোনো ইউজারের প্রাইভেট রিসোর্স ID (যেমন: /api/orders/9942) এক্সেস করতে পারছে কি না তা ডাটাবেজ লেভেলে চেক করতে হবে।
+
+> 
+  ** ভলনারেবল কোড (Insecure Direct Object Reference):**
+  
+`csharp
+// ❌ Insecure: ID দিয়ে সরাসরি অর্ডার ফেরত দিচ্ছে, ইউজারের ওনারশিপ চেক নেই
+[HttpGet("orders/{id}")]
+public async Task GetOrder(int id) {
+    var order = await _db.Orders.FindAsync(id);
+    return Ok(order);
+}
+`
+
+> 
+  ** সিকিউর কোড (BOLA Protected):**
+  
+`csharp
+// ✅ Secure: টোকেন থেকে CurrentUserId বের করে ডাটাবেজে ওনারশিপ ভ্যালিডেশন
+[HttpGet("orders/{id}")]
+[Authorize]
+public async Task GetOrder(int id) {
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var order = await _db.Orders
+        .FirstOrDefaultAsync(o => o.Id == id && o.UserId == currentUserId);
+    
+    if (order == null) return NotFound("Order not found or access denied.");
+    return Ok(order);
+}
+`
+
+---
+
+## ৩. মাস অ্যাসাইনমেন্ট প্রতিরোধ (Mass Assignment Protection)
+
+যখন ক্লায়েন্ট থেকে আসা HTTP Request পেলোডকে সরাসরি ডাটাবেজের Entity ক্লাসের সাথে বাইন্ড করা হয়, তখন হ্যাকাররা অতিরিক্ত প্যারামিটার ఇన్জেক্ট করে দিতে পারে (যেমন: "IsAdmin": true বা "Balance": 1000000)।
+
+**সমাধান:** ডাটাবেজ Entity কখনো সরাসরি এপিআই ইনপুটে ব্যবহার করবেন না। সবসময় C# record বা ডেডিকেটেড **DTO (Data Transfer Object)** ব্যবহার করুন:
+
+`csharp
+// Secure Immutable DTO using C# record
+public record RegisterUserRequest(
+    [Required, EmailAddress] string Email,
+    [Required, MinLength(8)] string Password,
+    [Required] string FullName
+); // IsAdmin বা Role প্রোপার্টি ক্লায়েন্ট পেলোডে নেওয়ার সুযোগ নেই
+`
+
+---
+
+## ৪. রেট লিমিটিং ও ডস প্রতিরোধ (Rate Limiting & DoS)
+
+প্রতিটি আইপি বা এপিআই কি থেকে রিকোয়েস্ট হিট করার জন্য নির্দিষ্ট লিমিট থাকা আবশ্যক, যা সার্ভারকে DoS বা ব্রুট ফোর্স আক্রমণ থেকে রক্ষা করে। .NET 8-এর বিল্ট-ইন রেট লিমিটার মিডলওয়্যার ব্যবহার করুন:
+
+`csharp
+builder.Services.AddRateLimiter(options => {
+    options.AddFixedWindowLimiter("ApiPolicy", opt => {
+        opt.PermitLimit = 60; // ৬০টি রিকোয়েস্ট
+        opt.Window = TimeSpan.FromMinutes(1); // প্রতি মিনিটে
+        opt.QueueLimit = 5;
+    });
+});
+`
+
+---
+
+## ৫. কঠোর ইনপুট ভ্যালিডেশন ও সিকিউর এনকোডিং
+
+  
+- যেকোনো এপিআই রিকোয়েস্টে আসা পেলোড কঠোরভাবে স্কিমা ও ডেটা টাইপ দিয়ে ফিল্টার করুন।
+  
+- SQL Injection এবং XSS রিমুভ করতে **FluentValidation** লাইব্রেরি ব্যবহার করুন।
+
+---
+
+## ৬. নিরাপদ CORS পলিসি (Strict CORS Policy)
+
+প্রোডাকশন এপিআইতে কখনই AllowAnyOrigin() বা ওয়াইল্ডকার্ড (*) ব্যবহার করবেন না। শুধুমাত্র আপনার নির্দিষ্ট ফ্রন্টএন্ড ডোমেনকে Allowlist-এ রাখুন:
+
+`csharp
+builder.Services.AddCors(options => {
+    options.AddPolicy("ProductionCors", policy => {
+        policy.WithOrigins("https://myportfolio.com", "https://admin.myportfolio.com")
+              .WithMethods("GET", "POST", "PUT", "DELETE")
+              .WithHeaders("Authorization", "Content-Type");
+    });
+});
+`
+
+---
+
+## ৭. সিকিউরিটি রেসপন্স হেডারস (Security Headers)
+
+সার্ভার রেসপন্সে অতিরিক্ত হেডার যেমন X-Content-Type-Options: nosniff, X-Frame-Options: DENY, এবং Content-Security-Policy যুক্ত করুন।
+
+---
+
+## ৮. গ্লোবাল এরর হ্যান্ডলিং ও ইনফরমেশন লিক প্রতিরোধ (RFC 7807)
+
+প্রোডাকশন মোডে কস্মিনকালেও ডিটেইল্ড স্ট্যাক ট্রেস বা ডাটাবেজ এরর ব্রাউজার বা ক্লায়েন্টে পাঠাবেন না। এর বদলে RFC 7807 **ProblemDetails** ফরম্যাটে জেনেরিক রেসপন্স ফেরত দিন:
+
+`csharp
+app.UseExceptionHandler(errorApp => {
+    errorApp.Run(async context => {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/problem+json";
+        var problem = new ProblemDetails {
+            Status = 500,
+            Title = "An unexpected error occurred.",
+            Detail = "Please contact support with Correlation-ID: " + context.TraceIdentifier
+        };
+        await context.Response.WriteAsJsonAsync(problem);
+    });
+});
+`
+
+---
+
+## ৯. সেনসিটিভ ডেটা বিহীন সেন্ট্রালাইজড লগিং (PII Masking)
+
+লগ সেভ করার সময় কখনই পাসওয়ার্ড, পিন, এপিআই সিক্রেট বা ক্রেডিট কার্ড নম্বর লগে রাইট করবেন না। Serilog বা Application Insights-এ Destructuring & Masking রুল সেট করুন।
+
+---
+
+## ১০. সিক্রেট ম্যানেজমেন্ট ও এনভায়রনমেন্ট আইসোলেশন
+
+কখনও ডাটাবেজ কানেকশন স্ট্রিং বা এপিআই সিক্রেট কি appsettings.json বা গিট রিপোজিটরিতে কমিক করবেন না। **Azure Key Vault**, **AWS Secrets Manager** অথবা Environment Variables ব্যবহার করুন।
+
+---
+
+## 📊 সিকিউরিটি চেকলিস্ট সামারি সামারি টেবিল
+
+| Security Layer | Potential Vulnerability | Mitigation Strategy |
+| :--- | :--- | :--- |
+| Transport | MITM, Session Hijacking | TLS 1.3, HSTS Header, Cert Pinning |
+| Authorization | BOLA / IDOR Attack | DB Level User Ownership Validation |
+| Data Input | Mass Assignment / Over-posting | C# Record DTOs & Explicit Mapping |
+| Availability | DoS, Brute Force Attacks | RateLimiter Middleware (Fixed/Sliding) |
+| Error Handling | Stack Trace & Schema Exposure | RFC 7807 ProblemDetails & Correlation ID |
+
+---
+
+## পরিশেষে
+
+নিরাপত্তা একটি ধারাবাহিক ও চলমান প্রক্রিয়া। এই চেকলিস্টের প্রতিটি লেয়ার বাস্তবায়নের মাধ্যমে আপনার ব্যাকএন্ড এপিআই প্রোডাকশন এনভায়রনমেন্টে আধুনিক সাইবার অ্যাটাক থেকে শতভাগ সুরক্ষিত থাকবে।
+
+  
+  **Tags:** #WebSecurity #APISecurity #Checklist #ASPNETCore #SecureCoding #RESTAPI #DevOps #PenetrationTesting #InformationSecurity #BOLA #OWASP
+
+
+================================================================================
+ENGLISH VERSION (ইংরেজি ভার্সন)
+URL: https://mehedi-net.pages.dev/blog/post?slug=api-security-checklist
+================================================================================
+
+TITLE: REST API Security Checklist: Production-Ready Security
+
+Ensuring API security before deploying to production is a core responsibility for every high-performing engineering team. In modern distributed microservices and cloud architectures, a single security oversight can compromise your entire enterprise system.
+
+> 
+  ** API Security Rule #1:**
+  
+"Never trust client-supplied input or requests (Zero Trust Architecture). Every request must be strictly authenticated, authorized, sanitized, and rate-limited."
+
+Here is a comprehensive 10-point production-ready API security checklist complete with real-world C# (.NET 8) code examples and architecture patterns:
+
+---
+
+## 1. HTTPS & Transport Layer Security (TLS 1.3 & HSTS)
+
+All data exchanged in production must go through HTTPS without exception. This protects against Man-In-The-Middle (MITM) attacks during transit.
+
+  
+- **Enforce TLS 1.3:** Deprecate legacy TLS 1.0 and 1.1 protocols across all load balancers.
+  
+- **HSTS (HTTP Strict Transport Security):** Configure headers so browsers enforce HTTPS requests at all times.
+
+`csharp
+// ASP.NET Core Program.cs - HSTS configuration
+app.UseHsts(options => {
+    options.MaxAge(days: 365);
+    options.IncludeSubDomains();
+    options.Preload();
+});
+`
+
+---
+
+## 2. Proper Authorization & BOLA/IDOR Prevention
+
+**OWASP API1:2023 - Broken Object Level Authorization (BOLA)** remains the most severe threat to modern APIs. Always validate that the authenticated user explicitly owns the requested resource ID (e.g. /api/orders/9942) at the database layer.
+
+> 
+  ** Vulnerable Code (Insecure Direct Object Reference):**
+  
+`csharp
+// ❌ Insecure: Directly fetches order by ID without checking user ownership
+[HttpGet("orders/{id}")]
+public async Task GetOrder(int id) {
+    var order = await _db.Orders.FindAsync(id);
+    return Ok(order);
+}
+`
+
+> 
+  ** Secure Code (BOLA Protected):**
+  
+`csharp
+// ✅ Secure: Extracts CurrentUserId from JWT claims & enforces database ownership check
+[HttpGet("orders/{id}")]
+[Authorize]
+public async Task GetOrder(int id) {
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var order = await _db.Orders
+        .FirstOrDefaultAsync(o => o.Id == id && o.UserId == currentUserId);
+    
+    if (order == null) return NotFound("Order not found or access denied.");
+    return Ok(order);
+}
+`
+
+---
+
+## 3. Mass Assignment Protection
+
+Binding client HTTP payloads directly to database Entity models allows attackers to inject unauthorized properties (e.g., "IsAdmin": true or "Balance": 1000000), leading to privilege escalation.
+
+**Remediation (Secure Coding):** Never expose raw database entities on API endpoints. Always use immutable C# record DTOs (Data Transfer Objects):
+
+`csharp
+// Secure Immutable DTO using C# record
+public record RegisterUserRequest(
+    [Required, EmailAddress] string Email,
+    [Required, MinLength(8)] string Password,
+    [Required] string FullName
+); // Prevents manipulation of IsAdmin or Role fields from client payload
+`
+
+---
+
+## 4. Rate Limiting & DoS Protection
+
+Enforce strict per-minute or daily request rate limits per IP address or API key to protect servers from Denial-of-Service (DoS) and brute force attacks using .NET 8 RateLimiter middleware:
+
+`csharp
+builder.Services.AddRateLimiter(options => {
+    options.AddFixedWindowLimiter("ApiPolicy", opt => {
+        opt.PermitLimit = 60; // 60 requests
+        opt.Window = TimeSpan.FromMinutes(1); // per minute
+        opt.QueueLimit = 5;
+    });
+});
+`
+
+---
+
+## 5. Strict Input Validation & Schema Sanitization
+
+  
+- Sanitize and validate incoming payloads strictly against schemas and strong data types.
+  
+- Integrate **FluentValidation** to filter out SQL Injection and XSS payloads cleanly.
+
+---
+
+## 6. Secure CORS Policy Hardening
+
+Never configure AllowAnyOrigin() or wildcard (*) origins on production APIs. Allow only trusted client application domains explicitly in the CORS allowlist:
+
+`csharp
+builder.Services.AddCors(options => {
+    options.AddPolicy("ProductionCors", policy => {
+        policy.WithOrigins("https://myportfolio.com", "https://admin.myportfolio.com")
+              .WithMethods("GET", "POST", "PUT", "DELETE")
+              .WithHeaders("Authorization", "Content-Type");
+    });
+});
+`
+
+---
+
+## 7. Security Headers Injection
+
+Inject HTTP security response headers such as X-Content-Type-Options: nosniff, X-Frame-Options: DENY, and Content-Security-Policy to guard modern browsers against cross-site vulnerabilities.
+
+---
+
+## 8. Global Exception Handling & RFC 7807 Problem Details
+
+Never return raw stack traces or internal exception details in production responses. Use IExceptionHandler in .NET Core alongside RFC 7807 **ProblemDetails** to return safe generic errors with correlation IDs:
+
+`csharp
+app.UseExceptionHandler(errorApp => {
+    errorApp.Run(async context => {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/problem+json";
+        var problem = new ProblemDetails {
+            Status = 500,
+            Title = "An unexpected error occurred.",
+            Detail = "Please contact support with Correlation-ID: " + context.TraceIdentifier
+        };
+        await context.Response.WriteAsJsonAsync(problem);
+    });
+});
+`
+
+---
+
+## 9. Sanitize PII & Audit Logs
+
+Never write sensitive information such as passwords, API keys, or credit card numbers to log files. Configure Serilog destructuring and masking rules to redact PII automatically.
+
+---
+
+## 10. Secrets Management & Key Rotation
+
+Never commit connection strings or API keys to appsettings.json or source repositories. Use **Azure Key Vault**, **AWS Secrets Manager**, or Environment Variables.
+
+---
+
+## 📊 Security Checklist Summary Matrix
+
+| Security Layer | Potential Vulnerability | Mitigation Strategy |
+| :--- | :--- | :--- |
+| Transport | MITM, Session Hijacking | TLS 1.3, HSTS Header, Cert Pinning |
+| Authorization | BOLA / IDOR Attack | DB Level User Ownership Validation |
+| Data Input | Mass Assignment / Over-posting | C# Record DTOs & Explicit Mapping |
+| Availability | DoS, Brute Force Attacks | RateLimiter Middleware (Fixed/Sliding) |
+| Error Handling | Stack Trace & Schema Exposure | RFC 7807 ProblemDetails & Correlation ID |
+
+---
+
+## Conclusion
+
+Security is an ongoing process. Implementing each layer of this checklist ensures your backend APIs remain safe against external threats in production environments.
+
+  
+  **Tags:** #WebSecurity #APISecurity #Checklist #ASPNETCore #SecureCoding #RESTAPI #DevOps #PenetrationTesting #InformationSecurity #BOLA #OWASP
