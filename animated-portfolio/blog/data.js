@@ -1704,5 +1704,36 @@ const POSTS = [
         "icon": "fas fa-shield-halved",
         "thumbnail": "posts/jwt-complete-guide/thumbnail.png",
         "featured": false
+    },
+    {
+        "id": 66,
+        "slug": "web-application-testing",
+        "title": {
+            "bn": "Web Application Testing: ওয়েব অ্যাপ টেস্টিংয়ের High-Level গাইড",
+            "en": "Web Application Testing: A High-Level Guide for Beginners"
+        },
+        "excerpt": {
+            "bn": "দোকান analogy, E-commerce/bKash/Admin panel real scenario, negative test table, beginner checklist, DevTools tip, Agile sprint flow — Web Application Testing সহজ Bangla guide with real-world examples।",
+            "en": "Shop analogy, e-commerce/banking/admin real scenarios, negative test tables, beginner checklist, DevTools tips, Agile sprint flow — an easy Web Application Testing guide with real-world examples."
+        },
+        "category": "sqa",
+        "tags": [
+            "WebApplicationTesting",
+            "WebTesting",
+            "QA",
+            "SQA",
+            "ManualTesting",
+            "TestAutomation",
+            "FunctionalTesting",
+            "CrossBrowser"
+        ],
+        "date": "Aug 01, 2026",
+        "readTime": {
+            "bn": "১৮ মিনিট",
+            "en": "16 min"
+        },
+        "icon": "fas fa-globe",
+        "thumbnail": "posts/web-application-testing/thumbnail.png",
+        "featured": false
     }
 ];

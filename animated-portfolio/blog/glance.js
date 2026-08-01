@@ -15,9 +15,28 @@ const GLANCE_CAT_COLORS = {
 let glanceCurrentSlug = null;
 let glanceExpandedCategories = null;
 
+function getGlanceLang() {
+    return localStorage.getItem('blog_lang') || 'bn';
+}
+
+function getGlancePostTitle(post) {
+    return typeof getLangText === 'function'
+        ? getLangText(post.title, getGlanceLang())
+        : (typeof post.title === 'string' ? post.title : post.title?.bn || post.title?.en || '');
+}
+
 function getGlanceCurrentSlug() {
-    if (!window.location.pathname.includes('post.html')) return null;
+    if (!window.location.pathname.includes('post')) return null;
     return new URLSearchParams(window.location.search).get('slug');
+}
+
+function postMatchesGlanceQuery(post, q) {
+    const titleBn = (typeof getLangText === 'function' ? getLangText(post.title, 'bn') : '').toLowerCase();
+    const titleEn = (typeof getLangText === 'function' ? getLangText(post.title, 'en') : '').toLowerCase();
+    return titleBn.includes(q) ||
+        titleEn.includes(q) ||
+        post.tags.some(t => t.toLowerCase().includes(q)) ||
+        (CATEGORIES[post.category]?.label || '').toLowerCase().includes(q);
 }
 
 function initGlanceDrawer() {
@@ -56,11 +75,7 @@ function initGlanceDrawer() {
             return;
         }
 
-        const filtered = POSTS.filter(p =>
-            p.title.toLowerCase().includes(q) ||
-            p.tags.some(t => t.toLowerCase().includes(q)) ||
-            (CATEGORIES[p.category]?.label || '').toLowerCase().includes(q)
-        );
+        const filtered = POSTS.filter(p => postMatchesGlanceQuery(p, q));
 
         if (filtered.length) {
             filtered.forEach(p => glanceExpandedCategories.add(p.category));
@@ -114,13 +129,7 @@ function toggleGlanceCategory(cat) {
         glanceExpandedCategories.add(cat);
     }
     const q = document.getElementById('glance-filter-input')?.value.trim().toLowerCase() || '';
-    const posts = q
-        ? POSTS.filter(p =>
-            p.title.toLowerCase().includes(q) ||
-            p.tags.some(t => t.toLowerCase().includes(q)) ||
-            (CATEGORIES[p.category]?.label || '').toLowerCase().includes(q)
-        )
-        : POSTS;
+    const posts = q ? POSTS.filter(p => postMatchesGlanceQuery(p, q)) : POSTS;
     renderGlanceDrawer(posts, q);
 }
 
@@ -162,7 +171,8 @@ function renderGlanceDrawer(posts, query = '') {
         const expanded = glanceExpandedCategories.has(cat);
         const items = grouped[cat].map(post => {
             const active = post.slug === glanceCurrentSlug ? ' active' : '';
-            const title = query ? highlightGlanceMatch(post.title, query) : escapeGlanceHtml(post.title);
+            const titleText = getGlancePostTitle(post);
+            const title = query ? highlightGlanceMatch(titleText, query) : escapeGlanceHtml(titleText);
             return `
                 <a href="post.html?slug=${post.slug}" class="glance-link${active}">
                     <span class="glance-link-dot" style="background:${color}"></span>
@@ -193,7 +203,9 @@ function highlightGlanceMatch(text, query) {
 }
 
 function escapeGlanceHtml(str) {
-    return str
+    if (str == null) return '';
+    const text = typeof str === 'string' ? str : String(str);
+    return text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
