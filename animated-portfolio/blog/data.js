@@ -1735,5 +1735,35 @@ const POSTS = [
         "icon": "fas fa-globe",
         "thumbnail": "posts/web-application-testing/thumbnail.png",
         "featured": false
+    },
+    {
+        "id": 67,
+        "slug": "ssl-tls-file-formats",
+        "title": {
+            "bn": "SSL/TLS ফাইল ফরম্যাট গাইড: কোন ফাইলের কী কাজ এবং কীভাবে বানাবেন?",
+            "en": "SSL/TLS File Format Guide: What Each File Does and How to Create Them"
+        },
+        "excerpt": {
+            "bn": "`.crt`, `.pem`, `.key`, `.pfx`, `.csr`, `.der` — এক্সটেনশন বনাম এনকোডিং, সার্টিফিকেট চেইন, NGINX/Apache/IIS/Kestrel কনফিগ, OpenSSL কনভার্শন ও প্রোডাকশন ভেরিফিকেশন।",
+            "en": "Deep guide to .crt, .pem, .key, .pfx, .csr and .der — encoding vs extension, certificate chains, NGINX/Apache/IIS/Kestrel setup, OpenSSL conversion, and production verification."
+        },
+        "category": "devops",
+        "tags": [
+            "SSL",
+            "TLS",
+            "OpenSSL",
+            "NGINX",
+            "IIS",
+            "Certificates",
+            "DevOps"
+        ],
+        "date": "Aug 15, 2026",
+        "readTime": {
+            "bn": "২২ মিনিট",
+            "en": "22 min"
+        },
+        "icon": "fas fa-lock",
+        "thumbnail": "posts/ssl-tls-file-formats/thumbnail.png",
+        "featured": false
     }
 ];
