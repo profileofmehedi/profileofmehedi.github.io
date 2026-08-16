@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>THE ARCHITECT — Play</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #e2c48a;
+            --ink: #f4f0e6;
+            --panel: rgba(8, 10, 14, .78);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; background: #05070c; color: var(--ink); font-family: Outfit, system-ui, sans-serif; }
+        button { font-family: inherit; cursor: pointer; border: none; color: inherit; background: none; }
+        #game { display: block; width: 100%; height: 100%; touch-action: none; }
+
+        .overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; padding: 24px;
+            background: radial-gradient(ellipse at center, rgba(12,16,24,.55), rgba(5,7,12,.92));
+            z-index: 5;
+        }
+        .overlay.hide { display: none; }
+        .kicker { letter-spacing: .42em; font-size: 11px; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+        h1 { font-family: Fraunces, serif; font-size: clamp(40px, 8vw, 78px); font-weight: 600; line-height: .95; }
+        .lead { margin: 14px auto 0; max-width: 42ch; color: rgba(244,240,230,.7); font-weight: 400; line-height: 1.5; }
+        .keys {
+            display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 22px 0 28px;
+        }
+        .keys span {
+            min-width: 42px; padding: 8px 12px; border: 1px solid rgba(226,196,138,.35);
+            border-radius: 8px; font-family: JetBrains Mono, monospace; font-size: 12px; color: var(--gold);
+            background: rgba(255,255,255,.04);
+        }
+        .play {
+            padding: 14px 40px; border-radius: 999px; background: var(--gold); color: #16130d;
+            font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 14px;
+        }
+        .play:hover { filter: brightness(1.08); }
+        .ghost { margin-top: 10px; padding: 10px 22px; border-radius: 999px; border: 1px solid rgba(226,196,138,.4); color: var(--gold); font-size: 13px; }
+        .ghost[hidden] { display: none; }
+
+        .hud {
+            position: absolute; top: 12px; left: 12px; right: 12px; z-index: 4;
+            display: flex; justify-content: space-between; gap: 12px; pointer-events: none;
+            align-items: flex-start;
+        }
+        .chip, .dossier {
+            background: var(--panel); backdrop-filter: blur(12px);
+            border: 1px solid rgba(226,196,138,.22); border-radius: 12px; padding: 10px 12px;
+        }
+        .chip { font-family: JetBrains Mono, monospace; font-size: 12px; display: flex; gap: 14px; }
+        .chip b { color: var(--gold); }
+        .dossier { max-width: 280px; pointer-events: auto; }
+        .dossier h3 { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+        .card { font-size: 11px; line-height: 1.4; opacity: .25; margin-top: 6px; }
+        .card.on { opacity: 1; }
+        .card b { display: block; color: var(--gold); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+
+        .pad {
+            position: absolute; bottom: 16px; left: 12px; right: 12px; z-index: 4;
+            display: none; justify-content: space-between; align-items: flex-end; pointer-events: none;
+        }
+        .pad button {
+            pointer-events: auto; width: 72px; height: 72px; border-radius: 50%;
+            background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+            font-size: 22px; color: #fff;
+        }
+        .pad .jump { width: 88px; height: 88px; background: rgba(226,196,138,.35); }
+        @media (pointer: coarse) { .pad { display: flex; } .dossier { display: none; } }
+
+        .banner {
+            position: absolute; left: 50%; top: 18%; transform: translateX(-50%);
+            z-index: 4; padding: 10px 18px; border-radius: 999px;
+            background: rgba(0,0,0,.7); border: 1px solid var(--gold); color: var(--gold);
+            font-size: 13px; letter-spacing: .08em; opacity: 0; transition: .35s; pointer-events: none;
+        }
+        .banner.show { opacity: 1; }
+
+        .end-cta { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
+        .end-cta a, .end-cta button {
+            padding: 10px 16px; border-radius: 8px; border: 1px solid rgba(226,196,138,.35); font-size: 13px; color: var(--ink);
+        }
+        .end-cta .play { border: none; }
+    </style>
+</head>
+<body>
+    <canvas id="game" tabindex="0"></canvas>
+    <div class="hud" id="hud" hidden>
+        <div class="chip">
+            <span>♥ <b id="lives">3</b></span>
+            <span>ORBS <b id="orbs">0</b></span>
+            <span>LVL <b id="lvl">1</b>/5</span>
+        </div>
+        <aside class="dossier">
+            <h3>Dossier — play to unlock</h3>
+            <div id="cards"></div>
+        </aside>
+    </div>
+    <div class="banner" id="banner"></div>
+    <div class="pad" id="pad">
+        <div style="display:flex;gap:10px">
+            <button type="button" data-k="left">◀</button>
+            <button type="button" data-k="right">▶</button>
+        </div>
+        <button type="button" class="jump" data-k="jump">JUMP</button>
+    </div>
+
+    <div class="overlay" id="menu">
+        <div class="kicker">Playable portfolio · 2019–2026</div>
+        <h1>THE<br>ARCHITECT</h1>
+        <p class="lead">This is a platformer. Run, jump, stomp bugs, collect orbs. Each orb unlocks a real line from Mehedi Hasan’s career.</p>
+        <div class="keys">
+            <span>←</span><span>→</span><span>A D</span><span>SPACE jump</span><span>P pause</span>
+        </div>
+        <button class="play" id="play">Play game</button>
+        <button class="ghost" id="continue" hidden>Continue</button>
+    </div>
+
+    <div class="overlay hide" id="pause">
+        <h1 style="font-size:42px">Paused</h1>
+        <p class="lead">P or Esc to resume.</p>
+        <button class="play" id="resume" style="margin-top:20px">Resume</button>
+    </div>
+
+    <div class="overlay hide" id="over">
+        <div class="kicker" id="over-kicker">Game over</div>
+        <h1 id="over-title" style="font-size:clamp(32px,6vw,56px)">You shipped.</h1>
+        <p class="lead" id="over-lead"></p>
+        <div class="end-cta" id="over-cta"></div>
+    </div>
+
+    <script>
+        const UNLOCKS = [
+            { id: 'id', title: 'Identity', body: 'Senior Full-Stack .NET · Dhaka · 5+ years in production.' },
+            { id: 'bank', title: 'LankaBangla', body: 'Digital banking engine. Angular 14, ASP.NET Core, Redis, Nagad. Onboarding +40%.' },
+            { id: 'hr', title: 'ICB & BDBL', body: 'Oracle 12c / SQL Server HR. ACR, NBR tax, 10M+ transaction stores.' },
+            { id: 'africa', title: 'UMOJA Uganda', body: 'Microfinance core. Loans, collections, P&L. Nginx → Kestrel. Shipped on date.' },
+            { id: 'stack', title: 'Stack', body: 'C#, ASP.NET Core, Angular, SQL, Redis, RabbitMQ, Docker, EF Core.' }
+        ];
+
+        const LEVELS = [
+            {
+                name: 'Dhaka · night shift', unlock: 'id',
+                sky: ['#0a1220', '#1a1424'],
+                spawn: { x: 80, y: 320 },
+                exit: { x: 2280, y: 360 },
+                plats: [
+                    [0, 500, 420, 40], [500, 460, 180, 24], [760, 400, 200, 24],
+                    [1040, 340, 160, 24], [1280, 400, 220, 24], [1580, 460, 200, 24],
+                    [1860, 500, 560, 40], [200, 360, 120, 18], [1480, 280, 140, 18]
+                ],
+                orbs: [
+                    { x: 560, y: 420, label: 'MEHEDI' },
+                    { x: 1100, y: 300, label: '.NET' },
+                    { x: 1520, y: 240, label: '5 YRS' }
+                ],
+                bugs: [
+                    { x: 820, y: 368, w: 36, h: 32, min: 770, max: 920 },
+                    { x: 1900, y: 468, w: 36, h: 32, min: 1880, max: 2100 }
+                ]
+            },
+            {
+                name: 'LankaBangla · incident', unlock: 'bank',
+                sky: ['#2a1014', '#12080a'],
+                spawn: { x: 70, y: 200 },
+                exit: { x: 2460, y: 280 },
+                plats: [
+                    [0, 480, 280, 40], [360, 420, 140, 20], [560, 360, 140, 20],
+                    [760, 300, 120, 20], [980, 360, 160, 20], [1220, 300, 140, 20],
+                    [1460, 240, 160, 20], [1720, 320, 180, 20], [1980, 400, 200, 20],
+                    [2260, 460, 400, 40], [400, 240, 100, 16], [1600, 160, 120, 16]
+                ],
+                orbs: [
+                    { x: 600, y: 320, label: 'API' },
+                    { x: 1280, y: 260, label: 'REDIS' },
+                    { x: 1500, y: 200, label: '+40%' },
+                    { x: 1760, y: 280, label: 'NAGAD' }
+                ],
+                bugs: [
+                    { x: 1000, y: 328, w: 36, h: 32, min: 980, max: 1100 },
+                    { x: 1740, y: 288, w: 36, h: 32, min: 1720, max: 1860 },
+                    { x: 2300, y: 428, w: 40, h: 32, min: 2280, max: 2480 }
+                ]
+            },
+            {
+                name: 'ICB · ten million rows', unlock: 'hr',
+                sky: ['#061820', '#0a1014'],
+                spawn: { x: 60, y: 360 },
+                exit: { x: 2380, y: 200 },
+                plats: [
+                    [0, 500, 240, 36], [300, 440, 100, 16], [460, 380, 100, 16],
+                    [620, 320, 100, 16], [800, 380, 160, 18], [1040, 300, 120, 16],
+                    [1240, 240, 100, 16], [1420, 300, 140, 16], [1660, 240, 120, 16],
+                    [1880, 180, 140, 16], [2120, 260, 160, 18], [2340, 340, 280, 36],
+                    [900, 180, 90, 14]
+                ],
+                orbs: [
+                    { x: 640, y: 280, label: 'ORACLE' },
+                    { x: 1080, y: 260, label: 'TAX' },
+                    { x: 1700, y: 200, label: 'SOAP' },
+                    { x: 1920, y: 140, label: '10M' }
+                ],
+                bugs: [
+                    { x: 820, y: 348, w: 36, h: 32, min: 800, max: 930 },
+                    { x: 1440, y: 268, w: 36, h: 32, min: 1420, max: 1540 },
+                    { x: 2160, y: 228, w: 36, h: 32, min: 2120, max: 2260 }
+                ]
+            },
+            {
+                name: 'UMOJA · equator', unlock: 'africa',
+                sky: ['#c45c28', '#1a2030'],
+                spawn: { x: 70, y: 300 },
+                exit: { x: 2420, y: 380 },
+                plats: [
+                    [0, 500, 300, 40], [380, 430, 150, 20], [620, 360, 130, 20],
+                    [860, 430, 160, 20], [1120, 340, 140, 20], [1380, 270, 150, 20],
+                    [1640, 340, 160, 20], [1900, 420, 180, 20], [2180, 500, 460, 40],
+                    [1280, 180, 110, 16]
+                ],
+                orbs: [
+                    { x: 660, y: 320, label: 'LOAN' },
+                    { x: 1160, y: 300, label: 'P&L' },
+                    { x: 1420, y: 230, label: 'NGINX' },
+                    { x: 1940, y: 380, label: 'SHIP' }
+                ],
+                bugs: [
+                    { x: 880, y: 398, w: 36, h: 32, min: 860, max: 990 },
+                    { x: 1400, y: 238, w: 36, h: 32, min: 1380, max: 1500 },
+                    { x: 2220, y: 468, w: 40, h: 32, min: 2200, max: 2480 }
+                ]
+            },
+            {
+                name: 'The bench · compile', unlock: 'stack',
+                sky: ['#1a2438', '#0c1018'],
+                spawn: { x: 70, y: 360 },
+                exit: { x: 2500, y: 280 },
+                plats: [
+                    [0, 500, 220, 36], [280, 440, 90, 16], [430, 380, 90, 16],
+                    [580, 320, 90, 16], [740, 380, 140, 16], [960, 300, 90, 16],
+                    [1120, 240, 90, 16], [1280, 180, 120, 16], [1480, 260, 110, 16],
+                    [1680, 340, 120, 16], [1900, 280, 130, 16], [2140, 360, 150, 18],
+                    [2360, 440, 320, 40], [820, 200, 80, 14], [1760, 200, 90, 14]
+                ],
+                orbs: [
+                    { x: 600, y: 280, label: 'C#' },
+                    { x: 980, y: 260, label: 'SQL' },
+                    { x: 1320, y: 140, label: 'MQ' },
+                    { x: 1720, y: 160, label: 'DOCKER' },
+                    { x: 1940, y: 240, label: 'ANGULAR' }
+                ],
+                bugs: [
+                    { x: 760, y: 348, w: 36, h: 32, min: 740, max: 850 },
+                    { x: 1500, y: 228, w: 36, h: 32, min: 1480, max: 1570 },
+                    { x: 2160, y: 328, w: 36, h: 32, min: 2140, max: 2260 },
+                    { x: 2400, y: 408, w: 40, h: 32, min: 2380, max: 2580 }
+                ]
+            }
+        ];
+
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const keys = { left: false, right: false, jump: false };
+        const particles = [];
+        let W = 0, H = 0, dpr = 1;
+        let mode = 'menu';
+        let levelI = 0, camX = 0, t = 0, invuln = 0, clearing = false;
+        let lives = 3, unlocked = new Set();
+        let player, orbs, bugs, message = '', msgT = 0;
+        let audioCtx = null;
+
+        const playerImg = new Image();
+        playerImg.src = 'mehedi.png';
+        let hasFace = false;
+        playerImg.onload = () => { hasFace = true; };
+
+        function resize() {
+            dpr = Math.min(2, devicePixelRatio || 1);
+            W = innerWidth; H = innerHeight;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        addEventListener('resize', resize); resize();
+
+        function rect(a, b) {
+            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+        function beep(f, dur = 0.08, type = 'square', vol = 0.04) {
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                o.type = type; o.frequency.value = f;
+                g.gain.value = vol;
+                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(); o.stop(audioCtx.currentTime + dur);
+            } catch (e) {}
+        }
+        function burst(x, y, c, n = 12) {
+            for (let i = 0; i < n; i++) {
+                particles.push({
+                    x, y, vx: (Math.random() - .5) * 6, vy: (Math.random() - .5) * 6 - 1,
+                    life: 1, c
+                });
+            }
+        }
+        function say(s) {
+            message = s; msgT = 2.2;
+            const b = document.getElementById('banner');
+            b.textContent = s; b.classList.add('show');
+            clearTimeout(say._t);
+            say._t = setTimeout(() => b.classList.remove('show'), 2200);
+        }
+        function renderCards() {
+            document.getElementById('cards').innerHTML = UNLOCKS.map(u =>
+                `<div class="card ${unlocked.has(u.id) ? 'on' : ''}"><b>${u.title}</b>${unlocked.has(u.id) ? u.body : '████ play this level'}</div>`
+            ).join('');
+        }
+        function hud() {
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('orbs').textContent = orbs.filter(o => o.got).length + '/' + orbs.length;
+            document.getElementById('lvl').textContent = levelI + 1;
+            renderCards();
+        }
+
+        function loadLevel(i, silent) {
+            levelI = i;
+            clearing = false;
+            const L = LEVELS[i];
+            player = { x: L.spawn.x, y: L.spawn.y, w: 34, h: 48, vx: 0, vy: 0, on: false, face: 1, walk: 0 };
+            orbs = L.orbs.map(o => ({ ...o, w: 28, h: 28, got: false, bob: Math.random() * 6 }));
+            bugs = L.bugs.map(b => ({ ...b, vx: 1.2, alive: true }));
+            camX = Math.max(0, player.x - W * 0.35);
+            invuln = 0;
+            hud();
+            if (!silent) say(L.name + '  ·  collect every orb, then enter the gate');
+        }
+
+        function startGame(fromSave) {
+            audioCtx && audioCtx.resume?.();
+            beep(440, .1, 'sine', .05);
+            lives = fromSave?.lives ?? 3;
+            unlocked = new Set(fromSave?.unlocked || []);
+            document.getElementById('menu').classList.add('hide');
+            document.getElementById('over').classList.add('hide');
+            document.getElementById('pause').classList.add('hide');
+            document.getElementById('hud').hidden = false;
+            loadLevel(fromSave?.levelI ?? 0);
+            mode = 'play';
+            canvas.focus();
+        }
+
+        function die(pit) {
+            if (mode !== 'play' || clearing) return;
+            if (!pit && invuln > 0) return;
+            lives--;
+            beep(90, .2, 'sawtooth', .05);
+            burst(player.x + 17, player.y + 20, '#e05a48', 18);
+            if (lives <= 0) {
+                endScreen(false);
+                return;
+            }
+            const L = LEVELS[levelI];
+            player.x = L.spawn.x; player.y = L.spawn.y; player.vx = 0; player.vy = 0;
+            invuln = 1.4;
+            hud();
+            say('Hit. Lives left: ' + lives);
+        }
+
+        function completeLevel() {
+            if (clearing) return;
+            clearing = true;
+            const L = LEVELS[levelI];
+            unlocked.add(L.unlock);
+            beep(880, .15, 'sine', .06);
+            setTimeout(() => beep(1174, .2, 'sine', .05), 80);
+            burst(player.x, player.y, '#e2c48a', 24);
+            hud();
+            say('Sprint shipped · ' + UNLOCKS.find(u => u.id === L.unlock).title);
+            persist();
+            setTimeout(() => {
+                if (levelI >= LEVELS.length - 1) endScreen(true);
+                else loadLevel(levelI + 1, true);
+            }, 900);
+        }
+
+        function endScreen(win) {
+            mode = 'end';
+            persist(true);
+            document.getElementById('hud').hidden = false;
+            const o = document.getElementById('over');
+            o.classList.remove('hide');
+            document.getElementById('over-kicker').textContent = win ? 'All five sprints shipped' : 'Production incident';
+            document.getElementById('over-title').textContent = win ? 'Hire the architect.' : 'Rollback. Try again.';
+            document.getElementById('over-lead').textContent = win
+                ? 'You played the systems Mehedi already runs: banking, HR ledgers, microfinance, the stack.'
+                : 'Bugs in production. Jump on them from above. Collect every orb before the gate opens.';
+            document.getElementById('over-cta').innerHTML = win
+                ? `<a class="play" href="mailto:mehedihasan9339@gmail.com">Email Mehedi</a>
+                   <a href="https://linkedin.com/in/mehedi9339" target="_blank" rel="noopener">LinkedIn</a>
+                   <a href="https://github.com/mehedihasan9339" target="_blank" rel="noopener">GitHub</a>
+                   <button type="button" id="again">Play again</button>`
+                : `<button type="button" class="play" id="again">Retry</button>`;
+            document.getElementById('again')?.addEventListener('click', () => startGame());
+        }
+
+        function persist(clear) {
+            try {
+                if (clear && mode === 'end') localStorage.removeItem('architect-run');
+                else localStorage.setItem('architect-run', JSON.stringify({
+                    levelI, lives, unlocked: [...unlocked]
+                }));
+            } catch (e) {}
+        }
+
+        function update(dt) {
+            t += dt;
+            msgT -= dt;
+            if (invuln > 0) invuln -= dt;
+            const L = LEVELS[levelI];
+            const speed = 4.4;
+            if (keys.left) { player.vx = -speed; player.face = -1; }
+            else if (keys.right) { player.vx = speed; player.face = 1; }
+            else player.vx *= 0.78;
+            if (Math.abs(player.vx) > 0.4 && player.on) player.walk += dt * 10;
+            if (keys.jump && player.on) { player.vy = -12.2; player.on = false; beep(620, .05, 'square', .03); }
+            player.vy += 0.52;
+            if (player.vy > 16) player.vy = 16;
+
+            player.x += player.vx;
+            for (const p of L.plats) {
+                const b = { x: p[0], y: p[1], w: p[2], h: p[3] };
+                if (rect(player, b)) {
+                    if (player.vx > 0) player.x = b.x - player.w;
+                    else if (player.vx < 0) player.x = b.x + b.w;
+                    player.vx = 0;
+                }
+            }
+            player.y += player.vy;
+            player.on = false;
+            for (const p of L.plats) {
+                const b = { x: p[0], y: p[1], w: p[2], h: p[3] };
+                if (rect(player, b)) {
+                    if (player.vy > 0 && player.y + player.h - player.vy <= b.y + 8) {
+                        player.y = b.y - player.h; player.vy = 0; player.on = true;
+                    } else if (player.vy < 0) {
+                        player.y = b.y + b.h; player.vy = 0;
+                    }
+                }
+            }
+            if (player.x < 8) player.x = 8;
+            if (player.y > 720) die(true);
+
+            orbs.forEach(o => {
+                if (o.got) return;
+                o.bob += dt * 3;
+                if (rect(player, o)) {
+                    o.got = true;
+                    beep(980, .1, 'sine', .05);
+                    burst(o.x + 14, o.y + 14, '#e2c48a', 16);
+                    hud();
+                    say('Collected · ' + o.label);
+                }
+            });
+
+            bugs.forEach(b => {
+                if (!b.alive) return;
+                b.x += b.vx;
+                if (b.x < b.min || b.x > b.max) b.vx *= -1;
+                if (!rect(player, b)) return;
+                const stomp = player.vy > 1 && player.y + player.h - 16 < b.y + 10;
+                if (stomp) {
+                    b.alive = false; player.vy = -8;
+                    beep(200, .08, 'square', .04);
+                    burst(b.x + 18, b.y + 10, '#e05a48', 14);
+                } else if (invuln <= 0) die();
+            });
+
+            const gotAll = orbs.every(o => o.got);
+            const gate = { x: L.exit.x, y: L.exit.y, w: 44, h: 72 };
+            if (gotAll && rect(player, gate)) completeLevel();
+
+            const target = player.x - W * 0.38;
+            camX += (target - camX) * 0.08;
+            if (camX < 0) camX = 0;
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= dt * 1.8;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function worldX(x) { return x - camX; }
+
+        function drawBg(L) {
+            const g = ctx.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0, L.sky[0]); g.addColorStop(1, L.sky[1]);
+            ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = 'rgba(0,0,0,.18)';
+            for (let i = 0; i < 8; i++) {
+                const bx = ((i * 220) - camX * 0.25) % (W + 220);
+                ctx.fillRect(bx, H * 0.35, 70 + (i % 3) * 20, H * 0.4);
+            }
+        }
+
+        function drawPlayer() {
+            const x = worldX(player.x), y = player.y;
+            ctx.save();
+            ctx.translate(x + player.w / 2, y + player.h);
+            ctx.scale(player.face, 1);
+            if (invuln > 0 && Math.floor(t * 16) % 2 === 0) ctx.globalAlpha = 0.35;
+            const bob = player.on ? Math.sin(player.walk) * 2 : 0;
+            ctx.fillStyle = '#1a1c22';
+            ctx.fillRect(-8, -18 + bob, 8, 16);
+            ctx.fillRect(0, -18 + bob, 8, 16);
+            ctx.fillStyle = '#c4a574';
+            ctx.fillRect(-11, -46 + bob, 22, 28);
+            ctx.fillStyle = '#e2c48a';
+            ctx.fillRect(-13, -36 + bob, 26, 8);
+            if (hasFace) {
+                ctx.save();
+                ctx.beginPath(); ctx.arc(0, -50 + bob, 13, 0, Math.PI * 2); ctx.clip();
+                ctx.drawImage(playerImg, -13, -63 + bob, 26, 26);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = '#d8b48a';
+                ctx.beginPath(); ctx.arc(0, -52 + bob, 12, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function draw() {
+            const L = LEVELS[levelI];
+            drawBg(L);
+            L.plats.forEach(p => {
+                const x = worldX(p[0]);
+                ctx.fillStyle = '#2a2430';
+                ctx.fillRect(x, p[1], p[2], p[3]);
+                ctx.fillStyle = '#e2c48a';
+                ctx.fillRect(x, p[1], p[2], 3);
+            });
+            orbs.forEach(o => {
+                if (o.got) return;
+                const x = worldX(o.x), y = o.y + Math.sin(o.bob) * 6;
+                ctx.beginPath(); ctx.arc(x + 14, y + 14, 13, 0, Math.PI * 2);
+                ctx.fillStyle = '#e2c48a'; ctx.fill();
+                ctx.fillStyle = '#16130d';
+                ctx.font = '700 8px Outfit, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(o.label, x + 14, y + 17);
+            });
+            bugs.forEach(b => {
+                if (!b.alive) return;
+                const x = worldX(b.x);
+                ctx.fillStyle = '#e05a48';
+                ctx.fillRect(x, b.y, b.w, b.h);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x + 8, b.y + 8, 6, 6);
+                ctx.fillRect(x + 20, b.y + 8, 6, 6);
+            });
+            const gotAll = orbs.every(o => o.got);
+            const gx = worldX(L.exit.x);
+            ctx.strokeStyle = gotAll ? '#8fbf9f' : 'rgba(255,255,255,.25)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(gx, L.exit.y, 44, 72);
+            ctx.fillStyle = gotAll ? 'rgba(143,191,159,.35)' : 'rgba(255,255,255,.06)';
+            ctx.fillRect(gx, L.exit.y, 44, 72);
+            ctx.fillStyle = gotAll ? '#8fbf9f' : '#888';
+            ctx.font = '10px JetBrains Mono, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(gotAll ? 'GATE' : 'LOCK', gx + 22, L.exit.y - 8);
+
+            drawPlayer();
+            particles.forEach(p => {
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.c;
+                ctx.fillRect(worldX(p.x), p.y, 3, 3);
+                ctx.globalAlpha = 1;
+            });
+
+            ctx.fillStyle = 'rgba(244,240,230,.85)';
+            ctx.font = '12px Outfit, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(L.name + (gotAll ? '  →  reach the green gate' : '  →  jump  ·  stomp red bugs  ·  grab gold orbs'), 16, H - 18);
+        }
+
+        let last = performance.now();
+        function loop(now) {
+            const dt = Math.min(0.033, (now - last) / 1000);
+            last = now;
+            if (mode === 'play') { update(dt); draw(); }
+            else if (mode === 'menu') {
+                levelI = 0;
+                if (!player) loadLevel(0, true);
+                player.x = 180 + Math.sin(t) * 8;
+                t += dt;
+                camX = 0;
+                draw();
+            }
+            requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+
+        function setKey(k, v) { keys[k] = v; }
+        addEventListener('keydown', e => {
+            if (['ArrowLeft', 'a', 'A'].includes(e.key)) { setKey('left', true); e.preventDefault(); }
+            if (['ArrowRight', 'd', 'D'].includes(e.key)) { setKey('right', true); e.preventDefault(); }
+            if ([' ', 'ArrowUp', 'w', 'W'].includes(e.key)) { setKey('jump', true); e.preventDefault(); }
+            if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+                if (mode === 'play') { mode = 'pause'; document.getElementById('pause').classList.remove('hide'); }
+                else if (mode === 'pause') { mode = 'play'; document.getElementById('pause').classList.add('hide'); }
+            }
+        });
+        addEventListener('keyup', e => {
+            if (['ArrowLeft', 'a', 'A'].includes(e.key)) setKey('left', false);
+            if (['ArrowRight', 'd', 'D'].includes(e.key)) setKey('right', false);
+            if ([' ', 'ArrowUp', 'w', 'W'].includes(e.key)) setKey('jump', false);
+        });
+        document.querySelectorAll('#pad button').forEach(btn => {
+            const k = btn.dataset.k;
+            const on = e => { e.preventDefault(); setKey(k, true); };
+            const off = e => { e.preventDefault(); setKey(k, false); };
+            btn.addEventListener('pointerdown', on);
+            btn.addEventListener('pointerup', off);
+            btn.addEventListener('pointerleave', off);
+        });
+
+        document.getElementById('play').onclick = () => startGame();
+        document.getElementById('resume').onclick = () => {
+            mode = 'play'; document.getElementById('pause').classList.add('hide');
+        };
+        try {
+            const s = JSON.parse(localStorage.getItem('architect-run') || 'null');
+            if (s && s.levelI >= 0) {
+                document.getElementById('continue').hidden = false;
+                document.getElementById('continue').onclick = () => startGame(s);
+            }
+        } catch (e) {}
+        renderCards();
+    </script>
+</body>
+</html>
