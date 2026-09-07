@@ -15,6 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initTestimonialSlider();
     initPortfolioFilters();
     initContactForm();
+
+    // Advanced UI Init
+    initPreloader();
+    initCustomCursor();
+    initAdvancedAnimations();
+    initTypewriter();
+    initCounters();
 });
 
 /* ==========================================================================
@@ -26,18 +33,19 @@ function renderData() {
     // 1. Profile Info
     setText('.data-profile-name', portfolioData.profile.name);
     setText('.data-profile-title', portfolioData.profile.title);
-    setText('.data-profile-tagline', portfolioData.profile.tagline);
+    // setText('.data-profile-tagline', portfolioData.profile.tagline); // Handled by TypewriterJS now
     setText('.data-profile-desc', portfolioData.profile.description);
     setImage('.data-profile-img', portfolioData.profile.image);
     setText('.data-profile-email', portfolioData.profile.email);
     setText('.data-profile-location', portfolioData.profile.location);
 
     // Profile Stats
+    // Profile Stats - Replaced with Animated Counters
     const statsContainer = document.querySelector('.data-stats-container');
     if (statsContainer) {
         statsContainer.innerHTML = portfolioData.profile.stats.map(s => `
-            <div class="stat-item">
-                <h3 class="stat-value">${s.value}</h3>
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
+                <h3 class="stat-value" data-target="${s.value.replace(/[^0-9]/g, '')}">0</h3>
                 <span class="stat-label">${s.label}</span>
             </div>
         `).join('');
@@ -46,9 +54,9 @@ function renderData() {
     // 2. Services
     const servicesContainer = document.querySelector('.data-services-container');
     if (servicesContainer) {
-        servicesContainer.innerHTML = portfolioData.services.map(s => `
+        servicesContainer.innerHTML = portfolioData.services.map((s, index) => `
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="service-card p-4 h-100 animate-on-scroll">
+                <div class="service-card p-4 h-100" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.3" data-aos="fade-up" data-aos-delay="${index * 100}">
                     <div class="service-icon mb-3"><i class="${s.icon}"></i></div>
                     <h4 class="service-title mb-3">${s.title}</h4>
                     <p class="service-desc mb-4">${s.description}</p>
@@ -80,7 +88,7 @@ function renderData() {
     if (portfolioContainer) {
         portfolioContainer.innerHTML = portfolioData.portfolio.map(p => `
             <div class="col-lg-6 col-md-6 portfolio-item ${p.category} mb-4">
-                <div class="portfolio-card overflow-hidden position-relative animate-on-scroll">
+                <div class="portfolio-card overflow-hidden position-relative" data-aos="fade-up" data-tilt data-tilt-max="5" data-tilt-speed="400">
                     <img src="${p.image}" alt="${p.title}" class="img-fluid w-100">
                     <div class="portfolio-overlay p-4 d-flex flex-column justify-content-end">
                         <div class="portfolio-tech mb-2">
@@ -130,9 +138,9 @@ function renderData() {
     // 6. Pricing
     const pricingContainer = document.querySelector('.data-pricing-container');
     if (pricingContainer) {
-        pricingContainer.innerHTML = portfolioData.pricing.map(p => `
+        pricingContainer.innerHTML = portfolioData.pricing.map((p, index) => `
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="pricing-card p-4 p-xl-5 text-center h-100 ${p.isPopular ? 'popular' : ''} animate-on-scroll">
+                <div class="pricing-card p-4 p-xl-5 text-center h-100 ${p.isPopular ? 'popular' : ''}" data-aos="fade-up" data-aos-delay="${index * 100}" data-tilt data-tilt-max="5" data-tilt-scale="1.02">
                     ${p.isPopular ? '<span class="popular-badge">Most Popular</span>' : ''}
                     <h4 class="fw-bold mb-2">${p.title}</h4>
                     <p class="small mb-4 opacity-75">${p.subtitle}</p>
@@ -557,4 +565,118 @@ function initContactForm() {
         if (success) success.style.display = 'inline';
         form.reset();
     });
+}
+
+/* ==========================================================================
+   Advanced UI & Animations Impl
+   ========================================================================== */
+
+function initPreloader() {
+    const preloader = document.getElementById('preloader');
+    if(preloader) {
+        window.addEventListener('load', () => {
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.visibility = 'hidden';
+            }, 500);
+        });
+    }
+}
+
+function initCustomCursor() {
+    const cursor = document.querySelector('.custom-cursor');
+    const follower = document.querySelector('.custom-cursor-follower');
+    if(!cursor || !follower) return;
+
+    let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.left = mouseX + 'px';
+        cursor.style.top = mouseY + 'px';
+    });
+
+    function animateFollower() {
+        followerX += (mouseX - followerX) * 0.1;
+        followerY += (mouseY - followerY) * 0.1;
+        follower.style.left = followerX + 'px';
+        follower.style.top = followerY + 'px';
+        requestAnimationFrame(animateFollower);
+    }
+    animateFollower();
+
+    document.querySelectorAll('a, button, .service-card, .portfolio-card').forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+}
+
+function initAdvancedAnimations() {
+    if(typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 50,
+            easing: 'ease-out-cubic'
+        });
+    }
+
+    if(typeof VanillaTilt !== 'undefined') {
+        VanillaTilt.init(document.querySelectorAll("[data-tilt]"));
+    }
+}
+
+function initTypewriter() {
+    const el = document.querySelector('.data-profile-tagline');
+    if (el && typeof Typewriter !== 'undefined') {
+        el.innerHTML = ''; // clear loading text
+        new Typewriter(el, {
+            strings: [portfolioData.profile.tagline, "Creative Developer", "UI/UX Enthusiast"],
+            autoStart: true,
+            loop: true,
+            delay: 50,
+            deleteSpeed: 30
+        });
+    }
+}
+
+function initCounters() {
+    const counters = document.querySelectorAll('.stat-value');
+    const speed = 200; 
+
+    const animateCounters = () => {
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const targetStr = counter.getAttribute('data-target');
+                if(!targetStr) return;
+                
+                const target = +targetStr;
+                const count = +counter.innerText;
+                const inc = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + inc);
+                    setTimeout(updateCount, 10);
+                } else {
+                    counter.innerText = target + "+"; // assuming original values had +
+                }
+            };
+            updateCount();
+        });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    const statsContainer = document.querySelector('.data-stats-container');
+    if(statsContainer) {
+        observer.observe(statsContainer);
+    }
 }
