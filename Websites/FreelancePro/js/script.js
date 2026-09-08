@@ -632,7 +632,7 @@ function initTypewriter() {
     if (el && typeof Typewriter !== 'undefined') {
         el.innerHTML = ''; // clear loading text
         new Typewriter(el, {
-            strings: [portfolioData.profile.tagline, "Creative Developer", "UI/UX Enthusiast"],
+            strings: [portfolioData.profile.tagline, portfolioData.profile.title, "UI/UX Enthusiast"],
             autoStart: true,
             loop: true,
             delay: 50,
