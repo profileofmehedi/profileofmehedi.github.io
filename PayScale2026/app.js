@@ -3,6 +3,7 @@
   const { fullReport, suggestGradeFromBasic, exportSummaryText } = PayScaleCalc;
 
   const STORAGE_KEY = "payscale2026_form";
+  const TAB_ORDER = ["summary", "chart", "ledger", "compare", "allowances"];
   let activeTab = "summary";
   let lastReport = null;
   let debounceTimer = null;
@@ -11,6 +12,11 @@
   let resultsReady = false;
   let lastHeroGross = 0;
   let lastRenderedTab = null;
+  const RESULT_REVEAL_MS = 1000;
+  const RESULT_CONTENT_DELAY_MS = 520;
+  let resultsGateOpen = false;
+  let pendingCalcAfterReveal = false;
+  let tabAnimating = false;
   const kpiLast = { fixed: 0, gross: 0, pay: 0, arrearB: 0, arrearG: 0 };
 
   const MONTHS_BN = [
@@ -52,6 +58,7 @@
     toolbar: document.getElementById("result-toolbar"),
     kpiStrip: document.getElementById("kpi-strip"),
     liveStatus: document.getElementById("live-status"),
+    resultPanel: document.getElementById("result-panel"),
   };
 
   const EMPTY_RESULTS = els.results.innerHTML;
@@ -259,10 +266,10 @@
     }
     if (!smooth || from === to) {
       stopAnimate(node);
-      node.textContent = formatBDT(to);
+      node.textContent = formatKpiAmount(to);
       return;
     }
-    animateNumber(node, from, to, 380);
+    animateNumber(node, from, to, 380, formatKpiAmount);
   }
 
   function stopAnimate(el) {
@@ -272,11 +279,16 @@
     }
   }
 
-  function animateNumber(el, from, to, duration) {
+  function formatKpiAmount(n) {
+    return `${formatNum(n)} ৳`;
+  }
+
+  function animateNumber(el, from, to, duration, formatFn) {
+    const fmt = formatFn || formatBDT;
     stopAnimate(el);
     if (to === 0 && el.textContent === "—") return;
     if (from === to) {
-      el.textContent = formatBDT(to);
+      el.textContent = fmt(to);
       return;
     }
     const start = performance.now();
@@ -289,7 +301,7 @@
       const p = Math.min(1, (now - start) / duration);
       const eased = 1 - Math.pow(1 - p, 3);
       const val = Math.round(from + (to - from) * eased);
-      el.textContent = formatBDT(val);
+      el.textContent = fmt(val);
       if (p < 1) requestAnimationFrame(tick);
       else {
         el._animCancel = null;
@@ -308,6 +320,121 @@
       resultsReady = true;
     }
     return panel;
+  }
+
+  function moveTabGlider() {
+    const glider = document.getElementById("tab-glider");
+    const active = document.querySelector("#result-tabs .tab.active");
+    const shell = document.querySelector(".tabs-shell");
+    if (!glider || !active || !shell || els.toolbar.hidden) return;
+    const shellRect = shell.getBoundingClientRect();
+    const rect = active.getBoundingClientRect();
+    glider.style.width = `${rect.width}px`;
+    glider.style.transform = `translate3d(${rect.left - shellRect.left}px, 0, 0)`;
+    glider.style.opacity = "1";
+  }
+
+  function markRevealItems(panel, enabled) {
+    if (!panel) return;
+    panel.querySelectorAll(".reveal-item").forEach((el) => el.classList.remove("reveal-item"));
+    if (!enabled) return;
+    const nodes = panel.querySelectorAll(
+      ".stat-hero, .section-title, .allow-row, .phase-item, .stat-card, .bar-row, .ledger-card, .note-box, .info-banner, .compare-progress, .scale-columns"
+    );
+    nodes.forEach((el, i) => {
+      el.classList.add("reveal-item");
+      el.style.setProperty("--reveal-i", Math.min(i, 14));
+    });
+  }
+
+  function afterTabContent(report, animateEnter) {
+    const panel = document.getElementById("tab-panel");
+    markRevealItems(panel, animateEnter);
+    if (activeTab === "summary") {
+      animateHeroGross(report.allowances.grossMonthly, animateEnter);
+    }
+    if (activeTab === "chart") afterRenderChart(animateEnter);
+  }
+
+  function applyPanelContent(report, mode) {
+    const panel = ensureResultsPanel();
+    panel.classList.remove(
+      "tab-panel--enter",
+      "tab-panel--update",
+      "tab-panel--soft",
+      "slide-out-left",
+      "slide-out-right",
+      "slide-in-left",
+      "slide-in-right"
+    );
+    if (mode === "enter") panel.classList.add("tab-panel--enter");
+    else if (mode === "soft") panel.classList.add("tab-panel--soft");
+    else if (mode === "update") panel.classList.add("tab-panel--update");
+    panel.innerHTML = renderActiveTab(report);
+    afterTabContent(report, mode === "enter" || mode === "soft");
+    return panel;
+  }
+
+  function resetTabAnimClasses(panel) {
+    if (!panel) return;
+    panel.classList.remove(
+      "slide-out-left",
+      "slide-out-right",
+      "slide-in-left",
+      "slide-in-right"
+    );
+    tabAnimating = false;
+  }
+
+  function transitionTabPanel(report, direction) {
+    if (tabAnimating) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      applyPanelContent(report, "soft");
+      moveTabGlider();
+      return;
+    }
+
+    const panel = ensureResultsPanel();
+    tabAnimating = true;
+    const outClass = direction > 0 ? "slide-out-left" : "slide-out-right";
+    const inClass = direction > 0 ? "slide-in-right" : "slide-in-left";
+    const safety = window.setTimeout(() => {
+      if (!tabAnimating) return;
+      panel.removeEventListener("animationend", onOut);
+      panel.classList.remove(outClass, inClass);
+      panel.innerHTML = renderActiveTab(report);
+      panel.classList.add("tab-panel--soft");
+      afterTabContent(report, true);
+      tabAnimating = false;
+    }, 850);
+
+    panel.classList.remove("tab-panel--enter", "tab-panel--update", "slide-in-left", "slide-in-right");
+    panel.classList.add(outClass);
+
+    const finishIn = () => {
+      window.clearTimeout(safety);
+      panel.classList.remove(inClass);
+      tabAnimating = false;
+    };
+
+    const onOut = (ev) => {
+      if (ev.target !== panel) return;
+      panel.removeEventListener("animationend", onOut);
+      panel.classList.remove(outClass);
+      panel.innerHTML = renderActiveTab(report);
+      panel.classList.add("tab-panel--enter", inClass);
+      afterTabContent(report, true);
+      panel.addEventListener(
+        "animationend",
+        (ev2) => {
+          if (ev2.target !== panel) return;
+          finishIn();
+        },
+        { once: true }
+      );
+    };
+    panel.addEventListener("animationend", onOut);
   }
 
   function animateHeroGross(to, animateEnter) {
@@ -363,7 +490,7 @@
         <div class="sub">মূল ${formatBDT(payAsOf)} + ভাতা · ${formatMonthLabel(asOf.year, asOf.month)} · গ্রেড ${fix.grade}</div>
       </div>
       <h3 class="section-title">পে-স্লিপ (আনুমানিক)</h3>
-      <p class="hint">${a.note}</p>
+      <div class="disclaimer-box" role="note">${a.note}</div>
       <div class="allow-grid payslip">${payslipLines}
         <div class="allow-row total"><span>মোট গ্রস</span><strong>${formatBDT(a.grossMonthly)}</strong></div>
       </div>
@@ -432,14 +559,40 @@
       </tr>`
       )
       .join("");
+    const cards = monthLedger.rows
+      .map(
+        (r) => `
+      <article class="ledger-card">
+        <div class="ledger-card-head">
+          <strong>${formatMonthLabel(r.year, r.month)}</strong>
+          <span class="ledger-pct">${Math.round((report.rates[r.phaseKey] || 0) * 100)}%</span>
+        </div>
+        <dl class="ledger-dl">
+          <div><dt>মূল</dt><dd>${formatBDT(r.basic)}</dd></div>
+          <div><dt>গ্রস</dt><dd>${formatBDT(r.gross)}</dd></div>
+          <div><dt>মূল বকেয়া</dt><dd>${formatBDT(r.arrear)}</dd></div>
+          <div><dt>গ্রস বকেয়া</dt><dd>${formatBDT(r.grossArrear)}</dd></div>
+          <div class="ledger-dl-total"><dt>জমা গ্রস</dt><dd>${formatBDT(r.cumulativeGross)}</dd></div>
+        </dl>
+      </article>`
+      )
+      .join("");
     return `
-      <div class="table-wrap">
+      <div class="ledger-mobile" aria-label="মাসভিত্তিক তালিকা">${cards}</div>
+      <div class="table-wrap ledger-desktop">
         <table class="data-table">
           <thead><tr><th>মাস</th><th>ধাপ</th><th>মূল</th><th>গ্রস</th><th>মূল বকেয়া</th><th>গ্রস বকেয়া</th><th>জমা গ্রস</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
-      <p class="hint">মোট ${monthLedger.rows.length} মাস · মূল বকেয়া ${formatBDT(monthLedger.cumulative)} · গ্রস বকেয়া ${formatBDT(monthLedger.cumulativeGross)}</p>`;
+      <p class="hint ledger-summary">মোট ${monthLedger.rows.length} মাস · মূল বকেয়া ${formatBDT(monthLedger.cumulative)} · গ্রস বকেয়া ${formatBDT(monthLedger.cumulativeGross)}</p>`;
+  }
+
+  function initMobileUX() {
+    const adv = document.querySelector(".advanced-block");
+    if (adv && window.matchMedia("(max-width: 639px)").matches) {
+      adv.removeAttribute("open");
+    }
   }
 
   function renderCompare(report) {
@@ -524,28 +677,66 @@
 
   function renderReport(report, options) {
     const animateEnter = options?.animateEnter === true;
+    const softEnter = options?.softEnter === true;
     lastReport = report;
     els.toolbar.hidden = false;
     els.liveStatus.hidden = false;
     renderKpi(report);
+    requestAnimationFrame(moveTabGlider);
 
-    const panel = ensureResultsPanel();
-    panel.classList.remove("tab-panel--enter", "tab-panel--update");
-    panel.classList.add(animateEnter ? "tab-panel--enter" : "tab-panel--update");
-    panel.innerHTML = renderActiveTab(report);
+    if (softEnter) applyPanelContent(report, "soft");
+    else applyPanelContent(report, animateEnter ? "enter" : "update");
 
-    if (activeTab === "summary") {
-      animateHeroGross(report.allowances.grossMonthly, animateEnter);
-    }
-
-    if (activeTab === "chart") afterRenderChart(animateEnter);
     if (!els.resultMeta.dataset.live) {
       els.resultMeta.textContent = "লাইভ হিসাব";
       els.resultMeta.dataset.live = "1";
     }
   }
 
-  function runCalc() {
+  function lockFormScroll() {
+    const y = window.scrollY;
+    window.scrollTo(0, y);
+    return y;
+  }
+
+  function runCalcAfterReveal(initial) {
+    const y = lockFormScroll();
+    if (pendingCalcAfterReveal || (els.basic.value && parseInt(els.basic.value, 10) > 0)) {
+      pendingCalcAfterReveal = false;
+      runCalc({ initial: !!initial });
+    } else {
+      saveState();
+    }
+    if (els.resultPanel) {
+      els.resultPanel.classList.add("result-panel--content-ready");
+    }
+    requestAnimationFrame(() => {
+      window.scrollTo(0, y);
+      moveTabGlider();
+    });
+  }
+
+  function revealResultsPanel() {
+    if (resultsGateOpen || !els.resultPanel) return;
+    const scrollY = lockFormScroll();
+    resultsGateOpen = true;
+    els.resultPanel.classList.remove("result-panel--waiting");
+    els.resultPanel.classList.add("result-panel--revealed");
+    document.documentElement.classList.add("page-enter-results");
+    document.querySelectorAll("#result-tabs .tab").forEach((b) => {
+      b.classList.toggle("active", b.dataset.tab === activeTab);
+    });
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollY);
+      setTimeout(() => runCalcAfterReveal(true), RESULT_CONTENT_DELAY_MS);
+    });
+  }
+
+  function runCalc(opts) {
+    if (!resultsGateOpen) {
+      pendingCalcAfterReveal = true;
+      return;
+    }
     const f = readForm();
     if (!f.grade || !f.basic || f.basic <= 0) return;
     const report = fullReport(
@@ -556,11 +747,14 @@
       f.joining,
       f.options
     );
+    const initial = opts && opts.initial;
     renderReport(report, {
-      animateEnter: !resultsReady || lastRenderedTab !== activeTab,
+      animateEnter: !initial && lastRenderedTab !== activeTab,
+      softEnter: !!initial,
     });
     lastRenderedTab = activeTab;
     saveState();
+    requestAnimationFrame(moveTabGlider);
   }
 
   function scheduleSave() {
@@ -579,13 +773,21 @@
   }
 
   function setTab(tab) {
+    if (tab === activeTab) return;
+    if (tabAnimating) {
+      resetTabAnimClasses(document.getElementById("tab-panel"));
+    }
+    const prev = activeTab;
+    const dir =
+      TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(prev) ? 1 : -1;
     activeTab = tab;
-    document.querySelectorAll(".tab").forEach((b) => {
+    document.querySelectorAll("#result-tabs .tab").forEach((b) => {
       b.classList.toggle("active", b.dataset.tab === tab);
     });
+    moveTabGlider();
     saveState();
     if (lastReport) {
-      renderReport(lastReport, { animateEnter: true });
+      transitionTabPanel(lastReport, dir);
       lastRenderedTab = activeTab;
     }
   }
@@ -673,6 +875,11 @@
     els.toolbar.hidden = true;
     els.kpiStrip.hidden = true;
     els.liveStatus.hidden = true;
+    if (els.resultPanel && !resultsGateOpen) {
+      els.resultPanel.classList.add("result-panel--waiting");
+      els.resultPanel.classList.remove("result-panel--revealed");
+    }
+    pendingCalcAfterReveal = false;
     els.resultMeta.textContent = "—";
     delete els.resultMeta.dataset.live;
     lastReport = null;
@@ -689,8 +896,15 @@
     }
   });
 
-  document.querySelectorAll(".tab").forEach((btn) => {
-    btn.addEventListener("click", () => setTab(btn.dataset.tab));
+  document.getElementById("result-tabs")?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab");
+    if (!btn || !btn.dataset.tab) return;
+    e.preventDefault();
+    setTab(btn.dataset.tab);
+  });
+
+  window.addEventListener("resize", () => {
+    moveTabGlider();
   });
 
   document.querySelectorAll(".chip").forEach((chip) => {
@@ -708,13 +922,17 @@
     });
   });
 
+  function bootApp() {
+    document.documentElement.classList.remove("preload");
+    document.documentElement.classList.add("page-enter");
+    setTimeout(revealResultsPanel, RESULT_REVEAL_MS);
+  }
+
   fillYearMonthSelects(els.arrearYear, els.arrearMonth, 2026, 9);
   fillYearMonthSelects(els.asofYear, els.asofMonth, 2026, 9);
+  document.documentElement.classList.add("preload");
   initGrades();
+  initMobileUX();
   loadState();
-  document.querySelectorAll(".tab").forEach((b) => {
-    b.classList.toggle("active", b.dataset.tab === activeTab);
-  });
-  if (els.basic.value) runCalc();
-  else saveState();
+  requestAnimationFrame(() => requestAnimationFrame(bootApp));
 })();

@@ -99,7 +99,7 @@
           key: "houseRent",
           label:
             hrBasic !== payBasic
-              ? `বাড়ি ভাড়া (${Math.round(hrRate * 100)}% × ২০১৫ মূল ${hrBasic})`
+              ? `বাড়ি ভাড়া (${Math.round(hrRate * 100)}% × ২০১৫ মূল)`
               : "বাড়ি ভাড়া ভাতা",
           amount: houseRent,
           core: true,
