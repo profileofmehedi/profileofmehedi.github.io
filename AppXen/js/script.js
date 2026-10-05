@@ -1,212 +1,301 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const API_BASE = 'https://master.nextxenit.com/api';
+
+    // Directory URLs like "./" don't resolve to index.html when opened via file://
+    if (location.protocol === 'file:') {
+        document.querySelectorAll('a[href="./"], a[href^="./#"]').forEach(a => {
+            a.setAttribute('href', 'index.html' + a.getAttribute('href').slice(2));
+        });
+    }
+
     // =========================================
-    // 1. THEME TOGGLE
+    // TOAST NOTIFICATIONS
+    // =========================================
+    let toastContainer = null;
+    function showToast(message, type = 'success') {
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container';
+            toastContainer.setAttribute('role', 'status');
+            toastContainer.setAttribute('aria-live', 'polite');
+            document.body.appendChild(toastContainer);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+        toast.innerHTML = `<i class="fas ${icon}" aria-hidden="true"></i><span></span>`;
+        toast.querySelector('span').textContent = message;
+        toastContainer.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 5000);
+    }
+
+    // =========================================
+    // THEME TOGGLE
     // =========================================
     const themeToggle = document.querySelector('.theme-toggle');
-    const storedTheme = localStorage.getItem('theme');
-    
-    // Check local storage or system preference
-    if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        if(themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-    }
+    const setThemeIcon = () => {
+        if (!themeToggle) return;
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        themeToggle.innerHTML = `<i class="fas ${isDark ? 'fa-sun' : 'fa-moon'}" aria-hidden="true"></i>`;
+        themeToggle.setAttribute('aria-label', isDark ? 'লাইট মোড চালু করুন' : 'ডার্ক মোড চালু করুন');
+    };
+    setThemeIcon();
 
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            let targetTheme = 'light';
-            
-            if (currentTheme !== 'dark') {
-                targetTheme = 'dark';
-                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-            } else {
-                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-            }
-            
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const targetTheme = isDark ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', targetTheme);
             localStorage.setItem('theme', targetTheme);
+            setThemeIcon();
         });
     }
 
     // =========================================
-    // 2. MAGNETIC BUTTONS
+    // MOBILE MENU
     // =========================================
-    const buttons = document.querySelectorAll('.btn');
-    
-    buttons.forEach(btn => {
-        btn.addEventListener('mousemove', (e) => {
-            const rect = btn.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const deltaX = (x - centerX) / 8; // Adjust strength
-            const deltaY = (y - centerY) / 8;
+    const menuBtn = document.querySelector('.menu-btn');
+    const navLinksContainer = document.querySelector('.nav-links');
 
-            btn.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-        });
+    function setMenu(open) {
+        if (!menuBtn || !navLinksContainer) return;
+        navLinksContainer.classList.toggle('active', open);
+        document.body.classList.toggle('menu-open', open);
+        menuBtn.setAttribute('aria-expanded', String(open));
+        menuBtn.innerHTML = `<i class="fas ${open ? 'fa-times' : 'fa-bars'}" aria-hidden="true"></i>`;
+    }
 
-        btn.addEventListener('mouseleave', () => {
-            btn.style.transform = 'translate(0, 0)';
-        });
-    });
-
-    // =========================================
-    // 7. PRE-LOADER
-    // =========================================
-    const loader = document.getElementById('preloader');
-    if (loader) {
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                loader.style.visibility = 'hidden';
-            }, 500); // Small delay for polish
+    if (menuBtn && navLinksContainer) {
+        menuBtn.addEventListener('click', () => setMenu(!navLinksContainer.classList.contains('active')));
+        navLinksContainer.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setMenu(false)));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') setMenu(false);
         });
     }
 
     // =========================================
-    // 8. TESTIMONIALS CAROUSEL
+    // SCROLL: NAVBAR, PROGRESS, BACK TO TOP, SCROLLSPY
+    // =========================================
+    const navbar = document.querySelector('.navbar');
+    const backToTopBtn = document.getElementById('backToTop');
+    const progressBar = document.getElementById('scrollProgress');
+    const spySections = [...document.querySelectorAll('section[id]')]
+        .map(section => ({ section, link: document.querySelector(`.nav-links a[href$="#${section.id}"]`) }))
+        .filter(item => item.link);
+
+    let scrollTicking = false;
+    function onScroll() {
+        const scrollY = window.scrollY;
+
+        if (navbar && !navbar.classList.contains('navbar-solid')) {
+            navbar.classList.toggle('scrolled', scrollY > 50);
+        }
+        if (backToTopBtn) backToTopBtn.classList.toggle('show', scrollY > 400);
+
+        if (progressBar) {
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            progressBar.style.width = totalHeight > 0 ? `${(scrollY / totalHeight) * 100}%` : '0%';
+        }
+
+        spySections.forEach(({ section, link }) => {
+            const top = section.offsetTop - 120;
+            const isActive = scrollY >= top && scrollY < top + section.offsetHeight;
+            link.classList.toggle('active', isActive);
+        });
+        scrollTicking = false;
+    }
+    window.addEventListener('scroll', () => {
+        if (!scrollTicking) {
+            requestAnimationFrame(onScroll);
+            scrollTicking = true;
+        }
+    }, { passive: true });
+    onScroll();
+
+    if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        });
+    }
+
+    // =========================================
+    // REVEAL ON SCROLL
+    // =========================================
+    const revealEls = document.querySelectorAll('.reveal');
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        revealEls.forEach(el => el.classList.add('active'));
+    } else {
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach(el => revealObserver.observe(el));
+    }
+
+    // =========================================
+    // POINTER EFFECTS (desktop only)
+    // =========================================
+    if (finePointer && !prefersReducedMotion) {
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const deltaX = (e.clientX - rect.left - rect.width / 2) / 8;
+                const deltaY = (e.clientY - rect.top - rect.height / 2) / 8;
+                btn.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
+            });
+        });
+
+        document.querySelectorAll('.mockup-container, .bento-item').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const rotateX = ((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -4;
+                const rotateY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 4;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    }
+
+    // =========================================
+    // TESTIMONIALS CAROUSEL
     // =========================================
     const slider = document.querySelector('.testimonial-slider');
-    const items = document.querySelectorAll('.testimonial-item');
+    const testimonialItems = document.querySelectorAll('.testimonial-item');
     const dots = document.querySelectorAll('.testimonial-dots .dot');
     let currentIndex = 0;
     let autoSlideInterval;
 
     function showTestimonial(index) {
-        if (slider) {
-            slider.style.transform = `translateX(-${index * 100}%)`;
-            dots.forEach(dot => dot.classList.remove('active'));
-            dots[index].classList.add('active');
-            currentIndex = index;
-        }
+        if (!slider || !testimonialItems.length) return;
+        slider.style.transform = `translateX(-${index * 100}%)`;
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+            if (i === index) dot.setAttribute('aria-current', 'true');
+            else dot.removeAttribute('aria-current');
+        });
+        currentIndex = index;
     }
 
     function startAutoSlide() {
+        if (prefersReducedMotion) return;
+        clearInterval(autoSlideInterval);
         autoSlideInterval = setInterval(() => {
-            let nextIndex = (currentIndex + 1) % items.length;
-            showTestimonial(nextIndex);
-        }, 5000); // 5 seconds
+            showTestimonial((currentIndex + 1) % testimonialItems.length);
+        }, 6000);
     }
 
-    if (slider) {
+    if (slider && testimonialItems.length) {
         dots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
                 showTestimonial(index);
-                clearInterval(autoSlideInterval);
                 startAutoSlide();
             });
         });
+        showTestimonial(0);
         startAutoSlide();
     }
-                    // =========================================
-    // 3. ANIMATED STATISTICS
+
+    // =========================================
+    // ANIMATED STATISTICS
     // =========================================
     const stats = document.querySelectorAll('.stat-number');
-    let hasAnimatedStats = false;
+    const statsSection = document.querySelector('.stats-container');
 
     function animateStats() {
         stats.forEach(stat => {
             const target = +stat.getAttribute('data-target');
-            const duration = 2000; // 2 seconds
-            const increment = target / (duration / 16); // 60fps
-
-            let current = 0;
-            const updateCount = () => {
-                current += increment;
-                if (current < target) {
-                    stat.innerText = Math.ceil(current);
-                    requestAnimationFrame(updateCount);
-                } else {
-                    stat.innerText = target + "+"; // Add suffix
-                }
+            const suffix = stat.getAttribute('data-suffix') ?? '+';
+            if (prefersReducedMotion) {
+                stat.textContent = target + suffix;
+                return;
+            }
+            const duration = 1800;
+            const start = performance.now();
+            const tick = (now) => {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                stat.textContent = Math.round(target * eased) + (progress === 1 ? suffix : '');
+                if (progress < 1) requestAnimationFrame(tick);
             };
-            updateCount();
+            requestAnimationFrame(tick);
         });
     }
 
-    const statsSection = document.querySelector('.stats-container');
-    if (statsSection) {
+    if (statsSection && stats.length) {
         const statsObserver = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && !hasAnimatedStats) {
+            if (entries[0].isIntersecting) {
                 animateStats();
-                hasAnimatedStats = true;
+                statsObserver.disconnect();
             }
         });
         statsObserver.observe(statsSection);
     }
 
     // =========================================
-    // 4. PARTICLE BACKGROUND
+    // HERO PARTICLE BACKGROUND
     // =========================================
     const canvas = document.getElementById('hero-canvas');
-    if (canvas) {
+    if (canvas && !prefersReducedMotion && window.innerWidth >= 768) {
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-        
-        const particleCount = 60;
+        const hero = canvas.parentElement;
+        let width, height, particles = [], rafId = null, isVisible = true;
         const connectionDistance = 140;
         const mouseDistance = 180;
+        const mouse = { x: null, y: null };
 
         function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.4;
-                this.vy = (Math.random() - 0.5) * 0.4;
-                this.size = Math.random() * 2 + 1;
-                // Use CSS variable for color adaptation
-                this.color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#3b82f6';
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(59, 130, 246, 0.2)`; // Hardcoded subtle blue for consistency
-                ctx.fill();
-            }
+            const rect = hero.getBoundingClientRect();
+            width = canvas.width = rect.width;
+            height = canvas.height = rect.height;
         }
 
         function initParticles() {
-            particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
+            const count = Math.min(55, Math.round((width * height) / 22000));
+            particles = Array.from({ length: count }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                size: Math.random() * 2 + 1,
+            }));
         }
-
-        let mouse = { x: null, y: null };
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        });
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
-            particles.forEach((p, index) => {
-                p.update();
-                p.draw();
-                for (let j = index + 1; j < particles.length; j++) {
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
                     const p2 = particles[j];
                     const dx = p.x - p2.x;
                     const dy = p.y - p2.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < connectionDistance) {
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < connectionDistance * connectionDistance) {
+                        const distance = Math.sqrt(distSq);
                         ctx.beginPath();
                         ctx.strokeStyle = `rgba(59, 130, 246, ${0.1 * (1 - distance / connectionDistance)})`;
                         ctx.lineWidth = 0.5;
@@ -215,418 +304,293 @@ document.addEventListener('DOMContentLoaded', () => {
                         ctx.stroke();
                     }
                 }
-                if (mouse.x != null) {
+
+                if (mouse.x !== null) {
                     const dx = p.x - mouse.x;
                     const dy = p.y - mouse.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     if (distance < mouseDistance) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(124, 58, 237, ${0.2 * (1 - distance / mouseDistance)})`; 
+                        ctx.strokeStyle = `rgba(124, 58, 237, ${0.2 * (1 - distance / mouseDistance)})`;
                         ctx.lineWidth = 0.8;
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(mouse.x, mouse.y);
                         ctx.stroke();
                     }
                 }
-            });
-            requestAnimationFrame(animate);
+            }
+            rafId = requestAnimationFrame(animate);
         }
 
-        window.addEventListener('resize', () => {
-            resize();
-            initParticles();
+        function start() {
+            if (rafId === null && isVisible && !document.hidden) rafId = requestAnimationFrame(animate);
+        }
+        function stop() {
+            if (rafId !== null) cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+
+        hero.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
         });
+        hero.addEventListener('mouseleave', () => {
+            mouse.x = mouse.y = null;
+        });
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                resize();
+                initParticles();
+            }, 200);
+        });
+
+        new IntersectionObserver((entries) => {
+            isVisible = entries[0].isIntersecting;
+            isVisible ? start() : stop();
+        }).observe(hero);
+        document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
 
         resize();
         initParticles();
-        animate();
+        start();
     }
 
     // =========================================
-    // 5. UTILITIES (Scroll, Menu, Reveal)
+    // FAQ ACCORDION
     // =========================================
-    const navbar = document.querySelector('.navbar');
-    const backToTopBtn = document.getElementById('backToTop');
-    const progressBar = document.getElementById('scrollProgress');
-    const menuBtn = document.querySelector('.menu-btn');
-    const navLinksContainer = document.querySelector('.nav-links');
-    
-    // Scroll Handler
-    window.addEventListener('scroll', () => {
-        const scrollY = window.pageYOffset;
-        
-        // Navbar
-        if (scrollY > 50) navbar.classList.add('scrolled');
-        else navbar.classList.remove('scrolled');
-
-        // Back to Top
-        if (scrollY > 300) backToTopBtn.classList.add('show');
-        else backToTopBtn.classList.remove('show');
-
-        // Progress Bar
-        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = (scrollY / totalHeight) * 100;
-        if (progressBar) progressBar.style.width = progress + '%';
-
-        // ScrollSpy
-        document.querySelectorAll('section[id]').forEach(current => {
-            const sectionHeight = current.offsetHeight;
-            const sectionTop = current.offsetTop - 100;
-            const sectionId = current.getAttribute('id');
-            if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-                document.querySelector('.nav-links a[href*=' + sectionId + ']')?.classList.add('active');
-            } else {
-                document.querySelector('.nav-links a[href*=' + sectionId + ']')?.classList.remove('active');
-            }
-        });
-    });
-
-    // Mobile Menu
-    if (menuBtn) {
-        menuBtn.addEventListener('click', () => {
-            navLinksContainer.classList.toggle('active');
-            menuBtn.innerHTML = navLinksContainer.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-        });
-    }
-    
-    document.querySelectorAll('.nav-link').forEach(item => {
-        item.addEventListener('click', () => {
-            navLinksContainer.classList.remove('active');
-            if(menuBtn) menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-        });
-    });
-
-    // 3D Tilt for Cards
-    document.querySelectorAll('.glass-card, .mockup-container, .stat-item, .bento-item').forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = ((y - centerY) / centerY) * -5;
-            const rotateY = ((x - centerX) / centerX) * 5;
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-        });
-    });
-
-    // Reveal Animation
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-                revealObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-    
-    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-
-    // Back to Top Click
-    if(backToTopBtn) {
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-
-    // FAQ Accordion
     document.querySelectorAll('.faq-header').forEach(header => {
         header.addEventListener('click', () => {
-            const item = header.parentElement;
-            const isActive = item.classList.contains('active');
-            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-            if (!isActive) item.classList.add('active');
+            const item = header.closest('.faq-item');
+            const wasActive = item.classList.contains('active');
+            item.parentElement.querySelectorAll('.faq-item').forEach(i => {
+                i.classList.remove('active');
+                i.querySelector('.faq-header')?.setAttribute('aria-expanded', 'false');
+            });
+            if (!wasActive) {
+                item.classList.add('active');
+                header.setAttribute('aria-expanded', 'true');
+            }
         });
     });
 
     // =========================================
-    // 6. AFFILIATE FORM SUBMISSION
+    // FORM SUBMISSION
     // =========================================
+    async function postJson(endpoint, data) {
+        const response = await fetch(`${API_BASE}/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || `HTTP ${response.status}`);
+        return result;
+    }
+
+    function handleForm(form, endpoint, buildPayload, successMessage) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> প্রসেসিং হচ্ছে...';
+
+            try {
+                const result = await postJson(endpoint, buildPayload(form));
+                showToast(result.message || successMessage, 'success');
+                form.reset();
+                form.dispatchEvent(new CustomEvent('form:success'));
+            } catch (error) {
+                console.error(`${endpoint} submission error:`, error);
+                showToast('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন অথবা হোয়াটসঅ্যাপে যোগাযোগ করুন।', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        });
+    }
+
+    const field = (form, name) => (form.elements[name]?.value || '').trim();
+
     const affiliateForm = document.getElementById('affiliateForm');
     if (affiliateForm) {
-        affiliateForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = affiliateForm.querySelector('button');
-            const originalContent = btn.innerHTML;
-            
-            const formData = {
-                name: document.getElementById('affName').value,
-                email: document.getElementById('affEmail').value,
-                phone: document.getElementById('affPhone').value,
-                details: document.getElementById('affExp').value
-            };
-            
-            // Show loading state
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
-            
-            try {
-                const response = await fetch('https://master.nextxenit.com/api/NextXenAffiliate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    btn.innerHTML = '<i class="fas fa-check"></i> আবেদন সফল হয়েছে!';
-                    btn.style.background = '#16a34a'; // Success color
-                    
-                    alert('ধন্যবাদ! ' + (result.message || 'আপনার অ্যাফিলিয়েট আবেদনটি সফলভাবে জমা হয়েছে।') + ' আমাদের টিম খুব শীঘ্রই আপনার সাথে যোগাযোগ করবে।');
-                    
-                    affiliateForm.reset();
-                } else {
-                    throw new Error(result.message || 'Error occurred');
-                }
-            } catch (error) {
-                console.error('Affiliate submission error:', error);
-                btn.innerHTML = '<i class="fas fa-times"></i> ত্রুটি হয়েছে!';
-                btn.style.background = '#ef4444'; // Error color
-                alert('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।');
-            } finally {
-                // Reset button after 3 seconds
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                    btn.style.background = ''; // Reset to default
-                }, 3000);
-            }
-        });
+        handleForm(affiliateForm, 'NextXenAffiliate', (f) => ({
+            name: field(f, 'name'),
+            email: field(f, 'email'),
+            phone: field(f, 'phone'),
+            details: field(f, 'details'),
+        }), 'ধন্যবাদ! আপনার অ্যাফিলিয়েট আবেদনটি জমা হয়েছে। আমাদের টিম শীঘ্রই যোগাযোগ করবে।');
     }
 
-    // =========================================
-    // 9. PROJECT REQUEST FORM SUBMISSION
-    // =========================================
-    const projectForm = document.getElementById('projectForm');
-    if (projectForm) {
-        projectForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = projectForm.querySelector('button');
-            const originalContent = btn.innerHTML;
-            
-            const formData = {
-                name: document.getElementById('contactName').value,
-                email: document.getElementById('contactEmail').value,
-                mobile: document.getElementById('contactMobile').value,
-                projectName: document.getElementById('projectSelect').options[document.getElementById('projectSelect').selectedIndex].text,
-                body: document.getElementById('contactMessage').value
+    document.querySelectorAll('form[data-form="project"]').forEach(form => {
+        handleForm(form, 'ProjectRequest', (f) => {
+            const select = f.elements.project;
+            const projectName = select && select.tagName === 'SELECT'
+                ? select.options[select.selectedIndex].text
+                : field(f, 'project');
+            return {
+                name: field(f, 'name'),
+                email: field(f, 'email'),
+                mobile: field(f, 'mobile'),
+                projectName,
+                body: field(f, 'message'),
             };
-            
-            // Show loading state
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
-            
-            try {
-                const response = await fetch('https://master.nextxenit.com/api/ProjectRequest', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    btn.innerHTML = '<i class="fas fa-check"></i> বার্তা সফলভাবে পাঠানো হয়েছে!';
-                    btn.style.background = '#16a34a'; // Success color
-                    
-                    alert('ধন্যবাদ! ' + (result.message || 'আপনার প্রজেক্ট রিকোয়েস্টটি সফলভাবে জমা হয়েছে।') + ' আমাদের টিম খুব শীঘ্রই আপনার সাথে যোগাযোগ করবে।');
-                    
-                    projectForm.reset();
-                } else {
-                    throw new Error(result.message || 'Error occurred');
-                }
-            } catch (error) {
-                console.error('Project request error:', error);
-                btn.innerHTML = '<i class="fas fa-times"></i> ত্রুটি হয়েছে!';
-                btn.style.background = '#ef4444'; // Error color
-                alert('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।');
-            } finally {
-                // Reset button after 3 seconds
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                    btn.style.background = ''; // Reset to default
-                }, 3000);
-            }
-        });
-    }
+        }, 'ধন্যবাদ! আপনার রিকোয়েস্টটি জমা হয়েছে। আমাদের টিম শীঘ্রই আপনার সাথে যোগাযোগ করবে।');
+    });
 
     // =========================================
-    // 10. FEEDBACK POPUP LOGIC
+    // FEEDBACK POPUP
+    // Shown at most once per visit, only after real engagement,
+    // and not again for 14 days after dismissal or submission.
     // =========================================
+    const FEEDBACK_SNOOZE_MS = 14 * 24 * 60 * 60 * 1000;
+
+    function feedbackAllowed() {
+        if (localStorage.getItem('feedbackSubmitted') === 'true') return false;
+        if (sessionStorage.getItem('feedbackShown') === 'true') return false;
+        const dismissedAt = +localStorage.getItem('feedbackDismissedAt') || 0;
+        return Date.now() - dismissedAt > FEEDBACK_SNOOZE_MS;
+    }
+
     function initFeedbackPopup() {
-        // Inject HTML if not present
-        if (!document.getElementById('feedbackModal')) {
-            const feedbackHtml = `
-                <div id="feedbackModal" class="feedback-modal">
-                    <div class="feedback-overlay"></div>
-                    <div class="feedback-container">
-                        <div class="feedback-close"><i class="fas fa-times"></i></div>
-                        <div class="feedback-header">
-                            <h2>আপনার মতামত আমাদের শক্তি</h2>
-                            <p>আমাদের উন্নত করতে সাহায্য করুন।</p>
-                        </div>
-                        <form id="feedbackForm">
-                            <div class="feedback-form-group">
-                                <div class="rating-group" id="starRating">
-                                    <i class="fas fa-star" data-rating="5"></i>
-                                    <i class="fas fa-star" data-rating="4"></i>
-                                    <i class="fas fa-star" data-rating="3"></i>
-                                    <i class="fas fa-star" data-rating="2"></i>
-                                    <i class="fas fa-star" data-rating="1"></i>
-                                </div>
-                                <input type="hidden" id="ratingValue" name="rating" value="0">
-                            </div>
+        if (!document.body.hasAttribute('data-feedback') || !feedbackAllowed()) return;
 
-                            <div class="feedback-grid">
-                                <div class="feedback-form-group full-width">
-                                    <label>সফটওয়্যার দিয়ে সমাধানযোগ্য কোনো সমস্যা?</label>
-                                    <textarea id="fbProblem" rows="1" placeholder="সংক্ষেপে লিখুন..."></textarea>
-                                </div>
-                                <div class="feedback-form-group">
-                                    <label>কি সফটওয়্যার খুঁজছেন?</label>
-                                    <input type="text" id="fbSoftware" placeholder="যেমন: ইনভেন্টরি">
-                                </div>
-                                <div class="feedback-form-group">
-                                    <label>আপনার বাজেট কত?</label>
-                                    <input type="text" id="fbBudget" placeholder="যেমন: ২০,০০০/-">
-                                </div>
-                                <div class="feedback-form-group full-width">
-                                    <label>আমাদের জন্য কোনো পরামর্শ?</label>
-                                    <textarea id="fbAdvice" rows="1" placeholder="আপনার মূল্যবান পরামর্শ..."></textarea>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary feedback-btn">
-                                জমা দিন <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </form>
+        const feedbackHtml = `
+            <div id="feedbackModal" class="feedback-modal" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+                <div class="feedback-overlay"></div>
+                <div class="feedback-container">
+                    <button type="button" class="feedback-close" aria-label="বন্ধ করুন"><i class="fas fa-times" aria-hidden="true"></i></button>
+                    <div class="feedback-header">
+                        <h2 id="feedbackTitle">আপনার মতামত আমাদের শক্তি</h2>
+                        <p>মাত্র ৩০ সেকেন্ডে আমাদের উন্নত করতে সাহায্য করুন।</p>
                     </div>
+                    <form id="feedbackForm">
+                        <div class="feedback-form-group">
+                            <div class="rating-group" id="starRating" role="radiogroup" aria-label="রেটিং দিন">
+                                ${[5, 4, 3, 2, 1].map(n => `<button type="button" class="star-btn" data-rating="${n}" role="radio" aria-checked="false" aria-label="${n} স্টার"><i class="fas fa-star" aria-hidden="true"></i></button>`).join('')}
+                            </div>
+                        </div>
+                        <div class="feedback-grid">
+                            <div class="feedback-form-group full-width">
+                                <label for="fbProblem">সফটওয়্যার দিয়ে সমাধানযোগ্য কোনো সমস্যা?</label>
+                                <textarea id="fbProblem" name="problem" rows="2" placeholder="সংক্ষেপে লিখুন..."></textarea>
+                            </div>
+                            <div class="feedback-form-group">
+                                <label for="fbSoftware">কি সফটওয়্যার খুঁজছেন?</label>
+                                <input type="text" id="fbSoftware" name="software" placeholder="যেমন: ইনভেন্টরি">
+                            </div>
+                            <div class="feedback-form-group">
+                                <label for="fbBudget">আপনার বাজেট কত?</label>
+                                <input type="text" id="fbBudget" name="budget" placeholder="যেমন: ২০,০০০/-">
+                            </div>
+                            <div class="feedback-form-group full-width">
+                                <label for="fbAdvice">আমাদের জন্য কোনো পরামর্শ?</label>
+                                <textarea id="fbAdvice" name="advice" rows="2" placeholder="আপনার মূল্যবান পরামর্শ..."></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary feedback-btn">
+                            জমা দিন <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                        </button>
+                    </form>
                 </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', feedbackHtml);
-        }
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', feedbackHtml);
 
-        const feedbackModal = document.getElementById('feedbackModal');
-        const feedbackClose = feedbackModal.querySelector('.feedback-close');
-        const feedbackOverlay = feedbackModal.querySelector('.feedback-overlay');
-        const feedbackForm = document.getElementById('feedbackForm');
-        const starRating = document.getElementById('starRating');
-        const ratingValue = document.getElementById('ratingValue');
-        const stars = starRating?.querySelectorAll('i');
+        const modal = document.getElementById('feedbackModal');
+        const form = document.getElementById('feedbackForm');
+        const stars = modal.querySelectorAll('.star-btn');
+        let rating = 0;
+        let lastFocused = null;
 
-        function showFeedbackModal() {
-            // Don't show if already submitted
-            if (localStorage.getItem('feedbackSubmitted') === 'true') return;
-            
-            feedbackModal.classList.add('active');
+        function show() {
+            if (!feedbackAllowed() || document.body.classList.contains('menu-open')) return;
+            sessionStorage.setItem('feedbackShown', 'true');
+            lastFocused = document.activeElement;
+            modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+            modal.querySelector('.feedback-close').focus();
         }
 
-        function hideFeedbackModal() {
-            feedbackModal.classList.remove('active');
+        function hide(dismissed = true) {
+            modal.classList.remove('active');
             document.body.style.overflow = '';
+            if (dismissed) localStorage.setItem('feedbackDismissedAt', String(Date.now()));
+            lastFocused?.focus?.();
         }
 
-        // Star Rating
-        if (stars) {
-            stars.forEach(star => {
-                star.addEventListener('click', () => {
-                    const rating = star.getAttribute('data-rating');
-                    ratingValue.value = rating;
-                    stars.forEach(s => {
-                        if (parseInt(s.getAttribute('data-rating')) <= parseInt(rating)) {
-                            s.classList.add('active');
-                        } else {
-                            s.classList.remove('active');
-                        }
-                    });
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                rating = +star.dataset.rating;
+                stars.forEach(s => {
+                    const on = +s.dataset.rating <= rating;
+                    s.classList.toggle('active', on);
+                    s.setAttribute('aria-checked', String(+s.dataset.rating === rating));
                 });
             });
-        }
+        });
 
-        // Close events
-        feedbackClose.addEventListener('click', hideFeedbackModal);
-        feedbackOverlay.addEventListener('click', hideFeedbackModal);
+        modal.querySelector('.feedback-close').addEventListener('click', () => hide());
+        modal.querySelector('.feedback-overlay').addEventListener('click', () => hide());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) hide();
+        });
 
-        // Form Submission
-        if (feedbackForm) {
-            feedbackForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = feedbackForm.querySelector('button');
-                const originalContent = btn.innerHTML;
-                
-                if (ratingValue.value === "0") {
-                    alert('দয়া করে একটি রেটিং দিন।');
-                    return;
-                }
-                
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...';
-                
-            const formData = {
-                rating: ratingValue.value + ".0",
-                problem: document.getElementById('fbProblem').value,
-                software: document.getElementById('fbSoftware').value,
-                budget: document.getElementById('fbBudget').value,
-                advice: document.getElementById('fbAdvice').value
-            };
-
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!rating) {
+                showToast('দয়া করে একটি রেটিং দিন।', 'error');
+                return;
+            }
+            const btn = form.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> প্রসেসিং হচ্ছে...';
             try {
-                const response = await fetch('https://master.nextxenit.com/api/NextXenFeedback', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+                const result = await postJson('NextXenFeedback', {
+                    rating: rating + '.0',
+                    problem: field(form, 'problem'),
+                    software: field(form, 'software'),
+                    budget: field(form, 'budget'),
+                    advice: field(form, 'advice'),
                 });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    // Set flag in localStorage so it doesn't show again
-                    localStorage.setItem('feedbackSubmitted', 'true');
-
-                    btn.innerHTML = '<i class="fas fa-check"></i> মতামত সফলভাবে জমা হয়েছে!';
-                    btn.style.background = '#16a34a';
-                    alert('ধন্যবাদ! ' + (result.message || 'আপনার মূল্যবান মতামতের জন্য ধন্যবাদ।'));
-                    
-                    feedbackForm.reset();
-                    stars.forEach(s => s.classList.remove('active'));
-                    ratingValue.value = "0";
-                    setTimeout(hideFeedbackModal, 1000);
-                } else {
-                    throw new Error(result.message || 'Error occurred');
-                }
+                localStorage.setItem('feedbackSubmitted', 'true');
+                showToast(result.message || 'আপনার মূল্যবান মতামতের জন্য ধন্যবাদ!', 'success');
+                hide(false);
             } catch (error) {
                 console.error('Feedback submission error:', error);
-                btn.innerHTML = '<i class="fas fa-times"></i> ত্রুটি হয়েছে!';
-                btn.style.background = '#ef4444';
-                alert('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।');
+                showToast('দুঃখিত, একটি সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।', 'error');
             } finally {
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                    btn.style.background = '';
-                }, 3000);
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
             }
-            });
-        }
+        });
 
-        // Show on load
-        setTimeout(showFeedbackModal, 2000);
-
-        // Show every 5 mins
-        setInterval(showFeedbackModal, 300000);
+        // Trigger after 45s on page or once the visitor has scrolled 60% of the page.
+        let triggered = false;
+        const trigger = () => {
+            if (triggered) return;
+            triggered = true;
+            window.removeEventListener('scroll', onScrollTrigger);
+            show();
+        };
+        const onScrollTrigger = () => {
+            const total = document.documentElement.scrollHeight - window.innerHeight;
+            if (total > 0 && window.scrollY / total > 0.6) trigger();
+        };
+        window.addEventListener('scroll', onScrollTrigger, { passive: true });
+        setTimeout(trigger, 45000);
     }
 
     initFeedbackPopup();
+
+    // =========================================
+    // FOOTER YEAR
+    // =========================================
+    const yearEl = document.getElementById('currentYear');
+    if (yearEl) yearEl.textContent = new Date().getFullYear().toLocaleString('bn-BD', { useGrouping: false });
 });
