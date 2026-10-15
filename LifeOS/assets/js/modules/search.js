@@ -86,6 +86,38 @@ const LifeSearch = (() => {
       }
     });
 
+    // Conveyance & Official Trips
+    const trips = LifeStorage.get("conveyanceTrips") || [];
+    trips.forEach(t => {
+      if (
+        (t.clientOrPurpose || "").toLowerCase().includes(query) ||
+        (t.location || "").toLowerCase().includes(query) ||
+        (t.route || "").toLowerCase().includes(query)
+      ) {
+        results.push({
+          type: "Conveyance",
+          icon: "bi-briefcase text-warning",
+          title: t.clientOrPurpose,
+          subtitle: `${t.location} • Spent: ${LifeUtils.formatCurrency(t.actualCost)} (Claim: ${LifeUtils.formatCurrency(t.claimedCost)})`,
+          page: "conveyance"
+        });
+      }
+    });
+
+    // Conveyance Claim Batches
+    const claims = LifeStorage.get("conveyanceClaims") || [];
+    claims.forEach(c => {
+      if ((c.title || "").toLowerCase().includes(query) || (c.voucherNumber || "").toLowerCase().includes(query)) {
+        results.push({
+          type: "Claim Voucher",
+          icon: "bi-receipt text-primary",
+          title: `${c.voucherNumber}: ${c.title}`,
+          subtitle: `Claimed: ${LifeUtils.formatCurrency(c.totalClaimed)} • Status: ${c.status}`,
+          page: "conveyance"
+        });
+      }
+    });
+
     // Tasks
     const tasks = LifeStorage.get("tasks") || [];
     tasks.forEach(t => {

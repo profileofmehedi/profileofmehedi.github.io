@@ -20,6 +20,7 @@ const LifeApp = (() => {
     LifeCalendar.init();
     LifeTransactions.init();
     LifeAccounts.init();
+    LifeConveyance.init();
     LifeBudgets.init();
     LifeSavings.init();
     LifeHabits.init();
@@ -101,6 +102,8 @@ const LifeApp = (() => {
         LifeTransactions.openAddModal("income");
       } else if (action === "transfer") {
         LifeAccounts.openTransferModal();
+      } else if (action === "conveyance") {
+        LifeConveyance.openNewTripModal();
       } else if (action === "task") {
         const modal = new bootstrap.Modal(document.getElementById("modal-task"));
         modal.show();
@@ -231,6 +234,7 @@ const LifeApp = (() => {
       calendar: "Calendar & Agenda",
       transactions: "Transactions Ledger",
       accounts: "Accounts & Cards",
+      conveyance: "Company Conveyance & Claims",
       budgets: "Monthly Budgets",
       savings: "Savings & Goals",
       reports: "Financial Reports",
@@ -262,6 +266,9 @@ const LifeApp = (() => {
         break;
       case "accounts":
         LifeAccounts.render();
+        break;
+      case "conveyance":
+        LifeConveyance.render();
         break;
       case "budgets":
         LifeBudgets.render();

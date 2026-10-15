@@ -325,6 +325,39 @@ const LifeUtils = (() => {
     document.body.removeChild(link);
   }
 
+  /**
+   * Conveyance & Reimbursement Metrics
+   */
+  function calculateConveyanceMetrics(trips = [], claims = []) {
+    const totalActualSpent = trips.reduce((sum, t) => sum + (Number(t.actualCost) || 0), 0);
+    const totalClaimed = trips.reduce((sum, t) => sum + (Number(t.claimedCost) || 0), 0);
+    const initialGap = trips.reduce((sum, t) => sum + (Number(t.pocketGap) || 0), 0);
+
+    const totalDisbursed = claims.reduce((sum, c) => sum + (Number(c.disbursedAmount) || 0), 0);
+    const totalCompanyDeductions = claims.reduce((sum, c) => sum + (Number(c.companyDeduction) || 0), 0);
+    const pendingDisbursement = claims
+      .filter(c => c.status === "pending_approval")
+      .reduce((sum, c) => sum + (Number(c.totalClaimed) || 0), 0);
+
+    const settledClaims = claims.filter(c => c.status === "fully_disbursed" || c.status === "partially_disbursed");
+    const totalSettledActual = settledClaims.reduce((sum, c) => sum + (Number(c.totalActualSpent) || 0), 0);
+    const totalSettledDisbursed = settledClaims.reduce((sum, c) => sum + (Number(c.disbursedAmount) || 0), 0);
+    const netSettledPocketLoss = Math.max(0, totalSettledActual - totalSettledDisbursed);
+
+    const overallLoss = Math.max(0, (totalActualSpent - totalDisbursed) - pendingDisbursement);
+
+    return {
+      totalActualSpent,
+      totalClaimed,
+      initialGap,
+      totalDisbursed,
+      totalCompanyDeductions,
+      pendingDisbursement,
+      netSettledPocketLoss,
+      overallLoss
+    };
+  }
+
   return {
     CURRENT_DEMO_DATE,
     escapeHtml,
@@ -342,10 +375,12 @@ const LifeUtils = (() => {
     getCategorySpending,
     getSixMonthTrend,
     calculateHabitStreak,
-    exportToCsv
+    exportToCsv,
+    calculateConveyanceMetrics
   };
 })();
 
 if (typeof window !== "undefined") {
   window.LifeUtils = LifeUtils;
 }
+

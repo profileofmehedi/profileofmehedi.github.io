@@ -539,6 +539,132 @@ const LifeStorage = (() => {
     emit("change", { key: "notifications" });
   }
 
+  // Conveyance Trips CRUD
+  function addConveyanceTrip(trip) {
+    if (!state.conveyanceTrips) state.conveyanceTrips = [];
+    if (!trip.id) trip.id = LifeUtils.generateId("trip");
+    trip.actualCost = Number(trip.actualCost) || 0;
+    trip.claimedCost = Number(trip.claimedCost) || 0;
+    trip.pocketGap = Math.max(0, trip.actualCost - trip.claimedCost);
+    if (!trip.status) trip.status = "unsubmitted";
+
+    // Deduct actual cost from selected paying account as an expense
+    if (trip.accountId) {
+      const tx = {
+        id: LifeUtils.generateId("tx"),
+        date: trip.date || LifeUtils.CURRENT_DEMO_DATE,
+        type: "expense",
+        description: `Official Conveyance: ${trip.clientOrPurpose}`,
+        amount: trip.actualCost,
+        category: "Transport & Fuel",
+        accountId: trip.accountId,
+        method: "Direct Payment",
+        merchant: trip.location || "Official Trip",
+        tags: ["Conveyance", "Meeting"],
+        notes: `Route: ${trip.route || "City commute"}. Submitted: ${trip.claimedCost} BDT. Pocket gap: ${trip.pocketGap} BDT.`
+      };
+      addTransaction(tx);
+    }
+
+    state.conveyanceTrips.unshift(trip);
+    saveState(state);
+    emit("change", { key: "conveyanceTrips", action: "add", data: trip });
+    return trip;
+  }
+
+  function updateConveyanceTrip(trip) {
+    if (!state.conveyanceTrips) state.conveyanceTrips = [];
+    const idx = state.conveyanceTrips.findIndex(t => t.id === trip.id);
+    if (idx === -1) return null;
+    trip.actualCost = Number(trip.actualCost) || 0;
+    trip.claimedCost = Number(trip.claimedCost) || 0;
+    trip.pocketGap = Math.max(0, trip.actualCost - trip.claimedCost);
+    state.conveyanceTrips[idx] = { ...state.conveyanceTrips[idx], ...trip };
+    saveState(state);
+    emit("change", { key: "conveyanceTrips", action: "update", data: state.conveyanceTrips[idx] });
+    return state.conveyanceTrips[idx];
+  }
+
+  function deleteConveyanceTrip(tripId) {
+    if (!state.conveyanceTrips) state.conveyanceTrips = [];
+    state.conveyanceTrips = state.conveyanceTrips.filter(t => t.id !== tripId);
+    saveState(state);
+    emit("change", { key: "conveyanceTrips", action: "delete", id: tripId });
+    return true;
+  }
+
+  // Conveyance Claims (Batches) Management
+  function addConveyanceClaim(claim) {
+    if (!state.conveyanceClaims) state.conveyanceClaims = [];
+    if (!claim.id) claim.id = LifeUtils.generateId("clm");
+    if (!claim.voucherNumber) claim.voucherNumber = `VCH-${new Date().getFullYear()}-${String(state.conveyanceClaims.length + 1).padStart(3, "0")}`;
+    if (!claim.status) claim.status = "pending_approval";
+    claim.disbursedAmount = 0;
+    claim.companyDeduction = 0;
+
+    // Mark included trips as submitted and link to claimId
+    if (claim.tripIds && state.conveyanceTrips) {
+      state.conveyanceTrips.forEach(t => {
+        if (claim.tripIds.includes(t.id)) {
+          t.status = "submitted";
+          t.claimId = claim.id;
+        }
+      });
+    }
+
+    state.conveyanceClaims.unshift(claim);
+    saveState(state);
+    emit("change", { key: "conveyanceClaims", action: "add", data: claim });
+    return claim;
+  }
+
+  function disburseConveyanceClaim(claimId, disbursedAmount, deductionReason, targetAccountId) {
+    if (!state.conveyanceClaims) return null;
+    const claim = state.conveyanceClaims.find(c => c.id === claimId);
+    if (!claim) return null;
+
+    const disbursed = Number(disbursedAmount) || 0;
+    const deduction = Math.max(0, (Number(claim.totalClaimed) || 0) - disbursed);
+
+    claim.disbursedAmount = disbursed;
+    claim.companyDeduction = deduction;
+    claim.disbursementDate = LifeUtils.CURRENT_DEMO_DATE;
+    claim.targetAccountId = targetAccountId || "acc-3";
+    claim.status = deduction > 0 ? "partially_disbursed" : "fully_disbursed";
+    claim.disbursementNote = deductionReason || (deduction > 0 ? `Company deducted ${deduction} BDT.` : "Full reimbursement disbursed.");
+
+    // Mark all linked trips as settled
+    if (claim.tripIds && state.conveyanceTrips) {
+      state.conveyanceTrips.forEach(t => {
+        if (claim.tripIds.includes(t.id)) {
+          t.status = "settled";
+        }
+      });
+    }
+
+    // Add reimbursement transaction into target account
+    if (disbursed > 0) {
+      const tx = {
+        id: LifeUtils.generateId("tx"),
+        date: LifeUtils.CURRENT_DEMO_DATE,
+        type: "income",
+        description: `Company Reimbursement: ${claim.voucherNumber} (${claim.title})`,
+        amount: disbursed,
+        category: "Other Income",
+        accountId: claim.targetAccountId,
+        method: "Bank / MFS Credit",
+        merchant: "Company Reimbursement",
+        tags: ["Reimbursement", "Conveyance"],
+        notes: `Claimed: ${claim.totalClaimed} BDT. Disbursed: ${disbursed} BDT. Company Deduction: ${deduction} BDT.`
+      };
+      addTransaction(tx);
+    }
+
+    saveState(state);
+    emit("change", { key: "conveyanceClaims", action: "disburse", data: claim });
+    return claim;
+  }
+
   // Reset to original Seed Data
   function resetDemoData() {
     state = JSON.parse(JSON.stringify(window.SEED_DATA));
@@ -594,6 +720,11 @@ const LifeStorage = (() => {
     markNotificationRead,
     markAllNotificationsRead,
     clearAllNotifications,
+    addConveyanceTrip,
+    updateConveyanceTrip,
+    deleteConveyanceTrip,
+    addConveyanceClaim,
+    disburseConveyanceClaim,
     resetDemoData
   };
 })();
@@ -601,3 +732,4 @@ const LifeStorage = (() => {
 if (typeof window !== "undefined") {
   window.LifeStorage = LifeStorage;
 }
+

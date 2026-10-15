@@ -32,6 +32,7 @@
 - **Transactions Ledger:** Comprehensive ledger supporting Income, Expense, Transfer, Savings Contribution, and Debt Payments. Multi-column filters (type, category, account), real-time search, date/amount sorting, pagination, summary totals banner, and **CSV export download**.
 - **Accounts & Cards:** Interactive fintech portfolio for bank accounts, mobile wallets (bKash/Nagad), cash, and 3D credit/debit cards with cardholder details, masked numbers, credit limits, and money transfers between accounts.
 - **Monthly Budgets:** Dynamic category budgets comparing actual spending (derived from transactions) vs planned limits with visual threshold warnings (80% warning, 100%+ alert).
+- **Company Conveyance & Reimbursement:** Official meeting & client visit expense manager (transport & lunch). Tracks personal pocket loss gaps (e.g., spent ৳500 vs claimed ৳300), bundles trips into batch claim vouchers, manages company approval & deduction lifecycle, and settles disbursements directly into bank or mobile wallet accounts with double-entry accounting.
 - **Savings & Goals:** Target-based savings goals (Emergency Fund, MacBook Pro, Cox's Bazar Vacation, Home Down Payment) with deposit contributions deducted directly from bank balances and milestone timelines.
 - **Financial Reports:** Cashflow breakdown, 6-month net worth trajectory curve, and category expenditure rankings.
 
@@ -111,6 +112,7 @@ LifeOS/
         │   ├── transactions.js      # Ledger, dynamic transaction form, filters & pagination
         │   ├── accounts.js          # Accounts & Cards, 3D cards, transfers & balances
         │   ├── budgets.js           # Category budgets vs actual spending calculation & alerts
+        │   ├── conveyance.js        # Company conveyance, batch claim vouchers, pocket loss & reimbursement
         │   ├── savings.js           # Savings goals, deposits with account deduction & projections
         │   ├── habits.js            # Habit tracker, 30-day heatmap grid & streak tracker
         │   ├── tasks.js             # List view & Kanban board, priority badges

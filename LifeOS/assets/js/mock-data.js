@@ -1817,6 +1817,184 @@ const SEED_DATA = {
       tags: ["Salary"],
       notes: "May corporate salary."
     }
+  ],
+
+  // Conveyance & Official Meeting Visits Tracker
+  conveyanceTrips: [
+    {
+      id: "trip-101",
+      date: "2026-10-15",
+      clientOrPurpose: "Emergency Datacenter Failover Drill",
+      location: "Mohakhali DOHS, Dhaka",
+      route: "Banani Office -> Mohakhali DOHS -> Banani",
+      transportMode: "Rickshaw & Uber",
+      transportCost: 380,
+      lunchOrSnacksCost: 180,
+      actualCost: 560,
+      claimedCost: 350,
+      pocketGap: 210,
+      status: "unsubmitted",
+      claimId: null,
+      notes: "Lunch exceeded cap, submitted within corporate conveyance limit.",
+      accountId: "acc-5"
+    },
+    {
+      id: "trip-102",
+      date: "2026-10-14",
+      clientOrPurpose: "bKash HQ Cloud Architecture Alignment",
+      location: "Shadhinata Bhaban, Gulshan 2",
+      route: "Banani -> Gulshan 2 -> Banani",
+      transportMode: "Uber Premier",
+      transportCost: 480,
+      lunchOrSnacksCost: 380,
+      actualCost: 860,
+      claimedCost: 500,
+      pocketGap: 360,
+      status: "submitted",
+      claimId: "clm-101",
+      notes: "Client meeting lunch at Gloria Jean's, submitted per-diem max ৳500.",
+      accountId: "acc-3"
+    },
+    {
+      id: "trip-103",
+      date: "2026-10-12",
+      clientOrPurpose: "Enterprise ERP Sync at DSE Tower",
+      location: "Motijheel C/A, Dhaka",
+      route: "Banani -> Motijheel -> Banani",
+      transportMode: "CNG Auto-rickshaw",
+      transportCost: 650,
+      lunchOrSnacksCost: 120,
+      actualCost: 770,
+      claimedCost: 500,
+      pocketGap: 270,
+      status: "submitted",
+      claimId: "clm-101",
+      notes: "Severe traffic surcharge, paid ৳650 CNG, company max limit is ৳500.",
+      accountId: "acc-5"
+    },
+    {
+      id: "trip-104",
+      date: "2026-10-09",
+      clientOrPurpose: "Onsite Server Rack Migration",
+      location: "Uttara Sector 4, Dhaka",
+      route: "Banani -> Uttara Sector 4 -> Banani",
+      transportMode: "Uber XL",
+      transportCost: 820,
+      lunchOrSnacksCost: 450,
+      actualCost: 1270,
+      claimedCost: 800,
+      pocketGap: 470,
+      status: "settled",
+      claimId: "clm-098",
+      notes: "Equipment transport in Uber XL. Partial claim approved.",
+      accountId: "acc-1"
+    },
+    {
+      id: "trip-105",
+      date: "2026-10-06",
+      clientOrPurpose: "Vendor API Integration Discussion",
+      location: "Dhanmondi 27, Dhaka",
+      route: "Office -> Dhanmondi 27 -> Office",
+      transportMode: "Pathao / Uber",
+      transportCost: 320,
+      lunchOrSnacksCost: 150,
+      actualCost: 470,
+      claimedCost: 300,
+      pocketGap: 170,
+      status: "settled",
+      claimId: "clm-098",
+      notes: "Coffee and snack with vendor tech lead.",
+      accountId: "acc-3"
+    },
+    {
+      id: "trip-106",
+      date: "2026-10-03",
+      clientOrPurpose: "Govt ICT Division High-Level Meeting",
+      location: "BCC Bhaban, Agargaon",
+      route: "Banani -> Agargaon -> Banani",
+      transportMode: "Uber",
+      transportCost: 550,
+      lunchOrSnacksCost: 350,
+      actualCost: 900,
+      claimedCost: 600,
+      pocketGap: 300,
+      status: "settled",
+      claimId: "clm-097",
+      notes: "Agargaon ICT summit coordination.",
+      accountId: "card-2"
+    },
+    {
+      id: "trip-107",
+      date: "2026-09-26",
+      clientOrPurpose: "BracNet Telecom Partner Session",
+      location: "Karwan Bazar, Dhaka",
+      route: "Banani -> Karwan Bazar -> Banani",
+      transportMode: "Uber",
+      transportCost: 450,
+      lunchOrSnacksCost: 250,
+      actualCost: 700,
+      claimedCost: 500,
+      pocketGap: 200,
+      status: "settled",
+      claimId: "clm-097",
+      notes: "Dark fiber leasing consultation.",
+      accountId: "acc-3"
+    }
+  ],
+
+  // Batched Conveyance Claims Submitted to Company
+  conveyanceClaims: [
+    {
+      id: "clm-101",
+      voucherNumber: "VCH-2026-10-01",
+      title: "October First-Half Official Meeting Conveyance",
+      submissionDate: "2026-10-14",
+      period: "01 Oct 2026 – 14 Oct 2026",
+      tripIds: ["trip-102", "trip-103"],
+      totalActualSpent: 1630,
+      totalClaimed: 1000,
+      initialPocketGap: 630,
+      disbursedAmount: 0,
+      companyDeduction: 0,
+      status: "pending_approval",
+      targetAccountId: null,
+      disbursementDate: null,
+      disbursementNote: "Submitted to Accounts department for review."
+    },
+    {
+      id: "clm-098",
+      voucherNumber: "VCH-2026-10-02",
+      title: "Late September & Early October Technical Visits",
+      submissionDate: "2026-10-10",
+      period: "28 Sep 2026 – 09 Oct 2026",
+      tripIds: ["trip-104", "trip-105"],
+      totalActualSpent: 1740,
+      totalClaimed: 1100,
+      initialPocketGap: 640,
+      disbursedAmount: 950,
+      companyDeduction: 150,
+      status: "partially_disbursed",
+      targetAccountId: "acc-3",
+      disbursementDate: "2026-10-13",
+      disbursementNote: "Company accounts deducted ৳150 citing transport policy cap. ৳950 disbursed to bKash."
+    },
+    {
+      id: "clm-097",
+      voucherNumber: "VCH-2026-09-04",
+      title: "September Enterprise Project Conveyance",
+      submissionDate: "2026-09-28",
+      period: "15 Sep 2026 – 27 Sep 2026",
+      tripIds: ["trip-106", "trip-107"],
+      totalActualSpent: 1600,
+      totalClaimed: 1100,
+      initialPocketGap: 500,
+      disbursedAmount: 1100,
+      companyDeduction: 0,
+      status: "fully_disbursed",
+      targetAccountId: "acc-2",
+      disbursementDate: "2026-10-02",
+      disbursementNote: "Full claimed amount ৳1,100 approved and disbursed with salary cycle."
+    }
   ]
 };
 
@@ -1824,3 +2002,4 @@ const SEED_DATA = {
 if (typeof window !== "undefined") {
   window.SEED_DATA = SEED_DATA;
 }
+
