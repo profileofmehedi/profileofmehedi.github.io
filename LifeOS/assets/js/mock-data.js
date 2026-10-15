@@ -1,0 +1,1826 @@
+/**
+ * LifeOS — Mock Seed Dataset
+ * Realistic Bangladesh-oriented personal finance, habits, tasks, routines, and life goals data.
+ * All amounts are in Bangladeshi Taka (BDT, ৳).
+ */
+
+const SEED_DATA = {
+  user: {
+    name: "Mehedi Hasan",
+    email: "demo@lifeos.app",
+    role: "Senior Software Architect",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+    location: "Dhaka, Bangladesh",
+    timezone: "Asia/Dhaka",
+    joinedDate: "2025-01-01",
+    bio: "Passionate about scalable systems, mindful living, and financial independence."
+  },
+
+  settings: {
+    currency: "BDT",
+    currencySymbol: "৳",
+    theme: "light", // 'light' | 'dark'
+    dateFormat: "DD MMM YYYY",
+    firstDayOfWeek: "Sunday",
+    privacyMode: false,
+    defaultPage: "dashboard",
+    notificationSound: true,
+    budgetAlertThreshold: 85
+  },
+
+  accounts: [
+    {
+      id: "acc-1",
+      name: "Prime Bank Savings",
+      institution: "Prime Bank PLC",
+      type: "bank",
+      number: "•••• 4892",
+      balance: 145000,
+      currency: "BDT",
+      color: "#16A36A",
+      icon: "bi-bank",
+      isPreferred: true,
+      hideFromDashboard: false,
+      status: "active",
+      branch: "Gulshan Branch, Dhaka",
+      lastUpdated: "2026-10-15"
+    },
+    {
+      id: "acc-2",
+      name: "BRAC Bank Salary AC",
+      institution: "BRAC Bank PLC",
+      type: "bank",
+      number: "•••• 7134",
+      balance: 92500,
+      currency: "BDT",
+      color: "#635BFF",
+      icon: "bi-bank2",
+      isPreferred: false,
+      hideFromDashboard: false,
+      status: "active",
+      branch: "Banani Branch, Dhaka",
+      lastUpdated: "2026-10-15"
+    },
+    {
+      id: "acc-3",
+      name: "bKash Personal Wallet",
+      institution: "bKash Limited",
+      type: "wallet",
+      number: "017••••5678",
+      balance: 18450,
+      currency: "BDT",
+      color: "#E5484D",
+      icon: "bi-phone",
+      isPreferred: false,
+      hideFromDashboard: false,
+      status: "active",
+      branch: "Mobile MFS",
+      lastUpdated: "2026-10-15"
+    },
+    {
+      id: "acc-4",
+      name: "Nagad Wallet",
+      institution: "Nagad Digital",
+      type: "wallet",
+      number: "018••••9012",
+      balance: 12300,
+      currency: "BDT",
+      color: "#E9A23B",
+      icon: "bi-wallet2",
+      isPreferred: false,
+      hideFromDashboard: false,
+      status: "active",
+      branch: "Postal MFS",
+      lastUpdated: "2026-10-15"
+    },
+    {
+      id: "acc-5",
+      name: "Cash in Hand",
+      institution: "Physical Vault",
+      type: "cash",
+      number: "CASH-VAULT",
+      balance: 14500,
+      currency: "BDT",
+      color: "#0EA5E9",
+      icon: "bi-cash-stack",
+      isPreferred: false,
+      hideFromDashboard: false,
+      status: "active",
+      branch: "Dhaka",
+      lastUpdated: "2026-10-15"
+    }
+  ],
+
+  cards: [
+    {
+      id: "card-1",
+      name: "Visa Platinum Credit",
+      institution: "Standard Chartered Bank",
+      type: "credit",
+      number: "4532 •••• •••• 9018",
+      cardHolder: "MEHEDI HASAN",
+      expiry: "08/28",
+      limit: 200000,
+      outstanding: 34500,
+      availableCredit: 165500,
+      dueDate: "2026-10-25",
+      minPayment: 3500,
+      brand: "visa",
+      gradient: "linear-gradient(135deg, #1E1E2F 0%, #2D3748 100%)",
+      status: "active"
+    },
+    {
+      id: "card-2",
+      name: "Prime Bank FastCash Debit",
+      institution: "Prime Bank PLC",
+      type: "debit",
+      number: "4111 •••• •••• 4892",
+      cardHolder: "MEHEDI HASAN",
+      expiry: "11/29",
+      linkedAccount: "acc-1",
+      brand: "visa",
+      gradient: "linear-gradient(135deg, #16A36A 0%, #065F46 100%)",
+      status: "active"
+    },
+    {
+      id: "card-3",
+      name: "BRAC Bank Signature Debit",
+      institution: "BRAC Bank PLC",
+      type: "debit",
+      number: "4242 •••• •••• 7134",
+      cardHolder: "MEHEDI HASAN",
+      expiry: "04/27",
+      linkedAccount: "acc-2",
+      brand: "visa",
+      gradient: "linear-gradient(135deg, #635BFF 0%, #4338CA 100%)",
+      status: "active"
+    },
+    {
+      id: "card-4",
+      name: "Mastercard World Elite",
+      institution: "City Bank AMEX/MC",
+      type: "credit",
+      number: "5412 •••• •••• 6631",
+      cardHolder: "MEHEDI HASAN",
+      expiry: "12/28",
+      limit: 150000,
+      outstanding: 18200,
+      availableCredit: 131800,
+      dueDate: "2026-11-02",
+      minPayment: 2000,
+      brand: "mastercard",
+      gradient: "linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)",
+      status: "active"
+    }
+  ],
+
+  budgets: [
+    { id: "bud-1", category: "Food & Groceries", limit: 25000, month: "2026-10", icon: "bi-cart3", color: "#10B981" },
+    { id: "bud-2", category: "Housing & Rent", limit: 35000, month: "2026-10", icon: "bi-house-door", color: "#6366F1" },
+    { id: "bud-3", category: "Utilities & Bills", limit: 8000, month: "2026-10", icon: "bi-lightning-charge", color: "#F59E0B" },
+    { id: "bud-4", category: "Transport & Fuel", limit: 10000, month: "2026-10", icon: "bi-car-front", color: "#3B82F6" },
+    { id: "bud-5", category: "Dining Out & Cafes", limit: 12000, month: "2026-10", icon: "bi-cup-hot", color: "#EC4899" },
+    { id: "bud-6", category: "Shopping & Tech", limit: 15000, month: "2026-10", icon: "bi-bag-check", color: "#8B5CF6" },
+    { id: "bud-7", category: "Healthcare & Medicine", limit: 6000, month: "2026-10", icon: "bi-heart-pulse", color: "#EF4444" },
+    { id: "bud-8", category: "Subscriptions & SaaS", limit: 4500, month: "2026-10", icon: "bi-collection-play", color: "#06B6D4" },
+    { id: "bud-9", category: "Family & Childcare", limit: 12000, month: "2026-10", icon: "bi-people", color: "#14B8A6" },
+    { id: "bud-10", category: "Education & Books", limit: 5000, month: "2026-10", icon: "bi-journal-bookmark", color: "#F97316" }
+  ],
+
+  savingsGoals: [
+    {
+      id: "sav-1",
+      name: "Emergency Fund (6 Months)",
+      targetAmount: 500000,
+      currentAmount: 345000,
+      targetDate: "2027-03-31",
+      priority: "High",
+      category: "Security",
+      description: "Liquid reserve covering 6 months of family living expenses in high-yield account.",
+      icon: "bi-shield-shaded",
+      color: "#10B981",
+      contributions: [
+        { date: "2026-06-01", amount: 25000, note: "Initial setup" },
+        { date: "2026-07-02", amount: 20000, note: "Monthly contribution" },
+        { date: "2026-08-01", amount: 20000, note: "Monthly contribution" },
+        { date: "2026-09-01", amount: 20000, note: "Monthly contribution" },
+        { date: "2026-10-02", amount: 25000, note: "Salary bonus allocation" }
+      ]
+    },
+    {
+      id: "sav-2",
+      name: "MacBook Pro M4 Max",
+      targetAmount: 280000,
+      currentAmount: 215000,
+      targetDate: "2026-12-20",
+      priority: "High",
+      category: "Tech",
+      description: "Next-gen flagship laptop workstation for heavy AI coding and local LLM execution.",
+      icon: "bi-laptop",
+      color: "#635BFF",
+      contributions: [
+        { date: "2026-07-15", amount: 60000, note: "Freelance project bonus" },
+        { date: "2026-08-15", amount: 50000, note: "Consulting fee" },
+        { date: "2026-09-15", amount: 55000, note: "Q3 bonus" },
+        { date: "2026-10-05", amount: 50000, note: "Monthly allocation" }
+      ]
+    },
+    {
+      id: "sav-3",
+      name: "Family Vacation to Cox's Bazar",
+      targetAmount: 60000,
+      currentAmount: 48000,
+      targetDate: "2026-11-25",
+      priority: "Medium",
+      category: "Travel",
+      description: "Luxury stay at Sayeman Beach Resort with family for winter holiday relaxation.",
+      icon: "bi-sun",
+      color: "#F59E0B",
+      contributions: [
+        { date: "2026-08-10", amount: 15000, note: "Travel deposit" },
+        { date: "2026-09-10", amount: 15000, note: "September installment" },
+        { date: "2026-10-08", amount: 18000, note: "October installment" }
+      ]
+    },
+    {
+      id: "sav-4",
+      name: "Dhaka Apartment Down Payment",
+      targetAmount: 2500000,
+      currentAmount: 780000,
+      targetDate: "2029-06-30",
+      priority: "High",
+      category: "Asset",
+      description: "Down payment allocation for a 3-bedroom residential apartment in Bashundhara R/A.",
+      icon: "bi-building",
+      color: "#3B82F6",
+      contributions: [
+        { date: "2026-05-01", amount: 150000, note: "Lump sum fixed deposit" },
+        { date: "2026-07-01", amount: 40000, note: "Quarterly savings" },
+        { date: "2026-10-01", amount: 40000, note: "Q4 savings" }
+      ]
+    },
+    {
+      id: "sav-5",
+      name: "Angel & Tech Investment Fund",
+      targetAmount: 350000,
+      currentAmount: 165000,
+      targetDate: "2027-06-30",
+      priority: "Low",
+      category: "Investment",
+      description: "Discretionary pool for local Bangladeshi tech startup seed syndicate investments.",
+      icon: "bi-graph-up-arrow",
+      color: "#EC4899",
+      contributions: [
+        { date: "2026-06-15", amount: 50000, note: "Seed fund pool" },
+        { date: "2026-09-15", amount: 40000, note: "Dividend re-investment" },
+        { date: "2026-10-10", amount: 25000, note: "Consulting surplus" }
+      ]
+    }
+  ],
+
+  habits: [
+    {
+      id: "hab-1",
+      name: "Wake up at 6:00 AM",
+      icon: "bi-alarm",
+      category: "Morning",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "06:00",
+      startDate: "2026-01-01",
+      active: true,
+      color: "#F59E0B",
+      notes: "Early sunrise, cold water face wash, light stretching.",
+      completedDates: [
+        "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20",
+        "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26",
+        "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01",
+        "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06",
+        "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11",
+        "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15"
+      ]
+    },
+    {
+      id: "hab-2",
+      name: "Drink 3 Liters of Water",
+      icon: "bi-droplet-fill",
+      category: "Health",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "11:00",
+      startDate: "2026-01-01",
+      active: true,
+      color: "#06B6D4",
+      notes: "Keep 1L stainless bottle at desk, refill 3 times.",
+      completedDates: [
+        "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22",
+        "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27",
+        "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02",
+        "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07",
+        "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12",
+        "2026-10-13", "2026-10-14", "2026-10-15"
+      ]
+    },
+    {
+      id: "hab-3",
+      name: "30 Min Physical Workout / Walk",
+      icon: "bi-activity",
+      category: "Fitness",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "07:00",
+      startDate: "2026-02-01",
+      active: true,
+      color: "#10B981",
+      notes: "Cardio, dumbbell training, or brisk park walk.",
+      completedDates: [
+        "2026-09-17", "2026-09-19", "2026-09-21", "2026-09-23", "2026-09-25",
+        "2026-09-26", "2026-09-28", "2026-09-30", "2026-10-02", "2026-10-04",
+        "2026-10-06", "2026-10-08", "2026-10-10", "2026-10-12", "2026-10-14",
+        "2026-10-15"
+      ]
+    },
+    {
+      id: "hab-4",
+      name: "Read 20 Mins (Tech / Philosophy)",
+      icon: "bi-book-half",
+      category: "Learning",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "21:30",
+      startDate: "2026-01-15",
+      active: true,
+      color: "#8B5CF6",
+      notes: "Currently reading Designing Data-Intensive Applications.",
+      completedDates: [
+        "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20",
+        "2026-09-21", "2026-09-22", "2026-09-24", "2026-09-25", "2026-09-26",
+        "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01",
+        "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07",
+        "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12",
+        "2026-10-13", "2026-10-14", "2026-10-15"
+      ]
+    },
+    {
+      id: "hab-5",
+      name: "Deep Focus Coding (2 Hours)",
+      icon: "bi-code-slash",
+      category: "Work",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "10:00",
+      startDate: "2026-01-01",
+      active: true,
+      color: "#635BFF",
+      notes: "No Slack, no meetings, pure architectural implementation.",
+      completedDates: [
+        "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-21",
+        "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-28",
+        "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-05",
+        "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-12",
+        "2026-10-13", "2026-10-14", "2026-10-15"
+      ]
+    },
+    {
+      id: "hab-6",
+      name: "Track Daily Expenses in LifeOS",
+      icon: "bi-cash-coin",
+      category: "Finance",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "22:00",
+      startDate: "2026-01-01",
+      active: true,
+      color: "#16A36A",
+      notes: "Log all receipts, cash exchanges, and card swipes.",
+      completedDates: [
+        "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20",
+        "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25",
+        "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30",
+        "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05",
+        "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10",
+        "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15"
+      ]
+    },
+    {
+      id: "hab-7",
+      name: "No Impulsive Shopping",
+      icon: "bi-shield-check",
+      category: "Finance",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "20:00",
+      startDate: "2026-03-01",
+      active: true,
+      color: "#3B82F6",
+      notes: "Wait 48 hours before purchasing non-essential items.",
+      completedDates: [
+        "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20",
+        "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25",
+        "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01",
+        "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06",
+        "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-11", "2026-10-12",
+        "2026-10-13", "2026-10-14", "2026-10-15"
+      ]
+    },
+    {
+      id: "hab-8",
+      name: "Sleep by 11:30 PM",
+      icon: "bi-moon-stars",
+      category: "Health",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "23:00",
+      startDate: "2026-01-01",
+      active: true,
+      color: "#6366F1",
+      notes: "Screens off at 11:00 PM. Dark cool room.",
+      completedDates: [
+        "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23",
+        "2026-09-24", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29",
+        "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-04", "2026-10-05",
+        "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-10", "2026-10-11",
+        "2026-10-12", "2026-10-13", "2026-10-14"
+      ]
+    },
+    {
+      id: "hab-9",
+      name: "Family Quality Time (1 Hr)",
+      icon: "bi-heart-fill",
+      category: "Personal",
+      frequency: "daily",
+      targetCount: 1,
+      reminderTime: "19:00",
+      startDate: "2026-01-01",
+      active: true,
+      color: "#EC4899",
+      notes: "Dinner conversation and playtime with kids, no phones.",
+      completedDates: [
+        "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20",
+        "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25",
+        "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30",
+        "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05",
+        "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10",
+        "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15"
+      ]
+    }
+  ],
+
+  tasks: [
+    {
+      id: "tsk-1",
+      title: "Review Q4 Distributed Architecture RFC",
+      description: "Complete security audit and multi-region failover review for microservices.",
+      category: "Work",
+      priority: "Urgent",
+      dueDate: "2026-10-15",
+      dueTime: "15:00",
+      status: "in_progress",
+      notes: "Check latency benchmarks under simulated Dhaka-Singapore routing."
+    },
+    {
+      id: "tsk-2",
+      title: "Pay DESCO Electricity Bill",
+      description: "Pay online via bKash or Prime Bank utility portal before the 18th.",
+      category: "Finance",
+      priority: "High",
+      dueDate: "2026-10-16",
+      dueTime: "12:00",
+      status: "todo",
+      notes: "Consumer No: 3948201."
+    },
+    {
+      id: "tsk-3",
+      title: "Prepare Monthly Team One-on-Ones",
+      description: "Review engineering KPI goals, career progression, and sprint feedback.",
+      category: "Work",
+      priority: "Medium",
+      dueDate: "2026-10-17",
+      dueTime: "11:00",
+      status: "todo",
+      notes: "Focus on mentoring mid-level fullstack devs."
+    },
+    {
+      id: "tsk-4",
+      title: "Reconcile Prime & BRAC Bank Statements",
+      description: "Match all debit card swipes with LifeOS ledger entries.",
+      category: "Finance",
+      priority: "Medium",
+      dueDate: "2026-10-15",
+      dueTime: "18:00",
+      status: "completed",
+      notes: "All ৳ values balanced."
+    },
+    {
+      id: "tsk-5",
+      title: "Book Cox's Bazar Resort Suite",
+      description: "Reserve ocean-view family suite at Sayeman Beach Resort for Nov 20th.",
+      category: "Personal",
+      priority: "High",
+      dueDate: "2026-10-20",
+      dueTime: "16:00",
+      status: "in_progress",
+      notes: "Check Visa Platinum discount vouchers."
+    },
+    {
+      id: "tsk-6",
+      title: "Renew Domain & AWS Cloudflare SSL",
+      description: "Annual renewal of profileofmehedi.github.io assets and custom domains.",
+      category: "Tech",
+      priority: "Low",
+      dueDate: "2026-10-22",
+      dueTime: "20:00",
+      status: "todo",
+      notes: "Use Mastercard World Elite."
+    },
+    {
+      id: "tsk-7",
+      title: "Buy Weekly Unimart Groceries",
+      description: "Fresh fruits, olive oil, organic milk, oats, and Greek yogurt.",
+      category: "Home",
+      priority: "Medium",
+      dueDate: "2026-10-15",
+      dueTime: "19:30",
+      status: "completed",
+      notes: "Paid ৳4,850 via bKash."
+    },
+    {
+      id: "tsk-8",
+      title: "Review LifeOS Frontend PR",
+      description: "Verify responsive navigation, Three.js canvas, and BDT formatting.",
+      category: "Tech",
+      priority: "Urgent",
+      dueDate: "2026-10-15",
+      dueTime: "21:00",
+      status: "in_progress",
+      notes: "Ensure zero horizontal overflow on Android mobile."
+    },
+    {
+      id: "tsk-9",
+      title: "Schedule Dental Checkup",
+      description: "Routine cleaning and checkup at Apollo/Evercare Hospital Dhaka.",
+      category: "Health",
+      priority: "Medium",
+      dueDate: "2026-10-24",
+      dueTime: "10:00",
+      status: "todo",
+      notes: "Book morning slot."
+    },
+    {
+      id: "tsk-10",
+      title: "Update Investment Portfolio Sheet",
+      description: "Record monthly DPS, mutual fund yields, and gold bullion valuation.",
+      category: "Finance",
+      priority: "Low",
+      dueDate: "2026-10-28",
+      dueTime: "22:00",
+      status: "todo",
+      notes: "Compare against 12% inflation baseline."
+    },
+    {
+      id: "tsk-11",
+      title: "Read Chapter 4 of System Design Volume 2",
+      description: "Distributed cache architectures and write-through patterns.",
+      category: "Learning",
+      priority: "Medium",
+      dueDate: "2026-10-16",
+      dueTime: "22:30",
+      status: "todo",
+      notes: "Take digital notes in Obsidian."
+    },
+    {
+      id: "tsk-12",
+      title: "Clean and Organize Home Office Setup",
+      description: "Cable management, clean mechanical keyboard, wipe monitor screen.",
+      category: "Home",
+      priority: "Low",
+      dueDate: "2026-10-18",
+      dueTime: "17:00",
+      status: "todo",
+      notes: "Ergonomics boost."
+    }
+  ],
+
+  routines: [
+    {
+      id: "rou-1",
+      name: "Morning Miracle Routine",
+      period: "06:00 AM – 07:45 AM",
+      description: "Sets the biological and psychological tone for deep productive focus.",
+      icon: "bi-sunrise",
+      color: "#F59E0B",
+      steps: [
+        { id: "s-1", title: "Hydrate with 500ml water + Himalayan pink salt", duration: "5 mins", completed: true },
+        { id: "s-2", title: "Morning stretch & 20 min brisk bodyweight workout", duration: "25 mins", completed: true },
+        { id: "s-3", title: "Cold shower and grooming", duration: "15 mins", completed: true },
+        { id: "s-4", title: "Nutritious protein breakfast & black coffee", duration: "25 mins", completed: true },
+        { id: "s-5", title: "Review LifeOS My Day priorities & calendar", duration: "10 mins", completed: true }
+      ]
+    },
+    {
+      id: "rou-2",
+      name: "Deep Work Sprint (Morning)",
+      period: "09:30 AM – 12:30 PM",
+      description: "High-leverage uninterrupted engineering and architecture execution.",
+      icon: "bi-lightning",
+      color: "#635BFF",
+      steps: [
+        { id: "s-6", title: "Eliminate notifications, close social & email tabs", duration: "5 mins", completed: true },
+        { id: "s-7", title: "Execute priority #1 architectural task (90 min block)", duration: "90 mins", completed: true },
+        { id: "s-8", title: "10-minute eye relaxation and water refill", duration: "10 mins", completed: false },
+        { id: "s-9", title: "Code review & pull request merges (45 mins)", duration: "45 mins", completed: false }
+      ]
+    },
+    {
+      id: "rou-3",
+      name: "Evening Wind-down Routine",
+      period: "09:30 PM – 10:45 PM",
+      description: "Calm mental transition from engineering stress to restorative sleep.",
+      icon: "bi-moon",
+      color: "#6366F1",
+      steps: [
+        { id: "s-10", title: "Record all daily expenses & review budget in LifeOS", duration: "10 mins", completed: false },
+        { id: "s-11", title: "Write daily reflection and gratitude journal", duration: "10 mins", completed: false },
+        { id: "s-12", title: "20 minutes reading physical book", duration: "20 mins", completed: false },
+        { id: "s-13", title: "Turn off phone wifi, dim bedroom lights", duration: "5 mins", completed: false }
+      ]
+    },
+    {
+      id: "rou-4",
+      name: "Weekly Financial Review",
+      period: "Sunday 08:00 PM – 09:00 PM",
+      description: "Weekly audit of personal cashflow, card liabilities, and savings goals.",
+      icon: "bi-graph-up",
+      color: "#16A36A",
+      steps: [
+        { id: "s-14", title: "Reconcile Prime Bank, BRAC Bank, bKash & Nagad", duration: "15 mins", completed: true },
+        { id: "s-15", title: "Check credit card outstanding balances & payment schedules", duration: "15 mins", completed: true },
+        { id: "s-16", title: "Calculate weekly burn rate vs category limits", duration: "15 mins", completed: true },
+        { id: "s-17", title: "Top up Emergency & Tech savings goals", duration: "15 mins", completed: true }
+      ]
+    }
+  ],
+
+  calendarEvents: [
+    {
+      id: "evt-1",
+      title: "Monthly Salary Credit (BRAC Bank)",
+      category: "Finance",
+      date: "2026-10-01",
+      time: "09:00",
+      type: "income",
+      badgeColor: "#10B981"
+    },
+    {
+      id: "evt-2",
+      title: "House Rent Transfer to Landlord",
+      category: "Bills",
+      date: "2026-10-05",
+      time: "10:00",
+      type: "bill",
+      badgeColor: "#EF4444"
+    },
+    {
+      id: "evt-3",
+      title: "Distributed Architecture Sync",
+      category: "Meeting",
+      date: "2026-10-15",
+      time: "14:00",
+      type: "meeting",
+      badgeColor: "#635BFF"
+    },
+    {
+      id: "evt-4",
+      title: "DESCO Electricity Due Date",
+      category: "Bills",
+      date: "2026-10-18",
+      time: "17:00",
+      type: "bill",
+      badgeColor: "#F59E0B"
+    },
+    {
+      id: "evt-5",
+      title: "Standard Chartered Credit Card Due",
+      category: "Finance",
+      date: "2026-10-25",
+      time: "18:00",
+      type: "bill",
+      badgeColor: "#EF4444"
+    },
+    {
+      id: "evt-6",
+      title: "Weekly Engineering Sprint Planning",
+      category: "Meeting",
+      date: "2026-10-19",
+      time: "10:30",
+      type: "meeting",
+      badgeColor: "#3B82F6"
+    },
+    {
+      id: "evt-7",
+      title: "Tech Meetup Dhaka 2026",
+      category: "Personal",
+      date: "2026-10-24",
+      time: "15:00",
+      type: "event",
+      badgeColor: "#8B5CF6"
+    },
+    {
+      id: "evt-8",
+      title: "Family Weekend Dinner at Lake Terrace",
+      category: "Personal",
+      date: "2026-10-16",
+      time: "20:00",
+      type: "event",
+      badgeColor: "#EC4899"
+    },
+    {
+      id: "evt-9",
+      title: "Link3 High-Speed Fiber Bill Due",
+      category: "Bills",
+      date: "2026-10-20",
+      time: "12:00",
+      type: "bill",
+      badgeColor: "#F59E0B"
+    },
+    {
+      id: "evt-10",
+      title: "Quarterly Investment Portfolio Review",
+      category: "Finance",
+      date: "2026-10-30",
+      time: "19:00",
+      type: "event",
+      badgeColor: "#10B981"
+    }
+  ],
+
+  lifeGoals: [
+    {
+      id: "lg-1",
+      title: "Promote to Senior Staff Engineer / VP of Architecture",
+      category: "Career",
+      targetDate: "2027-01-31",
+      priority: "High",
+      status: "in_progress",
+      progress: 75,
+      description: "Spearhead enterprise multi-cloud transition and establish engineering excellence benchmarks.",
+      milestones: [
+        { title: "Complete Global Distributed Systems certification", done: true },
+        { title: "Deliver multi-region latency reduction initiative (<50ms)", done: true },
+        { title: "Mentor 4 Senior Engineers to Lead roles", done: true },
+        { title: "Publish 2 engineering thought leadership whitepapers", done: false }
+      ],
+      notes: "Executive committee presentation scheduled for Q4."
+    },
+    {
+      id: "lg-2",
+      title: "Achieve ৳2.5M Liquid Net Worth",
+      category: "Finance",
+      targetDate: "2027-12-31",
+      priority: "High",
+      status: "in_progress",
+      progress: 62,
+      description: "Maintain a disciplined 45%+ monthly savings rate invested in diverse growth assets.",
+      milestones: [
+        { title: "Emergency fund reaches 6 months baseline (৳500k)", done: true },
+        { title: "Clear all non-mortgage liabilities each billing cycle", done: true },
+        { title: "Accumulate ৳1.5M in high-yield assets", done: false },
+        { title: "Reach ৳2.5M target milestone", done: false }
+      ],
+      notes: "Compound interest snowball in full effect."
+    },
+    {
+      id: "lg-3",
+      title: "Complete 10K Marathon in Hatirjheel",
+      category: "Health & Fitness",
+      targetDate: "2026-12-15",
+      priority: "Medium",
+      status: "in_progress",
+      progress: 70,
+      description: "Consistently run 3 times weekly, building stamina for sub-50 minute 10k finish.",
+      milestones: [
+        { title: "Run continuous 3km without stopping", done: true },
+        { title: "Reach 5km milestone in under 26 mins", done: true },
+        { title: "Complete 8km trial run around Dhanmondi Lake", done: false },
+        { title: "Hatirjheel 10k official run", done: false }
+      ],
+      notes: "Cardio VO2 max improved by 8% this quarter."
+    },
+    {
+      id: "lg-4",
+      title: "Launch Open Source Developer Platform",
+      category: "Learning",
+      targetDate: "2027-04-30",
+      priority: "Medium",
+      status: "in_progress",
+      progress: 45,
+      description: "Build an accessible, high-performance developer toolkit for Bangladeshi software engineers.",
+      milestones: [
+        { title: "Core architecture and API schema design", done: true },
+        { title: "Complete MVP frontend and CLI utilities", done: false },
+        { title: "100 alpha community testers on GitHub", done: false },
+        { title: "Reach 1,000 GitHub stars", done: false }
+      ],
+      notes: "Community interest is very positive."
+    },
+    {
+      id: "lg-5",
+      title: "Cultivate Mindfulness & Habit Consistency",
+      category: "Personal Growth",
+      targetDate: "2026-12-31",
+      priority: "Medium",
+      status: "in_progress",
+      progress: 85,
+      description: "Maintain 85%+ overall habit score across all wellness and productivity metrics.",
+      milestones: [
+        { title: "30-day continuous meditation streak", done: true },
+        { title: "Read 12 books in 2026 (currently at 9)", done: true },
+        { title: "Digital detox weekends once a month", done: true },
+        { title: "Achieve 90% life satisfaction rating", done: false }
+      ],
+      notes: "Feeling grounded, calm, and purposeful."
+    }
+  ],
+
+  journalEntries: [
+    {
+      id: "jou-1",
+      date: "2026-10-15",
+      time: "20:30",
+      mood: "great", // 'great' | 'good' | 'neutral' | 'tired' | 'stressed'
+      moodScore: 5,
+      title: "Productive Breakthrough on LifeOS Architecture",
+      content: "Today was exceptional. Solved the reactive data binding and decoupled state storage without introducing heavy framework overhead. Financial metrics are now perfectly synchronized between bank accounts, credit card liabilities, and budget limits. Life feels structured and under control.",
+      tags: ["Achievement", "Coding", "Mindset"],
+      gratitude: "Grateful for deep uninterrupted focus time and a supportive family.",
+      prioritiesTomorrow: "1. Finalize Q4 RFC presentation. 2. 5km morning run. 3. Family dinner."
+    },
+    {
+      id: "jou-2",
+      date: "2026-10-14",
+      time: "21:45",
+      mood: "good",
+      moodScore: 4,
+      title: "Disciplined Day in Dhaka Autumn",
+      content: "Weather in Dhaka is finally cooling down in mid-October. Completed all morning workout sets and hit 3 liters of water intake. Managed to resist impulsive tech gadget browsing online. Saved an extra ৳5,000 towards the vacation goal.",
+      tags: ["Fitness", "Discipline", "Finance"],
+      gratitude: "Grateful for good health, clear air this morning, and warm tea.",
+      prioritiesTomorrow: "Complete architectural review and check savings balance."
+    },
+    {
+      id: "jou-3",
+      date: "2026-10-12",
+      time: "22:15",
+      mood: "neutral",
+      moodScore: 3,
+      title: "Navigating Dhaka Traffic & Long Meetings",
+      content: "Dhaka traffic on Airport Road was brutal today—spent nearly two hours commuting. Used the time fruitfully listening to a distributed systems podcast. Work meetings ran longer than expected, but managed to close three high-priority blockers.",
+      tags: ["Work", "Reflections"],
+      gratitude: "Grateful for noise-canceling headphones and audiobooks.",
+      prioritiesTomorrow: "Focus on solo deep engineering work."
+    },
+    {
+      id: "jou-4",
+      date: "2026-10-10",
+      time: "21:00",
+      mood: "great",
+      moodScore: 5,
+      title: "Weekend Harmony with Family",
+      content: "Took the weekend completely off work. Spent delightful hours in the afternoon walking through the park with family, eating fuchka, and laughing together. It reminds me why financial freedom and life balance are the ultimate goals.",
+      tags: ["Family", "Happiness", "Balance"],
+      gratitude: "Family laughter and peaceful evenings.",
+      prioritiesTomorrow: "Review upcoming weekly tasks and schedule sprint planning."
+    },
+    {
+      id: "jou-5",
+      date: "2026-10-06",
+      time: "22:00",
+      mood: "good",
+      moodScore: 4,
+      title: "Monthly Budget Audit Completed",
+      content: "Analyzed September spending patterns. Groceries were well within budget (৳23,400 spent of ৳25,000 limit). Saved ৳35,000 directly into the Emergency Fund. The system works when you inspect it regularly.",
+      tags: ["Finance", "Audit", "Habits"],
+      gratitude: "Financial stability and having clear visibility of every Taka.",
+      prioritiesTomorrow: "Pay internet utility and schedule team reviews."
+    }
+  ],
+
+  notifications: [
+    {
+      id: "notif-1",
+      title: "Credit Card Payment Reminder",
+      message: "Standard Chartered Visa Platinum bill of ৳34,500 is due on 25 Oct 2026.",
+      type: "warning",
+      icon: "bi-credit-card",
+      timestamp: "2026-10-15 14:00",
+      read: false,
+      actionUrl: "#accounts"
+    },
+    {
+      id: "notif-2",
+      title: "Budget Warning: Dining Out",
+      message: "You have utilized 85% (৳10,200 / ৳12,000) of your Dining Out monthly budget.",
+      type: "alert",
+      icon: "bi-exclamation-triangle",
+      timestamp: "2026-10-14 19:30",
+      read: false,
+      actionUrl: "#budgets"
+    },
+    {
+      id: "notif-3",
+      title: "Habit Streak Milestone!",
+      message: "Incredible! You have reached a 30-day streak on 'Log All Expenses in LifeOS'.",
+      type: "success",
+      icon: "bi-trophy",
+      timestamp: "2026-10-15 08:00",
+      read: false,
+      actionUrl: "#habits"
+    },
+    {
+      id: "notif-4",
+      title: "Savings Goal Update",
+      message: "MacBook Pro M4 goal has reached 77% progress! Only ৳65,000 remaining.",
+      type: "info",
+      icon: "bi-piggy-bank",
+      timestamp: "2026-10-13 11:15",
+      read: true,
+      actionUrl: "#savings"
+    },
+    {
+      id: "notif-5",
+      title: "DESCO Electricity Bill Due Soon",
+      message: "Electricity bill estimated at ৳4,250 is due by 18 Oct 2026.",
+      type: "warning",
+      icon: "bi-lightning-charge",
+      timestamp: "2026-10-12 09:00",
+      read: true,
+      actionUrl: "#transactions"
+    },
+    {
+      id: "notif-6",
+      title: "Weekly Financial Summary Ready",
+      message: "Your net worth increased by +2.8% this week. Total savings rate at 42%.",
+      type: "info",
+      icon: "bi-graph-up",
+      timestamp: "2026-10-11 20:00",
+      read: true,
+      actionUrl: "#reports"
+    }
+  ],
+
+  // 60+ Coherent Transactions spanning May to Oct 2026
+  transactions: [
+    // October 2026
+    {
+      id: "tx-101",
+      date: "2026-10-15",
+      type: "expense",
+      description: "Unimart Grocery & Fresh Produce",
+      amount: 4850,
+      category: "Food & Groceries",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "Unimart Gulshan",
+      tags: ["Groceries", "Organic"],
+      notes: "Weekly family grocery stockup."
+    },
+    {
+      id: "tx-102",
+      date: "2026-10-15",
+      type: "expense",
+      description: "North End Coffee Roasters",
+      amount: 450,
+      category: "Dining Out & Cafes",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "North End Coffee",
+      tags: ["Coffee", "Work"],
+      notes: "Cappuccino and almond croissant."
+    },
+    {
+      id: "tx-103",
+      date: "2026-10-14",
+      type: "expense",
+      description: "Uber Premium Ride (Gulshan to Dhanmondi)",
+      amount: 680,
+      category: "Transport & Fuel",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Uber Bangladesh",
+      tags: ["Commute"],
+      notes: "Client meeting travel."
+    },
+    {
+      id: "tx-104",
+      date: "2026-10-13",
+      type: "expense",
+      description: "Lazz Pharma Prescriptions",
+      amount: 1450,
+      category: "Healthcare & Medicine",
+      accountId: "acc-5",
+      method: "Cash",
+      merchant: "Lazz Pharma",
+      tags: ["Health", "Medicine"],
+      notes: "Vitamins and first aid supplies."
+    },
+    {
+      id: "tx-105",
+      date: "2026-10-12",
+      type: "transfer",
+      description: "Bank Transfer: Prime to bKash Wallet",
+      amount: 15000,
+      category: "Transfer",
+      accountId: "acc-1",
+      destinationAccountId: "acc-3",
+      method: "Digital Transfer",
+      merchant: "Internal Transfer",
+      tags: ["Topup"],
+      notes: "Wallet topup for household expenses."
+    },
+    {
+      id: "tx-106",
+      date: "2026-10-10",
+      type: "expense",
+      description: "Takeout Dinner from Madchef",
+      amount: 1850,
+      category: "Dining Out & Cafes",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Madchef Burgers",
+      tags: ["Dining", "Family"],
+      notes: "Family weekend treat."
+    },
+    {
+      id: "tx-107",
+      date: "2026-10-09",
+      type: "savings",
+      description: "Contribution to Cox's Bazar Vacation",
+      amount: 18000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-3",
+      method: "Auto Allocation",
+      merchant: "Savings Reserve",
+      tags: ["Vacation", "Savings"],
+      notes: "Allocated from October consulting payment."
+    },
+    {
+      id: "tx-108",
+      date: "2026-10-08",
+      type: "income",
+      description: "Freelance Architecture Advisory",
+      amount: 38000,
+      category: "Freelance & Consulting",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Fintech Client UK",
+      tags: ["Advisory", "Consulting"],
+      notes: "High-throughput cloud architecture design advisory."
+    },
+    {
+      id: "tx-109",
+      date: "2026-10-05",
+      type: "expense",
+      description: "House Rent - Apartment 5B",
+      amount: 35000,
+      category: "Housing & Rent",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Property Landlord",
+      tags: ["Rent", "Housing"],
+      notes: "October residential rent."
+    },
+    {
+      id: "tx-110",
+      date: "2026-10-05",
+      type: "savings",
+      description: "MacBook Pro M4 Savings Goal Topup",
+      amount: 50000,
+      category: "Savings Contribution",
+      accountId: "acc-2",
+      savingsGoalId: "sav-2",
+      method: "Bank Allocation",
+      merchant: "Apple Reserve",
+      tags: ["Tech", "Savings"],
+      notes: "Monthly tech gear allocation."
+    },
+    {
+      id: "tx-111",
+      date: "2026-10-04",
+      type: "expense",
+      description: "Shwapno Supermarket Grocery",
+      amount: 3200,
+      category: "Food & Groceries",
+      accountId: "card-2",
+      method: "Debit Card",
+      merchant: "Shwapno Banani",
+      tags: ["Groceries"],
+      notes: "Household goods and pantry supplies."
+    },
+    {
+      id: "tx-112",
+      date: "2026-10-03",
+      type: "expense",
+      description: "Link3 High-Speed Fiber Internet",
+      amount: 2500,
+      category: "Utilities & Bills",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "Link3 Technologies",
+      tags: ["Utility", "Internet"],
+      notes: "100Mbps dedicated corporate connection."
+    },
+    {
+      id: "tx-113",
+      date: "2026-10-02",
+      type: "savings",
+      description: "Emergency Fund Monthly Contribution",
+      amount: 25000,
+      category: "Savings Contribution",
+      accountId: "acc-2",
+      savingsGoalId: "sav-1",
+      method: "Direct Deposit",
+      merchant: "Prime Bank DPS",
+      tags: ["EmergencyFund", "Security"],
+      notes: "Emergency fund safety allocation."
+    },
+    {
+      id: "tx-114",
+      date: "2026-10-01",
+      type: "income",
+      description: "Monthly Base Salary Credit",
+      amount: 145000,
+      category: "Salary",
+      accountId: "acc-2",
+      method: "Direct Deposit",
+      merchant: "Tech Corp International",
+      tags: ["Salary", "Primary"],
+      notes: "October corporate executive architect salary."
+    },
+    {
+      id: "tx-115",
+      date: "2026-10-01",
+      type: "debt_payment",
+      description: "Standard Chartered Credit Card Settlement",
+      amount: 28000,
+      category: "Credit Card Payment",
+      accountId: "acc-2",
+      cardId: "card-1",
+      method: "Bank BillPay",
+      merchant: "Standard Chartered",
+      tags: ["CardPayment"],
+      notes: "Paid September card balance in full."
+    },
+
+    // September 2026
+    {
+      id: "tx-116",
+      date: "2026-09-30",
+      type: "expense",
+      description: "GitHub Copilot Enterprise & Claude Subscriptions",
+      amount: 4200,
+      category: "Subscriptions & SaaS",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "GitHub & Anthropic",
+      tags: ["SaaS", "DevTools"],
+      notes: "Monthly AI coding productivity tools."
+    },
+    {
+      id: "tx-117",
+      date: "2026-09-28",
+      type: "expense",
+      description: "Octane Fuel Fillup - Shell/Meghna",
+      amount: 4500,
+      category: "Transport & Fuel",
+      accountId: "card-2",
+      method: "Debit Card",
+      merchant: "Meghna Petroleum",
+      tags: ["Fuel", "Car"],
+      notes: "Full tank sedan octane."
+    },
+    {
+      id: "tx-118",
+      date: "2026-09-26",
+      type: "expense",
+      description: "Aarong Family Clothing & Gift",
+      amount: 6800,
+      category: "Shopping & Tech",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Aarong Gulshan",
+      tags: ["Shopping", "Family"],
+      notes: "Festive panjabi and traditional wear."
+    },
+    {
+      id: "tx-119",
+      date: "2026-09-24",
+      type: "expense",
+      description: "Beximco Gas Cylinder Refill",
+      amount: 1600,
+      category: "Utilities & Bills",
+      accountId: "acc-5",
+      method: "Cash",
+      merchant: "Beximco LPG Dealer",
+      tags: ["Kitchen", "Gas"],
+      notes: "12kg cylinder delivery."
+    },
+    {
+      id: "tx-120",
+      date: "2026-09-22",
+      type: "expense",
+      description: "Unimart Superstore Monthly Goods",
+      amount: 11200,
+      category: "Food & Groceries",
+      accountId: "card-2",
+      method: "Debit Card",
+      merchant: "Unimart",
+      tags: ["Groceries"],
+      notes: "Rice, oil, spices, and cleaning supplies."
+    },
+    {
+      id: "tx-121",
+      date: "2026-09-20",
+      type: "income",
+      description: "Tech Seminar Speaker Honorarium",
+      amount: 20000,
+      category: "Freelance & Consulting",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Dhaka Software Forum",
+      tags: ["Speaking", "Tech"],
+      notes: "Keynote lecture on High-Performance Web Architecture."
+    },
+    {
+      id: "tx-122",
+      date: "2026-09-18",
+      type: "expense",
+      description: "DESCO Electricity Bill",
+      amount: 3850,
+      category: "Utilities & Bills",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "DESCO Online",
+      tags: ["Utility", "Electricity"],
+      notes: "September AC and home appliances."
+    },
+    {
+      id: "tx-123",
+      date: "2026-09-15",
+      type: "savings",
+      description: "MacBook Pro M4 Savings Goal Allocation",
+      amount: 55000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-2",
+      method: "Internal Allocation",
+      merchant: "Apple Reserve",
+      tags: ["Savings"],
+      notes: "Q3 bonus transfer."
+    },
+    {
+      id: "tx-124",
+      date: "2026-09-15",
+      type: "transfer",
+      description: "BRAC Bank to Prime Bank Savings Transfer",
+      amount: 30000,
+      category: "Transfer",
+      accountId: "acc-2",
+      destinationAccountId: "acc-1",
+      method: "BEFTN / NPSB",
+      merchant: "Self Transfer",
+      tags: ["SavingsTransfer"],
+      notes: "Reallocating liquid cash to high-interest savings."
+    },
+    {
+      id: "tx-125",
+      date: "2026-09-12",
+      type: "expense",
+      description: "The Manhattan Fish Market Dinner",
+      amount: 3400,
+      category: "Dining Out & Cafes",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Manhattan Fish Market",
+      tags: ["Dining"],
+      notes: "Seafood dinner with friends."
+    },
+    {
+      id: "tx-126",
+      date: "2026-09-10",
+      type: "savings",
+      description: "Cox's Bazar Trip Savings",
+      amount: 15000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-3",
+      method: "Allocation",
+      merchant: "Travel Reserve",
+      tags: ["Travel"],
+      notes: "September vacation installment."
+    },
+    {
+      id: "tx-127",
+      date: "2026-09-08",
+      type: "expense",
+      description: "Technical Books from Rokomari",
+      amount: 2400,
+      category: "Education & Books",
+      accountId: "acc-4",
+      method: "Nagad",
+      merchant: "Rokomari.com",
+      tags: ["Books", "Learning"],
+      notes: "Database Internals & Software Architecture patterns."
+    },
+    {
+      id: "tx-128",
+      date: "2026-09-05",
+      type: "expense",
+      description: "House Rent - Apartment 5B",
+      amount: 35000,
+      category: "Housing & Rent",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Landlord",
+      tags: ["Rent"],
+      notes: "September house rent."
+    },
+    {
+      id: "tx-129",
+      date: "2026-09-02",
+      type: "savings",
+      description: "Emergency Fund Monthly Contribution",
+      amount: 20000,
+      category: "Savings Contribution",
+      accountId: "acc-2",
+      savingsGoalId: "sav-1",
+      method: "Direct Transfer",
+      merchant: "Prime Bank DPS",
+      tags: ["Savings"],
+      notes: "Regular deposit."
+    },
+    {
+      id: "tx-130",
+      date: "2026-09-01",
+      type: "income",
+      description: "Monthly Base Salary Credit",
+      amount: 145000,
+      category: "Salary",
+      accountId: "acc-2",
+      method: "Direct Deposit",
+      merchant: "Tech Corp International",
+      tags: ["Salary"],
+      notes: "September net salary."
+    },
+
+    // August 2026
+    {
+      id: "tx-131",
+      date: "2026-08-31",
+      type: "expense",
+      description: "Spotify Family & Netflix Premium",
+      amount: 1850,
+      category: "Subscriptions & SaaS",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Streaming Services",
+      tags: ["Entertainment", "Subscriptions"],
+      notes: "Monthly digital entertainment."
+    },
+    {
+      id: "tx-132",
+      date: "2026-08-27",
+      type: "expense",
+      description: "Pediatrician Consultation & Medicines",
+      amount: 3200,
+      category: "Healthcare & Medicine",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "Evercare Hospital Dhaka",
+      tags: ["Health", "Kids"],
+      notes: "Routine vaccination and health check."
+    },
+    {
+      id: "tx-133",
+      date: "2026-08-25",
+      type: "expense",
+      description: "Star Tech Mechanical Keyboard & Cable",
+      amount: 7200,
+      category: "Shopping & Tech",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Star Tech Engineering",
+      tags: ["Tech", "Ergonomics"],
+      notes: "Keychron mechanical wireless keyboard."
+    },
+    {
+      id: "tx-134",
+      date: "2026-08-20",
+      type: "income",
+      description: "Software Performance Tuning Retainer",
+      amount: 45000,
+      category: "Freelance & Consulting",
+      accountId: "acc-1",
+      method: "Wire Transfer",
+      merchant: "E-Commerce Group",
+      tags: ["Consulting"],
+      notes: "Query optimization and Redis caching layer."
+    },
+    {
+      id: "tx-135",
+      date: "2026-08-18",
+      type: "expense",
+      description: "DESCO Electricity Bill",
+      amount: 4100,
+      category: "Utilities & Bills",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "DESCO",
+      tags: ["Utility"],
+      notes: "August peak summer power usage."
+    },
+    {
+      id: "tx-136",
+      date: "2026-08-15",
+      type: "savings",
+      description: "MacBook Pro M4 Savings Goal Allocation",
+      amount: 50000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-2",
+      method: "Allocation",
+      merchant: "Apple Reserve",
+      tags: ["Savings"],
+      notes: "August allocation."
+    },
+    {
+      id: "tx-137",
+      date: "2026-08-12",
+      type: "expense",
+      description: "Unimart Superstore Grocery",
+      amount: 9800,
+      category: "Food & Groceries",
+      accountId: "card-2",
+      method: "Debit Card",
+      merchant: "Unimart Gulshan",
+      tags: ["Groceries"],
+      notes: "Bi-weekly household groceries."
+    },
+    {
+      id: "tx-138",
+      date: "2026-08-10",
+      type: "savings",
+      description: "Cox's Bazar Vacation Deposit",
+      amount: 15000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-3",
+      method: "Internal Allocation",
+      merchant: "Travel Reserve",
+      tags: ["Vacation"],
+      notes: "First installment for family beach vacation."
+    },
+    {
+      id: "tx-139",
+      date: "2026-08-05",
+      type: "expense",
+      description: "House Rent - Apartment 5B",
+      amount: 35000,
+      category: "Housing & Rent",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Landlord",
+      tags: ["Rent"],
+      notes: "August rent."
+    },
+    {
+      id: "tx-140",
+      date: "2026-08-01",
+      type: "income",
+      description: "Monthly Base Salary Credit",
+      amount: 145000,
+      category: "Salary",
+      accountId: "acc-2",
+      method: "Direct Deposit",
+      merchant: "Tech Corp International",
+      tags: ["Salary"],
+      notes: "August corporate salary."
+    },
+
+    // July 2026
+    {
+      id: "tx-141",
+      date: "2026-07-30",
+      type: "expense",
+      description: "Link3 Fiber & Cloud VPS Bill",
+      amount: 3800,
+      category: "Utilities & Bills",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "Link3 & DigitalOcean",
+      tags: ["Utility", "Hosting"],
+      notes: "Internet and staging droplet."
+    },
+    {
+      id: "tx-142",
+      date: "2026-07-28",
+      type: "expense",
+      description: "Dining at Izumi Japanese Restaurant",
+      amount: 5400,
+      category: "Dining Out & Cafes",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Izumi Gulshan",
+      tags: ["Dining", "Celebration"],
+      notes: "Wedding anniversary dinner."
+    },
+    {
+      id: "tx-143",
+      date: "2026-07-20",
+      type: "expense",
+      description: "Apex Footwear & Formal Shoes",
+      amount: 4800,
+      category: "Shopping & Tech",
+      accountId: "card-2",
+      method: "Debit Card",
+      merchant: "Apex Gallery",
+      tags: ["Shopping"],
+      notes: "Handcrafted leather dress shoes."
+    },
+    {
+      id: "tx-144",
+      date: "2026-07-15",
+      type: "savings",
+      description: "MacBook Pro M4 Savings Goal Allocation",
+      amount: 60000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-2",
+      method: "Allocation",
+      merchant: "Apple Reserve",
+      tags: ["Savings"],
+      notes: "Bonus allocation."
+    },
+    {
+      id: "tx-145",
+      date: "2026-07-15",
+      type: "income",
+      description: "Freelance Architecture Audit Bonus",
+      amount: 60000,
+      category: "Freelance & Consulting",
+      accountId: "acc-1",
+      method: "Wire Transfer",
+      merchant: "Cloud Platform Inc",
+      tags: ["Consulting"],
+      notes: "Security & SOC2 architecture compliance review."
+    },
+    {
+      id: "tx-146",
+      date: "2026-07-10",
+      type: "expense",
+      description: "Shwapno Grocery Stockup",
+      amount: 8500,
+      category: "Food & Groceries",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "Shwapno",
+      tags: ["Groceries"],
+      notes: "Weekly fresh items."
+    },
+    {
+      id: "tx-147",
+      date: "2026-07-05",
+      type: "expense",
+      description: "House Rent - Apartment 5B",
+      amount: 35000,
+      category: "Housing & Rent",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Landlord",
+      tags: ["Rent"],
+      notes: "July rent."
+    },
+    {
+      id: "tx-148",
+      date: "2026-07-02",
+      type: "savings",
+      description: "Emergency Fund Monthly Contribution",
+      amount: 20000,
+      category: "Savings Contribution",
+      accountId: "acc-2",
+      savingsGoalId: "sav-1",
+      method: "Direct Transfer",
+      merchant: "Prime Bank DPS",
+      tags: ["Savings"],
+      notes: "July deposit."
+    },
+    {
+      id: "tx-149",
+      date: "2026-07-01",
+      type: "savings",
+      description: "Dhaka Apartment Down Payment Q3 Allocation",
+      amount: 40000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-4",
+      method: "Internal Transfer",
+      merchant: "Housing Reserve",
+      tags: ["Asset", "Savings"],
+      notes: "Quarterly real estate reserve."
+    },
+    {
+      id: "tx-150",
+      date: "2026-07-01",
+      type: "income",
+      description: "Monthly Base Salary Credit",
+      amount: 145000,
+      category: "Salary",
+      accountId: "acc-2",
+      method: "Direct Deposit",
+      merchant: "Tech Corp International",
+      tags: ["Salary"],
+      notes: "July corporate salary."
+    },
+
+    // June 2026
+    {
+      id: "tx-151",
+      date: "2026-06-25",
+      type: "expense",
+      description: "Annual Vehicle Fitness & Tax Token Renewal",
+      amount: 12500,
+      category: "Transport & Fuel",
+      accountId: "acc-1",
+      method: "Government Portal / Pay",
+      merchant: "BRTA Dhaka",
+      tags: ["Government", "Car"],
+      notes: "BRTA sedan digital smart token renewal."
+    },
+    {
+      id: "tx-152",
+      date: "2026-06-20",
+      type: "expense",
+      description: "Unimart Supermarket Supplies",
+      amount: 7900,
+      category: "Food & Groceries",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "Unimart",
+      tags: ["Groceries"],
+      notes: "Family food items."
+    },
+    {
+      id: "tx-153",
+      date: "2026-06-15",
+      type: "savings",
+      description: "Seed Fund Syndicate Deposit",
+      amount: 50000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-5",
+      method: "Allocation",
+      merchant: "Angel Pool",
+      tags: ["Investment"],
+      notes: "Initial seed fund tranche."
+    },
+    {
+      id: "tx-154",
+      date: "2026-06-10",
+      type: "income",
+      description: "Q2 Performance Architecture Bonus",
+      amount: 75000,
+      category: "Bonus",
+      accountId: "acc-2",
+      method: "Company Transfer",
+      merchant: "Tech Corp International",
+      tags: ["Bonus"],
+      notes: "Q2 engineering milestone execution bonus."
+    },
+    {
+      id: "tx-155",
+      date: "2026-06-05",
+      type: "expense",
+      description: "House Rent - Apartment 5B",
+      amount: 35000,
+      category: "Housing & Rent",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Landlord",
+      tags: ["Rent"],
+      notes: "June rent."
+    },
+    {
+      id: "tx-156",
+      date: "2026-06-01",
+      type: "savings",
+      description: "Emergency Fund Setup Tranche",
+      amount: 25000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-1",
+      method: "Deposit",
+      merchant: "Prime Bank DPS",
+      tags: ["EmergencyFund"],
+      notes: "Fund setup."
+    },
+    {
+      id: "tx-157",
+      date: "2026-06-01",
+      type: "income",
+      description: "Monthly Base Salary Credit",
+      amount: 145000,
+      category: "Salary",
+      accountId: "acc-2",
+      method: "Direct Deposit",
+      merchant: "Tech Corp International",
+      tags: ["Salary"],
+      notes: "June corporate salary."
+    },
+
+    // May 2026
+    {
+      id: "tx-158",
+      date: "2026-05-28",
+      type: "expense",
+      description: "Chaldal Online Daily Grocery",
+      amount: 3400,
+      category: "Food & Groceries",
+      accountId: "acc-3",
+      method: "bKash",
+      merchant: "Chaldal.com",
+      tags: ["Groceries", "Online"],
+      notes: "Fresh vegetables and dairy."
+    },
+    {
+      id: "tx-159",
+      date: "2026-05-20",
+      type: "expense",
+      description: "Dhaka Club Dinner with Family",
+      amount: 4200,
+      category: "Dining Out & Cafes",
+      accountId: "card-1",
+      method: "Credit Card",
+      merchant: "Dhaka Club Catering",
+      tags: ["Dining"],
+      notes: "Family weekend buffet."
+    },
+    {
+      id: "tx-160",
+      date: "2026-05-15",
+      type: "income",
+      description: "Fullstack Architecture Consultation",
+      amount: 35000,
+      category: "Freelance & Consulting",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Singapore FinTech",
+      tags: ["Consulting"],
+      notes: "High concurrency consultation."
+    },
+    {
+      id: "tx-161",
+      date: "2026-05-05",
+      type: "expense",
+      description: "House Rent - Apartment 5B",
+      amount: 35000,
+      category: "Housing & Rent",
+      accountId: "acc-1",
+      method: "Bank Transfer",
+      merchant: "Landlord",
+      tags: ["Rent"],
+      notes: "May rent."
+    },
+    {
+      id: "tx-162",
+      date: "2026-05-01",
+      type: "savings",
+      description: "Dhaka Apartment Down Payment Initial Fund",
+      amount: 150000,
+      category: "Savings Contribution",
+      accountId: "acc-1",
+      savingsGoalId: "sav-4",
+      method: "Deposit",
+      merchant: "Housing Reserve",
+      tags: ["Asset", "Savings"],
+      notes: "Initial lump sum allocation."
+    },
+    {
+      id: "tx-163",
+      date: "2026-05-01",
+      type: "income",
+      description: "Monthly Base Salary Credit",
+      amount: 145000,
+      category: "Salary",
+      accountId: "acc-2",
+      method: "Direct Deposit",
+      merchant: "Tech Corp International",
+      tags: ["Salary"],
+      notes: "May corporate salary."
+    }
+  ]
+};
+
+// Make accessible to all scripts
+if (typeof window !== "undefined") {
+  window.SEED_DATA = SEED_DATA;
+}
