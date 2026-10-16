@@ -20,16 +20,18 @@ const LifeBudgets = (() => {
     $(document).on("click", ".btn-delete-budget", function () {
       const bId = $(this).data("id");
       window.Swal.fire({
-        title: "Delete Budget?",
-        text: "Remove this category budget limit?",
+        title: "বাজেট মুছে ফেলতে চান?",
+        text: "এই ক্যাটাগরির বাজেট সীমা কি মুছে ফেলবেন?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
-        confirmButtonText: "Yes, delete"
+        cancelButtonColor: "#64748B",
+        confirmButtonText: "হ্যাঁ, মুছে ফেলুন",
+        cancelButtonText: "বাতিল"
       }).then(res => {
         if (res.isConfirmed) {
           LifeStorage.deleteBudget(bId);
-          window.Swal.fire({ icon: "success", title: "Budget Removed", timer: 1500, showConfirmButton: false, toast: true });
+          window.Swal.fire({ icon: "success", title: "বাজেট মুছে ফেলা হয়েছে", timer: 1500, showConfirmButton: false, toast: true });
         }
       });
     });
@@ -58,14 +60,14 @@ const LifeBudgets = (() => {
       totalBudget += limit;
       totalSpent += spent;
 
-      let statusBadge = `<span class="badge bg-success-subtle text-success border">On Track</span>`;
+      let statusBadge = `<span class="badge bg-success-subtle text-success border">বাজেটের ভেতরে</span>`;
       let barColor = "bg-success";
 
       if (percent >= 100) {
-        statusBadge = `<span class="badge bg-danger text-white">Over Budget (${percent}%)</span>`;
+        statusBadge = `<span class="badge bg-danger text-white">বাজেট অতিক্রম (${percent}%)</span>`;
         barColor = "bg-danger";
       } else if (percent >= 80) {
-        statusBadge = `<span class="badge bg-warning text-dark">Near Limit (${percent}%)</span>`;
+        statusBadge = `<span class="badge bg-warning text-dark">সীমার কাছাকাছি (${percent}%)</span>`;
         barColor = "bg-warning";
       }
 
@@ -85,11 +87,11 @@ const LifeBudgets = (() => {
 
               <div class="d-flex justify-content-between align-items-baseline my-3">
                 <div>
-                  <div class="text-muted small">Spent</div>
+                  <div class="text-muted small">ব্যয় হয়েছে</div>
                   <div class="fs-4 fw-bold ${percent >= 100 ? "text-danger" : "text-dark"}">${LifeUtils.formatCurrency(spent)}</div>
                 </div>
                 <div class="text-end">
-                  <div class="text-muted small">Budget Limit</div>
+                  <div class="text-muted small">বাজেট সীমা</div>
                   <div class="fs-5 fw-semibold text-secondary">${LifeUtils.formatCurrency(limit)}</div>
                 </div>
               </div>
@@ -99,13 +101,13 @@ const LifeBudgets = (() => {
               </div>
 
               <div class="d-flex justify-content-between align-items-center small text-muted">
-                <span>${remaining >= 0 ? `${LifeUtils.formatCurrency(remaining)} remaining` : `${LifeUtils.formatCurrency(Math.abs(remaining))} overspent`}</span>
-                <span class="fw-semibold">${percent}% used</span>
+                <span>${remaining >= 0 ? `${LifeUtils.formatCurrency(remaining)} অবশিষ্ট` : `${LifeUtils.formatCurrency(Math.abs(remaining))} অতিরিক্ত খরচ`}</span>
+                <span class="fw-semibold">${percent}% ব্যবহৃত</span>
               </div>
             </div>
             <div class="card-footer bg-transparent border-top px-4 py-2 text-end">
               <button class="btn btn-sm btn-link text-danger p-0 btn-delete-budget" data-id="${b.id}">
-                <i class="bi bi-trash"></i> Delete
+                <i class="bi bi-trash"></i> মুছুন
               </button>
             </div>
           </div>
@@ -134,7 +136,7 @@ const LifeBudgets = (() => {
     const color = $("#budget-form-color").val() || "#635BFF";
 
     if (!category || !limit || limit <= 0) {
-      window.Swal.fire({ icon: "warning", title: "Validation Error", text: "Please enter category and a positive budget limit." });
+      window.Swal.fire({ icon: "warning", title: "যাচাইকরণ ত্রুটি", text: "অনুগ্রহ করে ক্যাটাগরি ও সঠিক বাজেট সীমা লিখুন।" });
       return;
     }
 
@@ -147,7 +149,7 @@ const LifeBudgets = (() => {
     });
 
     bootstrap.Modal.getInstance(document.getElementById("modal-budget")).hide();
-    window.Swal.fire({ icon: "success", title: "Budget Added", timer: 1500, showConfirmButton: false, toast: true });
+    window.Swal.fire({ icon: "success", title: "বাজেট যুক্ত হয়েছে!", timer: 1500, showConfirmButton: false, toast: true });
   }
 
   return {

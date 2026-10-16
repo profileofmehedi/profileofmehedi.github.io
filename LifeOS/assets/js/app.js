@@ -168,7 +168,7 @@ const LifeApp = (() => {
       $("#notification-list").html(`
         <div class="p-4 text-center text-muted small">
           <i class="bi bi-bell-slash fs-4 d-block mb-1 text-secondary opacity-50"></i>
-          No notifications right now.
+          বর্তমানে কোনো নতুন বিজ্ঞপ্তি নেই।
         </div>
       `);
       return;
@@ -229,26 +229,26 @@ const LifeApp = (() => {
 
     // Update contextual header title & breadcrumb
     const pageTitles = {
-      dashboard: "Command Center",
-      myday: "My Day",
-      calendar: "Calendar & Agenda",
-      transactions: "Transactions Ledger",
-      accounts: "Accounts & Cards",
-      conveyance: "Company Conveyance & Claims",
-      budgets: "Monthly Budgets",
-      savings: "Savings & Goals",
-      reports: "Financial Reports",
-      habits: "Habit Tracker",
-      tasks: "Tasks & Productivity",
-      routines: "Daily Routines",
-      lifegoals: "Personal Life Goals",
-      journal: "Journal & Reflections",
-      analytics: "Life Analytics",
-      settings: "Settings & Preferences"
+      dashboard: "কমান্ড সেন্টার (ড্যাশবোর্ড)",
+      myday: "আজকের পরিকল্পনা",
+      calendar: "ক্যালেন্ডার ও সময়সূচি",
+      transactions: "লেনদেনের খতিয়ান",
+      accounts: "অ্যাকাউন্ট ও কার্ড",
+      conveyance: "যাতায়াত ও অফিস বিল",
+      budgets: "মাসিক বাজেট",
+      savings: "সঞ্চয় ও লক্ষ্য",
+      reports: "আর্থিক রিপোর্ট",
+      habits: "অভ্যাস ট্র্যাকার",
+      tasks: "টাস্ক ও কাজের তালিকা",
+      routines: "দৈনিক রুটিন",
+      lifegoals: "জীবনের দীর্ঘমেয়াদী লক্ষ্য",
+      journal: "জার্নাল ও স্মৃতিচারণ",
+      analytics: "লাইফ অ্যানালিটিক্স",
+      settings: "সেটিংস ও পছন্দসমূহ"
     };
 
     $("#header-page-title").text(pageTitles[currentPage] || "LifeOS");
-    $("#header-breadcrumb-current").text(pageTitles[currentPage] || "Overview");
+    $("#header-breadcrumb-current").text(pageTitles[currentPage] || "ওভারভিউ");
 
     // Trigger page renderer
     switch (currentPage) {

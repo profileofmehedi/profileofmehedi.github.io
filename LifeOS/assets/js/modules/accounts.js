@@ -31,17 +31,18 @@ const LifeAccounts = (() => {
     $(document).on("click", ".btn-delete-account", function () {
       const accId = $(this).data("id");
       window.Swal.fire({
-        title: "Delete Account?",
-        text: "Are you sure you want to delete this account from your portfolio?",
+        title: "অ্যাকাউন্ট মুছে ফেলতে চান?",
+        text: "আপনি কি আপনার পোর্টফোলিও থেকে এই অ্যাকাউন্টটি মুছে ফেলতে চান?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
         cancelButtonColor: "#64748B",
-        confirmButtonText: "Yes, delete it"
+        confirmButtonText: "হ্যাঁ, মুছে ফেলুন",
+        cancelButtonText: "বাতিল"
       }).then(res => {
         if (res.isConfirmed) {
           LifeStorage.deleteAccount(accId);
-          window.Swal.fire({ icon: "success", title: "Account Deleted", timer: 1500, showConfirmButton: false, toast: true });
+          window.Swal.fire({ icon: "success", title: "অ্যাকাউন্ট মুছে ফেলা হয়েছে", timer: 1500, showConfirmButton: false, toast: true });
         }
       });
     });
@@ -50,17 +51,18 @@ const LifeAccounts = (() => {
     $(document).on("click", ".btn-delete-card", function () {
       const cardId = $(this).data("id");
       window.Swal.fire({
-        title: "Delete Card?",
-        text: "Remove this card from your wallet?",
+        title: "কার্ড সরিয়ে নিতে চান?",
+        text: "আপনার ওয়ালেট থেকে এই কার্ডটি সরিয়ে ফেলবেন?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
         cancelButtonColor: "#64748B",
-        confirmButtonText: "Yes, remove"
+        confirmButtonText: "হ্যাঁ, সরিয়ে নিন",
+        cancelButtonText: "বাতিল"
       }).then(res => {
         if (res.isConfirmed) {
           LifeStorage.deleteCard(cardId);
-          window.Swal.fire({ icon: "success", title: "Card Removed", timer: 1500, showConfirmButton: false, toast: true });
+          window.Swal.fire({ icon: "success", title: "কার্ড সরানো হয়েছে", timer: 1500, showConfirmButton: false, toast: true });
         }
       });
     });
@@ -152,9 +154,9 @@ const LifeAccounts = (() => {
       cardsHtml = `
         <div class="col-12 mb-3">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0">Payment Cards (${filteredCards.length})</h5>
+            <h5 class="fw-bold mb-0">পেমেন্ট কার্ডসমূহ (${filteredCards.length})</h5>
             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-card">
-              <i class="bi bi-plus-lg"></i> Add Card
+              <i class="bi bi-plus-lg"></i> কার্ড যোগ করুন
             </button>
           </div>
         </div>
@@ -167,7 +169,7 @@ const LifeAccounts = (() => {
             <div class="fintech-card life-card-3d p-4 rounded-4 text-white shadow-lg position-relative overflow-hidden" style="background: ${c.gradient || "linear-gradient(135deg, #1E1E2F 0%, #2D3748 100%)"}; min-height: 220px;">
               <div class="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                  <span class="badge bg-white bg-opacity-20 text-white text-uppercase tracking-wider small mb-1">${c.type} card</span>
+                  <span class="badge bg-white bg-opacity-20 text-white text-uppercase tracking-wider small mb-1">${isCredit ? "ক্রেডিট" : "ডেবিট"} কার্ড</span>
                   <div class="fw-bold fs-16">${LifeUtils.escapeHtml(c.name)}</div>
                 </div>
                 <div class="fs-4 text-white opacity-75">
@@ -183,25 +185,25 @@ const LifeAccounts = (() => {
 
               <div class="d-flex justify-content-between align-items-end mt-auto">
                 <div>
-                  <div class="text-uppercase text-white text-opacity-50 fs-10">Cardholder</div>
-                  <div class="fw-semibold fs-13 text-truncate" style="max-width: 140px;">${LifeUtils.escapeHtml(c.cardHolder || "MEHEDI HASAN")}</div>
+                  <div class="text-uppercase text-white text-opacity-50 fs-10">কার্ডহোল্ডার</div>
+                  <div class="fw-semibold fs-13 text-truncate" style="max-width: 140px;">${LifeUtils.escapeHtml(c.cardHolder || "মেহেদী হাসান")}</div>
                 </div>
                 <div>
-                  <div class="text-uppercase text-white text-opacity-50 fs-10">Expires</div>
+                  <div class="text-uppercase text-white text-opacity-50 fs-10">মেয়াদ</div>
                   <div class="fw-semibold fs-13">${c.expiry}</div>
                 </div>
                 <div class="text-end">
-                  <div class="text-uppercase text-white text-opacity-50 fs-10">${isCredit ? "Outstanding" : "Linked"}</div>
-                  <div class="fw-bold fs-14">${isCredit ? LifeUtils.formatCurrency(c.outstanding) : "Prime Bank"}</div>
+                  <div class="text-uppercase text-white text-opacity-50 fs-10">${isCredit ? "বকেয়া" : "সংযুক্ত ব্যাংক"}</div>
+                  <div class="fw-bold fs-14">${isCredit ? LifeUtils.formatCurrency(c.outstanding) : "প্রাইম ব্যাংক"}</div>
                 </div>
               </div>
             </div>
 
             <!-- Card Actions -->
             <div class="d-flex justify-content-between align-items-center mt-2 px-1">
-              <span class="small text-muted">${isCredit ? `Limit: ${LifeUtils.formatCurrency(c.limit)} (Avail: ${LifeUtils.formatCurrency(c.availableCredit)})` : "Direct Bank Card"}</span>
+              <span class="small text-muted">${isCredit ? `সীমা: ${LifeUtils.formatCurrency(c.limit)} (উপলব্ধ: ${LifeUtils.formatCurrency(c.availableCredit)})` : "সরাসরি ব্যাংক কার্ড"}</span>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-link text-danger p-0 ms-2 btn-delete-card" data-id="${c.id}" title="Remove Card"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-link text-danger p-0 ms-2 btn-delete-card" data-id="${c.id}" title="কার্ড সরিয়ে নিন"><i class="bi bi-trash"></i></button>
               </div>
             </div>
           </div>
@@ -215,9 +217,9 @@ const LifeAccounts = (() => {
       accountsHtml = `
         <div class="col-12 mt-2 mb-3">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0">Deposit Accounts & Wallets (${filteredAccounts.length})</h5>
+            <h5 class="fw-bold mb-0">ব্যাংক অ্যাকাউন্ট ও ওয়ালেট (${filteredAccounts.length})</h5>
             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-account">
-              <i class="bi bi-plus-lg"></i> Add Account
+              <i class="bi bi-plus-lg"></i> নতুন অ্যাকাউন্ট যোগ করুন
             </button>
           </div>
         </div>
@@ -238,33 +240,33 @@ const LifeAccounts = (() => {
                       <div class="text-muted small">${LifeUtils.escapeHtml(a.institution)} • ${a.number}</div>
                     </div>
                   </div>
-                  ${a.isPreferred ? `<span class="badge bg-success-subtle text-success border">Preferred</span>` : ""}
+                  ${a.isPreferred ? `<span class="badge bg-success-subtle text-success border">প্রধান অ্যাকাউন্ট</span>` : ""}
                 </div>
 
                 <div class="my-3">
-                  <div class="text-muted small">Current Balance</div>
+                  <div class="text-muted small">বর্তমান ব্যালেন্স</div>
                   <div class="fs-3 fw-bold text-dark">${LifeUtils.formatCurrency(a.balance)}</div>
                 </div>
 
                 <div class="d-flex gap-2 mt-4 pt-2 border-top">
                   <button class="btn btn-sm btn-light border flex-grow-1 btn-quick-transfer" data-id="${a.id}">
-                    <i class="bi bi-arrow-left-right text-primary me-1"></i> Transfer
+                    <i class="bi bi-arrow-left-right text-primary me-1"></i> স্থানান্তর
                   </button>
                   <button class="btn btn-sm btn-light border flex-grow-1 btn-account-add-income" data-id="${a.id}">
-                    <i class="bi bi-plus-circle text-success me-1"></i> Income
+                    <i class="bi bi-plus-circle text-success me-1"></i> আয়
                   </button>
                   <button class="btn btn-sm btn-light border flex-grow-1 btn-account-add-expense" data-id="${a.id}">
-                    <i class="bi bi-dash-circle text-danger me-1"></i> Expense
+                    <i class="bi bi-dash-circle text-danger me-1"></i> ব্যয়
                   </button>
                 </div>
               </div>
               <div class="card-footer bg-transparent border-top px-4 py-2 d-flex justify-content-between align-items-center">
-                <span class="small text-muted">${a.branch || "Dhaka"}</span>
+                <span class="small text-muted">${a.branch || "ঢাকা"}</span>
                 <div class="d-flex gap-2">
-                  <button class="btn btn-sm btn-link text-secondary p-0 btn-toggle-preferred" data-id="${a.id}" title="${a.isPreferred ? "Preferred Account" : "Mark as Preferred"}">
+                  <button class="btn btn-sm btn-link text-secondary p-0 btn-toggle-preferred" data-id="${a.id}" title="${a.isPreferred ? "প্রধান অ্যাকাউন্ট" : "প্রধান হিসেবে চিহ্নিত করুন"}">
                     <i class="bi ${a.isPreferred ? "bi-star-fill text-warning" : "bi-star"}"></i>
                   </button>
-                  <button class="btn btn-sm btn-link text-danger p-0 btn-delete-account" data-id="${a.id}" title="Delete Account">
+                  <button class="btn btn-sm btn-link text-danger p-0 btn-delete-account" data-id="${a.id}" title="অ্যাকাউন্ট মুছুন">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -341,19 +343,19 @@ const LifeAccounts = (() => {
     const notes = $("#transfer-notes").val().trim();
 
     if (src === dest) {
-      window.Swal.fire({ icon: "warning", title: "Invalid Destination", text: "Source and destination accounts must be different." });
+      window.Swal.fire({ icon: "warning", title: "ভুল গন্তব্য", text: "উৎস এবং গন্তব্য অ্যাকাউন্ট ভিন্ন হতে হবে।" });
       return;
     }
 
     if (!amount || amount <= 0) {
-      window.Swal.fire({ icon: "warning", title: "Invalid Amount", text: "Please enter a valid transfer amount." });
+      window.Swal.fire({ icon: "warning", title: "সঠিক পরিমাণ দিন", text: "অনুগ্রহ করে স্থানান্তরের সঠিক পরিমাণ লিখুন।" });
       return;
     }
 
     const accounts = LifeStorage.get("accounts") || [];
     const srcAcc = accounts.find(a => a.id === src);
     if (srcAcc && srcAcc.balance < amount) {
-      window.Swal.fire({ icon: "warning", title: "Insufficient Funds", text: `Your ${srcAcc.name} balance is ${LifeUtils.formatCurrency(srcAcc.balance)}.` });
+      window.Swal.fire({ icon: "warning", title: "অপর্যাপ্ত ব্যালেন্স", text: `আপনার ${srcAcc.name}-এ পর্যাপ্ত ব্যালেন্স নেই (বর্তমান: ${LifeUtils.formatCurrency(srcAcc.balance)})।` });
       return;
     }
 
@@ -361,15 +363,15 @@ const LifeAccounts = (() => {
       id: LifeUtils.generateId("tx"),
       date: LifeUtils.CURRENT_DEMO_DATE,
       type: "transfer",
-      description: `Transfer: ${srcAcc.name} to ${(accounts.find(a => a.id === dest) || {}).name}`,
+      description: `স্থানান্তর: ${srcAcc.name} থেকে ${(accounts.find(a => a.id === dest) || {}).name}`,
       amount: amount,
-      category: "Transfer",
+      category: "স্থানান্তর",
       accountId: src,
       destinationAccountId: dest,
-      method: "Digital Banking",
-      merchant: "Self Transfer",
-      tags: ["Transfer"],
-      notes: notes || "Internal balance transfer"
+      method: "ডিজিটাল ব্যাংকিং",
+      merchant: "নিজস্ব তহবিল স্থানান্তর",
+      tags: ["স্থানান্তর"],
+      notes: notes || "অভ্যন্তরীণ ব্যালেন্স স্থানান্তর"
     };
 
     LifeStorage.addTransaction(tx);
@@ -377,8 +379,8 @@ const LifeAccounts = (() => {
 
     window.Swal.fire({
       icon: "success",
-      title: "Transfer Complete",
-      text: `Successfully transferred ${LifeUtils.formatCurrency(amount)}.`,
+      title: "স্থানান্তর সম্পন্ন",
+      text: `সফলভাবে ${LifeUtils.formatCurrency(amount)} স্থানান্তর করা হয়েছে।`,
       timer: 1800,
       showConfirmButton: false,
       toast: true,
@@ -395,7 +397,7 @@ const LifeAccounts = (() => {
     const color = $("#acc-form-color").val() || "#635BFF";
 
     if (!name || !institution) {
-      window.Swal.fire({ icon: "warning", title: "Validation Error", text: "Please provide account name and institution." });
+      window.Swal.fire({ icon: "warning", title: "যাচাইকরণ ত্রুটি", text: "অনুগ্রহ করে অ্যাকাউন্টের নাম ও ব্যাংকের নাম দিন।" });
       return;
     }
 
@@ -410,11 +412,11 @@ const LifeAccounts = (() => {
       icon: type === "bank" ? "bi-bank" : type === "wallet" ? "bi-wallet2" : "bi-cash",
       isPreferred: false,
       status: "active",
-      branch: "Dhaka"
+      branch: "ঢাকা"
     });
 
     bootstrap.Modal.getInstance(document.getElementById("modal-account")).hide();
-    window.Swal.fire({ icon: "success", title: "Account Added", timer: 1500, showConfirmButton: false, toast: true });
+    window.Swal.fire({ icon: "success", title: "অ্যাকাউন্ট যুক্ত হয়েছে!", timer: 1500, showConfirmButton: false, toast: true });
   }
 
   function saveCardForm() {
@@ -422,13 +424,13 @@ const LifeAccounts = (() => {
     const brand = $("#card-form-brand").val();
     const type = $("#card-form-type").val();
     const number = $("#card-form-number").val().trim() || "•••• •••• •••• 1234";
-    const cardHolder = $("#card-form-holder").val().trim() || "MEHEDI HASAN";
+    const cardHolder = $("#card-form-holder").val().trim() || "মেহেদী হাসান";
     const expiry = $("#card-form-expiry").val().trim() || "12/28";
     const limit = Number($("#card-form-limit").val()) || 100000;
     const gradient = $("#card-form-gradient").val();
 
     if (!name) {
-      window.Swal.fire({ icon: "warning", title: "Validation Error", text: "Please enter card name." });
+      window.Swal.fire({ icon: "warning", title: "যাচাইকরণ ত্রুটি", text: "অনুগ্রহ করে কার্ডের নাম দিন।" });
       return;
     }
 
@@ -448,7 +450,7 @@ const LifeAccounts = (() => {
     });
 
     bootstrap.Modal.getInstance(document.getElementById("modal-card")).hide();
-    window.Swal.fire({ icon: "success", title: "Card Added", timer: 1500, showConfirmButton: false, toast: true });
+    window.Swal.fire({ icon: "success", title: "কার্ড যুক্ত হয়েছে!", timer: 1500, showConfirmButton: false, toast: true });
   }
 
   return {

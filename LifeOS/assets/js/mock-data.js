@@ -6,14 +6,14 @@
 
 const SEED_DATA = {
   user: {
-    name: "Mehedi Hasan",
+    name: "মেহেদী হাসান",
     email: "demo@lifeos.app",
-    role: "Senior Software Architect",
+    role: "সিনিয়র সফটওয়্যার আর্কিটেক্ট",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-    location: "Dhaka, Bangladesh",
+    location: "ঢাকা, বাংলাদেশ",
     timezone: "Asia/Dhaka",
     joinedDate: "2025-01-01",
-    bio: "Passionate about scalable systems, mindful living, and financial independence."
+    bio: "স্কেলেবল সিস্টেম, সচেতন জীবনযাপন ও আর্থিক স্বাধীনতা অর্জনে নিবেদিত।"
   },
 
   settings: {
@@ -31,8 +31,8 @@ const SEED_DATA = {
   accounts: [
     {
       id: "acc-1",
-      name: "Prime Bank Savings",
-      institution: "Prime Bank PLC",
+      name: "প্রাইম ব্যাংক সেভিংস",
+      institution: "প্রাইম ব্যাংক পিএলসি",
       type: "bank",
       number: "•••• 4892",
       balance: 145000,
@@ -42,13 +42,13 @@ const SEED_DATA = {
       isPreferred: true,
       hideFromDashboard: false,
       status: "active",
-      branch: "Gulshan Branch, Dhaka",
+      branch: "গুলশান শাখা, ঢাকা",
       lastUpdated: "2026-10-15"
     },
     {
       id: "acc-2",
-      name: "BRAC Bank Salary AC",
-      institution: "BRAC Bank PLC",
+      name: "ব্র্যাক ব্যাংক স্যালারি অ্যাকাউন্ট",
+      institution: "ব্র্যাক ব্যাংক পিএলসি",
       type: "bank",
       number: "•••• 7134",
       balance: 92500,
@@ -58,13 +58,13 @@ const SEED_DATA = {
       isPreferred: false,
       hideFromDashboard: false,
       status: "active",
-      branch: "Banani Branch, Dhaka",
+      branch: "বনানী শাখা, ঢাকা",
       lastUpdated: "2026-10-15"
     },
     {
       id: "acc-3",
-      name: "bKash Personal Wallet",
-      institution: "bKash Limited",
+      name: "বিকাশ ব্যক্তিগত ওয়ালেট",
+      institution: "বিকাশ লিমিটেড",
       type: "wallet",
       number: "017••••5678",
       balance: 18450,
@@ -74,13 +74,13 @@ const SEED_DATA = {
       isPreferred: false,
       hideFromDashboard: false,
       status: "active",
-      branch: "Mobile MFS",
+      branch: "মোবাইল এমএফএস",
       lastUpdated: "2026-10-15"
     },
     {
       id: "acc-4",
-      name: "Nagad Wallet",
-      institution: "Nagad Digital",
+      name: "নগদ ওয়ালেট",
+      institution: "নগদ ডিজিটাল",
       type: "wallet",
       number: "018••••9012",
       balance: 12300,
@@ -90,13 +90,13 @@ const SEED_DATA = {
       isPreferred: false,
       hideFromDashboard: false,
       status: "active",
-      branch: "Postal MFS",
+      branch: "ডাক বিভাগ এমএফএস",
       lastUpdated: "2026-10-15"
     },
     {
       id: "acc-5",
-      name: "Cash in Hand",
-      institution: "Physical Vault",
+      name: "হাতে থাকা নগদ টাকা",
+      institution: "নগদ ক্যাশ ভল্ট",
       type: "cash",
       number: "CASH-VAULT",
       balance: 14500,
@@ -114,8 +114,8 @@ const SEED_DATA = {
   cards: [
     {
       id: "card-1",
-      name: "Visa Platinum Credit",
-      institution: "Standard Chartered Bank",
+      name: "ভিসা প্ল্যাটিনাম ক্রেডিট",
+      institution: "স্ট্যান্ডার্ড চার্টার্ড ব্যাংক",
       type: "credit",
       number: "4532 •••• •••• 9018",
       cardHolder: "MEHEDI HASAN",
@@ -131,7 +131,7 @@ const SEED_DATA = {
     },
     {
       id: "card-2",
-      name: "Prime Bank FastCash Debit",
+      name: "প্রাইম ব্যাংক ফাস্টক্যাশ ডেবিট",
       institution: "Prime Bank PLC",
       type: "debit",
       number: "4111 •••• •••• 4892",
@@ -144,7 +144,7 @@ const SEED_DATA = {
     },
     {
       id: "card-3",
-      name: "BRAC Bank Signature Debit",
+      name: "ব্র্যাক ব্যাংক সিগনেচার ডেবিট",
       institution: "BRAC Bank PLC",
       type: "debit",
       number: "4242 •••• •••• 7134",
@@ -157,8 +157,8 @@ const SEED_DATA = {
     },
     {
       id: "card-4",
-      name: "Mastercard World Elite",
-      institution: "City Bank AMEX/MC",
+      name: "মাস্টারকার্ড ওয়ার্ল্ড এলিট",
+      institution: "সিটি ব্যাংক",
       type: "credit",
       number: "5412 •••• •••• 6631",
       cardHolder: "MEHEDI HASAN",
@@ -190,90 +190,90 @@ const SEED_DATA = {
   savingsGoals: [
     {
       id: "sav-1",
-      name: "Emergency Fund (6 Months)",
+      name: "জরুরি তহবিল (৬ মাস)",
       targetAmount: 500000,
       currentAmount: 345000,
       targetDate: "2027-03-31",
       priority: "High",
       category: "Security",
-      description: "Liquid reserve covering 6 months of family living expenses in high-yield account.",
+      description: "উচ্চ মুনাফাযুক্ত অ্যাকাউন্টে পরিবারের ৬ মাসের জীবনযাত্রার খরচের লিকুইড রিজার্ভ।",
       icon: "bi-shield-shaded",
       color: "#10B981",
       contributions: [
-        { date: "2026-06-01", amount: 25000, note: "Initial setup" },
-        { date: "2026-07-02", amount: 20000, note: "Monthly contribution" },
+        { date: "2026-06-01", amount: 25000, note: "প্রাথমিক জমা" },
+        { date: "2026-07-02", amount: 20000, note: "মাসিক সঞ্চয় জমা" },
         { date: "2026-08-01", amount: 20000, note: "Monthly contribution" },
         { date: "2026-09-01", amount: 20000, note: "Monthly contribution" },
-        { date: "2026-10-02", amount: 25000, note: "Salary bonus allocation" }
+        { date: "2026-10-02", amount: 25000, note: "বেতন ও বোনাস বরাদ্দ" }
       ]
     },
     {
       id: "sav-2",
-      name: "MacBook Pro M4 Max",
+      name: "ম্যাকবুক প্রো এম৪ ম্যাক্স",
       targetAmount: 280000,
       currentAmount: 215000,
       targetDate: "2026-12-20",
       priority: "High",
       category: "Tech",
-      description: "Next-gen flagship laptop workstation for heavy AI coding and local LLM execution.",
+      description: "ভারী এআই কোডিং এবং লোকাল মডেল রান করার জন্য ফ্ল্যাগশিপ ল্যাপটপ ওয়ার্কস্টেশন।",
       icon: "bi-laptop",
       color: "#635BFF",
       contributions: [
-        { date: "2026-07-15", amount: 60000, note: "Freelance project bonus" },
-        { date: "2026-08-15", amount: 50000, note: "Consulting fee" },
-        { date: "2026-09-15", amount: 55000, note: "Q3 bonus" },
-        { date: "2026-10-05", amount: 50000, note: "Monthly allocation" }
+        { date: "2026-07-15", amount: 60000, note: "ফ্রিল্যান্স প্রজেক্ট বোনাস" },
+        { date: "2026-08-15", amount: 50000, note: "কনসাল্টিং ফি জমা" },
+        { date: "2026-09-15", amount: 55000, note: "কিউ৩ বোনাস" },
+        { date: "2026-10-05", amount: 50000, note: "মাসিক বরাদ্দ" }
       ]
     },
     {
       id: "sav-3",
-      name: "Family Vacation to Cox's Bazar",
+      name: "পরিবার নিয়ে কক্সবাজার ভ্রমণ",
       targetAmount: 60000,
       currentAmount: 48000,
       targetDate: "2026-11-25",
       priority: "Medium",
       category: "Travel",
-      description: "Luxury stay at Sayeman Beach Resort with family for winter holiday relaxation.",
+      description: "শীতকালীন অবকাশে পরিবারের সাথে সায়েমান বিচ রিসোর্টে আরামদায়ক ছুটি।",
       icon: "bi-sun",
       color: "#F59E0B",
       contributions: [
-        { date: "2026-08-10", amount: 15000, note: "Travel deposit" },
-        { date: "2026-09-10", amount: 15000, note: "September installment" },
-        { date: "2026-10-08", amount: 18000, note: "October installment" }
+        { date: "2026-08-10", amount: 15000, note: "ভ্রমণ তহবিল জমা" },
+        { date: "2026-09-10", amount: 15000, note: "সেপ্টেম্বর মাসের কিস্তি" },
+        { date: "2026-10-08", amount: 18000, note: "অক্টোবর মাসের কিস্তি" }
       ]
     },
     {
       id: "sav-4",
-      name: "Dhaka Apartment Down Payment",
+      name: "ঢাকা ফ্ল্যাট ডাউন পেমেন্ট",
       targetAmount: 2500000,
       currentAmount: 780000,
       targetDate: "2029-06-30",
       priority: "High",
       category: "Asset",
-      description: "Down payment allocation for a 3-bedroom residential apartment in Bashundhara R/A.",
+      description: "বসুন্ধরা আবাসিক এলাকায় ৩ বেডরুমের অ্যাপার্টমেন্ট ক্রয়ের ডাউন পেমেন্ট তহবিল।",
       icon: "bi-building",
       color: "#3B82F6",
       contributions: [
-        { date: "2026-05-01", amount: 150000, note: "Lump sum fixed deposit" },
-        { date: "2026-07-01", amount: 40000, note: "Quarterly savings" },
-        { date: "2026-10-01", amount: 40000, note: "Q4 savings" }
+        { date: "2026-05-01", amount: 150000, note: "এককালীন ফিক্সড ডিপোজিট জমা" },
+        { date: "2026-07-01", amount: 40000, note: "ত্রৈমাসিক সঞ্চয়" },
+        { date: "2026-10-01", amount: 40000, note: "কিউ৪ সঞ্চয়" }
       ]
     },
     {
       id: "sav-5",
-      name: "Angel & Tech Investment Fund",
+      name: "টেক ইনভেস্টমেন্ট ফান্ড",
       targetAmount: 350000,
       currentAmount: 165000,
       targetDate: "2027-06-30",
       priority: "Low",
       category: "Investment",
-      description: "Discretionary pool for local Bangladeshi tech startup seed syndicate investments.",
+      description: "বাংলাদেশি সম্ভাবনাময় টেক স্টার্টআপ সিন্ডিকেটে বিনিয়োগের জন্য তহবিল।",
       icon: "bi-graph-up-arrow",
       color: "#EC4899",
       contributions: [
-        { date: "2026-06-15", amount: 50000, note: "Seed fund pool" },
-        { date: "2026-09-15", amount: 40000, note: "Dividend re-investment" },
-        { date: "2026-10-10", amount: 25000, note: "Consulting surplus" }
+        { date: "2026-06-15", amount: 50000, note: "সিড ফান্ড পুল" },
+        { date: "2026-09-15", amount: 40000, note: "ডিভিডেন্ড পুনঃবিনিয়োগ" },
+        { date: "2026-10-10", amount: 25000, note: "কনসাল্টিং উদ্বৃত্ত" }
       ]
     }
   ],
@@ -281,7 +281,7 @@ const SEED_DATA = {
   habits: [
     {
       id: "hab-1",
-      name: "Wake up at 6:00 AM",
+      name: "সকাল ৬:০০ টায় ঘুম থেকে ওঠা",
       icon: "bi-alarm",
       category: "Morning",
       frequency: "daily",
@@ -290,7 +290,7 @@ const SEED_DATA = {
       startDate: "2026-01-01",
       active: true,
       color: "#F59E0B",
-      notes: "Early sunrise, cold water face wash, light stretching.",
+      notes: "ভোরের সূর্যোদয়, মুখে ঠাণ্ডা পানির ঝাপটা, হালকা স্ট্রেচিং।",
       completedDates: [
         "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20",
         "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26",
@@ -480,7 +480,7 @@ const SEED_DATA = {
     },
     {
       id: "tsk-2",
-      title: "Pay DESCO Electricity Bill",
+      title: "ডিইএসসিও বিদ্যুৎ বিল পরিশোধ",
       description: "Pay online via bKash or Prime Bank utility portal before the 18th.",
       category: "Finance",
       priority: "High",
@@ -498,165 +498,165 @@ const SEED_DATA = {
       dueDate: "2026-10-17",
       dueTime: "11:00",
       status: "todo",
-      notes: "Focus on mentoring mid-level fullstack devs."
+      notes: "মিড-লেভেল ফুলস্ট্যাক ডেভেলপারদের মেন্টরিং।"
     },
     {
       id: "tsk-4",
-      title: "Reconcile Prime & BRAC Bank Statements",
-      description: "Match all debit card swipes with LifeOS ledger entries.",
+      title: "প্রাইম ও ব্র্যাক ব্যাংকের স্টেটমেন্ট মিলানো",
+      description: "ডেবিট কার্ডের সব খরচ লাইফওএস লেজারের সাথে রিকনসাইল করা।",
       category: "Finance",
       priority: "Medium",
       dueDate: "2026-10-15",
       dueTime: "18:00",
       status: "completed",
-      notes: "All ৳ values balanced."
+      notes: "সব টাকার হিসাব মিলেছে।"
     },
     {
       id: "tsk-5",
-      title: "Book Cox's Bazar Resort Suite",
-      description: "Reserve ocean-view family suite at Sayeman Beach Resort for Nov 20th.",
+      title: "কক্সবাজার রিসোর্টের স্যুট বুকিং",
+      description: "২০ নভেম্বরের জন্য সায়েমান বিচ রিসোর্টে ওশান-ভিউ ফ্যামিলি স্যুট বুক করা।",
       category: "Personal",
       priority: "High",
       dueDate: "2026-10-20",
       dueTime: "16:00",
       status: "in_progress",
-      notes: "Check Visa Platinum discount vouchers."
+      notes: "ভিসা প্ল্যাটিনাম ডিসকাউন্ট ভাউচার চেক করুন।"
     },
     {
       id: "tsk-6",
-      title: "Renew Domain & AWS Cloudflare SSL",
-      description: "Annual renewal of profileofmehedi.github.io assets and custom domains.",
+      title: "ডোমেইন ও এডব্লিউএস ক্লাউডফ্লেয়ার এসএসএল নবায়ন",
+      description: "profileofmehedi.github.io ও কাস্টম ডোমেইনের বার্ষিক রিনিউয়াল।",
       category: "Tech",
       priority: "Low",
       dueDate: "2026-10-22",
       dueTime: "20:00",
       status: "todo",
-      notes: "Use Mastercard World Elite."
+      notes: "মাস্টারকার্ড ব্যবহার করুন।"
     },
     {
       id: "tsk-7",
-      title: "Buy Weekly Unimart Groceries",
-      description: "Fresh fruits, olive oil, organic milk, oats, and Greek yogurt.",
+      title: "ইউনিমার্ট থেকে সাপ্তাহিক বাজার",
+      description: "তাজা ফলমূল, অলিভ অয়েল, অর্গানিক দুধ, ওটস ও গ্রিক দই।",
       category: "Home",
       priority: "Medium",
       dueDate: "2026-10-15",
       dueTime: "19:30",
       status: "completed",
-      notes: "Paid ৳4,850 via bKash."
+      notes: "বিকাশের মাধ্যমে ৳৪,৮৫০ পরিশোধিত।"
     },
     {
       id: "tsk-8",
-      title: "Review LifeOS Frontend PR",
-      description: "Verify responsive navigation, Three.js canvas, and BDT formatting.",
+      title: "লাইফওএস ফ্রন্টএন্ড পিআর রিভিউ",
+      description: "রেসপনসিভ ন্যাভিগেশন, থ্রি.জেএস ক্যানভাস ও টাকা ফরম্যাটিং পরীক্ষা।",
       category: "Tech",
       priority: "Urgent",
       dueDate: "2026-10-15",
       dueTime: "21:00",
       status: "in_progress",
-      notes: "Ensure zero horizontal overflow on Android mobile."
+      notes: "মোবাইলে কোনো ওভারফ্লো নেই নিশ্চিত করা।"
     },
     {
       id: "tsk-9",
-      title: "Schedule Dental Checkup",
-      description: "Routine cleaning and checkup at Apollo/Evercare Hospital Dhaka.",
+      title: "ডেন্টাল চেকআপ শিডিউল করা",
+      description: "এভারকেয়ার হাসপাতাল ঢাকায় নিয়মিত দাঁতের চেকআপ ও ক্লিনিং।",
       category: "Health",
       priority: "Medium",
       dueDate: "2026-10-24",
       dueTime: "10:00",
       status: "todo",
-      notes: "Book morning slot."
+      notes: "সকালের স্লট বুক করুন।"
     },
     {
       id: "tsk-10",
-      title: "Update Investment Portfolio Sheet",
-      description: "Record monthly DPS, mutual fund yields, and gold bullion valuation.",
+      title: "বিনিয়োগ পোর্টফোলিও শিট আপডেট",
+      description: "মাসিক ডিপিএস, মিউচুয়াল ফান্ড রিটার্ন ও স্বর্ণের ভ্যালুয়েশন রেকর্ড।",
       category: "Finance",
       priority: "Low",
       dueDate: "2026-10-28",
       dueTime: "22:00",
       status: "todo",
-      notes: "Compare against 12% inflation baseline."
+      notes: "১২% মুদ্রাস্ফীতির সাথে তুলনা করা।"
     },
     {
       id: "tsk-11",
-      title: "Read Chapter 4 of System Design Volume 2",
-      description: "Distributed cache architectures and write-through patterns.",
+      title: "সিস্টেম ডিজাইন ভলিউম ২ এর অধ্যায় ৪ পড়া",
+      description: "ডিস্ট্রিবিউটেড ক্যাশ আর্কিটেকচার ও রাইট-থ্রু প্যাটার্ন।",
       category: "Learning",
       priority: "Medium",
       dueDate: "2026-10-16",
       dueTime: "22:30",
       status: "todo",
-      notes: "Take digital notes in Obsidian."
+      notes: "অবসিডিয়ানে নোট নেওয়া।"
     },
     {
       id: "tsk-12",
-      title: "Clean and Organize Home Office Setup",
-      description: "Cable management, clean mechanical keyboard, wipe monitor screen.",
+      title: "হোম অফিস সেটআপ গোছানো ও পরিষ্কার",
+      description: "ক্যাবল ম্যানেজমেন্ট, মেকানিক্যাল কিবোর্ড পরিষ্কার ও মনিটর মোছা।",
       category: "Home",
       priority: "Low",
       dueDate: "2026-10-18",
       dueTime: "17:00",
       status: "todo",
-      notes: "Ergonomics boost."
+      notes: "কাজের পরিবেশের উন্নতি।"
     }
   ],
 
   routines: [
     {
       id: "rou-1",
-      name: "Morning Miracle Routine",
+      name: "সকালের সতেজ রুটিন",
       period: "06:00 AM – 07:45 AM",
-      description: "Sets the biological and psychological tone for deep productive focus.",
+      description: "গভীর কাজের একাগ্রতার জন্য শারীরিক ও মানসিক সতেজতা নিশ্চিত করে।",
       icon: "bi-sunrise",
       color: "#F59E0B",
       steps: [
-        { id: "s-1", title: "Hydrate with 500ml water + Himalayan pink salt", duration: "5 mins", completed: true },
-        { id: "s-2", title: "Morning stretch & 20 min brisk bodyweight workout", duration: "25 mins", completed: true },
-        { id: "s-3", title: "Cold shower and grooming", duration: "15 mins", completed: true },
-        { id: "s-4", title: "Nutritious protein breakfast & black coffee", duration: "25 mins", completed: true },
-        { id: "s-5", title: "Review LifeOS My Day priorities & calendar", duration: "10 mins", completed: true }
+        { id: "s-1", title: "৫০০ মিলি পানি ও হালকা গোলাপী লবণ পান", duration: "5 mins", completed: true },
+        { id: "s-2", title: "মর্নিং স্ট্রেচ ও ২০ মিনিট বডিওয়েট ওয়ার্কআউট", duration: "25 mins", completed: true },
+        { id: "s-3", title: "ঠাণ্ডা পানিতে গোসল ও প্রস্তুতি", duration: "15 mins", completed: true },
+        { id: "s-4", title: "পুষ্টিকর প্রোটিনযুক্ত নাস্তা ও ব্ল্যাক কফি", duration: "25 mins", completed: true },
+        { id: "s-5", title: "লাইফওএস মাই ডে প্রায়োরিটি ও ক্যালেন্ডার দেখা", duration: "10 mins", completed: true }
       ]
     },
     {
       id: "rou-2",
-      name: "Deep Work Sprint (Morning)",
+      name: "মনোযোগপূর্ণ কাজের সময় (সকাল)",
       period: "09:30 AM – 12:30 PM",
-      description: "High-leverage uninterrupted engineering and architecture execution.",
+      description: "নির্বিঘ্ন সফটওয়্যার ইঞ্জিনিয়ারিং ও আর্কিটেকচার ডিজাইন সম্পাদন।",
       icon: "bi-lightning",
       color: "#635BFF",
       steps: [
-        { id: "s-6", title: "Eliminate notifications, close social & email tabs", duration: "5 mins", completed: true },
-        { id: "s-7", title: "Execute priority #1 architectural task (90 min block)", duration: "90 mins", completed: true },
-        { id: "s-8", title: "10-minute eye relaxation and water refill", duration: "10 mins", completed: false },
-        { id: "s-9", title: "Code review & pull request merges (45 mins)", duration: "45 mins", completed: false }
+        { id: "s-6", title: "নোটিফিকেশন বন্ধ ও সোশ্যাল/ইমেইল ট্যাব বন্ধ করা", duration: "5 mins", completed: true },
+        { id: "s-7", title: "এক নম্বর প্রায়োরিটি আর্কিটেকচার কাজ সম্পাদন (৯০ মিনিট)", duration: "90 mins", completed: true },
+        { id: "s-8", title: "১০ মিনিট চোখের বিশ্রাম ও পানি পান", duration: "10 mins", completed: false },
+        { id: "s-9", title: "কোড রিভিউ ও পুল রিকোয়েস্ট মার্জ (৪৫ মিনিট)", duration: "45 mins", completed: false }
       ]
     },
     {
       id: "rou-3",
-      name: "Evening Wind-down Routine",
+      name: "সন্ধ্যার প্রশান্ত রুটিন",
       period: "09:30 PM – 10:45 PM",
-      description: "Calm mental transition from engineering stress to restorative sleep.",
+      description: "ক্লান্তি দূর করে গভীর আরামদায়ক ঘুমের প্রস্তুতি।",
       icon: "bi-moon",
       color: "#6366F1",
       steps: [
-        { id: "s-10", title: "Record all daily expenses & review budget in LifeOS", duration: "10 mins", completed: false },
-        { id: "s-11", title: "Write daily reflection and gratitude journal", duration: "10 mins", completed: false },
-        { id: "s-12", title: "20 minutes reading physical book", duration: "20 mins", completed: false },
-        { id: "s-13", title: "Turn off phone wifi, dim bedroom lights", duration: "5 mins", completed: false }
+        { id: "s-10", title: "সারাদিনের সব খরচ রেকর্ড ও বাজেট যাচাই", duration: "10 mins", completed: false },
+        { id: "s-11", title: "দৈনিক অনুভূতি ও কৃতজ্ঞতা জার্নাল লেখা", duration: "10 mins", completed: false },
+        { id: "s-12", title: "২০ মিনিট বই পড়া", duration: "20 mins", completed: false },
+        { id: "s-13", title: "মোবাইলের ওয়াইফাই বন্ধ ও ডিম লাইট জ্বালানো", duration: "5 mins", completed: false }
       ]
     },
     {
       id: "rou-4",
-      name: "Weekly Financial Review",
+      name: "সাপ্তাহিক আর্থিক পর্যালোচনা",
       period: "Sunday 08:00 PM – 09:00 PM",
-      description: "Weekly audit of personal cashflow, card liabilities, and savings goals.",
+      description: "ব্যক্তিগত ক্যাশফ্লো, কার্ডের দায় ও সঞ্চয় লক্ষ্যের নিয়মিত হিসাব।",
       icon: "bi-graph-up",
       color: "#16A36A",
       steps: [
-        { id: "s-14", title: "Reconcile Prime Bank, BRAC Bank, bKash & Nagad", duration: "15 mins", completed: true },
-        { id: "s-15", title: "Check credit card outstanding balances & payment schedules", duration: "15 mins", completed: true },
-        { id: "s-16", title: "Calculate weekly burn rate vs category limits", duration: "15 mins", completed: true },
-        { id: "s-17", title: "Top up Emergency & Tech savings goals", duration: "15 mins", completed: true }
+        { id: "s-14", title: "প্রাইম ব্যাংক, ব্র্যাক ব্যাংক, বিকাশ ও নগদ ব্যালেন্স মেলানো", duration: "15 mins", completed: true },
+        { id: "s-15", title: "ক্রেডিট কার্ড বকেয়া ও পরিশোধের সময়সূচি চেক", duration: "15 mins", completed: true },
+        { id: "s-16", title: "সাপ্তাহিক খরচের হার বনাম ক্যাটাগরি সীমা যাচাই", duration: "15 mins", completed: true },
+        { id: "s-17", title: "জরুরি ও টেক সঞ্চয় তহবিলে টাকা জমা", duration: "15 mins", completed: true }
       ]
     }
   ],
@@ -664,7 +664,7 @@ const SEED_DATA = {
   calendarEvents: [
     {
       id: "evt-1",
-      title: "Monthly Salary Credit (BRAC Bank)",
+      title: "মাসিক বেতন জমা (ব্র্যাক ব্যাংক)",
       category: "Finance",
       date: "2026-10-01",
       time: "09:00",
@@ -673,7 +673,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-2",
-      title: "House Rent Transfer to Landlord",
+      title: "বাড়িওয়ালার অ্যাকাউন্টে বাসা ভাড়া স্থানান্তর",
       category: "Bills",
       date: "2026-10-05",
       time: "10:00",
@@ -682,7 +682,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-3",
-      title: "Distributed Architecture Sync",
+      title: "ডিস্ট্রিবিউটেড আর্কিটেকচার টিম মিটিং",
       category: "Meeting",
       date: "2026-10-15",
       time: "14:00",
@@ -691,7 +691,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-4",
-      title: "DESCO Electricity Due Date",
+      title: "ডিইএসসিও বিদ্যুৎ বিল পরিশোধের শেষ তারিখ",
       category: "Bills",
       date: "2026-10-18",
       time: "17:00",
@@ -700,7 +700,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-5",
-      title: "Standard Chartered Credit Card Due",
+      title: "স্ট্যান্ডার্ড চার্টার্ড ক্রেডিট কার্ড বিলের শেষ তারিখ",
       category: "Finance",
       date: "2026-10-25",
       time: "18:00",
@@ -709,7 +709,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-6",
-      title: "Weekly Engineering Sprint Planning",
+      title: "সাপ্তাহিক ইঞ্জিনিয়ারিং স্প্রিন্ট প্ল্যানিং",
       category: "Meeting",
       date: "2026-10-19",
       time: "10:30",
@@ -718,7 +718,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-7",
-      title: "Tech Meetup Dhaka 2026",
+      title: "টেক মিটআপ ঢাকা ২০২৬",
       category: "Personal",
       date: "2026-10-24",
       time: "15:00",
@@ -727,7 +727,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-8",
-      title: "Family Weekend Dinner at Lake Terrace",
+      title: "লেক টেরাসে পরিবারের সাথে রাতের খাবার",
       category: "Personal",
       date: "2026-10-16",
       time: "20:00",
@@ -736,7 +736,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-9",
-      title: "Link3 High-Speed Fiber Bill Due",
+      title: "লিংকথ্রি ফাইবার ইন্টারনেট বিল পরিশোধের তারিখ",
       category: "Bills",
       date: "2026-10-20",
       time: "12:00",
@@ -745,7 +745,7 @@ const SEED_DATA = {
     },
     {
       id: "evt-10",
-      title: "Quarterly Investment Portfolio Review",
+      title: "ত্রৈমাসিক বিনিয়োগ পোর্টফোলিও রিভিউ",
       category: "Finance",
       date: "2026-10-30",
       time: "19:00",
@@ -757,88 +757,88 @@ const SEED_DATA = {
   lifeGoals: [
     {
       id: "lg-1",
-      title: "Promote to Senior Staff Engineer / VP of Architecture",
+      title: "সিনিয়র স্টাফ ইঞ্জিনিয়ার / ভিপি অব আর্কিটেকচার পদে পদোন্নতি",
       category: "Career",
       targetDate: "2027-01-31",
       priority: "High",
       status: "in_progress",
       progress: 75,
-      description: "Spearhead enterprise multi-cloud transition and establish engineering excellence benchmarks.",
+      description: "এন্টারপ্রাইজ মাল্টি-ক্লাউড ট্রানজিশন নেতৃত্ব এবং ইঞ্জিনিয়ারিং উৎকর্ষ মানদণ্ড স্থাপন।",
       milestones: [
-        { title: "Complete Global Distributed Systems certification", done: true },
-        { title: "Deliver multi-region latency reduction initiative (<50ms)", done: true },
-        { title: "Mentor 4 Senior Engineers to Lead roles", done: true },
-        { title: "Publish 2 engineering thought leadership whitepapers", done: false }
+        { title: "গ্লোবাল ডিস্ট্রিবিউটেড সিস্টেমস সার্টিফিকেশন সম্পন্ন", done: true },
+        { title: "মাল্টি-রিজিয়ন লেটেন্সি হ্রাস উদ্যোগ সফলভাবে সম্পন্ন (<৫০ms)", done: true },
+        { title: "৪ জন সিনিয়র ইঞ্জিনিয়ারকে লিড রোলে মেন্টরিং", done: true },
+        { title: "২টি ইঞ্জিনিয়ারিং হোয়াইটপেপার প্রকাশ", done: false }
       ],
-      notes: "Executive committee presentation scheduled for Q4."
+      notes: "কিউ৪ এ নির্বাহী কমিটির সামনে প্রেজেন্টেশন নির্ধারিত।"
     },
     {
       id: "lg-2",
-      title: "Achieve ৳2.5M Liquid Net Worth",
+      title: "৳২৫ লাখ লিকুইড নেট ওয়ার্থ অর্জন",
       category: "Finance",
       targetDate: "2027-12-31",
       priority: "High",
       status: "in_progress",
       progress: 62,
-      description: "Maintain a disciplined 45%+ monthly savings rate invested in diverse growth assets.",
+      description: "বিবিধ গ্রোথ অ্যাসেটে নিয়মিত ৪৫%+ মাসিক সঞ্চয় হার বজায় রাখা।",
       milestones: [
-        { title: "Emergency fund reaches 6 months baseline (৳500k)", done: true },
-        { title: "Clear all non-mortgage liabilities each billing cycle", done: true },
-        { title: "Accumulate ৳1.5M in high-yield assets", done: false },
-        { title: "Reach ৳2.5M target milestone", done: false }
+        { title: "জরুরি তহবিল ৬ মাসের ভিত্তিতে পৌঁছানো (৳৫ লাখ)", done: true },
+        { title: "প্রতি বিলিং সাইকেলে সব কার্ডের দায় সম্পূর্ণ পরিশোধ", done: true },
+        { title: "উচ্চ মুনাফাযুক্ত সম্পদে ৳১৫ লাখ সঞ্চয়", done: false },
+        { title: "৳২৫ লাখ লক্ষ্য মাইলফলক স্পর্শ", done: false }
       ],
-      notes: "Compound interest snowball in full effect."
+      notes: "চক্রবৃদ্ধি সুদের সুবিধা দৃশ্যমান হচ্ছে।"
     },
     {
       id: "lg-3",
-      title: "Complete 10K Marathon in Hatirjheel",
+      title: "হাতিরঝিলে ১০ কিমি ম্যারাথন সম্পন্ন করা",
       category: "Health & Fitness",
       targetDate: "2026-12-15",
       priority: "Medium",
       status: "in_progress",
       progress: 70,
-      description: "Consistently run 3 times weekly, building stamina for sub-50 minute 10k finish.",
+      description: "সপ্তাহে ৩ দিন দৌড়ানো এবং ৫০ মিনিটের নিচে ১০ কিমি দৌড় শেষ করার স্ট্যামিনা তৈরি।",
       milestones: [
-        { title: "Run continuous 3km without stopping", done: true },
-        { title: "Reach 5km milestone in under 26 mins", done: true },
-        { title: "Complete 8km trial run around Dhanmondi Lake", done: false },
-        { title: "Hatirjheel 10k official run", done: false }
+        { title: "না থেমে একটানা ৩ কিমি দৌড়ানো", done: true },
+        { title: "২৬ মিনিটের মধ্যে ৫ কিমি মাইলফলক অর্জন", done: true },
+        { title: "ধানমন্ডি লেকে ৮ কিমি ট্রায়াল রান সম্পন্ন", done: false },
+        { title: "হাতিরঝিল ১০ কিমি অফিসিয়াল রান সম্পন্ন", done: false }
       ],
-      notes: "Cardio VO2 max improved by 8% this quarter."
+      notes: "এই কোয়ার্টারে কার্ডিও ফিটনেস ৮% বৃদ্ধি পেয়েছে।"
     },
     {
       id: "lg-4",
-      title: "Launch Open Source Developer Platform",
+      title: "ওপেন সোর্স ডেভেলপার প্ল্যাটফর্ম চালু করা",
       category: "Learning",
       targetDate: "2027-04-30",
       priority: "Medium",
       status: "in_progress",
       progress: 45,
-      description: "Build an accessible, high-performance developer toolkit for Bangladeshi software engineers.",
+      description: "বাংলাদেশের সফটওয়্যার ইঞ্জিনিয়ারদের জন্য সহজলভ্য, উচ্চমানের ডেভেলপার টুলকিট তৈরি।",
       milestones: [
-        { title: "Core architecture and API schema design", done: true },
-        { title: "Complete MVP frontend and CLI utilities", done: false },
-        { title: "100 alpha community testers on GitHub", done: false },
-        { title: "Reach 1,000 GitHub stars", done: false }
+        { title: "কোর আর্কিটেকচার ও এপিআই স্কিমা ডিজাইন সম্পন্ন", done: true },
+        { title: "এমভিপি ফ্রন্টএন্ড ও সিএলআই টুল তৈরি", done: false },
+        { title: "গিটহাবে ১০০ জন আলফা টেস্টার যুক্ত করা", done: false },
+        { title: "১,০০০ গিটহাব স্টার অর্জন", done: false }
       ],
-      notes: "Community interest is very positive."
+      notes: "কমিউনিটির আগ্রহ অত্যন্ত ইতিবাচক।"
     },
     {
       id: "lg-5",
-      title: "Cultivate Mindfulness & Habit Consistency",
+      title: "সচেতনতা ও অভ্যাসের ধারাবাহিকতা বজায় রাখা",
       category: "Personal Growth",
       targetDate: "2026-12-31",
       priority: "Medium",
       status: "in_progress",
       progress: 85,
-      description: "Maintain 85%+ overall habit score across all wellness and productivity metrics.",
+      description: "সকল স্বাস্থ্য ও কর্মক্ষমতা অভ্যাসে গড়ে ৮৫%+ ধারাবাহিকতা বজায় রাখা।",
       milestones: [
-        { title: "30-day continuous meditation streak", done: true },
-        { title: "Read 12 books in 2026 (currently at 9)", done: true },
-        { title: "Digital detox weekends once a month", done: true },
-        { title: "Achieve 90% life satisfaction rating", done: false }
+        { title: "টানা ৩০ দিন মেডিটেশন স্ট্রিক", done: true },
+        { title: "২০২৬ সালে ১২টি বই পড়া (বর্তমানে ৯টি সম্পন্ন)", done: true },
+        { title: "মাসে একবার ডিজিটাল ডিটক্স উইকএন্ড", done: true },
+        { title: "৯০% জীবন সন্তুষ্টি রেটিং অর্জন", done: false }
       ],
-      notes: "Feeling grounded, calm, and purposeful."
+      notes: "মন শান্ত, স্থির ও আত্মবিশ্বাসী।"
     }
   ],
 
@@ -849,11 +849,11 @@ const SEED_DATA = {
       time: "20:30",
       mood: "great", // 'great' | 'good' | 'neutral' | 'tired' | 'stressed'
       moodScore: 5,
-      title: "Productive Breakthrough on LifeOS Architecture",
-      content: "Today was exceptional. Solved the reactive data binding and decoupled state storage without introducing heavy framework overhead. Financial metrics are now perfectly synchronized between bank accounts, credit card liabilities, and budget limits. Life feels structured and under control.",
+      title: "লাইফওএস আর্কিটেকচারে দারুণ অগ্রগতি",
+      content: "আজকের দিনটি সত্যিই অসাধারণ ছিল। রিঅ্যাক্টিভ ডেটা বাইন্ডিং এবং স্টেট স্টোরেজ কোনো অতিরিক্ত ফ্রেমওয়ার্ক ছাড়াই নিখুঁতভাবে সমাধান করেছি। ব্যাংক অ্যাকাউন্ট, ক্রেডিট কার্ডের বকেয়া ও বাজেটের লিমিটের মধ্যে আর্থিক হিসাব এখন সম্পূর্ণ সিঙ্কড। জীবন এখন সুশৃঙ্খল ও নিয়ন্ত্রণে মনে হচ্ছে।",
       tags: ["Achievement", "Coding", "Mindset"],
-      gratitude: "Grateful for deep uninterrupted focus time and a supportive family.",
-      prioritiesTomorrow: "1. Finalize Q4 RFC presentation. 2. 5km morning run. 3. Family dinner."
+      gratitude: "একটানা গভীর কাজের সুযোগ এবং পরিবারের অকুণ্ঠ সমর্থনের জন্য কৃতজ্ঞ।",
+      prioritiesTomorrow: "১. কিউ৪ আরএফসি প্রেজেন্টেশন চূড়ান্ত করা। ২. সকালে ৫ কিমি দৌড়ানো। ৩. পরিবারের সাথে ডিনার।"
     },
     {
       id: "jou-2",
@@ -861,11 +861,11 @@ const SEED_DATA = {
       time: "21:45",
       mood: "good",
       moodScore: 4,
-      title: "Disciplined Day in Dhaka Autumn",
-      content: "Weather in Dhaka is finally cooling down in mid-October. Completed all morning workout sets and hit 3 liters of water intake. Managed to resist impulsive tech gadget browsing online. Saved an extra ৳5,000 towards the vacation goal.",
+      title: "ঢাকার হেমন্তে সুশৃঙ্খল একটি দিন",
+      content: "অক্টোবরের মাঝামাঝি এসে ঢাকার আবহাওয়া অবশেষে কিছুটা শীতল হয়েছে। সকালের সব ব্যায়াম সম্পন্ন করেছি এবং ৩ লিটার পানি পানের লক্ষ্য পূরণ হয়েছে। অনলাইনে অপ্রয়োজনীয় গ্যাজেট কেনার লোভ সামলেছি। ছুটির ভ্রমণ তহবিলে অতিরিক্ত ৳৫,০০০ সঞ্চয় করেছি।",
       tags: ["Fitness", "Discipline", "Finance"],
-      gratitude: "Grateful for good health, clear air this morning, and warm tea.",
-      prioritiesTomorrow: "Complete architectural review and check savings balance."
+      gratitude: "সুস্বাস্থ্য, সকালের সতেজ বাতাস এবং এক কাপ গরম চায়ের জন্য কৃতজ্ঞতা।",
+      prioritiesTomorrow: "আর্কিটেকচারাল রিভিউ শেষ করা এবং সঞ্চয় অ্যাকাউন্টের ব্যালেন্স চেক করা।"
     },
     {
       id: "jou-3",
@@ -873,11 +873,11 @@ const SEED_DATA = {
       time: "22:15",
       mood: "neutral",
       moodScore: 3,
-      title: "Navigating Dhaka Traffic & Long Meetings",
-      content: "Dhaka traffic on Airport Road was brutal today—spent nearly two hours commuting. Used the time fruitfully listening to a distributed systems podcast. Work meetings ran longer than expected, but managed to close three high-priority blockers.",
+      title: "ঢাকার ট্রাফিক ও দীর্ঘ মিটিংয়ের অভিজ্ঞতা",
+      content: "আজ এয়ারপোর্ট রোডে ভয়াবহ ট্রাফিক জ্যাম ছিল—যাতায়াতেই প্রায় দুই ঘণ্টা চলে গেল। সময়টা কাজে লাগিয়ে ডিস্ট্রিবিউটেড সিস্টেমের চমৎকার একটি পডকাস্ট শুনলাম। অফিসের মিটিং প্রত্যাশার চেয়ে দীর্ঘ হলেও তিনটি গুরুত্বপূর্ণ ব্লকার সমাধান করতে পেরেছি।",
       tags: ["Work", "Reflections"],
-      gratitude: "Grateful for noise-canceling headphones and audiobooks.",
-      prioritiesTomorrow: "Focus on solo deep engineering work."
+      gratitude: "নয়েজ-ক্যানসেলিং হেডফোন এবং অডিওবুকের জন্য কৃতজ্ঞ।",
+      prioritiesTomorrow: "নিজের ইঞ্জিনিয়ারিং ও আর্কিটেকচার কাজে গভীর মনোযোগ দেওয়া।"
     },
     {
       id: "jou-4",
@@ -885,11 +885,11 @@ const SEED_DATA = {
       time: "21:00",
       mood: "great",
       moodScore: 5,
-      title: "Weekend Harmony with Family",
-      content: "Took the weekend completely off work. Spent delightful hours in the afternoon walking through the park with family, eating fuchka, and laughing together. It reminds me why financial freedom and life balance are the ultimate goals.",
+      title: "পরিবারের সাথে আনন্দময় ছুটির দিন",
+      content: "উইকএন্ডে কাজের কোনো চাপ ছিল না। বিকেলে পরিবারের সাথে পার্কে হাঁটাহাঁটি করলাম, একসাথে ফুচকা খেলাম এবং মন খুলে গল্প করলাম। এই মুহূর্তগুলোই মনে করিয়ে দেয় আর্থিক স্বাধীনতা ও জীবনের ভারসাম্য কেন সবচেয়ে গুরুত্বপূর্ণ লক্ষ্য।",
       tags: ["Family", "Happiness", "Balance"],
-      gratitude: "Family laughter and peaceful evenings.",
-      prioritiesTomorrow: "Review upcoming weekly tasks and schedule sprint planning."
+      gratitude: "পরিবারের হাসি ও প্রশান্তিময় সন্ধ্যার জন্য কৃতজ্ঞতা।",
+      prioritiesTomorrow: "আসন্ন সপ্তাহের কাজগুলো সাজানো এবং স্প্রিন্ট প্ল্যানিং শিডিউল করা।"
     },
     {
       id: "jou-5",
@@ -897,19 +897,19 @@ const SEED_DATA = {
       time: "22:00",
       mood: "good",
       moodScore: 4,
-      title: "Monthly Budget Audit Completed",
-      content: "Analyzed September spending patterns. Groceries were well within budget (৳23,400 spent of ৳25,000 limit). Saved ৳35,000 directly into the Emergency Fund. The system works when you inspect it regularly.",
+      title: "মাসিক বাজেট নিরীক্ষা সম্পন্ন",
+      content: "সেপ্টেম্বর মাসের খরচের খতিয়ান বিশ্লেষণ করলাম। বাজারের খরচ বাজেটের মধ্যেই ছিল (৳২৫,০০০ সীমার মধ্যে ৳২৩,৪০০ খরচ)। সরাসরি জরুরি তহবিলে ৳৩৫,০০০ সঞ্চয় করতে পেরেছি। নিয়মিত পর্যবেক্ষণ করলে যে কোনো আর্থিক পরিকল্পনাই সফল হয়।",
       tags: ["Finance", "Audit", "Habits"],
-      gratitude: "Financial stability and having clear visibility of every Taka.",
-      prioritiesTomorrow: "Pay internet utility and schedule team reviews."
+      gratitude: "আর্থিক স্থিতিশীলতা এবং প্রতিটি টাকার হিসাব চোখের সামনে থাকার মানসিক শান্তি।",
+      prioritiesTomorrow: "ইন্টারনেট বিল পরিশোধ করা এবং টিম রিভিউ মিটিং নেওয়া।"
     }
   ],
 
   notifications: [
     {
       id: "notif-1",
-      title: "Credit Card Payment Reminder",
-      message: "Standard Chartered Visa Platinum bill of ৳34,500 is due on 25 Oct 2026.",
+      title: "ক্রেডিট কার্ড পরিশোধের তাগিদ",
+      message: "স্ট্যান্ডার্ড চার্টার্ড ভিসা প্ল্যাটিনামের ৳৩৪,৫০০ বিল আগামী ২৫ অক্টোবর ২০২৬ এর মধ্যে পরিশোধ করতে হবে।",
       type: "warning",
       icon: "bi-credit-card",
       timestamp: "2026-10-15 14:00",
@@ -918,8 +918,8 @@ const SEED_DATA = {
     },
     {
       id: "notif-2",
-      title: "Budget Warning: Dining Out",
-      message: "You have utilized 85% (৳10,200 / ৳12,000) of your Dining Out monthly budget.",
+      title: "বাজেট সতর্কতা: রেস্তোরাঁ ও ক্যাফে",
+      message: "আপনি রেস্তোরাঁ ও ক্যাফে খাতের মাসিক বাজেটের ৮৫% (৳১০,২০০ / ৳১২,০০০) খরচ করে ফেলেছেন।",
       type: "alert",
       icon: "bi-exclamation-triangle",
       timestamp: "2026-10-14 19:30",
@@ -928,8 +928,8 @@ const SEED_DATA = {
     },
     {
       id: "notif-3",
-      title: "Habit Streak Milestone!",
-      message: "Incredible! You have reached a 30-day streak on 'Log All Expenses in LifeOS'.",
+      title: "অভ্যাসের ধারাবাহিকতা মাইলফলক!",
+      message: "অসাধারণ! আপনি 'লাইফওএস-এ সব খরচ এন্ট্রি করা' অভ্যাসে টানা ৩০ দিনের ধারাবাহিকতা অর্জন করেছেন।",
       type: "success",
       icon: "bi-trophy",
       timestamp: "2026-10-15 08:00",
@@ -938,8 +938,8 @@ const SEED_DATA = {
     },
     {
       id: "notif-4",
-      title: "Savings Goal Update",
-      message: "MacBook Pro M4 goal has reached 77% progress! Only ৳65,000 remaining.",
+      title: "সঞ্চয় লক্ষ্য আপডেট",
+      message: "ম্যাকবুক প্রো এম৪ তহবিলের ৭৭% অর্জিত হয়েছে! লক্ষ্য পূরণে মাত্র ৳৬৫,০০০ বাকি।",
       type: "info",
       icon: "bi-piggy-bank",
       timestamp: "2026-10-13 11:15",
@@ -948,8 +948,8 @@ const SEED_DATA = {
     },
     {
       id: "notif-5",
-      title: "DESCO Electricity Bill Due Soon",
-      message: "Electricity bill estimated at ৳4,250 is due by 18 Oct 2026.",
+      title: "ডিইএসসিও বিদ্যুৎ বিলের শেষ সময় নিকটবর্তী",
+      message: "আনুমানিক ৳৪,২৫০ বিদ্যুৎ বিল ১৮ অক্টোবর ২০২৬ এর মধ্যে পরিশোধ করতে হবে।",
       type: "warning",
       icon: "bi-lightning-charge",
       timestamp: "2026-10-12 09:00",
@@ -958,8 +958,8 @@ const SEED_DATA = {
     },
     {
       id: "notif-6",
-      title: "Weekly Financial Summary Ready",
-      message: "Your net worth increased by +2.8% this week. Total savings rate at 42%.",
+      title: "সাপ্তাহিক আর্থিক সারসংক্ষেপ প্রস্তুত",
+      message: "এই সপ্তাহে আপনার মোট সম্পদ +২.৮% বৃদ্ধি পেয়েছে। সঞ্চয়ের গড় হার ৪২%।",
       type: "info",
       icon: "bi-graph-up",
       timestamp: "2026-10-11 20:00",
@@ -1824,10 +1824,10 @@ const SEED_DATA = {
     {
       id: "trip-101",
       date: "2026-10-15",
-      clientOrPurpose: "Emergency Datacenter Failover Drill",
-      location: "Mohakhali DOHS, Dhaka",
-      route: "Banani Office -> Mohakhali DOHS -> Banani",
-      transportMode: "Rickshaw & Uber",
+      clientOrPurpose: "জরুরি ডেটাসেন্টার ফেইলওভার ড্রিল",
+      location: "মহাখালী ডিওএইচএস, ঢাকা",
+      route: "বনানী অফিস -> মহাখালী ডিওএইচএস -> বনানী",
+      transportMode: "রিকশা ও উবার",
       transportCost: 380,
       lunchOrSnacksCost: 180,
       actualCost: 560,
@@ -1835,16 +1835,16 @@ const SEED_DATA = {
       pocketGap: 210,
       status: "unsubmitted",
       claimId: null,
-      notes: "Lunch exceeded cap, submitted within corporate conveyance limit.",
+      notes: "লাঞ্চ ভাতার সীমা অতিক্রম করেছিল, প্রাতিষ্ঠানিক যাতায়াত সীমার মধ্যে দাবি পেশ করা হয়েছে।",
       accountId: "acc-5"
     },
     {
       id: "trip-102",
       date: "2026-10-14",
-      clientOrPurpose: "bKash HQ Cloud Architecture Alignment",
-      location: "Shadhinata Bhaban, Gulshan 2",
-      route: "Banani -> Gulshan 2 -> Banani",
-      transportMode: "Uber Premier",
+      clientOrPurpose: "বিকাশ হেডকোয়ার্টার ক্লাউড আর্কিটেকচার মিটিং",
+      location: "স্বাধীনতা ভবন, গুলশান ২",
+      route: "বনানী -> গুলশান ২ -> বনানী",
+      transportMode: "উবার প্রিমিয়ার",
       transportCost: 480,
       lunchOrSnacksCost: 380,
       actualCost: 860,
@@ -1852,16 +1852,16 @@ const SEED_DATA = {
       pocketGap: 360,
       status: "submitted",
       claimId: "clm-101",
-      notes: "Client meeting lunch at Gloria Jean's, submitted per-diem max ৳500.",
+      notes: "গ্লোরিয়া জিন্সে ক্লায়েন্ট মিটিং ও লাঞ্চ, সর্বোচ্চ ৫০০ টাকা ভাতার দাবি পেশ।",
       accountId: "acc-3"
     },
     {
       id: "trip-103",
       date: "2026-10-12",
-      clientOrPurpose: "Enterprise ERP Sync at DSE Tower",
-      location: "Motijheel C/A, Dhaka",
-      route: "Banani -> Motijheel -> Banani",
-      transportMode: "CNG Auto-rickshaw",
+      clientOrPurpose: "ডিএসই টাওয়ারে এন্টারপ্রাইজ ইআরপি মিটিং",
+      location: "মতিঝিল বা/এ, ঢাকা",
+      route: "বনানী -> মতিঝিল -> বনানী",
+      transportMode: "সিএনজি অটোরিকশা",
       transportCost: 650,
       lunchOrSnacksCost: 120,
       actualCost: 770,
@@ -1869,16 +1869,16 @@ const SEED_DATA = {
       pocketGap: 270,
       status: "submitted",
       claimId: "clm-101",
-      notes: "Severe traffic surcharge, paid ৳650 CNG, company max limit is ৳500.",
+      notes: "তীব্র ট্রাফিক সার্জের কারণে ভাড়া ৳৬৫০ হয়েছে, কোম্পানির সর্বোচ্চ সীমা ৳৫০০।",
       accountId: "acc-5"
     },
     {
       id: "trip-104",
       date: "2026-10-09",
-      clientOrPurpose: "Onsite Server Rack Migration",
-      location: "Uttara Sector 4, Dhaka",
-      route: "Banani -> Uttara Sector 4 -> Banani",
-      transportMode: "Uber XL",
+      clientOrPurpose: "অনসাইট সার্ভার রেক মাইগ্রেশন",
+      location: "উত্তরা সেক্টর ৪, ঢাকা",
+      route: "বনানী -> উত্তরা সেক্টর ৪ -> বনানী",
+      transportMode: "উবার এক্সএল",
       transportCost: 820,
       lunchOrSnacksCost: 450,
       actualCost: 1270,
@@ -1886,16 +1886,16 @@ const SEED_DATA = {
       pocketGap: 470,
       status: "settled",
       claimId: "clm-098",
-      notes: "Equipment transport in Uber XL. Partial claim approved.",
+      notes: "সার্ভার সরঞ্জামসহ যাতায়াত। আংশিক দাবি অনুমোদিত।",
       accountId: "acc-1"
     },
     {
       id: "trip-105",
       date: "2026-10-06",
-      clientOrPurpose: "Vendor API Integration Discussion",
-      location: "Dhanmondi 27, Dhaka",
-      route: "Office -> Dhanmondi 27 -> Office",
-      transportMode: "Pathao / Uber",
+      clientOrPurpose: "ভেন্ডর এপিআই ইন্টিগ্রেশন আলোচনা",
+      location: "ধানমন্ডি ২৭, ঢাকা",
+      route: "অফিস -> ধানমন্ডি ২৭ -> অফিস",
+      transportMode: "পাঠাও / উবার",
       transportCost: 320,
       lunchOrSnacksCost: 150,
       actualCost: 470,
@@ -1903,15 +1903,15 @@ const SEED_DATA = {
       pocketGap: 170,
       status: "settled",
       claimId: "clm-098",
-      notes: "Coffee and snack with vendor tech lead.",
+      notes: "ভেন্ডর টেক লিডের সাথে কফি ও মিটিং।",
       accountId: "acc-3"
     },
     {
       id: "trip-106",
       date: "2026-10-03",
-      clientOrPurpose: "Govt ICT Division High-Level Meeting",
-      location: "BCC Bhaban, Agargaon",
-      route: "Banani -> Agargaon -> Banani",
+      clientOrPurpose: "আইসিটি বিভাগ উচ্চপর্যায়ের সমন্বয় সভা",
+      location: "বিসিসি ভবন, আগারগাঁও",
+      route: "বনানী -> আগারগাঁও -> বনানী",
       transportMode: "Uber",
       transportCost: 550,
       lunchOrSnacksCost: 350,
@@ -1920,15 +1920,15 @@ const SEED_DATA = {
       pocketGap: 300,
       status: "settled",
       claimId: "clm-097",
-      notes: "Agargaon ICT summit coordination.",
+      notes: "আগারগাঁও আইসিটি সামিট সমন্বয় সভা।",
       accountId: "card-2"
     },
     {
       id: "trip-107",
       date: "2026-09-26",
-      clientOrPurpose: "BracNet Telecom Partner Session",
-      location: "Karwan Bazar, Dhaka",
-      route: "Banani -> Karwan Bazar -> Banani",
+      clientOrPurpose: "ব্র্যাকনেট টেলিকম পার্টনার সেশন",
+      location: "কারওয়ান বাজার, ঢাকা",
+      route: "বনানী -> কারওয়ান বাজার -> বনানী",
       transportMode: "Uber",
       transportCost: 450,
       lunchOrSnacksCost: 250,
@@ -1937,7 +1937,7 @@ const SEED_DATA = {
       pocketGap: 200,
       status: "settled",
       claimId: "clm-097",
-      notes: "Dark fiber leasing consultation.",
+      notes: "ডার্ক ফাইবার লিজিং পরামর্শ সভা।",
       accountId: "acc-3"
     }
   ],
@@ -1947,9 +1947,9 @@ const SEED_DATA = {
     {
       id: "clm-101",
       voucherNumber: "VCH-2026-10-01",
-      title: "October First-Half Official Meeting Conveyance",
+      title: "অক্টোবর প্রথমার্ধের প্রাতিষ্ঠানিক যাতায়াত বিল",
       submissionDate: "2026-10-14",
-      period: "01 Oct 2026 – 14 Oct 2026",
+      period: "০১ অক্টোবর ২০২৬ – ১৪ অক্টোবর ২০২৬",
       tripIds: ["trip-102", "trip-103"],
       totalActualSpent: 1630,
       totalClaimed: 1000,
@@ -1959,14 +1959,14 @@ const SEED_DATA = {
       status: "pending_approval",
       targetAccountId: null,
       disbursementDate: null,
-      disbursementNote: "Submitted to Accounts department for review."
+      disbursementNote: "হিসাব বিভাগে পর্যালোচনার জন্য জমা দেওয়া হয়েছে।"
     },
     {
       id: "clm-098",
       voucherNumber: "VCH-2026-10-02",
-      title: "Late September & Early October Technical Visits",
+      title: "সেপ্টেম্বর শেষ ও অক্টোবর শুরুর টেকনিক্যাল ভিজিট বিল",
       submissionDate: "2026-10-10",
-      period: "28 Sep 2026 – 09 Oct 2026",
+      period: "২৮ সেপ্টেম্বর ২০২৬ – ০৯ অক্টোবর ২০২৬",
       tripIds: ["trip-104", "trip-105"],
       totalActualSpent: 1740,
       totalClaimed: 1100,
@@ -1976,14 +1976,14 @@ const SEED_DATA = {
       status: "partially_disbursed",
       targetAccountId: "acc-3",
       disbursementDate: "2026-10-13",
-      disbursementNote: "Company accounts deducted ৳150 citing transport policy cap. ৳950 disbursed to bKash."
+      disbursementNote: "যাতায়াত পলিসির কারণে কোম্পানি ৳১৫০ কেটে রেখে ৳৯৫০ বিকাশে পরিশোধ করেছে।"
     },
     {
       id: "clm-097",
       voucherNumber: "VCH-2026-09-04",
-      title: "September Enterprise Project Conveyance",
+      title: "সেপ্টেম্বর এন্টারপ্রাইজ প্রজেক্ট যাতায়াত বিল",
       submissionDate: "2026-09-28",
-      period: "15 Sep 2026 – 27 Sep 2026",
+      period: "১৫ সেপ্টেম্বর ২০২৬ – ২৭ সেপ্টেম্বর ২০২৬",
       tripIds: ["trip-106", "trip-107"],
       totalActualSpent: 1600,
       totalClaimed: 1100,
@@ -1993,7 +1993,7 @@ const SEED_DATA = {
       status: "fully_disbursed",
       targetAccountId: "acc-2",
       disbursementDate: "2026-10-02",
-      disbursementNote: "Full claimed amount ৳1,100 approved and disbursed with salary cycle."
+      disbursementNote: "দাবিকৃত পুরো ৳১,১০০ অনুমোদিত ও বেতন চক্রের সাথে পরিশোধিত হয়েছে।"
     }
   ]
 };

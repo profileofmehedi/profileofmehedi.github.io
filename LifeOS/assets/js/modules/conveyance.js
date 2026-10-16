@@ -36,16 +36,18 @@ const LifeConveyance = (() => {
     $(document).on("click", ".btn-delete-conveyance-trip", function () {
       const tripId = $(this).data("id");
       window.Swal.fire({
-        title: "Delete Conveyance Record?",
-        text: "Remove this trip and official expense entry?",
+        title: "যাতায়াত রেকর্ড মুছে ফেলতে চান?",
+        text: "এই মিটিং ও অফিশিয়াল খরচের এন্ট্রি মুছে ফেলবেন?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
-        confirmButtonText: "Yes, delete"
+        cancelButtonColor: "#64748B",
+        confirmButtonText: "হ্যাঁ, মুছে ফেলুন",
+        cancelButtonText: "বাতিল"
       }).then(res => {
         if (res.isConfirmed) {
           LifeStorage.deleteConveyanceTrip(tripId);
-          window.Swal.fire({ icon: "success", title: "Trip Deleted", timer: 1500, showConfirmButton: false, toast: true });
+          window.Swal.fire({ icon: "success", title: "রেকর্ড মুছে ফেলা হয়েছে", timer: 1500, showConfirmButton: false, toast: true });
         }
       });
     });
@@ -62,7 +64,7 @@ const LifeConveyance = (() => {
       const disbursed = Number($(this).val()) || 0;
       const deduction = Math.max(0, claimed - disbursed);
       $("#settle-deduction-amount").val(deduction);
-      $("#settle-deduction-badge").text(`Company Deduction: ${LifeUtils.formatCurrency(deduction)}`);
+      $("#settle-deduction-badge").text(`কোম্পানি কর্তন: ${LifeUtils.formatCurrency(deduction)}`);
       $("#settle-deduction-badge").toggleClass("text-danger", deduction > 0).toggleClass("text-success", deduction === 0);
     });
 
@@ -154,8 +156,8 @@ const LifeConveyance = (() => {
         <tr>
           <td colspan="8" class="text-center py-5 text-muted">
             <i class="bi bi-briefcase fs-1 d-block mb-2 text-secondary opacity-50"></i>
-            <div class="fw-semibold">No conveyance trips under this filter.</div>
-            <div class="small">Click "Log Meeting Trip" to record client/office visits.</div>
+            <div class="fw-semibold">এই ফিল্টারে কোনো যাতায়াত রেকর্ড পাওয়া যায়নি।</div>
+            <div class="small">'নতুন যাতায়াত বিল' বাটনে ক্লিক করে অফিশিয়াল যাতায়াত এন্ট্রি করুন।</div>
           </td>
         </tr>
       `);
@@ -165,11 +167,11 @@ const LifeConveyance = (() => {
     const html = list.map(t => {
       let statusBadge = "";
       if (t.status === "unsubmitted") {
-        statusBadge = `<span class="badge bg-secondary-subtle text-secondary-emphasis border">Unsubmitted</span>`;
+        statusBadge = `<span class="badge bg-secondary-subtle text-secondary-emphasis border">দাবিহীন</span>`;
       } else if (t.status === "submitted") {
-        statusBadge = `<span class="badge bg-warning-subtle text-warning-emphasis border">In Claim</span>`;
+        statusBadge = `<span class="badge bg-warning-subtle text-warning-emphasis border">ভাউচারে অন্তর্ভুক্ত</span>`;
       } else if (t.status === "settled") {
-        statusBadge = `<span class="badge bg-success-subtle text-success-emphasis border">Settled</span>`;
+        statusBadge = `<span class="badge bg-success-subtle text-success-emphasis border">পরিশোধিত</span>`;
       }
 
       return `
@@ -180,31 +182,31 @@ const LifeConveyance = (() => {
           </td>
           <td>
             <div class="fw-bold fs-14 text-dark">${LifeUtils.escapeHtml(t.clientOrPurpose)}</div>
-            <div class="text-muted small"><i class="bi bi-geo-alt"></i> ${LifeUtils.escapeHtml(t.location || "Dhaka")}</div>
+            <div class="text-muted small"><i class="bi bi-geo-alt"></i> ${LifeUtils.escapeHtml(t.location || "ঢাকা")}</div>
             <div class="text-muted fs-11">${LifeUtils.escapeHtml(t.route || "")}</div>
           </td>
           <td>
             <div class="badge bg-light text-dark border mb-1">${LifeUtils.escapeHtml(t.transportMode)}</div>
-            <div class="small text-muted">Transport: ${LifeUtils.formatCurrency(t.transportCost)}</div>
-            ${t.lunchOrSnacksCost > 0 ? `<div class="small text-muted">Lunch: ${LifeUtils.formatCurrency(t.lunchOrSnacksCost)}</div>` : ""}
+            <div class="small text-muted">ভাড়া: ${LifeUtils.formatCurrency(t.transportCost)}</div>
+            ${t.lunchOrSnacksCost > 0 ? `<div class="small text-muted">লাঞ্চ: ${LifeUtils.formatCurrency(t.lunchOrSnacksCost)}</div>` : ""}
           </td>
           <td>
             <div class="fw-bold text-dark fs-15">${LifeUtils.formatCurrency(t.actualCost)}</div>
-            <div class="text-muted fs-11">Total Incurred</div>
+            <div class="text-muted fs-11">প্রকৃত খরচ</div>
           </td>
           <td>
             <div class="fw-semibold text-primary fs-15">${LifeUtils.formatCurrency(t.claimedCost)}</div>
-            <div class="text-muted fs-11">On Company Voucher</div>
+            <div class="text-muted fs-11">অফিস ভাউচারে দাবি</div>
           </td>
           <td>
             <div class="fw-bold fs-15 ${t.pocketGap > 0 ? "text-danger" : "text-success"}">
               ${t.pocketGap > 0 ? `-${LifeUtils.formatCurrency(t.pocketGap)}` : "৳0"}
             </div>
-            <div class="fs-11 text-muted">${t.pocketGap > 0 ? "Personal Pocket Gap" : "Fully Claimed"}</div>
+            <div class="fs-11 text-muted">${t.pocketGap > 0 ? "ব্যক্তিগত পকেট ঘাটতি" : "সম্পূর্ণ সমন্বিত"}</div>
           </td>
           <td>${statusBadge}</td>
           <td class="text-end">
-            <button class="btn btn-sm btn-outline-danger btn-delete-conveyance-trip" data-id="${t.id}" title="Delete Record">
+            <button class="btn btn-sm btn-outline-danger btn-delete-conveyance-trip" data-id="${t.id}" title="রেকর্ড মুছুন">
               <i class="bi bi-trash"></i>
             </button>
           </td>
@@ -222,8 +224,8 @@ const LifeConveyance = (() => {
       $("#conveyance-claims-grid").html(`
         <div class="col-12 text-center py-5 text-muted bg-white border rounded-4">
           <i class="bi bi-receipt fs-1 d-block mb-2 text-secondary opacity-50"></i>
-          <div class="fw-semibold">No conveyance claims created yet.</div>
-          <div class="small">Click "Batch & Submit Claim" to group meeting trips into an official voucher.</div>
+          <div class="fw-semibold">এখনো কোনো রিইমবার্সমেন্ট ভাউচার তৈরি করা হয়নি।</div>
+          <div class="small">'ভাউচার তৈরি ও জমা' বাটনে ক্লিক করে অফিশিয়াল যাতায়াত বিল তৈরি করুন।</div>
         </div>
       `);
       return;
@@ -232,11 +234,11 @@ const LifeConveyance = (() => {
     const html = claims.map(c => {
       let statusBadge = "";
       if (c.status === "pending_approval") {
-        statusBadge = `<span class="badge bg-warning text-dark">Pending Accounts Approval</span>`;
+        statusBadge = `<span class="badge bg-warning text-dark">অ্যাকাউন্টস অনুমোদনের অপেক্ষায়</span>`;
       } else if (c.status === "partially_disbursed") {
-        statusBadge = `<span class="badge bg-info-subtle text-info-emphasis border">Partially Disbursed</span>`;
+        statusBadge = `<span class="badge bg-info-subtle text-info-emphasis border">আংশিক পরিশোধিত</span>`;
       } else if (c.status === "fully_disbursed") {
-        statusBadge = `<span class="badge bg-success text-white">Fully Settled</span>`;
+        statusBadge = `<span class="badge bg-success text-white">সম্পূর্ণ সমন্বিত</span>`;
       }
 
       const totalLossOnThisBatch = (c.totalActualSpent - (c.disbursedAmount || 0));
@@ -249,7 +251,7 @@ const LifeConveyance = (() => {
                 <div>
                   <span class="badge bg-light text-secondary border font-monospace mb-1">${c.voucherNumber}</span>
                   <h5 class="fw-bold mb-1">${LifeUtils.escapeHtml(c.title)}</h5>
-                  <div class="text-muted small">Submitted: ${LifeUtils.formatDate(c.submissionDate, "DD MMM YYYY")} • ${c.period || ""}</div>
+                  <div class="text-muted small">জমা দেওয়া হয়েছে: ${LifeUtils.formatDate(c.submissionDate, "DD MMM YYYY")} • ${c.period || ""}</div>
                 </div>
                 ${statusBadge}
               </div>
@@ -258,15 +260,15 @@ const LifeConveyance = (() => {
             <div class="card-body px-4 py-2">
               <div class="row g-2 text-center bg-light-subtle rounded-3 p-3 border mb-3">
                 <div class="col-4 border-end">
-                  <div class="text-muted fs-11">Total Incurred</div>
+                  <div class="text-muted fs-11">প্রকৃত খরচ</div>
                   <div class="fw-bold fs-15 text-dark">${LifeUtils.formatCurrency(c.totalActualSpent)}</div>
                 </div>
                 <div class="col-4 border-end">
-                  <div class="text-muted fs-11">Submitted / Claimed</div>
+                  <div class="text-muted fs-11">অফিসে দাবিকৃত</div>
                   <div class="fw-bold fs-15 text-primary">${LifeUtils.formatCurrency(c.totalClaimed)}</div>
                 </div>
                 <div class="col-4">
-                  <div class="text-muted fs-11">Disbursed by Co.</div>
+                  <div class="text-muted fs-11">পরিশোধিত টাকা</div>
                   <div class="fw-bold fs-15 text-success">${LifeUtils.formatCurrency(c.disbursedAmount || 0)}</div>
                 </div>
               </div>
@@ -274,17 +276,17 @@ const LifeConveyance = (() => {
               <!-- Loss Breakdown Alert -->
               <div class="p-3 rounded-3 mb-3 border ${c.companyDeduction > 0 ? "bg-danger-subtle border-danger" : "bg-light-subtle"}">
                 <div class="d-flex justify-content-between small mb-1">
-                  <span class="text-muted">Unsubmitted Pocket Gap:</span>
+                  <span class="text-muted">অননুমোদিত পকেট ঘাটতি:</span>
                   <span class="fw-semibold">${LifeUtils.formatCurrency(c.initialPocketGap)}</span>
                 </div>
                 ${c.companyDeduction > 0 ? `
                   <div class="d-flex justify-content-between small text-danger mb-1">
-                    <span>Company Accounts Cut / Deduction:</span>
+                    <span>কোম্পানি অ্যাকাউন্টস কর্তন:</span>
                     <span class="fw-bold">-${LifeUtils.formatCurrency(c.companyDeduction)}</span>
                   </div>
                 ` : ""}
                 <div class="d-flex justify-content-between small pt-1 border-top fw-bold">
-                  <span>Net Pocket Loss for Me:</span>
+                  <span>আমার ব্যক্তিগত নিট ক্ষতি:</span>
                   <span class="text-danger">${LifeUtils.formatCurrency(totalLossOnThisBatch)}</span>
                 </div>
               </div>
@@ -295,17 +297,17 @@ const LifeConveyance = (() => {
                 </div>
               ` : ""}
 
-              <div class="small text-muted">Includes ${(c.tripIds || []).length} meeting trips</div>
+              <div class="small text-muted">মোট ${(c.tripIds || []).length} টি মিটিং ভিজিট সংযুক্ত</div>
             </div>
 
             <div class="card-footer bg-transparent border-top px-4 py-3 d-flex justify-content-between align-items-center">
-              <span class="small text-muted">${c.disbursementDate ? `Settled on ${LifeUtils.formatDate(c.disbursementDate, "DD MMM")}` : "Awaiting disbursement"}</span>
+              <span class="small text-muted">${c.disbursementDate ? `${LifeUtils.formatDate(c.disbursementDate, "DD MMM")} তারিখে পরিশোধিত` : "পরিশোধের অপেক্ষায়"}</span>
               ${c.status === "pending_approval" ? `
                 <button class="btn btn-sm btn-success btn-settle-claim" data-id="${c.id}">
-                  <i class="bi bi-cash-coin me-1"></i> Record Disbursement
+                  <i class="bi bi-cash-coin me-1"></i> পরিশোধ রেকর্ড করুন
                 </button>
               ` : `
-                <span class="text-success small fw-semibold"><i class="bi bi-check-circle-fill"></i> Disbursed</span>
+                <span class="text-success small fw-semibold"><i class="bi bi-check-circle-fill"></i> পরিশোধিত</span>
               `}
             </div>
           </div>
@@ -385,8 +387,8 @@ const LifeConveyance = (() => {
     if (!clientOrPurpose || (!transportCost && !lunchOrSnacksCost)) {
       window.Swal.fire({
         icon: "warning",
-        title: "Validation Error",
-        text: "Please provide meeting purpose and at least transport or lunch expense."
+        title: "যাচাইকরণ ত্রুটি",
+        text: "অনুগ্রহ করে মিটিংয়ের উদ্দেশ্য এবং যাতায়াত বা লাঞ্চ খরচ উল্লেখ করুন।"
       });
       return;
     }
@@ -411,8 +413,8 @@ const LifeConveyance = (() => {
     bootstrap.Modal.getInstance(document.getElementById("modal-conveyance-trip")).hide();
     window.Swal.fire({
       icon: "success",
-      title: "Conveyance Logged!",
-      text: `Logged ${LifeUtils.formatCurrency(actualCost)} (${LifeUtils.formatCurrency(claimedCost)} claimed).`,
+      title: "যাতায়াত রেকর্ড সম্পন্ন!",
+      text: `${LifeUtils.formatCurrency(actualCost)} রেকর্ড করা হয়েছে (দাবি: ${LifeUtils.formatCurrency(claimedCost)})।`,
       timer: 1800,
       showConfirmButton: false,
       toast: true,
@@ -426,14 +428,14 @@ const LifeConveyance = (() => {
     if (trips.length === 0) {
       window.Swal.fire({
         icon: "info",
-        title: "No Unsubmitted Trips",
-        text: "All your conveyance trips have already been added to claim batches.",
+        title: "কোনো অ-জমাকৃত ট্রিপ নেই",
+        text: "আপনার সকল যাতায়াত বিল ইতিমধ্যে ভাউচারে অন্তর্ভুক্ত হয়েছে।",
         confirmButtonColor: "#635BFF"
       });
       return;
     }
 
-    $("#batch-form-title").val(`Conveyance Bill - ${LifeUtils.formatDate(LifeUtils.CURRENT_DEMO_DATE, "MMM YYYY")}`);
+    $("#batch-form-title").val(`যাতায়াত বিল ভাউচার - ${LifeUtils.formatDate(LifeUtils.CURRENT_DEMO_DATE, "MMM YYYY")}`);
     $("#batch-form-date").val(LifeUtils.CURRENT_DEMO_DATE);
 
     const checklistHtml = trips.map(t => `
@@ -442,11 +444,11 @@ const LifeConveyance = (() => {
         <label class="form-check-label w-100 cursor-pointer" for="chk-${t.id}">
           <div class="d-flex justify-content-between align-items-center">
             <span class="fw-semibold fs-13">${LifeUtils.escapeHtml(t.clientOrPurpose)}</span>
-            <span class="badge bg-primary-subtle text-primary">Claim: ${LifeUtils.formatCurrency(t.claimedCost)}</span>
+            <span class="badge bg-primary-subtle text-primary">দাবি: ${LifeUtils.formatCurrency(t.claimedCost)}</span>
           </div>
           <div class="d-flex justify-content-between small text-muted">
             <span>${LifeUtils.formatDate(t.date, "DD MMM")} • ${t.transportMode}</span>
-            <span>Actual: ${LifeUtils.formatCurrency(t.actualCost)} (Gap: -${LifeUtils.formatCurrency(t.pocketGap)})</span>
+            <span>প্রকৃত: ${LifeUtils.formatCurrency(t.actualCost)} (ঘাটতি: -${LifeUtils.formatCurrency(t.pocketGap)})</span>
           </div>
         </label>
       </div>
@@ -488,8 +490,8 @@ const LifeConveyance = (() => {
     if (!title || selectedTripIds.length === 0) {
       window.Swal.fire({
         icon: "warning",
-        title: "Validation Error",
-        text: "Please provide a title and select at least one trip to batch."
+        title: "যাচাইকরণ ত্রুটি",
+        text: "অনুগ্রহ করে ভাউচারের শিরোনাম দিন এবং কমপক্ষে একটি ট্রিপ নির্বাচন করুন।"
       });
       return;
     }
@@ -506,8 +508,8 @@ const LifeConveyance = (() => {
     bootstrap.Modal.getInstance(document.getElementById("modal-conveyance-claim")).hide();
     window.Swal.fire({
       icon: "success",
-      title: "Claim Batch Created!",
-      text: `Submitted voucher for ${LifeUtils.formatCurrency(totalClaimed)} to company.`,
+      title: "ক্লেম ভাউচার তৈরি হয়েছে!",
+      text: `কোম্পানিতে ${LifeUtils.formatCurrency(totalClaimed)} টাকার ভাউচার জমা দেওয়া হয়েছে।`,
       timer: 1800,
       showConfirmButton: false,
       toast: true,
@@ -525,7 +527,7 @@ const LifeConveyance = (() => {
     $("#settle-claimed-amount").val(claim.totalClaimed);
     $("#settle-disbursed-amount").val(claim.totalClaimed); // default full
     $("#settle-deduction-amount").val(0);
-    $("#settle-deduction-badge").text("Company Deduction: ৳0").removeClass("text-danger").addClass("text-success");
+    $("#settle-deduction-badge").text("কোম্পানি কর্তন: ৳0").removeClass("text-danger").addClass("text-success");
     $("#settle-deduction-notes").val("");
 
     // Populate receiving account
@@ -554,8 +556,8 @@ const LifeConveyance = (() => {
     bootstrap.Modal.getInstance(document.getElementById("modal-conveyance-settle")).hide();
     window.Swal.fire({
       icon: "success",
-      title: "Disbursement Recorded!",
-      text: `Reimbursement of ${LifeUtils.formatCurrency(disbursed)} credited to account.`,
+      title: "পরিশোধ রেকর্ড সম্পন্ন!",
+      text: `${LifeUtils.formatCurrency(disbursed)} রিইমবার্সমেন্ট অ্যাকাউন্টে যুক্ত হয়েছে।`,
       timer: 2000,
       showConfirmButton: false,
       toast: true,

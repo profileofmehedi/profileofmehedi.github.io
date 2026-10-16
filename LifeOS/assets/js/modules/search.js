@@ -46,13 +46,15 @@ const LifeSearch = (() => {
     if (!query) {
       $("#global-search-results").html(`
         <div class="p-4 text-center text-muted small">
-          Type to search transactions, accounts, tasks, habits, goals, and journals...
+          লেনদেন, অ্যাকাউন্ট, যাতায়াত, টাস্ক, অভ্যাস, লক্ষ্য এবং জার্নাল খুঁজতে টাইপ করুন...
         </div>
       `);
       return;
     }
 
     const results = [];
+    const prioMap = { Urgent: "জরুরি", High: "উচ্চ", Medium: "মধ্যম", Low: "সাধারণ" };
+    const claimStatusMap = { draft: "ড্রাফট", submitted: "জমা দেওয়া", reimbursed: "পরিশোধিত", approved: "অনুমোদিত" };
 
     // Transactions
     const transactions = LifeStorage.get("transactions") || [];
@@ -63,7 +65,7 @@ const LifeSearch = (() => {
         (t.merchant || "").toLowerCase().includes(query)
       ) {
         results.push({
-          type: "Transaction",
+          type: "লেনদেন",
           icon: "bi-arrow-left-right text-info",
           title: t.description,
           subtitle: `${LifeUtils.formatDate(t.date, "DD MMM")} • ${LifeUtils.formatCurrency(t.amount)} (${t.category})`,
@@ -77,10 +79,10 @@ const LifeSearch = (() => {
     accounts.forEach(a => {
       if ((a.name || "").toLowerCase().includes(query) || (a.institution || "").toLowerCase().includes(query)) {
         results.push({
-          type: "Account",
+          type: "অ্যাকাউন্ট",
           icon: "bi-bank text-success",
           title: a.name,
-          subtitle: `${a.institution} • Balance: ${LifeUtils.formatCurrency(a.balance)}`,
+          subtitle: `${a.institution} • ব্যালেন্স: ${LifeUtils.formatCurrency(a.balance)}`,
           page: "accounts"
         });
       }
@@ -95,10 +97,10 @@ const LifeSearch = (() => {
         (t.route || "").toLowerCase().includes(query)
       ) {
         results.push({
-          type: "Conveyance",
+          type: "যাতায়াত",
           icon: "bi-briefcase text-warning",
           title: t.clientOrPurpose,
-          subtitle: `${t.location} • Spent: ${LifeUtils.formatCurrency(t.actualCost)} (Claim: ${LifeUtils.formatCurrency(t.claimedCost)})`,
+          subtitle: `${t.location} • খরচ: ${LifeUtils.formatCurrency(t.actualCost)} (দাবি: ${LifeUtils.formatCurrency(t.claimedCost)})`,
           page: "conveyance"
         });
       }
@@ -109,10 +111,10 @@ const LifeSearch = (() => {
     claims.forEach(c => {
       if ((c.title || "").toLowerCase().includes(query) || (c.voucherNumber || "").toLowerCase().includes(query)) {
         results.push({
-          type: "Claim Voucher",
+          type: "দাবি ভাউচার",
           icon: "bi-receipt text-primary",
           title: `${c.voucherNumber}: ${c.title}`,
-          subtitle: `Claimed: ${LifeUtils.formatCurrency(c.totalClaimed)} • Status: ${c.status}`,
+          subtitle: `দাবিকৃত: ${LifeUtils.formatCurrency(c.totalClaimed)} • অবস্থা: ${claimStatusMap[c.status] || c.status}`,
           page: "conveyance"
         });
       }
@@ -123,10 +125,10 @@ const LifeSearch = (() => {
     tasks.forEach(t => {
       if ((t.title || "").toLowerCase().includes(query) || (t.description || "").toLowerCase().includes(query)) {
         results.push({
-          type: "Task",
+          type: "টাস্ক",
           icon: "bi-check2-square text-primary",
           title: t.title,
-          subtitle: `Priority: ${t.priority} • Due ${LifeUtils.formatDate(t.dueDate, "DD MMM")}`,
+          subtitle: `অগ্রাধিকার: ${prioMap[t.priority] || t.priority} • সময়সীমা: ${LifeUtils.formatDate(t.dueDate, "DD MMM")}`,
           page: "tasks"
         });
       }
@@ -137,10 +139,10 @@ const LifeSearch = (() => {
     habits.forEach(h => {
       if ((h.name || "").toLowerCase().includes(query) || (h.category || "").toLowerCase().includes(query)) {
         results.push({
-          type: "Habit",
+          type: "অভ্যাস",
           icon: "bi-fire text-danger",
           title: h.name,
-          subtitle: `Category: ${h.category} • Reminder: ${h.reminderTime}`,
+          subtitle: `ক্যাটাগরি: ${h.category} • রিমাইন্ডার: ${LifeUtils.toBnNumber(h.reminderTime || "")}`,
           page: "habits"
         });
       }
@@ -151,10 +153,10 @@ const LifeSearch = (() => {
     goals.forEach(g => {
       if ((g.title || "").toLowerCase().includes(query) || (g.category || "").toLowerCase().includes(query)) {
         results.push({
-          type: "Life Goal",
+          type: "লাইফ গোল",
           icon: "bi-trophy text-warning",
           title: g.title,
-          subtitle: `Category: ${g.category} • Progress: ${g.progress}%`,
+          subtitle: `ক্যাটাগরি: ${g.category} • অগ্রগতি: ${LifeUtils.toBnNumber(g.progress || 0)}%`,
           page: "lifegoals"
         });
       }
@@ -165,7 +167,7 @@ const LifeSearch = (() => {
     journal.forEach(j => {
       if ((j.title || "").toLowerCase().includes(query) || (j.content || "").toLowerCase().includes(query)) {
         results.push({
-          type: "Journal",
+          type: "জার্নাল",
           icon: "bi-journal-text text-purple",
           title: j.title,
           subtitle: `${LifeUtils.formatDate(j.date, "DD MMM YYYY")}`,
@@ -177,7 +179,7 @@ const LifeSearch = (() => {
     if (results.length === 0) {
       $("#global-search-results").html(`
         <div class="p-4 text-center text-muted small">
-          No matches found for "<strong>${LifeUtils.escapeHtml(query)}</strong>".
+          "<strong>${LifeUtils.escapeHtml(query)}</strong>"-এর জন্য কোনো ফলাফল পাওয়া যায়নি।
         </div>
       `);
       return;

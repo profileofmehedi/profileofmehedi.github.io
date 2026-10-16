@@ -15,10 +15,10 @@ const LifeDashboard = (() => {
       const icon = $(this).find("i");
       if (privacyMode) {
         icon.removeClass("bi-eye").addClass("bi-eye-slash");
-        $(this).attr("title", "Show Sensitive Values");
+        $(this).attr("title", "গোপনীয় মান প্রদর্শন করুন");
       } else {
         icon.removeClass("bi-eye-slash").addClass("bi-eye");
-        $(this).attr("title", "Hide Sensitive Values");
+        $(this).attr("title", "গোপনীয় মান লুকান");
       }
       renderMetrics();
     });
@@ -69,7 +69,7 @@ const LifeDashboard = (() => {
         <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
           <div class="progress-bar bg-success" style="width: ${dailyPercent}%"></div>
         </div>
-        <span class="small fw-semibold">${dailyPercent}% Today's Focus</span>
+        <span class="small fw-semibold text-white-50">${LifeUtils.toBnNumber(dailyPercent)}% আজকের অগ্রগতি</span>
       </div>
     `);
   }
@@ -108,13 +108,13 @@ const LifeDashboard = (() => {
     // Badges
     $("#badge-income-trend").html(
       incDiff >= 0
-        ? `<i class="bi bi-arrow-up-right text-success"></i> +${incDiff}% vs Sep`
-        : `<i class="bi bi-arrow-down-right text-danger"></i> ${incDiff}% vs Sep`
+        ? `<i class="bi bi-arrow-up-right text-success"></i> +${incDiff}% সেপ্টেম্বরের তুলনায়`
+        : `<i class="bi bi-arrow-down-right text-danger"></i> ${incDiff}% সেপ্টেম্বরের তুলনায়`
     );
     $("#badge-expenses-trend").html(
       expDiff <= 0
-        ? `<i class="bi bi-arrow-down-right text-success"></i> ${expDiff}% vs Sep`
-        : `<i class="bi bi-arrow-up-right text-warning"></i> +${expDiff}% vs Sep`
+        ? `<i class="bi bi-arrow-down-right text-success"></i> ${expDiff}% সেপ্টেম্বরের তুলনায়`
+        : `<i class="bi bi-arrow-up-right text-warning"></i> +${expDiff}% সেপ্টেম্বরের তুলনায়`
     );
   }
 
@@ -132,7 +132,7 @@ const LifeDashboard = (() => {
 
     let html = "";
     if (recent.length === 0) {
-      html = `<div class="p-4 text-center text-muted">No transactions found.</div>`;
+      html = `<div class="p-4 text-center text-muted">কোনো লেনদেন পাওয়া যায়নি।</div>`;
     } else {
       html = recent
         .map(t => {
@@ -155,7 +155,7 @@ const LifeDashboard = (() => {
             </div>
             <div class="text-end">
               <div class="fw-bold ${colorClass}">${sign}${LifeUtils.formatCurrency(t.amount, privacyMode)}</div>
-              <div class="text-muted small">${LifeUtils.escapeHtml(t.method || "Direct")}</div>
+              <div class="text-muted small">${LifeUtils.escapeHtml(t.method || "সরাসরি")}</div>
             </div>
           </div>
         `;
@@ -167,11 +167,11 @@ const LifeDashboard = (() => {
 
   function renderUpcomingBillsWidget() {
     const events = LifeStorage.get("calendarEvents") || [];
-    const bills = events.filter(e => e.type === "bill" || e.category === "Bills").slice(0, 4);
+    const bills = events.filter(e => e.type === "bill" || e.category === "Bills" || e.category === "বিল").slice(0, 4);
 
     let html = "";
     if (bills.length === 0) {
-      html = `<div class="p-3 text-muted small text-center">No pending bills scheduled.</div>`;
+      html = `<div class="p-3 text-muted small text-center">আসন্ন কোনো বিল নির্ধারিত নেই।</div>`;
     } else {
       html = bills
         .map(b => {
@@ -181,10 +181,10 @@ const LifeDashboard = (() => {
               <i class="bi bi-clock-history text-warning fs-5"></i>
               <div>
                 <div class="fw-semibold fs-14">${LifeUtils.escapeHtml(b.title)}</div>
-                <div class="text-muted small">Due ${LifeUtils.formatDate(b.date, "DD MMM")}</div>
+                <div class="text-muted small">পরিশোধ: ${LifeUtils.formatDate(b.date, "DD MMM")}</div>
               </div>
             </div>
-            <span class="badge bg-warning-subtle text-warning-emphasis">Scheduled</span>
+            <span class="badge bg-warning-subtle text-warning-emphasis">নির্ধারিত</span>
           </div>
         `;
         })
@@ -199,18 +199,20 @@ const LifeDashboard = (() => {
 
     let html = "";
     if (todayTasks.length === 0) {
-      html = `<div class="p-3 text-muted small text-center">All caught up for today!</div>`;
+      html = `<div class="p-3 text-muted small text-center">আজকের সব কাজ সম্পন্ন হয়েছে!</div>`;
     } else {
       html = todayTasks
         .map(t => {
           const isDone = t.status === "completed";
+          const prioText = t.priority === "Urgent" || t.priority === "জরুরি" ? "জরুরি" : t.priority === "High" || t.priority === "উচ্চ" ? "উচ্চ" : t.priority === "Medium" || t.priority === "মাঝারি" ? "মাঝারি" : "সাধারণ";
+          const prioBadgeClass = t.priority === "Urgent" || t.priority === "জরুরি" ? "bg-danger text-white" : t.priority === "High" || t.priority === "উচ্চ" ? "bg-warning text-dark" : "bg-light-subtle text-secondary border";
           return `
           <div class="d-flex align-items-center justify-content-between p-2 rounded-2 mb-2 bg-light-subtle border">
             <div class="d-flex align-items-center gap-2">
               <input type="checkbox" class="form-check-input task-toggle-checkbox cursor-pointer" data-id="${t.id}" ${isDone ? "checked" : ""}>
               <span class="fs-14 ${isDone ? "text-decoration-line-through text-muted" : "fw-medium"}">${LifeUtils.escapeHtml(t.title)}</span>
             </div>
-            <span class="badge ${t.priority === "Urgent" ? "bg-danger" : t.priority === "High" ? "bg-warning text-dark" : "bg-secondary"} fs-11">${t.priority}</span>
+            <span class="badge ${prioBadgeClass} fs-11">${prioText}</span>
           </div>
         `;
         })
@@ -231,12 +233,12 @@ const LifeDashboard = (() => {
         return `
         <div class="d-flex align-items-center justify-content-between p-2 rounded-2 mb-2 border ${isDone ? "bg-success-subtle border-success" : "bg-light-subtle"}">
           <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-sm ${isDone ? "btn-success" : "btn-outline-secondary"} habit-check-btn rounded-circle p-1 px-2" data-id="${h.id}" title="Toggle Completion">
+            <button class="btn btn-sm ${isDone ? "btn-success" : "btn-outline-secondary"} habit-check-btn rounded-circle p-1 px-2" data-id="${h.id}" title="সম্পন্ন চিহ্নিত করুন">
               <i class="bi ${isDone ? "bi-check-lg" : "bi-circle"}"></i>
             </button>
             <div>
               <div class="fs-14 ${isDone ? "fw-bold text-success-emphasis" : "fw-medium"}">${LifeUtils.escapeHtml(h.name)}</div>
-              <div class="text-muted small"><i class="bi bi-fire text-danger"></i> ${streakInfo.currentStreak} day streak</div>
+              <div class="text-muted small"><i class="bi bi-fire text-danger"></i> ${streakInfo.currentStreak} দিনের ধারাবাহিকতা</div>
             </div>
           </div>
           <span class="badge bg-light text-secondary border">${LifeUtils.escapeHtml(h.category)}</span>
@@ -265,7 +267,7 @@ const LifeDashboard = (() => {
           </div>
           <div class="d-flex justify-content-between small text-muted">
             <span>${LifeUtils.formatCurrency(g.currentAmount, privacyMode)}</span>
-            <span>Target: ${LifeUtils.formatCurrency(g.targetAmount, privacyMode)}</span>
+            <span>লক্ষ্য: ${LifeUtils.formatCurrency(g.targetAmount, privacyMode)}</span>
           </div>
         </div>
       `;

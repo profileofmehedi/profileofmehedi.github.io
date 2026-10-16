@@ -41,17 +41,17 @@ const LifeMyDay = (() => {
           date: selectedDate,
           time: "21:00",
           mood: "good",
-          title: `Daily Reflection for ${LifeUtils.formatDate(selectedDate, "DD MMM")}`,
+          title: `দৈনিক অনুভূতি - ${LifeUtils.formatDate(selectedDate, "DD MMM")}`,
           content: text,
-          tags: ["DailyReflection"],
-          gratitude: "Grateful for today's learnings.",
-          prioritiesTomorrow: "Maintain focus and stay disciplined."
+          tags: ["দৈনিকঅনুভূতি"],
+          gratitude: "আজকের অভিজ্ঞতা ও শেখার জন্য কৃতজ্ঞ।",
+          prioritiesTomorrow: "কাজে মনোযোগ ও শৃঙ্খলা বজায় রাখা।"
         });
       }
 
       window.Swal.fire({
         icon: "success",
-        title: "Reflection Saved",
+        title: "অনুভূতি সংরক্ষিত হয়েছে",
         timer: 1500,
         showConfirmButton: false,
         toast: true,
@@ -109,29 +109,31 @@ const LifeMyDay = (() => {
     const percent = grandTotal > 0 ? Math.round((grandDone / grandTotal) * 100) : 0;
 
     $("#myday-progress-bar").css("width", `${percent}%`);
-    $("#myday-progress-percentage").text(`${percent}%`);
-    $("#myday-progress-stats").text(`${grandDone} of ${grandTotal} items completed`);
+    $("#myday-progress-percentage").text(`${LifeUtils.toBnNumber(percent)}%`);
+    $("#myday-progress-stats").text(`${LifeUtils.toBnNumber(grandTotal)} টির মধ্যে ${LifeUtils.toBnNumber(grandDone)} টি সম্পন্ন`);
   }
 
   function renderTasks() {
     const tasks = (LifeStorage.get("tasks") || []).filter(t => t.dueDate === selectedDate);
+    const prioLabels = { Urgent: "জরুরি", High: "উচ্চ", Medium: "মধ্যম", Low: "সাধারণ" };
     let html = "";
     if (tasks.length === 0) {
-      html = `<div class="p-3 text-muted text-center border rounded-3 bg-light-subtle">No tasks scheduled for this day. <a href="#" class="btn-quick-add-task text-primary text-decoration-none">Add one</a></div>`;
+      html = `<div class="p-3 text-muted text-center border rounded-3 bg-light-subtle">আজকের জন্য কোনো টাস্ক নেই। <a href="#" class="btn-quick-add-task text-primary text-decoration-none">নতুন যোগ করুন</a></div>`;
     } else {
       html = tasks.map(t => {
         const isDone = t.status === "completed";
+        const prioText = prioLabels[t.priority] || t.priority;
         return `
           <div class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 border bg-light-subtle">
             <div class="d-flex align-items-center gap-3">
               <input type="checkbox" class="form-check-input task-toggle-checkbox cursor-pointer" data-id="${t.id}" ${isDone ? "checked" : ""}>
               <div>
                 <h6 class="mb-0 fs-14 ${isDone ? "text-decoration-line-through text-muted" : "fw-semibold"}">${LifeUtils.escapeHtml(t.title)}</h6>
-                <div class="small text-muted"><i class="bi bi-clock"></i> ${t.dueTime || "All Day"} • <span class="badge bg-secondary-subtle text-secondary-emphasis">${LifeUtils.escapeHtml(t.category)}</span></div>
+                <div class="small text-muted"><i class="bi bi-clock"></i> ${t.dueTime ? LifeUtils.toBnNumber(t.dueTime) : "সারাদিন"} • <span class="badge bg-secondary-subtle text-secondary-emphasis">${LifeUtils.escapeHtml(t.category)}</span></div>
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <span class="badge ${t.priority === "Urgent" ? "bg-danger" : t.priority === "High" ? "bg-warning text-dark" : "bg-light text-dark border"}">${t.priority}</span>
+              <span class="badge ${t.priority === "Urgent" ? "bg-danger" : t.priority === "High" ? "bg-warning text-dark" : "bg-light text-dark border"}">${prioText}</span>
               <button class="btn btn-sm btn-light border btn-edit-task" data-id="${t.id}"><i class="bi bi-pencil"></i></button>
             </div>
           </div>
@@ -154,7 +156,7 @@ const LifeMyDay = (() => {
             </button>
             <div>
               <div class="fs-14 ${isDone ? "fw-bold text-success-emphasis" : "fw-medium"}">${LifeUtils.escapeHtml(h.name)}</div>
-              <div class="small text-muted"><i class="bi bi-fire text-danger"></i> ${streak.currentStreak}d streak</div>
+              <div class="small text-muted"><i class="bi bi-fire text-danger"></i> ${LifeUtils.toBnNumber(streak.currentStreak)} দিন ধারাবাহিক</div>
             </div>
           </div>
           <span class="badge bg-light text-secondary border">${LifeUtils.escapeHtml(h.category)}</span>
@@ -166,10 +168,12 @@ const LifeMyDay = (() => {
 
   function renderRoutines() {
     const routines = LifeStorage.get("routines") || [];
+    const periodLabels = { Morning: "সকাল", Evening: "সন্ধ্যা", Night: "রাত", Afternoon: "দুপুর" };
     let html = routines.map(r => {
       const total = (r.steps || []).length;
       const done = (r.steps || []).filter(s => s.completed).length;
       const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+      const periodText = periodLabels[r.period] || r.period;
 
       return `
         <div class="card mb-3 border shadow-sm">
@@ -178,7 +182,7 @@ const LifeMyDay = (() => {
               <i class="bi ${r.icon || "bi-check-circle"} fs-5" style="color: ${r.color || "#635BFF"}"></i>
               <span class="fw-semibold fs-14">${LifeUtils.escapeHtml(r.name)}</span>
             </div>
-            <span class="badge bg-light text-dark border small">${r.period}</span>
+            <span class="badge bg-light text-dark border small">${periodText}</span>
           </div>
           <div class="card-body p-3">
             <div class="progress mb-3" style="height: 5px;">
@@ -191,7 +195,7 @@ const LifeMyDay = (() => {
                     <input class="form-check-input routine-step-checkbox cursor-pointer" type="checkbox" data-routine-id="${r.id}" data-step-id="${s.id}" ${s.completed ? "checked" : ""}>
                     <label class="form-check-label ${s.completed ? "text-decoration-line-through text-muted" : "fw-medium"}">${LifeUtils.escapeHtml(s.title)}</label>
                   </div>
-                  <span class="text-muted fs-11">${s.duration}</span>
+                  <span class="text-muted fs-11">${LifeUtils.toBnNumber(s.duration)}</span>
                 </div>
               `).join("")}
             </div>

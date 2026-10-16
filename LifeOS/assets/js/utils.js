@@ -20,6 +20,16 @@ const LifeUtils = (() => {
       .replace(/'/g, "&#039;");
   }
 
+  const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+
+  /**
+   * Convert numbers/digits to Bengali script numerals
+   */
+  function toBnNumber(num) {
+    if (num === null || num === undefined) return "";
+    return String(num).replace(/[0-9]/g, d => bnDigits[d]);
+  }
+
   /**
    * Currency formatter with privacy mode support
    */
@@ -49,12 +59,13 @@ const LifeUtils = (() => {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
 
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = ["জানু", "ফেব্রু", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টে", "অক্টো", "নভে", "ডিসে"];
     const fullMonths = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+      "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
     ];
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const days = ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহস্পতি", "শুক্র", "শনি"];
+    const fullDays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
     const d = date.getDate();
     const dd = String(d).padStart(2, "0");
@@ -64,13 +75,19 @@ const LifeUtils = (() => {
     const mmmm = fullMonths[m];
     const yyyy = date.getFullYear();
     const dayName = days[date.getDay()];
+    const fullDayName = fullDays[date.getDay()];
 
-    if (format === "DD MMM YYYY") return `${dd} ${mmm} ${yyyy}`;
-    if (format === "MMM DD, YYYY") return `${mmm} ${dd}, ${yyyy}`;
+    const ddBn = toBnNumber(dd);
+    const yyyyBn = toBnNumber(yyyy);
+
+    if (format === "DD MMM YYYY") return `${ddBn} ${mmm} ${yyyyBn}`;
+    if (format === "MMM DD, YYYY") return `${ddBn} ${mmm}, ${yyyyBn}`;
     if (format === "YYYY-MM-DD") return `${yyyy}-${mm}-${dd}`;
-    if (format === "Day, DD MMM") return `${dayName}, ${dd} ${mmm}`;
-    if (format === "Month Year") return `${mmmm} ${yyyy}`;
-    return `${dd} ${mmm} ${yyyy}`;
+    if (format === "Day, DD MMM") return `${dayName}, ${ddBn} ${mmm}`;
+    if (format === "Day, DD MMM YYYY") return `${fullDayName}, ${ddBn} ${mmm} ${yyyyBn}`;
+    if (format === "Month Year") return `${mmmm} ${yyyyBn}`;
+    if (format === "MMM YYYY") return `${mmm} ${yyyyBn}`;
+    return `${ddBn} ${mmm} ${yyyyBn}`;
   }
 
   /**
@@ -83,28 +100,28 @@ const LifeUtils = (() => {
     const diffTime = target.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Tomorrow";
-    if (diffDays === -1) return "Yesterday";
-    if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days`;
-    if (diffDays < -1 && diffDays >= -7) return `${Math.abs(diffDays)} days ago`;
+    if (diffDays === 0) return "আজ";
+    if (diffDays === 1) return "আগামীকাল";
+    if (diffDays === -1) return "গতকাল";
+    if (diffDays > 1 && diffDays <= 7) return `${diffDays} দিন পর`;
+    if (diffDays < -1 && diffDays >= -7) return `${Math.abs(diffDays)} দিন আগে`;
     return formatDate(dateStr, "DD MMM");
   }
 
   /**
    * Greeting based on current hour
    */
-  function getGreeting(name = "Mehedi") {
+  function getGreeting(name = "মেহেদী") {
     const hour = new Date().getHours();
-    let timeGreeting = "Good evening";
-    if (hour >= 5 && hour < 12) timeGreeting = "Good morning";
-    else if (hour >= 12 && hour < 17) timeGreeting = "Good afternoon";
-    else if (hour >= 17 && hour < 22) timeGreeting = "Good evening";
-    else timeGreeting = "Good night";
+    let timeGreeting = "শুভ সন্ধ্যা";
+    if (hour >= 5 && hour < 12) timeGreeting = "শুভ সকাল";
+    else if (hour >= 12 && hour < 17) timeGreeting = "শুভ দুপুর";
+    else if (hour >= 17 && hour < 22) timeGreeting = "শুভ সন্ধ্যা";
+    else timeGreeting = "শুভ রাত্রি";
 
     return {
       title: `${timeGreeting}, ${name}`,
-      tagline: "Let's make today count with intention and discipline."
+      tagline: "আসুন আজকের দিনটি অর্থপূর্ণ ও শৃঙ্খলার সাথে কাটাই।"
     };
   }
 
@@ -178,12 +195,12 @@ const LifeUtils = (() => {
   function getSixMonthTrend(transactions = []) {
     // Generate last 6 months up to October 2026: May, Jun, Jul, Aug, Sep, Oct
     const months = [
-      { key: "2026-05", label: "May" },
-      { key: "2026-06", label: "Jun" },
-      { key: "2026-07", label: "Jul" },
-      { key: "2026-08", label: "Aug" },
-      { key: "2026-09", label: "Sep" },
-      { key: "2026-10", label: "Oct" }
+      { key: "2026-05", label: "মে" },
+      { key: "2026-06", label: "জুন" },
+      { key: "2026-07", label: "জুলাই" },
+      { key: "2026-08", label: "আগস্ট" },
+      { key: "2026-09", label: "সেপ্টে" },
+      { key: "2026-10", label: "অক্টো" }
     ];
 
     const labels = [];
@@ -292,15 +309,15 @@ const LifeUtils = (() => {
       if (window.Swal) {
         window.Swal.fire({
           icon: "info",
-          title: "No Data",
-          text: "There are no transactions to export under the current filter.",
+          title: "কোনো ডেটা নেই",
+          text: "বর্তমান ফিল্টারে এক্সপোর্ট করার মতো কোনো লেনদেন পাওয়া যায়নি।",
           confirmButtonColor: "#635BFF"
         });
       }
       return;
     }
 
-    const headers = ["ID", "Date", "Type", "Description", "Amount (BDT)", "Category", "Payment Method", "Merchant/Source", "Tags", "Notes"];
+    const headers = ["আইডি", "তারিখ", "ধরন", "বিবরণ", "পরিমাণ (টাকা)", "ক্যাটাগরি", "পেমেন্ট মাধ্যম", "উৎস/প্রতিষ্ঠান", "ট্যাগ", "নোট"];
     const rows = transactions.map(t => [
       `"${t.id}"`,
       `"${t.date}"`,
@@ -363,6 +380,7 @@ const LifeUtils = (() => {
     escapeHtml,
     formatCurrency,
     formatNumber,
+    toBnNumber,
     formatDate,
     formatRelativeDate,
     getGreeting,
@@ -382,5 +400,8 @@ const LifeUtils = (() => {
 
 if (typeof window !== "undefined") {
   window.LifeUtils = LifeUtils;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = LifeUtils;
 }
 

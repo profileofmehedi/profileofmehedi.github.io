@@ -54,8 +54,8 @@ const LifeCalendar = (() => {
 
   function render() {
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+      "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
     ];
     $("#cal-current-month-label").text(`${monthNames[currentMonth]} ${currentYear}`);
 
@@ -86,7 +86,7 @@ const LifeCalendar = (() => {
         <div class="calendar-day-cell p-2 border ${isToday ? "border-primary bg-primary-subtle bg-opacity-25" : "bg-white"} position-relative">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="day-number fw-bold fs-13 ${isToday ? "badge bg-primary rounded-circle" : "text-secondary"}">${day}</span>
-            ${isToday ? `<span class="badge bg-primary-subtle text-primary fs-10">Today</span>` : ""}
+            ${isToday ? `<span class="badge bg-primary-subtle text-primary fs-10">আজ</span>` : ""}
           </div>
           <div class="events-stack d-flex flex-column gap-1 overflow-y-auto" style="max-height: 90px;">
             ${dayEvents.map(e => `
@@ -95,7 +95,7 @@ const LifeCalendar = (() => {
               </div>
             `).join("")}
             ${dayTasks.map(t => `
-              <div class="cal-event-pill small px-2 py-1 rounded bg-secondary text-white text-truncate" title="Task: ${LifeUtils.escapeHtml(t.title)}">
+              <div class="cal-event-pill small px-2 py-1 rounded bg-secondary text-white text-truncate" title="টাস্ক: ${LifeUtils.escapeHtml(t.title)}">
                 <i class="bi bi-check2"></i> ${LifeUtils.escapeHtml(t.title)}
               </div>
             `).join("")}
@@ -118,7 +118,7 @@ const LifeCalendar = (() => {
           </div>
           <div>
             <h6 class="mb-0 fs-14 fw-semibold">${LifeUtils.escapeHtml(e.title)}</h6>
-            <div class="small text-muted"><i class="bi bi-clock"></i> ${LifeUtils.formatDate(e.date, "DD MMM")} • ${e.time || "All Day"} • <span class="badge bg-light text-secondary border">${e.category}</span></div>
+            <div class="small text-muted"><i class="bi bi-clock"></i> ${LifeUtils.formatDate(e.date, "DD MMM")} • ${e.time || "সারাদিন"} • <span class="badge bg-light text-secondary border">${e.category}</span></div>
           </div>
         </div>
         <button class="btn btn-sm btn-link text-danger p-0 btn-delete-cal-event" data-id="${e.id}"><i class="bi bi-trash"></i></button>
@@ -136,7 +136,7 @@ const LifeCalendar = (() => {
     const badgeColor = $("#cal-form-color").val() || "#635BFF";
 
     if (!title) {
-      window.Swal.fire({ icon: "warning", title: "Validation Error", text: "Please enter event title." });
+      window.Swal.fire({ icon: "warning", title: "যাচাইকরণ ত্রুটি", text: "অনুগ্রহ করে ইভেন্টের শিরোনাম লিখুন।" });
       return;
     }
 
@@ -145,12 +145,12 @@ const LifeCalendar = (() => {
       date,
       time,
       category,
-      type: category === "Bills" ? "bill" : "event",
+      type: category === "Bills" || category === "বিল" ? "bill" : "event",
       badgeColor
     });
 
     bootstrap.Modal.getInstance(document.getElementById("modal-calendar-event")).hide();
-    window.Swal.fire({ icon: "success", title: "Event Scheduled!", timer: 1500, showConfirmButton: false, toast: true });
+    window.Swal.fire({ icon: "success", title: "ইভেন্ট যুক্ত হয়েছে!", timer: 1500, showConfirmButton: false, toast: true });
   }
 
   return {

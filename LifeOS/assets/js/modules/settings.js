@@ -26,20 +26,21 @@ const LifeSettings = (() => {
     // Reset demo data button
     $(document).on("click", "#btn-reset-demo-data", function () {
       window.Swal.fire({
-        title: "Reset All Demo Data?",
-        text: "This will restore the original Bangladesh accounts, transactions, habits, and tasks. Any modifications will be lost.",
+        title: "সকল ডেমো ডেটা রিসেট করবেন?",
+        text: "এটি সমস্ত অ্যাকাউন্ট, লেনদেন, অভ্যাস এবং টাস্ককে মূল অবস্থায় ফিরিয়ে আনবে। আপনার পরিবর্তনগুলো মুছে যাবে।",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
         cancelButtonColor: "#64748B",
-        confirmButtonText: "Yes, Reset to Defaults"
+        confirmButtonText: "হ্যাঁ, ডেটা রিসেট করুন",
+        cancelButtonText: "বাতিল"
       }).then(res => {
         if (res.isConfirmed) {
           LifeStorage.resetDemoData();
           window.Swal.fire({
             icon: "success",
-            title: "Reset Complete",
-            text: "Demo data restored to initial state.",
+            title: "রিসেট সম্পন্ন",
+            text: "ডেমো ডেটা পূর্বাবস্থায় ফিরিয়ে আনা হয়েছে।",
             timer: 1800,
             showConfirmButton: false
           }).then(() => {
@@ -118,7 +119,7 @@ const LifeSettings = (() => {
 
     window.Swal.fire({
       icon: "success",
-      title: "Profile Saved",
+      title: "প্রোফাইল সংরক্ষিত হয়েছে",
       timer: 1500,
       showConfirmButton: false,
       toast: true,
@@ -143,7 +144,7 @@ const LifeSettings = (() => {
 
     window.Swal.fire({
       icon: "success",
-      title: "Preferences Saved",
+      title: "পছন্দসমূহ সংরক্ষিত হয়েছে",
       timer: 1500,
       showConfirmButton: false,
       toast: true,

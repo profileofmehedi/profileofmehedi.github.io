@@ -23,9 +23,10 @@ const LifeAuth = (() => {
         // Friendly SweetAlert2 error
         window.Swal.fire({
           icon: "error",
-          title: "Invalid Credentials",
-          text: "Use demo@lifeos.app with password Demo@123, or click 'Quick Demo Login'.",
-          confirmButtonColor: "#635BFF"
+          title: "ভুল লগইন তথ্য",
+          text: "ইমেইল demo@lifeos.app এবং পাসওয়ার্ড Demo@123 ব্যবহার করুন অথবা 'দ্রুত ডেমো লগইন' বাটনে ক্লিক করুন।",
+          confirmButtonColor: "#635BFF",
+          confirmButtonText: "ঠিক আছে"
         });
       }
     });
@@ -65,7 +66,7 @@ const LifeAuth = (() => {
       });
       Toast.fire({
         icon: "success",
-        title: `Welcome back, ${user.name.split(" ")[0]}!`
+        title: `স্বাগতম, ${user.name.split(" ")[0]}!`
       });
     }
 
@@ -88,13 +89,14 @@ const LifeAuth = (() => {
 
   function logout() {
     window.Swal.fire({
-      title: "Log out of LifeOS?",
-      text: "Your demo data and preferences will remain safely stored locally.",
+      title: "LifeOS থেকে লগআউট করতে চান?",
+      text: "আপনার ডেমো ডেটা ও পছন্দসমূহ ব্রাউজারে সুরক্ষিত থাকবে।",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#635BFF",
       cancelButtonColor: "#64748B",
-      confirmButtonText: "Yes, Log Out"
+      confirmButtonText: "হ্যাঁ, লগআউট করুন",
+      cancelButtonText: "না, ফিরে যান"
     }).then(result => {
       if (result.isConfirmed) {
         LifeStorage.clearAuthSession();

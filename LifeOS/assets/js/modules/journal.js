@@ -20,16 +20,17 @@ const LifeJournal = (() => {
     $(document).on("click", ".btn-delete-journal-entry", function () {
       const jId = $(this).data("id");
       window.Swal.fire({
-        title: "Delete Journal Entry?",
-        text: "Remove this reflection from your journal archive?",
+        title: "জার্নাল এন্ট্রি মুছবেন?",
+        text: "আপনার জার্নাল আর্কাইভ থেকে এই অনুভূতিটি মুছে ফেলতে চান?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
-        confirmButtonText: "Yes, delete"
+        confirmButtonText: "হ্যাঁ, মুছুন",
+        cancelButtonText: "বাতিল"
       }).then(res => {
         if (res.isConfirmed) {
           LifeStorage.deleteJournalEntry(jId);
-          window.Swal.fire({ icon: "success", title: "Entry Deleted", timer: 1500, showConfirmButton: false, toast: true });
+          window.Swal.fire({ icon: "success", title: "এন্ট্রি মুছে ফেলা হয়েছে", timer: 1500, showConfirmButton: false, toast: true });
         }
       });
     });
@@ -58,19 +59,19 @@ const LifeJournal = (() => {
       $("#journal-entries-container").html(`
         <div class="p-5 text-center text-muted bg-white border rounded-4">
           <i class="bi bi-journal-text fs-1 d-block mb-3 text-secondary opacity-50"></i>
-          <h5>No journal entries found</h5>
-          <p class="small">Capture today's thoughts, lessons, and gratitude by clicking "New Reflection".</p>
+          <h5>কোনো জার্নাল এন্ট্রি পাওয়া যায়নি</h5>
+          <p class="small">"নতুন অনুভূতি"-তে ক্লিক করে আজকের ভাবনা, অভিজ্ঞতা ও কৃতজ্ঞতা লিখে রাখুন।</p>
         </div>
       `);
       return;
     }
 
     const moodIcons = {
-      great: { icon: "bi-emoji-laughing text-success", label: "Great" },
-      good: { icon: "bi-emoji-smile text-primary", label: "Good" },
-      neutral: { icon: "bi-emoji-neutral text-warning", label: "Neutral" },
-      tired: { icon: "bi-battery text-secondary", label: "Tired" },
-      stressed: { icon: "bi-emoji-dizzy text-danger", label: "Stressed" }
+      great: { icon: "bi-emoji-laughing text-success", label: "দারুণ" },
+      good: { icon: "bi-emoji-smile text-primary", label: "ভালো" },
+      neutral: { icon: "bi-emoji-neutral text-warning", label: "স্বাভাবিক" },
+      tired: { icon: "bi-battery text-secondary", label: "ক্লান্ত" },
+      stressed: { icon: "bi-emoji-dizzy text-danger", label: "মানসিক চাপ" }
     };
 
     const html = list.map(j => {
@@ -83,11 +84,11 @@ const LifeJournal = (() => {
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <i class="bi ${mood.icon} fs-5"></i>
                   <span class="badge bg-light text-secondary border">${mood.label}</span>
-                  <span class="text-muted small">• ${LifeUtils.formatDate(j.date, "Day, DD MMM YYYY")} at ${j.time || "21:00"}</span>
+                  <span class="text-muted small">• ${LifeUtils.formatDate(j.date, "Day, DD MMM YYYY")}, ${j.time || "২১:০০"}</span>
                 </div>
                 <h5 class="fw-bold text-dark mb-0">${LifeUtils.escapeHtml(j.title)}</h5>
               </div>
-              <button class="btn btn-sm btn-link text-danger p-0 btn-delete-journal-entry" data-id="${j.id}" title="Delete Entry">
+              <button class="btn btn-sm btn-link text-danger p-0 btn-delete-journal-entry" data-id="${j.id}" title="এন্ট্রি মুছুন">
                 <i class="bi bi-trash fs-5"></i>
               </button>
             </div>
@@ -96,14 +97,14 @@ const LifeJournal = (() => {
 
             ${j.gratitude ? `
               <div class="p-3 rounded-3 bg-light-subtle border-start border-3 border-success mb-3">
-                <span class="fw-bold fs-13 text-success d-block mb-1"><i class="bi bi-heart me-1"></i> Gratitude Note:</span>
+                <span class="fw-bold fs-13 text-success d-block mb-1"><i class="bi bi-heart me-1"></i> কৃতজ্ঞতা নোট:</span>
                 <span class="text-secondary small">${LifeUtils.escapeHtml(j.gratitude)}</span>
               </div>
             ` : ""}
 
             ${j.prioritiesTomorrow ? `
               <div class="p-3 rounded-3 bg-light-subtle border-start border-3 border-primary mb-3">
-                <span class="fw-bold fs-13 text-primary d-block mb-1"><i class="bi bi-arrow-right-circle me-1"></i> Priorities for Tomorrow:</span>
+                <span class="fw-bold fs-13 text-primary d-block mb-1"><i class="bi bi-arrow-right-circle me-1"></i> আগামীকালের অগ্রাধিকার:</span>
                 <span class="text-secondary small">${LifeUtils.escapeHtml(j.prioritiesTomorrow)}</span>
               </div>
             ` : ""}
@@ -127,10 +128,10 @@ const LifeJournal = (() => {
     const gratitude = $("#journal-form-gratitude").val().trim();
     const prioritiesTomorrow = $("#journal-form-priorities").val().trim();
     const rawTags = $("#journal-form-tags").val().trim();
-    const tags = rawTags ? rawTags.split(",").map(t => t.trim()) : ["DailyReflection"];
+    const tags = rawTags ? rawTags.split(",").map(t => t.trim()) : ["দৈনিকঅনুভূতি"];
 
     if (!title || !content) {
-      window.Swal.fire({ icon: "warning", title: "Validation Error", text: "Please provide a title and journal entry text." });
+      window.Swal.fire({ icon: "warning", title: "ভুল তথ্য", text: "অনুগ্রহ করে শিরোনাম ও অনুভূতি লিখুন।" });
       return;
     }
 
@@ -146,7 +147,7 @@ const LifeJournal = (() => {
     });
 
     bootstrap.Modal.getInstance(document.getElementById("modal-journal-entry")).hide();
-    window.Swal.fire({ icon: "success", title: "Journal Entry Saved!", timer: 1500, showConfirmButton: false, toast: true });
+    window.Swal.fire({ icon: "success", title: "জার্নাল সংরক্ষিত হয়েছে!", timer: 1500, showConfirmButton: false, toast: true });
   }
 
   return {

@@ -15,16 +15,17 @@ const LifeSavings = (() => {
     $(document).on("click", ".btn-delete-goal", function () {
       const goalId = $(this).data("id");
       window.Swal.fire({
-        title: "Delete Savings Goal?",
-        text: "Remove this goal from your savings tracker?",
+        title: "সঞ্চয় লক্ষ্য মুছবেন?",
+        text: "আপনার ট্র্যাকার থেকে এই সঞ্চয় লক্ষ্যটি মুছে ফেলতে চান?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
-        confirmButtonText: "Yes, delete"
+        confirmButtonText: "হ্যাঁ, মুছুন",
+        cancelButtonText: "বাতিল"
       }).then(res => {
         if (res.isConfirmed) {
           LifeStorage.deleteSavingsGoal(goalId);
-          window.Swal.fire({ icon: "success", title: "Goal Deleted", timer: 1500, showConfirmButton: false, toast: true });
+          window.Swal.fire({ icon: "success", title: "লক্ষ্য মুছে ফেলা হয়েছে", timer: 1500, showConfirmButton: false, toast: true });
         }
       });
     });
@@ -53,6 +54,12 @@ const LifeSavings = (() => {
     let totalTarget = 0;
     let totalSaved = 0;
 
+    const prioLabels = {
+      High: "উচ্চ",
+      Medium: "মধ্যম",
+      Low: "সাধারণ"
+    };
+
     const cardsHtml = goals.map(g => {
       const target = Number(g.targetAmount) || 0;
       const current = Number(g.currentAmount) || 0;
@@ -67,6 +74,7 @@ const LifeSavings = (() => {
       const today = new Date(LifeUtils.CURRENT_DEMO_DATE);
       const diffMonths = Math.max(1, Math.round((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 30)));
       const suggestedMonthly = remaining > 0 ? Math.round(remaining / diffMonths) : 0;
+      const prioText = prioLabels[g.priority] || g.priority;
 
       return `
         <div class="col-12 col-md-6 col-xl-4 mb-4">
@@ -79,17 +87,17 @@ const LifeSavings = (() => {
                   </div>
                   <div>
                     <h6 class="fw-bold mb-0">${LifeUtils.escapeHtml(g.name)}</h6>
-                    <div class="text-muted small">${LifeUtils.escapeHtml(g.category)} • Due ${LifeUtils.formatDate(g.targetDate, "MMM YYYY")}</div>
+                    <div class="text-muted small">${LifeUtils.escapeHtml(g.category)} • মেয়াদ ${LifeUtils.formatDate(g.targetDate, "MMM YYYY")}</div>
                   </div>
                 </div>
-                <span class="badge ${g.priority === "High" ? "bg-danger" : "bg-primary"}">${g.priority}</span>
+                <span class="badge ${g.priority === "High" ? "bg-danger" : "bg-primary"}">${prioText}</span>
               </div>
 
               <p class="text-muted small mb-4">${LifeUtils.escapeHtml(g.description || "")}</p>
 
               <div class="d-flex justify-content-between align-items-baseline mb-2">
                 <span class="fs-4 fw-bold text-dark">${LifeUtils.formatCurrency(current)}</span>
-                <span class="text-muted small">Target: <strong class="text-dark">${LifeUtils.formatCurrency(target)}</strong></span>
+                <span class="text-muted small">টার্গেট: <strong class="text-dark">${LifeUtils.formatCurrency(target)}</strong></span>
               </div>
 
               <div class="progress mb-3" style="height: 10px;">
@@ -97,24 +105,24 @@ const LifeSavings = (() => {
               </div>
 
               <div class="d-flex justify-content-between small text-muted mb-4">
-                <span>${percent}% completed</span>
-                <span>${remaining > 0 ? `${LifeUtils.formatCurrency(remaining)} to go` : "Goal Achieved! 🎉"}</span>
+                <span>${LifeUtils.toBnNumber(percent)}% সম্পন্ন</span>
+                <span>${remaining > 0 ? `বাকি ${LifeUtils.formatCurrency(remaining)}` : "লক্ষ্য অর্জিত হয়েছে! 🎉"}</span>
               </div>
 
               <div class="p-3 rounded-3 bg-light-subtle border small mb-3">
                 <div class="d-flex justify-content-between">
-                  <span class="text-muted">Target Timeline:</span>
-                  <span class="fw-semibold">${diffMonths} months remaining</span>
+                  <span class="text-muted">টার্গেট সময়সীমা:</span>
+                  <span class="fw-semibold">${LifeUtils.toBnNumber(diffMonths)} মাস বাকি</span>
                 </div>
                 <div class="d-flex justify-content-between mt-1">
-                  <span class="text-muted">Suggested Deposit:</span>
-                  <span class="fw-bold text-primary">${LifeUtils.formatCurrency(suggestedMonthly)} / month</span>
+                  <span class="text-muted">প্রস্তাবিত কিস্তি:</span>
+                  <span class="fw-bold text-primary">${LifeUtils.formatCurrency(suggestedMonthly)} / প্রতি মাসে</span>
                 </div>
               </div>
 
               <div class="d-flex gap-2">
                 <button class="btn btn-sm btn-primary flex-grow-1 btn-contribute-goal" data-id="${g.id}">
-                  <i class="bi bi-plus-lg me-1"></i> Add Deposit
+                  <i class="bi bi-plus-lg me-1"></i> জমা যোগ করুন
                 </button>
                 <button class="btn btn-sm btn-outline-danger btn-delete-goal" data-id="${g.id}">
                   <i class="bi bi-trash"></i>
@@ -124,7 +132,7 @@ const LifeSavings = (() => {
 
             <!-- Recent Contributions Accordion Preview -->
             <div class="card-footer bg-transparent border-top px-4 py-2 small text-muted">
-              <span>${(g.contributions || []).length} past contributions recorded</span>
+              <span>${LifeUtils.toBnNumber((g.contributions || []).length)} টি কিস্তি জমা রেকর্ড করা হয়েছে</span>
             </div>
           </div>
         </div>
@@ -140,7 +148,7 @@ const LifeSavings = (() => {
     $("#savings-stat-total-saved").text(LifeUtils.formatCurrency(totalSaved));
     $("#savings-stat-target").text(LifeUtils.formatCurrency(totalTarget));
     $("#savings-stat-remaining").text(LifeUtils.formatCurrency(totalRemaining));
-    $("#savings-stat-percent").text(`${overallPercent}%`);
+    $("#savings-stat-percent").text(`${LifeUtils.toBnNumber(overallPercent)}%`);
   }
 
   function openContributeModal(goalId) {
@@ -172,7 +180,7 @@ const LifeSavings = (() => {
     const notes = $("#contribute-notes").val().trim();
 
     if (!amount || amount <= 0) {
-      window.Swal.fire({ icon: "warning", title: "Invalid Amount", text: "Please enter a valid deposit amount." });
+      window.Swal.fire({ icon: "warning", title: "ভুল পরিমাণ", text: "অনুগ্রহ করে সঠিক জমার পরিমাণ লিখুন।" });
       return;
     }
 
@@ -181,8 +189,8 @@ const LifeSavings = (() => {
     if (acc && acc.balance < amount) {
       window.Swal.fire({
         icon: "warning",
-        title: "Insufficient Account Balance",
-        text: `Your ${acc.name} only has ${LifeUtils.formatCurrency(acc.balance)}.`
+        title: "অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই",
+        text: `আপনার ${acc.name} অ্যাকাউন্টে মাত্র ${LifeUtils.formatCurrency(acc.balance)} আছে।`
       });
       return;
     }
@@ -192,8 +200,8 @@ const LifeSavings = (() => {
 
     window.Swal.fire({
       icon: "success",
-      title: "Deposit Added!",
-      text: `Successfully added ${LifeUtils.formatCurrency(amount)} to your goal.`,
+      title: "টাকা জমা হয়েছে!",
+      text: `সফলভাবে আপনার সঞ্চয় লক্ষ্যে ${LifeUtils.formatCurrency(amount)} জমা করা হয়েছে।`,
       timer: 1800,
       showConfirmButton: false,
       toast: true,
@@ -212,7 +220,7 @@ const LifeSavings = (() => {
     const color = $("#goal-form-color").val() || "#10B981";
 
     if (!name || !targetAmount || targetAmount <= 0) {
-      window.Swal.fire({ icon: "warning", title: "Validation Error", text: "Please provide goal name and valid target amount." });
+      window.Swal.fire({ icon: "warning", title: "ভুল তথ্য", text: "অনুগ্রহ করে লক্ষ্যের নাম এবং সঠিক টার্গেট পরিমাণ দিন।" });
       return;
     }
 
@@ -226,11 +234,11 @@ const LifeSavings = (() => {
       description,
       color,
       icon: "bi-piggy-bank",
-      contributions: currentAmount > 0 ? [{ date: LifeUtils.CURRENT_DEMO_DATE, amount: currentAmount, note: "Initial setup" }] : []
+      contributions: currentAmount > 0 ? [{ date: LifeUtils.CURRENT_DEMO_DATE, amount: currentAmount, note: "প্রাথমিক জমা" }] : []
     });
 
     bootstrap.Modal.getInstance(document.getElementById("modal-savings-goal")).hide();
-    window.Swal.fire({ icon: "success", title: "Savings Goal Created", timer: 1500, showConfirmButton: false, toast: true });
+    window.Swal.fire({ icon: "success", title: "সঞ্চয় লক্ষ্য তৈরি হয়েছে", timer: 1500, showConfirmButton: false, toast: true });
   }
 
   return {

@@ -64,7 +64,7 @@ const LifeCharts = (() => {
         labels: trend.labels,
         datasets: [
           {
-            label: "Income",
+            label: "আয়",
             data: trend.incomeData,
             backgroundColor: colors.success,
             borderRadius: 6,
@@ -72,7 +72,7 @@ const LifeCharts = (() => {
             categoryPercentage: 0.7
           },
           {
-            label: "Expenses",
+            label: "ব্যয়",
             data: trend.expenseData,
             backgroundColor: colors.danger,
             borderRadius: 6,
@@ -92,7 +92,7 @@ const LifeCharts = (() => {
               boxWidth: 12,
               boxHeight: 12,
               color: colors.textColor,
-              font: { family: "'Inter', sans-serif", size: 12, weight: "500" }
+              font: { family: "'Hind Siliguri', 'Inter', sans-serif", size: 12, weight: "500" }
             }
           },
           tooltip: {
@@ -150,7 +150,7 @@ const LifeCharts = (() => {
     chartInstances[canvasId] = new Chart(ctx, {
       type: "doughnut",
       data: {
-        labels: labels.length ? labels : ["No Expenses"],
+        labels: labels.length ? labels : ["কোনো ব্যয় নেই"],
         datasets: [
           {
             data: data.length ? data : [1],
@@ -252,16 +252,16 @@ const LifeCharts = (() => {
 
     // Calculate completions for the past 7 days up to 2026-10-15
     const days = [
-      { label: "Fri (Oct 09)", date: "2026-10-09" },
-      { label: "Sat (Oct 10)", date: "2026-10-10" },
-      { label: "Sun (Oct 11)", date: "2026-10-11" },
-      { label: "Mon (Oct 12)", date: "2026-10-12" },
-      { label: "Tue (Oct 13)", date: "2026-10-13" },
-      { label: "Wed (Oct 14)", date: "2026-10-14" },
-      { label: "Thu (Oct 15)", date: "2026-10-15" }
+      { label: "শুক্র", date: "2026-10-09" },
+      { label: "শনি", date: "2026-10-10" },
+      { label: "রবি", date: "2026-10-11" },
+      { label: "সোম", date: "2026-10-12" },
+      { label: "মঙ্গল", date: "2026-10-13" },
+      { label: "বুধ", date: "2026-10-14" },
+      { label: "বৃহঃ", date: "2026-10-15" }
     ];
 
-    const labels = days.map(d => d.label.split(" ")[0]);
+    const labels = days.map(d => d.label);
     const completionCounts = days.map(d => {
       return habits.filter(h => (h.completedDates || []).includes(d.date)).length;
     });
@@ -273,7 +273,7 @@ const LifeCharts = (() => {
         labels,
         datasets: [
           {
-            label: "Completed Habits",
+            label: "সম্পন্ন অভ্যাস",
             data: completionCounts,
             borderColor: colors.primary,
             backgroundColor: colors.primaryLight,
@@ -293,7 +293,7 @@ const LifeCharts = (() => {
           tooltip: {
             backgroundColor: colors.tooltipBg,
             callbacks: {
-              label: ctx => ` Completed: ${ctx.raw} of ${habits.length} habits`
+              label: ctx => ` সম্পন্ন: ${ctx.raw} টি / ${habits.length} টি অভ্যাসের মধ্যে`
             }
           }
         },
@@ -322,7 +322,7 @@ const LifeCharts = (() => {
     destroyChart(canvasId);
 
     const colors = getThemeColors();
-    const months = ["May 26", "Jun 26", "Jul 26", "Aug 26", "Sep 26", "Oct 26"];
+    const months = ["মে ২৬", "জুন ২৬", "জুলাই ২৬", "আগস্ট ২৬", "সেপ্টে ২৬", "অক্টো ২৬"];
     // Modeled realistic accumulation curve based on monthly savings
     const netWorthData = [185000, 240000, 285000, 312000, 345000, 382750];
 
@@ -333,7 +333,7 @@ const LifeCharts = (() => {
         labels: months,
         datasets: [
           {
-            label: "Net Worth (BDT)",
+            label: "মোট সম্পদ (টাকা)",
             data: netWorthData,
             borderColor: colors.success,
             backgroundColor: colors.successLight,
@@ -353,7 +353,7 @@ const LifeCharts = (() => {
           tooltip: {
             backgroundColor: colors.tooltipBg,
             callbacks: {
-              label: ctx => ` Net Worth: ৳${Number(ctx.raw).toLocaleString("en-BD")}`
+              label: ctx => ` মোট সম্পদ: ৳${Number(ctx.raw).toLocaleString("en-BD")}`
             }
           }
         },
@@ -388,7 +388,7 @@ const LifeCharts = (() => {
     // Group completion rate by category
     const catMap = {};
     habits.forEach(h => {
-      const cat = h.category || "General";
+      const cat = h.category || "সাধারণ";
       const stats = LifeUtils.calculateHabitStreak(h.completedDates);
       if (!catMap[cat]) catMap[cat] = { total: 0, count: 0 };
       catMap[cat].total += stats.completionRate;
@@ -405,7 +405,7 @@ const LifeCharts = (() => {
         labels: categories,
         datasets: [
           {
-            label: "Category Discipline %",
+            label: "ক্যাটাগরি ভিত্তিক ধারাবাহিকতা %",
             data: rates,
             backgroundColor: colors.primaryLight,
             borderColor: colors.primary,
@@ -422,7 +422,7 @@ const LifeCharts = (() => {
           tooltip: {
             backgroundColor: colors.tooltipBg,
             callbacks: {
-              label: ctx => ` Consistency: ${ctx.raw}%`
+              label: ctx => ` ধারাবাহিকতা: ${ctx.raw}%`
             }
           }
         },

@@ -46,19 +46,33 @@ const LifeAnalytics = (() => {
 
     $("#analytics-net-worth").text(LifeUtils.formatCurrency(nw.netWorth));
     $("#analytics-monthly-burn").text(LifeUtils.formatCurrency(expOct));
-    $("#analytics-savings-rate").text(`${rateOct}%`);
+    $("#analytics-savings-rate").text(`${LifeUtils.toBnNumber(rateOct)}%`);
 
     // Top categories ranking list
     const spendingMap = LifeUtils.getCategorySpending(transactions, "2026-10");
     const sortedCategories = Object.entries(spendingMap).sort((a, b) => b[1] - a[1]);
 
+    const catMap = {
+      "Food & Groceries": "খাবার ও বাজার",
+      "Housing & Rent": "বাসা ভাড়া ও আবাসন",
+      "Utilities & Bills": "ইউটিলিটি ও বিল",
+      "Transport & Fuel": "যাতায়াত ও জ্বালানি",
+      "Dining Out & Cafes": "রেস্তোরাঁ ও ক্যাফে",
+      "Shopping & Tech": "কেনাকাটা ও গ্যাজেট",
+      "Healthcare & Medicine": "চিকিৎসা ও ওষুধ",
+      "Subscriptions & SaaS": "সাবস্ক্রিপশন ও সফটওয়্যার",
+      "Family & Childcare": "পরিবার ও আত্মীয়স্বজন",
+      "Education & Books": "শিক্ষা ও বইপত্র"
+    };
+
     const rankingHtml = sortedCategories.map(([cat, amt], idx) => {
       const percent = expOct > 0 ? Math.round((amt / expOct) * 100) : 0;
+      const catLabel = catMap[cat] || cat;
       return `
         <div class="mb-3">
           <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="fs-14 fw-semibold">${idx + 1}. ${LifeUtils.escapeHtml(cat)}</span>
-            <span class="fs-14 fw-bold text-dark">${LifeUtils.formatCurrency(amt)} <small class="text-muted fw-normal">(${percent}%)</small></span>
+            <span class="fs-14 fw-semibold">${LifeUtils.toBnNumber(idx + 1)}. ${LifeUtils.escapeHtml(catLabel)}</span>
+            <span class="fs-14 fw-bold text-dark">${LifeUtils.formatCurrency(amt)} <small class="text-muted fw-normal">(${LifeUtils.toBnNumber(percent)}%)</small></span>
           </div>
           <div class="progress" style="height: 6px;">
             <div class="progress-bar bg-primary" style="width: ${percent}%;"></div>
@@ -99,9 +113,9 @@ const LifeAnalytics = (() => {
     });
     const avgGoalProgress = lifeGoals.length > 0 ? Math.round(goalProgressSum / lifeGoals.length) : 0;
 
-    $("#analytics-habit-score").text(`${avgHabitScore}%`);
-    $("#analytics-task-velocity").text(`${taskRate}%`);
-    $("#analytics-goal-velocity").text(`${avgGoalProgress}%`);
+    $("#analytics-habit-score").text(`${LifeUtils.toBnNumber(avgHabitScore)}%`);
+    $("#analytics-task-velocity").text(`${LifeUtils.toBnNumber(taskRate)}%`);
+    $("#analytics-goal-velocity").text(`${LifeUtils.toBnNumber(avgGoalProgress)}%`);
 
     // Render radar
     if (window.LifeCharts) {

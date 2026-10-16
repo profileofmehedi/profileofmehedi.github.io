@@ -90,20 +90,21 @@ const LifeTransactions = (() => {
     $(document).on("click", ".btn-delete-tx", function () {
       const txId = $(this).data("id");
       window.Swal.fire({
-        title: "Delete Transaction?",
-        text: "This will remove the transaction and revert its balance impact.",
+        title: "লেনদেন মুছবেন?",
+        text: "এটি লেনদেনটি মুছে ফেলবে এবং অ্যাকাউন্টের ব্যালেন্সে সমন্বয় করবে।",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
         cancelButtonColor: "#64748B",
-        confirmButtonText: "Yes, delete it"
+        confirmButtonText: "হ্যাঁ, মুছুন",
+        cancelButtonText: "বাতিল"
       }).then(result => {
         if (result.isConfirmed) {
           LifeStorage.deleteTransaction(txId);
           window.Swal.fire({
             icon: "success",
-            title: "Deleted!",
-            text: "Transaction has been deleted.",
+            title: "মুছে ফেলা হয়েছে!",
+            text: "লেনদেনটি সফলভাবে মুছে ফেলা হয়েছে।",
             timer: 1500,
             showConfirmButton: false,
             toast: true,
@@ -225,19 +226,50 @@ const LifeTransactions = (() => {
     $("#tx-summary-net").text(LifeUtils.formatCurrency(net));
     $("#tx-summary-net").removeClass("text-success text-danger")
       .addClass(net >= 0 ? "text-success" : "text-danger");
-    $("#tx-summary-count").text(`${filtered.length} transactions`);
+    $("#tx-summary-count").text(`${LifeUtils.toBnNumber(filtered.length)} টি লেনদেন`);
   }
 
   function renderTable(items) {
     const accounts = LifeStorage.get("accounts") || [];
     const cards = LifeStorage.get("cards") || [];
 
+    const categoryMap = {
+      "Food & Groceries": "খাবার ও বাজার",
+      "Housing & Rent": "বাসা ভাড়া ও আবাসন",
+      "Utilities & Bills": "ইউটিলিটি ও বিল",
+      "Transport & Fuel": "যাতায়াত ও জ্বালানি",
+      "Dining Out & Cafes": "রেস্তোরাঁ ও ক্যাফে",
+      "Shopping & Tech": "কেনাকাটা ও গ্যাজেট",
+      "Healthcare & Medicine": "চিকিৎসা ও ওষুধ",
+      "Subscriptions & SaaS": "সাবস্ক্রিপশন ও সফটওয়্যার",
+      "Family & Childcare": "পরিবার ও আত্মীয়স্বজন",
+      "Education & Books": "শিক্ষা ও বইপত্র",
+      "Salary": "বেতন",
+      "Freelance & Consulting": "ফ্রিল্যান্সিং ও কনসাল্টিং",
+      "Bonus": "বোনাস ও ইনসেন্টিভ",
+      "Transfer": "অ্যাকাউন্ট স্থানান্তর",
+      "Savings Contribution": "সঞ্চয় কিস্তি জমা",
+      "Credit Card Payment": "ক্রেডিট কার্ড পরিশোধ",
+      "Other": "অন্যান্য"
+    };
+
+    const methodMap = {
+      "Debit Card": "ডেবিট কার্ড",
+      "Credit Card": "ক্রেডিট কার্ড",
+      "Bank Transfer": "ব্যাংক ট্রান্সফার",
+      "bKash": "বিকাশ",
+      "Nagad": "নগদ",
+      "Cash": "ক্যাশ",
+      "Direct Deposit": "ডিপোজিট",
+      "Electronic": "অনলাইন"
+    };
+
     const getAccountName = id => {
       const acc = accounts.find(a => a.id === id);
       if (acc) return acc.name;
       const card = cards.find(c => c.id === id);
       if (card) return card.name;
-      return "Direct";
+      return "সরাসরি";
     };
 
     if (items.length === 0) {
@@ -245,8 +277,8 @@ const LifeTransactions = (() => {
         <tr>
           <td colspan="7" class="text-center py-5 text-muted">
             <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
-            <div class="fw-semibold">No transactions match your current filters.</div>
-            <div class="small">Try resetting your search query or filters.</div>
+            <div class="fw-semibold">আপনার ফিল্টারের সাথে কোনো লেনদেন মেলেনি।</div>
+            <div class="small">অনুসন্ধান বা ফিল্টার রিসেট করে আবার চেষ্টা করুন।</div>
           </td>
         </tr>
       `);
@@ -260,27 +292,30 @@ const LifeTransactions = (() => {
       const isTrans = t.type === "transfer";
       const isDebt = t.type === "debt_payment";
 
-      let typeBadge = `<span class="badge bg-danger-subtle text-danger-emphasis">Expense</span>`;
+      let typeBadge = `<span class="badge bg-danger-subtle text-danger-emphasis">ব্যয়</span>`;
       let amountColor = "text-danger";
       let amountPrefix = "-";
 
       if (isInc) {
-        typeBadge = `<span class="badge bg-success-subtle text-success-emphasis">Income</span>`;
+        typeBadge = `<span class="badge bg-success-subtle text-success-emphasis">আয়</span>`;
         amountColor = "text-success";
         amountPrefix = "+";
       } else if (isSav) {
-        typeBadge = `<span class="badge bg-primary-subtle text-primary-emphasis">Savings</span>`;
+        typeBadge = `<span class="badge bg-primary-subtle text-primary-emphasis">সঞ্চয়</span>`;
         amountColor = "text-primary";
         amountPrefix = "";
       } else if (isTrans) {
-        typeBadge = `<span class="badge bg-info-subtle text-info-emphasis">Transfer</span>`;
+        typeBadge = `<span class="badge bg-info-subtle text-info-emphasis">স্থানান্তর</span>`;
         amountColor = "text-info";
         amountPrefix = "";
       } else if (isDebt) {
-        typeBadge = `<span class="badge bg-warning-subtle text-warning-emphasis">Card Pay</span>`;
+        typeBadge = `<span class="badge bg-warning-subtle text-warning-emphasis">কার্ড বিল</span>`;
         amountColor = "text-warning";
         amountPrefix = "";
       }
+
+      const catLabel = categoryMap[t.category] || t.category || "সাধারণ";
+      const methodLabel = methodMap[t.method] || t.method || "অনলাইন";
 
       return `
         <tr>
@@ -290,23 +325,23 @@ const LifeTransactions = (() => {
           </td>
           <td>
             <div class="fw-semibold fs-14 text-dark text-truncate" style="max-width: 240px;">${LifeUtils.escapeHtml(t.description)}</div>
-            <div class="text-muted small">${LifeUtils.escapeHtml(t.merchant || "Personal")}</div>
+            <div class="text-muted small">${LifeUtils.escapeHtml(t.merchant || "ব্যক্তিগত")}</div>
           </td>
           <td>${typeBadge}</td>
           <td>
-            <span class="badge bg-light text-secondary border">${LifeUtils.escapeHtml(t.category || "General")}</span>
+            <span class="badge bg-light text-secondary border">${LifeUtils.escapeHtml(catLabel)}</span>
           </td>
           <td>
             <div class="small fw-medium">${LifeUtils.escapeHtml(getAccountName(t.accountId))}</div>
-            <div class="text-muted small">${LifeUtils.escapeHtml(t.method || "Electronic")}</div>
+            <div class="text-muted small">${LifeUtils.escapeHtml(methodLabel)}</div>
           </td>
           <td class="text-end">
             <span class="fw-bold ${amountColor}">${amountPrefix}${LifeUtils.formatCurrency(t.amount)}</span>
           </td>
           <td class="text-end">
             <div class="btn-group btn-group-sm">
-              <button class="btn btn-outline-secondary btn-edit-tx" data-id="${t.id}" title="Edit"><i class="bi bi-pencil"></i></button>
-              <button class="btn btn-outline-danger btn-delete-tx" data-id="${t.id}" title="Delete"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-outline-secondary btn-edit-tx" data-id="${t.id}" title="সম্পাদনা"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-outline-danger btn-delete-tx" data-id="${t.id}" title="মুছুন"><i class="bi bi-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -329,7 +364,7 @@ const LifeTransactions = (() => {
     for (let p = 1; p <= totalPages; p++) {
       if (p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)) {
         html += `<li class="page-item ${p === currentPage ? "active" : ""}">
-          <a class="page-link tx-page-btn" href="#" data-page="${p}">${p}</a>
+          <a class="page-link tx-page-btn" href="#" data-page="${p}">${LifeUtils.toBnNumber(p)}</a>
         </li>`;
       } else if (p === currentPage - 2 || p === currentPage + 2) {
         html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
@@ -347,7 +382,7 @@ const LifeTransactions = (() => {
     const accounts = LifeStorage.get("accounts") || [];
     const cards = LifeStorage.get("cards") || [];
 
-    let filterOptions = `<option value="all">All Accounts & Cards</option>`;
+    let filterOptions = `<option value="all">সকল অ্যাকাউন্ট ও কার্ড</option>`;
     let formOptions = "";
 
     accounts.forEach(a => {
@@ -366,7 +401,7 @@ const LifeTransactions = (() => {
 
     // Savings goals
     const goals = LifeStorage.get("savingsGoals") || [];
-    let goalOptions = `<option value="">Select Savings Goal...</option>`;
+    let goalOptions = `<option value="">সঞ্চয় লক্ষ্য নির্বাচন করুন...</option>`;
     goals.forEach(g => {
       goalOptions += `<option value="${g.id}">${g.name} (${LifeUtils.formatCurrency(g.currentAmount)} / ${LifeUtils.formatCurrency(g.targetAmount)})</option>`;
     });
@@ -374,27 +409,40 @@ const LifeTransactions = (() => {
 
     // Credit cards
     const creditCards = cards.filter(c => c.type === "credit");
-    let ccOptions = `<option value="">Select Credit Card...</option>`;
+    let ccOptions = `<option value="">ক্রেডিট কার্ড নির্বাচন করুন...</option>`;
     creditCards.forEach(c => {
-      ccOptions += `<option value="${c.id}">${c.name} (Outstanding: ${LifeUtils.formatCurrency(c.outstanding)})</option>`;
+      ccOptions += `<option value="${c.id}">${c.name} (বকেয়া: ${LifeUtils.formatCurrency(c.outstanding)})</option>`;
     });
     $("#tx-form-card").html(ccOptions);
   }
 
   function populateCategoryDropdowns() {
     const categories = [
-      "Food & Groceries", "Housing & Rent", "Utilities & Bills", "Transport & Fuel",
-      "Dining Out & Cafes", "Shopping & Tech", "Healthcare & Medicine", "Subscriptions & SaaS",
-      "Family & Childcare", "Education & Books", "Salary", "Freelance & Consulting",
-      "Bonus", "Transfer", "Savings Contribution", "Credit Card Payment", "Other"
+      { id: "Food & Groceries", name: "খাবার ও বাজার" },
+      { id: "Housing & Rent", name: "বাসা ভাড়া ও আবাসন" },
+      { id: "Utilities & Bills", name: "ইউটিলিটি ও বিল" },
+      { id: "Transport & Fuel", name: "যাতায়াত ও জ্বালানি" },
+      { id: "Dining Out & Cafes", name: "রেস্তোরাঁ ও ক্যাফে" },
+      { id: "Shopping & Tech", name: "কেনাকাটা ও গ্যাজেট" },
+      { id: "Healthcare & Medicine", name: "চিকিৎসা ও ওষুধ" },
+      { id: "Subscriptions & SaaS", name: "সাবস্ক্রিপশন ও সফটওয়্যার" },
+      { id: "Family & Childcare", name: "পরিবার ও আত্মীয়স্বজন" },
+      { id: "Education & Books", name: "শিক্ষা ও বইপত্র" },
+      { id: "Salary", name: "বেতন" },
+      { id: "Freelance & Consulting", name: "ফ্রিল্যান্সিং ও কনসাল্টিং" },
+      { id: "Bonus", name: "বোনাস ও ইনসেন্টিভ" },
+      { id: "Transfer", name: "অ্যাকাউন্ট স্থানান্তর" },
+      { id: "Savings Contribution", name: "সঞ্চয় কিস্তি জমা" },
+      { id: "Credit Card Payment", name: "ক্রেডিট কার্ড পরিশোধ" },
+      { id: "Other", name: "অন্যান্য" }
     ];
 
-    let filterOptions = `<option value="all">All Categories</option>`;
+    let filterOptions = `<option value="all">সকল ক্যাটাগরি</option>`;
     let formOptions = "";
 
     categories.forEach(c => {
-      filterOptions += `<option value="${c}">${c}</option>`;
-      formOptions += `<option value="${c}">${c}</option>`;
+      filterOptions += `<option value="${c.id}">${c.name}</option>`;
+      formOptions += `<option value="${c.id}">${c.name}</option>`;
     });
 
     $("#tx-filter-category").html(filterOptions).val(activeFilters.category);
@@ -405,7 +453,7 @@ const LifeTransactions = (() => {
     const tx = (LifeStorage.get("transactions") || []).find(t => t.id === txId);
     if (!tx) return;
 
-    $("#modal-tx-title").text("Edit Transaction");
+    $("#modal-tx-title").text("লেনদেন সম্পাদনা");
     $("#tx-form-id").val(tx.id);
     $("#tx-form-type").val(tx.type);
     $("#tx-form-description").val(tx.description);
@@ -428,7 +476,7 @@ const LifeTransactions = (() => {
   }
 
   function openAddModal(type = "expense") {
-    $("#modal-tx-title").text("Add Transaction");
+    $("#modal-tx-title").text("নতুন লেনদেন যোগ করুন");
     $("#tx-form-id").val("");
     $("#tx-form-type").val(type);
     $("#tx-form-description").val("");
@@ -465,8 +513,8 @@ const LifeTransactions = (() => {
     if (!description || !amount || amount <= 0 || !date) {
       window.Swal.fire({
         icon: "warning",
-        title: "Validation Error",
-        text: "Please provide a valid description, date, and positive amount.",
+        title: "ভুল তথ্য",
+        text: "অনুগ্রহ করে বিবরণ, তারিখ এবং সঠিক টাকার পরিমাণ প্রদান করুন।",
         confirmButtonColor: "#635BFF"
       });
       return;
@@ -500,7 +548,7 @@ const LifeTransactions = (() => {
 
     window.Swal.fire({
       icon: "success",
-      title: id ? "Transaction Updated" : "Transaction Added",
+      title: id ? "লেনদেন আপডেট হয়েছে" : "লেনদেন যোগ হয়েছে",
       timer: 1500,
       showConfirmButton: false,
       toast: true,

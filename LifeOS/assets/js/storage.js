@@ -4,8 +4,8 @@
  */
 
 const LifeStorage = (() => {
-  const STORAGE_KEY = "LIFEOS_DATA_V1";
-  const AUTH_KEY = "LIFEOS_AUTH_V1";
+  const STORAGE_KEY = "LIFEOS_DATA_BN_V2";
+  const AUTH_KEY = "LIFEOS_AUTH_BN_V2";
 
   // Event bus subscribers
   const listeners = {};
@@ -648,14 +648,14 @@ const LifeStorage = (() => {
         id: LifeUtils.generateId("tx"),
         date: LifeUtils.CURRENT_DEMO_DATE,
         type: "income",
-        description: `Company Reimbursement: ${claim.voucherNumber} (${claim.title})`,
+        description: `কোম্পানি রিইমবার্সমেন্ট: ${claim.voucherNumber} (${claim.title})`,
         amount: disbursed,
-        category: "Other Income",
+        category: "অন্যান্য",
         accountId: claim.targetAccountId,
-        method: "Bank / MFS Credit",
-        merchant: "Company Reimbursement",
-        tags: ["Reimbursement", "Conveyance"],
-        notes: `Claimed: ${claim.totalClaimed} BDT. Disbursed: ${disbursed} BDT. Company Deduction: ${deduction} BDT.`
+        method: "ব্যাংক / এমএফএস ক্রেডিট",
+        merchant: "অফিস রিইমবার্সমেন্ট",
+        tags: ["রিইমবার্সমেন্ট", "যাতায়াত"],
+        notes: `দাবিকৃত: ৳${claim.totalClaimed}। পরিশোধিত: ৳${disbursed}। অফিস কর্তন: ৳${deduction}।`
       };
       addTransaction(tx);
     }
