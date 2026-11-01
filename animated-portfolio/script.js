@@ -1,35 +1,54 @@
 /* -------------------------------------------------------------
    Mehedi Hasan - Interactive Portfolio Script
+   Senior Full-Stack .NET Developer & AI Integration Architect
    ------------------------------------------------------------- */
 
 document.addEventListener('DOMContentLoaded', () => {
+
     // ---------------------------------------------------------
-    // 1. Mobile Navigation Menu Toggle
+    // 1. Mobile Navigation Menu Toggle & Body Scroll Lock
     // ---------------------------------------------------------
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
     const navLinks = document.querySelectorAll('.nav-link');
 
+    const closeNavMenu = () => {
+        if (navMenu && navMenu.classList.contains('active')) {
+            navMenu.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            const icon = navToggle ? navToggle.querySelector('i') : null;
+            if (icon) icon.className = 'fas fa-bars';
+        }
+    };
+
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
+        navToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = navMenu.classList.toggle('active');
+            document.body.classList.toggle('menu-open', isActive);
             const icon = navToggle.querySelector('i');
             if (icon) {
-                if (navMenu.classList.contains('active')) {
-                    icon.className = 'fas fa-times';
-                } else {
-                    icon.className = 'fas fa-bars';
-                }
+                icon.className = isActive ? 'fas fa-times' : 'fas fa-bars';
             }
         });
 
         // Close menu on link click
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
-                const icon = navToggle.querySelector('i');
-                if (icon) icon.className = 'fas fa-bars';
+                closeNavMenu();
             });
+        });
+
+        // Close menu on clicking outside
+        document.addEventListener('click', (e) => {
+            if (navMenu.classList.contains('active') && !navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+                closeNavMenu();
+            }
+        });
+
+        // Close menu on Escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeNavMenu();
         });
     }
 
@@ -49,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         navLinks.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href').substring(1) === current) {
+            if (link.getAttribute('href') && link.getAttribute('href').substring(1) === current) {
                 link.classList.add('active');
             }
         });
@@ -63,16 +82,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 header.classList.remove('scrolled');
             }
         }
-    });
+    }, { passive: true });
 
 
     // ---------------------------------------------------------
-    // 2. Custom Cursor Tracking
+    // 2. Custom Cursor Tracking (Desktop Only)
     // ---------------------------------------------------------
     const cursor = document.querySelector('.custom-cursor');
     const follower = document.querySelector('.custom-cursor-follower');
 
-    if (cursor && follower) {
+    if (cursor && follower && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         let mouseX = 0, mouseY = 0;
         let followerX = 0, followerY = 0;
 
@@ -87,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Smoothly animate the cursor follower
         const updateFollower = () => {
-            const ease = 0.15; // Interpolation ease
+            const ease = 0.15;
             followerX += (mouseX - followerX) * ease;
             followerY += (mouseY - followerY) * ease;
 
@@ -99,15 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFollower();
 
         // Hover Effect Listeners
-        const hoverables = document.querySelectorAll('a, button, .project-card, .social-icon, .filter-btn, .timeline-content');
-        hoverables.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                document.body.classList.add('hovered-link');
+        const attachHoverListeners = () => {
+            const hoverables = document.querySelectorAll('a, button, .project-card, .social-icon, .filter-btn, .timeline-content, .skill-category, .highlight-box');
+            hoverables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    document.body.classList.add('hovered-link');
+                });
+                el.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('hovered-link');
+                });
             });
-            el.addEventListener('mouseleave', () => {
-                document.body.classList.remove('hovered-link');
-            });
-        });
+        };
+        attachHoverListeners();
     }
 
 
@@ -146,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.size = Math.random() * 2 + 1;
                 this.speedX = (Math.random() - 0.5) * 0.6;
                 this.speedY = (Math.random() - 0.5) * 0.6;
-                this.baseColor = 'rgba(79, 172, 254, 0.4)';
+                // Alternate between cyan and purple
+                this.baseColor = Math.random() > 0.3 ? 'rgba(0, 242, 254, 0.45)' : 'rgba(191, 85, 236, 0.45)';
             }
 
             update() {
@@ -157,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (this.x < 0 || this.x > width) this.speedX *= -1;
                 if (this.y < 0 || this.y > height) this.speedY *= -1;
 
-                // React to mouse repulsion/pull
+                // React to mouse repulsion
                 if (mouse.x !== null) {
                     const dx = mouse.x - this.x;
                     const dy = mouse.y - this.y;
@@ -165,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (distance < mouse.radius) {
                         const force = (mouse.radius - distance) / mouse.radius;
                         const angle = Math.atan2(dy, dx);
-                        // Repel
                         this.x -= Math.cos(angle) * force * 2;
                         this.y -= Math.sin(angle) * force * 2;
                     }
@@ -182,8 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const initParticles = () => {
             particles = [];
-            const density = Math.floor((width * height) / 9000);
-            const count = Math.min(density, 120); // Cap particles to maintain speed
+            const density = Math.floor((width * height) / 10000);
+            const count = Math.min(density, 110);
             for (let i = 0; i < count; i++) {
                 particles.push(new Particle(Math.random() * width, Math.random() * height));
             }
@@ -197,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const distance = Math.hypot(dx, dy);
 
                     if (distance < 100) {
-                        const alpha = (100 - distance) / 100 * 0.15;
+                        const alpha = (100 - distance) / 100 * 0.16;
                         ctx.strokeStyle = `rgba(0, 242, 254, ${alpha})`;
                         ctx.lineWidth = 0.8;
                         ctx.beginPath();
@@ -227,7 +249,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------------------------------------------------------
     // 4. Hero Section Typewriter Carousel
     // ---------------------------------------------------------
-    const words = ["Lead .NET Developer", "Full-Stack Engineer", "Software Architect", "Technical Leader"];
+    const words = [
+        "Lead .NET Developer",
+        "AI Integration Specialist",
+        "Enterprise Solutions Architect",
+        "RAG & Agentic Systems Engineer",
+        "Full-Stack Engineer"
+    ];
     const typewriterElement = document.getElementById('typewriter-text');
 
     if (typewriterElement) {
@@ -241,42 +269,44 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isDeleting) {
                 typewriterElement.textContent = currentWord.substring(0, charIndex - 1);
                 charIndex--;
-                typingSpeed = 50; // Delete faster
+                typingSpeed = 45;
             } else {
                 typewriterElement.textContent = currentWord.substring(0, charIndex + 1);
                 charIndex++;
-                typingSpeed = 120; // Normal typing speed
+                typingSpeed = 110;
             }
 
             if (!isDeleting && charIndex === currentWord.length) {
                 isDeleting = true;
-                typingSpeed = 2000; // Pause at full word
+                typingSpeed = 2200; // Pause when full word is typed
             } else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 wordIndex = (wordIndex + 1) % words.length;
-                typingSpeed = 500; // Pause before typing next word
+                typingSpeed = 450;
             }
 
             setTimeout(type, typingSpeed);
         };
 
-        setTimeout(type, 1500); // Start typewriter after terminal simulation
+        setTimeout(type, 1200);
     }
 
 
     // ---------------------------------------------------------
-    // 5. Hero CLI Terminal Mockup Simulation
+    // 5. Hero CLI Terminal Simulation (.NET + AI Integration)
     // ---------------------------------------------------------
     const terminalLines = [
-        { type: 'input', text: 'dotnet run MehediHasan.dll --env Development' },
-        { type: 'output', text: 'Hosting environment: Development' },
-        { type: 'output', text: 'Content root path: E:\\Mehedi\\Portfolio' },
-        { type: 'output', text: 'Database initialized: Microsoft SQL Server & Oracle 12c' },
-        { type: 'output', text: 'Caching provider: Redis Cache (Connected)' },
-        { type: 'output', text: 'Message broker: RabbitMQ channels opened.' },
-        { type: 'output', text: 'Application started. Press Ctrl+C to shut down.' },
-        { type: 'output', text: 'Now listening on: https://localhost:5001' },
-        { type: 'prompt', text: 'Lead.NET.Dev.Console ready > ' }
+        { type: 'input', text: 'dotnet run MehediHasan.Engine.dll --mode=Enterprise --with-ai' },
+        { type: 'output', text: 'Hosting environment: Production (High-Availability)' },
+        { type: 'output', text: 'Framework: .NET 8 / ASP.NET Core & Angular' },
+        { type: 'output', text: 'Database: SQL Server & Oracle 12c (EF Core)' },
+        { type: 'output', text: 'AI Kernel: Microsoft Semantic Kernel loaded' },
+        { type: 'output', text: 'LLM Connectors: OpenAI & Google Gemini APIs [Active]' },
+        { type: 'output', text: 'Vector Store: PostgreSQL (pgvector) RAG Index [Ready]' },
+        { type: 'output', text: 'Message Broker: RabbitMQ distributed event channels opened' },
+        { type: 'output', text: 'Distributed Cache: Redis Cache (Connected - < 1ms)' },
+        { type: 'output', text: 'Application live at: https://profileofmehedi.github.io' },
+        { type: 'prompt', text: 'AI.DotNet.Architect ready > ' }
     ];
 
     const terminalBody = document.getElementById('terminal-content');
@@ -300,10 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (charPos < lineData.text.length) {
                         textSpan.textContent += lineData.text.charAt(charPos);
                         charPos++;
-                        setTimeout(typeChar, 40);
+                        setTimeout(typeChar, 35);
                     } else {
                         lineIndex++;
-                        setTimeout(renderTerminal, 600);
+                        setTimeout(renderTerminal, 500);
                     }
                 };
                 typeChar();
@@ -315,14 +345,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 div.innerHTML = `<span class="terminal-output">${lineData.text}</span>`;
                 terminalBody.appendChild(div);
                 lineIndex++;
-                setTimeout(renderTerminal, 300);
+                setTimeout(renderTerminal, 240);
             }
 
-            // Scroll to bottom of terminal
             terminalBody.scrollTop = terminalBody.scrollHeight;
         };
 
-        setTimeout(renderTerminal, 500);
+        setTimeout(renderTerminal, 400);
     }
 
 
@@ -330,6 +359,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Interactive Projects Grid & Filtering
     // ---------------------------------------------------------
     const projectsData = [
+        {
+            id: 'proj-ai-1',
+            category: 'ai-apps',
+            title: 'Enterprise AI Copilot & RAG Knowledge Engine',
+            description: 'An enterprise-grade Retrieval-Augmented Generation (RAG) copilot built with ASP.NET Core, Semantic Kernel, and vector embeddings. Enables natural language semantic search and automated question answering over vast corporate banking, HR, and compliance repositories with source citations.',
+            tags: ['ASP.NET Core', 'Semantic Kernel', 'OpenAI API', 'pgvector', 'Angular', 'Redis'],
+            company: 'Enterprise FinTech Solutions',
+            period: 'Jan 2024 - Present',
+            details: [
+                'Architected high-throughput RAG pipeline in .NET using Microsoft Semantic Kernel and OpenAI embeddings.',
+                'Integrated PostgreSQL pgvector for hybrid semantic and keyword search across thousands of policy documents.',
+                'Engineered automated document chunking, token budgeting, and guardrails to eliminate LLM hallucinations.',
+                'Developed secure Angular frontend with real-time streaming responses (Server-Sent Events) and citation link badges.',
+                'Configured Redis caching to store frequent prompt responses and slash API token consumption by 45%.'
+            ],
+            links: { demo: 'https://github.com/mehedihasan9339', code: 'https://github.com/mehedihasan9339' },
+            isProprietary: false
+        },
+        {
+            id: 'proj-ai-2',
+            category: 'ai-apps',
+            title: 'Autonomous KYC & Financial Document Agent',
+            description: 'An AI-powered document extraction and customer verification pipeline using multimodal LLMs and .NET microservices. Automates NID, passport, and bank statement verification with human-in-the-loop audit logging.',
+            tags: ['C#.NET', 'Gemini Vision', 'LLM Function Calling', 'RabbitMQ', 'SQL Server'],
+            company: 'FinTech Innovation Lab',
+            period: 'Oct 2023 - Jun 2024',
+            details: [
+                'Integrated Gemini Vision and OCR models with ASP.NET Core Web API for multi-format document verification.',
+                'Implemented autonomous LLM tool calling to match OCR data against National Registry APIs.',
+                'Designed RabbitMQ asynchronous queue architecture to handle parallel document processing without throttling.',
+                'Built custom confidence scoring algorithms to route suspicious records to human compliance officers.',
+                'Reduced customer verification turnaround time from 24 hours to under 30 seconds.'
+            ],
+            links: { demo: '#', code: '#' },
+            isProprietary: true
+        },
         {
             id: 'proj1',
             category: 'web-apps',
@@ -344,6 +409,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Built high-performance APIs for DPS Creation, Payments, and Encashments.',
                 'Engineered backend logic for Close of Business Day processing with heavy SQL stored procedures and Angular notifications.',
                 'Created microservices in .NET and RabbitMQ to handle email/SMS delivery queues.'
+            ],
+            links: { demo: '#', code: '#' },
+            isProprietary: true
+        },
+        {
+            id: 'proj-ai-3',
+            category: 'ai-apps',
+            title: 'Evercare AI Healthcare Chatbot Service',
+            description: 'An intelligent medical assistant microservice integrated with the hospital core database for booking appointments, checking doctor schedules, and natural language symptom triage.',
+            tags: ['.NET Core', 'SignalR', 'OpenAI API', 'SQL Server', 'REST API'],
+            company: 'Evercare Hospital of Bangladesh',
+            period: 'May 2020 - Nov 2020',
+            details: [
+                'Designed relational schemas in SQL Server to handle chat records and doctor roster mappings.',
+                'Integrated OpenAI API with custom intent classification to understand patient scheduling requests.',
+                'Built a SignalR real-time communications channel to map patient questions dynamically.',
+                'Created an embeddable widget script for external hospital portals to load the intelligent assistant seamlessly.',
+                'Integrated doctor schedules by calling core hospital REST endpoints securely.'
             ],
             links: { demo: '#', code: '#' },
             isProprietary: true
@@ -418,23 +501,6 @@ document.addEventListener('DOMContentLoaded', () => {
             isProprietary: false
         },
         {
-            id: 'proj6',
-            category: 'apis',
-            title: 'Evercare Chatbot Service',
-            description: 'A microservice chatbot integrated with the hospital core database for booking appointments and checking schedules.',
-            tags: ['.NET Core', 'SignalR', 'REST API', 'SQL Server', 'JSON'],
-            company: 'Evercare Hospital of Bangladesh',
-            period: 'May 2020 - Nov 2020',
-            details: [
-                'Designed the relational tables in SQL Server to handle chat records and doctor rosters.',
-                'Built a SignalR real-time communications channel to map patient questions dynamically.',
-                'Created an embeddable iframe script tag for external websites to load the chatbot widget.',
-                'Integrated doctor schedules by calling core hospital REST endpoints securely.'
-            ],
-            links: { demo: '#', code: '#' },
-            isProprietary: true
-        },
-        {
             id: 'proj7',
             category: 'web-apps',
             title: 'Police Store Management',
@@ -494,27 +560,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const filtered = filterCategory === 'all'
             ? projectsData
-            : projectsData.filter(p => p.category === filterCategory);
+            : projectsData.filter(p => {
+                if (filterCategory === 'ai-apps') return p.category === 'ai-apps';
+                if (filterCategory === 'apis') return p.category === 'apis' || p.id === 'proj-ai-3';
+                return p.category === filterCategory;
+            });
 
         filtered.forEach((p, idx) => {
             const card = document.createElement('div');
             card.className = 'project-card glass-card reveal';
-            card.style.transitionDelay = `${(idx % 3) * 0.1}s`;
+            card.style.transitionDelay = `${(idx % 3) * 0.08}s`;
 
-            const cardIconClass = p.category === 'apis' ? 'fas fa-server' : 'fas fa-laptop-code';
+            let cardIconClass = 'fas fa-laptop-code';
+            if (p.category === 'ai-apps') cardIconClass = 'fas fa-brain';
+            else if (p.category === 'apis') cardIconClass = 'fas fa-server';
 
             // Build demo & code links or lock icons if proprietary
             let linksHtml = '';
             if (p.isProprietary) {
                 linksHtml = `
-                    <a href="#" class="prop-link-lock" title="Proprietary App - Details inside"><i class="fas fa-lock"></i></a>
+                    <span class="prop-link-lock" title="Proprietary App - Details inside"><i class="fas fa-shield-alt"></i></span>
                 `;
             } else {
                 if (p.links.demo && p.links.demo !== '#') {
-                    linksHtml += `<a href="${p.links.demo}" target="_blank" title="Live Demo"><i class="fas fa-external-link-alt"></i></a>`;
+                    linksHtml += `<a href="${p.links.demo}" target="_blank" rel="noopener" title="Live Demo"><i class="fas fa-external-link-alt"></i></a>`;
                 }
                 if (p.links.code && p.links.code !== '#') {
-                    linksHtml += `<a href="${p.links.code}" target="_blank" title="Source Code"><i class="fab fa-github"></i></a>`;
+                    linksHtml += `<a href="${p.links.code}" target="_blank" rel="noopener" title="Source Code"><i class="fab fa-github"></i></a>`;
                 }
             }
 
@@ -533,26 +605,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${tagsHtml}
                     ${p.tags.length > 3 ? `<span class="project-card-tag">+${p.tags.length - 3}</span>` : ''}
                 </div>
-                <button class="project-more-btn" data-id="${p.id}">
+                <button class="project-more-btn" data-id="${p.id}" aria-label="View details for ${p.title}">
                     Learn More <i class="fas fa-arrow-right"></i>
                 </button>
             `;
             projectsContainer.appendChild(card);
-
-            // Re-apply hover cursor effect to dynamically generated items
-            card.addEventListener('mouseenter', () => document.body.classList.add('hovered-link'));
-            card.addEventListener('mouseleave', () => document.body.classList.remove('hovered-link'));
-
-            const moreBtn = card.querySelector('.project-more-btn');
-            moreBtn.addEventListener('mouseenter', () => document.body.classList.add('hovered-link'));
-            moreBtn.addEventListener('mouseleave', () => document.body.classList.remove('hovered-link'));
         });
 
         // Trigger reveal immediately for filtered projects
         setTimeout(() => {
             const revealedCards = projectsContainer.querySelectorAll('.reveal');
             revealedCards.forEach(c => c.classList.add('revealed'));
-        }, 100);
+            initCardTilt();
+        }, 80);
     };
 
     // Initialize Grid
@@ -578,7 +643,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const project = projectsData.find(p => p.id === projectId);
         if (!project || !modalOverlay) return;
 
-        // Populate Modal Fields
         modalOverlay.querySelector('.modal-title').textContent = project.title;
         modalOverlay.querySelector('.modal-subtitle').textContent = project.company;
 
@@ -592,8 +656,8 @@ document.addEventListener('DOMContentLoaded', () => {
             detailsHtml += `<h4 class="modal-section-title">Key Responsibilities & Contributions</h4>`;
             detailsHtml += `<ul style="list-style:none; padding-left:0; margin-bottom:20px;">`;
             project.details.forEach(detail => {
-                detailsHtml += `<li style="position:relative; padding-left:20px; margin-bottom:8px; line-height:1.6; color:var(--text-muted)">
-                    <span style="position:absolute; left:0; color:var(--primary)">✓</span> ${detail}
+                detailsHtml += `<li style="position:relative; padding-left:22px; margin-bottom:10px; line-height:1.6; color:var(--text-muted)">
+                    <span style="position:absolute; left:0; color:var(--primary); font-weight:bold;">✓</span> ${detail}
                 </li>`;
             });
             detailsHtml += `</ul>`;
@@ -614,33 +678,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (project.isProprietary) {
             modalFooter.innerHTML = `
                 <span style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
-                    <i class="fas fa-info-circle"></i> Closed codebase/Enterprise system.
+                    <i class="fas fa-lock"></i> Enterprise closed codebase system.
                 </span>
                 <button class="btn btn-secondary modal-close-btn-cta">Close</button>
             `;
         } else {
             let footerLinks = '';
             if (project.links.demo && project.links.demo !== '#') {
-                footerLinks += `<a href="${project.links.demo}" target="_blank" class="btn btn-primary"><i class="fas fa-external-link-alt"></i> View Demo</a>`;
+                footerLinks += `<a href="${project.links.demo}" target="_blank" rel="noopener" class="btn btn-primary"><i class="fas fa-external-link-alt"></i> View Demo</a>`;
             }
             if (project.links.code && project.links.code !== '#') {
-                footerLinks += `<a href="${project.links.code}" target="_blank" class="btn btn-secondary"><i class="fab fa-github"></i> Source Code</a>`;
+                footerLinks += `<a href="${project.links.code}" target="_blank" rel="noopener" class="btn btn-secondary"><i class="fab fa-github"></i> Source Code</a>`;
             }
-            footerLinks += `<button class="btn btn-secondary modal-close-btn-cta" style="border:none">Cancel</button>`;
+            footerLinks += `<button class="btn btn-secondary modal-close-btn-cta">Close</button>`;
             modalFooter.innerHTML = footerLinks;
         }
 
-        // Add close listeners to inside footer buttons
         const innerClose = modalFooter.querySelector('.modal-close-btn-cta');
         if (innerClose) {
             innerClose.addEventListener('click', closeModal);
-            innerClose.addEventListener('mouseenter', () => document.body.classList.add('hovered-link'));
-            innerClose.addEventListener('mouseleave', () => document.body.classList.remove('hovered-link'));
         }
 
-        // Activate Modal
         modalOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Stop background scrolling
+        document.body.style.overflow = 'hidden';
     };
 
     const closeModal = () => {
@@ -649,7 +709,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = '';
     };
 
-    // Event Delegation for dynamically built card button clicks
     if (projectsContainer) {
         projectsContainer.addEventListener('click', (e) => {
             const moreBtn = e.target.closest('.project-more-btn');
@@ -676,7 +735,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ---------------------------------------------------------
-    // 8. Scroll Entrance Animations (Intersection Observer)
+    // 8. 3D Card Tilt & Interactive Cursor Spotlight
+    // ---------------------------------------------------------
+    const initCardTilt = () => {
+        if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+        const cards = document.querySelectorAll('.glass-card, .project-card, .skill-category');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -4.5;
+                const rotateY = ((x - centerX) / centerX) * 4.5;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    };
+    initCardTilt();
+
+
+    // ---------------------------------------------------------
+    // 9. Animated Stats Counter
+    // ---------------------------------------------------------
+    const animateStatsCounter = () => {
+        const counters = document.querySelectorAll('.highlight-box .number');
+        if (!counters.length) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'), 10);
+                    const suffix = el.getAttribute('data-suffix') || '';
+                    if (isNaN(target)) return;
+
+                    let current = 0;
+                    const duration = 1800;
+                    const startTime = performance.now();
+
+                    const updateCounter = (now) => {
+                        const elapsed = now - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        current = Math.floor(easeOut * target);
+                        el.textContent = `${current}${suffix}`;
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            el.textContent = `${target}${suffix}`;
+                        }
+                    };
+
+                    requestAnimationFrame(updateCounter);
+                    observer.unobserve(el);
+                }
+            });
+        }, { threshold: 0.4 });
+
+        counters.forEach(c => observer.observe(c));
+    };
+    animateStatsCounter();
+
+
+    // ---------------------------------------------------------
+    // 10. Scroll Entrance Animations (Intersection Observer)
     // ---------------------------------------------------------
     const revealElements = document.querySelectorAll('.reveal');
 
@@ -685,24 +820,58 @@ document.addEventListener('DOMContentLoaded', () => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('revealed');
-                    // Stop observing once animated
                     observer.unobserve(entry.target);
                 }
             });
         }, {
             threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px' // Trigger slightly before element fits in viewport
+            rootMargin: '0px 0px -40px 0px'
         });
 
         revealElements.forEach(el => observer.observe(el));
     } else {
-        // Fallback for older browsers
         revealElements.forEach(el => el.classList.add('revealed'));
     }
 
 
     // ---------------------------------------------------------
-    // 9. Contact / Newsletter Form Validation
+    // 11. Floating Back To Top Button with Circular Scroll Progress
+    // ---------------------------------------------------------
+    const initBackToTop = () => {
+        const btn = document.getElementById('backToTopBtn');
+        if (!btn) return;
+        const circle = btn.querySelector('.progress-ring__circle');
+        if (!circle) return;
+
+        const radius = circle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = `${circumference}`;
+
+        const updateProgress = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
+            const offset = circumference - (scrollPercent * circumference);
+            circle.style.strokeDashoffset = offset;
+
+            if (scrollTop > 350) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        };
+
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        btn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    };
+    initBackToTop();
+
+
+    // ---------------------------------------------------------
+    // 12. Contact Form Interactive Feedback
     // ---------------------------------------------------------
     const contactForm = document.getElementById('portfolio-contact-form');
     const formStatus = document.getElementById('form-status-message');
@@ -714,41 +883,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitBtn = contactForm.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
 
-            // Simulating Sending State
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sending...`;
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Transmitting...`;
 
             setTimeout(() => {
-                // Simulating Success Response
-                formStatus.textContent = "Thank you! Your message was sent successfully. Mehedi will get back to you shortly.";
+                formStatus.textContent = "Thank you! Your message was transmitted successfully. Mehedi will get back to you promptly.";
                 formStatus.className = "form-status success";
 
-                // Clear inputs
                 contactForm.reset();
 
-                // Reset Button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
 
-                // Hide success message after 5 seconds
                 setTimeout(() => {
                     formStatus.style.display = 'none';
-                }, 5000);
-            }, 1800);
+                }, 6000);
+            }, 1400);
         });
     }
+
+
     // ---------------------------------------------------------
-    // Dynamic Homepage Blog Section
-    // Reads from global POSTS array (blog/data.js) and renders 2 random picks
+    // 13. Dynamic Homepage Blog Section
     // ---------------------------------------------------------
     const homepageBlogGrid = document.getElementById('homepage-blog-grid');
     if (homepageBlogGrid && typeof POSTS !== 'undefined' && POSTS.length > 0) {
-
-        // Pick 2 unique random posts
         const shuffled = [...POSTS].sort(() => Math.random() - 0.5);
         const picks = shuffled.slice(0, 2);
 
-        // Map category key to readable label using CATEGORIES if available
         function getCategoryLabel(cat) {
             if (typeof CATEGORIES !== 'undefined' && CATEGORIES[cat]) {
                 return CATEGORIES[cat].label;
@@ -756,29 +918,27 @@ document.addEventListener('DOMContentLoaded', () => {
             return cat.charAt(0).toUpperCase() + cat.slice(1);
         }
 
-        // Render cards
         homepageBlogGrid.innerHTML = picks.map((post, i) => `
-            <article class="blog-card glass-card reveal" style="transition-delay:${i * 0.15}s; cursor:pointer;"
+            <article class="blog-card glass-card reveal" style="transition-delay:${i * 0.12}s; cursor:pointer;"
                      onclick="window.location.href='blog/post.html?slug=${post.slug}'"
                      role="button" tabindex="0"
-                     aria-label="Read: ${post.title}">
+                     aria-label="Read: ${post.title.en || post.title.bn || post.title}">
                 <span class="blog-card-meta">
                     <i class="${post.icon || 'fas fa-pen-nib'}" style="margin-right:6px;opacity:0.8;"></i>
                     ${getCategoryLabel(post.category)}
                 </span>
-                <h3 class="blog-card-title">${post.title}</h3>
-                <p class="blog-card-desc">${post.excerpt}</p>
+                <h3 class="blog-card-title">${post.title.en || post.title.bn || post.title}</h3>
+                <p class="blog-card-desc">${post.excerpt.en || post.excerpt.bn || post.excerpt}</p>
                 <span class="project-more-btn" style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;">
                     Read Article <i class="fas fa-arrow-right"></i>
                 </span>
             </article>
         `).join('');
 
-        // Trigger reveal animation on the newly inserted cards
         const newCards = homepageBlogGrid.querySelectorAll('.reveal');
         newCards.forEach(el => {
-            // Small delay so CSS transition fires after paint
             requestAnimationFrame(() => el.classList.add('revealed'));
         });
+        initCardTilt();
     }
 });
