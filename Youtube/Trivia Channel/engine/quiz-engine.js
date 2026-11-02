@@ -570,7 +570,6 @@
                     if (mark) {
                         mark.innerHTML = "🔒";
                         mark.style.opacity = "1";
-                        mark.style.transform = "scale(1)";
                     }
                 } else {
                     btn.classList.remove('selected-locked');
