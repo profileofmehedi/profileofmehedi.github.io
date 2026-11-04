@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dedicated Quiz Broadcast Stage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        #quiz-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        #quiz-container.shorts-mode #quiz-frame {
+            width: calc(100vh * 9 / 16);
+            height: 100vh;
+        }
+
+        #quiz-container.widescreen-mode #quiz-frame {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #quiz-frame {
+            border: none;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Minimalist HUD - Completely vanishes during recording */
+        .stage-hud {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 999px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+            transition: opacity 0.2s;
+        }
+
+        body.is-recording .stage-hud {
+            display: none !important;
+        }
+
+        .btn-action {
+            background: #f43f5e;
+            color: #ffffff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 7px 15px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HUD (Will disappear completely during recording!) -->
+    <div class="stage-hud" id="stage-hud">
+        <a href="index.html" class="btn-secondary">⬅️ Studio</a>
+        <button class="btn-action" onclick="startCleanRecording()">
+            🔴 START RECORDING (1080p MP4)
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div id="quiz-container" class="widescreen-mode">
+        <iframe id="quiz-frame" allow="autoplay; microphone"></iframe>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const quizFile = urlParams.get('quiz') || '01_Guess_The_State_3_Clues.html';
+        const mode = urlParams.get('mode') || '16:9';
+        const isShorts = mode === 'shorts' || mode === '9:16';
+
+        const quizContainer = document.getElementById('quiz-container');
+        quizContainer.className = isShorts ? 'shorts-mode' : 'widescreen-mode';
+
+        const iframe = document.getElementById('quiz-frame');
+        function buildQuizUrl(auto = false) {
+            const p = new URLSearchParams();
+            if (isShorts) p.set('mode', 'shorts');
+            if (auto) p.set('auto', '1');
+            return `/trivia/${encodeURIComponent(quizFile)}?${p.toString()}`;
+        }
+
+        // Inject TTS Audio into iframe so voiceover is captured in tab recording
+        function setupTTS(iframeEl) {
+            try {
+                const win = iframeEl.contentWindow;
+                if (!win) return;
+                if (win.speechSynthesis) {
+                    win.speechSynthesis.speak = function(utterance) {
+                        if (!utterance || !utterance.text) { if (utterance && utterance.onend) utterance.onend(); return; }
+                        if (win.__activeTTS) { try { win.__activeTTS.pause(); } catch(e){} win.__activeTTS = null; }
+
+                        const audio = new win.Audio(`/api/tts?text=${encodeURIComponent(utterance.text)}`);
+                        win.__activeTTS = audio;
+                        audio.onended = () => { win.__activeTTS = null; if (utterance.onend) utterance.onend(); };
+                        audio.onerror = () => { win.__activeTTS = null; if (utterance.onend) utterance.onend(); };
+                        audio.play().catch(e => { if (utterance.onend) utterance.onend(); });
+                    };
+                    win.speechSynthesis.cancel = function() {
+                        if (win.__activeTTS) { try { win.__activeTTS.pause(); } catch(e){} win.__activeTTS = null; }
+                    };
+                }
+            } catch(e){}
+        }
+
+        iframe.onload = () => setupTTS(iframe);
+        iframe.src = buildQuizUrl(false);
+
+        let isRecording = false;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let capturedStream = null;
+        let checkFinishedInterval = null;
+
+        async function startCleanRecording() {
+            try {
+                capturedStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        displaySurface: "browser",
+                        frameRate: { ideal: 60, max: 60 }
+                    },
+                    audio: true,
+                    preferCurrentTab: true
+                });
+
+                document.body.classList.add('is-recording');
+
+                if (window.CropTarget && typeof CropTarget.fromElement === 'function') {
+                    try {
+                        const target = await CropTarget.fromElement(iframe);
+                        const [track] = capturedStream.getVideoTracks();
+                        if (track && track.cropTo) await track.cropTo(target);
+                    } catch (e) {}
+                }
+
+                let mimeType = 'video/webm;codecs=vp9,opus';
+                if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1,mp4a.40.2')) mimeType = 'video/mp4;codecs=avc1,mp4a.40.2';
+                else if (MediaRecorder.isTypeSupported('video/mp4')) mimeType = 'video/mp4';
+
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(capturedStream, {
+                    mimeType: mimeType,
+                    videoBitsPerSecond: 25000000
+                });
+
+                mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = handleComplete;
+
+                capturedStream.getVideoTracks()[0].onended = () => { if (isRecording) stopCleanRecording(); };
+
+                mediaRecorder.start(1000);
+                isRecording = true;
+
+                iframe.src = buildQuizUrl(true);
+
+                checkFinishedInterval = setInterval(() => {
+                    try {
+                        const win = iframe.contentWindow;
+                        if (win && win.__quiz_finished) {
+                            clearInterval(checkFinishedInterval);
+                            setTimeout(() => { if (isRecording) stopCleanRecording(); }, 4000);
+                        }
+                    } catch(e){}
+                }, 1000);
+
+            } catch (err) {
+                console.error(err);
+                document.body.classList.remove('is-recording');
+                if (err.name !== 'NotAllowedError') {
+                    alert('Recording Error: ' + (err.message || err.name));
+                }
+            }
+        }
+
+        function stopCleanRecording() {
+            if (!isRecording) {
+                document.body.classList.remove('is-recording');
+                return;
+            }
+            isRecording = false;
+            clearInterval(checkFinishedInterval);
+            document.body.classList.remove('is-recording');
+
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            if (capturedStream) capturedStream.getTracks().forEach(t => t.stop());
+        }
+
+        async function handleComplete() {
+            const mimeType = mediaRecorder.mimeType || 'video/webm';
+            const isMp4 = mimeType.includes('mp4');
+            const ext = isMp4 ? 'mp4' : 'webm';
+            const blob = new Blob(recordedChunks, { type: mimeType });
+
+            const baseName = quizFile.replace('.html', '').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const formatTag = isShorts ? 'shorts' : '1080p';
+            const filename = `${baseName}_${formatTag}.${ext}`;
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            try {
+                await fetch('/api/save-video', {
+                    method: 'POST',
+                    headers: { 'x-file-name': filename },
+                    body: blob
+                });
+            } catch (e) {}
+
+            alert(`🎉 Video recorded and downloaded as: ${filename}\nUltra-HD 1080p remastering saved to Youtube/VideoStudio/exports!`);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape' && isRecording) stopCleanRecording();
+        });
+    </script>
+</body>
+</html>

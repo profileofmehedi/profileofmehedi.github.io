@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Trivia Video Studio - 1-Click MP4 Creator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0c14;
+            --bg-card: #121624;
+            --bg-card-hover: #181e30;
+            --border: #232b42;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.35);
+            --accent: #f43f5e;
+            --accent-glow: rgba(244, 63, 94, 0.4);
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(ellipse 60% 40% at 20% -10%, rgba(56, 189, 248, 0.12), transparent),
+                radial-gradient(ellipse 60% 40% at 80% -10%, rgba(244, 63, 94, 0.1), transparent),
+                radial-gradient(ellipse 80% 50% at 50% 110%, rgba(99, 102, 241, 0.1), transparent);
+            background-attachment: fixed;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 36px;
+            background: rgba(18, 22, 36, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #f43f5e, #fb7185);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .brand-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(120deg, #ffffff 40%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .btn-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-header:hover {
+            border-color: var(--primary);
+            background: var(--bg-card-hover);
+        }
+
+        /* MAIN LAYOUT */
+        .app-container {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            flex: 1;
+            gap: 24px;
+            padding: 24px 36px;
+            max-width: 1920px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* LEFT SIDEBAR: QUIZ SELECTOR */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            max-height: calc(100vh - 120px);
+            position: sticky;
+            top: 96px;
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: rgba(10, 12, 20, 0.7);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px 10px 38px;
+            color: var(--text-main);
+            font-size: 0.88rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        .quiz-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            max-height: calc(100vh - 270px);
+            padding-right: 6px;
+        }
+
+        .quiz-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .quiz-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 999px;
+        }
+
+        .quiz-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(24, 30, 48, 0.5);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quiz-item:hover {
+            border-color: var(--primary);
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+
+        .quiz-item.active {
+            border-color: var(--primary);
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.05));
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .quiz-info h4 {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .quiz-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+
+        .badge-cat {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .badge-num {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* RIGHT PANEL: LIVE STUDIO STAGE */
+        .stage-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* STUDIO CONTROLS BAR */
+        .studio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-switch-group {
+            display: flex;
+            background: rgba(10, 12, 20, 0.8);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 3px;
+            gap: 3px;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: #04101e;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .btn-record {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            border: none;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 11px 24px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 25px var(--accent-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-record:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 35px rgba(244, 63, 94, 0.65);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 9px 15px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--text-sub);
+        }
+
+        /* LIVE STAGE CONTAINER */
+        .stage-wrapper {
+            background: #000000;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 580px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .stage-wrapper.aspect-16-9 {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+        }
+
+        .stage-wrapper.aspect-9-16 {
+            width: 420px;
+            aspect-ratio: 9 / 16;
+            margin: 0 auto;
+            border-radius: 24px;
+            box-shadow: 0 0 0 6px #121624, 0 25px 60px rgba(0,0,0,0.8);
+        }
+
+        #quiz-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            display: block;
+        }
+
+        /* ==========================================================
+           100% CLEAN BROADCAST MODE
+           ABSOLUTELY ZERO BUTTONS, HEADERS, OR SIDEBARS IN RECORDING!
+           ========================================================== */
+        body.recording-mode {
+            overflow: hidden !important;
+            background: #000000 !important;
+        }
+
+        body.recording-mode header,
+        body.recording-mode .sidebar,
+        body.recording-mode .studio-controls {
+            display: none !important;
+        }
+
+        body.recording-mode .app-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100vw !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: block !important;
+        }
+
+        body.recording-mode .stage-section {
+            width: 100vw !important;
+            height: 100vh !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 0 !important;
+        }
+
+        body.recording-mode .stage-wrapper {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: #000000 !important;
+            z-index: 999999 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        body.recording-mode .stage-wrapper.aspect-16-9 {
+            width: 100vw !important;
+            height: 100vh !important;
+            aspect-ratio: auto !important;
+        }
+
+        body.recording-mode .stage-wrapper.aspect-9-16 {
+            width: calc(100vh * 9 / 16) !important;
+            height: 100vh !important;
+            margin: 0 auto !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        /* SEO & EXPORT MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 6, 12, 0.88);
+            backdrop-filter: blur(16px);
+            z-index: 100000000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 680px;
+            padding: 32px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 40px var(--primary-glow);
+            animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modal-pop {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .download-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15));
+            border: 1px solid var(--success);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .btn-download-big {
+            background: var(--success);
+            color: #04101e;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .btn-download-big:hover {
+            transform: scale(1.04);
+        }
+
+        .seo-box {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .seo-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .seo-field label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+
+        .seo-field input, .seo-field textarea {
+            background: rgba(10, 12, 20, 0.8);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .seo-field textarea {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        .btn-copy-seo {
+            align-self: flex-start;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-copy-seo:hover {
+            background: var(--primary);
+            color: #04101e;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="brand-group">
+            <div class="brand-icon">🎬</div>
+            <div class="brand-text">
+                <h1>YouTube Trivia Video Studio</h1>
+                <p>1-Click Ultra-HD 1080p MP4 Creator • Pure Clean Broadcast • Voiceover Active</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span>Studio Ready</span>
+            </div>
+            <button class="btn-header" onclick="openExportsFolder()">
+                📂 Open Exports Folder
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP -->
+    <div class="app-container">
+        
+        <!-- SIDEBAR: QUIZ SELECTOR -->
+        <aside class="sidebar">
+            <div class="panel-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <h3 style="font-size: 1rem; font-weight: 800;">📚 Choose Trivia Quiz</h3>
+                    <span id="quiz-count-badge" class="badge-num" style="color: var(--primary);">Loading...</span>
+                </div>
+
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="Search by name, state, history..." oninput="filterQuizzes()">
+                </div>
+
+                <div class="quiz-list" id="quiz-list">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- LIVE STAGE AREA -->
+        <main class="stage-section">
+            
+            <!-- CONTROLS BAR -->
+            <div class="studio-controls">
+                
+                <!-- Format Switcher -->
+                <div class="control-group">
+                    <span class="control-label">Format:</span>
+                    <div class="toggle-switch-group">
+                        <button class="toggle-btn active" id="btn-aspect-16-9" onclick="setStudioAspect('16:9')">
+                            📺 16:9 (1080p Full HD)
+                        </button>
+                        <button class="toggle-btn" id="btn-aspect-9-16" onclick="setStudioAspect('9:16')">
+                            📱 9:16 (Shorts/Reels)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="control-group">
+                    <button class="btn-secondary" onclick="testPlayQuiz()">
+                        ▶️ Test Play
+                    </button>
+                    <button class="btn-secondary" onclick="reloadQuiz()">
+                        🔄 Reset
+                    </button>
+                    <button class="btn-record" id="btn-record" onclick="startCleanRecording()">
+                        🔴 START RECORDING & EXPORT MP4
+                    </button>
+                </div>
+            </div>
+
+            <!-- LIVE STAGE VIEWPORT (During recording: 100% edge-to-edge pure video) -->
+            <div class="stage-wrapper aspect-16-9" id="stage-wrapper">
+                <iframe id="quiz-frame" src="about:blank" allow="autoplay; microphone"></iframe>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- SEO & DOWNLOAD MODAL -->
+    <div class="modal-overlay" id="export-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>🎉 Ultra-HD 1080p Video Ready!</h2>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+
+            <div class="download-box">
+                <div>
+                    <h3 id="export-file-name" style="font-size: 1.1rem; margin-bottom: 4px;">trivia_video_1080p.mp4</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-sub);">Saved in exports folder & browser downloads</p>
+                </div>
+                <a id="download-link" class="btn-download-big" download="trivia_video_1080p.mp4">
+                    ⬇️ Download MP4
+                </a>
+            </div>
+
+            <!-- YouTube SEO Kit -->
+            <div class="seo-box">
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary);">
+                    🚀 One-Click YouTube SEO Kit (Copy & Paste)
+                </h4>
+
+                <div class="seo-field">
+                    <label>Viral YouTube Title</label>
+                    <input type="text" id="seo-title" readonly>
+                </div>
+
+                <div class="seo-field">
+                    <label>Optimized Video Description</label>
+                    <textarea id="seo-desc" readonly></textarea>
+                </div>
+
+                <div class="seo-field">
+                    <label>High-Ranking Tags</label>
+                    <input type="text" id="seo-tags" readonly>
+                </div>
+
+                <button class="btn-copy-seo" onclick="copySEOPack()">
+                    📋 Copy Title & Description
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let allQuizzes = [];
+        let currentQuiz = null;
+        let currentAspect = '16:9';
+        let isRecording = false;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let checkFinishedInterval = null;
+        let capturedStream = null;
+
+        // Fetch Quizzes from Server API
+        async function loadQuizzes() {
+            try {
+                const res = await fetch('/api/quizzes');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.data && json.data.length > 0) {
+                        allQuizzes = json.data;
+                    }
+                }
+            } catch (e) {
+                console.log('Using internal fallback');
+            }
+
+            if (!allQuizzes.length) {
+                allQuizzes = [
+                    { filename: "01_Guess_The_State_3_Clues.html", title: "GUESS THE US STATE BY 3 CLUES", category: "GEOGRAPHY", questions: 20 },
+                    { filename: "02_US_Citizenship_Civics_Test.html", title: "US CITIZENSHIP CIVICS TEST", category: "CIVICS", questions: 20 },
+                    { filename: "03_Geography_Trick_Questions.html", title: "USA GEOGRAPHY TRICK QUESTIONS", category: "GEOGRAPHY", questions: 20 },
+                    { filename: "04_US_State_Capitals_Quiz.html", title: "50 US STATE CAPITALS CHALLENGE", category: "CAPITALS", questions: 20 },
+                    { filename: "05_US_Presidents_Crazy_Facts.html", title: "US PRESIDENTS: CRAZY FACTS", category: "PRESIDENTS", questions: 20 },
+                    { filename: "06_National_Parks_Quiz.html", title: "AMERICA'S NATIONAL PARKS", category: "NATURE", questions: 20 },
+                    { filename: "07_American_Inventions_Quiz.html", title: "AMERICAN INVENTIONS QUIZ", category: "INVENTIONS", questions: 20 },
+                    { filename: "08_Bizarre_US_State_Laws.html", title: "BIZARRE US STATE LAWS", category: "LAWS", questions: 20 },
+                    { filename: "09_Iconic_State_Foods.html", title: "ICONIC AMERICAN STATE FOODS", category: "FOOD", questions: 20 },
+                    { filename: "10_Fast_Food_Secrets_Quiz.html", title: "FAST FOOD SECRETS & ORIGINS", category: "FOOD", questions: 20 },
+                    { filename: "11_US_Military_WW2_Legends.html", title: "US MILITARY & WW2 LEGENDS", category: "HISTORY", questions: 20 },
+                    { filename: "12_Billion_Dollar_Brands.html", title: "BILLION DOLLAR US BRANDS", category: "BUSINESS", questions: 20 },
+                    { filename: "13_US_Dollar_Money_Trivia.html", title: "US DOLLAR & MONEY SECRETS", category: "MONEY", questions: 20 },
+                    { filename: "14_NFL_Super_Bowl_History.html", title: "NFL & SUPER BOWL LEGENDS", category: "SPORTS", questions: 20 },
+                    { filename: "15_NBA_Basketball_Legends.html", title: "NBA BASKETBALL LEGENDS", category: "SPORTS", questions: 20 },
+                    { filename: "16_Classic_Hollywood_Movies.html", title: "CLASSIC HOLLYWOOD CINEMA", category: "MOVIES", questions: 20 },
+                    { filename: "17_90s_America_Nostalgia.html", title: "90S AMERICA NOSTALGIA", category: "NOSTALGIA", questions: 20 },
+                    { filename: "18_American_Mysteries_Crime.html", title: "AMERICAN MYSTERIES & CRIME", category: "MYSTERIES", questions: 20 },
+                    { filename: "19_Route_66_Road_Trips.html", title: "ROUTE 66 & GREAT ROAD TRIPS", category: "TRAVEL", questions: 20 },
+                    { filename: "20_Identify_State_Outlines.html", title: "IDENTIFY STATE BY OUTLINE", category: "GEOGRAPHY", questions: 20 },
+                    { filename: "Know_USA.html", title: "KNOW USA: MASTER CHALLENGE", category: "MASTER", questions: 20 }
+                ].map(q => ({ ...q, url: `/trivia/${encodeURIComponent(q.filename)}` }));
+            }
+
+            document.getElementById('quiz-count-badge').innerText = `${allQuizzes.length} Quizzes`;
+            renderQuizList(allQuizzes);
+            if (allQuizzes.length > 0) selectQuiz(allQuizzes[0]);
+        }
+
+        function renderQuizList(list) {
+            const container = document.getElementById('quiz-list');
+            container.innerHTML = '';
+
+            list.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `quiz-item ${currentQuiz && currentQuiz.filename === item.filename ? 'active' : ''}`;
+                div.onclick = () => selectQuiz(item);
+
+                div.innerHTML = `
+                    <div class="quiz-info">
+                        <h4>${item.title}</h4>
+                        <div class="quiz-meta">
+                            <span class="badge-cat">${item.category}</span>
+                            <span class="badge-num">${item.questions || 20} Qs</span>
+                        </div>
+                    </div>
+                    <span style="font-size: 1.1rem; color: var(--primary);">➔</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function filterQuizzes() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allQuizzes.filter(q => 
+                q.title.toLowerCase().includes(query) || 
+                (q.category && q.category.toLowerCase().includes(query)) ||
+                q.filename.toLowerCase().includes(query)
+            );
+            renderQuizList(filtered);
+        }
+
+        function selectQuiz(quiz) {
+            currentQuiz = quiz;
+            renderQuizList(allQuizzes);
+            loadQuizInStage(quiz, false);
+        }
+
+        function getQuizUrl(quiz, autoStart = false) {
+            const basePath = quiz.url || `/trivia/${encodeURIComponent(quiz.filename)}`;
+            const params = new URLSearchParams();
+            if (currentAspect === '9:16') params.set('mode', 'shorts');
+            if (autoStart) params.set('auto', '1');
+            return `${basePath}?${params.toString()}`;
+        }
+
+        // Hook TTS directly into the iframe so all voice is played via HTML5 Audio and captured in tab recording!
+        function setupIframeTTSInterceptor(iframe) {
+            try {
+                const win = iframe.contentWindow;
+                if (!win) return;
+
+                if (win.speechSynthesis) {
+                    win.speechSynthesis.speak = function(utterance) {
+                        if (!utterance || !utterance.text) {
+                            if (utterance && utterance.onend) utterance.onend();
+                            return;
+                        }
+                        if (win.__activeTTSAudio) {
+                            try { win.__activeTTSAudio.pause(); } catch(e){}
+                            win.__activeTTSAudio = null;
+                        }
+
+                        const text = utterance.text;
+                        const audio = new win.Audio(`/api/tts?text=${encodeURIComponent(text)}`);
+                        win.__activeTTSAudio = audio;
+
+                        audio.onended = () => {
+                            win.__activeTTSAudio = null;
+                            if (utterance.onend) utterance.onend();
+                        };
+                        audio.onerror = (e) => {
+                            console.warn('[TTS Audio Error]', e);
+                            win.__activeTTSAudio = null;
+                            if (utterance.onend) utterance.onend();
+                        };
+
+                        audio.play().catch(e => {
+                            console.warn('Audio play prevented:', e);
+                            if (utterance.onend) utterance.onend();
+                        });
+                    };
+
+                    win.speechSynthesis.cancel = function() {
+                        if (win.__activeTTSAudio) {
+                            try { win.__activeTTSAudio.pause(); } catch(e){}
+                            win.__activeTTSAudio = null;
+                        }
+                    };
+                }
+                console.log('[Studio] High-definition TTS Audio Interceptor active in quiz frame.');
+            } catch (err) {
+                console.warn('Could not inject TTS interceptor:', err);
+            }
+        }
+
+        function loadQuizInStage(quiz, autoStart = false) {
+            const iframe = document.getElementById('quiz-frame');
+            iframe.onload = () => {
+                setupIframeTTSInterceptor(iframe);
+            };
+            iframe.src = getQuizUrl(quiz, autoStart);
+        }
+
+        function reloadQuiz() {
+            if (currentQuiz) loadQuizInStage(currentQuiz, false);
+        }
+
+        function testPlayQuiz() {
+            if (currentQuiz) loadQuizInStage(currentQuiz, true);
+        }
+
+        function setStudioAspect(aspect) {
+            currentAspect = aspect;
+            const stage = document.getElementById('stage-wrapper');
+            const btn16 = document.getElementById('btn-aspect-16-9');
+            const btn9 = document.getElementById('btn-aspect-9-16');
+
+            if (aspect === '16:9') {
+                stage.className = 'stage-wrapper aspect-16-9';
+                btn16.classList.add('active');
+                btn9.classList.remove('active');
+            } else {
+                stage.className = 'stage-wrapper aspect-9-16';
+                btn9.classList.add('active');
+                btn16.classList.remove('active');
+            }
+
+            if (currentQuiz) loadQuizInStage(currentQuiz, false);
+        }
+
+        // ==========================================================
+        // 1-CLICK PURE CLEAN 1080P RECORDING ENGINE
+        // ZERO BUTTONS, FULL VOICE OVER & ULTRA-HD MASTER QUALITY
+        // ==========================================================
+        async function startCleanRecording() {
+            if (!currentQuiz) {
+                alert('Please select a quiz first!');
+                return;
+            }
+
+            try {
+                // 1. Request High-Definition Tab Stream with Audio (universal safe constraints)
+                capturedStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        displaySurface: "browser",
+                        frameRate: { ideal: 60, max: 60 }
+                    },
+                    audio: true,
+                    preferCurrentTab: true
+                });
+
+                // 2. Enter pure broadcast mode: hides all sidebar, header, and buttons completely!
+                document.body.classList.add('recording-mode');
+
+                // 3. Region Capture (CropTarget): Crop strictly to iframe if available
+                const iframe = document.getElementById('quiz-frame');
+                if (window.CropTarget && typeof CropTarget.fromElement === 'function') {
+                    try {
+                        const cropTarget = await CropTarget.fromElement(iframe);
+                        const [videoTrack] = capturedStream.getVideoTracks();
+                        if (videoTrack && videoTrack.cropTo) {
+                            await videoTrack.cropTo(cropTarget);
+                        }
+                    } catch (e) {}
+                }
+
+                // 4. Codec & Ultra Bitrate (25 Mbps)
+                let mimeType = 'video/webm;codecs=vp9,opus';
+                if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1,mp4a.40.2')) {
+                    mimeType = 'video/mp4;codecs=avc1,mp4a.40.2';
+                } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+                    mimeType = 'video/mp4';
+                }
+
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(capturedStream, {
+                    mimeType: mimeType,
+                    videoBitsPerSecond: 25000000 // 25 Mbps broadcast quality
+                });
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = handleRecordingComplete;
+
+                capturedStream.getVideoTracks()[0].onended = () => {
+                    if (isRecording) stopCleanRecording();
+                };
+
+                mediaRecorder.start(1000);
+                isRecording = true;
+
+                // Auto-start quiz
+                loadQuizInStage(currentQuiz, true);
+
+                // Auto-stop when quiz finishes
+                checkFinishedInterval = setInterval(() => {
+                    try {
+                        const win = iframe.contentWindow;
+                        if (win && win.__quiz_finished) {
+                            clearInterval(checkFinishedInterval);
+                            // 4 seconds outro screen for scorecard & comments CTA
+                            setTimeout(() => {
+                                if (isRecording) stopCleanRecording();
+                            }, 4000);
+                        }
+                    } catch (err) {}
+                }, 1000);
+
+            } catch (err) {
+                console.error('Recording initialization error:', err);
+                document.body.classList.remove('recording-mode');
+                if (err.name !== 'NotAllowedError') {
+                    alert('Recording prompt error: ' + (err.message || err.name));
+                }
+            }
+        }
+
+        function stopCleanRecording() {
+            if (!isRecording) {
+                document.body.classList.remove('recording-mode');
+                return;
+            }
+            isRecording = false;
+
+            clearInterval(checkFinishedInterval);
+
+            // Exit broadcast mode: restores sidebar & headers
+            document.body.classList.remove('recording-mode');
+
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+
+            if (capturedStream) {
+                capturedStream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // Handle Completed Video Blob & trigger 1080p remaster
+        async function handleRecordingComplete() {
+            const mimeType = mediaRecorder.mimeType || 'video/webm';
+            const isMp4 = mimeType.includes('mp4');
+            const ext = isMp4 ? 'mp4' : 'webm';
+            const blob = new Blob(recordedChunks, { type: mimeType });
+
+            const baseCleanName = currentQuiz.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const formatTag = currentAspect === '16:9' ? '1080p' : 'shorts';
+            const filename = `${baseCleanName}_${formatTag}.${ext}`;
+
+            // Trigger immediate browser download
+            const tempUrl = URL.createObjectURL(blob);
+            const tempA = document.createElement('a');
+            tempA.href = tempUrl;
+            tempA.download = filename;
+            document.body.appendChild(tempA);
+            tempA.click();
+            document.body.removeChild(tempA);
+
+            // Send to server for FFmpeg 1080p Ultra-HD remastering
+            try {
+                const res = await fetch('/api/save-video', {
+                    method: 'POST',
+                    headers: { 'x-file-name': filename },
+                    body: blob
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.downloadUrl) {
+                        const downloadLink = document.getElementById('download-link');
+                        downloadLink.href = json.downloadUrl;
+                        downloadLink.download = json.filename;
+                        document.getElementById('export-file-name').innerText = json.filename;
+                    }
+                }
+            } catch (err) {
+                console.log('Saved directly to browser downloads');
+            }
+
+            // Show Success & YouTube SEO Kit Modal
+            populateSEOModal(filename);
+            document.getElementById('export-modal').style.display = 'flex';
+        }
+
+        // Generate Instant YouTube SEO Data
+        function populateSEOModal(filename) {
+            const title = currentQuiz.title;
+            const category = currentQuiz.category || "USA Trivia";
+
+            const viralTitle = currentAspect === '16:9'
+                ? `Only 5% of Americans Can Get 20/20 on This ${title}! 🇺🇸`
+                : `Can You Guess All 5? 🇺🇸 #Shorts #${category.replace(/\s+/g, '')}`;
+
+            const description = `Test your knowledge with today's ultimate challenge: ${title}!\n\n` +
+                `How many did you get right? Drop your score in the comments below! 👇\n\n` +
+                `⏰ Timestamps:\n` +
+                `0:00 - Round 1: Warmup\n` +
+                `1:30 - Round 2: Speed Run\n` +
+                `3:00 - Round 3: The Hard Ones\n` +
+                `4:15 - Final Boss Question\n` +
+                `4:45 - Final Scorecard\n\n` +
+                `👍 Like and Subscribe for Daily USA Trivia Quizzes!\n\n` +
+                `#Trivia #Quiz #USATrivia #Knowledge #Learn #Challenge`;
+
+            const tags = `${title.toLowerCase()}, usa trivia, us quiz, guess the state, trivia challenge, general knowledge, test your knowledge, american history, viral quiz 2026`;
+
+            document.getElementById('seo-title').value = viralTitle;
+            document.getElementById('seo-desc').value = description;
+            document.getElementById('seo-tags').value = tags;
+        }
+
+        function copySEOPack() {
+            const title = document.getElementById('seo-title').value;
+            const desc = document.getElementById('seo-desc').value;
+            const tags = document.getElementById('seo-tags').value;
+
+            const fullSEO = `TITLE:\n${title}\n\nDESCRIPTION:\n${desc}\n\nTAGS:\n${tags}`;
+            navigator.clipboard.writeText(fullSEO).then(() => {
+                alert('Copied Title, Description, and Tags to clipboard!');
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('export-modal').style.display = 'none';
+        }
+
+        async function openExportsFolder() {
+            try {
+                await fetch('/api/open-exports');
+            } catch (err) {
+                alert('Exports are saved inside: Youtube/VideoStudio/exports');
+            }
+        }
+
+        // Press Esc to stop recording early
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape' && isRecording) {
+                stopCleanRecording();
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadQuizzes();
+        });
+    </script>
+</body>
+</html>
