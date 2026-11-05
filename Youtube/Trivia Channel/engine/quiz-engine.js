@@ -1,6 +1,8 @@
 /**
- * Universal Quiz Engine with Broadcast Motion Graphics & Interactive Click-to-Play
- * Designed for High-Retention YouTube Videos, Shorts, and Live Play
+ * ==========================================================================
+ * USA TRIVIA CHANNEL - HIGH-RETENTION BROADCAST QUIZ ENGINE
+ * Featuring Fast Typewriter Effects, Studio SFX, and Viral Engagement Hooks
+ * ==========================================================================
  */
 
 (function() {
@@ -11,46 +13,67 @@
     const quizCategory = config.category || "USA TRIVIA";
 
     let currentIndex = 0;
-    let timeLeftMs = 10000;
-    let lastTickSec = 10;
+    let is16by9 = true;
+    let thinkingDurationMs = 7000; // 7 seconds for optimal YouTube pacing
+    let timeLeftMs = thinkingDurationMs;
+    let lastTickSec = 7;
     let timerInterval = null;
     let isPaused = false;
     let ttsEnabled = true;
     let bgmEnabled = true;
-    let is16by9 = true;
     let answerRevealed = false;
 
-    // Interactive Game State
+    // Typewriter State
+    let isTyping = false;
+    let typingTimer = null;
+    let currentQuestionFullText = "";
+
+    // Interactive Stats Tracking
     let userSelectedOption = null;
     let playerScore = 0;
     let currentStreak = 0;
     let maxStreak = 0;
-    let totalInteractions = 0;
 
-    // Check URL parameters (e.g. ?mode=shorts or ?auto=1)
+    // Channel Logo Branding State ('color' = logo-color.png, 'white' = logo-bw.png)
+    let currentLogoTheme = 'color';
+
+    // Check URL parameters (e.g. ?mode=shorts or ?auto=1 or ?logo=white)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('mode') === 'shorts') {
         is16by9 = false;
+        thinkingDurationMs = 4000; // 4s for fast vertical Shorts
+    }
+    if (urlParams.get('logo') === 'white') {
+        currentLogoTheme = 'white';
     }
 
-    // --- BUILD CLEAN BROADCAST DOM STRUCTURE ---
+    // --- DOM INITIALIZATION (CLEAN BROADCAST LAYOUT) ---
     function initDOM() {
         const modeClass = is16by9 ? 'mode-16-9' : 'mode-9-16';
+        const logoSrc = currentLogoTheme === 'white' ? 'images/logo/logo-bw.png' : 'images/logo/logo-color.png';
+        const whiteClass = currentLogoTheme === 'white' ? 'white-theme' : '';
 
         document.body.innerHTML = `
             <canvas id="bg-canvas"></canvas>
             <div class="video-canvas ${modeClass}" id="video-canvas">
                 <canvas id="confetti-canvas"></canvas>
 
-                <!-- Start Screen Overlay -->
+                <!-- Start Screen Overlay with ThinkFast Channel Branding -->
                 <div id="start-overlay" class="overlay-screen">
+                    <div class="intro-logo-container" onclick="window.quizEngine.toggleLogoTheme()" style="cursor: pointer;" title="Click to toggle Color / White Logo">
+                        <div class="intro-logo-card ${whiteClass}" id="intro-logo-card">
+                            <img src="${logoSrc}" alt="ThinkFast Logo" class="intro-logo-img" id="intro-logo-img">
+                        </div>
+                        <div class="intro-tagline">THINK SMART. ANSWER FAST.</div>
+                        <div class="logo-toggle-hint">Click logo or press <b>L</b> to toggle Color / White</div>
+                    </div>
+
                     <h1>${quizTitle}</h1>
                     <p>${quizSubtitle}</p>
                     <div class="feature-pills">
-                        <span class="pill">🖼️ Visual Clues & Photos</span>
-                        <span class="pill">🎮 Click-to-Lock Interactive HUD</span>
-                        <span class="pill">📊 Dynamic Audience Poll Bars</span>
-                        <span class="pill">🎙️ American Voiceover (TTS)</span>
+                        <span class="pill">⚡ Fast Typewriter Flow</span>
+                        <span class="pill">🖼️ Broadcast Visual Clues</span>
+                        <span class="pill">🎙️ American Voiceover</span>
                         <span class="pill">🚨 Question 20 Final Boss</span>
                     </div>
 
@@ -68,14 +91,20 @@
                     <p style="font-size: 1.6rem; color: #38bdf8; font-weight: 800; margin-top: 15px; letter-spacing: 2px;">GET READY...</p>
                 </div>
 
-                <!-- End Scorecard Outro -->
+                <!-- Outro Scorecard Screen with ThinkFast Branding -->
                 <div id="end-overlay" class="overlay-screen" style="display: none;">
+                    <div class="outro-logo-container">
+                        <div class="outro-logo-card ${whiteClass}" id="outro-logo-card">
+                            <img src="${logoSrc}" alt="ThinkFast Logo" class="outro-logo-img" id="outro-logo-img">
+                        </div>
+                    </div>
+
                     <h1>CHALLENGE COMPLETED!</h1>
                     
                     <div class="interactive-score-box" id="interactive-score-box">
                         <div class="score-circle">
                             <span class="final-score-val" id="final-score-val">0/${quizData.length}</span>
-                            <span class="final-score-sub">YOUR SCORE</span>
+                            <span class="final-score-sub">FINAL SCORE</span>
                         </div>
                         <div class="final-details">
                             <div class="final-tier-badge" id="final-tier-badge">🏆 TRIVIA LEGEND</div>
@@ -84,77 +113,70 @@
                     </div>
 
                     <div class="sub-cta-box">
-                        <span>💬 Drop Your Score in the Comments Below!</span>
-                    </div>
-                    
-                    <div class="score-tiers">
-                        <div class="tier-card"><div class="icon">🏆</div><div><h5>18 - 20 Points</h5><span>Trivia Legend!</span></div></div>
-                        <div class="tier-card"><div class="icon">⭐</div><div><h5>14 - 17 Points</h5><span>True Champion!</span></div></div>
-                        <div class="tier-card"><div class="icon">🚗</div><div><h5>10 - 13 Points</h5><span>Great Effort!</span></div></div>
-                        <div class="tier-card"><div class="icon">📚</div><div><h5>Under 10 Points</h5><span>Time to Study Up!</span></div></div>
+                        <img src="images/logo/logo-bw.png" alt="ThinkFast Logo" class="cta-white-badge" title="ThinkFast Official">
+                        <span>Subscribe to <b>ThinkFast</b> for Daily USA Trivia!</span>
                     </div>
 
-                    <p style="font-size: 1.15rem; color: #38bdf8; font-weight: 700; margin-bottom: 20px;">
-                        👍 Like & Subscribe for Daily USA Trivia Quizzes!
+                    <p style="font-size: 1.18rem; color: #38bdf8; font-weight: 700; margin-bottom: 25px;">
+                        👍 Like & Subscribe for Daily USA Trivia Challenges!
                     </p>
 
-                    <button class="start-btn" style="font-size: 1.25rem; padding: 12px 35px;" onclick="window.quizEngine.restartQuiz()">
+                    <button class="start-btn" style="font-size: 1.25rem; padding: 12px 38px;" onclick="window.quizEngine.restartQuiz()">
                         PLAY AGAIN (R)
                     </button>
                 </div>
 
-                <!-- Main Quiz View Header -->
+                <!-- Minimalist Broadcast Header with ThinkFast Watermark -->
                 <header>
                     <div class="header-left">
+                        <div class="brand-pill ${whiteClass}" id="brand-pill" title="ThinkFast (Press L or Click to Toggle Logo Theme)" onclick="window.quizEngine.toggleLogoTheme()">
+                            <div class="brand-logo-frame">
+                                <img src="${logoSrc}" alt="ThinkFast" class="brand-logo-img" id="header-brand-logo">
+                            </div>
+                            <div class="brand-text">
+                                <span class="brand-title">Think<span class="brand-accent">Fast</span></span>
+                            </div>
+                        </div>
                         <div class="category-badge"><span>🇺🇸</span> ${quizCategory}</div>
-                        <div class="round-badge" id="round-badge">ROUND 1: BASICS</div>
-                        <div class="pass-rate-badge" id="pass-rate-badge"><span>👥</span> 90% Pass Rate</div>
+                        <div class="round-badge" id="round-badge">ROUND 1 • BASICS</div>
                     </div>
                     
                     <div class="header-right">
-                        <div class="hud-stats">
-                            <div class="hud-pill score-pill" id="score-pill" title="Current Score">
-                                <span>🏆</span>
-                                <span style="color: #94a3b8; font-size: 0.82rem;">Score:</span>
-                                <span class="hud-num" id="player-score">0</span>
-                            </div>
-                            <div class="hud-pill streak-pill" id="streak-pill" title="Current Streak">
-                                <span>🔥</span>
-                                <span style="color: #94a3b8; font-size: 0.82rem;">Streak:</span>
-                                <span class="hud-num" id="player-streak">0</span>
-                            </div>
+                        <div class="question-counter">
+                            QUESTION <span class="current-num" id="q-current">01</span> / <span class="total-num" id="q-total">${quizData.length < 10 ? '0' + quizData.length : quizData.length}</span>
                         </div>
-                        <div class="question-counter">Question <span id="q-current">1</span>/<span id="q-total">${quizData.length}</span></div>
                     </div>
                 </header>
 
-                <!-- Stage Box with Visual Reference -->
+                <!-- Stage Box with Visual & Question -->
                 <div class="stage-box">
                     <div class="image-frame" id="img-frame">
-                        <img id="q-image" src="" alt="Trivia Reference" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='block';">
+                        <img id="q-image" src="" alt="Visual Clue" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='block';">
                         <div id="fallback-icon" class="fallback-icon" style="display: none;">🇺🇸</div>
                     </div>
-                    <div class="question-content">
-                        <div class="question-text" id="question">Loading Question...</div>
+                    <div class="question-content" onclick="window.quizEngine.completeTypingInstantly()">
+                        <div class="question-text">
+                            <span id="question-typed-text"></span><span class="typing-cursor" id="typing-cursor"></span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Radial Neon Timer & Bar -->
+                <!-- Precision Radial & Linear Countdown Timer -->
                 <div class="timer-container" id="timer-container">
                     <div class="radial-timer-box">
-                        <svg class="radial-svg" width="86" height="86" viewBox="0 0 86 86">
-                            <circle class="radial-track" cx="43" cy="43" r="37" />
-                            <circle class="radial-progress" id="radial-progress" cx="43" cy="43" r="37" />
+                        <svg class="radial-svg" width="84" height="84" viewBox="0 0 84 84">
+                            <circle class="radial-track" cx="42" cy="42" r="37" />
+                            <circle class="radial-progress" id="radial-progress" cx="42" cy="42" r="37" />
                         </svg>
-                        <div class="timer-number" id="timer">10</div>
+                        <div class="timer-number" id="timer">7</div>
                     </div>
                     <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
                 </div>
 
-                <!-- Interactive 3D Options Grid -->
+                <!-- 3D Multiple Choice Grid -->
                 <div class="options-grid" id="options-container"></div>
 
-                <!-- Fact Card with Glassmorphism -->
+                <!-- "Did You Know?" Fact Card -->
                 <div class="fact-card" id="fact-card">
                     <div class="fact-icon">💡</div>
                     <div class="fact-content">
@@ -163,14 +185,15 @@
                     </div>
                 </div>
 
-                <!-- Engagement CTA Footer -->
+                <!-- Clean Engagement Bar -->
                 <div class="engagement-bar">
-                    <div class="highlight"><span>🎯</span> Click or press 1-4 to lock in your answer!</div>
-                    <div class="action-prompt">Can you score 20/20? Comment below! 👇</div>
+                    <div class="highlight"><span>🎯</span> Press 1-4 or Click to lock in your answer!</div>
+                    <div class="action-prompt" id="cta-prompt">Can you score 20/20? Comment below! 👇</div>
                 </div>
 
                 <!-- Hidden Controls (Hover only) -->
                 <div class="controls">
+                    <button class="ctrl-btn" id="logo-btn" onclick="window.quizEngine.toggleLogoTheme()">${currentLogoTheme === 'white' ? '🎨 Logo: White' : '🎨 Logo: Color'}</button>
                     <button class="ctrl-btn" id="bgm-btn" onclick="window.quizEngine.toggleBGM()">🎵 BGM</button>
                     <button class="ctrl-btn" id="tts-btn" onclick="window.quizEngine.toggleTTS()">🎙️ Voice</button>
                     <button class="ctrl-btn" id="aspect-btn" onclick="window.quizEngine.toggleAspectRatio()">📱 Aspect</button>
@@ -180,15 +203,12 @@
             </div>
         `;
 
-        // Check if auto-start is requested by exporter tool
         if (urlParams.get('auto') === '1') {
-            setTimeout(() => {
-                startIntroCountdown();
-            }, 800);
+            setTimeout(() => { startIntroCountdown(); }, 800);
         }
     }
 
-    // --- SYNTHESIZED WEB AUDIO API ENGINE ---
+    // --- SYNTHESIZED WEB AUDIO API SOUND SYSTEM ---
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
     let bgmInterval = null;
@@ -198,12 +218,31 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
+    // Soft mechanical typewriter key click
+    function playTypewriterTick() {
+        if (!audioCtx) return;
+        try {
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(1400 + Math.random() * 400, now);
+            gain.gain.setValueAtTime(0.02, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.035);
+        } catch(e) {}
+    }
+
+    // Ambient background rhythm
     function startBgmPulse() {
         if (!bgmEnabled || !audioCtx) return;
         stopBgmPulse();
         let beat = 0;
         bgmInterval = setInterval(() => {
-            if (isPaused || answerRevealed) return;
+            if (isPaused || answerRevealed || isTyping) return;
             try {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
@@ -228,22 +267,25 @@
         }
     }
 
+    // Crisp mechanical clock tick
     function playTickSound(isUrgent = false) {
         if (!audioCtx) return;
         try {
+            const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = isUrgent ? "triangle" : "sine";
-            osc.frequency.setValueAtTime(isUrgent ? 1150 : 750, audioCtx.currentTime);
-            gain.gain.setValueAtTime(isUrgent ? 0.12 : 0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (isUrgent ? 0.07 : 0.04));
+            osc.frequency.setValueAtTime(isUrgent ? 1200 : 800, now);
+            gain.gain.setValueAtTime(isUrgent ? 0.12 : 0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (isUrgent ? 0.06 : 0.04));
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + (isUrgent ? 0.07 : 0.04));
+            osc.start(now);
+            osc.stop(now + (isUrgent ? 0.06 : 0.04));
         } catch(e) {}
     }
 
+    // Heartbeat pulse for last 3 seconds
     function playHeartbeatSound() {
         if (!audioCtx) return;
         try {
@@ -269,9 +311,9 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = "sine";
-            osc.frequency.setValueAtTime(800, now);
-            osc.frequency.exponentialRampToValueAtTime(1450, now + 0.08);
-            gain.gain.setValueAtTime(0.22, now);
+            osc.frequency.setValueAtTime(700, now);
+            osc.frequency.exponentialRampToValueAtTime(1400, now + 0.08);
+            gain.gain.setValueAtTime(0.2, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -296,23 +338,25 @@
         } catch(e) {}
     }
 
+    // Cheerful chime on correct answer
     function playCelebrationSound() {
         if (!audioCtx) return;
         try {
             const notes = [523.25, 659.25, 783.99, 1046.50];
             notes.forEach((freq, i) => {
                 setTimeout(() => {
+                    if (!audioCtx) return;
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
                     osc.type = "sine";
                     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.65);
+                    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
                     osc.start();
-                    osc.stop(audioCtx.currentTime + 0.65);
-                }, i * 90);
+                    osc.stop(audioCtx.currentTime + 0.6);
+                }, i * 80);
             });
         } catch(e) {}
     }
@@ -324,42 +368,24 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = "sawtooth";
-            osc.frequency.setValueAtTime(190, now);
-            osc.frequency.exponentialRampToValueAtTime(110, now + 0.28);
-            gain.gain.setValueAtTime(0.14, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(110, now + 0.25);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(now);
-            osc.stop(now + 0.28);
+            osc.stop(now + 0.25);
         } catch(e) {}
     }
 
-    function playStreakSound() {
-        if (!audioCtx) return;
-        try {
-            const now = audioCtx.currentTime;
-            [440, 554.37, 659.25, 880].forEach((freq, idx) => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = "triangle";
-                osc.frequency.setValueAtTime(freq, now + idx * 0.06);
-                gain.gain.setValueAtTime(0.14, now + idx * 0.06);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.22);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now + idx * 0.06);
-                osc.stop(now + idx * 0.06 + 0.22);
-            });
-        } catch(e) {}
-    }
-
-    // --- NATURAL AMERICAN ENGLISH TTS ---
+    // --- NATURAL AMERICAN ENGLISH VOICE TTS ---
     let selectedVoice = null;
     function loadVoices() {
         if (!('speechSynthesis' in window)) return;
         const voices = window.speechSynthesis.getVoices();
-        selectedVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('David') || v.name.includes('Zira'))) 
+        // Priority: Natural US voices -> Google US English -> Microsoft English
+        selectedVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Christopher') || v.name.includes('Guy') || v.name.includes('Jenny') || v.name.includes('Samantha')))
                      || voices.find(v => v.lang === 'en-US') 
                      || voices.find(v => v.lang.startsWith('en'));
     }
@@ -376,7 +402,7 @@
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         if (selectedVoice) utterance.voice = selectedVoice;
-        utterance.rate = 1.02;
+        utterance.rate = 1.05; // Energetic, high-retention rate
         utterance.pitch = 1.0;
         if (callback) {
             utterance.onend = callback;
@@ -385,7 +411,7 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    // --- BACKGROUND STARS & AMBIENT CANVAS ---
+    // --- AMBIENT CANVAS PARTICLES ---
     let bgStars = [];
     function setupBgCanvas() {
         const bgCanvas = document.getElementById('bg-canvas');
@@ -395,13 +421,13 @@
             bgCanvas.width = window.innerWidth;
             bgCanvas.height = window.innerHeight;
             bgStars = [];
-            for (let i = 0; i < 75; i++) {
+            for (let i = 0; i < 65; i++) {
                 bgStars.push({
                     x: Math.random() * bgCanvas.width,
                     y: Math.random() * bgCanvas.height,
-                    radius: Math.random() * 1.8 + 0.6,
-                    alpha: Math.random() * 0.8 + 0.2,
-                    speed: Math.random() * 0.35 + 0.1
+                    radius: Math.random() * 1.6 + 0.6,
+                    alpha: Math.random() * 0.7 + 0.2,
+                    speed: Math.random() * 0.3 + 0.1
                 });
             }
         }
@@ -428,7 +454,7 @@
         animateBg();
     }
 
-    // --- CONFETTI & SPARKS ENGINE ---
+    // --- CONFETTI ENGINE ---
     let confettiParticles = [];
     let confettiRunning = false;
     function triggerConfetti() {
@@ -485,7 +511,7 @@
         }
     }
 
-    // --- GAME ENGINE ---
+    // --- GAME ENGINE LOGIC ---
     function startIntroCountdown() {
         initAudio();
         document.getElementById('start-overlay').style.display = 'none';
@@ -515,8 +541,6 @@
                 playerScore = 0;
                 currentStreak = 0;
                 maxStreak = 0;
-                totalInteractions = 0;
-                updateHUD(false);
                 loadQuestion();
             }
         }, 1000);
@@ -527,40 +551,12 @@
         startIntroCountdown();
     }
 
-    function updateHUD(animate = true) {
-        const scoreEl = document.getElementById('player-score');
-        const streakEl = document.getElementById('player-streak');
-        const streakPill = document.getElementById('streak-pill');
-        const scorePill = document.getElementById('score-pill');
-
-        if (scoreEl) scoreEl.innerText = playerScore;
-        if (streakEl) streakEl.innerText = currentStreak;
-
-        if (streakPill) {
-            if (currentStreak >= 2) {
-                streakPill.classList.add('on-fire');
-            } else {
-                streakPill.classList.remove('on-fire');
-            }
-        }
-
-        if (animate) {
-            if (scorePill) {
-                scorePill.classList.remove('pop');
-                void scorePill.offsetWidth;
-                scorePill.classList.add('pop');
-            }
-        }
-    }
-
     function handleUserSelection(idx) {
-        if (answerRevealed || isPaused) return;
+        if (answerRevealed || isPaused || isTyping) return;
         initAudio();
         userSelectedOption = idx;
-        totalInteractions++;
         playLockInSound();
 
-        // Update option button highlights
         for (let i = 0; i < 4; i++) {
             const btn = document.getElementById(`opt-${i}`);
             const mark = document.getElementById(`mark-${i}`);
@@ -582,6 +578,57 @@
         }
     }
 
+    // Fast, Snappy Typewriter Effect
+    function typeQuestion(text, onComplete) {
+        if (typingTimer) clearInterval(typingTimer);
+        isTyping = true;
+        currentQuestionFullText = text;
+
+        const typedEl = document.getElementById('question-typed-text');
+        const cursorEl = document.getElementById('typing-cursor');
+        if (!typedEl) {
+            if (onComplete) onComplete();
+            return;
+        }
+
+        typedEl.innerText = "";
+        if (cursorEl) cursorEl.classList.remove('finished');
+
+        let charIndex = 0;
+        const totalChars = text.length;
+        // Fast typing speed (~14ms per char = finishes within 0.8s - 1.2s max)
+        const typingSpeed = Math.max(10, Math.min(20, Math.floor(1000 / (totalChars || 50))));
+
+        typingTimer = setInterval(() => {
+            if (charIndex < totalChars) {
+                typedEl.innerText += text[charIndex];
+                if (charIndex % 3 === 0) playTypewriterTick();
+                charIndex++;
+            } else {
+                clearInterval(typingTimer);
+                typingTimer = null;
+                isTyping = false;
+                if (cursorEl) cursorEl.classList.add('finished');
+                if (onComplete) onComplete();
+            }
+        }, typingSpeed);
+    }
+
+    function completeTypingInstantly() {
+        if (!isTyping) return;
+        if (typingTimer) {
+            clearInterval(typingTimer);
+            typingTimer = null;
+        }
+        isTyping = false;
+        const typedEl = document.getElementById('question-typed-text');
+        const cursorEl = document.getElementById('typing-cursor');
+        if (typedEl) typedEl.innerText = currentQuestionFullText;
+        if (cursorEl) cursorEl.classList.add('finished');
+        startTimer();
+        startBgmPulse();
+    }
+
     function loadQuestion() {
         answerRevealed = false;
         userSelectedOption = null;
@@ -595,19 +642,26 @@
         }
 
         const currentData = quizData[currentIndex];
-        document.getElementById('q-current').innerText = currentIndex + 1;
-        document.getElementById('q-total').innerText = quizData.length;
-        
+        const currentQNum = currentIndex + 1;
+        const formattedCurrent = currentQNum < 10 ? '0' + currentQNum : currentQNum;
+        document.getElementById('q-current').innerText = formattedCurrent;
+
+        // Header Round / Final Boss Badge
         const roundBadge = document.getElementById('round-badge');
-        roundBadge.innerText = currentData.round || (currentIndex === 19 ? "🚨 FINAL BOSS QUESTION" : `ROUND ${Math.floor(currentIndex / 7) + 1}`);
-        if (currentIndex === quizData.length - 1) {
+        const ctaPrompt = document.getElementById('cta-prompt');
+        const isLastQuestion = (currentIndex === quizData.length - 1);
+
+        if (isLastQuestion) {
+            roundBadge.innerText = "🚨 FINAL BOSS QUESTION (90% FAIL)";
             roundBadge.className = 'round-badge boss';
+            if (ctaPrompt) ctaPrompt.innerText = "Can you get Question 20 right? Comment below! 👇";
         } else {
+            roundBadge.innerText = currentData.round || `ROUND ${Math.floor(currentIndex / 7) + 1} • BASICS`;
             roundBadge.className = 'round-badge';
+            if (ctaPrompt) ctaPrompt.innerText = "Can you score 20/20? Comment below! 👇";
         }
 
-        document.getElementById('pass-rate-badge').innerHTML = `<span>👥</span> ${currentData.stat || '85% of Americans know this'}`;
-
+        // Image / Visual Frame
         const qImg = document.getElementById('q-image');
         const fallbackIcon = document.getElementById('fallback-icon');
         if (currentData.img) {
@@ -620,12 +674,7 @@
             fallbackIcon.innerText = currentData.icon || "🇺🇸";
         }
 
-        const qElement = document.getElementById('question');
-        qElement.innerText = currentData.q;
-        qElement.style.animation = 'none';
-        void qElement.offsetWidth;
-        qElement.style.animation = 'fadeInScale 0.45s cubic-bezier(0.22, 1, 0.36, 1)';
-
+        // Populate Options Grid
         const prefixes = ['A', 'B', 'C', 'D'];
         const container = document.getElementById('options-container');
         container.innerHTML = '';
@@ -652,18 +701,20 @@
 
         document.getElementById('fact-text').innerText = currentData.fact || "Great job! Keep testing your USA trivia knowledge!";
 
+        // Voiceover & Fast Typewriter
         speakText(currentData.q);
-        startTimer();
-        startBgmPulse();
+        typeQuestion(currentData.q, () => {
+            startTimer();
+            startBgmPulse();
+        });
     }
 
-    // Circumference of r=37 circle is 2 * PI * 37 ≈ 232.48px
     const CIRCUMFERENCE = 232.48;
 
     function resetTimerDisplay() {
         clearInterval(timerInterval);
-        timeLeftMs = 10000;
-        lastTickSec = 10;
+        timeLeftMs = thinkingDurationMs;
+        lastTickSec = Math.ceil(thinkingDurationMs / 1000);
 
         const timerEl = document.getElementById('timer');
         const progressEl = document.getElementById('progress-bar');
@@ -673,14 +724,14 @@
         if (canvasEl) canvasEl.classList.remove('heartbeat-pulse');
 
         if (timerEl) {
-            timerEl.innerText = '10';
+            timerEl.innerText = lastTickSec;
             timerEl.classList.remove('urgent');
         }
         if (progressEl) {
             progressEl.classList.remove('urgent');
             progressEl.style.transition = 'none';
             progressEl.style.width = '100%';
-            void progressEl.offsetWidth; // Force instant reflow
+            void progressEl.offsetWidth;
             progressEl.style.transition = 'width 0.1s linear, background 0.3s';
         }
         if (radialEl) {
@@ -694,7 +745,7 @@
         resetTimerDisplay();
 
         timerInterval = setInterval(() => {
-            if (!isPaused && !answerRevealed) {
+            if (!isPaused && !answerRevealed && !isTyping) {
                 timeLeftMs -= 100;
                 if (timeLeftMs < 0) timeLeftMs = 0;
 
@@ -704,7 +755,7 @@
                 const radialEl = document.getElementById('radial-progress');
                 const canvasEl = document.getElementById('video-canvas');
 
-                const pct = (timeLeftMs / 10000);
+                const pct = (timeLeftMs / thinkingDurationMs);
 
                 if (timerEl) {
                     timerEl.innerText = currentSec;
@@ -720,11 +771,11 @@
                 }
 
                 if (progressEl) {
-                    progressEl.style.width = `${pct * 100}%`;
+                    progressEl.style.width = `${Math.max(0, pct * 100)}%`;
                 }
 
                 if (radialEl) {
-                    const offset = CIRCUMFERENCE * (1 - pct);
+                    const offset = CIRCUMFERENCE * (1 - Math.max(0, pct));
                     radialEl.style.strokeDashoffset = `${offset}`;
                 }
 
@@ -760,29 +811,24 @@
         const correctIndex = currentData.ans;
         const correctText = currentData.options[correctIndex];
 
-        // Grade user choice if they interacted
         if (userSelectedOption !== null) {
             if (userSelectedOption === correctIndex) {
                 playerScore++;
                 currentStreak++;
                 if (currentStreak > maxStreak) maxStreak = currentStreak;
                 playCelebrationSound();
-                if (currentStreak >= 2) playStreakSound();
-                updateHUD(true);
             } else {
                 currentStreak = 0;
                 playWrongSound();
-                updateHUD(true);
             }
         } else {
-            // Passive viewer mode
             playCelebrationSound();
         }
 
         triggerConfetti();
 
-        // Calculate dynamic poll statistics
-        let correctStat = 76;
+        // Calculate Audience Poll Stats
+        let correctStat = 78;
         if (currentData.stat) {
             const match = currentData.stat.match(/(\d+)%/);
             if (match) correctStat = parseInt(match[1]);
@@ -793,7 +839,7 @@
             Math.round(remaining * 0.35),
             remaining - Math.round(remaining * 0.45) - Math.round(remaining * 0.35)
         ];
-        let wrongIdxTracker = 0;
+        let wrongTracker = 0;
 
         for (let i = 0; i < 4; i++) {
             const opt = document.getElementById(`opt-${i}`);
@@ -801,7 +847,7 @@
             const pollBar = document.getElementById(`poll-bar-${i}`);
             const pollPct = document.getElementById(`poll-pct-${i}`);
 
-            let share = (i === correctIndex) ? correctStat : (wrongDistribution[wrongIdxTracker++] || 8);
+            let share = (i === correctIndex) ? correctStat : (wrongDistribution[wrongTracker++] || 7);
 
             if (pollBar) pollBar.style.width = `${share}%`;
             if (pollPct) {
@@ -832,13 +878,15 @@
 
         speakText(`The correct answer is: ${correctText}!`);
 
+        // Wait 4.5 seconds for reading the answer and fact, then move forward
         setTimeout(() => {
             if (answerRevealed) nextQuestion();
-        }, 5000);
+        }, 4500);
     }
 
     function nextQuestion() {
         clearInterval(timerInterval);
+        if (typingTimer) clearInterval(typingTimer);
         currentIndex++;
         loadQuestion();
     }
@@ -858,16 +906,18 @@
         bgmEnabled = !bgmEnabled;
         const btn = document.getElementById('bgm-btn');
         if (btn) btn.innerText = bgmEnabled ? "🎵 BGM: ON" : "🔇 BGM: OFF";
-        if (bgmEnabled && !answerRevealed) startBgmPulse();
+        if (bgmEnabled && !answerRevealed && !isTyping) startBgmPulse();
         else stopBgmPulse();
     }
 
     function setAspectRatio(target16by9) {
         is16by9 = target16by9;
+        thinkingDurationMs = is16by9 ? 7000 : 4000;
         const canvas = document.getElementById('video-canvas');
         if (canvas) {
             canvas.className = is16by9 ? 'video-canvas mode-16-9' : 'video-canvas mode-9-16';
         }
+        resetTimerDisplay();
     }
 
     function toggleAspectRatio() {
@@ -902,15 +952,59 @@
         }
 
         speakText("Challenge completed! How did you score? Drop your score in the comments below, and subscribe for daily USA trivia!");
-        // Signal completion for external recorder tool
         window.__quiz_finished = true;
+        try {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'QUIZ_FINISHED', title: quizTitle, index: currentIndex }, '*');
+            }
+        } catch(e) {}
     }
 
-    // --- KEYBOARD LISTENERS ---
+    // --- CHANNEL LOGO THEME MANAGEMENT ---
+    function setLogoTheme(theme) {
+        currentLogoTheme = (theme === 'white') ? 'white' : 'color';
+        const isWhite = (currentLogoTheme === 'white');
+        const logoSrc = isWhite ? 'images/logo/logo-bw.png' : 'images/logo/logo-color.png';
+
+        const headerLogo = document.getElementById('header-brand-logo');
+        const introLogo = document.getElementById('intro-logo-img');
+        const outroLogo = document.getElementById('outro-logo-img');
+        const brandPill = document.getElementById('brand-pill');
+        const introCard = document.getElementById('intro-logo-card');
+        const outroCard = document.getElementById('outro-logo-card');
+        const logoBtn = document.getElementById('logo-btn');
+
+        if (headerLogo) headerLogo.src = logoSrc;
+        if (introLogo) introLogo.src = logoSrc;
+        if (outroLogo) outroLogo.src = logoSrc;
+
+        if (brandPill) {
+            if (isWhite) brandPill.classList.add('white-theme');
+            else brandPill.classList.remove('white-theme');
+        }
+        if (introCard) {
+            if (isWhite) introCard.classList.add('white-theme');
+            else introCard.classList.remove('white-theme');
+        }
+        if (outroCard) {
+            if (isWhite) outroCard.classList.add('white-theme');
+            else outroCard.classList.remove('white-theme');
+        }
+        if (logoBtn) {
+            logoBtn.innerText = isWhite ? "🎨 Logo: White" : "🎨 Logo: Color";
+        }
+    }
+
+    function toggleLogoTheme() {
+        setLogoTheme(currentLogoTheme === 'color' ? 'white' : 'color');
+    }
+
+    // --- KEYBOARD SHORTCUTS ---
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
             e.preventDefault();
-            togglePause();
+            if (isTyping) completeTypingInstantly();
+            else togglePause();
         } else if (e.code === 'KeyN') {
             nextQuestion();
         } else if (e.code === 'KeyV') {
@@ -919,9 +1013,12 @@
             toggleBGM();
         } else if (e.code === 'KeyS') {
             toggleAspectRatio();
+        } else if (e.code === 'KeyL') {
+            toggleLogoTheme();
         } else if (e.code === 'KeyR') {
             restartQuiz();
         } else if (!answerRevealed) {
+            if (isTyping) completeTypingInstantly();
             if (e.code === 'Digit1' || e.code === 'KeyA') handleUserSelection(0);
             else if (e.code === 'Digit2' || e.code === 'KeyB') handleUserSelection(1);
             else if (e.code === 'Digit3' || e.code === 'KeyC') handleUserSelection(2);
@@ -939,7 +1036,10 @@
         toggleBGM,
         toggleAspectRatio,
         setAspectRatio,
-        handleUserSelection
+        setLogoTheme,
+        toggleLogoTheme,
+        handleUserSelection,
+        completeTypingInstantly
     };
 
     window.addEventListener('DOMContentLoaded', () => {

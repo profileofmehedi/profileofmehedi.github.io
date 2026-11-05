@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkFast - Continuous Autoplay Marathon Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070a12;
+            --primary: #38bdf8;
+            --accent: #ef4444;
+            --gold: #fbbf24;
+            --emerald: #10b981;
+            --card-bg: rgba(15, 23, 42, 0.92);
+            --border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Fullscreen Stage */
+        #stage-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #quiz-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #000000;
+        }
+
+        /* 9:16 Shorts Mode for iframe */
+        #stage-container.shorts-mode #quiz-frame {
+            width: calc(100vh * 9 / 16);
+            height: 100vh;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Floating Studio HUD (Auto-Hides during recording) */
+        #studio-hud {
+            position: fixed;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(11, 16, 29, 0.92);
+            border: 1.5px solid rgba(56, 189, 248, 0.35);
+            border-radius: 50px;
+            padding: 7px 20px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 189, 248, 0.2);
+            backdrop-filter: blur(14px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        #studio-hud.hud-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, -20px);
+        }
+
+        .hud-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border);
+        }
+
+        .hud-logo-img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--gold);
+        }
+
+        .hud-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 0.92rem;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        .hud-title span {
+            color: var(--gold);
+        }
+
+        .now-playing-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 5px 14px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            max-width: 320px;
+        }
+
+        .now-playing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--emerald);
+            box-shadow: 0 0 10px var(--emerald);
+            animation: pulseDot 1.5s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .now-playing-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hud-btn {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid var(--border);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .hud-btn:hover {
+            background: var(--primary);
+            color: #041026;
+            border-color: var(--primary);
+            transform: scale(1.04);
+        }
+
+        .hud-btn.active {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        /* Next Quiz Countdown Overlay */
+        #next-overlay {
+            position: fixed;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.98));
+            border: 2px solid #6ee7b7;
+            padding: 12px 28px;
+            border-radius: 50px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.6);
+            animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -30px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .next-countdown-badge {
+            background: #ffffff;
+            color: #065f46;
+            font-weight: 900;
+            font-size: 1.1rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .next-info-text {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* Sidebar Playlist Drawer */
+        #playlist-drawer {
+            position: fixed;
+            top: 0;
+            right: -380px;
+            width: 380px;
+            height: 100vh;
+            background: rgba(11, 16, 29, 0.96);
+            border-left: 1px solid var(--border);
+            z-index: 1050;
+            box-shadow: -15px 0 45px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        #playlist-drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .drawer-header h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .drawer-close-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .drawer-close-btn:hover {
+            color: #ffffff;
+        }
+
+        .queue-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 4px;
+        }
+
+        .queue-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .queue-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+
+        .queue-item {
+            background: rgba(22, 30, 49, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .queue-item:hover {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--primary);
+            transform: translateX(-4px);
+        }
+
+        .queue-item.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(30, 58, 138, 0.35));
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .queue-item.completed {
+            opacity: 0.6;
+        }
+
+        .queue-item-info h4 {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 3px;
+        }
+
+        .queue-item-info span {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .queue-item-status {
+            font-size: 1.1rem;
+        }
+
+        /* Initial Big Start Screen Overlay */
+        #master-start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(7, 10, 18, 0.98);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            backdrop-filter: blur(15px);
+        }
+
+        .start-logo-box {
+            width: 110px;
+            height: 110px;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #060b18;
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .start-logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #master-start-overlay h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff, #93c5fd, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        #master-start-overlay p {
+            font-size: 1.15rem;
+            color: #94a3b8;
+            max-width: 650px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .start-features {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .start-feature-pill {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .btn-launch-marathon {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 16px 54px;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.65);
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-launch-marathon:hover {
+            transform: scale(1.06);
+            box-shadow: 0 15px 50px rgba(239, 68, 68, 0.85);
+        }
+
+        /* Keyboard Hotkey Hint Footer */
+        .hotkey-hint {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.82rem;
+            color: #64748b;
+            z-index: 999;
+            pointer-events: none;
+            background: rgba(11, 16, 29, 0.8);
+            padding: 4px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Initial Big Start Screen Overlay -->
+    <div id="master-start-overlay">
+        <div class="start-logo-box">
+            <img src="images/logo/logo-color.png" alt="ThinkFast">
+        </div>
+        <h1>ThinkFast Continuous Marathon</h1>
+        <p>Sit back or start OBS recording! Click the button below to continuously autoplay all 21 USA trivia videos one after another with zero manual clicks.</p>
+        
+        <div class="start-features">
+            <span class="start-feature-pill">🔁 Hands-Free Auto-Advancing</span>
+            <span class="start-feature-pill">⚡ Snappy Typewriter Flow</span>
+            <span class="start-feature-pill">🎙️ Voiceover & Sound Effects</span>
+            <span class="start-feature-pill">📱 16:9 & 9:16 Shorts Ready</span>
+        </div>
+
+        <button class="btn-launch-marathon" onclick="startContinuousPlay()">
+            🚀 START MARATHON RUN
+        </button>
+        <div style="margin-top: 18px; font-size: 0.88rem; color: #64748b;">
+            Press <b>F11</b> for Fullscreen • Move mouse to reveal controls • Press <b>H</b> to hide controls
+        </div>
+    </div>
+
+    <!-- Main Stage Frame -->
+    <div id="stage-container">
+        <iframe id="quiz-frame" src="about:blank" allow="autoplay"></iframe>
+    </div>
+
+    <!-- Next Quiz Auto-Countdown Banner -->
+    <div id="next-overlay">
+        <div class="next-countdown-badge" id="next-countdown-val">5</div>
+        <div class="next-info-text">
+            <span>Next Video Starting: </span>
+            <strong id="next-quiz-title" style="color: #fef08a;">Next Quiz</strong>
+        </div>
+    </div>
+
+    <!-- Floating Studio Control Bar -->
+    <div id="studio-hud">
+        <div class="hud-brand">
+            <img src="images/logo/logo-color.png" alt="ThinkFast" class="hud-logo-img">
+            <div class="hud-title">Think<span>Fast</span></div>
+        </div>
+
+        <div class="now-playing-pill">
+            <div class="now-playing-dot"></div>
+            <span class="now-playing-text" id="now-playing-label">Initializing Playlist...</span>
+        </div>
+
+        <button class="hud-btn" id="btn-play-pause" onclick="togglePlayPause()" title="Pause/Play">
+            <span id="play-pause-icon">⏸️</span>
+        </button>
+
+        <button class="hud-btn" onclick="playNextQuiz()" title="Skip to Next Quiz (N)">
+            ⏭️ Next
+        </button>
+
+        <button class="hud-btn" id="btn-aspect" onclick="toggleAspect()" title="Toggle 16:9 / 9:16 Shorts (S)">
+            📺 16:9
+        </button>
+
+        <button class="hud-btn" id="btn-loop" onclick="toggleLoop()" title="Loop Playlist">
+            🔁 Loop: ON
+        </button>
+
+        <button class="hud-btn" onclick="toggleDrawer()" title="View Playlist Queue">
+            📋 Queue (<span id="queue-counter">1/21</span>)
+        </button>
+    </div>
+
+    <!-- Playlist Queue Drawer -->
+    <div id="playlist-drawer">
+        <div class="drawer-header">
+            <h3>📋 Video Queue (21)</h3>
+            <button class="drawer-close-btn" onclick="toggleDrawer()">✕</button>
+        </div>
+        <div class="queue-list" id="queue-list"></div>
+    </div>
+
+    <!-- Bottom Hotkey Helper Hint -->
+    <div class="hotkey-hint" id="hotkey-hint">
+        <b>F11</b> Fullscreen • <b>N</b> Next Video • <b>Space</b> Pause • <b>H</b> Hide HUD • <b>S</b> 16:9/9:16
+    </div>
+
+    <script>
+        // --- 21 COMPLETE USA TRIVIA PLAYLIST ---
+        const PLAYLIST = [
+            { file: "Know_USA.html", title: "🇺🇸 Know USA (Master Flagship)", cat: "GENERAL USA", qCount: 20 },
+            { file: "01_Guess_The_State_3_Clues.html", title: "🗺️ Guess The State by 3 Clues", cat: "STATE GUESSING", qCount: 20 },
+            { file: "02_US_Citizenship_Civics_Test.html", title: "🏛️ Official US Citizenship Test", cat: "CIVICS & LAW", qCount: 20 },
+            { file: "03_Geography_Trick_Questions.html", title: "🌎 Geography Trick Questions", cat: "TRICK GEOGRAPHY", qCount: 20 },
+            { file: "04_US_State_Capitals_Quiz.html", title: "🏙️ 50 State Capitals Challenge", cat: "CAPITALS", qCount: 20 },
+            { file: "05_US_Presidents_Crazy_Facts.html", title: "🎩 US Presidents Crazy Facts", cat: "PRESIDENTS", qCount: 20 },
+            { file: "06_National_Parks_Quiz.html", title: "🌲 America's National Parks", cat: "PARKS & NATURE", qCount: 20 },
+            { file: "07_American_Inventions_Quiz.html", title: "💡 American Inventions Changed World", cat: "INVENTIONS", qCount: 20 },
+            { file: "08_Bizarre_US_State_Laws.html", title: "⚖️ Bizarre & Dumb US State Laws", cat: "LAWS & ODDITIES", qCount: 20 },
+            { file: "09_Iconic_State_Foods.html", title: "🍔 Iconic American State Foods", cat: "FOOD & CUISINE", qCount: 20 },
+            { file: "10_Fast_Food_Secrets_Quiz.html", title: "🍟 Fast Food Secrets & Origins", cat: "FAST FOOD", qCount: 20 },
+            { file: "11_US_Military_WW2_Legends.html", title: "🎖️ US Military & WWII Legends", cat: "MILITARY HISTORY", qCount: 20 },
+            { file: "12_Billion_Dollar_Brands.html", title: "💼 Billion Dollar US Brands", cat: "BRANDS & BIZ", qCount: 20 },
+            { file: "13_US_Dollar_Money_Trivia.html", title: "💵 US Dollar & Money Secrets", cat: "FINANCE & MONEY", qCount: 20 },
+            { file: "14_NFL_Super_Bowl_History.html", title: "🏈 NFL & Super Bowl Legends", cat: "SPORTS / NFL", qCount: 20 },
+            { file: "15_NBA_Basketball_Legends.html", title: "🏀 NBA & Basketball Icons", cat: "SPORTS / NBA", qCount: 20 },
+            { file: "16_Classic_Hollywood_Movies.html", title: "🎬 Classic Hollywood Cinema", cat: "MOVIES & POP", qCount: 20 },
+            { file: "17_90s_America_Nostalgia.html", title: "📼 90s America Nostalgia", cat: "NOSTALGIA", qCount: 20 },
+            { file: "18_American_Mysteries_Crime.html", title: "🛸 Unsolved American Mysteries", cat: "MYSTERIES & CRIME", qCount: 20 },
+            { file: "19_Route_66_Road_Trips.html", title: "🚗 Route 66 & Great Road Trips", cat: "ROAD TRIPS", qCount: 20 },
+            { file: "20_Identify_State_Outlines.html", title: "📍 Identify State by Outline", cat: "MAP OUTLINES", qCount: 20 }
+        ];
+
+        let currentIndex = 0;
+        let isPlaying = false;
+        let isShortsMode = false;
+        let isLooping = true;
+        let nextCountdownTimer = null;
+        let checkFinishedInterval = null;
+        let hudFadeTimer = null;
+
+        const quizFrame = document.getElementById('quiz-frame');
+        const stageContainer = document.getElementById('stage-container');
+        const nowPlayingLabel = document.getElementById('now-playing-label');
+        const queueCounter = document.getElementById('queue-counter');
+        const queueList = document.getElementById('queue-list');
+        const studioHud = document.getElementById('studio-hud');
+        const hotkeyHint = document.getElementById('hotkey-hint');
+        const nextOverlay = document.getElementById('next-overlay');
+        const nextCountdownVal = document.getElementById('next-countdown-val');
+        const nextQuizTitle = document.getElementById('next-quiz-title');
+
+        // Render Sidebar Queue
+        function renderQueue() {
+            queueList.innerHTML = '';
+            PLAYLIST.forEach((item, idx) => {
+                const el = document.createElement('div');
+                el.className = `queue-item ${idx === currentIndex ? 'active' : ''} ${idx < currentIndex ? 'completed' : ''}`;
+                el.onclick = () => jumpToQuiz(idx);
+                el.innerHTML = `
+                    <div class="queue-item-info">
+                        <h4>${idx + 1}. ${item.title}</h4>
+                        <span>${item.cat} • ${item.qCount} Qs</span>
+                    </div>
+                    <div class="queue-item-status">
+                        ${idx === currentIndex ? '▶️' : (idx < currentIndex ? '✅' : '⏳')}
+                    </div>
+                `;
+                queueList.appendChild(el);
+            });
+            queueCounter.innerText = `${currentIndex + 1}/${PLAYLIST.length}`;
+        }
+
+        // Load and play a specific quiz by index
+        function loadQuiz(index) {
+            if (index < 0 || index >= PLAYLIST.length) {
+                if (isLooping) index = 0;
+                else {
+                    alert("Marathon Completed! All 21 videos finished!");
+                    return;
+                }
+            }
+
+            cancelNextCountdown();
+            currentIndex = index;
+            const quiz = PLAYLIST[currentIndex];
+            nowPlayingLabel.innerText = `(${currentIndex + 1}/${PLAYLIST.length}) ${quiz.title}`;
+            renderQueue();
+
+            // Build URL with auto=1 so it starts immediately
+            const modeParam = isShortsMode ? '&mode=shorts' : '';
+            const quizUrl = `${quiz.file}?auto=1${modeParam}`;
+            quizFrame.src = quizUrl;
+
+            // Start polling for finish state as fallback
+            startCompletionChecker();
+        }
+
+        function startContinuousPlay() {
+            document.getElementById('master-start-overlay').style.display = 'none';
+            isPlaying = true;
+            document.getElementById('play-pause-icon').innerText = '⏸️';
+            loadQuiz(0);
+            startHudAutoHide();
+        }
+
+        function playNextQuiz() {
+            loadQuiz(currentIndex + 1);
+        }
+
+        function playPrevQuiz() {
+            if (currentIndex > 0) loadQuiz(currentIndex - 1);
+        }
+
+        function jumpToQuiz(idx) {
+            loadQuiz(idx);
+            toggleDrawer(false);
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            document.getElementById('play-pause-icon').innerText = isPlaying ? '⏸️' : '▶️';
+            try {
+                if (quizFrame.contentWindow && quizFrame.contentWindow.quizEngine) {
+                    quizFrame.contentWindow.quizEngine.togglePause();
+                }
+            } catch(e) {}
+        }
+
+        function toggleAspect() {
+            isShortsMode = !isShortsMode;
+            const btn = document.getElementById('btn-aspect');
+            if (isShortsMode) {
+                stageContainer.classList.add('shorts-mode');
+                btn.innerText = '📱 9:16';
+            } else {
+                stageContainer.classList.remove('shorts-mode');
+                btn.innerText = '📺 16:9';
+            }
+            // Reload current with new aspect ratio
+            loadQuiz(currentIndex);
+        }
+
+        function toggleLoop() {
+            isLooping = !isLooping;
+            const btn = document.getElementById('btn-loop');
+            btn.innerText = isLooping ? '🔁 Loop: ON' : '🔁 Loop: OFF';
+        }
+
+        function toggleDrawer(forceState) {
+            const drawer = document.getElementById('playlist-drawer');
+            if (typeof forceState === 'boolean') {
+                if (forceState) drawer.classList.add('open');
+                else drawer.classList.remove('open');
+            } else {
+                drawer.classList.toggle('open');
+            }
+        }
+
+        // When a quiz completes, trigger the transition countdown
+        function onQuizFinished() {
+            if (nextCountdownTimer) return; // Prevent duplicate triggers
+            stopCompletionChecker();
+
+            const nextIndex = (currentIndex + 1 < PLAYLIST.length) ? currentIndex + 1 : (isLooping ? 0 : -1);
+            if (nextIndex === -1) {
+                alert("Marathon completed! All 21 videos finished.");
+                return;
+            }
+
+            const nextQuiz = PLAYLIST[nextIndex];
+            nextQuizTitle.innerText = nextQuiz.title;
+            nextOverlay.style.display = 'flex';
+
+            let count = 6; // 6 seconds intermission to let viewers see the scorecard
+            nextCountdownVal.innerText = count;
+
+            nextCountdownTimer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    nextCountdownVal.innerText = count;
+                } else {
+                    cancelNextCountdown();
+                    loadQuiz(nextIndex);
+                }
+            }, 1000);
+        }
+
+        function cancelNextCountdown() {
+            if (nextCountdownTimer) {
+                clearInterval(nextCountdownTimer);
+                nextCountdownTimer = null;
+            }
+            nextOverlay.style.display = 'none';
+        }
+
+        // Monitor completion via postMessage & ContentWindow polling
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'QUIZ_FINISHED') {
+                onQuizFinished();
+            }
+        });
+
+        function startCompletionChecker() {
+            stopCompletionChecker();
+            checkFinishedInterval = setInterval(() => {
+                try {
+                    if (quizFrame.contentWindow && quizFrame.contentWindow.__quiz_finished) {
+                        onQuizFinished();
+                    }
+                } catch(e) {}
+            }, 800);
+        }
+
+        function stopCompletionChecker() {
+            if (checkFinishedInterval) {
+                clearInterval(checkFinishedInterval);
+                checkFinishedInterval = null;
+            }
+        }
+
+        // HUD Auto-Hide for Clean OBS Screen Recording
+        function startHudAutoHide() {
+            resetHudFade();
+            window.addEventListener('mousemove', () => {
+                showHud();
+                resetHudFade();
+            });
+        }
+
+        function showHud() {
+            studioHud.classList.remove('hud-hidden');
+            hotkeyHint.style.opacity = '1';
+        }
+
+        function hideHud() {
+            studioHud.classList.add('hud-hidden');
+            hotkeyHint.style.opacity = '0';
+        }
+
+        function resetHudFade() {
+            clearTimeout(hudFadeTimer);
+            hudFadeTimer = setTimeout(() => {
+                if (isPlaying) hideHud();
+            }, 3500);
+        }
+
+        // Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyN') {
+                playNextQuiz();
+            } else if (e.code === 'KeyP') {
+                playPrevQuiz();
+            } else if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlayPause();
+            } else if (e.code === 'KeyH') {
+                if (studioHud.classList.contains('hud-hidden')) showHud();
+                else hideHud();
+            } else if (e.code === 'KeyS') {
+                toggleAspect();
+            }
+        });
+
+        // Initialize queue on load
+        renderQueue();
+    </script>
+</body>
+</html>
