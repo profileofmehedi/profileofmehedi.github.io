@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>এআই সিকিউরিটি মাস্টারক্লাস</title>
+    <link rel="stylesheet" href="css/presenter.css">
+    <!-- Three.js Local (with CDN Fallback) -->
+    <script src="js/three.min.js"></script>
+    <script>
+        if (typeof THREE === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+        }
+    </script>
+</head>
+<body class="theme-threat-blue">
+
+    <!-- Fixed 1920x1080 Broadcast Stage -->
+    <div id="stage-1080p" class="stage-1080p">
+
+        <!-- Viewfinder Corner Marks (Cinematic 1080p Video Frame) -->
+        <div class="viewfinder-mark mark-tl"></div>
+        <div class="viewfinder-mark mark-tr"></div>
+        <div class="viewfinder-mark mark-bl"></div>
+        <div class="viewfinder-mark mark-br"></div>
+
+        <!-- 3D Cinema Motion Graphics Canvas -->
+        <div id="three-canvas-container"></div>
+
+        <!-- Top Clean Header (No Buzzwords) -->
+        <header class="hud-header">
+            <div class="hud-logo">
+                <div class="hud-logo-icon">🛡️</div>
+                <div class="hud-logo-text">AI SECURITY</div>
+            </div>
+
+            <div class="hud-center-status">
+                <div class="rec-badge">
+                    <span class="rec-dot"></span>
+                    <span>REC 1080P</span>
+                </div>
+                <div style="opacity: 0.3;">|</div>
+                <div id="timecode-display" style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-weight: 700;">
+                    TC 00:00:00:00
+                </div>
+                <div style="opacity: 0.3;">|</div>
+                <!-- Audio Equalizer Bars -->
+                <div class="audio-visualizer-bars" title="Audio Sound Design Active">
+                    <div class="eq-bar"></div>
+                    <div class="eq-bar"></div>
+                    <div class="eq-bar"></div>
+                    <div class="eq-bar"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dynamic Slide Content with Animated Motion Infographics -->
+        <main id="slide-content" class="slide-container slide-active">
+            <!-- Rendered dynamically by presenter.js with kinetic counters & spring animations -->
+        </main>
+
+        <!-- YouTube Chapter Timeline Scrubber -->
+        <div class="chapter-timeline-wrap" id="chapter-timeline">
+            <!-- Rendered dynamically by presenter.js -->
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/audio-sfx.js"></script>
+    <script src="js/slides-data.js"></script>
+    <script src="js/three-scene.js"></script>
+    <script src="js/presenter.js"></script>
+    <script>
+        // Automatic stage scaling to fit screen while strictly locking internal 1920x1080 canvas
+        function fitStage() {
+            const stage = document.getElementById('stage-1080p');
+            if (!stage) return;
+            const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+        window.addEventListener('resize', fitStage);
+        window.addEventListener('DOMContentLoaded', fitStage);
+        fitStage();
+
+        // Live running timecode counter (TC HH:MM:SS:FF)
+        let frameCount = 0;
+        const tcEl = document.getElementById('timecode-display');
+        setInterval(() => {
+            frameCount++;
+            const fps = 30;
+            const totalSec = Math.floor(frameCount / fps);
+            const frames = frameCount % fps;
+            const secs = totalSec % 60;
+            const mins = Math.floor(totalSec / 60) % 60;
+            const hrs = Math.floor(totalSec / 3600);
+            
+            const pad = (n) => n.toString().padStart(2, '0');
+            tcEl.innerText = `TC ${pad(hrs)}:${pad(mins)}:${pad(secs)}:${pad(frames)}`;
+        }, 1000 / 30);
+    </script>
+</body>
+</html>
