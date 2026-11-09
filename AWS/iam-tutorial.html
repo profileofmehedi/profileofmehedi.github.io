@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>AWS IAM মাস্টারক্লাস টিউটোরিয়াল | স্লাইডার প্রেজেন্টেশন</title>
+  
+  <!-- Kalpurush & Bengali Fonts -->
+  <link rel="stylesheet" href="https://fonts.maateen.me/kalpurush/font.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS Variables for Dark Theme (Default) */
+    :root[data-theme="dark"] {
+      --bg-body: #0b1120;
+      --bg-header: rgba(30, 41, 59, 0.9);
+      --bg-surface: #1e293b;
+      --bg-card: #151f32;
+      --bg-card-inner: rgba(30, 41, 59, 0.7);
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --aws-orange: #ff9900;
+      --aws-amber: #f59e0b;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-blue: #38bdf8;
+      
+      /* SVG & Diagram Elements */
+      --svg-bg: #0d1527;
+      --svg-rect-bg: #1e293b;
+      --svg-rect-inner: #0f172a;
+      --svg-stroke: #334155;
+      --svg-text: #cbd5e1;
+      --code-bg: #060b17;
+      --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    }
+
+    /* CSS Variables for Light Theme */
+    :root[data-theme="light"] {
+      --bg-body: #f8fafc;
+      --bg-header: rgba(255, 255, 255, 0.95);
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-inner: #f1f5f9;
+      --border-color: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --aws-orange: #ea580c;
+      --aws-amber: #d97706;
+      --accent-cyan: #0284c7;
+      --accent-green: #16a34a;
+      --accent-red: #dc2626;
+      --accent-blue: #2563eb;
+      
+      /* SVG & Diagram Elements */
+      --svg-bg: #f8fafc;
+      --svg-rect-bg: #ffffff;
+      --svg-rect-inner: #edf2f7;
+      --svg-stroke: #cbd5e1;
+      --svg-text: #334155;
+      --code-bg: #1e293b;
+      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Kalpurush', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Top Classroom Header */
+    .classroom-header {
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 12px;
+    }
+
+    .class-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-badge {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--accent-red);
+      color: var(--accent-red);
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent-red);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .class-info h2 {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .class-info p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .nav-controls-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle-btn {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--aws-orange);
+      transform: translateY(-1px);
+    }
+
+    .slide-counter {
+      background: var(--bg-card-inner);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      color: var(--aws-orange);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .keyboard-hint {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kbd {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-family: monospace;
+      color: var(--text-main);
+      font-size: 0.75rem;
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 4px;
+      background: var(--border-color);
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--aws-orange), var(--accent-cyan));
+      width: 11.11%;
+      transition: width 0.4s ease;
+    }
+
+    /* Main Slider Stage */
+    .slider-main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 16px;
+      position: relative;
+    }
+
+    .slide-stage {
+      max-width: 1200px;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      min-height: 580px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .slide {
+      display: none;
+      padding: 32px 36px;
+      flex: 1;
+      animation: fadeIn 0.35s ease forwards;
+    }
+
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide Header */
+    .slide-badge-topic {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 153, 0, 0.12);
+      border: 1px solid var(--aws-orange);
+      color: var(--aws-orange);
+      font-size: 0.8rem;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+
+    .slide-headline {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .slide-desc {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    /* Grid Layout: Content & Infographic */
+    .tutorial-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .tutorial-content {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .info-card {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .info-card h4 {
+      font-size: 1.05rem;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-card p, .info-card li {
+      font-size: 0.98rem;
+      color: var(--text-main);
+      line-height: 1.65;
+    }
+
+    .info-card ul, .info-card ol {
+      padding-left: 20px;
+      margin-top: 6px;
+    }
+
+    .highlight-box {
+      border-left: 4px solid var(--aws-orange);
+      background: rgba(255, 153, 0, 0.08);
+      padding: 12px 16px;
+      border-radius: 0 10px 10px 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .highlight-box.danger {
+      border-left-color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .highlight-box.success {
+      border-left-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    /* Infographic Container */
+    .infographic-wrapper {
+      background: var(--svg-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .infographic-label {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 0.7rem;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.12);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      font-weight: bold;
+      letter-spacing: 0.05em;
+    }
+
+    svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Bottom Controller Bar */
+    .controller-bar {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-color);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .ctrl-btn {
+      background: var(--bg-card-inner);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      border-color: var(--aws-orange);
+      transform: translateY(-1px);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+      border-color: var(--border-color);
+    }
+
+    .ctrl-btn.primary {
+      background: var(--aws-orange);
+      color: #fff;
+      border-color: var(--aws-orange);
+    }
+
+    .ctrl-btn.primary:hover {
+      background: var(--aws-amber);
+      box-shadow: 0 4px 15px rgba(255, 153, 0, 0.3);
+    }
+
+    .slide-dots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-color);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .dot.active {
+      background: var(--aws-orange);
+      width: 24px;
+      border-radius: 8px;
+    }
+
+    /* Code View */
+    pre.code-view {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      line-height: 1.45;
+      overflow-x: auto;
+    }
+
+    /* Quiz block */
+    .quiz-block {
+      background: var(--bg-card-inner);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .quiz-option {
+      background: var(--bg-surface);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      color: var(--text-main);
+    }
+
+    .quiz-option:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.15) !important;
+      border-color: var(--accent-green) !important;
+      color: var(--accent-green) !important;
+      font-weight: 600;
+    }
+
+    .quiz-option.incorrect {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border-color: var(--accent-red) !important;
+      color: var(--accent-red) !important;
+    }
+
+    .feedback-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: none;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    /* Mobile Swipe Instruction Banner */
+    .mobile-swipe-hint {
+      display: none;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 4px;
+      margin-top: -6px;
+    }
+
+    /* ========================================================
+       MOBILE RESPONSIVE STYLES
+       ======================================================== */
+    @media (max-width: 900px) {
+      .classroom-header {
+        padding: 10px 14px;
+      }
+
+      .class-info h2 {
+        font-size: 0.95rem;
+      }
+
+      .class-info p {
+        display: none;
+      }
+
+      .keyboard-hint {
+        display: none;
+      }
+
+      .mobile-swipe-hint {
+        display: block;
+      }
+
+      .slider-main {
+        padding: 12px 10px;
+      }
+
+      .slide-stage {
+        min-height: auto;
+        border-radius: 14px;
+      }
+
+      .slide {
+        padding: 20px 16px;
+      }
+
+      .slide-headline {
+        font-size: 1.35rem;
+      }
+
+      .slide-desc {
+        font-size: 0.92rem;
+        margin-bottom: 16px;
+      }
+
+      .tutorial-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .infographic-wrapper {
+        padding: 12px;
+        order: -1; /* Show visual diagram on top for mobile learners! */
+      }
+
+      .controller-bar {
+        padding: 12px 16px;
+        flex-direction: column-reverse;
+        gap: 12px;
+      }
+
+      .btn-group {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .ctrl-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
+
+      .slide-dots {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 450px) {
+      .live-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+      }
+
+      .theme-toggle-btn {
+        padding: 4px 8px;
+        font-size: 0.78rem;
+      }
+
+      .slide-counter {
+        padding: 4px 8px;
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Classroom Bar -->
+  <header class="classroom-header">
+    <div class="class-title">
+      <div class="live-badge">
+        <span class="live-dot"></span> ক্লাস মোড
+      </div>
+      <div class="class-info">
+        <h2>AWS Certified Masterclass</h2>
+        <p>মডিউল ০১: Identity and Access Management (IAM)</p>
+      </div>
+    </div>
+
+    <div class="nav-controls-top">
+      <div class="keyboard-hint">
+        কন্ট্রোল: <span class="kbd">←</span> <span class="kbd">→</span>
+      </div>
+
+      <!-- Theme Switcher -->
+      <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()" title="থিম পরিবর্তন করুন">
+        <span id="theme-icon">☀️</span> <span id="theme-text">লাইট</span>
+      </button>
+
+      <div class="slide-counter" id="slide-counter">স্লাইড ১ / ৯</div>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+  </div>
+
+  <!-- Mobile Touch Hint -->
+  <div class="mobile-swipe-hint">
+    👉 বামে/ডানে সোয়াইপ (Swipe) করে স্লাইড পরিবর্তন করুন
+  </div>
+
+  <!-- Main Slider Stage -->
+  <main class="slider-main">
+    <div class="slide-stage" id="slide-stage">
+
+      <!-- ==================== SLIDE 1 ==================== -->
+      <div class="slide active" id="slide-1">
+        <div class="slide-badge-topic">লেকচার ০১ • মূল ভূমিকা</div>
+        <h1 class="slide-headline">AWS IAM কী এবং কেন এটি ক্লাউডের প্রধান দারোয়ান?</h1>
+        <p class="slide-desc">ক্লাউড সিকিউরিটির প্রথম ও প্রধান ধাপ হলো IAM। এটি নির্ধারণ করে—কে আপনার ক্লাউডে প্রবেশ করতে পারবে এবং কী করতে পারবে।</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>🛡️ দুইটি মূল স্তম্ভ (Two Pillars):</h4>
+              <ul>
+                <li><strong>Authentication (পরিচয় যাচাই):</strong> আপনি আসলে কে? (Username + Password + MFA দিয়ে নিশ্চিত হওয়া)।</li>
+                <li><strong>Authorization (অনুমতি যাচাই):</strong> আপনি কোন কোন AWS রিসোর্সে (যেমন EC2, S3, RDS) কাজ করার ক্ষমতা রাখেন?</li>
+              </ul>
+            </div>
+
+            <div class="highlight-box success">
+              <strong>⭐ গোল্ডেন রুল (পরীক্ষার জন্য মাস্ট):</strong><br>
+              IAM হলো একটি <strong>Global Service</strong>! অর্থাৎ আপনি যখন IAM-এ কোনো ইউজার বা রোল বানাবেন, তার জন্য কোনো Region সিলেক্ট করতে হয় না। এটি পুরো অ্যাকাউন্টে বিশ্বব্যাপী প্রযোজ্য।
+            </div>
+
+            <div class="info-card">
+              <h4>🎯 কেন IAM এতো গুরুত্বপূর্ণ?</h4>
+              <p>ক্লাউডে ডেটা লিক হওয়া বা সার্ভার হ্যাক হওয়ার প্রধান কারণ ভুল পারমিশন কনফিগারেশন। IAM নিশ্চিত করে <strong>Principle of Least Privilege</strong> (ন্যূনতম প্রয়োজনীয় অধিকার)।</p>
+            </div>
+          </div>
+
+          <!-- Infographic SVG 1 -->
+          <div class="infographic-wrapper">
+            <span class="infographic-label">INFOGRAPHIC 1.0</span>
+            <svg viewBox="0 0 400 300" width="100%">
+              <rect x="10" y="10" width="380" height="280" rx="12" fill="var(--svg-bg)" stroke="var(--svg-stroke)" stroke-dasharray="3 3"/>
+              
+              <!-- User Icon -->
+              <circle cx="70" cy="85" r="26" fill="#3b82f6" opacity="0.2"/>
+              <circle cx="70" cy="75" r="13" fill="#38bdf8"/>
+              <path d="M54 100 C54 90 86 90 86 100" stroke="#38bdf8" stroke-width="2.5" fill="none"/>
+              <text x="70" y="118" text-anchor="middle" fill="var(--svg-text)" font-size="11" font-weight="bold">ইউজার / রিকোয়েস্ট</text>
+
+              <!-- Arrow 1 -->
+              <path d="M105 85 L150 85" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4 2"/>
+
+              <!-- IAM Gatekeeper Box -->
+              <rect x="155" y="40" width="110" height="135" rx="10" fill="var(--svg-rect-bg)" stroke="var(--aws-orange)" stroke-width="2"/>
+              <rect x="180" y="28" width="60" height="20" rx="4" fill="var(--aws-orange)"/>
+              <text x="210" y="42" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">IAM GATE</text>
+
+              <!-- Keys & Shield inside IAM -->
+              <path d="M210 65 L225 75 L225 98 C225 110 210 118 210 118 C210 118 195 110 195 98 L195 75 Z" fill="var(--aws-orange)" opacity="0.3" stroke="var(--aws-orange)" stroke-width="2"/>
+              <text x="210" y="90" text-anchor="middle" fill="var(--text-main)" font-size="10" font-weight="bold">AUTHN</text>
+              <text x="210" y="104" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="bold">AUTHZ</text>
+              <text x="210" y="145" text-anchor="middle" fill="var(--svg-text)" font-size="9">Least Privilege</text>
+
+              <!-- Allowed Arrow -->
+              <path d="M270 80 L315 55" stroke="#10b981" stroke-width="2.5"/>
+              <circle cx="345" cy="55" r="20" fill="var(--svg-rect-bg)" stroke="#10b981" stroke-width="2"/>
+              <text x="345" y="58" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">S3 Bucket</text>
+
+              <!-- Denied Arrow -->
+              <path d="M270 105 L315 135" stroke="#ef4444" stroke-width="2.5"/>
+              <circle cx="345" cy="135" r="20" fill="var(--svg-rect-bg)" stroke="#ef4444" stroke-width="2"/>
+              <text x="345" y="138" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">EC2 Stop</text>
+              <line x1="337" y1="127" x2="353" y2="143" stroke="#ef4444" stroke-width="2"/>
+
+              <!-- Bottom Global Callout -->
+              <rect x="50" y="215" width="300" height="42" rx="8" fill="var(--svg-rect-inner)" stroke="var(--accent-cyan)"/>
+              <text x="200" y="241" text-anchor="middle" fill="var(--accent-cyan)" font-size="12" font-weight="bold">🌍 GLOBAL SERVICE (No Region Bound)</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 2 ==================== -->
+      <div class="slide" id="slide-2">
+        <div class="slide-badge-topic">লেকচার ০২ • আইডেন্টিটি বিভাজন</div>
+        <h1 class="slide-headline">রুট অ্যাকাউন্ট বনাম আইএএম ইউজার (Root vs IAM User)</h1>
+        <p class="slide-desc">কেন কখনোই রুট অ্যাকাউন্ট দিয়ে অফিসের সাধারণ কাজ করবেন না? পরীক্ষার অতি প্রিয় একটি প্রশ্ন!</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>👑 AWS Root User (সুপার পাওয়ার):</h4>
+              <ul>
+                <li>অ্যাকাউন্ট খোলার সময় যে ইমেইল ও পাসওয়ার্ড দেওয়া হয়, সেটাই রুট অ্যাকাউন্ট।</li>
+                <li>এর ক্ষমতা সীমাহীন (God-level Access)। কোনো IAM Policy দিয়ে একে আটকানো যায় না।</li>
+                <li><strong>AWS Best Practice:</strong> অ্যাকাউন্ট খোলার পরপরই রুট ইউজারে <strong>Hardware/Virtual MFA</strong> অন করবেন এবং এর কোনো Access Key তৈরি করবেন না!</li>
+              </ul>
+            </div>
+
+            <div class="info-card">
+              <h4>👤 IAM User (প্রাত্যহিক কর্মী):</h4>
+              <ul>
+                <li>প্রতিটি আসল মানুষের জন্য ১টি করে আলাদা IAM User খুলতে হবে।</li>
+                <li>ডিফল্টভাবে নতুন ইউজারের <strong>Zero Permission</strong> (কোনো অ্যাক্সেস নেই) থাকে।</li>
+                <li>প্রয়োজনমাফিক পলিসি দিয়ে তাকে নির্দিষ্ট কাজের অনুমতি দেওয়া হয়।</li>
+              </ul>
+            </div>
+
+            <div class="highlight-box danger">
+              <strong>🚨 এক্সাম অ্যালার্ট:</strong> যদি প্রশ্নে বলে <em>"An engineer accidentally pushed AWS root credentials to GitHub"</em>—প্রথম কাজ হবে রুট পাসওয়ার্ড পরিবর্তন ও অ্যাক্সেস কি ডিলিট করে সব সেশন বন্ধ করা।
+            </div>
+          </div>
+
+          <!-- Infographic SVG 2 -->
+          <div class="infographic-wrapper">
+            <span class="infographic-label">INFOGRAPHIC 2.0</span>
+            <svg viewBox="0 0 400 300" width="100%">
+              <!-- Left Box: Root User -->
+              <rect x="25" y="25" width="160" height="250" rx="12" fill="var(--svg-rect-bg)" stroke="#ef4444" stroke-width="2"/>
+              <rect x="50" y="12" width="110" height="26" rx="6" fill="#ef4444"/>
+              <text x="105" y="29" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">ROOT USER</text>
+              
+              <!-- Crown icon -->
+              <path d="M80 65 L95 80 L105 50 L115 80 L130 65 L125 95 L85 95 Z" fill="#f59e0b"/>
+              <text x="105" y="120" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="bold">বিপদজনক ও সীমাহীন</text>
+              <text x="105" y="145" text-anchor="middle" fill="var(--svg-text)" font-size="10">• একাউন্ট ও বিলিং মালিক</text>
+              <text x="105" y="165" text-anchor="middle" fill="var(--svg-text)" font-size="10">• সাধারণ কাজে ব্যবহার নয়</text>
+              <text x="105" y="185" text-anchor="middle" fill="var(--svg-text)" font-size="10">• Hardware MFA মাস্ট</text>
+              <text x="105" y="210" text-anchor="middle" fill="#ef4444" font-size="10">❌ No Access Keys!</text>
+
+              <!-- Right Box: IAM User -->
+              <rect x="215" y="25" width="160" height="250" rx="12" fill="var(--svg-rect-bg)" stroke="#10b981" stroke-width="2"/>
+              <rect x="240" y="12" width="110" height="26" rx="6" fill="#10b981"/>
+              <text x="295" y="29" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">IAM USER</text>
+
+              <!-- Badge/User icon -->
+              <circle cx="295" cy="70" r="16" fill="#38bdf8"/>
+              <path d="M277 98 C277 88 313 88 313 98" stroke="#38bdf8" stroke-width="2.5" fill="none"/>
+              <text x="295" y="120" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">নিরাপদ ও নিয়ন্ত্রিত</text>
+              <text x="295" y="145" text-anchor="middle" fill="var(--svg-text)" font-size="10">• ১ ব্যক্তি = ১ ইউজার</text>
+              <text x="295" y="165" text-anchor="middle" fill="var(--svg-text)" font-size="10">• Least Privilege নীতি</text>
+              <text x="295" y="185" text-anchor="middle" fill="var(--svg-text)" font-size="10">• MFA এনফোর্সড</text>
+              <text x="295" y="210" text-anchor="middle" fill="#10b981" font-size="10">✅ Role Preferred</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 3 ==================== -->
+      <div class="slide" id="slide-3">
+        <div class="slide-badge-topic">লেকচার ০৩ • টিম ম্যানেজমেন্ট</div>
+        <h1 class="slide-headline">আইএএম গ্রুপস (IAM Groups) — দলগত পারমিশন নিয়ন্ত্রণ</h1>
+        <p class="slide-desc">প্রতিটি ইউজারের কাছে আলাদা করে পারমিশন না দিয়ে কীভাবে এক ক্লিকে ৫০ জনের অনুমতি হ্যান্ডেল করবেন?</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>👥 গ্রুপ কীভাবে কাজ করে?</h4>
+              <ul>
+                <li>গ্রুপ হলো একাধিক IAM User-এর একটি কালেকশন বা দল (যেমন: <code>DevOps-Team</code>, <code>DBA-Admins</code>, <code>Audit-Staff</code>)।</li>
+                <li>পলিসি সরাসরি গ্রুপে অ্যাসাইন করবেন, আর গ্রুপের সব মেম্বার স্বয়ংক্রিয়ভাবে সেই পারমিশন পেয়ে যাবে।</li>
+              </ul>
+            </div>
+
+            <div class="highlight-box danger">
+              <strong>⚠️ এক্সামের জন্য অত্যন্ত গুরুত্বপূর্ণ ৩টি নিয়ম:</strong><br>
+              ১. <strong>গ্রুপের নিজস্ব কোনো লগইন নেই:</strong> গ্রুপ কোনো আইডেন্টিটি নয়, এটি শুধুমাত্র ইউজার ধারণ করে।<br>
+              ২. <strong>নেস্টিং নিষিদ্ধ (No Nested Groups):</strong> গ্রুপের ভেতরে অন্য গ্রুপ ঢোকানো যায় না (Group inside Group is NOT allowed)।<br>
+              ৩. <strong>একজন ইউজার একাধিক গ্রুপে থাকতে পারে:</strong> যেমন একজন ডেভেলপার একইসাথে <code>Dev-Team</code> এবং <code>Release-Managers</code> গ্রুপে থাকতে পারেন।
+            </div>
+          </div>
+
+          <!-- Infographic SVG 3 -->
+          <div class="infographic-wrapper">
+            <span class="infographic-label">INFOGRAPHIC 3.0</span>
+            <svg viewBox="0 0 400 300" width="100%">
+              <!-- Developers Group -->
+              <rect x="25" y="30" width="350" height="105" rx="10" fill="var(--svg-rect-bg)" stroke="#38bdf8" stroke-width="2"/>
+              <text x="45" y="55" fill="#38bdf8" font-size="12" font-weight="bold">📁 Group: Developers (Policy: S3 & EC2 Read)</text>
+
+              <rect x="45" y="68" width="90" height="48" rx="6" fill="var(--svg-rect-inner)" stroke="var(--svg-stroke)"/>
+              <text x="90" y="97" text-anchor="middle" fill="var(--svg-text)" font-size="11">👤 Mehedi</text>
+
+              <rect x="155" y="68" width="90" height="48" rx="6" fill="var(--svg-rect-inner)" stroke="var(--svg-stroke)"/>
+              <text x="200" y="97" text-anchor="middle" fill="var(--svg-text)" font-size="11">👤 Tanvir</text>
+
+              <rect x="265" y="68" width="90" height="48" rx="6" fill="var(--svg-rect-inner)" stroke="var(--svg-stroke)"/>
+              <text x="310" y="97" text-anchor="middle" fill="var(--svg-text)" font-size="11">👤 Ayesha</text>
+
+              <!-- Admins Group -->
+              <rect x="25" y="150" width="350" height="85" rx="10" fill="var(--svg-rect-bg)" stroke="#f59e0b" stroke-width="2"/>
+              <text x="45" y="175" fill="#f59e0b" font-size="12" font-weight="bold">📁 Group: Admins (Policy: AdministratorAccess)</text>
+
+              <rect x="45" y="185" width="100" height="38" rx="6" fill="var(--svg-rect-inner)" stroke="var(--svg-stroke)"/>
+              <text x="95" y="209" text-anchor="middle" fill="var(--svg-text)" font-size="11">👤 Lead Architect</text>
+
+              <!-- Warning Banner -->
+              <rect x="25" y="250" width="350" height="34" rx="6" fill="rgba(239, 68, 68, 0.12)" stroke="#ef4444"/>
+              <text x="200" y="272" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="bold">🚫 গ্রুপে ক্রেডেনশিয়াল থাকে না এবং নেস্টিং করা যায় না</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 4 ==================== -->
+      <div class="slide" id="slide-4">
+        <div class="slide-badge-topic">লেকচার ০৪ • সবচেয়ে গুরুত্বপূর্ণ টপিক</div>
+        <h1 class="slide-headline">আইএএম রোলস (IAM Roles) ও ইনস্ট্যান্স প্রোফাইল</h1>
+        <p class="slide-desc">অ্যাপ্লিকেশন বা সার্ভারকে পারমিশন দেওয়ার ক্ষেত্রে IAM Role হলো AWS-এর সবচেয়ে নিরাপদ সমাধান!</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>🔑 IAM Role কী?</h4>
+              <p>রোল হলো একটি অস্থায়ী আইডেন্টিটি যার কোনো পার্মানেন্ট সিক্রেট কি থাকে না। <strong>AWS STS (Security Token Service)</strong>-এর মাধ্যমে এটি সাময়িক সময়ের জন্য (১ ঘণ্টা থেকে ১২ ঘণ্টা) টোকেন প্রদান করে।</p>
+            </div>
+
+            <div class="info-card">
+              <h4>🖥️ EC2 Instance Profile কীভাবে কাজ করে?</h4>
+              <p>যদি আপনার EC2 সার্ভারের ভেতর চলমান কোডকে S3 বা DynamoDB-তে ডেটা সেভ করতে হয়, তবে কোডের মধ্যে Access Key হার্ডকোড করবেন <strong>না</strong>! বরং EC2-তে একটি IAM Role যুক্ত করে দেবেন।</p>
+            </div>
+
+            <div class="highlight-box success">
+              <strong>💡 এক্সাম ক্লু:</strong> প্রশ্নে যখনই দেখবেন <em>"Least operational overhead"</em> এবং <em>"Securely grant an EC2 instance access to AWS services"</em>—সরাসরি উত্তর হবে <strong>IAM Role (Instance Profile)</strong>!
+            </div>
+          </div>
+
+          <!-- Infographic SVG 4 -->
+          <div class="infographic-wrapper">
+            <span class="infographic-label">INFOGRAPHIC 4.0</span>
+            <svg viewBox="0 0 400 300" width="100%">
+              <!-- EC2 Box -->
+              <rect x="20" y="50" width="100" height="100" rx="8" fill="var(--svg-rect-bg)" stroke="var(--aws-orange)" stroke-width="2"/>
+              <text x="70" y="78" text-anchor="middle" fill="var(--aws-orange)" font-size="11" font-weight="bold">EC2 Instance</text>
+              <rect x="35" y="90" width="70" height="36" rx="4" fill="var(--svg-rect-inner)"/>
+              <text x="70" y="112" text-anchor="middle" fill="#38bdf8" font-size="9">App (No Keys)</text>
+
+              <!-- STS Service in the middle -->
+              <rect x="150" y="30" width="100" height="75" rx="8" fill="var(--svg-rect-bg)" stroke="#06b6d4" stroke-width="2"/>
+              <text x="200" y="52" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="bold">AWS STS</text>
+              <text x="200" y="70" text-anchor="middle" fill="var(--svg-text)" font-size="9">AssumeRole</text>
+              <text x="200" y="86" text-anchor="middle" fill="#10b981" font-size="9">Temp Token ⏱️</text>
+
+              <!-- S3 Bucket on right -->
+              <rect x="280" y="50" width="100" height="100" rx="8" fill="var(--svg-rect-bg)" stroke="#10b981" stroke-width="2"/>
+              <text x="330" y="78" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">S3 Bucket</text>
+              <path d="M305 95 L355 95 L350 130 L310 130 Z" fill="#10b981" opacity="0.3" stroke="#10b981"/>
+              <text x="330" y="117" text-anchor="middle" fill="var(--text-main)" font-size="9">Secure Data</text>
+
+              <!-- Workflow Arrows -->
+              <path d="M120 85 L145 65" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3 3"/>
+              <text x="122" y="58" fill="#06b6d4" font-size="8">1. Request</text>
+
+              <path d="M255 65 L280 85" stroke="#10b981" stroke-width="2"/>
+              <text x="268" y="58" fill="#10b981" font-size="8">2. Temp Access</text>
+
+              <!-- Bottom Best Practice Banner -->
+              <rect x="20" y="180" width="360" height="85" rx="10" fill="var(--svg-rect-inner)" stroke="var(--svg-stroke)"/>
+              <text x="200" y="205" text-anchor="middle" fill="var(--aws-orange)" font-size="11" font-weight="bold">কেন এটি বেস্ট প্র্যাকটিস?</text>
+              <text x="200" y="225" text-anchor="middle" fill="var(--svg-text)" font-size="10">১. কোডে কি লিক হওয়ার ভয় নেই (Zero Hardcoding)।</text>
+              <text x="200" y="243" text-anchor="middle" fill="var(--svg-text)" font-size="10">২. AWS নিজে থেকে প্রতি কয়েক ঘণ্টা পর পর টোকেন পরিবর্তন করে দেয়।</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 5 ==================== -->
+      <div class="slide" id="slide-5">
+        <div class="slide-badge-topic">লেকচার ০৫ • পলিসির ব্যবচ্ছেদ</div>
+        <h1 class="slide-headline">আইএএম পলিসি ও জেএসন (JSON) স্ট্রাকচার</h1>
+        <p class="slide-desc">AWS-এ পারমিশন লেখার একমাত্র ভাষা হলো JSON। চলুন এর প্রতিটি পার্ট ভেঙে ভেঙে বুঝি।</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>📜 JSON পলিসির মূল অঙ্গসমূহ:</h4>
+              <ul>
+                <li><strong>Version:</strong> পলিসির ভাষা সংস্করণ। সবসময় <code>"2012-10-17"</code> দিতে হবে।</li>
+                <li><strong>Effect:</strong> অনুমতি দেবেন নাকি আটকাবেন? (<code>"Allow"</code> অথবা <code>"Deny"</code>)।</li>
+                <li><strong>Action:</strong> কোন সার্ভিসটিতে কী কাজ হবে? (যেমন: <code>"s3:GetObject"</code>)।</li>
+                <li><strong>Resource:</strong> কোন নির্দিষ্ট রিসোর্সের ওপর অ্যাকশন ঘটবে (ARN)।</li>
+                <li><strong>Condition:</strong> কোনো বিশেষ শর্ত (যেমন: শুধুমাত্র MFA অন থাকলে)।</li>
+              </ul>
+            </div>
+
+            <div class="highlight-box success">
+              <strong>⭐ ওয়াইল্ডকার্ড ট্রিক:</strong> <code>"s3:*"</code> দিলে S3 এর সব কাজ করা যাবে। আবার <code>"arn:aws:s3:::my-bucket/*"</code> দিলে ওই বাকেটের ভেতরের সব ফাইলে পারমিশন প্রযোজ্য হবে।
+            </div>
+          </div>
+
+          <!-- Code View -->
+          <div class="infographic-wrapper" style="align-items: stretch; justify-content: flex-start;">
+            <span class="infographic-label">POLICY BLUEPRINT</span>
+            <pre class="code-view">{
+  <span style="color:#f59e0b">"Version"</span>: <span style="color:#a7f3d0">"2012-10-17"</span>,
+  <span style="color:#f59e0b">"Statement"</span>: [
+    {
+      <span style="color:#f59e0b">"Sid"</span>: <span style="color:#94a3b8">"VisualExamPolicy"</span>,
+      <span style="color:#f59e0b">"Effect"</span>: <span style="color:#38bdf8">"Allow"</span>,
+      <span style="color:#f59e0b">"Action"</span>: [
+        <span style="color:#a7f3d0">"s3:GetObject"</span>,
+        <span style="color:#a7f3d0">"s3:ListBucket"</span>
+      ],
+      <span style="color:#f59e0b">"Resource"</span>: [
+        <span style="color:#a7f3d0">"arn:aws:s3:::company-reports"</span>,
+        <span style="color:#a7f3d0">"arn:aws:s3:::company-reports/*"</span>
+      ],
+      <span style="color:#f59e0b">"Condition"</span>: {
+        <span style="color:#f59e0b">"Bool"</span>: {
+          <span style="color:#a7f3d0">"aws:MultiFactorAuthPresent"</span>: <span style="color:#38bdf8">"true"</span>
+        }
+      }
+    }
+  ]
+}</pre>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px; line-height: 1.4;">
+              📌 <strong>ব্যাখ্যা:</strong> এই পলিসিটি ইউজারের জন্য S3 বাকেটের ডেটা পড়ার সুযোগ দেবে—কিন্তু শুধুমাত্র যদি ইউজার <strong>MFA দিয়ে লগইন</strong> করে থাকে!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 6 ==================== -->
+      <div class="slide" id="slide-6">
+        <div class="slide-badge-topic">লেকচার ০৬ • অনুমতি মূল্যায়নের গণিত</div>
+        <h1 class="slide-headline">পলিসি ইভালুয়েশন লজিক (Policy Evaluation Rules)</h1>
+        <p class="slide-desc">যখন একাধিক পলিসি সাংঘর্ষিক হয়, তখন AWS কীভাবে চূড়ান্ত সিদ্ধান্ত নেয়? এটা না জানলে পরীক্ষায় ভুল হবেই!</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>⚖️ ৩টি সুবর্ণ ক্রম (Decision Flow):</h4>
+              <ol style="padding-left: 20px; line-height: 1.8;">
+                <li><strong>১. Explicit Deny:</strong> যদি কোনো একটি পলিসিতেও লেখা থাকে <code>"Deny"</code>, তবে অন্য সব পলিসিতে Allow থাকলেও উত্তর হবে <strong>না (DENIED)</strong>। এটি সবার উপরে স্থান পায়।</li>
+                <li><strong>২. Explicit Allow:</strong> যদি কোথাও কোনো Deny না থাকে, এবং অন্তত একটি বৈধ <code>"Allow"</code> থাকে—তবেই অনুমতি মিলবে।</li>
+                <li><strong>৩. Default Deny:</strong> কোনো Deny-ও নেই, আবার কোনো Allow-ও নেই—তাহলে ডিফল্ট নিয়মে অ্যাক্সেস বন্ধ থাকবে।</li>
+              </ol>
+            </div>
+
+            <div class="highlight-box danger">
+              <strong>🚨 এক্সাম ট্র্যাপ:</strong> আপনি IAM ইউজারে ফুল অ্যাডমিন পাওয়ার দিয়েছেন, কিন্তু AWS Organizations-এর <strong>SCP</strong> দিয়ে ওই অ্যাকাউন্টে S3 ডিলিট করা Deny করা হয়েছে। ইউজার কখনোই S3 ডিলিট করতে পারবে না! কারণ SCP Deny beats IAM Allow!
+            </div>
+          </div>
+
+          <!-- Infographic SVG 6 -->
+          <div class="infographic-wrapper">
+            <span class="infographic-label">INFOGRAPHIC 6.0</span>
+            <svg viewBox="0 0 400 300" width="100%">
+              <!-- Flowchart start -->
+              <rect x="140" y="15" width="120" height="32" rx="16" fill="#3b82f6"/>
+              <text x="200" y="36" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">ইউজার রিকোয়েস্ট আসলো</text>
+
+              <path d="M200 47 L200 70" stroke="var(--svg-stroke)" stroke-width="2"/>
+
+              <!-- Decision 1: Explicit Deny? -->
+              <polygon points="200,70 280,105 200,140 120,105" fill="var(--svg-rect-bg)" stroke="#ef4444" stroke-width="2"/>
+              <text x="200" y="102" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">কোনো Explicit Deny</text>
+              <text x="200" y="115" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">আছে কি?</text>
+
+              <!-- YES Deny -> Red Box -->
+              <path d="M280 105 L320 105" stroke="#ef4444" stroke-width="2"/>
+              <text x="295" y="100" fill="#ef4444" font-size="10" font-weight="bold">হ্যাঁ</text>
+              <rect x="320" y="85" width="70" height="40" rx="6" fill="#ef4444"/>
+              <text x="355" y="110" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">DENIED ⛔</text>
+
+              <!-- NO Deny -> Decision 2 -->
+              <path d="M200 140 L200 170" stroke="var(--svg-stroke)" stroke-width="2"/>
+              <text x="210" y="155" fill="#10b981" font-size="10" font-weight="bold">না</text>
+
+              <polygon points="200,170 280,205 200,240 120,205" fill="var(--svg-rect-bg)" stroke="#10b981" stroke-width="2"/>
+              <text x="200" y="202" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">কোনো Explicit Allow</text>
+              <text x="200" y="215" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold">আছে কি?</text>
+
+              <!-- YES Allow -> Green Box -->
+              <path d="M280 205 L320 205" stroke="#10b981" stroke-width="2"/>
+              <text x="295" y="200" fill="#10b981" font-size="10" font-weight="bold">হ্যাঁ</text>
+              <rect x="320" y="185" width="70" height="40" rx="6" fill="#10b981"/>
+              <text x="355" y="210" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">ALLOWED ✅</text>
+
+              <!-- NO Allow -> Default Deny -->
+              <path d="M200 240 L200 265" stroke="var(--svg-stroke)" stroke-width="2"/>
+              <text x="210" y="255" fill="#ef4444" font-size="10" font-weight="bold">না</text>
+              <rect x="150" y="265" width="100" height="30" rx="6" fill="var(--svg-rect-inner)" stroke="var(--svg-stroke)"/>
+              <text x="200" y="285" text-anchor="middle" fill="var(--text-main)" font-size="10" font-weight="bold">Default Deny 🔒</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 7 ==================== -->
+      <div class="slide" id="slide-7">
+        <div class="slide-badge-topic">লেকচার ০৭ • নিরাপত্তা ও নিরীক্ষা</div>
+        <h1 class="slide-headline">MFA ও সিকিউরিটি অডিটিং টুলস</h1>
+        <p class="slide-desc">অ্যাকাউন্টে পাসওয়ার্ড চুরি হলেও কীভাবে ক্লাউড সুরক্ষিত রাখবেন এবং পাসওয়ার্ডের অডিট করবেন?</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>🔐 Multi-Factor Authentication (MFA) ডিভাইস:</h4>
+              <ul>
+                <li><strong>Virtual MFA App:</strong> Google Authenticator, Microsoft Authenticator (মোবাইলে কোড জেনারেট হয়)।</li>
+                <li><strong>U2F / WebAuthn Hardware Token:</strong> YubiKey ফিজিক্যাল কি (সবচেয়ে নিরাপদ)।</li>
+              </ul>
+            </div>
+
+            <div class="info-card">
+              <h4>🔍 ২টি অপরিহার্য অডিটিং অস্ত্র:</h4>
+              <ul>
+                <li><strong>IAM Credential Report (অ্যাকাউন্ট লেভেল):</strong> একটি CSV ফাইল জেনারেট করে দেখায় কার কার পাসওয়ার্ড ৯০ দিন পুরোনো, কার MFA বন্ধ আছে।</li>
+                <li><strong>IAM Access Analyzer:</strong> AI চালিত টুল, যা খুঁজে বের করে আপনার S3 বা KMS অন্য কারো সাথে ভুলবশত শেয়ার করা আছে কিনা।</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Infographic SVG 7 -->
+          <div class="infographic-wrapper">
+            <span class="infographic-label">INFOGRAPHIC 7.0</span>
+            <svg viewBox="0 0 400 300" width="100%">
+              <!-- Phone with MFA code -->
+              <rect x="40" y="35" width="120" height="225" rx="16" fill="var(--svg-rect-bg)" stroke="#38bdf8" stroke-width="2"/>
+              <rect x="65" y="48" width="70" height="12" rx="4" fill="var(--svg-rect-inner)"/>
+
+              <rect x="55" y="95" width="90" height="50" rx="6" fill="var(--svg-rect-inner)" stroke="#06b6d4"/>
+              <text x="100" y="117" text-anchor="middle" fill="var(--svg-text)" font-size="9">OTP CODE</text>
+              <text x="100" y="137" text-anchor="middle" fill="var(--aws-orange)" font-size="16" font-weight="bold">842 195</text>
+              <text x="100" y="235" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="bold">Virtual MFA</text>
+
+              <!-- Audit Tools Boxes on the right -->
+              <rect x="200" y="35" width="175" height="100" rx="10" fill="var(--svg-rect-bg)" stroke="#10b981" stroke-width="1.5"/>
+              <text x="218" y="60" fill="#10b981" font-size="11" font-weight="bold">📄 Credential Report</text>
+              <text x="218" y="80" fill="var(--svg-text)" font-size="9">• সমগ্র একাউন্টের ইউজার তালিকা</text>
+              <text x="218" y="95" fill="var(--svg-text)" font-size="9">• কার MFA বন্ধ আছে?</text>
+              <text x="218" y="110" fill="var(--svg-text)" font-size="9">• Password age & keys (CSV)</text>
+
+              <rect x="200" y="160" width="175" height="100" rx="10" fill="var(--svg-rect-bg)" stroke="#f59e0b" stroke-width="1.5"/>
+              <text x="218" y="185" fill="#f59e0b" font-size="11" font-weight="bold">🔭 Access Analyzer</text>
+              <text x="218" y="205" fill="var(--svg-text)" font-size="9">• এক্সটার্নাল এক্সেস স্ক্যান করে</text>
+              <text x="218" y="220" fill="var(--svg-text)" font-size="9">• S3 বাকেটে পাবলিক লিংক আছে?</text>
+              <text x="218" y="235" fill="var(--svg-text)" font-size="9">• Cross-account ঝুঁকি চিহ্নিত করে</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 8 ==================== -->
+      <div class="slide" id="slide-8">
+        <div class="slide-badge-topic">লেকচার ০৮ • পরীক্ষার চ্যালেঞ্জ</div>
+        <h1 class="slide-headline">রিয়েল এক্সাম সিনারিও ও ট্র্যাপ সলভার</h1>
+        <p class="slide-desc">AWS সার্টিফিকেশন পরীক্ষায় যে ধরনের ধাঁধা দেওয়া হয় এবং অপশন বাদ দেওয়ার মোক্ষম কৌশল।</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="info-card">
+              <h4>🎯 সিনারিও ০১: সার্ভার থেকে ক্লাউড ফাইল এক্সেস</h4>
+              <p><strong>প্রশ্ন:</strong> একটি EC2 সার্ভার থেকে S3 বাকেটে ফাইল আপলোড করতে হবে। স্ট্যাটিক পাসওয়ার্ড ব্যবহার করা যাবে না। সমাধান কী?</p>
+              <p style="margin-top: 4px; color: var(--accent-green);"><strong>✅ সঠিক সিদ্ধান্ত:</strong> একটি IAM Role তৈরি করে EC2 Instance Profile হিসেবে এটাচ করতে হবে।</p>
+            </div>
+
+            <div class="info-card">
+              <h4>🎯 সিনারিও ০২: থার্ড পার্টি অডিটরকে সাময়িক এক্সেস</h4>
+              <p><strong>প্রশ্ন:</strong> একটি বাইরের সিকিউরিটি কোম্পানি এসে ২ দিনের জন্য AWS অ্যাকাউন্ট অডিট করবে। কীভাবে এক্সেস দেবেন?</p>
+              <p style="margin-top: 4px; color: var(--accent-green);"><strong>✅ সঠিক সিদ্ধান্ত:</strong> তাদের জন্য IAM User খুলবেন না! বরং একটি Cross-Account IAM Role বানাবেন এবং <strong>External ID</strong> শর্ত যোগ করবেন।</p>
+            </div>
+
+            <div class="highlight-box success">
+              <strong>💡 কি-ওয়ার্ড ছাঁকনি পদ্ধতি (Elimination):</strong><br>
+              অপশনে যদি দেখেন <em>"Store Access Keys in Application Code"</em> বা <em>"Share Root credentials"</em>—চোখ বন্ধ করে সেগুলোকে ক্রস (বাতিল) করে দেবেন!
+            </div>
+          </div>
+
+          <!-- Infographic SVG 8 -->
+          <div class="infographic-wrapper">
+            <span class="infographic-label">SCENARIO SOLVER</span>
+            <svg viewBox="0 0 400 300" width="100%">
+              <rect x="20" y="25" width="360" height="70" rx="8" fill="var(--svg-rect-bg)" stroke="#ef4444" stroke-width="1.5"/>
+              <text x="35" y="48" fill="#ef4444" font-size="11" font-weight="bold">❌ ভুল পদ্ধতি (Immediate Fail in Exam)</text>
+              <text x="35" y="66" fill="var(--svg-text)" font-size="10">• EC2 User Data-তে সিক্রেট কি লিখে রাখা</text>
+              <text x="35" y="80" fill="var(--svg-text)" font-size="10">• বাইরের কাউকে Root পাসওয়ার্ড দিয়ে দেওয়া</text>
+
+              <rect x="20" y="115" width="360" height="150" rx="8" fill="var(--svg-rect-bg)" stroke="#10b981" stroke-width="2"/>
+              <text x="35" y="140" fill="#10b981" font-size="11" font-weight="bold">✅ আর্কিটেক্টদের সঠিক অ্যাপ্রোচ (Top Exam Score)</text>
+              <text x="35" y="165" fill="var(--svg-text)" font-size="10">১. অটোমেটেড সার্ভিসের জন্য = IAM Role (STS Token)</text>
+              <text x="35" y="188" fill="var(--svg-text)" font-size="10">২. বহিরাগত অডিটরের জন্য = Cross-Account Role + External ID</text>
+              <text x="35" y="211" fill="var(--svg-text)" font-size="10">৩. অর্গানাইজেশনাল গার্ডরেল = Service Control Policy (SCP)</text>
+              <text x="35" y="234" fill="var(--svg-text)" font-size="10">৪. সেন্ট্রালাইজড ইউজার লগইন = IAM Identity Center (SSO)</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SLIDE 9 ==================== -->
+      <div class="slide" id="slide-9">
+        <div class="slide-badge-topic">লেকচার ০৯ • লাইভ টেস্ট ও সমাপনী</div>
+        <h1 class="slide-headline">ক্লাসরুম কুইজ ও মূল সারসংক্ষেপ</h1>
+        <p class="slide-desc">আপনি আজকের লেকচারটি কতোটা আত্মস্থ করতে পেরেছেন? নিচের প্রশ্নটির সঠিক উত্তর দিয়ে যাচাই করুন!</p>
+
+        <div class="tutorial-grid">
+          <div class="tutorial-content">
+            <div class="quiz-block">
+              <h4 style="color:var(--aws-amber); margin-bottom: 8px;">📝 ক্লাসরুম কুইজ:</h4>
+              <p style="font-size: 1rem; line-height: 1.6;">
+                একটি কোম্পানির ডেভেলপারকে IAM User পলিসিতে <code>s3:PutObject</code> (Allow) দেওয়া আছে। কিন্তু কোম্পানির প্রধান আর্কিটেক্ট AWS Organizations-এর SCP পলিসিতে ওই অ্যাকাউন্টের জন্য <code>s3:PutObject</code> (Deny) করে দিয়েছেন। এখন সেই ডেভেলপার S3-তে কোনো ফাইল আপলোড করতে গেলে কী ঘটবে?
+              </p>
+
+              <div class="quiz-options">
+                <div class="quiz-option" onclick="answerClassQuiz(this, false)">
+                  A) ফাইলটি সফলভাবে আপলোড হবে, কারণ ইউজারের পারমিশন আগে কাজ করে।
+                </div>
+                <div class="quiz-option" onclick="answerClassQuiz(this, true)">
+                  B) আপলোড বাতিল (Access Denied) হবে, কারণ Explicit Deny সবসময় সবার উপরে বিজয়ী হয়।
+                </div>
+                <div class="quiz-option" onclick="answerClassQuiz(this, false)">
+                  C) আপলোড হবে, তবে ক্লাউডওয়াচে একটি ওয়ার্নিং এলার্ম রেকর্ড হবে।
+                </div>
+              </div>
+
+              <div class="feedback-box" id="class-quiz-feedback"></div>
+            </div>
+          </div>
+
+          <!-- Summary Card -->
+          <div class="infographic-wrapper" style="justify-content: flex-start; align-items: stretch;">
+            <span class="infographic-label">CLASS RECAP</span>
+            <div style="padding: 10px 0;">
+              <h4 style="color:var(--aws-orange); margin-bottom: 12px; font-size: 1.1rem;">📌 আজকের ৫টি গোল্ডেন পয়েন্ট:</h4>
+              <ul style="line-height: 1.7; color: var(--svg-text); font-size: 0.95rem; padding-left: 18px;">
+                <li>IAM হলো <strong>Global</strong> (কোনো অঞ্চল নির্বাচন করতে হয় না)।</li>
+                <li>Root অ্যাকাউন্ট কখনোই দৈনন্দিন কাজে ব্যবহার করবেন না।</li>
+                <li>সার্ভার ও কোডের জন্য সবসময় <strong>IAM Role</strong> ব্যবহার করবেন।</li>
+                <li>পলিসিতে <strong>Explicit Deny</strong> থাকলে অন্য কোনো Allow টিকবে না।</li>
+                <li>নিয়মিত <strong>IAM Credential Report</strong> দিয়ে নিরাপত্তা অডিট করবেন।</li>
+              </ul>
+              <div style="margin-top: 16px; padding: 12px; background: rgba(34, 197, 94, 0.12); border: 1px solid var(--accent-green); border-radius: 8px; text-align: center; color: var(--accent-green); font-weight: bold; font-size: 0.95rem;">
+                🎉 অভিনন্দন! IAM মাস্টারক্লাস সফলভাবে সম্পন্ন হয়েছে।
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Bottom Controller Bar -->
+  <footer class="controller-bar">
+    <div class="btn-group">
+      <button class="ctrl-btn" id="prev-btn" onclick="prevSlide()" disabled>
+        ← পূর্ববর্তী
+      </button>
+      <button class="ctrl-btn primary" id="next-btn" onclick="nextSlide()">
+        পরবর্তী →
+      </button>
+    </div>
+
+    <!-- Indicator Dots -->
+    <div class="slide-dots" id="dots-container"></div>
+  </footer>
+
+  <script>
+    const totalSlides = 9;
+    let currentSlide = 1;
+
+    // Bangla numerals helper
+    const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    function toBanglaNumber(num) {
+      return num.toString().split('').map(d => banglaDigits[d] || d).join('');
+    }
+
+    // Build dots
+    const dotsContainer = document.getElementById('dots-container');
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = `dot ${i === 1 ? 'active' : ''}`;
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateSlideUI() {
+      // Hide all slides
+      for (let i = 1; i <= totalSlides; i++) {
+        const s = document.getElementById(`slide-${i}`);
+        if (s) s.classList.remove('active');
+      }
+
+      // Show current slide
+      const activeSlide = document.getElementById(`slide-${currentSlide}`);
+      if (activeSlide) activeSlide.classList.add('active');
+
+      // Update counter and progress bar
+      document.getElementById('slide-counter').innerText = 
+        `স্লাইড ${toBanglaNumber(currentSlide)} / ${toBanglaNumber(totalSlides)}`;
+      
+      const pct = (currentSlide / totalSlides) * 100;
+      document.getElementById('progress-bar-fill').style.width = pct + '%';
+
+      // Update buttons
+      document.getElementById('prev-btn').disabled = (currentSlide === 1);
+      const nextBtn = document.getElementById('next-btn');
+      if (currentSlide === totalSlides) {
+        nextBtn.innerText = 'ক্লাস সম্পন্ন 🎓';
+        nextBtn.classList.remove('primary');
+      } else {
+        nextBtn.innerText = 'পরবর্তী →';
+        nextBtn.classList.add('primary');
+      }
+
+      // Update dots
+      const dots = document.querySelectorAll('.dot');
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index + 1 === currentSlide);
+      });
+
+      // Scroll slide stage into view on mobile if needed
+      if (window.innerWidth <= 900) {
+        document.getElementById('slide-stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlideUI();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlideUI();
+      }
+    }
+
+    function goToSlide(n) {
+      currentSlide = n;
+      updateSlideUI();
+    }
+
+    // Keyboard support (Left/Right Arrows)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+
+    // Touch Swipe Support for Mobile Phones
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const stage = document.getElementById('slide-stage');
+
+    stage.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    stage.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleGesture();
+    }, { passive: true });
+
+    function handleGesture() {
+      const swipeDistance = touchEndX - touchStartX;
+      if (swipeDistance < -45) {
+        // Swiped Left -> Go Next
+        nextSlide();
+      } else if (swipeDistance > 45) {
+        // Swiped Right -> Go Prev
+        prevSlide();
+      }
+    }
+
+    // Theme Switcher Logic
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('aws_study_theme', newTheme);
+      updateThemeButtonUI(newTheme);
+    }
+
+    function updateThemeButtonUI(theme) {
+      const icon = document.getElementById('theme-icon');
+      const text = document.getElementById('theme-text');
+      if (theme === 'light') {
+        icon.innerText = '🌙';
+        text.innerText = 'ডার্ক';
+      } else {
+        icon.innerText = '☀️';
+        text.innerText = 'লাইট';
+      }
+    }
+
+    // Initialize Theme
+    function initTheme() {
+      const savedTheme = localStorage.getItem('aws_study_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeButtonUI(savedTheme);
+    }
+
+    // Classroom Quiz Function
+    function answerClassQuiz(element, isCorrect) {
+      const options = document.querySelectorAll('.quiz-option');
+      options.forEach(opt => {
+        opt.onclick = null;
+        opt.style.cursor = 'default';
+      });
+
+      const feedback = document.getElementById('class-quiz-feedback');
+      feedback.style.display = 'block';
+
+      if (isCorrect) {
+        element.classList.add('correct');
+        feedback.style.background = 'rgba(16, 185, 129, 0.15)';
+        feedback.style.color = 'var(--accent-green)';
+        feedback.style.border = '1px solid var(--accent-green)';
+        feedback.innerHTML = '🎉 <strong>অসাধারণ! সঠিক উত্তর (B):</strong> AWS-এ <em>Explicit Deny</em> সবসময় অপরাজেয়। SCP লেভেলে Deny করা হলে IAM-এর কোনো Allow-ই আর কার্যকর হয় না!';
+      } else {
+        element.classList.add('incorrect');
+        options[1].classList.add('correct');
+        feedback.style.background = 'rgba(239, 68, 68, 0.15)';
+        feedback.style.color = 'var(--accent-red)';
+        feedback.style.border = '1px solid var(--accent-red)';
+        feedback.innerHTML = '❌ <strong>ভুল উত্তর!</strong> সঠিক উত্তর হলো <strong>B</strong>। কারণ AWS Authorization Hierarchy-তে Explicit Deny সর্বদা অন্য যেকোনো Allow-কে ওভাররাইড করে দেয়।';
+      }
+    }
+
+    // Initial load
+    initTheme();
+    updateSlideUI();
+  </script>
+</body>
+</html>
