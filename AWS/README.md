@@ -26,7 +26,7 @@
 
 Open these files directly in any web browser (Chrome, Edge, Firefox) for an immersive, visual learning experience:
 
-- 🌟 **[AWS অল-ইন-ওয়ান মাস্টারক্লাস এনসাইক্লোপিডিয়া (index.html)](./index.html)** — *১৪টি সম্পূর্ণ AWS মডিউল এবং ৪২টি মাস্টারক্লাস স্লাইড! কোনো টপিক বাদ নেই (ECS, Fargate, Snowball, Storage Gateway, FSx, Direct Connect, Aurora, DynamoDB, Redshift, Athena, Glue, SQS, SNS, Kinesis, Cognito, WAF, KMS, DR)। সাইডবার ড্রয়ার, লাইভ সার্চ ফিল্টার, লাইট/ডার্ক মোড, কালপুরুষ ফন্ট, কাস্টম SVG আর্কিটেকচার ইনফোগ্রাফিক এবং মোবাইল সোয়াইপ নেভিগেশন সহ সম্পূর্ণ প্ল্যাটফর্ম।*
+- 🌟 **[AWS অল-ইন-ওয়ান মাস্টারক্লাস এনসাইক্লোপিডিয়া (index.html)](./index.html)** — *১৬টি সম্পূর্ণ AWS মডিউল এবং ১০৯টি পরিচ্ছন্ন, বৃহৎ ফন্টের এক্সাম-রেডি স্লাইড! কোনো টপিক বাদ নেই এবং কোনো স্লাইডে অতিরিক্ত লেখার ভিড় নেই। প্রতিটি সাব-টপিক আলাদা স্লাইডে বিভক্ত (IAM, EC2, Fargate, EKS, S3, Snowball, Storage Gateway, FSx, ALB/NLB, VPC, Direct Connect, Route 53, Aurora, DynamoDB, Redshift, Athena, Glue, SQS, SNS, Kinesis, Cognito, WAF, KMS, DR, Well-Architected Framework, ও রিয়েল এক্সাম সিনারিও কুইজ)। চোখের আরামদায়ক বড় বাংলা ফন্ট (Hind Siliguri, Noto Sans Bengali ও Kalpurush), সাইডবার ড্রয়ার, লাইভ সার্চ ফিল্টার, লাইট/ডার্ক মোড, কাস্টম SVG আর্কিটেকচার ইনফোগ্রাফিক, ইন্টারঅ্যাক্টিভ এক্সাম কুইজ এবং মোবাইল সোয়াইপ নেভিগেশন সহ সম্পূর্ণ প্ল্যাটফর্ম।*
 - 🎓 **[AWS IAM ক্লাসরুম মাস্টারক্লাস স্লাইডার (iam-tutorial.html)](./iam-tutorial.html)** — *IAM-এর ডেডিকেটেড ৯টি স্লাইড এবং লাইভ কুইজ।*
 - 🛡️ **[AWS IAM Mastery Notes (iam-notes.html)](./iam-notes.html)** — *ইন্টারঅ্যাক্টিভ মাইলস্টোন চেকলিস্ট, JSON policy visualizer, comparison matrix, এবং ব্রাউজারে অটো-সেভ হওয়া ব্যক্তিগত নোটপ্যাড।*
 
