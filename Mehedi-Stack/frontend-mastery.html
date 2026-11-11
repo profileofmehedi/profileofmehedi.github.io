@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="৭+ বছরের অভিজ্ঞ সিনিয়র ফ্রন্টএন্ড আর্কিটেকচার গাইড। Modern CSS3, jQuery Enterprise, Angular 17/18 Signals, RxJS, OnPush Change Detection ও Performance।">
+    <title>ফ্রন্টএন্ড এন্টারপ্রাইজ মাস্টারি (CSS, jQuery, Angular) | Codex</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .lesson-split-container {
+            display: flex;
+            min-height: calc(100vh - 73px);
+        }
+        .lesson-sidebar {
+            flex: 0 0 320px;
+            width: 320px;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-card);
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease, border-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        .lesson-body-content {
+            flex-grow: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            background: var(--bg-main);
+        }
+        .sidebar-chapter-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.5rem 0.5rem;
+            padding-left: 0.25rem;
+            border-left: 2px solid var(--primary);
+        }
+        #sidebar-collapse-toggle:checked ~ .app-container .lesson-split-container .lesson-sidebar {
+            width: 0;
+            max-height: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            opacity: 0;
+            overflow: hidden !important;
+            pointer-events: none;
+            flex: 0 0 0px;
+        }
+        .sidebar-icon-close { display: none; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-open { display: none !important; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-close { display: inline-block !important; }
+
+        @media (max-width: 991.98px) {
+            .lesson-split-container { flex-direction: column; }
+            .lesson-sidebar {
+                flex: 0 0 auto;
+                width: 100%;
+                max-height: 240px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .lesson-body-content { max-height: none; padding: 1.5rem 1rem; }
+        }
+        @media (max-width: 575.98px) {
+            .lesson-body-content { padding: 1.25rem 0.75rem; }
+        }
+
+        .senior-badge {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+            color: white;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .deep-dive-card {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-card);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .warning-card {
+            border-left: 4px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Input -->
+    <input type="checkbox" id="theme-toggle" class="d-none">
+
+    <!-- Sidebar Collapse Toggle Input -->
+    <input type="checkbox" id="sidebar-collapse-toggle" class="d-none">
+
+    <div class="app-container">
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center fs-4 fw-bold text-primary text-decoration-none me-4" href="index.html">
+                    <span style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-code-slash me-2"></i>Codex
+                    </span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <label for="sidebar-collapse-toggle" class="btn btn-sm btn-premium-outline border border-secondary-subtle d-flex align-items-center justify-content-center cursor-pointer" style="width: 38px; height: 38px; border-radius: 50%;">
+                        <i class="bi bi-layout-sidebar-inset sidebar-icon-open"></i>
+                        <i class="bi bi-layout-sidebar sidebar-icon-close"></i>
+                    </label>
+                    <span class="senior-badge"><i class="bi bi-palette-fill me-1"></i>Frontend Engineering Track</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <label for="theme-toggle" class="theme-switch-label" style="width: 38px; height: 38px;">
+                        <i class="bi bi-sun" style="font-size: 1.1rem;"></i>
+                        <i class="bi bi-moon-stars" style="font-size: 1.1rem;"></i>
+                    </label>
+                    <a href="courses.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-grid me-1"></i>সব ট্র্যাক</a>
+                    <a href="index.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-house me-1"></i>হোম</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Split Panel Container -->
+        <div class="lesson-split-container">
+            
+            <!-- Left Sidebar -->
+            <aside class="lesson-sidebar p-3">
+                <div class="d-flex align-items-center gap-2 mb-3 px-2 text-primary">
+                    <i class="bi bi-window-stack fs-5"></i>
+                    <h5 class="fw-bold mb-0">ফ্রন্টএন্ড মডিউল</h5>
+                </div>
+
+                <div class="sidebar-chapter-title">১. Modern CSS3 ইঞ্জিনিয়ারিং</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#css-grid-flex" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-grid-3x3 text-primary me-2"></i>Grid vs Flexbox & Subgrid
+                    </a>
+                    <a href="#css-rendering" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-speedometer2 text-primary me-2"></i>Render Pipeline ও GPU Acceleration
+                    </a>
+                    <a href="#css-modern" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-bounding-box text-primary me-2"></i>Container Queries & clamp()
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">২. jQuery এন্টারপ্রাইজ ও মাইগ্রেশন</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#jquery-perf" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-lightning text-primary me-2"></i>Event Delegation ও DOM Caching
+                    </a>
+                    <a href="#jquery-leaks" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-bug-fill text-warning me-2"></i>Memory Leaks & Race Conditions
+                    </a>
+                    <a href="#jquery-migration" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-arrow-left-right text-primary me-2"></i>লেগ্যাসি থেকে মডার্ন মাইগ্রেশন
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৩. Angular 17/18 আর্কিটেকচার</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#ng-standalone" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-box-seam-fill text-primary me-2"></i>Standalone & Control Flow (@for)
+                    </a>
+                    <a href="#ng-signals" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-broadcast text-primary me-2"></i>Signals vs RxJS রিঅ্যাক্টিভিটি
+                    </a>
+                    <a href="#ng-rxjs" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-activity text-primary me-2"></i>RxJS Flattening (switchMap, etc)
+                    </a>
+                    <a href="#ng-change-detection" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-cpu text-primary me-2"></i>OnPush ও Zoneless মেকানিক্স
+                    </a>
+                    <a href="#ng-perf-security" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-shield-lock-fill text-primary me-2"></i>@defer, Interceptors ও SSR
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Middle Content Body -->
+            <main class="lesson-body-content">
+                <article class="max-w-800">
+                    
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-7 px-3 py-1">CSS3 • jQuery • Angular 18</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7 px-3 py-1">Full-Stack Senior Depth</span>
+                    </div>
+
+                    <h1 class="fw-extrabold display-5 mb-3 text-primary">ফ্রন্টএন্ড এন্টারপ্রাইজ ইঞ্জিনিয়ারিং ও আর্কিটেকচার</h1>
+                    <p class="fs-5 text-muted mb-4 lh-base">
+                        ফুলস্ট্যাক .NET ইঞ্জিনিয়ারদের জন্য ক্লায়েন্ট-সাইড আর্কিটেকচার বোঝা আবশ্যক। বিশেষ করে পুরোনো এন্টারপ্রাইজ সিস্টেমের <strong>jQuery</strong> মেইনটেইন ও আধুনিকীকরণ, নিখুঁত <strong>Modern CSS পারফরম্যান্স</strong> এবং আধুনিক <strong>Angular 17/18 (Signals, RxJS, OnPush Change Detection)</strong> এর ডিপ মেকানিক্স ইন্টারভিউ ক্র্যাক করতে অপরিহার্য।
+                    </p>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 1: Modern CSS -->
+                    <section id="css-grid-flex" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-grid-3x3 text-primary me-2"></i>১. CSS Grid বনাম Flexbox: সঠিক আর্কিটেকচারাল সিদ্ধান্ত</h2>
+                        <p class="text-muted lh-lg">
+                            একজন সাধারণ ডেভেলপার যেকোনো কিছুতেই ফ্লেক্সবক্স ব্যবহার করে। কিন্তু ৭+ বছরের সিনিয়র আর্কিটেক্ট লেভেলে নিয়ম হলো:
+                            <br>• <strong>Flexbox হলো ১-মাত্রিক (1-Dimensional Layout):</strong> হয় কন্টেন্টকে রো (Row) বরাবর অথবা কলাম (Column) বরাবর সাজানোর জন্য। ভেতরের আইটেমের সাইজ অনুযায়ী ফ্লেক্সিবল স্পেসিংয়ের জন্য সেরা।
+                            <br>• <strong>CSS Grid হলো ২-মাত্রিক (2-Dimensional Layout):</strong> একই সাথে রো এবং কলাম সমন্বয়ে স্ট্যাবল পেজ স্ট্রাকচার বা কার্ড গ্রিড তৈরির জন্য সেরা।
+                        </p>
+
+                        <div class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-magic me-2"></i>মিডিয়া কুয়েরি ছাড়া রেসপন্সিভ কার্ড গ্রিড (auto-fit & minmax)</h5>
+                            <p class="text-muted mb-2">
+                                কোনো মিডিয়া কুয়েরি কোড না লিখে নিখুঁত স্বয়ংক্রিয় রেসপন্সিভ গ্রিড তৈরির গোল্ড স্ট্যান্ডার্ড:
+                            </p>
+                            <pre class="p-3 bg-dark text-light rounded-3 font-monospace fs-8"><code>.responsive-grid {
+    display: grid;
+    /* কার্ডের মিনিমাম সাইজ ২৮০ পিক্সেল, বাকিটা সমান ভাগে ফ্লেক্সিবল (1fr) */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}</code></pre>
+                            <p class="text-muted mb-0">
+                                <code>auto-fit</code> স্ক্রিনে জায়গা থাকলে কার্ডগুলোকে ফুল-উইডথ প্রসারিত করে, আর <code>auto-fill</code> খালি গ্রিড ট্র্যাক তৈরি করে ফাঁকা জায়গা ধরে রাখে।
+                            </p>
+                        </div>
+
+                        <!-- Render Pipeline -->
+                        <div id="css-rendering" class="warning-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-speedometer2 me-2"></i>ব্রাউজার রেন্ডারিং পাইপলাইন ও জিপিইউ এক্সিলারেশন (GPU Acceleration)</h5>
+                            <p class="text-muted mb-2">
+                                ব্রাউজার যখন একটি ওয়েব পেজ আঁকে, সে ৫টি ধাপ পার করে:
+                                <br><strong>DOM + CSSOM &rarr; Render Tree &rarr; Layout (Reflow) &rarr; Paint (Repaint) &rarr; Composite</strong>.
+                            </p>
+                            <ul class="text-muted mb-2 ps-3">
+                                <li><strong>Layout (Reflow):</strong> <code>width</code>, <code>height</code>, <code>top</code>, <code>left</code>, <code>margin</code> পরিবর্তন করলে পুরো পেজের উপাদানগুলোর অবস্থান পুনরায় পরিমাপ করতে হয়। এটি সবচেয়ে ভারী এবং সিপিইউ খরচ করে।</li>
+                                <li><strong>Paint (Repaint):</strong> <code>color</code>, <code>background-color</code> পরিবর্তন করলে রিফ্লো হয় না, তবে নতুন করে পিক্সেল আঁকতে হয়।</li>
+                                <li><strong>Composite (Zero Layout/Paint):</strong> শুধুমাত্র <code>transform</code> (translate, scale, rotate) এবং <code>opacity</code> পরিবর্তন করলে ব্রাউজার সিপিইউ বাদ দিয়ে সরাসরি <strong>GPU (Graphics Card)</strong> লেয়ারে কাজ করে। ফলে ৬০ FPS স্মুথ অ্যানিমেশন পাওয়া যায় কোনো ল্যাগ ছাড়াই!</li>
+                            </ul>
+                            <small class="text-success fw-bold"><i class="bi bi-check-circle me-1"></i>সিনিয়র টিপ: অ্যানিমেশনে কখনো top/left ব্যবহার করবেন না, সবসময় <code>transform: translate3d()</code> ব্যবহার করুন।</small>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 2: jQuery -->
+                    <section id="jquery-perf" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-filetype-js text-primary me-2"></i>২. jQuery এন্টারপ্রাইজ মেইনটেন্যান্স, মেমোরি লিক ও অপ্টিমাইজেশন</h2>
+                        <p class="text-muted lh-lg">
+                            বিশ্বের লাখ লাখ বড় এন্টারপ্রাইজ সিস্টেমে এখনো বিশাল পরিমাণ jQuery কোড সচল রয়েছে। একজন ৭+ বছরের ফুলস্ট্যাক ইঞ্জিনিয়ারকে এই সিস্টেমগুলো মেইনটেইন ও আধুনিকীকরণ করার মতো দক্ষ হতে হবে।
+                        </p>
+
+                        <div class="row g-3 my-4">
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-danger">
+                                    <h6 class="fw-bold text-danger mb-2">❌ অপেশাদার কোড (Memory & CPU Disaster)</h6>
+                                    <pre class="bg-dark text-light p-2 rounded font-monospace fs-8 mb-2"><code>// প্রতি ক্লিকে নতুন করে পুরো ডোম ট্রাভার্স
+for(var i=0; i < 1000; i++) {
+    $('#cart-total').text(i);
+}
+// প্রতি নতুন উপাদানের জন্য আলাদা হ্যান্ডলার
+$('.order-item').on('click', function() { ... });</code></pre>
+                                    <small class="text-muted">প্রতি লুপে ডোম রি-কোয়েরি এবং হাজার হাজার ইভেন্ট লিসেনার র‍্যাম জ্যাম করে দেয়।</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-success">
+                                    <h6 class="fw-bold text-success mb-2">✅ সিনিয়র অপ্টিমাইজড কোড</h6>
+                                    <pre class="bg-dark text-light p-2 rounded font-monospace fs-8 mb-2"><code>// ১. সিলেক্টর ক্যাশ করে রাখা
+var $cartTotal = $('#cart-total');
+$cartTotal.text(finalTotal);
+
+// ২. Event Delegation (সিঙ্গেল প্যারেন্ট লিসেনার)
+$(document).on('click', '.order-item', function(e) {
+    var $target = $(this);
+});</code></pre>
+                                    <small class="text-muted">ডায়নামিক আইটেম আসলেও নতুন লিসেনার বানাতে হয় না; ১টি লিসেনারই সব সামলায়।</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="jquery-leaks" class="warning-card">
+                            <h5 class="fw-bold text-warning mb-2"><i class="bi bi-exclamation-octagon-fill me-2"></i>jQuery তে Memory Leak কেন ঘটে?</h5>
+                            <p class="text-muted mb-0">
+                                যখন আপনি কোনো DOM এলিমেন্ট স্ক্রিন থেকে মুছে দেন (যেমন <code>$('#container').html('')</code> অথবা <code>.remove()</code>), কিন্তু জাভাস্ক্রিপ্ট ক্লোজার (Closure) বা গ্লোবাল ভ্যারিয়েবলে সেই এলিমেন্টের রেফারেন্স রয়ে যায়, তখন গার্বেজ কালেক্টর মেমোরি ক্লিয়ার করতে পারে না। একে বলে <strong>Detached DOM Tree Leak</strong>। SPA বা লং-রানিং ড্যাশবোর্ডে সারাদিন কাজ করলে ব্রাউজার গিগাবাইট মেমোরি খেয়ে ক্র্যাশ করে।
+                                <br><strong>সমাধান:</strong> উপাদান সরানোর আগে সবসময় <code>$el.off()</code> দিয়ে ইভেন্ট আনবাইন্ড করুন এবং রেফারেন্স <code>$el = null;</code> করে দিন।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 3: Angular Enterprise -->
+                    <section id="ng-standalone" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-box-seam-fill text-primary me-2"></i>৩. Angular 17/18: Standalone Components ও Built-in Control Flow</h2>
+                        <p class="text-muted lh-lg">
+                            মডার্ন অ্যাঙ্গুলারে ভারী <code>NgModule</code> বিলুপ্ত হয়েছে। এখন সবকিছু <strong>Standalone Components</strong> ভিত্তিক। পাশাপাশি এসেছে নেটিভ কন্ট্রোল ফ্লো সিনট্যাক্স:
+                        </p>
+
+                        <!-- Code Playground for Angular -->
+                        <div class="code-playground my-4">
+                            <div class="playground-header">
+                                <div class="window-dots">
+                                    <div class="window-dot red"></div>
+                                    <div class="window-dot yellow"></div>
+                                    <div class="window-dot green"></div>
+                                </div>
+                                <span class="fs-8 text-white-50 font-monospace">Angular 18 Modern Control Flow</span>
+                            </div>
+                            <div class="playground-body p-3 font-monospace text-light fs-8">
+<span class="text-warning">@Component</span>({
+  selector: <span class="text-success">'app-order-list'</span>,
+  standalone: <span class="text-info">true</span>,
+  imports: [CommonModule],
+  template: `
+    &lt;div class="orders-wrapper"&gt;
+      <span class="text-secondary">// আধুনিক @for ব্লক (track বাধ্যতামূলক, যা ট্র্যাকবাই এর ঝামেলা কমায়)</span>
+      <span class="text-warning">@for</span> (order of orders(); track order.id) {
+        &lt;div class="order-card"&gt;
+          &lt;h5&gt;{{ order.title }}&lt;/h5&gt;
+          <span class="text-warning">@if</span> (order.status === 'Delivered') {
+            &lt;span class="badge bg-success"&gt;ডেলিভার্ড&lt;/span&gt;
+          } <span class="text-warning">@else</span> {
+            &lt;span class="badge bg-warning"&gt;চলমান&lt;/span&gt;
+          }
+        &lt;/div&gt;
+      } <span class="text-warning">@empty</span> {
+        &lt;p class="text-muted"&gt;কোনো অর্ডার পাওয়া যায়নি।&lt;/p&gt;
+      }
+    &lt;/div&gt;
+  `
+})
+<span class="text-warning">export class</span> <span class="text-info">OrderListComponent</span> {
+  <span class="text-secondary">// রিঅ্যাক্টিভ সিগন্যাল স্টেট</span>
+  orders = signal&lt;Order[]&gt;([]);
+}
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 4: Angular Signals vs RxJS -->
+                    <section id="ng-signals" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-broadcast text-primary me-2"></i>৪. Angular Signals বনাম RxJS: কখন কোনটি ব্যবহার করবেন?</h2>
+                        <p class="text-muted lh-lg">
+                            ইন্টারভিউতে হট প্রশ্ন: <em>"অ্যাঙ্গুলারে Signals আসার পর RxJS কি মৃত?"</em>
+                            <br>একজন অভিজ্ঞ লিড আর্কিটেক্টের উত্তর হবে: <strong>"না! তারা পরস্পরের পরিপূরক।"</strong>
+                        </p>
+
+                        <div class="table-responsive my-3">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>বৈশিষ্ট্য</th>
+                                        <th>Angular Signals</th>
+                                        <th>RxJS Observables</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>মডেল</strong></td>
+                                        <td>Synchronous Reactive State (সর্বদা বর্তমান ভ্যালু থাকে)</td>
+                                        <td>Asynchronous Event Stream (সময়ের সাথে ডাটার প্রবাহ)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ব্যবহার ক্ষেত্র</strong></td>
+                                        <td>কম্পোনেন্ট স্টেট, ফর্ম ফিল্ড রিঅ্যাক্টিভিটি, ড্রাইভেন প্রোপার্টিজ</td>
+                                        <td>HTTP রিকোয়েস্ট, Debounce/Search টাইপিং, WebSockets, জটিল ইভেন্ট অর্কেস্ট্রেশন</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>আনসাবস্ক্রাইব দরকার?</strong></td>
+                                        <td>না! কোনো মেমোরি লিক রিস্ক নেই (স্বয়ংক্রিয় ক্লিনআপ)</td>
+                                        <td>হ্যাঁ! <code>takeUntilDestroyed()</code> বা <code>async pipe</code> আবশ্যক</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- RxJS Operators -->
+                        <div id="ng-rxjs" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-activity me-2"></i>RxJS ৪টি Flattening Operators (যেগুলো ইন্টারভিউতে নিশ্চিত জিজ্ঞেস করা হয়)</h5>
+                            <ul class="text-muted mb-0 ps-3">
+                                <li class="mb-2"><strong>switchMap:</strong> নতুন ইভেন্ট আসলে আগের চলমান রিকোয়েস্ট বাতিল (Cancel) করে দেয়। সার্চবক্স এবং ইউজার রাউট চেঞ্জে সেরা।</li>
+                                <li class="mb-2"><strong>concatMap:</strong> সিরিয়াল কিউ (Queue)। আগের কাজটি শেষ না হওয়া পর্যন্ত পরবর্তী কাজটি শুরু করে না। অর্ডার/পেমেন্ট ট্রানজ্যাকশনে জরুরি।</li>
+                                <li class="mb-2"><strong>mergeMap:</strong> সমান্তরাল (Parallel)। সব রিকোয়েস্ট একসাথে ব্যাকগ্রাউন্ডে চালিয়ে দেয়। কোনো অর্ডার রক্ষা করার প্রয়োজন না থাকলে সেরা।</li>
+                                <li class="mb-0"><strong>exhaustMap:</strong> যদি বর্তমানে কোনো রিকোয়েস্ট প্রসেসিংয়ে থাকে, তাহলে নতুন কোনো ইভেন্ট গ্রাহ্যই করে না (ইগনোর করে)। ফর্ম সাবমিট / সেভ বাটনে ডাবল-ক্লিক স্প্যাম প্রতিরোধ করতে অসাধারণ।</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Section 5: Change Detection -->
+                    <section id="ng-change-detection" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-cpu text-primary me-2"></i>৫. Change Detection: Default বনাম OnPush ও Zoneless মেকানিক্স</h2>
+                        <p class="text-muted lh-lg">
+                            অ্যাঙ্গুলারের ডিফল্ট চেঞ্জ ডিটেকশনে Zone.js ব্রাউজারের প্রতিটি ইভেন্ট (ক্লিক, টাইমার, HTTP কল) ইন্টারসেপ্ট করে এবং পুরো কম্পোনেন্ট ট্রির শুরু থেকে শেষ পর্যন্ত প্রতিটি কম্পোনেন্ট রি-চেক করে। অ্যাপ বড় হলে এটি মারাত্মক স্লো হয়ে যায়।
+                        </p>
+
+                        <div class="warning-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-speedometer2 me-2"></i>ChangeDetectionStrategy.OnPush এর কার্যপদ্ধতি</h5>
+                            <p class="text-muted mb-2">
+                                <code>OnPush</code> ব্যবহার করলে অ্যাঙ্গুলার শুধুমাত্র তখনই কম্পোনেন্ট রি-রেন্ডার করে যখন:
+                            </p>
+                            <ol class="text-muted mb-2 ps-3">
+                                <li>কোনো <code>@Input()</code> প্রোপার্টির <strong>অবজেক্ট রেফারেন্স পরিবর্তন হয়</strong> (ইমিউটেবল ডাটা)।</li>
+                                <li>কম্পোনেন্টের নিজের ভেতরে কোনো ডোম ইভেন্ট ফায়ার হয় (যেমন ইউজার ক্লিক)।</li>
+                                <li>টেমপ্লেটে কোনো সিগন্যাল রিড করা হচ্ছে যার মান পরিবর্তন হয়েছে।</li>
+                                <li>ম্যানুয়ালি <code>ChangeDetectorRef.markForCheck()</code> কল করা হয়।</li>
+                            </ol>
+                            <p class="text-muted mb-0">
+                                <strong>Zoneless Angular (ভবিষ্যতের স্ট্যান্ডার্ড):</strong> Angular 18 এ Zone.js সম্পূর্ণ সরিয়ে সিগন্যাল-ড্রাইভেন সরাসরি রেন্ডারিং চালু করা হয়েছে, যা মেমোরি ফুটপ্রিন্ট এবং ফ্রেম রেট নাটকীয়ভাবে বৃদ্ধি করেছে।
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 6: Deferrable Views & Interceptors -->
+                    <section id="ng-perf-security" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-shield-lock-fill text-primary me-2"></i>৬. @defer লেজি লোডিং এবং HTTP Interceptors</h2>
+                        <p class="text-muted lh-lg">
+                            Angular 17+ এর সবচেয়ে যুগান্তকারী ফিচার হলো <strong>@defer (Deferrable Views)</strong>। এটি কোনো পেজের নিচের অংশের হেভি কম্পোনেন্টকে (যেমন চার্ট বা কমেন্ট বক্স) মূল বান্ডেলে লোড না করে তখন লোড করে যখন ইউজার স্ক্রোল করে সেই সেকশনে পৌঁছায়!
+                        </p>
+
+                        <pre class="p-3 bg-dark text-light rounded-3 font-monospace fs-8"><code>@defer (on viewport; prefetch on idle) {
+    &lt;app-heavy-analytics-chart [data]="analyticsData" /&gt;
+} @placeholder {
+    &lt;div class="chart-skeleton-loader"&gt;চার্ট লোড হচ্ছে...&lt;/div&gt;
+} @loading (minimum 500ms) {
+    &lt;app-spinner /&gt;
+}</code></pre>
+
+                        <div class="deep-dive-card mt-4">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-key-fill me-2"></i>এন্টারপ্রাইজ Auth Token Refresh Interceptor</h5>
+                            <p class="text-muted mb-0">
+                                এন্টারপ্রাইজ সিস্টেমে <code>HttpInterceptorFn</code> এর দায়িত্ব হলো প্রতিটি আউটগোয়িং রিকোয়েস্টে বেয়ারার টোকেন ইনজেক্ট করা। আর সার্ভার যদি <strong>401 Unauthorized</strong> রিটার্ন করে, তখন ইন্টারসেপ্টর একটি রিফ্রেশ টোকেন এপিআই কল করে নতুন টোকেন সংগ্রহ করবে এবং ইন-ফ্লাইট আটকে থাকা অন্যান্য সমস্ত রিকোয়েস্টকে কিউ (Queue) করে রি-ট্রাই করবে।
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Interactive Frontend Quiz -->
+                    <div class="quiz-question border rounded-4 p-4 bg-light-subtle my-5 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-danger text-white fs-7">Senior Frontend Quiz</span>
+                            <h4 class="fw-bold mb-0">অ্যাঙ্গুলার রিঅ্যাক্টিভিটি টেস্ট</h4>
+                        </div>
+                        <p class="text-muted mb-4">একটি ই-কমার্স অ্যাপের সার্চ ইনপুট বক্সে ইউজার দ্রুত টাইপ করছেন। প্রতিটি কি-স্ট্রোকের সাথে সার্ভার এপিআই কল করার ক্ষেত্রে কোন RxJS পাইপলাইন মেমোরি লিক ও রেস-কন্ডিশন মুক্ত?</p>
+                        
+                        <input type="checkbox" id="show-results-fe-sr" class="show-results-toggle">
+                        <div class="quiz-options-container">
+                            <input type="radio" name="quiz-fe-sr" id="opt-a-fe" class="quiz-option-input" data-correct="false">
+                            <label for="opt-a-fe" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">A</span>
+                                <code>searchControl.valueChanges.pipe(mergeMap(val => api.search(val)))</code>
+                            </label>
+
+                            <input type="radio" name="quiz-fe-sr" id="opt-b-fe" class="quiz-option-input" data-correct="true">
+                            <label for="opt-b-fe" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">B</span>
+                                <code>searchControl.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), switchMap(val => api.search(val)), takeUntilDestroyed())</code>
+                            </label>
+
+                            <input type="radio" name="quiz-fe-sr" id="opt-c-fe" class="quiz-option-input" data-correct="false">
+                            <label for="opt-c-fe" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">C</span>
+                                jQuery এর <code>$(input).keyup()</code> এর ভেতরে সিনক্রোনাস <code>$.ajax</code> কল করা।
+                            </label>
+                        </div>
+                        
+                        <div class="mt-4"><label for="show-results-fe-sr" class="btn-submit-quiz">উত্তর যাচাই করুন</label></div>
+                        
+                        <div class="feedback-msg border bg-card p-3 mt-3">
+                            <h6 class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>ব্যাখ্যা:</h6>
+                            <p class="text-muted mb-0">
+                                সহীহ উত্তর <strong>B</strong>! <code>debounceTime(300)</code> ইউজারের টাইপিং বিরতি পর্যন্ত অপেক্ষা করে সার্ভার কল কমায়; <code>distinctUntilChanged()</code> একই শব্দে অপ্রয়োজনীয় কল ঠেকায়; <code>switchMap</code> আগের চলমান স্লো রিকোয়েস্ট ক্যানসেল করে রেস কন্ডিশন দূর করে; এবং <code>takeUntilDestroyed()</code> কম্পোনেন্ট ডেস্ট্রয় হলে সাবস্ক্রিপশন স্বয়ংক্রিয় ক্লিনআপ করে মেমোরি লিক ঠেকায়।
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Nav -->
+                    <div class="d-flex justify-content-between align-items-center border-top pt-4 mt-5">
+                        <a href="database-mastery.html" class="btn btn-premium-outline"><i class="bi bi-arrow-left me-2"></i>পূর্ববর্তী: ডাটাবেজ মাস্টারি</a>
+                        <a href="system-design.html" class="btn btn-premium">পরবর্তী ট্র্যাক: সিস্টেম ডিজাইন ও আর্কিটেকচার <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+
+                </article>
+            </main>
+
+        </div>
+
+    </div>
+
+
+        <!-- Floating Back To Top Button -->
+        <button id="btnBackToTop" class="floating-back-to-top" title="উপরে যান">
+            <i class="bi bi-arrow-up"></i>
+        </button>
+
+        <!-- Mobile App Bottom Navigation Bar (Handheld Phone UX) -->
+        <div class="mobile-bottom-nav">
+            <a href="index.html" class="mobile-nav-link ">
+                <i class="bi bi-house-door"></i>
+                <span>হোম</span>
+            </a>
+            <a href="courses.html" class="mobile-nav-link active">
+                <i class="bi bi-grid"></i>
+                <span>ট্র্যাকসমূহ</span>
+            </a>
+            <a href="senior-interview-vault.html" class="mobile-nav-link ">
+                <i class="bi bi-trophy-fill"></i>
+                <span>ইন্টারভিউ</span>
+            </a>
+            <a href="dashboard.html" class="mobile-nav-link ">
+                <i class="bi bi-speedometer2"></i>
+                <span>ড্যাশবোর্ড</span>
+            </a>
+            <label for="theme-toggle" class="mobile-nav-link cursor-pointer m-0">
+                <i class="bi bi-moon-stars"></i>
+                <span>থিম</span>
+            </label>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('btnBackToTop');
+                if (btn) {
+                    window.addEventListener('scroll', function() {
+                        if (window.scrollY > 300) {
+                            btn.classList.add('visible');
+                        } else {
+                            btn.classList.remove('visible');
+                        }
+                    });
+                    btn.addEventListener('click', function() {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            });
+        </script>
+
+</body>
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="৭+ বছরের অভিজ্ঞ সিনিয়র ডাটাবেজ আর্কিটেকচার গাইড। SQL Server, PostgreSQL, Oracle PL/SQL, Indexing, Execution Plans, Deadlocks ও Query Tuning।">
+    <title>এন্টারপ্রাইজ ডাটাবেজ আর্কিটেকচার (SQL Server, Postgres, Oracle) | Codex</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .lesson-split-container {
+            display: flex;
+            min-height: calc(100vh - 73px);
+        }
+        .lesson-sidebar {
+            flex: 0 0 320px;
+            width: 320px;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-card);
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease, border-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        .lesson-body-content {
+            flex-grow: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            background: var(--bg-main);
+        }
+        .sidebar-chapter-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.5rem 0.5rem;
+            padding-left: 0.25rem;
+            border-left: 2px solid var(--primary);
+        }
+        #sidebar-collapse-toggle:checked ~ .app-container .lesson-split-container .lesson-sidebar {
+            width: 0;
+            max-height: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            opacity: 0;
+            overflow: hidden !important;
+            pointer-events: none;
+            flex: 0 0 0px;
+        }
+        .sidebar-icon-close { display: none; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-open { display: none !important; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-close { display: inline-block !important; }
+
+        @media (max-width: 991.98px) {
+            .lesson-split-container { flex-direction: column; }
+            .lesson-sidebar {
+                flex: 0 0 auto;
+                width: 100%;
+                max-height: 240px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .lesson-body-content { max-height: none; padding: 1.5rem 1rem; }
+        }
+        @media (max-width: 575.98px) {
+            .lesson-body-content { padding: 1.25rem 0.75rem; }
+        }
+
+        .senior-badge {
+            background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+            color: white;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .deep-dive-card {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-card);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .warning-card {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Input -->
+    <input type="checkbox" id="theme-toggle" class="d-none">
+
+    <!-- Sidebar Collapse Toggle Input -->
+    <input type="checkbox" id="sidebar-collapse-toggle" class="d-none">
+
+    <div class="app-container">
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center fs-4 fw-bold text-primary text-decoration-none me-4" href="index.html">
+                    <span style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-code-slash me-2"></i>Codex
+                    </span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <label for="sidebar-collapse-toggle" class="btn btn-sm btn-premium-outline border border-secondary-subtle d-flex align-items-center justify-content-center cursor-pointer" style="width: 38px; height: 38px; border-radius: 50%;">
+                        <i class="bi bi-layout-sidebar-inset sidebar-icon-open"></i>
+                        <i class="bi bi-layout-sidebar sidebar-icon-close"></i>
+                    </label>
+                    <span class="senior-badge"><i class="bi bi-database-check me-1"></i>Database Architect Track</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <label for="theme-toggle" class="theme-switch-label" style="width: 38px; height: 38px;">
+                        <i class="bi bi-sun" style="font-size: 1.1rem;"></i>
+                        <i class="bi bi-moon-stars" style="font-size: 1.1rem;"></i>
+                    </label>
+                    <a href="courses.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-grid me-1"></i>সব ট্র্যাক</a>
+                    <a href="index.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-house me-1"></i>হোম</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Split Panel Container -->
+        <div class="lesson-split-container">
+            
+            <!-- Left Sidebar -->
+            <aside class="lesson-sidebar p-3">
+                <div class="d-flex align-items-center gap-2 mb-3 px-2 text-primary">
+                    <i class="bi bi-database-fill-gear fs-5"></i>
+                    <h5 class="fw-bold mb-0">ডাটাবেজ মডিউলসমূহ</h5>
+                </div>
+
+                <div class="sidebar-chapter-title">১. SQL Server আর্কিটেকচার ও টিউনিং</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#sql-indexing" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-diagram-2 text-primary me-2"></i>B-Tree ইনডেক্সিং ও Covering Index
+                    </a>
+                    <a href="#sql-execution-plan" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-search text-primary me-2"></i>Execution Plan, Seek vs Scan, Lookups
+                    </a>
+                    <a href="#sql-deadlocks" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-lock-fill text-warning me-2"></i>Isolation Levels, Locks ও Deadlock গ্রাফ
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">২. PostgreSQL ডিপ ইন্টারনালস</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#pg-mvcc" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-layer-forward text-primary me-2"></i>MVCC, Tuple Bloat ও VACUUM
+                    </a>
+                    <a href="#pg-explain" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-terminal-split text-primary me-2"></i>EXPLAIN ANALYZE ও Buffers
+                    </a>
+                    <a href="#pg-jsonb" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-braces text-primary me-2"></i>GIN ইনডেক্সিং ও JSONB
+                    </a>
+                    <a href="#pg-bouncer" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-hdd-network text-primary me-2"></i>PgBouncer ও কানেকশন পুলিং
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৩. Oracle Database & PL/SQL</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#oracle-arch" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-building text-primary me-2"></i>SGA, PGA, Tablespace ও Datafiles
+                    </a>
+                    <a href="#oracle-plsql" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-code-square text-primary me-2"></i>Packages, Triggers ও Autonomous Tx
+                    </a>
+                    <a href="#oracle-bulk" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-lightning-fill text-primary me-2"></i>BULK COLLECT ও FORALL
+                    </a>
+                    <a href="#oracle-tuning" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-graph-up-arrow text-primary me-2"></i>CBO Optimizer, Hints ও AWR রিপোর্ট
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৪. ক্যাশিং ও ডিস্ট্রিবিউটেড লক</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#redis-caching" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-database-fill-dash text-primary me-2"></i>Redis Cache Stampede & RedLock
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Middle Content Body -->
+            <main class="lesson-body-content">
+                <article class="max-w-800">
+                    
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-info-subtle text-info border border-info-subtle fs-7 px-3 py-1">SQL Server • Postgres • Oracle</span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle fs-7 px-3 py-1">Enterprise Performance</span>
+                    </div>
+
+                    <h1 class="fw-extrabold display-5 mb-3 text-primary">এন্টারপ্রাইজ ডাটাবেজ আর্কিটেকচার ও অপ্টিমাইজেশন</h1>
+                    <p class="fs-5 text-muted mb-4 lh-base">
+                        একটি প্রোডাকশন সিস্টেম ধীরগতির হওয়ার ৯০% কারণ থাকে অপরিকল্পিত ডাটাবেজ ডিজাইন, মিসিং বা ভুল ইনডেক্স এবং কনকারেন্সি লকিং ব্লকেজ। এই গাইডে <strong>SQL Server, PostgreSQL এবং Oracle</strong> এর জটিল ইন্টারনালস, কুয়েরি এক্সিকিউশন প্ল্যান ও রিয়াল-ওয়ার্ল্ড টিউনিং কৌশল বিশদভাবে উন্মোচন করা হলো।
+                    </p>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 1: SQL Server Indexing -->
+                    <section id="sql-indexing" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-diagram-2 text-primary me-2"></i>১. SQL Server B-Tree ইনডেক্সিং ও Covering Index</h2>
+                        <p class="text-muted lh-lg">
+                            SQL Server এ ডেটা ৮ KB সাইজের পেজ (Page) আকারে সংরক্ষিত থাকে। ইনডেক্স হলো একটি <strong>B-Tree (Balanced Tree)</strong> স্ট্রাকচার।
+                        </p>
+
+                        <div class="row g-3 my-4">
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-primary">
+                                    <h5 class="fw-bold text-primary mb-2">Clustered Index</h5>
+                                    <p class="text-muted fs-7 mb-0">
+                                        একটি টেবিলে শুধুমাত্র <strong>একটিই</strong> Clustered Index থাকতে পারে। কারণ এটি ডাটার ফিজিক্যাল বিন্যাস সরাসরি নির্ধারণ করে। এর লিফ নোড (Leaf Node) স্বয়ং সম্পূর্ণ ডেটা রো ধারণ করে।
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-info">
+                                    <h5 class="fw-bold text-info mb-2">Non-Clustered Index</h5>
+                                    <p class="text-muted fs-7 mb-0">
+                                        একটি টেবিলে একাধিক থাকতে পারে। এর লিফ নোডে সম্পূর্ণ ডাটা থাকে না, বরং কী-কলাম এবং মূল রো-এর পয়েন্টার (RID বা Clustered Key) থাকে।
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-shield-check me-2"></i>Covering Index ও INCLUDE কলামের শক্তি</h5>
+                            <p class="text-muted mb-2">
+                                যখন কোনো কুয়েরি এমন কলাম চায় যা Non-Clustered ইনডেক্সে নেই, ডাটাবেজ ইঞ্জিন মূল টেবিলে জাম্প করতে বাধ্য হয়—যাকে বলে <strong>Key Lookup</strong>। কোটি কোটি রো-এর টেবিলে হাজার হাজার Key Lookup সার্ভারের আই/ও (I/O) ধ্বংস করে ফেলে।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>সমাধান: Covering Index:</strong> কুয়েরির <code>WHERE</code> ক্লজের কলামকে ইনডেক্স কী-তে রাখুন এবং <code>SELECT</code> এর কলামগুলোকে <code>INCLUDE</code> ক্লজে যোগ করুন:
+                                <br><code>CREATE NONCLUSTERED INDEX IX_Orders_Cust ON Orders(CustomerId) INCLUDE (OrderDate, TotalAmount, Status);</code>
+                                <br>এর ফলে কুয়েরি সম্পূর্ণভাবে ইনডেক্স পেজ থেকেই মিটে যায় (Zero Key Lookup)!
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 2: SQL Server Execution Plan -->
+                    <section id="sql-execution-plan" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-search text-primary me-2"></i>২. Execution Plan ডিকোড করা: Seek vs Scan ও Join মেকানিক্স</h2>
+                        <p class="text-muted lh-lg">
+                            ইন্টারভিউতে কুয়েরি অপ্টিমাইজেশন প্রশ্ন আসলে এক্সিকিউশন প্ল্যানের এই মূল অপারেটরগুলোর পার্থক্য জানা বাধ্যতামূলক:
+                        </p>
+
+                        <div class="table-responsive my-3">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>অপারেটর</th>
+                                        <th>ধরন ও কস্ট</th>
+                                        <th>কেন ঘটে এবং কী করবেন</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold text-success">Index Seek</td>
+                                        <td>সুপার ফাস্ট (O(log N))</td>
+                                        <td>B-Tree এর রুট থেকে ট্রাভার্স করে সরাসরি কাঙ্ক্ষিত রো খুঁজে নেয়। আইডিয়াল কেস।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-danger">Index / Table Scan</td>
+                                        <td>ভীষণ স্লো (O(N))</td>
+                                        <td>পুরো টেবিল বা ইনডেক্সের প্রতিটি পেজ এক মাথা থেকে অন্য মাথা পর্যন্ত পড়ে। WHERE ক্লজে ইনডেক্স না থাকলে বা ফাংশন কল করলে (SARGable না হলে) ঘটে।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-warning">Key / RID Lookup</td>
+                                        <td>মাঝারি থেকে মারাত্মক ক্ষতিকর</td>
+                                        <td>নন-ক্লাস্টার্ড ইনডেক্স হিট করার পর বাকি কলাম আনতে মূল পেজে যায়। Covering Index বানিয়ে সমাধান করুন।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-primary">Nested Loops Join</td>
+                                        <td>একটি ছোট টেবিল ও একটি ইনডেক্সড বড় টেবিল</td>
+                                        <td>বাইরের টেবিলের প্রতিটি রো-এর জন্য ভেতরের টেবিলের ইনডেক্সে দ্রুত সিঙ্ক করে। OLTP ট্রানজ্যাকশনে সেরা।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-info">Hash Match Join</td>
+                                        <td>দুটো বড় আন-ইনডেক্সড টেবিল</td>
+                                        <td>মেমোরিতে হ্যাশ টেবিল বানায়। মেমোরি শর্ট পড়লে TempDB তে স্পিল করে এবং সিস্টেম ফ্রিজ করায়।</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="warning-card">
+                            <h6 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>Parameter Sniffing সমস্যা:</h6>
+                            <p class="text-muted mb-0">
+                                Stored Procedure যখন প্রথমবার রান হয়, তখন যে প্যারামিটার পাঠানো হয়েছিল তার জন্য অপটিমাইজার একটি প্ল্যান ক্যাশ করে রাখে। যদি সেই প্যারামিটার মাত্র ৫টি রো রিটার্ন করত, কিন্তু পরবর্তী কলে অন্য প্যারামিটার ৫ লাখ রো রিটার্ন করে, পুরনো ইনডেক্স সিক প্ল্যানটি মারাত্মক দুর্যোগ তৈরি করে।
+                                <br><strong>সমাধান:</strong> <code>OPTION (RECOMPILE)</code> অথবা <code>OPTION (OPTIMIZE FOR (@param UNKNOWN))</code> ব্যবহার করা।
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 3: Isolation Levels & Deadlocks -->
+                    <section id="sql-deadlocks" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-lock text-primary me-2"></i>৩. Concurrency Isolation Levels ও Deadlock সমাধান</h2>
+                        <p class="text-muted lh-lg">
+                            ডাটাবেজে কনকারেন্সি নিয়ন্ত্রণ করার জন্য ACID প্রোপার্টির 'I' (Isolation) এর বিভিন্ন লেভেল রয়েছে:
+                        </p>
+                        <ul class="text-muted lh-lg">
+                            <li><strong>Read Uncommitted:</strong> Dirty Read হতে পারে। আন-কমিটেড ডেটাও পড়ে ফেলে।</li>
+                            <li><strong>Read Committed (ডিফল্ট):</strong> Dirty Read হয় না, তবে Non-Repeatable Read হতে পারে। রিড করার সময় শেয়ার্ড লক নেয় এবং রিড শেষেই লক ছেড়ে দেয়।</li>
+                            <li><strong>Repeatable Read:</strong> ট্রানজ্যাকশন শেষ না হওয়া পর্যন্ত শেয়ার্ড লক ধরে রাখে। ফলে অন্য কেউ আপডেট করতে পারে না, তবে নতুন রো ইনসার্ট হলে Phantom Read হতে পারে।</li>
+                            <li><strong>Serializable:</strong> রেঞ্জ লক (Key-Range Lock) নেয়। সম্পূর্ণ কনসিস্টেন্ট কিন্তু সর্বোচ্চ ব্লকিং ঘটায়।</li>
+                            <li><strong>RCSI (Read Committed Snapshot Isolation):</strong> এন্টারপ্রাইজ সিস্টেমের গেম চেঞ্জার! লক ব্যবহারের বদলে TempDB-তে ডেটার ভার্সন (Row Versioning) রাখে। <em>"Readers never block Writers, and Writers never block Readers!"</em></li>
+                        </ul>
+
+                        <div class="deep-dive-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-arrow-repeat me-2"></i>Deadlock কীভাবে ডিবাগ ও প্রতিরোধ করবেন?</h5>
+                            <p class="text-muted mb-2">
+                                যখন ট্রানজ্যাকশন A অবজেক্ট X লক করে Y-এর জন্য অপেক্ষা করছে, এবং একই সাথে ট্রানজ্যাকশন B অবজেক্ট Y লক করে X-এর জন্য অপেক্ষা করছে, তখন ডেডলক ঘটে। SQL Server এর Deadlock Monitor থ্রেড প্রতি ৫ সেকেন্ডে রান করে এবং কম খরুচে ট্রানজ্যাকশনটিকে <strong>Victim</strong> বানিয়ে মেরে ফেলে (Error 1205)।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>প্রতিরোধ কৌশল:</strong>
+                                <br>১. সব ট্রানজ্যাকশনে একাধিক টেবিলে ডেটা এক্সেসের সিকোয়েন্স হুবহু একই অর্ডারে রাখুন (যেমন: সবসময় আগে Orders তারপর OrderDetails)।
+                                <br>২. কুয়েরিতে অপ্রয়োজনীয় দীর্ঘ ট্রানজ্যাকশন রাখবেন না (নেটওয়ার্ক কল বা এপিআই কল ট্রানজ্যাকশনের বাইরে রাখুন)।
+                                <br>৩. Extended Events বা SQL Profiler এর `xml_deadlock_report` থেকে ডেডলক গ্রাফ দেখে মিউচুয়াল কনফ্লিক্টিং ইনডেক্স সংশোধন করুন।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 4: PostgreSQL Deep Dive -->
+                    <section id="pg-mvcc" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-layer-forward text-primary me-2"></i>৪. PostgreSQL MVCC, Tuple Bloat এবং VACUUM আর্কিটেকচার</h2>
+                        <p class="text-muted lh-lg">
+                            PostgreSQL এর সবচেয়ে পাওয়ারফুল অথচ মিসআন্ডারস্টুড ফিচার হলো <strong>MVCC (Multi-Version Concurrency Control)</strong>। 
+                            Postgres এ যখন কোনো রো <code>UPDATE</code> করা হয়, ডাটাবেজ ইঞ্জিন কিন্তু আগের রো-টিকে সরাসরি এডিট করে না!
+                            <br>১. এটি মূল রো-টিকে <strong>Dead Tuple</strong> হিসেবে মার্ক করে (<code>xmax</code> ফিল্ডে ট্রানজ্যাকশন আইডি বসিয়ে)।
+                            <br>২. পেজে নতুন ভ্যালু সহ একটি ব্র্যান্ড নিউ <strong>Live Tuple</strong> ইনসার্ট করে।
+                        </p>
+
+                        <div class="warning-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-fire me-2"></i>Table Bloat এবং Autovacuum টিউনিং</h5>
+                            <p class="text-muted mb-2">
+                                যদি একটি টেবিলে প্রতি মিনিটে লাখ লাখ আপডেট ও ডিলিট হয়, কোটি কোটি ডেড টাপল ডিস্ক দখল করে রাখবে। কুয়েরি করার সময় ইঞ্জিনকে অপ্রয়োজনীয় ডেড টাপলও স্ক্যান করতে হয়। একে বলে <strong>Table Bloat</strong>।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>VACUUM এর ভূমিকা:</strong> <code>VACUUM</code> ডেড টাপলগুলো মুছে ফেলে সেই স্পেস ভবিষ্যতের নতুন রো লেখার জন্য রিইউজেবল করে। কিন্তু এটি ওএস-কে ডিস্ক স্পেস ফিরিয়ে দেয় না। ডিস্ক স্পেস ফিরিয়ে দিতে <code>VACUUM FULL</code> লাগে যা টেবিল এক্সক্লুসিভ লক করে।
+                                <br><strong>সিনিয়র ডিবিএ টিপ:</strong> ডিফল্ট autovacuum সেটিংস খুব রক্ষণশীল থাকে। হাই-রাইট টেবিলের জন্য `autovacuum_vacuum_scale_factor = 0.05` (৫% ডেড টাপলেই ভ্যাকুয়াম চলবে) এবং `autovacuum_vacuum_cost_limit = 2000` কনফিগার করুন।
+                            </p>
+                        </div>
+
+                        <!-- EXPLAIN ANALYZE -->
+                        <div id="pg-explain" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-terminal-split me-2"></i>Postgres EXPLAIN (ANALYZE, BUFFERS) ডিকোড করা</h5>
+                            <p class="text-muted mb-2">
+                                সাধারণ `EXPLAIN` শুধুমাত্র প্ল্যানারের আনুমানিক কস্ট দেখায়। কিন্তু <code>EXPLAIN (ANALYZE, BUFFERS)</code> কুয়েরিটিকে প্রকৃতপক্ষে ডাটাবেজে রান করায় এবং মেমোরির আসল অবস্থা জানায়:
+                            </p>
+                            <ul class="text-muted mb-0 ps-3">
+                                <li><strong>Buffers: shared hit:</strong> ডাটা Postgres এর Shared Buffers (RAM) থেকে সরাসরি পেয়ে গেছে (সুপার ফাস্ট)।</li>
+                                <li><strong>Buffers: shared read:</strong> ডাটা র‍্যামে ছিল না, ওএস ডিস্ক থেকে পড়তে হয়েছে (স্লো I/O)।</li>
+                                <li><strong>Sort Method: external merge Disk:</strong> কুয়েরির অর্ডার বা গ্রুপিংয়ের জন্য <code>work_mem</code> সাইজ যথেষ্ট ছিল না, তাই ডিস্কে টেম্প ফাইল তৈরি করে সর্ট হয়েছে। এটি দেখলেই বুঝবেন সেশনের জন্য <code>SET work_mem = '64MB';</code> বাড়ানো প্রয়োজন।</li>
+                            </ul>
+                        </div>
+
+                        <!-- JSONB & GIN -->
+                        <div id="pg-jsonb" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-braces me-2"></i>PostgreSQL JSONB বনাম JSON এবং GIN ইনডেক্স</h5>
+                            <p class="text-muted mb-2">
+                                পস্টগ্রেসের <code>json</code> টাইপ হুবহু টেক্সট হিসেবে ডাটা রাখে (ইনসার্ট দ্রুত, কুয়েরি স্লো কারণ প্রতিবার পার্স করতে হয়)। 
+                                আর <code>jsonb</code> ডাটাকে বাইনারি ফরম্যাটে ডিকম্পোজ করে রাখে (ইনসার্টে সামান্য ওভারহেড, কিন্তু কুয়েরি ও ইনডেক্সিং বিদ্যুৎগতি)।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>GIN (Generalized Inverted Index):</strong> JSONB ডকুমেন্টের ভেতরের যেকোনো নেস্টেড ফিল্ড দ্রুত কুয়েরি করার জন্য GIN ইনডেক্স ব্যবহার করা হয়:
+                                <br><code>CREATE INDEX idx_user_meta ON Users USING GIN (metadata jsonb_path_ops);</code>
+                                <br>এটি `WHERE metadata @> '{"role": "admin"}'` কুয়েরিতে মিলিসেকেন্ডে রেজাল্ট দেয়!
+                            </p>
+                        </div>
+
+                        <!-- PgBouncer -->
+                        <div id="pg-bouncer" class="warning-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-hdd-network me-2"></i>PgBouncer কেন পস্টগ্রেসে বাধ্যতামূলক?</h5>
+                            <p class="text-muted mb-0">
+                                MySQL বা SQL Server থ্রেড-বেসড কানেকশন ব্যবহার করে। কিন্তু PostgreSQL প্রতিটি ক্লায়েন্ট কানেকশনের জন্য অপারেটিং সিস্টেমে একটি সম্পূর্ণ আলাদা <strong>Forked Process</strong> তৈরি করে, যা প্রতি কানেকশনে ১০ MB পর্যন্ত মেমোরি দখল করে। যদি ডটনেট বা জাভা অ্যাপ্লিকেশন থেকে ১,০০০ ডিরেক্ট কানেকশন আসে, সার্ভার ক্র্যাশ করবে!
+                                <br><strong>PgBouncer:</strong> এটি একটি লাইটওয়েট কানেকশন পুলার। এটি <strong>Transaction Pooling Mode</strong> এ মাত্র ৫০টি আসল ডাটাবেজ প্রসেস দিয়ে বাইরের ১০,০০০ ওয়েব ক্লায়েন্টের রিকোয়েস্ট অনায়াসে হ্যান্ডেল করতে পারে।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 5: Oracle & PL/SQL -->
+                    <section id="oracle-arch" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-building text-primary me-2"></i>৫. Oracle Database আর্কিটেকচার ও এন্টারপ্রাইজ PL/SQL</h2>
+                        <p class="text-muted lh-lg">
+                            ব্যাংক, টেলিকম এবং বৃহৎ বহুজাতিক সংস্থায় ওরাকল ডাটাবেজ সবচেয়ে বেশি ব্যবহৃত হয়। ৭+ বছর অভিজ্ঞতায় ওরাকলের ইন্টারনাল মেমোরি ও পিএল/এসকিউএল কোড অপ্টিমাইজেশন জানা একটি বিশাল শক্তি।
+                        </p>
+
+                        <div class="row g-3 my-4">
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100">
+                                    <h5 class="fw-bold text-primary mb-2">SGA (System Global Area)</h5>
+                                    <p class="text-muted fs-7 mb-0">
+                                        ওরাকল ইনস্ট্যান্সের শেয়ার্ড মেমোরি। এর ভেতর থাকে <strong>Database Buffer Cache</strong> (ডাটা পেজ), <strong>Shared Pool</strong> (লাইব্রেরি ক্যাশ ও ডিকশনারি ক্যাশ যেখানে SQL পার্স ট্রি থাকে), এবং <strong>Redo Log Buffer</strong>।
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100">
+                                    <h5 class="fw-bold text-info mb-2">PGA (Program Global Area)</h5>
+                                    <p class="text-muted fs-7 mb-0">
+                                        প্রতিটি ওরাকল সার্ভার প্রসেসের জন্য নন-শেয়ার্ড প্রাইভেট মেমোরি। এখানে সর্টিং (Sort Area), হ্যাশ জয়েন এবং কার্সরের স্টেট সংরক্ষিত থাকে।
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BULK COLLECT & FORALL -->
+                        <div id="oracle-bulk" class="deep-dive-card">
+                            <h5 class="fw-bold text-success mb-2"><i class="bi bi-lightning-fill me-2"></i>BULK COLLECT ও FORALL (Context Switching এলিমিনেট করা)</h5>
+                            <p class="text-muted mb-2">
+                                যখন আপনি সাধারণ PL/SQL লুপে <code>FOR r IN (SELECT * FROM LargeTable) LOOP INSERT ... END LOOP;</code> চালান, প্রতি রো প্রসেস করার সময় পিএল/এসকিউএল রানটাইম ইঞ্জিন এবং এসকিউএল ইঞ্জিনের মধ্যে <strong>Context Switching</strong> ঘটে। ১০ লাখ রো-এর জন্য ১০ লাখ বার কনটেক্সট সুইচ হলে স্ক্রিপ্ট ঘণ্টার পর ঘণ্টা আটকে থাকে।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>সিনিয়র সল্যুশন:</strong> <code>BULK COLLECT</code> দিয়ে মেমোরি অ্যারেতে একবারে ডেটা লোড করুন এবং <code>FORALL</code> স্টেটমেন্টে এক সিঙ্গেল ব্যাচে ডাটাবেজ ইঞ্জিনে পুশ করুন:
+                            </p>
+
+                            <!-- Code Sandbox for Oracle -->
+                            <div class="code-playground my-3">
+                                <div class="playground-header">
+                                    <div class="window-dots">
+                                        <div class="window-dot red"></div>
+                                        <div class="window-dot yellow"></div>
+                                        <div class="window-dot green"></div>
+                                    </div>
+                                    <span class="fs-8 text-white-50 font-monospace">High-Performance PL/SQL</span>
+                                </div>
+                                <div class="playground-body p-3 font-monospace text-light fs-8">
+<span class="text-warning">DECLARE</span>
+    <span class="text-info">TYPE</span> t_emp_list <span class="text-info">IS TABLE OF</span> employees%ROWTYPE;
+    l_emps t_emp_list;
+    <span class="text-info">CURSOR</span> cur_emp <span class="text-info">IS SELECT * FROM</span> employees <span class="text-info">WHERE</span> department_id = 10;
+<span class="text-warning">BEGIN</span>
+    <span class="text-info">OPEN</span> cur_emp;
+    <span class="text-warning">LOOP</span>
+        <span class="text-secondary">-- একবারে ১,০০০ রো ব্যাচ আকারে মেমোরিতে আনা (Zero Row-by-Row Switching)</span>
+        <span class="text-info">FETCH</span> cur_emp <span class="text-info">BULK COLLECT INTO</span> l_emps <span class="text-info">LIMIT</span> 1000;
+        
+        <span class="text-secondary">-- সিঙ্গেল রাউন্ডট্রিপে পুরো ব্যাচ প্রসেস</span>
+        <span class="text-info">FORALL</span> i <span class="text-info">IN</span> 1..l_emps.COUNT <span class="text-info">SAVE EXCEPTIONS</span>
+            <span class="text-info">UPDATE</span> emp_salaries <span class="text-info">SET</span> salary = salary * 1.1 <span class="text-info">WHERE</span> emp_id = l_emps(i).emp_id;
+            
+        <span class="text-warning">EXIT WHEN</span> cur_emp%NOTFOUND;
+    <span class="text-warning">END LOOP;</span>
+    <span class="text-info">CLOSE</span> cur_emp;
+    <span class="text-info">COMMIT;</span>
+<span class="text-warning">END;</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mutating Table & Autonomous Tx -->
+                        <div id="oracle-plsql" class="warning-card">
+                            <h6 class="fw-bold text-danger mb-2"><i class="bi bi-shield-exclamation me-2"></i>ORA-04091: Mutating Table Error কীভাবে সমাধান করবেন?</h6>
+                            <p class="text-muted mb-0">
+                                যখন কোনো Row-Level Trigger (<code>BEFORE/AFTER INSERT/UPDATE FOR EACH ROW</code>) চলাকালীন একই ট্র্রিগারটি যে টেবিলে ফায়ার হয়েছে সেই টেবিল থেকেই <code>SELECT</code> কুয়েরি করার চেষ্টা করে, ওরাকল এই এক্সেপশন দেয়। কারণ রো-টি এখনো ট্রানজ্যাকশনে ইন-ফ্লাইট অবস্থায় রয়েছে।
+                                <br><strong>সমাধান:</strong> 
+                                <br>১. Oracle 11g+ এর <strong>Compound Trigger</strong> ব্যবহার করা (যার <code>BEFORE STATEMENT</code>, <code>BEFORE EACH ROW</code>, <code>AFTER STATEMENT</code> সেকশন রয়েছে)।
+                                <br>২. যদি শুধু লগ টেবিলে অডিট হিস্ট্রি লিখতে হয়, তাহলে <code>PRAGMA AUTONOMOUS_TRANSACTION</code> ব্যবহার করে মূল ট্রানজ্যাকশনের বাইরে একটি সম্পূর্ণ স্বাধীন ট্রানজ্যাকশনে কাজ করা।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 6: Redis & Distributed Locks -->
+                    <section id="redis-caching" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-database-fill-dash text-primary me-2"></i>৬. Redis ক্যাশিং আর্কিটেকচার, Stampede ও RedLock</h2>
+                        <p class="text-muted lh-lg">
+                            উচ্চ ট্রাফিকের ডাটাবেজের সামনে রেডিস ক্যাশ ব্যবহার করা হয়। তবে ৭+ বছরের সিনিয়র ইঞ্জিনিয়ার হিসেবে আপনাকে ক্যাশের এই বিপর্যয়গুলো সামলানোর আর্কিটেকচার জানতে হবে:
+                        </p>
+
+                        <div class="row g-3 my-3">
+                            <div class="col-md-4">
+                                <div class="premium-card p-3 h-100">
+                                    <h6 class="fw-bold text-danger mb-1">Cache Stampede</h6>
+                                    <p class="text-muted fs-8 mb-0">একটি হট কি (যেমন ট্র্যাফিক হট সেল) এক্সপায়ার হওয়ার সেকেন্ডে হাজার হাজার রিকোয়েস্ট একযোগে ডাটাবেজে হিট করে ডাটাবেজ ক্র্যাশ করায়।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="premium-card p-3 h-100">
+                                    <h6 class="fw-bold text-warning mb-1">Cache Avalanche</h6>
+                                    <p class="text-muted fs-8 mb-0">একই সময়ে নির্ধারিত টিটিএল (TTL) এর শত শত কি এক সাথে এক্সপায়ার হয়ে সব ট্র্যাফিক একসাথে ডাটাবেজে আছড়ে পড়ে। সমাধান: TTL এ Random Jitter যোগ করা।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="premium-card p-3 h-100">
+                                    <h6 class="fw-bold text-info mb-1">Cache Penetration</h6>
+                                    <p class="text-muted fs-8 mb-0">এমন আইডি দিয়ে রিকোয়েস্ট যা ডাটাবেজেও নেই। ক্যাশ মিস হয়ে প্রতিবার ডাটাবেজে যায়। সমাধান: Bloom Filter বা Null Caching।</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="deep-dive-card">
+                            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-key-fill me-2"></i>RedLock (ডিস্ট্রিবিউটেড লক):</h6>
+                            <p class="text-muted mb-0">
+                                একাধিক মাইক্রোসার্ভিস ইনস্ট্যান্স যখন একটি শেয়ার্ড রিসোর্স (যেমন একই ইনভেন্টরি স্টক আপডেট) এক্সেস করে, লোকাল C# <code>lock</code> কাজ করে না। তখন রেডিসের <code>SET resource_name my_random_value NX PX 30000</code> দিয়ে একটি ডিস্ট্রিবিউটেড লক নেওয়া হয়। কাজ শেষ হলে Lua স্ক্রিপ্ট দিয়ে নিশ্চিত করা হয় যে লকটি কেবলমাত্র সেই প্রসেসই রিলিজ করছে যে এটি একোয়ার করেছিল।
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Interactive Database Quiz -->
+                    <div class="quiz-question border rounded-4 p-4 bg-light-subtle my-5 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-primary text-white fs-7">Senior DBA / Architect Quiz</span>
+                            <h4 class="fw-bold mb-0">পারফরম্যান্স বিশ্লেষণ পরীক্ষা</h4>
+                        </div>
+                        <p class="text-muted mb-4">PostgreSQL এ একটি কোয়েরির <code>EXPLAIN ANALYZE</code> রিপোর্টে দেখা গেল <strong>"Seq Scan on large_table ... Rows Removed by Filter: 15,000,000"</strong>। এই পরিস্থিতির টেকনিক্যাল অর্থ কী এবং সবচেয়ে কার্যকরী প্রতিকার কোনটি?</p>
+                        
+                        <input type="checkbox" id="show-results-db-sr" class="show-results-toggle">
+                        <div class="quiz-options-container">
+                            <input type="radio" name="quiz-db-sr" id="opt-a-db" class="quiz-option-input" data-correct="false">
+                            <label for="opt-a-db" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">A</span>
+                                টেবিলটি অলরেডি ইনডেক্স ব্যবহার করছে, শুধু সার্ভারের র‍্যাম বাড়িয়ে দিলেই চলবে।
+                            </label>
+
+                            <input type="radio" name="quiz-db-sr" id="opt-b-db" class="quiz-option-input" data-correct="true">
+                            <label for="opt-b-db" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">B</span>
+                                ইঞ্জিন সম্পূর্ণ টেবিল সিকোয়েনশিয়াল স্ক্যান করে ১ কোটি ৫০ লাখ রো ডিসকার্ড করেছে; WHERE ক্লজের কলামে উপযুক্ত Selective B-Tree ইনডেক্স প্রয়োজন।
+                            </label>
+
+                            <input type="radio" name="quiz-db-sr" id="opt-c-db" class="quiz-option-input" data-correct="false">
+                            <label for="opt-c-db" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">C</span>
+                                এটি VACUUM না চালানোর কারণে হয়েছে, টেবিল ড্রপ করে রিলোড করতে হবে।
+                            </label>
+                        </div>
+                        
+                        <div class="mt-4"><label for="show-results-db-sr" class="btn-submit-quiz">উত্তর জমা দিন</label></div>
+                        
+                        <div class="feedback-msg border bg-card p-3 mt-3">
+                            <h6 class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>ব্যাখ্যা:</h6>
+                            <p class="text-muted mb-0">
+                                সহীহ উত্তর <strong>B</strong>! "Rows Removed by Filter" নির্দেশ করে যে ডাটাবেজ ইঞ্জিন পুরো ডিস্ক থেকে ১৫ মিলিয়ন রো মেমোরিতে পড়ে এনেছে শুধু মাত্র ফিল্টারে বাদ দেওয়ার জন্য! এটি ম্যাসিভ I/O অপচয়। WHERE ক্লজে প্রোপার সিলেক্টিভ ইনডেক্স দিলে ইঞ্জিন সরাসরি Index Seek করে শুধুমাত্র কাঙ্ক্ষিত কয়েকটি পেজ এক্সেস করত।
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Nav -->
+                    <div class="d-flex justify-content-between align-items-center border-top pt-4 mt-5">
+                        <a href="dotnet-enterprise.html" class="btn btn-premium-outline"><i class="bi bi-arrow-left me-2"></i>পূর্ববর্তী: .NET এন্টারপ্রাইজ</a>
+                        <a href="frontend-mastery.html" class="btn btn-premium">পরবর্তী ট্র্যাক: ফ্রন্টএন্ড মাস্টারি (CSS, jQuery, Angular) <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+
+                </article>
+            </main>
+
+        </div>
+
+    </div>
+
+
+        <!-- Floating Back To Top Button -->
+        <button id="btnBackToTop" class="floating-back-to-top" title="উপরে যান">
+            <i class="bi bi-arrow-up"></i>
+        </button>
+
+        <!-- Mobile App Bottom Navigation Bar (Handheld Phone UX) -->
+        <div class="mobile-bottom-nav">
+            <a href="index.html" class="mobile-nav-link ">
+                <i class="bi bi-house-door"></i>
+                <span>হোম</span>
+            </a>
+            <a href="courses.html" class="mobile-nav-link active">
+                <i class="bi bi-grid"></i>
+                <span>ট্র্যাকসমূহ</span>
+            </a>
+            <a href="senior-interview-vault.html" class="mobile-nav-link ">
+                <i class="bi bi-trophy-fill"></i>
+                <span>ইন্টারভিউ</span>
+            </a>
+            <a href="dashboard.html" class="mobile-nav-link ">
+                <i class="bi bi-speedometer2"></i>
+                <span>ড্যাশবোর্ড</span>
+            </a>
+            <label for="theme-toggle" class="mobile-nav-link cursor-pointer m-0">
+                <i class="bi bi-moon-stars"></i>
+                <span>থিম</span>
+            </label>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('btnBackToTop');
+                if (btn) {
+                    window.addEventListener('scroll', function() {
+                        if (window.scrollY > 300) {
+                            btn.classList.add('visible');
+                        } else {
+                            btn.classList.remove('visible');
+                        }
+                    });
+                    btn.addEventListener('click', function() {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            });
+        </script>
+
+</body>
+</html>

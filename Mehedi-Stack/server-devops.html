@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="৭+ বছরের অভিজ্ঞ সার্ভার ম্যানেজমেন্ট ও DevOps গাইড। Windows Server, IIS w3wp, Linux systemd, Nginx, Docker, CI/CD ও dotnet-dump প্রোডাকশন ট্রাবলশুটিং।">
+    <title>সার্ভার ম্যানেজমেন্ট, DevOps ও প্রোডাকশন অপারেশনস | Codex</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .lesson-split-container {
+            display: flex;
+            min-height: calc(100vh - 73px);
+        }
+        .lesson-sidebar {
+            flex: 0 0 320px;
+            width: 320px;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-card);
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease, border-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        .lesson-body-content {
+            flex-grow: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            background: var(--bg-main);
+        }
+        .sidebar-chapter-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.5rem 0.5rem;
+            padding-left: 0.25rem;
+            border-left: 2px solid var(--primary);
+        }
+        #sidebar-collapse-toggle:checked ~ .app-container .lesson-split-container .lesson-sidebar {
+            width: 0;
+            max-height: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            opacity: 0;
+            overflow: hidden !important;
+            pointer-events: none;
+            flex: 0 0 0px;
+        }
+        .sidebar-icon-close { display: none; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-open { display: none !important; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-close { display: inline-block !important; }
+
+        @media (max-width: 991.98px) {
+            .lesson-split-container { flex-direction: column; }
+            .lesson-sidebar {
+                flex: 0 0 auto;
+                width: 100%;
+                max-height: 240px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .lesson-body-content { max-height: none; padding: 1.5rem 1rem; }
+        }
+        @media (max-width: 575.98px) {
+            .lesson-body-content { padding: 1.25rem 0.75rem; }
+        }
+
+        .senior-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            color: white;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .deep-dive-card {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-card);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .warning-card {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Input -->
+    <input type="checkbox" id="theme-toggle" class="d-none">
+
+    <!-- Sidebar Collapse Toggle Input -->
+    <input type="checkbox" id="sidebar-collapse-toggle" class="d-none">
+
+    <div class="app-container">
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center fs-4 fw-bold text-primary text-decoration-none me-4" href="index.html">
+                    <span style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-code-slash me-2"></i>Codex
+                    </span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <label for="sidebar-collapse-toggle" class="btn btn-sm btn-premium-outline border border-secondary-subtle d-flex align-items-center justify-content-center cursor-pointer" style="width: 38px; height: 38px; border-radius: 50%;">
+                        <i class="bi bi-layout-sidebar-inset sidebar-icon-open"></i>
+                        <i class="bi bi-layout-sidebar sidebar-icon-close"></i>
+                    </label>
+                    <span class="senior-badge"><i class="bi bi-hdd-rack-fill me-1"></i>DevOps & Server Lead</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <label for="theme-toggle" class="theme-switch-label" style="width: 38px; height: 38px;">
+                        <i class="bi bi-sun" style="font-size: 1.1rem;"></i>
+                        <i class="bi bi-moon-stars" style="font-size: 1.1rem;"></i>
+                    </label>
+                    <a href="courses.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-grid me-1"></i>সব ট্র্যাক</a>
+                    <a href="index.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-house me-1"></i>হোম</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Split Panel Container -->
+        <div class="lesson-split-container">
+            
+            <!-- Left Sidebar -->
+            <aside class="lesson-sidebar p-3">
+                <div class="d-flex align-items-center gap-2 mb-3 px-2 text-primary">
+                    <i class="bi bi-server fs-5"></i>
+                    <h5 class="fw-bold mb-0">সার্ভার ও DevOps মডিউল</h5>
+                </div>
+
+                <div class="sidebar-chapter-title">১. Windows Server ও IIS আর্কিটেকচার</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#iis-architecture" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-windows text-primary me-2"></i>w3wp, AppPools ও In-Process
+                    </a>
+                    <a href="#iis-recycling" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-arrow-repeat text-primary me-2"></i>AppPool Recycling & Zero Downtime
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">২. Linux সার্ভার ও Nginx অ্যাডমিনিস্ট্রেশন</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#linux-systemd" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-terminal-fill text-primary me-2"></i>Systemd Daemon ও Bash কমান্ড
+                    </a>
+                    <a href="#nginx-reverse-proxy" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-hdd-network text-primary me-2"></i>Nginx Reverse Proxy & SSL
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৩. ডকার ও কন্টেইনারাইজেশন</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#docker-multistage" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-boxes text-primary me-2"></i>Multi-Stage Dockerfiles (80MB Image)
+                    </a>
+                    <a href="#docker-compose" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-diagram-3-fill text-primary me-2"></i>Docker Compose (.NET+PG+Redis)
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৪. সিআই/সিডি অটোমেশন</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#cicd-pipelines" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-play-circle-fill text-primary me-2"></i>GitHub Actions & Azure DevOps
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৫. প্রোডাকশন ট্রাবলশুটিং (Crash & Leaks)</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#dotnet-dump" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-tools text-danger me-2"></i>dotnet-dump & Memory Leak Analysis
+                    </a>
+                    <a href="#high-cpu-troubleshoot" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-speedometer2 text-danger me-2"></i>100% CPU ক্রাইসিস ডায়াগনোসিস
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Middle Content Body -->
+            <main class="lesson-body-content">
+                <article class="max-w-800">
+                    
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-7 px-3 py-1">IIS • Linux • Docker • Nginx</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-7 px-3 py-1">Production Ops Lead</span>
+                    </div>
+
+                    <h1 class="fw-extrabold display-5 mb-3 text-primary">সার্ভার ম্যানেজমেন্ট, DevOps ও প্রোডাকশন অপারেশনস</h1>
+                    <p class="fs-5 text-muted mb-4 lh-base">
+                        কোড লিখে গিটহাবে পুশ করলেই সিনিয়র ইঞ্জিনিয়ারের দায়িত্ব শেষ হয় না। প্রোডাকশন সার্ভারে শত শত মাইক্রোসার্ভিস কীভাবে ডিপ্লয় হয়, <strong>IIS ও Linux Nginx</strong> এর ইন্টারনালস, কন্টেইনারাইজেশন এবং লাইভ প্রোডাকশনে মেমোরি লিক বা ১০০% সিপিইউ হ্যাং হলে অ্যাপ না থামিয়ে <strong>dotnet-dump</strong> দিয়ে সমস্যা খুঁজে বের করার আর্ট এই গাইডে শেখানো হয়েছে।
+                    </p>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 1: Windows Server & IIS -->
+                    <section id="iis-architecture" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-windows text-primary me-2"></i>১. Windows Server ও IIS আর্কিটেকচার ইন্টারনালস</h2>
+                        <p class="text-muted lh-lg">
+                            IIS (Internet Information Services) উইন্ডোজের কার্নেল ড্রাইভার <strong>HTTP.sys</strong> দিয়ে ইনকামিং নেটওয়ার্ক প্যাকেট হ্যান্ডেল করে। এরপর <strong>WAS (Windows Process Activation Service)</strong> উপযুক্ত <strong>Application Pool</strong> এর ওয়ার্কার প্রসেস <code>w3wp.exe</code> চালু করে।
+                        </p>
+
+                        <div class="row g-3 my-4">
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-success">
+                                    <h5 class="fw-bold text-success mb-2">In-Process Hosting (৩ গুণ দ্রুত)</h5>
+                                    <p class="text-muted fs-7 mb-0">
+                                        ASP.NET Core অ্যাপ সরাসরি <code>w3wp.exe</code> প্রসেসের ভেতরে CLR লোড করে রান করে। এর ফলে কোনো ইন্টার-প্রসেস রিভার্স প্রক্সি ওভারহেড থাকে না। .NET 6/7/8/9 এ এটি ডিফল্ট এবং রেকমেন্ডেড।
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-warning">
+                                    <h5 class="fw-bold text-warning mb-2">Out-of-Process Hosting</h5>
+                                    <p class="text-muted fs-7 mb-0">
+                                        IIS শুধুমাত্র রিভার্স প্রক্সি হিসেবে কাজ করে এবং পেছনে একটি আলাদা <code>dotnet.exe</code> প্রসেস Kestrel চালু করে লোকাল পোর্টে রিকোয়েস্ট ফরোয়ার্ড করে। পারফরম্যান্সে সামান্য ওভারহেড থাকে।
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AppPool Recycling -->
+                        <div id="iis-recycling" class="warning-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-arrow-repeat me-2"></i>AppPool Recycling এর ডিফল্ট ট্র্যাপ:</h5>
+                            <p class="text-muted mb-2">
+                                IIS এর ডিফল্ট সেটিংসে <code>Idle Time-out = 20 minutes</code> এবং <code>Regular Time Interval = 1740 minutes (29 hours)</code> থাকে।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>প্রোডাকশন সমস্যা:</strong> ২০ মিনিট ট্র্যাফিক না থাকলে প্রসেস শাটডাউন হয়ে যায়, ফলে পরবর্তী ইউজারের রিকোয়েস্ট কোল্ড স্টার্টের কারণে ৫-১০ সেকেন্ড হ্যাং করে! আবার কর্মব্যস্ত দিনে ঠিক ২৯তম ঘণ্টায় অটো-রিসাইকেল হয়ে লাইভ রিকোয়েস্ট কেটে যেতে পারে।
+                                <br><strong>সিনিয়র কনফিগারেশন:</strong> 
+                                <br>• <code>Idle Time-out (minutes) = 0</code> (কখনোই স্লিপ করবে না)।
+                                <br>• <code>Start Mode = AlwaysRunning</code>।
+                                <br>• নিয়মিত রিসাইকেলের জন্য স্পেসিফিক টাইম সেট করুন মধ্যরাতে (যেমন ভোর ৪:০০ টায়)।
+                                <br>• <code>Overlapped Recycling</code> এনাবল রাখুন যাতে নতুন <code>w3wp.exe</code> সম্পূর্ণরূপে বুট না হওয়া পর্যন্ত পুরনোটি রিকোয়েস্ট সার্ভ করতে থাকে (Zero Downtime)।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 2: Linux & Nginx -->
+                    <section id="linux-systemd" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-terminal-fill text-primary me-2"></i>২. Linux সার্ভার ও Systemd ব্যাকগ্রাউন্ড ডেমোন (Daemon)</h2>
+                        <p class="text-muted lh-lg">
+                            উবুন্টু বা ডেবিয়ান লিনাক্স সার্ভারে .NET কোর অ্যাপ রান করতে <strong>systemd</strong> সার্ভিস ইউনিট কনফিগার করা হয়। এতে সার্ভার রিবুট হলেও অ্যাপ স্বয়ংক্রিয়ভাবে চালু হয় এবং ক্র্যাশ করলে সাথে সাথে অটো-রিস্টার্ট নেয়।
+                        </p>
+
+                        <!-- Systemd unit config -->
+                        <div class="code-playground my-4">
+                            <div class="playground-header">
+                                <div class="window-dots">
+                                    <div class="window-dot red"></div>
+                                    <div class="window-dot yellow"></div>
+                                    <div class="window-dot green"></div>
+                                </div>
+                                <span class="fs-8 text-white-50 font-monospace">/etc/systemd/system/kestrel-api.service</span>
+                            </div>
+                            <div class="playground-body p-3 font-monospace text-light fs-8">
+[Unit]
+Description=Enterprise .NET Web API Service
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/myapi
+ExecStart=/usr/bin/dotnet /var/www/myapi/MyEnterpriseApi.dll
+<span class="text-success">Restart=always</span>
+<span class="text-secondary"># ক্র্যাশ করলে ১০ সেকেন্ড পর অটো রিস্টার্ট</span>
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=dotnet-myapi
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target
+                            </div>
+                        </div>
+
+                        <!-- Nginx Config -->
+                        <div id="nginx-reverse-proxy" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-hdd-network me-2"></i>Nginx Reverse Proxy ও SSL কনফিগারেশন</h5>
+                            <p class="text-muted mb-2">
+                                Kestrel সরাসরি ইন্টারনেটে এক্সপোজ করা উচিত নয়। Nginx রিভার্স প্রক্সি হিসেবে সামনে বসে SSL টার্মিনেশন, রিকোয়েস্ট বাফারিং এবং সিকিউরিটি হেডার হ্যান্ডেল করে:
+                            </p>
+                            <pre class="bg-dark text-light p-3 rounded font-monospace fs-8 mb-2"><code>server {
+    listen 80;
+    server_name api.codex.com;
+    return 301 https://$host$request_uri; # HTTPS রিডাইরেক্ট
+}
+
+server {
+    listen 443 ssl http2;
+    server_name api.codex.com;
+
+    ssl_certificate /etc/letsencrypt/live/api.codex.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.codex.com/privkey.pem;
+
+    location / {
+        proxy_pass         http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection keep-alive;
+        proxy_set_header   Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+}</code></pre>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 3: Docker & Multi-stage -->
+                    <section id="docker-multistage" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-boxes text-primary me-2"></i>৩. ডকার মাল্টি-স্টেজ বিল্ড (ইমেজ সাইজ ৮০০MB থেকে ৮০MB তে নামানো)</h2>
+                        <p class="text-muted lh-lg">
+                            একজন আন-অভিজ্ঞ ডেভেলপার সম্পূর্ণ .NET SDK ইমেজ রানটাইমে পাঠিয়ে দেয় যার সাইজ ৮৫০ MB। একজন সিনিয়র DevOps লিড <strong>Multi-stage Dockerfile</strong> ব্যবহার করে SDK শুধুমাত্র কম্পাইল করতে ব্যবহার করেন এবং ফাইনাল রানটাইমকে হালকা <strong>Alpine</strong> বা <strong>Chiseled</strong> ইমেজে নামিয়ে আনেন।
+                        </p>
+
+                        <div class="code-playground my-4">
+                            <div class="playground-header">
+                                <div class="window-dots">
+                                    <div class="window-dot red"></div>
+                                    <div class="window-dot yellow"></div>
+                                    <div class="window-dot green"></div>
+                                </div>
+                                <span class="fs-8 text-white-50 font-monospace">Dockerfile (Production Grade)</span>
+                            </div>
+                            <div class="playground-body p-3 font-monospace text-light fs-8">
+<span class="text-secondary"># ধাপ ১: কম্পাইলেশন ও বিল্ড (ভারী SDK)</span>
+<span class="text-warning">FROM</span> mcr.microsoft.com/dotnet/sdk:8.0 <span class="text-warning">AS</span> build
+<span class="text-info">WORKDIR</span> /src
+<span class="text-warning">COPY</span> ["MyApi/MyApi.csproj", "MyApi/"]
+<span class="text-warning">RUN</span> dotnet restore "MyApi/MyApi.csproj"
+<span class="text-warning">COPY</span> . .
+<span class="text-warning">WORKDIR</span> "/src/MyApi"
+<span class="text-warning">RUN</span> dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+
+<span class="text-secondary"># ধাপ ২: ফাইনাল রানটাইম (সুপার-লাইটওয়েট ও সিকিউর নন-রুট ইউজার)</span>
+<span class="text-warning">FROM</span> mcr.microsoft.com/dotnet/aspnet:8.0-alpine <span class="text-warning">AS</span> final
+<span class="text-info">WORKDIR</span> /app
+<span class="text-warning">EXPOSE</span> 8080
+<span class="text-warning">COPY</span> --from=build /app/publish .
+<span class="text-success">USER $APP_UID</span> <span class="text-secondary"># রুট ইউজার বন্ধ করা (সিকিউরিটি বেস্ট প্র্যাকটিস)</span>
+<span class="text-warning">ENTRYPOINT</span> ["dotnet", "MyApi.dll"]
+                            </div>
+                        </div>
+
+                        <!-- Docker Compose -->
+                        <div id="docker-compose" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-diagram-3-fill me-2"></i>Docker Compose এন্টারপ্রাইজ স্ট্যাক</h5>
+                            <p class="text-muted mb-0">
+                                <code>docker-compose.yml</code> ফাইলে আপনার <code>API Service</code>, <code>PostgreSQL / SQL Server</code>, এবং <code>Redis</code> একটি ইন্টারনাল নেটওয়ার্কে অর্কেস্ট্রেট থাকবে। হেলথ-চেক (HealthCheck) কনফিগার করে নিশ্চিত করা হয় যে ডাটাবেজ রেডি না হওয়া পর্যন্ত API বুট হবে না (<code>depends_on: db: condition: service_healthy</code>)।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 4: Production Diagnostics & Crash Analysis -->
+                    <section id="dotnet-dump" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-tools text-danger me-2"></i>৪. প্রোডাকশন ট্রাবলশুটিং: Memory Leak ও Crash Analysis</h2>
+                        <p class="text-muted lh-lg">
+                            প্রোডাকশনে হঠাৎ সার্ভারের র‍্যাম ৯৮% এ গিয়ে অ্যাপ হ্যাং করেছে। আপনি সার্ভার রিস্টার্ট দিলে সাময়িক ঠিক হবে, কিন্তু কয়েক ঘণ্টা পর আবার একই সমস্যা হবে। <strong>সমস্যার রুট-কজ কীভাবে বের করবেন?</strong>
+                        </p>
+
+                        <div class="warning-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-lightning-charge-fill me-2"></i>dotnet-dump ব্যবহার করে লাইভ মেমোরি ডাম্প সংগ্রহ ও অ্যানালিসিস</h5>
+                            <p class="text-muted mb-2">
+                                সার্ভার বা ডকার কন্টেইনারে অ্যাপ চালু অবস্থাতেই মেমোরির স্ন্যাপশট সংগ্রহ করুন:
+                            </p>
+                            <pre class="bg-dark text-light p-3 rounded font-monospace fs-8 mb-2"><code># ১. .NET প্রসেস আইডি (PID) খুঁজে নিন
+dotnet-dump ps
+
+# ২. সম্পূর্ণ হিপ মেমোরি ডাম্প ফাইল সেভ করুন (অ্যাপ বন্ধ হবে না)
+dotnet-dump collect -p 4829 -o /tmp/crash_dump.dmp
+
+# ৩. অ্যানালিসিস টুল ওপেন করুন
+dotnet-dump analyze /tmp/crash_dump.dmp</code></pre>
+
+                            <p class="text-muted mb-1"><strong>ভেতরে জরুরি কমান্ডসমূহ:</strong></p>
+                            <ul class="text-muted mb-0 ps-3 fs-8 font-monospace">
+                                <li><code>dumpheap -stat</code>: হিপে কোন ক্লাসের কত লাখ অবজেক্ট এবং কত মেগাবাইট দখল করে আছে তা সাইজ অনুসারে তালিকা দেখায়। (যেমন যদি দেখেন <code>System.Byte[]</code> বা <code>OrderDto</code> ৫ কোটি অবজেক্ট দখল করেছে, লিক সেখানেই!)</li>
+                                <li><code>dumpheap -mt &lt;MethodTableAddress&gt;</code>: সেই নির্দিষ্ট অবজেক্টগুলোর মেমোরি পয়েন্টার অ্যাড্রেস বের করা।</li>
+                                <li><code>gcroot &lt;ObjectAddress&gt;</code>: <strong>ম্যাজিক কমান্ড!</strong> কে এই অবজেক্টটিকে মেমোরিতে ধরে রেখে GC থেকে বাঁচিয়ে রেখেছে তার সম্পূর্ণ রুট চেইন (Static Event, Singleton List) দেখিয়ে দেয়!</li>
+                            </ul>
+                        </div>
+
+                        <!-- 100% CPU Crisis -->
+                        <div id="high-cpu-troubleshoot" class="deep-dive-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-speedometer2 me-2"></i>প্রোডাকশনে ১০০% সিপিইউ (CPU Spike) সংকট ডায়াগনোসিস</h5>
+                            <p class="text-muted mb-2">
+                                যখন সিপিইউ ১০০% এ আটকে থাকে, এর কারণ সাধারণত ইনফিনিট হোয়াইল লুপ, রেজেক্স ক্যাটাস্ট্রফিক ব্যাকট্র্যাকিং (Catastrophic Backtracking) অথবা লক কনটেনশন।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>সমাধান:</strong> <code>dotnet-trace collect -p &lt;PID&gt; --duration 00:00:30</code> রান করে ৩০ সেকেন্ডের ট্রেস ফাইল নিন। এরপর <strong>Speedscope</strong> বা PerfView দিয়ে <strong>Flame Graph</strong> ওপেন করলেই লাল রঙে চোখে পড়বে কোন মেথডটি সিপিইউ সাইকেল গ্রাস করছে!
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Interactive DevOps Quiz -->
+                    <div class="quiz-question border rounded-4 p-4 bg-light-subtle my-5 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-danger text-white fs-7">DevOps & Server Lead Quiz</span>
+                            <h4 class="fw-bold mb-0">সার্ভার অপারেশনস পরীক্ষা</h4>
+                        </div>
+                        <p class="text-muted mb-4">উইন্ডোজ সার্ভার IIS এ হোস্ট করা একটি ASP.NET Core অ্যাপ্লিকেশনে ট্র্যাফিক শূন্য থাকার ২০ মিনিট পর প্রথম ইউজার সাইটে ভিজিট করলে পেজ লোড হতে ১০ সেকেন্ড সময় নিচ্ছে। এই সমস্যার কারণ এবং স্থায়ী প্রতিকার কী?</p>
+                        
+                        <input type="checkbox" id="show-results-devops-sr" class="show-results-toggle">
+                        <div class="quiz-options-container">
+                            <input type="radio" name="quiz-devops-sr" id="opt-a-devops" class="quiz-option-input" data-correct="false">
+                            <label for="opt-a-devops" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">A</span>
+                                সার্ভারের র‍্যাম কম পড়েছে, আরও ৩২ জিবি র‍্যাম যোগ করতে হবে।
+                            </label>
+
+                            <input type="radio" name="quiz-devops-sr" id="opt-b-devops" class="quiz-option-input" data-correct="true">
+                            <label for="opt-b-devops" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">B</span>
+                                IIS AppPool এর <code>Idle Time-out</code> ২০ মিনিট হওয়ায় প্রসেস স্লিপ করেছিল; এটি ০ করতে হবে এবং Start Mode <code>AlwaysRunning</code> করতে হবে।
+                            </label>
+
+                            <input type="radio" name="quiz-devops-sr" id="opt-c-devops" class="quiz-option-input" data-correct="false">
+                            <label for="opt-c-devops" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">C</span>
+                                এটি ব্রাউজারের ক্যাশ সমস্যার কারণে হয়েছে, ক্লায়েন্টকে Ctrl+F5 চাপতে বলতে হবে।
+                            </label>
+                        </div>
+                        
+                        <div class="mt-4"><label for="show-results-devops-sr" class="btn-submit-quiz">উত্তর জমা দিন</label></div>
+                        
+                        <div class="feedback-msg border bg-card p-3 mt-3">
+                            <h6 class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>ব্যাখ্যা:</h6>
+                            <p class="text-muted mb-0">
+                                সহীহ উত্তর <strong>B</strong>! IIS এর ডিফল্ট সেটিংসে ২০ মিনিট কোনো ইনকামিং রিকোয়েস্ট না পেলে রিসোর্স বাঁচানোর জন্য <code>w3wp.exe</code> ওয়ার্কার প্রসেস শাটডাউন হয়ে যায়। পরবর্তী রিকোয়েস্টে কোল্ড স্টার্ট হতে পুরো ডটনেট রানটাইম ও ডিপেনডেন্সি নতুন করে বুট করতে ১০ সেকেন্ড লেগে যায়। Idle Time-out = 0 এবং AlwaysRunning সেট করলে প্রসেস সর্বদা মেমোরিতে ওয়ার্ম অবস্থায় থাকে।
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Nav -->
+                    <div class="d-flex justify-content-between align-items-center border-top pt-4 mt-5">
+                        <a href="system-design.html" class="btn btn-premium-outline"><i class="bi bi-arrow-left me-2"></i>পূর্ববর্তী: সিস্টেম ডিজাইন</a>
+                        <a href="senior-interview-vault.html" class="btn btn-premium">পরবর্তী ট্র্যাক: ৭+ বছর সিনিয়র ইন্টারভিউ ভল্ট <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+
+                </article>
+            </main>
+
+        </div>
+
+    </div>
+
+
+        <!-- Floating Back To Top Button -->
+        <button id="btnBackToTop" class="floating-back-to-top" title="উপরে যান">
+            <i class="bi bi-arrow-up"></i>
+        </button>
+
+        <!-- Mobile App Bottom Navigation Bar (Handheld Phone UX) -->
+        <div class="mobile-bottom-nav">
+            <a href="index.html" class="mobile-nav-link ">
+                <i class="bi bi-house-door"></i>
+                <span>হোম</span>
+            </a>
+            <a href="courses.html" class="mobile-nav-link active">
+                <i class="bi bi-grid"></i>
+                <span>ট্র্যাকসমূহ</span>
+            </a>
+            <a href="senior-interview-vault.html" class="mobile-nav-link ">
+                <i class="bi bi-trophy-fill"></i>
+                <span>ইন্টারভিউ</span>
+            </a>
+            <a href="dashboard.html" class="mobile-nav-link ">
+                <i class="bi bi-speedometer2"></i>
+                <span>ড্যাশবোর্ড</span>
+            </a>
+            <label for="theme-toggle" class="mobile-nav-link cursor-pointer m-0">
+                <i class="bi bi-moon-stars"></i>
+                <span>থিম</span>
+            </label>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('btnBackToTop');
+                if (btn) {
+                    window.addEventListener('scroll', function() {
+                        if (window.scrollY > 300) {
+                            btn.classList.add('visible');
+                        } else {
+                            btn.classList.remove('visible');
+                        }
+                    });
+                    btn.addEventListener('click', function() {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            });
+        </script>
+
+</body>
+</html>

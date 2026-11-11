@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="৭+ বছরের অভিজ্ঞ সিনিয়র ডটনেট ও সি# ইঞ্জিনিয়ারিং মাস্টার গাইড। CLR internals, Garbage Collection, Span, Async/Await, Clean Architecture, CQRS, EF Core vs Dapper।">
+    <title>এন্টারপ্রাইজ .NET ও C# মাস্টার গাইড (7+ Years Level) | Codex</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .lesson-split-container {
+            display: flex;
+            min-height: calc(100vh - 73px);
+        }
+        .lesson-sidebar {
+            flex: 0 0 320px;
+            width: 320px;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-card);
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease, border-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        .lesson-body-content {
+            flex-grow: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            background: var(--bg-main);
+        }
+        .sidebar-chapter-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.5rem 0.5rem;
+            padding-left: 0.25rem;
+            border-left: 2px solid var(--primary);
+        }
+        #sidebar-collapse-toggle:checked ~ .app-container .lesson-split-container .lesson-sidebar {
+            width: 0;
+            max-height: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            opacity: 0;
+            overflow: hidden !important;
+            pointer-events: none;
+            flex: 0 0 0px;
+        }
+        .sidebar-icon-close { display: none; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-open { display: none !important; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-close { display: inline-block !important; }
+
+        @media (max-width: 991.98px) {
+            .lesson-split-container { flex-direction: column; }
+            .lesson-sidebar {
+                flex: 0 0 auto;
+                width: 100%;
+                max-height: 240px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .lesson-body-content { max-height: none; padding: 1.5rem 1rem; }
+        }
+        @media (max-width: 575.98px) {
+            .lesson-body-content { padding: 1.25rem 0.75rem; }
+        }
+
+        .senior-badge {
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            color: white;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .deep-dive-card {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-card);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .warning-card {
+            border-left: 4px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Input -->
+    <input type="checkbox" id="theme-toggle" class="d-none">
+
+    <!-- Sidebar Collapse Toggle Input -->
+    <input type="checkbox" id="sidebar-collapse-toggle" class="d-none">
+
+    <div class="app-container">
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center fs-4 fw-bold text-primary text-decoration-none me-4" href="index.html">
+                    <span style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-code-slash me-2"></i>Codex
+                    </span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <label for="sidebar-collapse-toggle" class="btn btn-sm btn-premium-outline border border-secondary-subtle d-flex align-items-center justify-content-center cursor-pointer" style="width: 38px; height: 38px; border-radius: 50%;">
+                        <i class="bi bi-layout-sidebar-inset sidebar-icon-open"></i>
+                        <i class="bi bi-layout-sidebar sidebar-icon-close"></i>
+                    </label>
+                    <span class="senior-badge"><i class="bi bi-stars me-1"></i>7+ Years Experience Track</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <label for="theme-toggle" class="theme-switch-label" style="width: 38px; height: 38px;">
+                        <i class="bi bi-sun" style="font-size: 1.1rem;"></i>
+                        <i class="bi bi-moon-stars" style="font-size: 1.1rem;"></i>
+                    </label>
+                    <a href="courses.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-grid me-1"></i>সব ট্র্যাক</a>
+                    <a href="index.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-house me-1"></i>হোম</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Split Panel Container -->
+        <div class="lesson-split-container">
+            
+            <!-- Left Sidebar -->
+            <aside class="lesson-sidebar p-3">
+                <div class="d-flex align-items-center gap-2 mb-3 px-2 text-primary">
+                    <i class="bi bi-mortarboard-fill fs-5"></i>
+                    <h5 class="fw-bold mb-0">.NET সিনিয়র মডিউল</h5>
+                </div>
+
+                <div class="sidebar-chapter-title">১. CLR ও মেমোরি ইন্টারনালস</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#clr-jit" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-cpu-fill text-primary me-2"></i>JIT, Tiered Comp & PGO
+                    </a>
+                    <a href="#gc-internals" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-trash3-fill text-primary me-2"></i>GC Gen 0/1/2, LOH ও POH
+                    </a>
+                    <a href="#span-memory" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-lightning-charge-fill text-primary me-2"></i>Span&lt;T&gt;, Memory&lt;T&gt; ও জিরো এলোকেশন
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">২. থ্রেডিং ও অ্যাসিঙ্ক মেকানিজম</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#async-plumbing" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-arrow-repeat text-primary me-2"></i>Async/Await ও State Machine
+                    </a>
+                    <a href="#threadpool-starvation" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-exclamation-octagon-fill text-warning me-2"></i>Sync-Over-Async ও Starvation
+                    </a>
+                    <a href="#concurrency-primitives" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-shield-lock-fill text-primary me-2"></i>Channel&lt;T&gt;, SemaphoreSlim, Locks
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৩. এন্টারপ্রাইজ আর্কিটেকচার</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#clean-architecture" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-diagram-3-fill text-primary me-2"></i>Clean Architecture ও DDD
+                    </a>
+                    <a href="#cqrs-mediatr" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-arrows-split text-primary me-2"></i>CQRS ও MediatR প্যাটার্ন
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৪. হাই-পারফরম্যান্স ডাটা অ্যাক্সেস</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#efcore-internals" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-database-gear text-primary me-2"></i>EF Core অপ্টিমাইজেশন & Split Queries
+                    </a>
+                    <a href="#dapper-microorm" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-speedometer text-primary me-2"></i>Dapper মাইক্রো-ওআরএম ও টিভিটি
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৫. ওয়েব এপিআই ও সিকিউরিটি</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#middleware-di" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-funnel-fill text-primary me-2"></i>Middleware পাইপলাইন ও Captive DI
+                    </a>
+                    <a href="#jwt-oauth" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-key-fill text-primary me-2"></i>JWT, Refresh Token & Policy Auth
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Middle Content Body -->
+            <main class="lesson-body-content">
+                <article class="max-w-800">
+                    
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7 px-3 py-1">Enterprise .NET 8 / 9</span>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-7 px-3 py-1">Senior Architect Level</span>
+                    </div>
+
+                    <h1 class="fw-extrabold display-5 mb-3 text-primary">এন্টারপ্রাইজ .NET ও C# কোর ইঞ্জিনিয়ারিং</h1>
+                    <p class="fs-5 text-muted mb-4 lh-base">
+                        ৭+ বছরের অভিজ্ঞ সিনিয়র ইঞ্জিনিয়ার বা টেক লিড পদের ইন্টারভিউতে সাধারণ সিনট্যাক্স জিজ্ঞেস করা হয় না। সেখানে যাচাই করা হয় <strong>CLR মেমোরি মডেল, থ্রেডপুল ইন্টারনালস, জিরো-এলোকেশন অপ্টিমাইজেশন, Clean Architecture ও স্কেলেবল কনকারেন্সি ডিজাইন</strong>। এই গাইডে সেই সমস্ত গভীর বিষয়াবলি বিস্তারিত বিশ্লেষণ করা হয়েছে।
+                    </p>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 1: CLR & JIT -->
+                    <section id="clr-jit" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-cpu text-primary me-2"></i>১. CLR, JIT Compilation, Tiered Compilation ও PGO</h2>
+                        <p class="text-muted lh-lg">
+                            যখন আপনি C# কোড বিল্ড করেন, Roslyn কম্পাইলার আপনার কোডকে IL (Intermediate Language) এ রূপান্তর করে। কিন্তু প্রোডাকশনে যখন অ্যাপ্লিকেশন চলে, <strong>CLR (Common Language Runtime)</strong> এর ভেতরের <strong>JIT (Just-In-Time) কম্পাইলার</strong> সেই IL কোডকে সিপিইউ-এর নেটিভ মেশিন কোডে কনভার্ট করে।
+                        </p>
+                        
+                        <div class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-lightbulb-fill me-2"></i>Tiered Compilation (টায়ার্ড কম্পাইলেশন) কীভাবে কাজ করে?</h5>
+                            <p class="text-muted mb-2">
+                                আধুনিক .NET কোর সিস্টেমে JIT দুই স্তরে (Tier) কাজ করে:
+                            </p>
+                            <ul class="text-muted mb-0 ps-3">
+                                <li><strong>Tier 0 (Quick JIT):</strong> অ্যাপ্লিকেশন স্টার্টআপের সময় কোনো হেভি অপ্টিমাইজেশন ছাড়াই দ্রুত কোড মেশিন কোডে রূপান্তর করে যাতে অ্যাপ চোখের পলকে বুট হয়। একই সাথে CLR প্রতিটি মেথড কতবার কল হচ্ছে তার কাউন্ট ট্র্যাক করে।</li>
+                                <li><strong>Tier 1 (Optimized JIT):</strong> কোনো মেথড যদি বারবার কল হয় (হট পাথ / Hot Path), তখন ব্যাকগ্রাউন্ড থ্রেড সেই মেথডটিকে গভীর অপ্টিমাইজেশন (যেমন Loop Unrolling, Inline Expansion, Vectorization) সহ রি-কম্পাইল করে সুপার-ফাস্ট করে দেয়।</li>
+                                <li><strong>PGO (Profile-Guided Optimization):</strong> .NET 8/9 এ Dynamic PGO ডিফল্ট চালু থাকে। এটি মেথডের রানটাইম বিহেভিয়ার পর্যবেক্ষণ করে (যেমন কোন ইন্টারফেসের কোন কংক্রিট টাইপ ৯৯% সময় কল হয়) এবং সেই অনুযায়ী ভার্চুয়াল মেথড কলকে সরাসরি ডিরেক্ট কলে রূপান্তর করে (Devirtualization)।</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Section 2: GC Internals -->
+                    <section id="gc-internals" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-trash3 text-primary me-2"></i>২. Garbage Collection Internals: Gen 0, 1, 2, LOH এবং POH</h2>
+                        <p class="text-muted lh-lg">
+                            ৭+ বছরের ইঞ্জিনিয়ারদের ইন্টারভিউতে GC এর মেকানিক্স অত্যন্ত প্রিয় প্রশ্ন। .NET এর GC হলো একটি <strong>Generational, Tracing, Compacting Collector</strong>। এটি মেমোরিকে ৩টি লজিক্যাল জেনারেশন এবং ২টি স্পেশাল হিপে বিভক্ত করে:
+                        </p>
+
+                        <div class="table-responsive my-4">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>জেনারেশন / হিপ</th>
+                                        <th>অবজেক্টের সাইজ ও ধরন</th>
+                                        <th>কালেকশন ফ্রিকোয়েন্সি</th>
+                                        <th>কার্যপদ্ধতি</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold text-success">Gen 0</td>
+                                        <td>নতুন তৈরি স্বল্পস্থায়ী অবজেক্ট (Short-lived)</td>
+                                        <td>প্রতি সেকেন্ডে শত শত বার (মিলিসেকেন্ড)</td>
+                                        <td>খুবই সস্তা এবং দ্রুত। যারা বেঁচে থাকে তারা Gen 1 এ প্রোমোট হয়।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-warning">Gen 1</td>
+                                        <td>বাফার জোন (Gen 0 ও Gen 2 এর মধ্যবর্তী)</td>
+                                        <td>মাঝারি ফ্রিকোয়েন্সি</td>
+                                        <td>Gen 0 বেঁচে যাওয়া অবজেক্টগুলো এখানে আসে। এটি মেমোরি কম্প্যাক্ট করে।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-danger">Gen 2</td>
+                                        <td>দীর্ঘস্থায়ী অবজেক্ট (Static, Singletons, App Cache)</td>
+                                        <td>খুব কম (Full GC)</td>
+                                        <td>পুরো প্রসেসকে ফ্রিজ (Stop-The-World) করতে পারে। পারফরম্যান্স হিট বেশি।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-info">LOH (Large Object Heap)</td>
+                                        <td>যেকোনো অবজেক্ট যার সাইজ &ge; ৮৫,০০০ বাইটস (~85 KB)</td>
+                                        <td>Gen 2 কালেকশনের সাথে চলে</td>
+                                        <td>ডিফল্টভাবে কম্প্যাক্ট হয় না (কস্টলি বলে)। এর ফলে মেমোরি ফ্র্যাগমেন্টেশন ঘটে।</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold text-primary">POH (Pinned Object Heap)</td>
+                                        <td>.NET 5+ এ পিন করা অবজেক্ট (GC পিন মুভ করতে পারে না)</td>
+                                        <td>Gen 2 এর সমতুল্য</td>
+                                        <td>Native interop এবং Socket/I/O বাফারের জন্য নির্দিষ্ট হিপ।</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="warning-card">
+                            <h5 class="fw-bold text-warning mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>প্রোডাকশন সমস্যা: LOH Fragmentation কীভাবে প্রতিরোধ করবেন?</h5>
+                            <p class="text-muted mb-1">
+                                যদি আপনি প্রতি রিকোয়েস্টে বড় বাইট অ্যারে (`byte[100000]`) তৈরি করেন, সেগুলো সরাসরি LOH এ যাবে এবং GC কম্প্যাক্ট না করায় মেমোরি লিক সদৃশ OutOfMemoryException ঘটতে পারে।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>সমাধান:</strong> <code>ArrayPool&lt;byte&gt;.Shared.Rent(size)</code> ব্যবহার করে বাফার রেন্ট করুন এবং কাজ শেষে <code>ArrayPool&lt;byte&gt;.Shared.Return(buffer)</code> দিয়ে ফেরত দিন। এটি হিপ এলোকেশন সম্পূর্ণ শূন্য করে দেয়!
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 3: Span & Memory -->
+                    <section id="span-memory" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-primary me-2"></i>৩. Span&lt;T&gt;, Memory&lt;T&gt; ও Zero-Allocation C#</h2>
+                        <p class="text-muted lh-lg">
+                            ঐতিহ্যগতভাবে C# এ সাব-স্ট্রিং বা অ্যারের কোনো অংশ পার্স করতে গেলে <code>Substring()</code> নতুন মেমোরি হিপে এলোকেট করত। কিন্তু <code>Span&lt;T&gt;</code> হলো একটি <strong>ref struct</strong> যা স্ট্যাক, হিপ বা নেটিভ মেমোরির যেকোনো কন্টিনিউয়াস বাফারের উপর একটি ভার্চুয়াল লেন্স/উইন্ডো তৈরি করে কোনো নতুন মেমোরি কপি ছাড়াই।
+                        </p>
+
+                        <!-- Code Playground Simulator -->
+                        <div class="code-playground my-4">
+                            <input type="radio" name="play-tab-1" id="play-tab-code-1" class="playground-tabs-toggle" checked>
+                            <input type="radio" name="play-tab-1" id="play-tab-output-1" class="playground-tabs-toggle">
+                            
+                            <div class="playground-header">
+                                <div class="window-dots">
+                                    <div class="window-dot red"></div>
+                                    <div class="window-dot yellow"></div>
+                                    <div class="window-dot green"></div>
+                                </div>
+                                <div class="playground-tab-labels">
+                                    <label for="play-tab-code-1"><i class="bi bi-code-slash me-1"></i>Benchmark Code</label>
+                                    <label for="play-tab-output-1"><i class="bi bi-terminal me-1"></i>Memory Impact</label>
+                                </div>
+                            </div>
+                            
+                            <div class="playground-body">
+                                <div class="playground-pane" id="pane-code">
+<span class="text-warning">// সিনিয়র আর্কিটেক্ট লেভেল: জিরো-এলোকেশন পার্সিং</span>
+<span class="text-info">string</span> logEntry = <span class="text-success">"2026-11-11|ERROR|DatabaseConnectionTimeout|ID:948271"</span>;
+
+<span class="text-secondary">// ❌ সাধারণ উপায় (৩টি হিপ এলোকেশন ও GC চাপ)</span>
+<span class="text-info">string</span>[] parts = logEntry.Split(<span class="text-success">'|'</span>);
+<span class="text-info">string</span> errType = parts[1];
+
+<span class="text-secondary">// ✅ সিনিয়র এন্টারপ্রাইজ উপায় (০ বাইট হিপ এলোকেশন!)</span>
+<span class="text-info">ReadOnlySpan&lt;char&gt;</span> span = logEntry.AsSpan();
+<span class="text-info">int</span> firstPipe = span.IndexOf(<span class="text-success">'|'</span>);
+<span class="text-info">int</span> secondPipe = span.Slice(firstPipe + 1).IndexOf(<span class="text-success">'|'</span>);
+
+<span class="text-info">ReadOnlySpan&lt;char&gt;</span> errSpan = span.Slice(firstPipe + 1, secondPipe);
+<span class="text-secondary">// errSpan সরাসরি মূল স্ট্রিং পয়েন্ট করে, কোনো নতুন স্ট্রিং তৈরি হয়নি!</span>
+                                </div>
+                                <div class="playground-pane" id="pane-output">
+BenchmarkDotNet Comparison:
+| Method            | Mean       | Allocated | GC Gen 0 |
+|-------------------|------------|-----------|----------|
+| String.Split      | 145.20 ns  | 168 B     | 0.0267   |
+| ReadOnlySpan.Slice|   4.12 ns  |   0 B     | 0.0000   |
+
+উপসংহার: Span ৩৫ গুণ দ্রুত এবং হিপ মেমোরি এলোকেশন এক্স্যাক্টলি ০ বাইট!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="deep-dive-card">
+                            <h6 class="fw-bold text-primary mb-2">Span&lt;T&gt; বনাম Memory&lt;T&gt; এর পার্থক্য কী?</h6>
+                            <p class="text-muted mb-0">
+                                <code>Span&lt;T&gt;</code> হলো একটি <code>ref struct</code>, তাই এটি শুধুমাত্র স্ট্যাকে (Stack) থাকতে পারে—হিপে যেতে পারে না। এর মানে আপনি এটিকে কোনো অ্যাসিনক্রোনাস মেথডে (যেখানে <code>await</code> এর পর স্টেট মেশিন ক্লাসে পরিণত হয়) বা ক্লাসের ফিল্ডে রাখতে পারবেন না। এই সীমাবদ্ধতা দূর করার জন্য এসেছে <code>Memory&lt;T&gt;</code>। এটি হিপে বেঁচে থাকতে পারে এবং অ্যাসিনক্রোনাস মেথডে ব্যবহারযোগ্য। যখন এর ভেতরে কোনো স্লাইসিং বা ডেটা অপারেশন করবেন, তখন <code>memory.Span</code> দিয়ে স্প্যানে রূপান্তর করে ফাস্ট প্রসেস করবেন।
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 4: Async/Await & ThreadPool -->
+                    <section id="async-plumbing" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-primary me-2"></i>৪. Async/Await ইন্টারনালস ও State Machine</h2>
+                        <p class="text-muted lh-lg">
+                            একটি মেথডে যখন আপনি <code>async</code> এবং <code>await</code> লেখেন, C# কম্পাইলার মেথডটিকে গোপনে একটি <strong>IAsyncStateMachine</strong> স্ট্রাকচারে রূপান্তর করে। মেথডের লোকাল ভ্যারিয়েবলগুলো সেই স্টেট মেশিনের ফিল্ড হয়ে যায়। 
+                        </p>
+                        <ul class="text-muted lh-lg">
+                            <li><strong>কখন থ্রেড ছেড়ে দেওয়া হয়:</strong> যখন কোড <code>await task</code> এ পৌঁছায়, যদি কাজটি তাৎক্ষণিক সম্পন্ন না হয়ে থাকে, তাহলে বর্তমান থ্রেডটি অবিলম্বে থ্রেডপুলে ফিরে গিয়ে অন্য গ্রাহকের রিকোয়েস্ট প্রসেস করতে থাকে। এটি কোনো ব্যাকগ্রাউন্ড থ্রেডকে ব্লক করে বসিয়ে রাখে না!</li>
+                            <li><strong>I/O Completion Ports (IOCP):</strong> ডেটাবেজ বা নেটওয়ার্ক কলের জন্য উইন্ডোজের IOCP বা লিনাক্সের <code>epoll</code> কাজ করে। যখন নেটওয়ার্ক কার্ড ডাটা রিসিভ করে, হার্ডওয়্যার ইন্টারাপ্ট সিগন্যাল দেয় এবং CLR থ্রেডপুল থেকে একটি ফ্রি থ্রেড স্টেট মেশিনের অবশিষ্ট অংশ (MoveNext) এক্সিকিউট করে।</li>
+                            <li><strong>ValueTask&lt;T&gt; বনাম Task&lt;T&gt;:</strong> <code>Task</code> হলো রেফারেন্স টাইপ (হিপ এলোকেশন)। যদি কোনো অ্যাসিনক্রোনাস মেথড ৯৫% সময় ক্যাশ থেকে তাৎক্ষণিক রেজাল্ট রিটার্ন করতে পারে (Synchronous Completion), সেখানে <code>ValueTask&lt;T&gt;</code> ব্যবহার করলে ০ বাইট হিপ এলোকেশন হয়।</li>
+                        </ul>
+
+                        <div class="warning-card" id="threadpool-starvation">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-shield-slash-fill me-2"></i>Sync-Over-Async ও ThreadPool Starvation (সবচেয়ে বিপজ্জনক বাগ)</h5>
+                            <p class="text-muted mb-2">
+                                যখন কোনো ডেভেলপার অ্যাসিনক্রোনাস কোডকে সিনক্রোনাসলি কল করে: <code>var data = GetDataAsync().Result;</code> অথবা <code>.Wait()</code>, তখন থ্রেডটি ব্লক হয়ে যায়।
+                            </p>
+                            <p class="text-muted mb-2">
+                                <strong>কেন এটি ক্যাটাস্ট্রফিক:</strong> উচ্চ ট্রাফিকের সময় শত শত রিকোয়েস্ট আসবে এবং প্রতিটি রিকোয়েস্ট থ্রেডপুলের একটি করে থ্রেড দখল করে ব্লকিং অবস্থায় বসে থাকবে। থ্রেডপুল প্রতি সেকেন্ডে মাত্র ১-২টি করে নতুন থ্রেড স্পন করতে পারে। ফলে পুরো সার্ভার হ্যাং হয়ে যাবে (HTTP 503 / Timeout) অথচ সিপিইউ ইউসেজ থাকবে মাত্র ৫%! একে বলে <strong>ThreadPool Starvation</strong>।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>সমাধান:</strong> সম্পূর্ণ আর্কিটেকচার "Async All The Way" হতে হবে। কখনোই কন্ট্রোলার বা সার্ভিসে <code>.Result</code>, <code>.Wait()</code> বা <code>Task.Run().Result</code> লিখবেন না!
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 5: Clean Architecture & CQRS -->
+                    <section id="clean-architecture" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-diagram-3 text-primary me-2"></i>৫. Clean Architecture ও CQRS with MediatR</h2>
+                        <p class="text-muted lh-lg">
+                            এন্টারপ্রাইজ লেভেলের ৭+ বছর বয়সী .NET সলিউশনে ৩-টিয়ার (Controller -> Service -> Repository) এর বদলে <strong>Clean Architecture (Onion / Hexagonal Architecture)</strong> অনুসরণ করা হয়। এর মূল নীতি হলো: <em>ডোমেন লজিক কোনো বাহ্যিক ফ্রেমওয়ার্ক, ডাটাবেজ বা UI এর উপর নির্ভর করবে না (Dependency Inversion Principle)</em>।
+                        </p>
+
+                        <div class="row g-3 my-4">
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-primary">
+                                    <h5 class="fw-bold text-primary mb-2">১. Domain Layer (কোর)</h5>
+                                    <p class="text-muted fs-7 mb-2">সিস্টেমের হার্ট। এখানে থাকবে Entities, Value Objects, Aggregates, Domain Exceptions, Domain Events।</p>
+                                    <small class="text-success fw-bold"><i class="bi bi-check-circle me-1"></i>কোনো লাইব্রেরি ডিপেনডেন্সি নেই (Pure C#)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-info">
+                                    <h5 class="fw-bold text-info mb-2">২. Application Layer (ইউজ কেস)</h5>
+                                    <p class="text-muted fs-7 mb-2">CQRS হ্যান্ডলার (Commands & Queries), MediatR Pipeline Behaviors, DTOs, FluentValidation, Interfaces।</p>
+                                    <small class="text-muted fw-bold"><i class="bi bi-arrow-right me-1"></i>নির্ভর করে শুধু Domain Layer এর উপর</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-warning">
+                                    <h5 class="fw-bold text-warning mb-2">৩. Infrastructure Layer (বাহ্যিক টুল)</h5>
+                                    <p class="text-muted fs-7 mb-2">EF Core DbContext, Dapper Repositories, Redis Cache, Email Service, Stripe Payment Gateway।</p>
+                                    <small class="text-muted fw-bold"><i class="bi bi-arrow-right me-1"></i>ইমপ্লিমেন্ট করে Application Layer এর Interfaces</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="premium-card p-4 h-100 border-start border-4 border-success">
+                                    <h5 class="fw-bold text-success mb-2">৪. Presentation / Web API Layer</h5>
+                                    <p class="text-muted fs-7 mb-2">Controllers অথবা Minimal APIs, Middlewares, Filters, Swagger, SignalR Hubs।</p>
+                                    <small class="text-muted fw-bold"><i class="bi bi-arrow-right me-1"></i>শুধুমাত্র MediatR এ Command/Query পাঠায়</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CQRS Sub-section -->
+                        <div id="cqrs-mediatr" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-arrows-split me-2"></i>CQRS (Command Query Responsibility Segregation) কেন দরকার?</h5>
+                            <p class="text-muted mb-2">
+                                ঐতিহ্যগত সিস্টেমে রিড (Read) এবং রাইট (Write) একই মডেল দিয়ে করা হতো। কিন্তু এন্টারপ্রাইজ সিস্টেমে রিড ট্রাফিক রাইটের চেয়ে ৯০ গুণ বেশি থাকে।
+                            </p>
+                            <ul class="text-muted mb-0 ps-3">
+                                <li><strong>Commands (Create/Update/Delete):</strong> ডাটাবেজের স্টেট পরিবর্তন করে। এটি Domain Layer দিয়ে ভ্যালিডেশন হয়ে EF Core এর মাধ্যমে ট্রানজ্যাকশন সহকারে এক্সিকিউট হয়।</li>
+                                <li><strong>Queries (GetById, List):</strong> কোনো স্টেট পরিবর্তন করে না। EF Core এর Change Tracking এবং ওভারহেড বাইপাস করে সরাসরি <strong>Dapper</strong> বা <code>AsNoTracking()</code> দিয়ে হাই-স্পিড অপ্টিমাইজড ভিউ কোয়েরি করে।</li>
+                                <li><strong>MediatR Pipeline Behaviors:</strong> কন্ট্রোলারে বার বার Try-Catch বা Validation কোড না লিখে ক্রস-কাটিং কনসার্ন (যেমন Logging, Validation with FluentValidation, Performance Monitoring) একটি মিডলওয়্যার স্টাইলের পাইপলাইনে সেন্ট্রালাইজড করা হয়।</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Section 6: EF Core vs Dapper -->
+                    <section id="efcore-internals" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-database-gear text-primary me-2"></i>৬. EF Core ডিপ অপ্টিমাইজেশন বনাম Dapper</h2>
+                        <p class="text-muted lh-lg">
+                            ইন্টারভিউতে একটি চিরাচরিত প্রশ্ন: <em>"আপনি কি EF Core ব্যবহার করবেন নাকি Dapper?"</em> একজন জুনিয়র বলবে Dapper ফাস্ট, তাই Dapper। একজন ৭+ বছরের অভিজ্ঞ আর্কিটেক্ট বলবে: <strong>"Hybrid Approach"</strong>।
+                        </p>
+                        
+                        <div class="table-responsive my-3">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>বৈশিষ্ট্য</th>
+                                        <th>EF Core (.NET 8/9)</th>
+                                        <th>Dapper (Micro-ORM)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>ব্যবহার ক্ষেত্র</strong></td>
+                                        <td>Commands (Business logic, Complex Aggregates, Migrations, Auditing)</td>
+                                        <td>Queries (High-throughput reporting, Bulk operations, Complex Joins)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>পারফরম্যান্স</strong></td>
+                                        <td>খুবই ভালো (AsNoTracking ও Compiled Queries সহ)</td>
+                                        <td>কাঁচা ADO.NET এর সমতুল্য বিদ্যুৎগতি</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>N+1 প্রবলেম সল্যুশন</strong></td>
+                                        <td><code>.AsSplitQuery()</code> ব্যবহার করে একাধিক পরিচ্ছন্ন কুয়েরিতে ভাগ করা</td>
+                                        <td>মাল্টি-ম্যাপিং কুয়েরি (<code>QueryMultipleAsync</code>)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>বাল্ক আপডেট/ডিলিট</strong></td>
+                                        <td><code>ExecuteUpdateAsync()</code> / <code>ExecuteDeleteAsync()</code> (মেমোরিতে লোড ছাড়া)</td>
+                                        <td>সরাসরি SQL <code>UPDATE/DELETE</code> স্টেটমেন্ট</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="warning-card">
+                            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-lightbulb-fill me-2"></i>EF Core এ Split Queries কেন আবশ্যক?</h6>
+                            <p class="text-muted mb-0">
+                                যখন আপনি একাধিক চাইল্ড কালেকশন <code>.Include(x => x.Orders).ThenInclude(o => o.Items)</code> দিয়ে ফেচ করেন, রিলেশনাল ডাটাবেজ একটি বিশাল <strong>Cartesian Product</strong> তৈরি করে লাখ লাখ ডুপ্লিকেট কলাম রিটার্ন করে যা ব্যান্ডউইথ ও মেমোরি ধ্বংস করে দেয়। <code>.AsSplitQuery()</code> যোগ করলে EF Core প্রতিটি টেবিলের জন্য আলাদা আলাদা পরিষ্কার কুয়েরি পাঠিয়ে মেমোরিতে অবজেক্ট সাজায়, যা পারফরম্যান্স ১০ থেকে ২০ গুণ বৃদ্ধি করে!
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 7: Middleware & Captive Dependencies -->
+                    <section id="middleware-di" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-funnel text-primary me-2"></i>৭. ASP.NET Core Middleware পাইপলাইন ও Captive Dependency Trap</h2>
+                        <p class="text-muted lh-lg">
+                            ডটনেট ডিপেনডেন্সি ইনজেকশন (DI) এ ৩টি লাইফটাইম আছে:
+                            <br>১. <strong>Transient:</strong> প্রতিবার ইনজেক্টের সময় নতুন ইন্সট্যান্স তৈরি হয়।
+                            <br>২. <strong>Scoped:</strong> একটি সম্পূর্ণ HTTP Request চলাকালীন একটিমাত্র ইন্সট্যান্স থাকে। (যেমন: <code>DbContext</code>)।
+                            <br>৩. <strong>Singleton:</strong> অ্যাপ্লিকেশনের পুরো লাইফটাইমে একবার তৈরি হয়ে সবার মধ্যে শেয়ার হয়।
+                        </p>
+
+                        <div class="warning-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-bug-fill me-2"></i>Captive Dependency (মারাত্মক বাগ যা প্রোডাকশনে ডেটা করাপ্ট করে)</h5>
+                            <p class="text-muted mb-2">
+                                যখন কোনো <strong>Singleton</strong> সার্ভিসের ভেতরে আপনি একটি <strong>Scoped</strong> সার্ভিস (যেমন EF Core <code>DbContext</code>) ইনজেক্ট করেন, তখন Singleton সার্ভিসটি সেই Scoped সার্ভিসটিকে স্থায়ীভাবে ধরে রাখে (বন্দী করে ফেলে / Captive)।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>ফলাফল:</strong> DbContext থ্রেড-সেফ নয়। যখন একাধিক ক্লায়েন্ট একই সাথে সার্ভার রিকোয়েস্ট পাঠাবে, সবাই একই DbContext ইন্সট্যান্স শেয়ার করবে। ফলে <em>"A second operation was started on this context instance before a previous operation completed"</em> এক্সেপশন আসবে, মেমোরি আনলিমিটেড গ্রো করবে এবং ইউজারের ডাটা উল্টাপাল্টা মিশে যাবে!
+                                <br><strong>সমাধান:</strong> Singleton এর ভেতরে Scoped সার্ভিস সরাসরি ইনজেক্ট করবেন না। প্রয়োজনে <code>IServiceScopeFactory</code> ব্যবহার করে ম্যানুয়ালি <code>using var scope = _scopeFactory.CreateScope();</code> তৈরি করুন।
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Interactive Senior Quiz -->
+                    <div class="quiz-question border rounded-4 p-4 bg-light-subtle my-5 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-danger text-white fs-7">Senior Level Quiz</span>
+                            <h4 class="fw-bold mb-0">আর্কিটেকচারাল স্কিল টেস্ট</h4>
+                        </div>
+                        <p class="text-muted mb-4">উচ্চ ট্রাফিকের একটি এন্টারপ্রাইজ মাইক্রোসার্ভিসে <code>HttpClient</code> ব্যবহারের ক্ষেত্রে সঠিক ডিজাইন প্যাটার্ন কোনটি এবং কেন?</p>
+                        
+                        <input type="checkbox" id="show-results-dotnet-sr" class="show-results-toggle">
+                        <div class="quiz-options-container">
+                            <input type="radio" name="quiz-dotnet-sr" id="opt-a-dotnet" class="quiz-option-input" data-correct="false">
+                            <label for="opt-a-dotnet" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">A</span>
+                                প্রতি মেথড কলে নতুন <code>using var client = new HttpClient();</code> তৈরি করে ডিসপোজ করা।
+                            </label>
+
+                            <input type="radio" name="quiz-dotnet-sr" id="opt-b-dotnet" class="quiz-option-input" data-correct="true">
+                            <label for="opt-b-dotnet" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">B</span>
+                                <code>IHttpClientFactory</code> বা <code>SocketsHttpHandler</code> সহ Pooled Connection ব্যবহার করা।
+                            </label>
+
+                            <input type="radio" name="quiz-dotnet-sr" id="opt-c-dotnet" class="quiz-option-input" data-correct="false">
+                            <label for="opt-c-dotnet" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">C</span>
+                                পুরো অ্যাপে একটি স্ট্যাটিক <code>HttpClient</code> রাখা এবং DNS পরিবর্তন অগ্রাহ্য করা।
+                            </label>
+                        </div>
+                        
+                        <div class="mt-4"><label for="show-results-dotnet-sr" class="btn-submit-quiz">উত্তর যাচাই করুন</label></div>
+                        
+                        <div class="feedback-msg border bg-card p-3 mt-3">
+                            <h6 class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>নিখুঁত ব্যাখ্যা:</h6>
+                            <p class="text-muted mb-0">
+                                সহীহ উত্তর <strong>B</strong>! <code>new HttpClient()</code> বারবার তৈরি ও ডিসপোজ করলে অপারেটিং সিস্টেমের সকেট অবিলম্বে বন্ধ হয় না (TIME_WAIT স্টেট), যার ফলে <strong>Socket Exhaustion</strong> ঘটে। অন্যদিকে ক্লাসিক সিঙ্গেলটন HttpClient ডিএনএস (DNS) চেঞ্জ ট্র্যাক করতে পারে না। <code>IHttpClientFactory</code> কানেকশন পুলিং এবং হ্যান্ডলার লাইফটাইম স্বয়ংক্রিয়ভাবে ম্যানেজ করে উভয় সমস্যার নিখুঁত সমাধান দেয়।
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Nav -->
+                    <div class="d-flex justify-content-between align-items-center border-top pt-4 mt-5">
+                        <a href="courses.html" class="btn btn-premium-outline"><i class="bi bi-arrow-left me-2"></i>কোর্স ক্যাটালগ</a>
+                        <a href="database-mastery.html" class="btn btn-premium">পরবর্তী ট্র্যাক: ডাটাবেজ মাস্টারি <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+
+                </article>
+            </main>
+
+        </div>
+
+    </div>
+
+
+        <!-- Floating Back To Top Button -->
+        <button id="btnBackToTop" class="floating-back-to-top" title="উপরে যান">
+            <i class="bi bi-arrow-up"></i>
+        </button>
+
+        <!-- Mobile App Bottom Navigation Bar (Handheld Phone UX) -->
+        <div class="mobile-bottom-nav">
+            <a href="index.html" class="mobile-nav-link ">
+                <i class="bi bi-house-door"></i>
+                <span>হোম</span>
+            </a>
+            <a href="courses.html" class="mobile-nav-link active">
+                <i class="bi bi-grid"></i>
+                <span>ট্র্যাকসমূহ</span>
+            </a>
+            <a href="senior-interview-vault.html" class="mobile-nav-link ">
+                <i class="bi bi-trophy-fill"></i>
+                <span>ইন্টারভিউ</span>
+            </a>
+            <a href="dashboard.html" class="mobile-nav-link ">
+                <i class="bi bi-speedometer2"></i>
+                <span>ড্যাশবোর্ড</span>
+            </a>
+            <label for="theme-toggle" class="mobile-nav-link cursor-pointer m-0">
+                <i class="bi bi-moon-stars"></i>
+                <span>থিম</span>
+            </label>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('btnBackToTop');
+                if (btn) {
+                    window.addEventListener('scroll', function() {
+                        if (window.scrollY > 300) {
+                            btn.classList.add('visible');
+                        } else {
+                            btn.classList.remove('visible');
+                        }
+                    });
+                    btn.addEventListener('click', function() {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            });
+        </script>
+
+</body>
+</html>

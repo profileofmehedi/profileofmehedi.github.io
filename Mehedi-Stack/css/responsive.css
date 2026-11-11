@@ -1,15 +1,84 @@
 /* ==========================================================================
-   Responsive Overrides
+   Codex Responsive Engine & Mobile-First Reading Experience
+   Optimized for Phones (320px - 480px), Phablets & Tablets (768px - 1024px)
    ========================================================================== */
 
-/* Large Screens */
+/* --------------------------------------------------------------------------
+   1. Base Global Mobile Typography & Smooth Touch Scrolling
+   -------------------------------------------------------------------------- */
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    overflow-x: hidden;
+    line-height: 1.75;
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+p, li {
+    line-height: 1.8;
+}
+
+/* Touch targets & images */
+img, svg, canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Global Code block & Pre wrapping */
+pre, code, kbd, samp {
+    font-family: var(--font-mono);
+}
+
+pre {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    border-radius: 10px;
+    padding: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+code {
+    word-break: break-word;
+}
+
+pre code {
+    white-space: pre;
+    word-break: normal;
+    word-wrap: normal;
+}
+
+/* Tables in mobile cards */
+.table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.table {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   2. Large Screens (Desktops 1400px+)
+   -------------------------------------------------------------------------- */
 @media (min-width: 1400px) {
     .container {
         max-width: 1320px;
     }
 }
 
-/* Notebooks/Desktops */
+/* --------------------------------------------------------------------------
+   3. Notebooks & Small Desktops (max-width: 1200px)
+   -------------------------------------------------------------------------- */
 @media (max-width: 1200px) {
     .sidebar-panel {
         width: 260px;
@@ -20,7 +89,9 @@
     }
 }
 
-/* Tablets Landscape/Portraits */
+/* --------------------------------------------------------------------------
+   4. Tablets (max-width: 991.98px) - Split Screen to Stacked Reading Mode
+   -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
     .nav-link::after {
         display: none;
@@ -31,88 +102,319 @@
     .footer {
         padding: 3rem 0 1.5rem;
     }
-    .roadmap-tree::before {
-        left: 20px;
-        transform: none;
+
+    /* Lesson Split Layout Adaptations */
+    .lesson-split-container {
+        flex-direction: column !important;
     }
-    .roadmap-circle {
-        margin: 0;
-        width: 60px;
-        height: 60px;
-        font-size: 1.25rem;
+
+    .lesson-sidebar {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-height: 250px !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        overflow-y: auto !important;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.3s ease !important;
     }
-    .roadmap-node {
-        padding-left: 60px;
-        text-align: left !important;
+
+    /* CSS-Only Collapse Sidebar behavior in Mobile Column mode */
+    #sidebar-collapse-toggle:checked ~ .app-container .lesson-split-container .lesson-sidebar,
+    #sidebar-collapse-toggle:checked ~ .lesson-split-container .lesson-sidebar {
+        max-height: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        border-bottom-width: 0 !important;
+        opacity: 0 !important;
+        overflow: hidden !important;
+        pointer-events: none !important;
     }
-    .roadmap-node.text-end {
-        text-align: left !important;
+
+    .lesson-body-content {
+        max-height: none !important;
+        padding: 2rem 1.5rem !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
     }
-    /* Shift content elements in roadmaps */
-    .roadmap-content {
-        text-align: left !important;
-        margin-top: -45px;
-        padding-left: 20px;
+
+    /* Mobile Drawer */
+    .sidebar-panel {
+        width: 280px;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
     }
 }
 
-/* Small Tablets / Large Mobiles */
+/* --------------------------------------------------------------------------
+   5. Small Tablets & Large Phones (max-width: 767.98px)
+   -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
-    h1 {
-        font-size: 2.25rem;
+    /* Headings hierarchy for mobile */
+    h1, .display-4, .display-5 {
+        font-size: 2rem !important;
+        line-height: 1.3 !important;
+        letter-spacing: -0.01em !important;
     }
     h2 {
-        font-size: 1.75rem;
+        font-size: 1.6rem !important;
+        line-height: 1.35 !important;
     }
+    h3 {
+        font-size: 1.35rem !important;
+    }
+    h4 {
+        font-size: 1.2rem !important;
+    }
+    h5 {
+        font-size: 1.05rem !important;
+    }
+
+    /* Buttons touch targets */
     .btn-premium, .btn-premium-outline {
-        padding: 8px 20px;
+        padding: 10px 20px;
         font-size: 0.95rem;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
+
     .custom-modal-box {
         padding: 1.5rem;
         width: 95%;
     }
+
+    /* Code Playground Simulator */
     .playground-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+        padding: 10px 14px;
     }
     .playground-tab-labels {
         width: 100%;
+        display: flex;
+        gap: 6px;
     }
     .playground-tab-labels label {
         flex: 1;
         text-align: center;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+    .playground-body {
+        min-height: auto;
+    }
+    .playground-pane {
+        padding: 1rem;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        overflow-x: auto;
+    }
+
+    /* Filter Tabs Horizontal Swipe UI (Native App Feel) */
+    .filter-tabs {
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 1.5rem !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .filter-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .filter-label {
+        flex: 0 0 auto !important;
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+        white-space: nowrap !important;
+    }
+
+    /* Senior badge in navbar */
+    .senior-badge {
+        font-size: 0.7rem !important;
+        padding: 4px 10px !important;
+        max-width: 160px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
-/* Mobile Screens */
+/* --------------------------------------------------------------------------
+   6. Mobile Screens (max-width: 575.98px) - Handheld Smartphone Optimization
+   -------------------------------------------------------------------------- */
 @media (max-width: 575.98px) {
-    h1 {
-        font-size: 1.85rem;
+    /* Container tight padding */
+    .container, .container-fluid {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+
+    /* Lesson Body maximum reading surface */
+    .lesson-body-content {
+        padding: 1.25rem 0.75rem !important;
+    }
+
+    .lesson-sidebar {
+        max-height: 220px !important;
+        padding: 0.85rem !important;
+    }
+
+    /* Article Max-width override for full phone view */
+    article.max-w-700, article.max-w-800 {
+        max-width: 100% !important;
+    }
+
+    /* Compact Headings */
+    h1, .display-4, .display-5 {
+        font-size: 1.75rem !important;
+        margin-bottom: 0.75rem !important;
     }
     h2 {
-        font-size: 1.5rem;
+        font-size: 1.4rem !important;
+        margin-bottom: 0.65rem !important;
     }
+    h3 {
+        font-size: 1.25rem !important;
+    }
+    .fs-5 {
+        font-size: 1rem !important;
+        line-height: 1.75 !important;
+    }
+
+    /* Cards & Containers */
+    .premium-card, .glass-card, .qa-card {
+        padding: 1.25rem 1rem !important;
+        border-radius: 12px !important;
+    }
+
+    .deep-dive-card, .warning-card {
+        padding: 1rem 0.85rem !important;
+        margin: 1.25rem 0 !important;
+        border-radius: 0 10px 10px 0 !important;
+        border-left-width: 3px !important;
+    }
+
+    /* Navbar alignment in narrow screens */
+    .custom-navbar {
+        padding-top: 0.65rem !important;
+        padding-bottom: 0.65rem !important;
+    }
+    .custom-navbar .navbar-brand {
+        font-size: 1.25rem !important;
+        margin-right: 0.5rem !important;
+    }
+
+    /* Theme Switch Button */
     .theme-switch-label {
-        width: 38px;
-        height: 38px;
+        width: 36px !important;
+        height: 36px !important;
     }
     .theme-switch-label i {
-        font-size: 1.1rem;
+        font-size: 1rem !important;
     }
-    .custom-accordion-item {
-        border-radius: 8px;
+
+    /* Animated Concept Diagrams on Mobile */
+    .diagram-box {
+        padding: 1rem 0.75rem !important;
+        border-radius: 12px !important;
     }
-    .accordion-header-label {
-        padding: 1rem;
-        font-size: 0.95rem;
+    .diagram-node {
+        width: 100% !important;
+        max-width: 240px !important;
+        margin: 0 auto;
+        padding: 0.75rem !important;
     }
-    .accordion-toggle-input:checked ~ .accordion-content-panel {
-        padding: 1rem;
+    .diag-connector {
+        display: none !important;
+    }
+
+    /* Tables on Mobile */
+    .table th, .table td {
+        padding: 0.6rem 0.75rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Interactive Quiz Mobile Touch Targets */
+    .quiz-question {
+        padding: 1.25rem 1rem !important;
+        margin: 2.5rem 0 !important;
+        border-radius: 14px !important;
     }
     .quiz-option-label {
-        padding: 0.85rem 1rem;
-        font-size: 0.9rem;
+        padding: 12px 14px !important;
+        font-size: 0.88rem !important;
+        min-height: 48px;
+        border-radius: 10px !important;
+        margin-bottom: 10px !important;
+    }
+    .btn-submit-quiz {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        font-size: 0.95rem !important;
+        border-radius: 10px !important;
+    }
+
+    /* Lesson Navigation Controls (Stack vertically for effortless thumb navigation) */
+    .lesson-body-content article > .d-flex.justify-content-between,
+    .lesson-split-container .d-flex.justify-content-between.border-top {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    .lesson-body-content article > .d-flex.justify-content-between .btn,
+    .lesson-split-container .d-flex.justify-content-between.border-top .btn {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 16px !important;
+    }
+
+    /* Badge Grid in Profile and Course Details */
+    .badge-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    /* Streak badge in navbar */
+    .streak-badge {
+        padding: 4px 10px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Custom Accordions */
+    .custom-accordion-item {
+        border-radius: 10px !important;
+        margin-bottom: 12px !important;
+    }
+    .accordion-header-label {
+        padding: 0.9rem 1rem !important;
+        font-size: 0.92rem !important;
+    }
+    .accordion-toggle-input:checked ~ .accordion-content-panel {
+        padding: 1rem !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   7. Extra Small Phones (max-width: 380px) - e.g. iPhone SE, Folded screens
+   -------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+    h1, .display-4, .display-5 {
+        font-size: 1.55rem !important;
+    }
+    h2 {
+        font-size: 1.25rem !important;
+    }
+    .senior-badge {
+        display: none !important; /* Hide tiny badge to avoid navbar squishing */
+    }
+    .custom-navbar .navbar-brand {
+        font-size: 1.15rem !important;
+    }
+    .quiz-option-label {
+        font-size: 0.82rem !important;
+        padding: 10px 12px !important;
     }
 }

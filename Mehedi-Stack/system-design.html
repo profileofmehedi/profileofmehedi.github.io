@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="৭+ বছরের অভিজ্ঞ সিনিয়র সিস্টেম ডিজাইন ও হাই-লেভেল আর্কিটেকচার গাইড। Microservices, Saga, Outbox, Kafka, RabbitMQ, CAP Theorem, Rate Limiter ও Case Studies।">
+    <title>সিস্টেম ডিজাইন ও এন্টারপ্রাইজ আর্কিটেকচার (7+ Years Level) | Codex</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        .lesson-split-container {
+            display: flex;
+            min-height: calc(100vh - 73px);
+        }
+        .lesson-sidebar {
+            flex: 0 0 320px;
+            width: 320px;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-card);
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease, border-color 0.3s ease;
+            overflow-x: hidden;
+        }
+        .lesson-body-content {
+            flex-grow: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 73px);
+            background: var(--bg-main);
+        }
+        .sidebar-chapter-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin: 1.5rem 0 0.5rem 0.5rem;
+            padding-left: 0.25rem;
+            border-left: 2px solid var(--primary);
+        }
+        #sidebar-collapse-toggle:checked ~ .app-container .lesson-split-container .lesson-sidebar {
+            width: 0;
+            max-height: 0 !important;
+            padding: 0 !important;
+            border-width: 0 !important;
+            opacity: 0;
+            overflow: hidden !important;
+            pointer-events: none;
+            flex: 0 0 0px;
+        }
+        .sidebar-icon-close { display: none; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-open { display: none !important; }
+        #sidebar-collapse-toggle:checked ~ .app-container .sidebar-icon-close { display: inline-block !important; }
+
+        @media (max-width: 991.98px) {
+            .lesson-split-container { flex-direction: column; }
+            .lesson-sidebar {
+                flex: 0 0 auto;
+                width: 100%;
+                max-height: 240px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .lesson-body-content { max-height: none; padding: 1.5rem 1rem; }
+        }
+        @media (max-width: 575.98px) {
+            .lesson-body-content { padding: 1.25rem 0.75rem; }
+        }
+
+        .senior-badge {
+            background: linear-gradient(135deg, #10b981 0%, #0284c7 100%);
+            color: white;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .deep-dive-card {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-card);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .warning-card {
+            border-left: 4px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .arch-node {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: var(--transition-fast);
+        }
+        .arch-node:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Input -->
+    <input type="checkbox" id="theme-toggle" class="d-none">
+
+    <!-- Sidebar Collapse Toggle Input -->
+    <input type="checkbox" id="sidebar-collapse-toggle" class="d-none">
+
+    <div class="app-container">
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center fs-4 fw-bold text-primary text-decoration-none me-4" href="index.html">
+                    <span style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-code-slash me-2"></i>Codex
+                    </span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <label for="sidebar-collapse-toggle" class="btn btn-sm btn-premium-outline border border-secondary-subtle d-flex align-items-center justify-content-center cursor-pointer" style="width: 38px; height: 38px; border-radius: 50%;">
+                        <i class="bi bi-layout-sidebar-inset sidebar-icon-open"></i>
+                        <i class="bi bi-layout-sidebar sidebar-icon-close"></i>
+                    </label>
+                    <span class="senior-badge"><i class="bi bi-diagram-3-fill me-1"></i>System Architect Track</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <label for="theme-toggle" class="theme-switch-label" style="width: 38px; height: 38px;">
+                        <i class="bi bi-sun" style="font-size: 1.1rem;"></i>
+                        <i class="bi bi-moon-stars" style="font-size: 1.1rem;"></i>
+                    </label>
+                    <a href="courses.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-grid me-1"></i>সব ট্র্যাক</a>
+                    <a href="index.html" class="btn btn-premium-outline btn-sm py-1.5 px-3"><i class="bi bi-house me-1"></i>হোম</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Split Panel Container -->
+        <div class="lesson-split-container">
+            
+            <!-- Left Sidebar -->
+            <aside class="lesson-sidebar p-3">
+                <div class="d-flex align-items-center gap-2 mb-3 px-2 text-primary">
+                    <i class="bi bi-diagram-3 fs-5"></i>
+                    <h5 class="fw-bold mb-0">সিস্টেম ডিজাইন মডিউল</h5>
+                </div>
+
+                <div class="sidebar-chapter-title">১. সিস্টেম ডিজাইন ফান্ডামেন্টালস</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#sd-framework" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-card-checklist text-primary me-2"></i>৫-ধাপের ইন্টারভিউ ফ্রেমওয়ার্ক
+                    </a>
+                    <a href="#cap-theorem" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-triangle-fill text-primary me-2"></i>CAP Theorem, PACELC ও BASE
+                    </a>
+                    <a href="#idempotency" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-key text-primary me-2"></i>Idempotency Keys ও নেটওয়ার্ক রিট্রাই
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">২. ডিস্ট্রিবিউটেড মেসেজিং ও ইভেন্ট</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#kafka-rabbitmq" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-envelope-paper-fill text-primary me-2"></i>Kafka বনাম RabbitMQ আর্কিটেকচার
+                    </a>
+                    <a href="#outbox-pattern" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-mailbox text-primary me-2"></i>Transactional Outbox ও CDC
+                    </a>
+                    <a href="#saga-pattern" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-recycle text-primary me-2"></i>Saga Pattern: Orchestration vs Choreo
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৩. রেজিলিয়েন্স ও ট্র্যাফিক কন্ট্রোল</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#circuit-breaker" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-lightning-charge text-primary me-2"></i>Circuit Breaker (Polly) ও Bulkhead
+                    </a>
+                    <a href="#rate-limiting" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-speedometer text-primary me-2"></i>Rate Limiting (Token Bucket)
+                    </a>
+                </div>
+
+                <div class="sidebar-chapter-title">৪. রিয়েল-ওয়ার্ল্ড কেস স্টাডিজ</div>
+                <div class="list-group list-group-flush gap-1">
+                    <a href="#case-ecommerce" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-cart4 text-success me-2"></i>কেস ১: Flash Sale / Order System
+                    </a>
+                    <a href="#case-urlshortener" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-link-45deg text-info me-2"></i>কেস ২: High-Scale URL Shortener
+                    </a>
+                    <a href="#case-notifications" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 fs-7">
+                        <i class="bi bi-bell-fill text-warning me-2"></i>কেস ৩: Real-time Notification Engine
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Middle Content Body -->
+            <main class="lesson-body-content">
+                <article class="max-w-800">
+                    
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle fs-7 px-3 py-1">Microservices • Distributed Systems</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7 px-3 py-1">Principal / Tech Lead Level</span>
+                    </div>
+
+                    <h1 class="fw-extrabold display-5 mb-3 text-primary">সিস্টেম ডিজাইন ও এন্টারপ্রাইজ আর্কিটেকচার</h1>
+                    <p class="fs-5 text-muted mb-4 lh-base">
+                        ৭+ বছরের সিনিয়র সফটওয়্যার ইঞ্জিনিয়ার বা সলিউশন আর্কিটেক্টের ইন্টারভিউয়ের মেক-অর-ব্রেক রাউন্ড হলো <strong>সিস্টেম ডিজাইন (System Design Round)</strong>। এই গাইডে ডিস্ট্রিবিউটেড ট্রানজ্যাকশন, মেসেজিং মেকানিক্স, ফল্ট টলারেন্স এবং ৩টি ক্লাসিক বাস্তব সিস্টেমের আর্কিটেকচারাল ব্লুপ্রিন্ট উপস্থাপন করা হলো।
+                    </p>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 1: The 5-Step Interview Framework -->
+                    <section id="sd-framework" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-card-checklist text-primary me-2"></i>১. সিস্টেম ডিজাইন ইন্টারভিউয়ের ৫-ধাপের আর্কিটেকচারাল ফ্রেমওয়ার্ক</h2>
+                        <p class="text-muted lh-lg">
+                            ইন্টারভিউয়ার যখন বলে: <em>"Design a system like Amazon / Uber / TinyURL"</em>, তখন সাথে সাথে কোড বা ডাটাবেজ টেবিল আঁকতে শুরু করা মারাত্মক ভুল! একজন সিনিয়র লিড ৫টি নিয়মতান্ত্রিক ধাপে উত্তর দেন:
+                        </p>
+
+                        <div class="row g-3 my-4">
+                            <div class="col-md-4">
+                                <div class="arch-node h-100">
+                                    <span class="badge bg-primary mb-2">ধাপ ১</span>
+                                    <h6 class="fw-bold mb-1">Requirement Clarification</h6>
+                                    <p class="text-muted fs-8 mb-0">ফাংশনাল (কোর ফিচার) ও নন-ফাংশনাল রিকোয়ারমেন্টস (Latency &lt; 50ms, 99.99% Availability, Scale)।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="arch-node h-100">
+                                    <span class="badge bg-info text-dark mb-2">ধাপ ২</span>
+                                    <h6 class="fw-bold mb-1">Capacity Estimation</h6>
+                                    <p class="text-muted fs-8 mb-0">QPS (Queries Per Sec), পিক ট্র্যাফিক, স্টোরেজ ক্যাপাসিটি (৫ বছরে কত টেরাবাইট), ব্যান্ডউইথ ও ক্যাশ সাইজ ক্যালকুলেশন।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="arch-node h-100">
+                                    <span class="badge bg-success mb-2">ধাপ ৩</span>
+                                    <h6 class="fw-bold mb-1">High-Level Diagram</h6>
+                                    <p class="text-muted fs-8 mb-0">Client &rarr; CDN &rarr; Load Balancer &rarr; API Gateway &rarr; Microservices &rarr; Cache &rarr; DB।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="arch-node h-100">
+                                    <span class="badge bg-warning text-dark mb-2">ধাপ ৪</span>
+                                    <h6 class="fw-bold mb-1">Deep Dive Component Design</h6>
+                                    <p class="text-muted fs-8 mb-0">ডাটাবেজ স্কিমা (SQL vs NoSQL), কনকারেন্সি ও লকিং স্ট্র্যাটেজি, মেসেজ ব্রোকার, ডিস্ট্রিবিউটেড ট্রানজ্যাকশন সল্যুশন।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="arch-node h-100">
+                                    <span class="badge bg-danger mb-2">ধাপ ৫</span>
+                                    <h6 class="fw-bold mb-1">Bottlenecks & Fault Tolerance</h6>
+                                    <p class="text-muted fs-8 mb-0">Single Points of Failure (SPOF), Rate Limiting, ডাটাবেজ রেপ্লিকেশন ও ফেইলওভার, রিট্রাই ও সার্কিট ব্রেকার।</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 2: CAP Theorem & Idempotency -->
+                    <section id="cap-theorem" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-triangle-fill text-primary me-2"></i>২. CAP Theorem ও Idempotency Keys</h2>
+                        <p class="text-muted lh-lg">
+                            ডিস্ট্রিবিউটেড সিস্টেমে নেটওয়ার্ক বিভাজন (Network Partition - 'P') অনিবার্য। তাই সিস্টেম ডিজাইনে আপনাকে বেছে নিতে হবে:
+                            <br>• <strong>CP (Consistency + Partition Tolerance):</strong> ব্যাংক এবং পেমেন্ট সিস্টেমে যদি ডাটাবেজ নোডের মধ্যে নেটওয়ার্ক ড্রপ হয়, সিস্টেম এরর দেবে কিন্তু ভুল/পুরনো ডাটা দেখাবে না। (যেমন: MongoDB with Majority Write, PostgreSQL Streaming Replication)।
+                            <br>• <strong>AP (Availability + Partition Tolerance):</strong> সোশ্যাল মিডিয়া ও মেসেজিংয়ে ডাটা সাময়িক অসঙ্গত হলেও সার্ভিস সবসময় রিকোয়েস্ট একসেপ্ট করবে এবং পরে Eventual Consistency দিয়ে মিলবে। (যেমন: Cassandra, DynamoDB)।
+                        </p>
+
+                        <div id="idempotency" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-key-fill me-2"></i>Idempotency Keys (ডুপ্লিকেট চার্জ প্রতিরোধ করা)</h5>
+                            <p class="text-muted mb-2">
+                                ডিস্ট্রিবিউটেড সিস্টেমে নেটওয়ার্ক ড্রপের কারণে ক্লায়েন্ট একই রিকোয়েস্ট একাধিকবার রি-ট্রাই করতে পারে। যদি ইউজার পেমেন্ট সাবমিট করার পর নেটওয়ার্ক টাইমআউট পায় এবং আবার সাবমিট করে, তার কার্ড থেকে দুবার টাকা কেটে যাওয়া একটি ক্যাটাষ্ট্রফিক বাগ।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>সমাধান:</strong> ক্লায়েন্ট প্রতি অর্ডারে একটি ইউনিক <strong>Idempotency-Key: UUID</strong> হেডারে পাঠাবে। সার্ভার ডাটাবেজ বা Redis এ চেক করবে এই কি-টি ইতোমধ্যে প্রসেস হয়েছে কি না। যদি প্রসেস হয়ে থাকে, সে পুনরায় টাকা না কেটে পূর্বের সফল রেজাল্ট রিটার্ন করবে।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 3: Kafka vs RabbitMQ & Outbox -->
+                    <section id="kafka-rabbitmq" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-envelope-paper-fill text-primary me-2"></i>৩. Kafka বনাম RabbitMQ এবং Transactional Outbox Pattern</h2>
+                        <div class="table-responsive my-3">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>বৈশিষ্ট্য</th>
+                                        <th>RabbitMQ (Smart Broker, Dumb Consumer)</th>
+                                        <th>Apache Kafka (Dumb Broker, Smart Consumer)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>মডেল</strong></td>
+                                        <td>Message Queue (মেসেজ পড়া শেষে কিউ থেকে ডিলিট হয়ে যায়)</td>
+                                        <td>Distributed Append-Only Commit Log (মেসেজ স্থায়ীভাবে থাকে)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>রাউটিং</strong></td>
+                                        <td>খুবই জটিল ও ফ্লেক্সিবল (Direct, Fanout, Topic, Headers Exchanges)</td>
+                                        <td>টপিক এবং পার্টিশন ভিত্তিক (কী হ্যাশ দিয়ে পার্টিশন নির্ধারণ)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>থ্রুপুট</strong></td>
+                                        <td>প্রতি সেকেন্ডে হাজার হাজার মেসেজ (কম্প্লেক্স রাউটিং)</td>
+                                        <td>প্রতি সেকেন্ডে লাখ লাখ মেসেজ (সিকোয়েনশিয়াল ডিস্ক I/O)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>রিপ্লে / রি-রিড</strong></td>
+                                        <td>সম্ভব নয় (একবার ডেলিভারি শেষে নেই)</td>
+                                        <td>সহজেই সম্ভব (অফসেট পিছিয়ে দিয়ে আবার পড়া যায়)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Outbox Pattern -->
+                        <div id="outbox-pattern" class="warning-card">
+                            <h5 class="fw-bold text-danger mb-2"><i class="bi bi-mailbox me-2"></i>Dual-Write Problem ও Transactional Outbox Pattern</h5>
+                            <p class="text-muted mb-2">
+                                যখন আপনার সার্ভিস একটি নতুন অর্ডার ডাটাবেজে সেভ করে এবং একই সাথে কাফকাতে <code>OrderPlacedEvent</code> পাঠাতে চায়:
+                                <br>যদি ডাটাবেজ সেভ সফল হয় কিন্তু কাফকা ডাউন থাকার কারণে মেসেজ পাবলিশ ফেইল করে, তাহলে সিস্টেম ইনকনসিস্টেন্ট হয়ে যায়।
+                            </p>
+                            <p class="text-muted mb-0">
+                                <strong>Transactional Outbox সল্যুশন:</strong>
+                                <br>১. সরাসরি কাফকাতে না পাঠিয়ে, একই ডাটাবেজ ট্রানজ্যাকশনে <code>Orders</code> টেবিল এবং একটি <code>OutboxMessages</code> টেবিলে ইভেন্টটি সেভ করুন (Atomic Transaction - দুটিই সফল হবে নয়তো রোলব্যাক)।
+                                <br>২. একটি ব্যাকগ্রাউন্ড মেসেজ রিলে প্রসেস (যেমন Debezium CDC অথবা .NET BackgroundService) Outbox টেবিল থেকে আনপ্রসেসড মেসেজগুলো পড়ে কাফকাতে পুশ করে এবং সফল হলে আউটবক্স রো-কে প্রসেসড মার্ক করে।
+                            </p>
+                        </div>
+
+                        <!-- Saga Pattern -->
+                        <div id="saga-pattern" class="deep-dive-card">
+                            <h5 class="fw-bold text-primary mb-2"><i class="bi bi-recycle me-2"></i>Saga Pattern: ডিস্ট্রিবিউটেড ট্রানজ্যাকশন</h5>
+                            <p class="text-muted mb-2">
+                                মাইক্রোসার্ভিসে প্রতি সার্ভিসের আলাদা ডাটাবেজ থাকে (Database-per-service), তাই ক্লাসিক ACID ট্রানজ্যাকশন কাজ করে না। Saga প্যাটার্ন লোকাল ট্রানজ্যাকশনের একটি সিরিজ চালায়:
+                            </p>
+                            <ul class="text-muted mb-0 ps-3">
+                                <li><strong>Choreography (ইভেন্ট ড্রাইভেন):</strong> সার্ভিসগুলো একে অপরের ইভেন্ট শুনে পরবর্তী কাজ করে (ছোট প্রজেক্টে ভালো, বড় হলে ট্র্যাকিং অসম্ভব)।</li>
+                                <li><strong>Orchestration (সেন্ট্রাল কোঅর্ডিনেটর):</strong> একটি সেন্ট্রাল অর্কেস্ট্রেটর (যেমন MassTransit Saga State Machine) ধাপে ধাপে সার্ভিসকে কমান্ড পাঠায়। যদি ৩য় ধাপে পেমেন্ট ফেইল করে, অর্কেস্ট্রেটর পূর্ববর্তী ধাপগুলোতে <strong>Compensating Transaction</strong> পাঠিয়ে অর্ডার রোলব্যাক করে (যেমন ইনভেন্টরি আনলক করা)।</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 4: Resilience & Circuit Breaker -->
+                    <section id="circuit-breaker" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-primary me-2"></i>৪. সার্কিট ব্রেকার (Circuit Breaker) ও রেট লিমিটার</h2>
+                        <p class="text-muted lh-lg">
+                            যদি ডাউনস্ট্রিম পেমেন্ট গেটওয়ে স্লো বা ডাউন হয়ে যায়, ক্লায়েন্টের সব রিকোয়েস্ট সেখানে আটকে থাকবে এবং ক্যাসকেডিং ফেইলিওর ঘটাবে। <strong>Circuit Breaker (Polly)</strong> এর ৩টি স্টেট থাকে:
+                        </p>
+
+                        <div class="row g-3 my-3">
+                            <div class="col-md-4">
+                                <div class="premium-card p-3 h-100 border-start border-4 border-success">
+                                    <h6 class="fw-bold text-success mb-1">Closed (নরমাল)</h6>
+                                    <p class="text-muted fs-8 mb-0">রিকোয়েস্ট স্বাভাবিকভাবে পাস হয়। কোনো ফেইলিওর ট্র্যাকিং কাউন্টার চালু থাকে।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="premium-card p-3 h-100 border-start border-4 border-danger">
+                                    <h6 class="fw-bold text-danger mb-1">Open (সার্কিট ব্রেক)</h6>
+                                    <p class="text-muted fs-8 mb-0">ফেইলিওর রেট (যেমন ৫০%) অতিক্রম করলে সার্কিট ওপেন হয়। ডাউনস্ট্রিমে কোনো কল না পাঠিয়ে তাৎক্ষণিক ফলব্যাক এরর দেয়।</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="premium-card p-3 h-100 border-start border-4 border-warning">
+                                    <h6 class="fw-bold text-warning mb-1">Half-Open (টেস্টিং)</h6>
+                                    <p class="text-muted fs-8 mb-0">নির্ধারিত সময় পর ট্রায়াল হিসেবে ১-২টি রিকোয়েস্ট পাঠায়। সফল হলে ক্লোজড, ফেইল হলে আবার ওপেন স্টেটে ফেরে।</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rate Limiter -->
+                        <div id="rate-limiting" class="deep-dive-card">
+                            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-speedometer me-2"></i>Token Bucket অ্যালগরিদম (Rate Limiting)</h6>
+                            <p class="text-muted mb-0">
+                                একটি বাকেটে প্রতি সেকেন্ডে নির্দিষ্ট হারে টোকেন যোগ হয় (যেমন ১০০ টোকেন/সেকেন্ড)। প্রতিটি আগত রিকোয়েস্ট বাকেট থেকে ১টি টোকেন সংগ্রহ করে এক্সিকিউট হয়। যদি বাকেটে টোকেন না থাকে, সার্ভার <strong>HTTP 429 Too Many Requests</strong> রিটার্ন করে। এটি সাময়িক ট্র্যাফিক বার্স্ট (Traffic Burst) চমৎকারভাবে নিয়ন্ত্রণ করতে পারে।
+                            </p>
+                        </div>
+                    </section>
+
+                    <hr class="my-5 border-secondary-subtle">
+
+                    <!-- Section 5: Real-World Case Studies -->
+                    <section id="case-ecommerce" class="mb-5">
+                        <h2 class="fw-bold mb-3"><i class="bi bi-diagram-3-fill text-primary me-2"></i>৫. রিয়েল-ওয়ার্ল্ড সিস্টেম ডিজাইন কেস স্টাডিজ</h2>
+
+                        <!-- Case 1: E-Commerce Flash Sale -->
+                        <div class="premium-card p-4 mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h4 class="fw-bold text-primary mb-0"><i class="bi bi-cart4 me-2"></i>কেস ১: Flash Sale / High-Concurrency Order System</h4>
+                                <span class="badge bg-danger text-white">Critical Scale</span>
+                            </div>
+                            <p class="text-muted fs-7 mb-3">
+                                <strong>চ্যালেঞ্জ:</strong> মাত্র ১,০০০টি আইটেম বিক্রির জন্য ১০ লাখ মানুষ এক সেকেন্ডে "Buy Now" বাটনে ক্লিক করে। ডাটাবেজে ওভারসেলিং বা ক্র্যাশ ছাড়াই কীভাবে সামলাবেন?
+                            </p>
+                            <div class="p-3 bg-light rounded-3 border mb-3">
+                                <h6 class="fw-bold text-dark mb-2">আর্কিটেকচারাল সল্যুশন:</h6>
+                                <ol class="text-muted fs-8 mb-0 ps-3">
+                                    <li class="mb-1"><strong>CDN & Static Asset Caching:</strong> প্রোডাক্টের ইমেজ এবং ডেসক্রিপশন পেজ সম্পূর্ণ ক্লাউডফ্লেয়ার/এডাব্লিউএস ক্লাউডফ্রন্টে ক্যাশড থাকবে (মেইন সার্ভারে ০ ট্র্যাফিক)।</li>
+                                    <li class="mb-1"><strong>Rate Limiter & Virtual Waiting Room:</strong> API Gateway তে টোকেন বাকেট দিয়ে অতিরিক্ত ট্র্যাফিক ড্রপ বা কিউতে পাঠানো।</li>
+                                    <li class="mb-1"><strong>Redis Lua Scripting (Pre-Deduct Stock):</strong> ডাটাবেজে সরাসরি হিট না করে Redis এ স্টক ডিক্রিমেন্ট করা: <code>if redis.call('get', key) &gt; 0 then return redis.call('decr', key) else return 0 end</code> (অ্যাটমিক এবং মিলিসেকেন্ড গতি)।</li>
+                                    <li class="mb-1"><strong>Async Order Creation via Kafka:</strong> যারা স্টক পেয়েছে তাদের রিকোয়েস্ট কাফকা কিউতে পাঠানো হবে। ব্যাকগ্রাউন্ড ওয়ার্কার সার্ভিস ডাটাবেজে অর্ডার এন্ট্রি তৈরি করবে।</li>
+                                    <li class="mb-0"><strong>Payment Reconciliation:</strong> পেমেন্টের জন্য ১০ মিনিট স্টক রিজার্ভেশন টাইমআউট থাকবে। ফেইল হলে Redis এ স্টক ফেরত যাবে।</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Case 2: URL Shortener -->
+                        <div id="case-urlshortener" class="premium-card p-4 mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h4 class="fw-bold text-info mb-0"><i class="bi bi-link-45deg me-2"></i>কেস ২: High-Scale URL Shortener (TinyURL)</h4>
+                                <span class="badge bg-info text-dark">High Throughput</span>
+                            </div>
+                            <p class="text-muted fs-7 mb-3">
+                                <strong>চ্যালেঞ্জ:</strong> ১০০ মিলিয়ন নতুন ইউআরএল প্রতি মাসে তৈরি হবে। রিড ট্রাফিক রাইটের ১০০ গুণ বেশি। লেটেন্সি &lt; ১০ মিলিসেকেন্ড।
+                            </p>
+                            <div class="p-3 bg-light rounded-3 border mb-3">
+                                <h6 class="fw-bold text-dark mb-2">আর্কিটেকচারাল সল্যুশন:</h6>
+                                <ul class="text-muted fs-8 mb-0 ps-3">
+                                    <li class="mb-1"><strong>Base62 Encoding:</strong> [a-z, A-Z, 0-9] এর ৭ ক্যারেক্টার দিয়ে <code>62^7 = 3.5 ট্রিলিয়ন</code> ইউনিক শর্ট কোড তৈরি করা সম্ভব।</li>
+                                    <li class="mb-1"><strong>Key Generation Service (KGS):</strong> রিকোয়েস্টের সময় হ্যাশ তৈরি করলে কলিশন হ্যান্ডলিং জটিল হয়। তাই একটি ডেডিকেটেড KGS ব্যাকগ্রাউন্ডে কোটি কোটি ইউনিক ৭-ক্যারেক্টার স্ট্রিং তৈরি করে প্রস্তুত রাখবে।</li>
+                                    <li class="mb-0"><strong>Aggressive Caching:</strong> ৮০-২০ রুলে টপ ২০% হট ইউআরএল Redis ক্যাশে থাকবে। ক্যাশ হিট রেশিও ৯৫%+ থাকায় ডাটাবেজ চাপমুক্ত থাকবে।</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Case 3: Real-Time Notification -->
+                        <div id="case-notifications" class="premium-card p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h4 class="fw-bold text-warning mb-0"><i class="bi bi-bell-fill me-2"></i>কেস ৩: Real-Time Push Notification Engine</h4>
+                                <span class="badge bg-warning text-dark">Event Driven</span>
+                            </div>
+                            <p class="text-muted fs-7 mb-3">
+                                কোটি কোটি ইউজারের ডিভাইসে রিয়েল-টাইমে নোটিফিকেশন পুশ করা (ওয়েব, মোবাইল, এসএমএস, ইমেইল)।
+                            </p>
+                            <div class="p-3 bg-light rounded-3 border">
+                                <h6 class="fw-bold text-dark mb-2">আর্কিটেকচারাল সল্যুশন:</h6>
+                                <p class="text-muted fs-8 mb-0">
+                                    <strong>SignalR + Redis Backplane:</strong> একাধিক ওয়েব সার্ভার থাকলে ক্লায়েন্টের WebSocket কানেকশন যেকোনো নোডে থাকতে পারে। Redis Pub/Sub ব্যাকপ্লেন হিসেবে কাজ করে সমস্ত সার্ভার নোডের মধ্যে মেসেজ রাউট করে।
+                                    <br><strong>Kafka Priority Queues:</strong> ওটিপি ও ট্রানজ্যাকশনাল নোটিফিকেশন হাই-প্রায়োরিটি পার্টিশনে প্রসেস হবে এবং মার্কেটিং নোটিফিকেশন লো-প্রায়োরিটি কিউতে রেট-লিমিট হয়ে পাঠানো হবে।
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Interactive System Design Quiz -->
+                    <div class="quiz-question border rounded-4 p-4 bg-light-subtle my-5 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-success text-white fs-7">System Design Interview Quiz</span>
+                            <h4 class="fw-bold mb-0">ডিস্ট্রিবিউটেড ট্রানজ্যাকশন টেস্ট</h4>
+                        </div>
+                        <p class="text-muted mb-4">একটি ডিস্ট্রিবিউটেড মাইক্রোসার্ভিস আর্কিটেকচারে অর্ডার তৈরি হওয়ার পর পেমেন্ট সার্ভিস ও ইনভেন্টরি সার্ভিসের মধ্যে ডেটা কনসিস্টেন্সি বজায় রাখার সবচেয়ে স্কেলেবল ইন্ডাস্ট্রি-স্ট্যান্ডার্ড সমাধান কোনটি?</p>
+                        
+                        <input type="checkbox" id="show-results-sd-sr" class="show-results-toggle">
+                        <div class="quiz-options-container">
+                            <input type="radio" name="quiz-sd-sr" id="opt-a-sd" class="quiz-option-input" data-correct="false">
+                            <label for="opt-a-sd" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">A</span>
+                                2-Phase Commit (2PC) বা ডিস্ট্রিবিউটেড লক ব্যবহার করে তিনটি সার্ভিসের ডাটাবেজ একযোগে ব্লক করে রাখা।
+                            </label>
+
+                            <input type="radio" name="quiz-sd-sr" id="opt-b-sd" class="quiz-option-input" data-correct="true">
+                            <label for="opt-b-sd" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">B</span>
+                                Transactional Outbox প্যাটার্ন সহ Saga Orchestration ও Compensating Transactions ব্যবহার করা।
+                            </label>
+
+                            <input type="radio" name="quiz-sd-sr" id="opt-c-sd" class="quiz-option-input" data-correct="false">
+                            <label for="opt-c-sd" class="quiz-option-label">
+                                <span class="badge bg-secondary-subtle text-secondary me-3">C</span>
+                                সব মাইক্রোসার্ভিস ভেঙে একটি মাত্র বিশাল মনোলিথিক ডাটাবেজ টেবিলে ফিরিয়ে নিয়ে আসা।
+                            </label>
+                        </div>
+                        
+                        <div class="mt-4"><label for="show-results-sd-sr" class="btn-submit-quiz">উত্তর জমা দিন</label></div>
+                        
+                        <div class="feedback-msg border bg-card p-3 mt-3">
+                            <h6 class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>ব্যাখ্যা:</h6>
+                            <p class="text-muted mb-0">
+                                সহীহ উত্তর <strong>B</strong>! ২-ফেজ কমিট (2PC) অত্যন্ত ব্লকিং এবং কোনো একটি সার্ভিস রেসপন্স না করলে পুরো সিস্টেম হ্যাং হয়ে যায়। মাইক্রোসার্ভিসে স্কেলেবল সমাধান হলো Saga প্যাটার্ন, যেখানে লোকাল ট্রানজ্যাকশন সফল হলে পরবর্তী ইভেন্ট ট্রিগার হয় এবং কোনো ধাপে ত্রুটি ঘটলে Compensating Transaction পাঠিয়ে পূর্ববর্তী ধাপগুলো রোলব্যাক করা হয়।
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Nav -->
+                    <div class="d-flex justify-content-between align-items-center border-top pt-4 mt-5">
+                        <a href="frontend-mastery.html" class="btn btn-premium-outline"><i class="bi bi-arrow-left me-2"></i>পূর্ববর্তী: ফ্রন্টএন্ড মাস্টারি</a>
+                        <a href="server-devops.html" class="btn btn-premium">পরবর্তী ট্র্যাক: সার্ভার ম্যানেজমেন্ট ও DevOps <i class="bi bi-arrow-right ms-2"></i></a>
+                    </div>
+
+                </article>
+            </main>
+
+        </div>
+
+    </div>
+
+
+        <!-- Floating Back To Top Button -->
+        <button id="btnBackToTop" class="floating-back-to-top" title="উপরে যান">
+            <i class="bi bi-arrow-up"></i>
+        </button>
+
+        <!-- Mobile App Bottom Navigation Bar (Handheld Phone UX) -->
+        <div class="mobile-bottom-nav">
+            <a href="index.html" class="mobile-nav-link ">
+                <i class="bi bi-house-door"></i>
+                <span>হোম</span>
+            </a>
+            <a href="courses.html" class="mobile-nav-link active">
+                <i class="bi bi-grid"></i>
+                <span>ট্র্যাকসমূহ</span>
+            </a>
+            <a href="senior-interview-vault.html" class="mobile-nav-link ">
+                <i class="bi bi-trophy-fill"></i>
+                <span>ইন্টারভিউ</span>
+            </a>
+            <a href="dashboard.html" class="mobile-nav-link ">
+                <i class="bi bi-speedometer2"></i>
+                <span>ড্যাশবোর্ড</span>
+            </a>
+            <label for="theme-toggle" class="mobile-nav-link cursor-pointer m-0">
+                <i class="bi bi-moon-stars"></i>
+                <span>থিম</span>
+            </label>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('btnBackToTop');
+                if (btn) {
+                    window.addEventListener('scroll', function() {
+                        if (window.scrollY > 300) {
+                            btn.classList.add('visible');
+                        } else {
+                            btn.classList.remove('visible');
+                        }
+                    });
+                    btn.addEventListener('click', function() {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            });
+        </script>
+
+</body>
+</html>
