@@ -593,4 +593,382 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================
     const yearEl = document.getElementById('currentYear');
     if (yearEl) yearEl.textContent = new Date().getFullYear().toLocaleString('bn-BD', { useGrouping: false });
+
+    // =========================================
+    // 2026 ADVANCED MARKETING & INTERACTIVE ENGINE
+    // =========================================
+
+    // 1. Audio Chime Synthesizer (Micro-interaction)
+    function playSoftChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now); // D5
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.35);
+        } catch(e) {}
+    }
+
+    // 2. Interactive SaaS Showcase Playground
+    const saasProductsData = {
+        edusync: {
+            badge: "এডুকেশন ম্যানেজমেন্ট",
+            title: "EduSync - আধুনিক স্কুল ও শিক্ষা প্রতিষ্ঠান ERP",
+            tagline: "স্টুডেন্ট, প্যারেন্ট ও টিচারদের জন্য সমন্বিত ক্লাউড ইকোসিস্টেম",
+            desc: "ভর্তি প্রক্রিয়া, ডিজিটাল হাজিরা, অনলাইন ফি কালেকশন, রেজাল্ট শিট ও এসএমএস নোটিফিকেশন সহ যেকোনো শিক্ষা প্রতিষ্ঠান পরিচালনার জন্য একটি নির্ভরযোগ্য অল-ইন-ওয়ান সমাধান।",
+            metric1: "৮৫%", metric1Lbl: "সময় সাশ্রয়",
+            metric2: "১০০%", metric2Lbl: "ডিজিটাল কালেকশন",
+            metric3: "২৪/৭", metric3Lbl: "ক্লাউড অটোমেশন",
+            features: [
+                "ডিজিটাল স্টুডেন্ট ও প্যারেন্ট পোর্টাল",
+                "বিকাশ/নগদ অটো ফি কালেকশন গেটওয়ে",
+                "১-ক্লিকে রেজাল্ট কার্ড ও গ্রেডিং শিট",
+                "স্বয়ংক্রিয় বাল্ক এসএমএস এলার্ট"
+            ],
+            demoUrl: "https://edusync.nextxenit.com",
+            frameUrl: "https://edusync.nextxenit.com",
+            img: "images/app/edusync-1.webp"
+        },
+        hr: {
+            badge: "হিউম্যান রিসোর্স ও পেরোল",
+            title: "NextXen HR & Payroll - স্মার্ট কর্মী ব্যবস্থাপনা",
+            tagline: "হাজিরা ট্র্যাকিং, বায়োমেট্রিক ও অটোমেটেড স্যালারি প্রসেসিং",
+            desc: "ম্যানুয়াল পেরোল ও হাজিরা খাতার ঝামেলা দূর করে সম্পূর্ণ স্বয়ংক্রিয় কর্মী তথ্য, ছুটি অনুমোদন, ওভারটাইম ক্যালকুলেশন ও পে-স্লিপ জেনারেট করুন।",
+            metric1: "৯০%", metric1Lbl: "এইচআর সময় সাশ্রয়",
+            metric2: "১০০%", metric2Lbl: "নির্ভুল স্যালারি",
+            metric3: "রিয়েল-টাইম", metric3Lbl: "বায়োমেট্রিক সিঙ্ক",
+            features: [
+                "বায়োমেট্রিক ডিভাইস ও জিও-ফেন্সিং হাজিরা",
+                "১-ক্লিকে বোনাস ও ট্যাক্সসহ বেতন শিট",
+                "মোবাইল অ্যাপ থেকে ছুটি আবেদন ও অনুমোদন",
+                "ব্যাংক ট্রান্সফার স্টেটমেন্ট এক্সপোর্ট"
+            ],
+            demoUrl: "https://hr.nextxenit.com",
+            frameUrl: "https://hr.nextxenit.com",
+            img: "images/app/hr-payroll-1.webp"
+        },
+        drhour: {
+            badge: "হেলথকেয়ার ও বুকিং",
+            title: "Dr Hour - ডাক্তার অ্যাপয়েন্টমেন্ট ও স্মার্ট ক্লিনিক ইআরপি",
+            tagline: "অনলাইন সিরিয়াল, ডিজিটাল প্রেসক্রিপশন ও ফার্মেসি বিলিং",
+            desc: "রোগীদের দীর্ঘ লাইনে দাঁড়িয়ে থাকার দিন শেষ। এসএমএস ও কিউআর কোড সিরিয়াল, চেম্বার টিভি ডিসপ্লে এবং ডিজিটাল রোগী হিস্ট্রি ম্যানেজমেন্ট।",
+            metric1: "০ মিনিট", metric1Lbl: "অনাকাঙ্ক্ষিত অপেক্ষা",
+            metric2: "১০০%", metric2Lbl: "ডিজিটাল হিস্ট্রি",
+            metric3: "লাইভ", metric3Lbl: "টিভি কিউ ডিসপ্লে",
+            features: [
+                "অনলাইন স্মার্ট পেশেন্ট সিরিয়াল বুকিং",
+                "চেম্বার ওয়েটিং ডিসপ্লে কিউ বোর্ড",
+                "১-মিনিটে প্রফেশনাল ডিজিটাল প্রেসক্রিপশন",
+                "ইনভেস্টিগেশন ও ফার্মেসি সমন্বিত বিলিং"
+            ],
+            demoUrl: "https://dr-hour.nextxenit.com",
+            frameUrl: "https://dr-hour.nextxenit.com",
+            img: "images/app/dr-hour-1.webp"
+        },
+        billify: {
+            badge: "বিলিং, পিওএস ও ইনভেন্টরি",
+            title: "Billify & DinePOS - রিটেইল ও রেস্টুরেন্ট ম্যানেজমেন্ট",
+            tagline: "ক্লাউড পয়েন্ট অব সেল, কিচেন ডিসপ্লে (KDS) ও বারকোড বিলিং",
+            desc: "দ্রুততম বিলিং, টেবিল ম্যানেজমেন্ট, অটোমেটেড স্টক ইনভেন্টরি এবং লাভ-ক্ষতির লাইভ হিসাবের জন্য সেরা পিওএস সমাধান।",
+            metric1: "৩ সেকেন্ড", metric1Lbl: "প্রতি বিলিং সময়",
+            metric2: "লাইভ", metric2Lbl: "স্টক এলার্ট",
+            metric3: "০%", metric3Lbl: "হিসাবে গরমিল",
+            features: [
+                "টাচ পিওএস ও কিচেন অর্ডার ডিসপ্লে (KDS)",
+                "বারকোড স্ক্যানার ও থার্মাল প্রিন্ট সাপোর্ট",
+                "স্টক অ্যালার্ট ও অটোমেটেড সাপ্লায়ার লেজার",
+                "দৈনিক বিক্রয় ও ভ্যাট রিটার্ন রিপোর্ট"
+            ],
+            demoUrl: "https://dinepos.nextxenit.com",
+            frameUrl: "https://dinepos.nextxenit.com",
+            img: "images/app/billify-1.webp"
+        },
+        ngo: {
+            badge: "মাইক্রোফাইন্যান্স ও সমিতি",
+            title: "NGO App & Rinshiri - ক্ষুদ্রঋণ ও সমবায় কালেকশন",
+            tagline: "মাঠ পর্যায়ের রিয়েলটাইম কিস্তি কালেকশন ও হিসাব খাতা",
+            desc: "এনজিও, সমবায় সমিতি ও সঞ্চয়ী প্রতিষ্ঠানের সদস্য হিসাব, ঋণ অনুমোদন, সাপ্তাহিক/মাসিক কিস্তি কালেকশন এবং অটো পাসবুক আপডেট।",
+            metric1: "১০০%", metric1Lbl: "মাঠ পর্যায়ের স্বচ্ছতা",
+            metric2: "ইনস্ট্যান্ট", metric2Lbl: "এসএমএস রিসিপ্ট",
+            metric3: "অফলাইন", metric3Lbl: "মোবাইল কালেকশন",
+            features: [
+                "মাঠকর্মীদের জন্য অ্যান্ড্রয়েড কালেকশন অ্যাপ",
+                "সঞ্চয় ও ঋণ কিস্তির তাৎক্ষণিক ডিজিটাল রশিদ",
+                "অটোমেটেড ডিউ ও রিকভারি এনালাইসিস",
+                "পিকেএসএফ (PKSF) ও এনজিও ব্যুরো স্ট্যান্ডার্ড"
+            ],
+            demoUrl: "https://rinshiri.nextxenit.com",
+            frameUrl: "https://rinshiri.nextxenit.com",
+            img: "images/app/ngo-app-1.webp"
+        },
+        social: {
+            badge: "সোশ্যাল কমার্স ও AI মার্কেটিং",
+            title: "Social Hub - মেটা v22.0 ও OpenAI চালিত কমার্স স্টুডিও",
+            tagline: "একাধিক ফেসবুক পেজে ১-ক্লিকে ৩০ দিনের পোস্ট ও ছবি শিডিউলিং",
+            desc: "ফেসবুক মেসেজ, কমেন্ট অটো-রিপ্লাই, লিড কালেকশন এবং কৃত্রিম বুদ্ধিমত্তা দিয়ে ভাইরাল কন্টেন্ট ও ইমেজ তৈরি করার কমপ্লিট স্যুট।",
+            metric1: "৩০ দিন", metric1Lbl: "১-ক্লিকে কন্টেন্ট",
+            metric2: "১০x", metric2Lbl: "দ্রুততর রিচ",
+            metric3: "১০০%", metric3Lbl: "অটোমেশন",
+            features: [
+                "GPT-4o ও DALL-E ইমেজ দিয়ে অটো পোস্ট প্ল্যানিং",
+                "মেটা গ্রাফ অফিসিয়াল API অটো-শিডিউলিং",
+                "ইনবক্স ও কমেন্ট সেন্ট্রাল অটো রিপ্লাই বট",
+                "ভিজ্যুয়াল কন্টেন্ট ক্যালেন্ডার ড্র্যাগ অ্যান্ড ড্রপ"
+            ],
+            demoUrl: "https://master.nextxenit.com/Campaign",
+            frameUrl: "https://master.nextxenit.com/Campaign",
+            img: "images/app/social-hub-1.webp"
+        }
+    };
+
+    const playgroundTabBtns = document.querySelectorAll('.playground-tab-btn');
+    if (playgroundTabBtns.length) {
+        playgroundTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const productKey = btn.dataset.product;
+                const data = saasProductsData[productKey];
+                if (!data) return;
+
+                playgroundTabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Animate info updates
+                const titleEl = document.getElementById('pgTitle');
+                if (titleEl) {
+                    titleEl.textContent = data.title;
+                    document.getElementById('pgBadge').textContent = data.badge;
+                    document.getElementById('pgTagline').textContent = data.tagline;
+                    document.getElementById('pgDesc').textContent = data.desc;
+                    document.getElementById('pgMetric1').textContent = data.metric1;
+                    document.getElementById('pgMetric1Lbl').textContent = data.metric1Lbl;
+                    document.getElementById('pgMetric2').textContent = data.metric2;
+                    document.getElementById('pgMetric2Lbl').textContent = data.metric2Lbl;
+                    document.getElementById('pgMetric3').textContent = data.metric3;
+                    document.getElementById('pgMetric3Lbl').textContent = data.metric3Lbl;
+
+                    // Features list
+                    const featUl = document.getElementById('pgFeatures');
+                    if (featUl) {
+                        featUl.innerHTML = data.features.map(f => `<li><i class="fas fa-circle-check"></i> <span>${f}</span></li>`).join('');
+                    }
+
+                    // URLs and Mockup
+                    const demoBtn = document.getElementById('pgLiveDemoBtn');
+                    if (demoBtn) demoBtn.href = data.demoUrl;
+                    const frameUrl = document.getElementById('pgFrameUrl');
+                    if (frameUrl) frameUrl.textContent = data.frameUrl;
+                    const frameImg = document.getElementById('pgFrameImg');
+                    if (frameImg) {
+                        frameImg.style.opacity = '0.4';
+                        frameImg.src = data.img;
+                        setTimeout(() => { frameImg.style.opacity = '1'; }, 150);
+                    }
+                }
+            });
+        });
+    }
+
+    // 3. Interactive ROI & Solution Finder Calculator
+    const roiIndustry = document.getElementById('roiIndustry');
+    const roiTeamSize = document.getElementById('roiTeamSize');
+    const roiTier = document.getElementById('roiTier');
+
+    function updateRoiCalculator() {
+        if (!roiIndustry) return;
+        const ind = roiIndustry.value;
+        const size = roiTeamSize.value;
+        const tier = roiTier.value;
+
+        let solTitle = "EduSync School ERP";
+        let solSub = "সমন্বিত শিক্ষা প্রতিষ্ঠান ম্যানেজমেন্ট ও অটোমেটেড ফি কালেকশন স্যুট।";
+        let hours = "৪০+ ঘণ্টা";
+        let setup = "২৪ ঘণ্টা";
+
+        if (ind === 'school') {
+            solTitle = "EduSync School ERP";
+            solSub = "স্কুল ও শিক্ষা প্রতিষ্ঠানের শিক্ষার্থী, অভিভাবক ও অ্যাকাডেমিক ইকোসিস্টেম।";
+            hours = size === 'enterprise' ? "১২০+ ঘণ্টা" : (size === 'large' ? "৮০+ ঘণ্টা" : "৪০+ ঘণ্টা");
+        } else if (ind === 'corporate') {
+            solTitle = "NextXen HR & Payroll";
+            solSub = "বায়োমেট্রিক হাজিরা, ছুটি ব্যবস্থাপনা ও ১-ক্লিকে ১০০% নির্ভুল স্যালারি শিট।";
+            hours = size === 'enterprise' ? "১০০+ ঘণ্টা" : (size === 'large' ? "৬০+ ঘণ্টা" : "৩০+ ঘণ্টা");
+        } else if (ind === 'clinic') {
+            solTitle = "Dr Hour Clinic Management";
+            solSub = "অনলাইন সিরিয়াল বুকিং, চেম্বার টিভি কিউ এবং ডিজিটাল প্রেসক্রিপশন।";
+            hours = "৫০+ ঘণ্টা";
+        } else if (ind === 'restaurant') {
+            solTitle = "Billify & DinePOS";
+            solSub = "টাচ পিওএস, কিচেন ডিসপ্লে (KDS), টেবিল অর্ডার ও লাইভ ইনভেন্টরি।";
+            hours = "৪৫+ ঘণ্টা";
+        } else if (ind === 'ngo') {
+            solTitle = "NextXen NGO & Rinshiri";
+            solSub = "ক্ষুদ্রঋণ, সমবায় সমিতি ও মাঠ পর্যায়ের কিস্তি কালেকশন অটোমেশন।";
+            hours = size === 'enterprise' ? "১৫০+ ঘণ্টা" : "৭০+ ঘণ্টা";
+        } else if (ind === 'fcommerce') {
+            solTitle = "Social Hub AutoPost AI";
+            solSub = "মেটা গ্রাফ v22.0 ও GPT-4o দিয়ে ৩০ দিনের পোস্ট ও ছবি অটোমেশন।";
+            hours = "৬০+ ঘণ্টা";
+        }
+
+        if (tier === 'pro') {
+            setup = "৪৮ ঘণ্টা (কাস্টমাইজড)";
+        }
+
+        const titleEl = document.getElementById('roiSolutionTitle');
+        if (titleEl) {
+            titleEl.textContent = solTitle;
+            document.getElementById('roiSolutionSubtitle').textContent = solSub;
+            document.getElementById('roiTimeSaved').textContent = hours;
+            document.getElementById('roiSetupTime').textContent = setup;
+        }
+    }
+
+    if (roiIndustry && roiTeamSize && roiTier) {
+        roiIndustry.addEventListener('change', updateRoiCalculator);
+        roiTeamSize.addEventListener('change', updateRoiCalculator);
+        roiTier.addEventListener('change', updateRoiCalculator);
+    }
+
+    // 4. Floating Conversion Dock Visibility
+    const floatingDock = document.getElementById('floatingDock');
+    if (floatingDock) {
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const contactSection = document.getElementById('contact');
+            const contactTop = contactSection ? contactSection.offsetTop - 400 : 999999;
+
+            if (scrollY > 300 && scrollY < contactTop) {
+                floatingDock.classList.add('visible');
+            } else {
+                floatingDock.classList.remove('visible');
+            }
+        }, { passive: true });
+    }
+
+    // 5. Quick Demo Request Modal
+    const quickDemoModal = document.getElementById('quickDemoModal');
+    const quickDemoOverlay = document.getElementById('quickDemoOverlay');
+    const quickDemoClose = document.getElementById('quickDemoClose');
+    const quickDemoSelect = document.getElementById('quickDemoProductSelect');
+
+    function openQuickDemoModal(productCode = '') {
+        if (!quickDemoModal) return;
+        if (quickDemoSelect && productCode) {
+            quickDemoSelect.value = productCode;
+        }
+        quickDemoModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeQuickDemoModal() {
+        if (!quickDemoModal) return;
+        quickDemoModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.btn-open-demo-modal').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const prod = btn.dataset.product || 'edusync';
+            openQuickDemoModal(prod);
+        });
+    });
+
+    if (quickDemoOverlay) quickDemoOverlay.addEventListener('click', closeQuickDemoModal);
+    if (quickDemoClose) quickDemoClose.addEventListener('click', closeQuickDemoModal);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && quickDemoModal && quickDemoModal.classList.contains('active')) {
+            closeQuickDemoModal();
+        }
+    });
+
+    // Handle Quick Demo Form submission
+    const quickDemoForm = document.getElementById('quickDemoForm');
+    if (quickDemoForm) {
+        handleForm(quickDemoForm, 'ProjectRequest', (f) => {
+            const select = f.elements.project;
+            const projectName = select && select.tagName === 'SELECT'
+                ? select.options[select.selectedIndex].text
+                : (field(f, 'project') || 'SaaS Demo');
+            return {
+                name: field(f, 'name'),
+                email: field(f, 'email'),
+                mobile: field(f, 'mobile'),
+                projectName: `${projectName} (Demo Request)`,
+                body: field(f, 'message') || 'Demo requested via Quick Demo Modal',
+            };
+        }, 'ধন্যবাদ! আপনার ফ্রি ডেমো রিকোয়েস্টটি গৃহীত হয়েছে। আমাদের টিম ৩০ মিনিটের মধ্যে আপনার সাথে যোগাযোগ করবে।');
+        
+        quickDemoForm.addEventListener('form:success', () => {
+            playSoftChime();
+            setTimeout(closeQuickDemoModal, 800);
+        });
+    }
+
+    // 6. Central Master Visitor Telemetry Tracking Beacon
+    (function initMasterTelemetry() {
+        try {
+            const pCode = 'APPXEN_PORTAL';
+            const k = '_nx_vid', s = '_nx_sid';
+            let vid = localStorage.getItem(k);
+            if (!vid) {
+                vid = 'v_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+                localStorage.setItem(k, vid);
+            }
+            let sid = sessionStorage.getItem(s);
+            if (!sid) {
+                sid = 's_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+                sessionStorage.setItem(s, sid);
+            }
+            const ua = navigator.userAgent || '';
+            const isTab = /iPad|Tablet/i.test(ua);
+            const isMob = !isTab && /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+            const dev = isTab ? 'Tablet' : (isMob ? 'Mobile' : 'Desktop');
+            let brw = 'Other';
+            if (ua.includes('Edg')) brw = 'Edge';
+            else if (ua.includes('Chrome')) brw = 'Chrome';
+            else if (ua.includes('Safari')) brw = 'Safari';
+            else if (ua.includes('Firefox')) brw = 'Firefox';
+            let os = 'Other';
+            if (ua.includes('Win')) os = 'Windows';
+            else if (ua.includes('Android')) os = 'Android';
+            else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+            else if (ua.includes('Mac')) os = 'macOS';
+            else if (ua.includes('Linux')) os = 'Linux';
+
+            const payload = JSON.stringify({
+                productCode: pCode,
+                visitorId: vid,
+                sessionId: sid,
+                path: window.location.pathname || '/',
+                pageTitle: document.title || 'Next Xen IT Portal',
+                referrer: document.referrer || '',
+                deviceType: dev,
+                browser: brw,
+                operatingSystem: os,
+                screenResolution: (window.screen ? window.screen.width + 'x' + window.screen.height : ''),
+                language: navigator.language || ''
+            });
+
+            const endpoint = 'https://master.nextxenit.com/api/v1/saas-hub/track-visitor';
+            try {
+                if (navigator.sendBeacon) {
+                    const blob = new Blob([payload], { type: 'text/plain' });
+                    navigator.sendBeacon(endpoint, blob);
+                } else {
+                    fetch(endpoint, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' }, body: payload, keepalive: true }).catch(() => {});
+                }
+            } catch (err) {
+                fetch(endpoint, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' }, body: payload, keepalive: true }).catch(() => {});
+            }
+        } catch (e) {}
+    })();
 });
