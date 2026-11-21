@@ -708,24 +708,6 @@ document.addEventListener('DOMContentLoaded', () => {
             demoUrl: "https://rinshiri.nextxenit.com",
             frameUrl: "https://rinshiri.nextxenit.com",
             img: "images/app/ngo-app-1.webp"
-        },
-        social: {
-            badge: "সোশ্যাল কমার্স ও AI মার্কেটিং",
-            title: "Social Hub - মেটা v22.0 ও OpenAI চালিত কমার্স স্টুডিও",
-            tagline: "একাধিক ফেসবুক পেজে ১-ক্লিকে ৩০ দিনের পোস্ট ও ছবি শিডিউলিং",
-            desc: "ফেসবুক মেসেজ, কমেন্ট অটো-রিপ্লাই, লিড কালেকশন এবং কৃত্রিম বুদ্ধিমত্তা দিয়ে ভাইরাল কন্টেন্ট ও ইমেজ তৈরি করার কমপ্লিট স্যুট।",
-            metric1: "৩০ দিন", metric1Lbl: "১-ক্লিকে কন্টেন্ট",
-            metric2: "১০x", metric2Lbl: "দ্রুততর রিচ",
-            metric3: "১০০%", metric3Lbl: "অটোমেশন",
-            features: [
-                "GPT-4o ও DALL-E ইমেজ দিয়ে অটো পোস্ট প্ল্যানিং",
-                "মেটা গ্রাফ অফিসিয়াল API অটো-শিডিউলিং",
-                "ইনবক্স ও কমেন্ট সেন্ট্রাল অটো রিপ্লাই বট",
-                "ভিজ্যুয়াল কন্টেন্ট ক্যালেন্ডার ড্র্যাগ অ্যান্ড ড্রপ"
-            ],
-            demoUrl: "https://master.nextxenit.com/Campaign",
-            frameUrl: "https://master.nextxenit.com/Campaign",
-            img: "images/app/social-hub-1.webp"
         }
     };
 
@@ -812,10 +794,10 @@ document.addEventListener('DOMContentLoaded', () => {
             solTitle = "NextXen NGO & Rinshiri";
             solSub = "ক্ষুদ্রঋণ, সমবায় সমিতি ও মাঠ পর্যায়ের কিস্তি কালেকশন অটোমেশন।";
             hours = size === 'enterprise' ? "১৫০+ ঘণ্টা" : "৭০+ ঘণ্টা";
-        } else if (ind === 'fcommerce') {
-            solTitle = "Social Hub AutoPost AI";
-            solSub = "মেটা গ্রাফ v22.0 ও GPT-4o দিয়ে ৩০ দিনের পোস্ট ও ছবি অটোমেশন।";
-            hours = "৬০+ ঘণ্টা";
+        } else if (ind === 'custom') {
+            solTitle = "NextXen কাস্টম ক্লাউড সল্যুশন";
+            solSub = "আপনার ব্যবসার নির্দিষ্ট প্রয়োজন অনুযায়ী কাস্টমাইজড সফটওয়্যার ও এন্টারপ্রাইজ সিস্টেম।";
+            hours = "৮০+ ঘণ্টা";
         }
 
         if (tier === 'pro') {
@@ -913,8 +895,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. Central Master Visitor Telemetry Tracking Beacon
-    (function initMasterTelemetry() {
+    // 6. Realtime Telemetry Tracking Beacon
+    (function initVisitorTelemetry() {
         try {
             const pCode = 'APPXEN_PORTAL';
             const k = '_nx_vid', s = '_nx_sid';
