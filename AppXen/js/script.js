@@ -60,13 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================
     // MOBILE MENU
     // =========================================
-    const menuBtn = document.querySelector('.menu-btn');
+    const menuBtn = document.querySelector('.menu-btn, .mobile-toggle');
     const navLinksContainer = document.querySelector('.nav-links');
 
     function setMenu(open) {
         if (!menuBtn || !navLinksContainer) return;
         navLinksContainer.classList.toggle('active', open);
         document.body.classList.toggle('menu-open', open);
+        document.body.style.overflow = open ? 'hidden' : '';
         menuBtn.setAttribute('aria-expanded', String(open));
         menuBtn.innerHTML = `<i class="fas ${open ? 'fa-times' : 'fa-bars'}" aria-hidden="true"></i>`;
     }
