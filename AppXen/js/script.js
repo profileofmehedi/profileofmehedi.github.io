@@ -673,14 +673,14 @@ document.addEventListener('DOMContentLoaded', () => {
             frameUrl: "https://dr-hour.nextxenit.com",
             img: "images/app/dr-hour-1.webp"
         },
-        billify: {
-            badge: "বিলিং, পিওএস ও ইনভেন্টরি",
-            title: "Billify & DinePOS - রিটেইল ও রেস্টুরেন্ট ম্যানেজমেন্ট",
-            tagline: "ক্লাউড পয়েন্ট অব সেল, কিচেন ডিসপ্লে (KDS) ও বারকোড বিলিং",
-            desc: "দ্রুততম বিলিং, টেবিল ম্যানেজমেন্ট, অটোমেটেড স্টক ইনভেন্টরি এবং লাভ-ক্ষতির লাইভ হিসাবের জন্য সেরা পিওএস সমাধান।",
+        dinepos: {
+            badge: "রেস্টুরেন্ট, ক্যাফে ও POS",
+            title: "DinePOS - স্মার্ট রেস্টুরেন্ট ও ক্যাফে ম্যানেজমেন্ট POS",
+            tagline: "ক্লাউড পয়েন্ট অব সেল, কিচেন ডিসপ্লে (KDS), টেবিল বুকিং ও বিলিং",
+            desc: "দ্রুততম বিলিং, টেবিল ম্যানেজমেন্ট, অটোমেটেড স্টক ইনভেন্টরি এবং লাভ-ক্ষতির লাইভ হিসাবের জন্য সেরা রেস্টুরেন্ট POS সমাধান।",
             metric1: "৩ সেকেন্ড", metric1Lbl: "প্রতি বিলিং সময়",
             metric2: "লাইভ", metric2Lbl: "স্টক এলার্ট",
-            metric3: "০%", metric3Lbl: "হিসাবে গরমিল",
+            metric3: "১০০%", metric3Lbl: "সঠিক হিসাব",
             features: [
                 "টাচ পিওএস ও কিচেন অর্ডার ডিসপ্লে (KDS)",
                 "বারকোড স্ক্যানার ও থার্মাল প্রিন্ট সাপোর্ট",
@@ -689,13 +689,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             demoUrl: "https://dinepos.nextxenit.com",
             frameUrl: "https://dinepos.nextxenit.com",
-            img: "images/app/billify-1.webp"
+            img: "images/app/dinepos-1.webp"
         },
-        ngo: {
-            badge: "মাইক্রোফাইন্যান্স ও সমিতি",
-            title: "NGO App & Rinshiri - ক্ষুদ্রঋণ ও সমবায় কালেকশন",
+        rinshiri: {
+            badge: "ক্ষুদ্রঋণ ও সমিতি ম্যানেজমেন্ট",
+            title: "Rinshiri - ক্ষুদ্রঋণ ও সমবায় সমিতি ম্যানেজমেন্ট ERP",
             tagline: "মাঠ পর্যায়ের রিয়েলটাইম কিস্তি কালেকশন ও হিসাব খাতা",
-            desc: "এনজিও, সমবায় সমিতি ও সঞ্চয়ী প্রতিষ্ঠানের সদস্য হিসাব, ঋণ অনুমোদন, সাপ্তাহিক/মাসিক কিস্তি কালেকশন এবং অটো পাসবুক আপডেট।",
+            desc: "সমবায় সমিতি ও ক্ষুদ্রঋণ প্রতিষ্ঠানের সদস্য হিসাব, ঋণ অনুমোদন, সাপ্তাহিক/মাসিক কিস্তি কালেকশন এবং অটো পাসবুক আপডেট।",
             metric1: "১০০%", metric1Lbl: "মাঠ পর্যায়ের স্বচ্ছতা",
             metric2: "ইনস্ট্যান্ট", metric2Lbl: "এসএমএস রিসিপ্ট",
             metric3: "অফলাইন", metric3Lbl: "মোবাইল কালেকশন",
@@ -707,9 +707,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             demoUrl: "https://rinshiri.nextxenit.com",
             frameUrl: "https://rinshiri.nextxenit.com",
-            img: "images/app/ngo-app-1.webp"
+            img: "images/app/rinshiri-1.webp"
         }
     };
+    saasProductsData.billify = saasProductsData.dinepos;
+    saasProductsData.ngo = saasProductsData.rinshiri;
 
     const playgroundTabBtns = document.querySelectorAll('.playground-tab-btn');
     if (playgroundTabBtns.length) {
@@ -787,11 +789,11 @@ document.addEventListener('DOMContentLoaded', () => {
             solSub = "অনলাইন সিরিয়াল বুকিং, চেম্বার টিভি কিউ এবং ডিজিটাল প্রেসক্রিপশন।";
             hours = "৫০+ ঘণ্টা";
         } else if (ind === 'restaurant') {
-            solTitle = "Billify & DinePOS";
+            solTitle = "DinePOS Restaurant POS";
             solSub = "টাচ পিওএস, কিচেন ডিসপ্লে (KDS), টেবিল অর্ডার ও লাইভ ইনভেন্টরি।";
             hours = "৪৫+ ঘণ্টা";
         } else if (ind === 'ngo') {
-            solTitle = "NextXen NGO & Rinshiri";
+            solTitle = "Rinshiri Microfinance ERP";
             solSub = "ক্ষুদ্রঋণ, সমবায় সমিতি ও মাঠ পর্যায়ের কিস্তি কালেকশন অটোমেশন।";
             hours = size === 'enterprise' ? "১৫০+ ঘণ্টা" : "৭০+ ঘণ্টা";
         } else if (ind === 'custom') {
